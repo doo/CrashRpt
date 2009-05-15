@@ -24,11 +24,11 @@
 #endif // !_WINDOWS
 
 #ifndef _zip_H
-#include "../../zlib/include/zip.h"
-#pragma comment(lib, "../../zlib/lib/zlib.lib")
+#include "zip.h"
+#pragma comment(lib, "zlib.lib")
 #endif // _zip_H
 
-#include <atlmisc.h>
+#include <atltypes.h>
 
 class CZLib  
 {
