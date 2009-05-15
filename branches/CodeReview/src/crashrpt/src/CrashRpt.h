@@ -18,16 +18,10 @@
 #include <windows.h>
 
 // CrashRpt.h
-#ifdef CRASHRPTAPI
-
-// CRASHRPTAPI should be defined in all of the DLL's source files as
-// #define CRASHRPTAPI extern "C" __declspec(dllexport)
-
-#else
-
-// This header file is included by an EXE - export
-#define CRASHRPTAPI extern "C" __declspec(dllimport)
-
+#ifdef CRASHRPT_EXPORTS
+ #define CRASHRPTAPI __declspec(dllexport) 
+#else 
+ #define CRASHRPTAPI __declspec(dllimport) 
 #endif
 
 // Client crash callback
@@ -80,6 +74,42 @@ void
 Uninstall(
    IN LPVOID lpState                            // State from Install()
    );
+
+//-----------------------------------------------------------------------------
+// crInstallToCurrentThread
+//   Installs C++ exception handlers for the current thread.
+//
+// Parameters
+//    lpState     State information returned from Install()
+//
+// Remarks 
+//    This call is needed when C++ exception mechanism is on (/EHsc compiler flag).
+//    This function sets C++ exception handlers for the caller thread. If you have
+//    several execution threads, you ought to call the function for each thread.
+
+CRASHRPTAPI 
+void 
+crInstallToCurrentThread(
+  IN LPVOID lpState);
+
+//-----------------------------------------------------------------------------
+// crUninstallToCurrentThread
+//   Uninstalls C++ exception handlers from the current thread.
+//
+// Parameters
+//    lpState     State information returned from Install()
+//
+// Remarks 
+//    This call is needed when C++ exception mechanism is on (/EHsc compiler flag).
+//    This function unsets C++ exception handlers for the caller thread. If you have
+//    several execution threads, you ought to call the function for each thread.
+//    After calling this functions the C++ exception handlers for current thread are
+//    replaced with the handlers that were before call of crInstallToCurrentThread().
+
+CRASHRPTAPI 
+void 
+crUninstallFromCurrentThread(
+  IN LPVOID lpState);
 
 //-----------------------------------------------------------------------------
 // AddFile
