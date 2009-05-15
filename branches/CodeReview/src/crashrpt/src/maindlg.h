@@ -24,7 +24,7 @@
 //
 // RTF load callback
 //
-DWORD CALLBACK LoadRTFString(DWORD dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
+DWORD CALLBACK LoadRTFString(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
 {
    CString *sText = (CString*)dwCookie;
    LONG lLen = sText->GetLength();
@@ -117,6 +117,18 @@ public:
       icon.Detach();
 
       //
+      // Set window icon (use IDR_MAINFRAME icon which is the default one for the application)
+      //
+
+      HICON hIcon = NULL;
+      
+      // Try to load IDR_MAINFRAME icon
+      hIcon = ::LoadIcon((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINFRAME));
+
+      if(hIcon!=NULL)
+        SetIcon(hIcon, FALSE);
+
+      //
       // Set failure heading
       //
       EDITSTREAM es;
@@ -124,7 +136,7 @@ public:
 
       CString sText;
       sText.Format(IDS_HEADER, CUtility::getAppName());
-      es.dwCookie = (DWORD)&sText;
+      es.dwCookie = (DWORD_PTR)&sText;
 
       CRichEditCtrl re;
       re.Attach(GetDlgItem(IDC_HEADING_TEXT));
@@ -185,12 +197,12 @@ public:
 	   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
       int      nDescLen = ::GetWindowTextLength(hWndDesc);
 
-      LPTSTR lpStr = m_sEmail.GetBufferSetLength(nEmailLen);
-      ::GetWindowText(hWndEmail, lpStr, nEmailLen);
+      LPTSTR lpStr = m_sEmail.GetBufferSetLength(nEmailLen+1);
+      ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
       m_sEmail.ReleaseBuffer();
 
-      lpStr = m_sDescription.GetBufferSetLength(nDescLen);
-      ::GetWindowText(hWndDesc, lpStr, nDescLen);
+      lpStr = m_sDescription.GetBufferSetLength(nDescLen+1);
+      ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
       m_sDescription.ReleaseBuffer();
 
       //
