@@ -42,6 +42,22 @@ CString CUtility::getAppName()
    return sAppName;
 }
 
+int CUtility::getTempDirectory(CString& strTemp)
+{
+  TCHAR* pszTempVar = NULL;
+  size_t len = 0;
+  errno_t err = _tdupenv_s(&pszTempVar, &len, _T("TEMP"));
+  if(err==0)
+  {
+    // Couldn't get environment variable TEMP    
+    return 1;
+  }
+
+  strTemp = CString(pszTempVar);
+  free(pszTempVar);
+
+  return 0;
+}
 
 CString CUtility::getTempFileName()
 {
