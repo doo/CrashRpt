@@ -16,7 +16,7 @@
 #endif // _MSC_VER >= 1000
 
 #include "stdafx.h"
-#include <atlmisc.h> // CString
+#include <atltypes.h> // CString
 
 
 ////////////////////////////// Class Definitions /////////////////////////////
@@ -97,6 +97,18 @@ public:
    static 
    CString 
    getTempFileName();
+
+   //-----------------------------------------------------------------------------
+   // getTempDirectory
+   //  Returns value of TEMP environment variable
+   //
+   //  Return value
+   //   0 if successful
+   //
+   static
+   int 
+   getTempDirectory(CString& strTemp);
+
 };
 
 #endif	// #ifndef _UTILITY_H_
