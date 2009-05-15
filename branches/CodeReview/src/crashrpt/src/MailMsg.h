@@ -20,7 +20,8 @@
 
 #ifndef TStrStrMap
 #include <map>
-#include <atlmisc.h>
+#include <atltypes.h>
+#include <atlstr.h>
 
 typedef std::map<CString,CString> TStrStrMap;
 #endif // !defined TStrStrMap
@@ -240,7 +241,7 @@ protected:
    // Remarks
    //    none
    //
-   BOOL MAPISend();
+   BOOL MAPISend();   
 
    //-----------------------------------------------------------------------------
    // Initialize
