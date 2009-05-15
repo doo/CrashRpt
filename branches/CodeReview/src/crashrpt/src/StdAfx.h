@@ -12,6 +12,7 @@
 #define _WIN32_IE	0x0400
 #define _RICHEDIT_VER	0x0100
 
+#include <atlstr.h>
 #include <atlbase.h>
 #include <atlapp.h>
 
@@ -19,7 +20,7 @@ extern CAppModule _Module;
 
 #include <atlwin.h>
 
-#define CRASHRPTAPI extern "C" __declspec(dllexport)
+//#define CRASHRPTAPI extern "C" __declspec(dllexport)
 #pragma warning(disable: 4100)
 #define chSTR2(x) #x
 #define chSTR(x) chSTR2(x)
