@@ -15,8 +15,10 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <atlmisc.h>
+#include <atltypes.h>
+#include <atlstr.h>
 #include <dbghelp.h>
+
 
 // Import MSXML interfaces
 #import "msxml.dll" named_guids raw_interfaces_only
@@ -53,6 +55,7 @@ public:
 	int getNumSymbolFiles();
 	CString getCrashLog();
 	CString getCrashFile();
+  int writeUserInfo(CString szXmlFileName, CString szUserEmail, CString szDescription);
    CString getModuleName() { return m_sModule; };
    CString getExceptionCode() { return m_sException; };
    CString getExceptionAddr() { return m_sAddress; };
@@ -68,6 +71,13 @@ private:
    static MSXML::IXMLDOMNode* CreateDOMNode(MSXML::IXMLDOMDocument* pDoc, 
                                             int type, 
                                             BSTR bstrName);
+
+   MSXML::IXMLDOMNode*
+      CExceptionReport::CreateMiscInfoNode(
+      MSXML::IXMLDOMDocument* pDoc, 
+      CString szUserEmail,
+      CString szDescription,
+      CString szSystemTime);
 
    static MSXML::IXMLDOMNode* CreateExceptionRecordNode(MSXML::IXMLDOMDocument* pDoc, 
                                                         EXCEPTION_RECORD* pExceptionRecord);
