@@ -22,10 +22,21 @@
 
 #ifndef TStrStrMap
 #include <map>
-#include <atlmisc.h>
+#include <atltypes.h>
+
+#include <stdlib.h>
+#include <signal.h>
+#include <dbghelp.h>
+#include <exception>
 
 typedef std::map<CString,CString> TStrStrMap;
 #endif // !defined TStrStrMap
+
+struct _cpp_thread_exception_handlers
+{
+  terminate_handler m_prevTerm;   
+  unexpected_handler m_prevUnexp;
+};
 
 ////////////////////////////// Class Definitions /////////////////////////////
 
@@ -116,6 +127,59 @@ public:
       PEXCEPTION_POINTERS pExInfo         // Exception pointers (see MSDN)
       );
 
+   //-----------------------------------------------------------------------------
+   // SetProcessCPPExceptionHandlers
+   //   Installs C++ exception handlers for the current process
+   //
+   // Parameters
+   //   none   
+   //
+   // Return value
+   //   none
+   void 
+   SetProcessCPPExceptionHandlers();
+
+   //-----------------------------------------------------------------------------
+   // UnSetProcessCPPExceptionHandlers
+   //   Uninstalls C++ exception handlers that were previously installed with 
+   //   SetProcessCPPExceptionHandlers() function call.
+   //
+   // Parameters 
+   //   none
+   //
+   // Return value
+   //   none
+   void 
+   UnSetProcessCPPExceptionHandlers();
+
+   //-----------------------------------------------------------------------------
+   // SetThreadCPPExceptionHandlers
+   //  Installs C++ exception handlers that are functioning on per-thread basis.
+   //  This call will install such handlers for the current thread only.
+   //
+   // Parameters 
+   //   none
+   //
+   // Return value
+   //   none
+
+   void 
+   SetThreadCPPExceptionHandlers();
+
+   //-----------------------------------------------------------------------------
+   // UnSetThreadCPPExceptionHandlers
+   //  Uninstalls C++ exception handlers that were installed for the current
+   //  thread using SetThreadCPPExceptionHandlers() function call.
+   //
+   // Parameters 
+   //   none
+   //
+   // Return value
+   //   none
+
+   void 
+   UnSetThreadCPPExceptionHandlers();
+
 protected:
 
    //-----------------------------------------------------------------------------
@@ -164,7 +228,27 @@ protected:
       LPCTSTR lpcszSubject
       );
 
+   // Sets internal pointers to exception handlers to NULL
+   void InitPrevCPPExceptionHandlerPointers();
+
    LPTOP_LEVEL_EXCEPTION_FILTER  m_oldFilter;      // previous exception filter
+      
+   _purecall_handler m_prevPurec;   
+   _invalid_parameter_handler m_prevInvpar;
+
+#if _MSC_VER<1400
+  _secerr_handler_func m_prevSec;
+#endif
+
+  void (__cdecl *m_prevSigABRT)(int);
+  void (__cdecl *m_prevSigFPE)(int);
+  void (__cdecl *m_prevSigILL)(int);
+  void (__cdecl *m_prevSigINT)(int);
+  void (__cdecl *m_prevSigSEGV)(int);
+  void (__cdecl *m_prevSigTERM)(int);
+
+  std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
+
    LPGETLOGFILE                  m_lpfnCallback;   // client crash callback
    int                           m_pid;            // process id
    TStrStrMap                    m_files;          // custom files to add
