@@ -28,6 +28,24 @@ CRASHRPTAPI LPVOID Install(LPGETLOGFILE pfn, LPCTSTR lpcszTo, LPCTSTR lpcszSubje
    return pImpl;
 }
 
+// Sets C++ exception handlers for the calling thread
+CRASHRPTAPI void crInstallToCurrentThread(LPVOID lpState)
+{
+  CCrashHandler *pImpl = (CCrashHandler*)lpState;
+  CRASH_ASSERT(pImpl);
+
+  pImpl->SetThreadCPPExceptionHandlers();
+}
+
+// Unsets C++ exception handlers from the calling thread
+CRASHRPTAPI void crUninstallFromCurrentThread(LPVOID lpState)
+{
+  CCrashHandler *pImpl = (CCrashHandler*)lpState;
+  CRASH_ASSERT(pImpl);
+
+  pImpl->UnSetThreadCPPExceptionHandlers();
+}
+
 CRASHRPTAPI void Uninstall(LPVOID lpState)
 {
    CCrashHandler *pImpl = (CCrashHandler*)lpState;
