@@ -10,6 +10,7 @@
 
 #include "stdafx.h"
 #include "MailMsg.h"
+#include <atltypes.h>
 
 CMailMsg::CMailMsg()
 {
@@ -114,11 +115,11 @@ BOOL CMailMsg::MAPISend()
 
    if (m_bReady || Initialize())
    {
-      nRecipients = m_to.size() + m_cc.size() + m_bcc.size() + m_from.size();
+      nRecipients = (int)(m_to.size() + m_cc.size() + m_bcc.size() + m_from.size());
       if (nRecipients)
          pRecipients = new MapiRecipDesc[nRecipients];
 
-      nAttachments = m_attachments.size();
+      nAttachments = (int)m_attachments.size();
       if (nAttachments)
          pAttachments = new MapiFileDesc[nAttachments];
 
@@ -200,7 +201,7 @@ BOOL CMailMsg::MAPISend()
       message.lpszConversationID                = NULL;
       message.flFlags                           = 0;
       message.lpOriginator                      = m_from.size() ? pRecipients : NULL;
-      message.nRecipCount                       = nRecipients - m_from.size(); // don't count originator
+      message.nRecipCount                       = (ULONG)nRecipients - m_from.size(); // don't count originator
       message.lpRecips                          = nRecipients - m_from.size() ? &pRecipients[m_from.size()] : NULL;
       message.nFileCount                        = nAttachments;
       message.lpFiles                           = nAttachments ? pAttachments : NULL;
