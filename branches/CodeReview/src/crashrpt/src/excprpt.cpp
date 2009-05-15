@@ -12,6 +12,8 @@
 #include "stdafx.h"
 #include "excprpt.h"
 #include "utility.h"
+#include <time.h>
+#include <assert.h>
 
 CString CExceptionReport::m_sModule = _T("");
 CString CExceptionReport::m_sException = _T("");
@@ -41,9 +43,11 @@ CExceptionReport::CExceptionReport(PEXCEPTION_POINTERS ExceptionInfo)
 CString CExceptionReport::getCrashFile()
 {
    CString sFile;
-
+   CString sTempDir;
+   
    // Create the dump file name
-   sFile.Format(_T("%s\\%s.dmp"), getenv("TEMP"), CUtility::getAppName());
+   CUtility::getTempDirectory(sTempDir);
+   sFile.Format(_T("%s\\%s.dmp"), sTempDir, CUtility::getAppName());
 
    // Create the file
    HANDLE hFile = CreateFile(
@@ -100,6 +104,7 @@ CString CExceptionReport::getCrashLog()
    MSXML::IXMLDOMNode *newNode   = NULL;
    BSTR rootName = ::SysAllocString(L"Exception");
    VARIANT v;
+   CString strTempDir;
 
    CoInitialize(NULL);
 
@@ -159,7 +164,9 @@ CString CExceptionReport::getCrashLog()
    //
    // Create dat file name and save
    //
-   sFile.Format(_T("%s\\%s.xml"), getenv("TEMP"), CUtility::getAppName());
+   
+   CUtility::getTempDirectory(strTempDir);
+   sFile.Format(_T("%s\\%s.xml"), strTempDir, CUtility::getAppName());
    V_VT(&v) = VT_BSTR;
    V_BSTR(&v) = sFile.AllocSysString();
    pDoc->save(v);
@@ -177,6 +184,62 @@ CleanUp:
    return sFile;
 }
 
+
+int 
+CExceptionReport::writeUserInfo(
+  CString szXmlFileName, 
+  CString szUserEmail, 
+  CString szDescription)
+{   
+   MSXML::IXMLDOMDocument *pDoc  = NULL;
+   VARIANT v;
+   VARIANT_BOOL res;
+         
+   CoInitialize(NULL);
+
+   CString szSystemTime;
+   V_VT(&v) = VT_BSTR;
+   V_BSTR(&v) = szXmlFileName.AllocSysString();
+   
+   // Create an empty XML document
+   CHECKHR(CoCreateInstance(
+      MSXML::CLSID_DOMDocument, 
+      NULL, 
+      CLSCTX_INPROC_SERVER,
+      MSXML::IID_IXMLDOMDocument, 
+      (void**)&pDoc));
+
+   
+   HRESULT hr = pDoc->load(v, &res);
+   
+   if(FAILED(hr))
+   {
+     goto CleanUp;     
+   } 
+  
+   // get current time
+   time_t cur_time;
+   time(&cur_time);
+   char sz_datetime[64];
+
+   // Get system time in UTC format
+   struct tm timeinfo;
+   gmtime_s(&timeinfo, &cur_time);
+   strftime(sz_datetime, 64,  "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+   szSystemTime = sz_datetime;
+
+   CreateMiscInfoNode(pDoc, szUserEmail, szDescription, szSystemTime);
+
+   pDoc->save(v);
+   SysFreeString(V_BSTR(&v));
+   
+
+CleanUp:
+   
+   SAFERELEASE(pDoc);
+   CoUninitialize();
+   return 0;
+}
 
 //-----------------------------------------------------------------------------
 // CExceptionReport::getNumSymbolFiles
@@ -223,6 +286,74 @@ CExceptionReport::CreateDOMNode(MSXML::IXMLDOMDocument* pDoc,
     pDoc->createNode(vtype, bstrName, NULL, &node);
     return node;
 }
+
+MSXML::IXMLDOMNode*
+CExceptionReport::CreateMiscInfoNode(
+  MSXML::IXMLDOMDocument* pDoc, 
+  CString szUserEmail,
+  CString szDescription,
+  CString szSystemTime)
+{
+   MSXML::IXMLDOMNode*     pNode    = NULL;
+   MSXML::IXMLDOMNode*     newNode    = NULL;
+   MSXML::IXMLDOMElement*  pElement = NULL;
+   MSXML::IXMLDOMElement*  root = NULL;
+   BSTR nodeName                    = ::SysAllocString(L"MiscInfo");
+   BSTR emailName                   = ::SysAllocString(L"UserEmail");
+   BSTR descName                    = ::SysAllocString(L"Description");
+   BSTR systimeName                 = ::SysAllocString(L"SystemTime");   
+   VARIANT v;   
+   CString sAddr;
+
+   pDoc->get_documentElement(&root);
+   if(!root)
+     return NULL;
+
+   // Create MiscInfo node
+   pNode = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName);
+   CHECKHR(root->appendChild(pNode, &newNode));
+
+   // Get element interface
+   CHECKHR(pNode->QueryInterface(MSXML::IID_IXMLDOMElement, (void**)&pElement));
+
+   //
+   // Set UserEmail attribute
+   //
+   V_VT(&v)    = VT_BSTR;
+   V_BSTR(&v)  = A2BSTR(szUserEmail);
+   pElement->setAttribute(emailName, v);
+   // Recycle variant
+   SysFreeString(V_BSTR(&v));
+
+   //
+   // Set Description attribute
+   //
+   V_VT(&v)    = VT_BSTR;
+   V_BSTR(&v)  = A2BSTR(szDescription);
+   pElement->setAttribute(descName, v);
+   // Recycle variant
+   SysFreeString(V_BSTR(&v));
+   
+   //
+   // Set SystemTime attribute
+   //
+   V_VT(&v)    = VT_BSTR;
+   V_BSTR(&v)  = A2BSTR(szSystemTime);
+   pElement->setAttribute(systimeName, v);
+   // Recycle variant
+   SysFreeString(V_BSTR(&v));
+
+CleanUp:
+
+   ::SysFreeString(nodeName);
+   ::SysFreeString(emailName);
+   ::SysFreeString(descName);
+   ::SysFreeString(systimeName);   
+   SAFERELEASE(pElement);
+
+   return pNode;
+}
+
 
 //-----------------------------------------------------------------------------
 // CExceptionReport::CreateExceptionRecordNode
