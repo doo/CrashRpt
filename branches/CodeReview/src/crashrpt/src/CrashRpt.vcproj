@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="CrashRpt"
 	ProjectGUID="{9BE99719-AA32-4463-A011-B61D55F020D6}"
+	RootNamespace="CrashRpt"
 	>
 	<Platforms>
 		<Platform
@@ -21,7 +22,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -48,6 +49,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -79,7 +81,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib wininet.lib"
-				OutputFile="../Bin/CrashRpt.dll"
+				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../zlib/lib"
@@ -88,7 +90,7 @@
 				OptimizeReferences="2"
 				OptimizeForWindows98="1"
 				BaseAddress="0x2000000"
-				ImportLibrary="../Win/Libs/CrashRpt.lib"
+				ImportLibrary="..\..\lib\CrashRpt.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -127,7 +129,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -153,10 +155,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Debug/CrashRpt.pch"
@@ -167,6 +170,7 @@
 				WarningLevel="4"
 				WarnAsError="false"
 				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -183,7 +187,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib "
-				OutputFile="../Bin/CrashRptd.dll"
+				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
@@ -191,7 +195,7 @@
 				ProgramDatabaseFile=".\Debug/CrashRpt.pdb"
 				OptimizeForWindows98="1"
 				BaseAddress="0x20000000"
-				ImportLibrary="../Win/Libs/CrashRptd.lib"
+				ImportLibrary="..\..\lib\CrashRptd.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -406,7 +410,7 @@
 				>
 			</File>
 			<File
-				RelativePath="CrashRpt.h"
+				RelativePath="..\include\CrashRpt.h"
 				>
 			</File>
 			<File
