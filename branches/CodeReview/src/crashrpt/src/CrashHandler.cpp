@@ -94,6 +94,17 @@ void __cdecl cpp_invalid_parameter_handler(const wchar_t* expression, const wcha
    exit(1); // Terminate program
  }
 
+int __cdecl cpp_new_handler(size_t size)
+{
+   // 'new' operator memory allocation exception
+
+   // Generate crash report (although without EXCEPTION_POINTERS information)
+   // TODO: need to write additional info about this exception to crash report 
+   _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+
+   exit(1); // Terminate program
+}
+
 void cpp_sigabrt_handler(int sig)
 {
   // Caught SIGABRT C++ signal
@@ -174,7 +185,7 @@ CCrashHandler::CCrashHandler(LPGETLOGFILE lpfn /*=NULL*/,
 	HRESULT hRes = ::CoInitialize(NULL);
 	ATLASSERT(SUCCEEDED(hRes));
 
-   hRes = _Module.Init(NULL, GetModuleHandle("CrashRpt.dll"));
+   hRes = _Module.Init(NULL, GetModuleHandle(_T("CrashRpt.dll")));
    ATLASSERT(SUCCEEDED(hRes));
 
 	::DefWindowProc(NULL, 0, 0, 0L);
@@ -210,6 +221,10 @@ CCrashHandler::~CCrashHandler()
    if (m_oldFilter)
       SetUnhandledExceptionFilter(m_oldFilter);
 
+   // All installed per-thread C++ exception handlers should be uninstalled 
+   // using crUninstallFromCurrentThread() before this destructor call
+   assert(m_ThreadExceptionHandlers.size()==0);
+
    _crashStateMap.Remove(m_pid);
 
    // uninitialize
@@ -223,6 +238,7 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
 {
   m_prevPurec = NULL;
   m_prevInvpar = NULL;
+  m_prevNewHandler = NULL;
 
 #if _MSC_VER<1400    
    m_prevSec = NULL;
@@ -239,6 +255,16 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
 
 void CCrashHandler::SetProcessCPPExceptionHandlers()
 {
+  // Set CRT error mode
+  // Write exception info to file
+  HANDLE hLogFile = NULL;
+  hLogFile = CreateFile(_T("crterror.log"), GENERIC_WRITE, FILE_SHARE_WRITE, 
+      NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+  _CrtSetReportFile(_CRT_ERROR, hLogFile);
+
+
   // Catch pure virtual function calls.
   // Because there is one _purecall_handler for the whole process, 
   // calling this function immediately impacts all threads. The last 
@@ -248,6 +274,9 @@ void CCrashHandler::SetProcessCPPExceptionHandlers()
 
   // Catch invalid parameter exceptions.
   m_prevInvpar = _set_invalid_parameter_handler(cpp_invalid_parameter_handler); 
+
+  // Catch new operator memory allocation exceptions
+  m_prevNewHandler = _set_new_handler(cpp_new_handler);
 
   // Catch buffer overrun exceptions
   // The _set_security_error_handler is deprecated in VC8 C++ run time library
@@ -286,6 +315,9 @@ void CCrashHandler::UnSetProcessCPPExceptionHandlers()
 
   if(m_prevInvpar!=NULL)
     _set_invalid_parameter_handler(m_prevInvpar);
+
+  if(m_prevNewHandler!=NULL)
+    _set_new_handler(m_prevNewHandler);
 
 #if _MSC_VER<1400    
   if(m_prevSec!=NULL)
@@ -403,13 +435,13 @@ void CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo)
       return;
 
    // add crash files to report
-   m_files[rpt.getCrashFile()] = CString((LPCTSTR)IDS_CRASH_DUMP);
+   m_files[CStringA(rpt.getCrashFile())] = CString((LPCTSTR)IDS_CRASH_DUMP);
    ATL::CString szXMLName = rpt.getCrashLog();
-   m_files[szXMLName] = CString((LPCTSTR)IDS_CRASH_LOG);
+   m_files[CStringA(szXMLName)] = CString((LPCTSTR)IDS_CRASH_LOG);
 
    // add symbol files to report
    for (i = 0; i < (UINT)rpt.getNumSymbolFiles(); i++)
-      m_files[(LPCTSTR)rpt.getSymbolFile(i)] = 
+      m_files[CStringA(rpt.getSymbolFile(i))] = 
       CString((LPCTSTR)IDS_SYMBOL_FILE);
  
    // display main dialog
@@ -429,7 +461,9 @@ void CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo)
    // add report files to zip
    TStrStrMap::iterator cur = m_files.begin();
    for (i = 0; i < m_files.size(); i++, cur++)
-      zlib.AddFile((*cur).first);
+   {
+     zlib.AddFile((char*)(LPCSTR)(*cur).first);
+   }
 
    zlib.Close();
 
