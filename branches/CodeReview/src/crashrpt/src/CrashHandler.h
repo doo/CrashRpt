@@ -19,8 +19,8 @@
 
 #include "crashrpt.h"      // defines LPGETLOGFILE callback
 #include "excprpt.h"       // bulk of crash report generation
+#include "MailMsg.h"
 
-#ifndef TStrStrMap
 #include <map>
 #include <atltypes.h>
 
@@ -29,11 +29,14 @@
 #include <dbghelp.h>
 #include <exception>
 
-typedef std::map<CString,CString> TStrStrMap;
-#endif // !defined TStrStrMap
-
 struct _cpp_thread_exception_handlers
 {
+  _cpp_thread_exception_handlers()
+  {
+    m_prevTerm = NULL;
+    m_prevUnexp = NULL;
+  }
+
   terminate_handler m_prevTerm;   
   unexpected_handler m_prevUnexp;
 };
@@ -235,6 +238,7 @@ protected:
       
    _purecall_handler m_prevPurec;   
    _invalid_parameter_handler m_prevInvpar;
+   _PNH m_prevNewHandler;
 
 #if _MSC_VER<1400
   _secerr_handler_func m_prevSec;
@@ -245,7 +249,7 @@ protected:
   void (__cdecl *m_prevSigILL)(int);
   void (__cdecl *m_prevSigINT)(int);
   void (__cdecl *m_prevSigSEGV)(int);
-  void (__cdecl *m_prevSigTERM)(int);
+  void (__cdecl *m_prevSigTERM)(int);  
 
   std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
 
