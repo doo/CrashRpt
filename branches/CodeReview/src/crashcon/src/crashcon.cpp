@@ -1,24 +1,37 @@
 // crashcon.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include <stdio.h>
 #include <process.h>
+#include "CrashRpt.h"
 
-#ifndef _CRASH_RPT_
-#include "../../crashrpt/src/crashrpt.h"
-#pragma comment(lib, "../../crashrpt/lib/crashrpt.lib")
-#endif
+LPVOID lpvState = NULL;
+
+int filter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
+{
+  code; // this is to avoid  C4100 unreferenced formal parameter warning
+  GenerateErrorReport(lpvState, ep);
+  return EXCEPTION_EXECUTE_HANDLER;
+}
 
 int main(int argc, char* argv[])
 {
-   LPVOID lpvState = Install(NULL, NULL, NULL);
+  argc; // this is to avoid C4100 unreferenced formal parameter warning
+  argv; // this is to avoid C4100 unreferenced formal parameter warning
+  
+  // Install crash reporting
+  lpvState = Install(NULL, NULL, NULL);
+
 #ifdef _DEBUG
    printf("Press a ENTER to simulate a null pointer exception...\n");
    getchar();
-   __try {
+   __try
+   {
       RaiseException(EXCEPTION_BREAKPOINT, 0, 0, NULL);
-   } __except(GenerateErrorReport(lpvState, GetExceptionInformation())){}
+   } 
+   __except(filter(GetExceptionCode(), GetExceptionInformation()))
+   {
+   }
 #else
    printf("Press a ENTER to generate a null pointer exception...\n");
    getchar();
