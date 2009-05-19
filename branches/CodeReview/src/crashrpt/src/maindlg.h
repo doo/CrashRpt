@@ -31,7 +31,7 @@ DWORD CALLBACK LoadRTFString(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *p
 
    for (*pcb = 0; *pcb < cb && *pcb < lLen; (*pcb)++)
    {  
-      pbBuff[*pcb] = sText->GetAt(*pcb);
+      pbBuff[*pcb] = CStringA(*sText).GetAt(*pcb);
    }
 
    return 0;
@@ -55,10 +55,24 @@ public:
    CDeadLink   m_link;           // Dead link
    TStrStrMap  *m_pUDFiles;      // Files <name,desc>
 
+   CStatic m_statIcon;
+   CHyperLink m_linkMoreInfo;
+   CStatic m_statEmail;
+   CEdit m_editEmail;
+   CStatic m_statDesc;
+   CEdit m_editDesc;
+   CButton m_btnOk;
+   CButton m_btnCancel;
+   CStatic m_statHorzLine;
+   CStatic m_statCrashRpt; 
+   int m_nDeltaY;
+   
 	BEGIN_MSG_MAP(CMainDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-      COMMAND_ID_HANDLER(IDC_LINK, OnLinkClick)
-      MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
+    COMMAND_ID_HANDLER(IDC_LINK, OnLinkClick)
+    COMMAND_ID_HANDLER(IDC_MOREINFO, OnMoreInfoClick)
+    MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
+    MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
 		COMMAND_ID_HANDLER(IDOK, OnSend)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
 	END_MSG_MAP()
@@ -111,20 +125,15 @@ public:
       //
       // Use app icon
       //
-      CStatic icon;
-      icon.Attach(GetDlgItem(IDI_APPICON));
-      icon.SetIcon(::LoadIcon((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINFRAME)));
-      icon.Detach();
-
-      //
-      // Set window icon (use IDR_MAINFRAME icon which is the default one for the application)
-      //
-
-      HICON hIcon = NULL;
+      m_statIcon = GetDlgItem(IDI_APPICON);
       
+      HICON hIcon = NULL;
       // Try to load IDR_MAINFRAME icon
       hIcon = ::LoadIcon((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINFRAME));
-
+      if(hIcon)
+        m_statIcon.SetIcon(hIcon);            
+      
+      // Set window icon (use IDR_MAINFRAME icon which is the default one for the application)
       if(hIcon!=NULL)
         SetIcon(hIcon, FALSE);
 
@@ -147,10 +156,63 @@ public:
       // Hook dead link
       //
       m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
+      m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
+      m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
+
+      m_statEmail = GetDlgItem(IDC_STATMAIL);
+      m_editEmail = GetDlgItem(IDC_EMAIL);
+      m_statDesc = GetDlgItem(IDC_DESCRIBE);
+      m_editDesc = GetDlgItem(IDC_DESCRIPTION);
+      m_statCrashRpt = GetDlgItem(IDC_CRASHRPT);
+      m_statHorzLine = GetDlgItem(IDC_HORZLINE);
+      m_btnOk = GetDlgItem(IDOK);
+      m_btnCancel = GetDlgItem(IDCANCEL);
+
+      CRect rc1, rc2;
+      m_linkMoreInfo.GetWindowRect(&rc1);
+      m_statHorzLine.GetWindowRect(&rc2);
+      m_nDeltaY = rc1.bottom+15-rc2.top;
+
+      ShowMoreInfo(FALSE);
 
       return TRUE;
 	}
 
+  void ShowMoreInfo(BOOL bShow)
+  {
+      CRect rc1, rc2;
+
+      m_statEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+      m_editEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+      m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+      m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+      
+      int k = bShow?-1:1;
+
+      m_statHorzLine.GetWindowRect(&rc1);
+      ScreenToClient(&rc1);
+      rc1.OffsetRect(0, k*m_nDeltaY);
+      m_statHorzLine.MoveWindow(&rc1);
+
+      m_statCrashRpt.GetWindowRect(&rc1);
+      ScreenToClient(&rc1);
+      rc1.OffsetRect(0, k*m_nDeltaY);
+      m_statCrashRpt.MoveWindow(&rc1);
+
+      m_btnOk.GetWindowRect(&rc1);
+      ScreenToClient(&rc1);
+      rc1.OffsetRect(0, k*m_nDeltaY);
+      m_btnOk.MoveWindow(&rc1);
+
+      m_btnCancel.GetWindowRect(&rc1);
+      ScreenToClient(&rc1);
+      rc1.OffsetRect(0, k*m_nDeltaY);
+      m_btnCancel.MoveWindow(&rc1);
+
+      GetClientRect(&rc1);
+      rc1.bottom += k*m_nDeltaY;
+      ResizeClient(rc1.Width(), rc1.Height());
+  }
 	
    //-----------------------------------------------------------------------------
    // OnLinkClick
@@ -163,6 +225,13 @@ public:
       dlg.m_pUDFiles = m_pUDFiles;
       dlg.DoModal();
       return 0;
+   }
+
+   LRESULT OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+   {
+     m_linkMoreInfo.EnableWindow(0);
+     ShowMoreInfo(TRUE);
+     return 0;
    }
 
    //-----------------------------------------------------------------------------
@@ -194,7 +263,7 @@ public:
 	{
       HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
       HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
-	   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
+	    int      nEmailLen = ::GetWindowTextLength(hWndEmail);
       int      nDescLen = ::GetWindowTextLength(hWndDesc);
 
       LPTSTR lpStr = m_sEmail.GetBufferSetLength(nEmailLen+1);
@@ -238,7 +307,19 @@ public:
 	{
       EndDialog(wID);
 		return 0;
-   }
+  }
+
+  LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+  {
+    if((HWND)lParam!=m_statIcon)
+      return 0;
+
+    HDC hDC = (HDC)wParam;
+    ::SelectObject(hDC, GetStockObject(NULL_BRUSH));
+    SetBkColor(hDC, RGB(0, 255, 255));
+    SetTextColor(hDC, RGB(0, 255, 255));
+    return (LRESULT)TRUE;
+  }
 
 };
 
