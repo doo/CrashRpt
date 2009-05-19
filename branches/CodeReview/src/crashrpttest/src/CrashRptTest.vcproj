@@ -74,7 +74,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptd.lib"
-				OutputFile="..\..\bin\CrashRptTest.exe"
+				OutputFile="..\..\bin\CrashRptTestd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
