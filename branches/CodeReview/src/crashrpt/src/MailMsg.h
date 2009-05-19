@@ -18,13 +18,12 @@
 #include <xcmc.h>          // CMC function defs
 #include <mapi.h>          // MAPI function defs
 
-#ifndef TStrStrMap
 #include <map>
 #include <atltypes.h>
 #include <atlstr.h>
 
-typedef std::map<CString,CString> TStrStrMap;
-#endif // !defined TStrStrMap
+typedef std::map<CStringA, CStringA> TStrStrMap;
+
 
 //
 // Define CMC entry points
@@ -156,7 +155,7 @@ public:
    CMailMsg& 
    SetSubject(
       CString sSubject
-      ) {m_sSubject = sSubject; return *this;};
+      ) {m_sSubject = CStringA(sSubject).GetBuffer(); return *this;};
 
    //-----------------------------------------------------------------------------
    // SetMessage
@@ -174,7 +173,7 @@ public:
    CMailMsg& 
    SetMessage(
       CString sMessage
-      ) {m_sMessage = sMessage; return *this;};
+      ) {m_sMessage = CStringA(sMessage).GetBuffer(); return *this;};
 
    //-----------------------------------------------------------------------------
    // AddAttachment
@@ -278,8 +277,8 @@ protected:
    TStrStrMap     m_cc;                         // Cc <address,name>
    TStrStrMap     m_bcc;                        // Bcc <address,name>
    TStrStrMap     m_attachments;                // Attachment <file,title>
-   CString        m_sSubject;                   // EMail subject
-   CString        m_sMessage;                   // EMail message
+   CStringA       m_sSubject;                   // EMail subject
+   CStringA       m_sMessage;                   // EMail message
 
    HMODULE        m_hMapi;                      // Handle to MAPI32.DLL
    LPCMCQUERY     m_lpCmcQueryConfiguration;    // Cmc func pointer
