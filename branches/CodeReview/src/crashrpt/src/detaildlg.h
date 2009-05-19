@@ -127,7 +127,7 @@ public:
       ATLASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX); 
       ATLASSERT(IDM_ABOUTBOX < 0xF000); 
 
-      CMenu sysMenu;
+      /*CMenu sysMenu;
       sysMenu.Attach(GetSystemMenu(FALSE));
       if (sysMenu.IsMenu())
       {
@@ -138,7 +138,7 @@ public:
             sysMenu.AppendMenu(MF_SEPARATOR);
 			   sysMenu.AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		   }
-	   }
+	   }*/
 
       // center the dialog on the screen
 		CenterWindow();
@@ -152,7 +152,7 @@ public:
       //
       // Attach the system image list to the list control.
       //
-      SHFILEINFO sfi = {0};
+      /*SHFILEINFO sfi = {0};
 
       HIMAGELIST hil = (HIMAGELIST)SHGetFileInfo(
                                     NULL,
@@ -165,7 +165,10 @@ public:
       {
          m_iconList.Attach(hil);
          list.SetImageList(m_iconList, LVSIL_SMALL);
-      }
+      }*/
+
+      m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
+      list.SetImageList(m_iconList, LVSIL_SMALL);
 
       //
       // Add column headings
@@ -190,29 +193,37 @@ public:
       TStrStrMap::iterator p;
       for (i = 0, p = m_pUDFiles->begin(); p != m_pUDFiles->end(); p++, i++)
       {
+        SHFILEINFO sfi;
          SHGetFileInfo(
-            p->first,
+            CString(p->first),
             0,
             &sfi,
             sizeof(sfi),
             SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
 
+         int iImage = -1;
+         if(sfi.hIcon)
+         {
+           iImage = m_iconList.AddIcon(sfi.hIcon);
+           DestroyIcon(sfi.hIcon);
+         }
+
          // Name
          lvi.mask          = LVIF_IMAGE | LVIF_TEXT;
          lvi.iItem         = i;
          lvi.iSubItem      = 0;
-         lvi.iImage        = sfi.iIcon;
+         lvi.iImage        = iImage;
          lvi.pszText       = sfi.szDisplayName;
          list.InsertItem(&lvi);
 
          // Description
-         list.SetItemText(i, 1, p->second);
+         list.SetItemText(i, 1, CString(p->second));
 
          // Type
-         list.SetItemText(i, 2, sfi.szTypeName);
+         list.SetItemText(i, 2, CString(sfi.szTypeName));
 
          // Size
-         hFind = FindFirstFile(p->first, &findFileData);
+         hFind = FindFirstFile(CString(p->first), &findFileData);
          if (INVALID_HANDLE_VALUE != hFind)
          {
 	         FindClose(hFind);
@@ -322,7 +333,7 @@ public:
       dwRet = (DWORD_PTR)::ShellExecute(
                               0, 
                               _T("open"), 
-                              p->first,
+                              CString(p->first),
                               0, 
                               0, 
                               SW_SHOWNORMAL
@@ -342,7 +353,7 @@ public:
    {
       const int MAX_FILE_SIZE          = 32768; // 32k file preview max
       DWORD dwBytesRead                = 0;
-      TCHAR buffer[MAX_FILE_SIZE + 1]  = _T("");
+      char buffer[MAX_FILE_SIZE + 1]  = "";
 
       // Sanity check
       if (iItem < 0 || (int)m_pUDFiles->size() < iItem)
@@ -354,14 +365,14 @@ public:
       // 
       // Update preview header info
       //
-      ::SetWindowText(GetDlgItem(IDC_NAME), p->first);
-      ::SetWindowText(GetDlgItem(IDC_DESCRIPTION), p->second);
+      ::SetWindowText(GetDlgItem(IDC_NAME), CString(p->first));
+      ::SetWindowText(GetDlgItem(IDC_DESCRIPTION), CString(p->second));
 
       //
       // Display file contents in preview window
       //
       HANDLE hFile = CreateFile(
-         p->first,
+         CString(p->first),
          GENERIC_READ,
          FILE_SHARE_READ | FILE_SHARE_WRITE,
          NULL,
@@ -378,7 +389,7 @@ public:
       }
 
       // Update edit control with file contents
-      ::SetWindowText(GetDlgItem(IDC_FILE_EDIT), buffer);
+      ::SetWindowTextA(GetDlgItem(IDC_FILE_EDIT), buffer);
    }
 };
 
