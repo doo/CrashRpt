@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by CrashRpt.rc
 //
 #define IDM_ABOUTBOX                    0x0010
@@ -30,6 +30,12 @@
 #define IDS_HTTP_FORM_DATA              1007
 #define IDC_EMAIL_LINK                  1007
 #define IDC_LICENSE_LINK                1008
+#define IDC_MOREINFO                    1009
+#define IDC_CRASHRPT                    1010
+#define IDC_HORZLINE                    1011
+#define IDC_STATMAIL                    1012
+#define IDC_DESCRIBE                    1013
+#define IDC_BUTTON1                     1014
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -46,7 +52,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        211
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1009
+#define _APS_NEXT_CONTROL_VALUE         1015
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
