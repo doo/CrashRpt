@@ -48,7 +48,7 @@ CZLib::~CZLib()
 //
 BOOL CZLib::Open(CString f_file, int f_nAppend)
 {
-   m_zf = zipOpen(f_file, f_nAppend);
+   m_zf = zipOpen(CStringA(f_file), f_nAppend);
    return (m_zf != NULL);
 }
 
@@ -95,7 +95,7 @@ BOOL CZLib::AddFile(CString f_file)
 
       // Start a new file in Zip
       if (ZIP_OK == zipOpenNewFileInZip(m_zf, 
-                                        sFileName, 
+                                        CStringA(sFileName), 
                                         &zi, 
                                         NULL, 
                                         0, 
