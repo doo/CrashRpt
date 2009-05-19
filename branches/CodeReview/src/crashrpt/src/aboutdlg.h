@@ -81,13 +81,13 @@ public:
       HRSRC hrsrc = NULL;
       HGLOBAL hgres = NULL;
 
-      hrsrc = FindResource(GetModuleHandle(_T("crashrpt.dll")), MAKEINTRESOURCE(IDR_LICENSE), "TEXT");
+      hrsrc = FindResource(GetModuleHandle(_T("crashrpt.dll")), MAKEINTRESOURCE(IDR_LICENSE), _T("TEXT"));
 
       hgres = LoadResource(GetModuleHandle(_T("crashrpt.dll")), hrsrc);
 
       char *pText = (char*)hgres;
 
-      MessageBox(pText);
+      MessageBox(CString(pText).GetBuffer());
 
       return 0;
    }
