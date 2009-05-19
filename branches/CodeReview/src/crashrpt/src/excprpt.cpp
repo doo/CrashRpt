@@ -320,7 +320,7 @@ CExceptionReport::CreateMiscInfoNode(
    // Set UserEmail attribute
    //
    V_VT(&v)    = VT_BSTR;
-   V_BSTR(&v)  = A2BSTR(szUserEmail);
+   V_BSTR(&v)  = T2BSTR(szUserEmail);
    pElement->setAttribute(emailName, v);
    // Recycle variant
    SysFreeString(V_BSTR(&v));
@@ -329,7 +329,7 @@ CExceptionReport::CreateMiscInfoNode(
    // Set Description attribute
    //
    V_VT(&v)    = VT_BSTR;
-   V_BSTR(&v)  = A2BSTR(szDescription);
+   V_BSTR(&v)  = T2BSTR(szDescription);
    pElement->setAttribute(descName, v);
    // Recycle variant
    SysFreeString(V_BSTR(&v));
@@ -338,7 +338,7 @@ CExceptionReport::CreateMiscInfoNode(
    // Set SystemTime attribute
    //
    V_VT(&v)    = VT_BSTR;
-   V_BSTR(&v)  = A2BSTR(szSystemTime);
+   V_BSTR(&v)  = T2BSTR(szSystemTime);
    pElement->setAttribute(systimeName, v);
    // Recycle variant
    SysFreeString(V_BSTR(&v));
@@ -387,7 +387,7 @@ CExceptionReport::CreateExceptionRecordNode(MSXML::IXMLDOMDocument* pDoc,
    GetModuleFileName(NULL, szModName, _MAX_FNAME);
    m_sModule = szModName;
    V_VT(&v)    = VT_BSTR;
-   V_BSTR(&v)  = A2BSTR(szModName);
+   V_BSTR(&v)  = T2BSTR(szModName);
    pElement->setAttribute(modName, v);
    // Recycle variant
    SysFreeString(V_BSTR(&v));
@@ -672,7 +672,7 @@ CExceptionReport::CreateOSNode(MSXML::IXMLDOMDocument* pDoc)
    // Set CSD version
    //
    V_VT(&v) = VT_BSTR;
-   V_BSTR(&v) = A2BSTR(oi.szCSDVersion);
+   V_BSTR(&v) = T2BSTR(oi.szCSDVersion);
    pElement->setAttribute(csdName, v);
    ::SysFreeString(V_BSTR(&v));
 
@@ -783,7 +783,7 @@ CExceptionReport::CreateModulesNode(MSXML::IXMLDOMDocument* pDoc)
       //
       // Set file version
       //
-      sAddr.Format("%d.%d.%d.%d", 
+      sAddr.Format(_T("%d.%d.%d.%d"), 
                    HIWORD(node->item.VersionInfo.dwFileVersionMS),
                    LOWORD(node->item.VersionInfo.dwFileVersionMS),
                    HIWORD(node->item.VersionInfo.dwFileVersionLS),
@@ -797,7 +797,7 @@ CExceptionReport::CreateModulesNode(MSXML::IXMLDOMDocument* pDoc)
       //
       // Set product version
       //
-      sAddr.Format("%d.%d.%d.%d", 
+      sAddr.Format(_T("%d.%d.%d.%d"), 
                    HIWORD(node->item.VersionInfo.dwProductVersionMS),
                    LOWORD(node->item.VersionInfo.dwProductVersionMS),
                    HIWORD(node->item.VersionInfo.dwProductVersionLS),
