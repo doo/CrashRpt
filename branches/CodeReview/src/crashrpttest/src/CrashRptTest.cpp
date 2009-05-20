@@ -11,7 +11,9 @@
 
 CAppModule _Module;
 
-LPVOID lpCrashRptState = NULL;
+LPVOID g_pCrashRptState = NULL;
+HANDLE g_hWorkingThread = NULL;
+CrashThreadInfo g_CrashThreadInfo;
 
 BOOL WINAPI CrashCallback(LPVOID lpvState)
 {
@@ -51,10 +53,19 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 
   // Install crash reporting
-  lpCrashRptState = Install(
+  g_pCrashRptState = Install(
     CrashCallback, 
     _T("zexspectrum_1980@mail.ru"), 
     _T("Crash"));
+
+  /* Create another thread */
+  g_CrashThreadInfo.m_pCrashRptState = g_pCrashRptState;
+  g_CrashThreadInfo.m_hWakeUpEvent = CreateEvent(NULL, FALSE, FALSE, _T("WakeUpEvent"));
+  ATLASSERT(g_CrashThreadInfo.m_hWakeUpEvent!=NULL);
+
+  DWORD dwThreadId = 0;
+  g_hWorkingThread = CreateThread(NULL, 0, CrashThread, (LPVOID)&g_CrashThreadInfo, 0, &dwThreadId);
+  ATLASSERT(g_hWorkingThread!=NULL);
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);
@@ -69,7 +80,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	_Module.Term();
 
   // Uninstall crash reporting
-  //Uninstall(lpCrashRptState);
+  Uninstall(lpCrashRptState);
 
 	::CoUninitialize();
 
