@@ -70,43 +70,42 @@ BEGIN
     LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,51,22,114,8
 END
 
-IDD_MAINDLG DIALOGEX 0, 0, 249, 306
+IDD_MAINDLG DIALOGEX 0, 0, 241, 279
 STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
 CAPTION "CrashRptTest"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "Close",IDOK,99,285,50,14
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,192,285,50,14
-    PUSHBUTTON      "No exception",IDC_MAIN_NOEXC,14,44,95,14
-    GROUPBOX        "Main thread",IDC_STATIC,7,32,108,245
-    LTEXT           "Click any button below to generate exception in the main execution thread or in another (working) thread.",IDC_STATIC,7,7,235,20
-    GROUPBOX        "Working thread",IDC_STATIC,126,32,108,227
-    PUSHBUTTON      "Win32 unhandled exception",IDC_MAIN_WIN32,14,60,95,14
-    PUSHBUTTON      "C++ terminate()",IDC_MAIN_TERM,14,76,95,14
-    PUSHBUTTON      "C++ unexpected()",IDC_MAIN_UNEXP,14,92,95,14
-    PUSHBUTTON      "C++ pure virtual call",IDC_MAIN_PURECALL,14,108,95,14
-    PUSHBUTTON      "C++ buffer overrun",IDC_MAIN_SECURITY,14,124,95,14
-    PUSHBUTTON      "C++ invalid param",IDC_MAIN_INVPAR,14,140,95,14
-    PUSHBUTTON      "C++ SIGABRT signal",IDC_MAIN_SIGABRT,14,156,95,14
-    PUSHBUTTON      "C++ SIGFPE signal",IDC_MAIN_SIGFPE,14,173,95,14
-    PUSHBUTTON      "C++ SIGILL signal",IDC_MAIN_SIGILL,14,189,95,14
-    PUSHBUTTON      "C++ SIGINT signal",IDC_MAIN_SIGINT,14,205,95,14
-    PUSHBUTTON      "C++ SIGSEGV signal",IDC_MAIN_SIGSEGV,14,222,95,14
-    PUSHBUTTON      "C++ SIGTERM signal",IDC_MAIN_SIGTERM,14,239,95,14
-    PUSHBUTTON      "No exception",IDC_BUTTON14,129,44,95,14
-    PUSHBUTTON      "Win32 unhandled exception",IDC_BUTTON15,129,60,95,14
-    PUSHBUTTON      "C++ terminate()",IDC_BUTTON16,129,76,95,14
-    PUSHBUTTON      "C++ unexpected()",IDC_BUTTON17,129,92,95,14
-    PUSHBUTTON      "C++ pure virtual call",IDC_BUTTON18,129,108,95,14
-    PUSHBUTTON      "C++ buffer overrun",IDC_BUTTON19,129,124,95,14
-    PUSHBUTTON      "C++ invalid param",IDC_BUTTON20,129,140,95,14
-    PUSHBUTTON      "C++ SIGABRT signal",IDC_BUTTON21,129,156,95,14
-    PUSHBUTTON      "C++ SIGFPE signal",IDC_BUTTON22,129,173,95,14
-    PUSHBUTTON      "C++ SIGILL signal",IDC_BUTTON23,129,189,95,14
-    PUSHBUTTON      "C++ SIGINT signal",IDC_BUTTON24,129,205,95,14
-    PUSHBUTTON      "C++ SIGSEGV signal",IDC_BUTTON25,129,222,95,14
-    PUSHBUTTON      "C++ SIGTERM signal",IDC_BUTTON26,129,239,95,14
-    PUSHBUTTON      "C++ new operator error",IDC_MAIN_NEW,14,256,95,14
+    DEFPUSHBUTTON   "Close",IDOK,99,258,50,14
+    PUSHBUTTON      "&About...",ID_APP_ABOUT,183,258,50,14
+    GROUPBOX        "Main thread",IDC_STATIC,7,32,108,219
+    LTEXT           "Click any button below to generate exception in the main execution thread or in another (working) thread.",IDC_STATIC,7,7,227,20
+    GROUPBOX        "Working thread",IDC_STATIC,126,32,108,219
+    PUSHBUTTON      "Win32 null pointer exception",IDC_MAIN_WIN32,14,42,95,14
+    PUSHBUTTON      "C++ terminate()",IDC_MAIN_TERM,14,58,95,14
+    PUSHBUTTON      "C++ unexpected()",IDC_MAIN_UNEXP,14,74,95,14
+    PUSHBUTTON      "C++ pure virtual call",IDC_MAIN_PURECALL,14,90,95,14
+    PUSHBUTTON      "C++ buffer overrun",IDC_MAIN_SECURITY,14,106,95,14
+    PUSHBUTTON      "C++ invalid param",IDC_MAIN_INVPAR,14,122,95,14
+    PUSHBUTTON      "C++ SIGABRT signal",IDC_MAIN_SIGABRT,14,138,95,14
+    PUSHBUTTON      "C++ SIGFPE signal",IDC_MAIN_SIGFPE,14,154,95,14
+    PUSHBUTTON      "C++ SIGILL signal",IDC_MAIN_SIGILL,14,170,95,14
+    PUSHBUTTON      "C++ SIGINT signal",IDC_MAIN_SIGINT,14,186,95,14
+    PUSHBUTTON      "C++ SIGSEGV signal",IDC_MAIN_SIGSEGV,14,201,95,14
+    PUSHBUTTON      "C++ SIGTERM signal",IDC_MAIN_SIGTERM,14,217,95,14
+    PUSHBUTTON      "Win32 null pointer exception",IDC_THREAD_WIN32,129,42,95,14
+    PUSHBUTTON      "C++ terminate()",IDC_THREAD_TERM,129,58,95,14
+    PUSHBUTTON      "C++ unexpected()",IDC_THREAD_UNEXP,129,74,95,14
+    PUSHBUTTON      "C++ pure virtual call",IDC_THREAD_PURECALL,129,90,95,14
+    PUSHBUTTON      "C++ buffer overrun",IDC_THREAD_SECURITY,129,106,95,14
+    PUSHBUTTON      "C++ invalid param",IDC_THREAD_INVPAR,129,122,95,14
+    PUSHBUTTON      "C++ SIGABRT signal",IDC_THREAD_SIGABRT,129,138,95,14
+    PUSHBUTTON      "C++ SIGFPE signal",IDC_THREAD_SIGFPE,129,154,95,14
+    PUSHBUTTON      "C++ SIGILL signal",IDC_THREAD_SIGILL,129,170,95,14
+    PUSHBUTTON      "C++ SIGINT signal",IDC_THREAD_SIGINT,129,186,95,14
+    PUSHBUTTON      "C++ SIGSEGV signal",IDC_THREAD_SIGSEGV,129,201,95,14
+    PUSHBUTTON      "C++ SIGTERM signal",IDC_THREAD_SIGTERM,129,217,95,14
+    PUSHBUTTON      "C++ new operator error",IDC_MAIN_NEW,14,233,95,14
+    PUSHBUTTON      "C++ new operator error",IDC_THREAD_NEW,130,233,95,14
 END
 
 
@@ -129,24 +128,24 @@ BEGIN
     IDD_MAINDLG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 242
+        RIGHTMARGIN, 234
         VERTGUIDE, 14
         TOPMARGIN, 7
-        BOTTOMMARGIN, 299
+        BOTTOMMARGIN, 272
         HORZGUIDE, 32
-        HORZGUIDE, 51
-        HORZGUIDE, 67
-        HORZGUIDE, 83
-        HORZGUIDE, 99
-        HORZGUIDE, 115
-        HORZGUIDE, 131
-        HORZGUIDE, 147
-        HORZGUIDE, 163
-        HORZGUIDE, 180
-        HORZGUIDE, 196
-        HORZGUIDE, 212
-        HORZGUIDE, 229
-        HORZGUIDE, 246
+        HORZGUIDE, 49
+        HORZGUIDE, 65
+        HORZGUIDE, 81
+        HORZGUIDE, 97
+        HORZGUIDE, 113
+        HORZGUIDE, 129
+        HORZGUIDE, 145
+        HORZGUIDE, 161
+        HORZGUIDE, 177
+        HORZGUIDE, 193
+        HORZGUIDE, 208
+        HORZGUIDE, 224
+        HORZGUIDE, 240
     END
 END
 #endif    // APSTUDIO_INVOKED
