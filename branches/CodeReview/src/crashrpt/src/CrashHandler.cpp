@@ -246,9 +246,7 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
 
   m_prevSigABRT = NULL;
   m_prevSigFPE = NULL;
-  m_prevSigILL = NULL;
-  m_prevSigINT = NULL;
-  m_prevSigSEGV = NULL;
+  m_prevSigINT = NULL;  
   m_prevSigTERM = NULL;
   
 }
@@ -294,14 +292,8 @@ void CCrashHandler::SetProcessCPPExceptionHandlers()
    m_prevSigFPE = signal(SIGFPE, cpp_sigfpe_handler);     
 
    // Catch illegal instruction handler
-   m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
-
-   // Catch an interrupt (CTRL+C)
    m_prevSigINT = signal(SIGINT, cpp_sigint_handler);     
-
-   // Catch illegal storage access handler
-   m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
-
+   
    // Catch a termination request
    m_prevSigTERM = signal(SIGTERM, cpp_sigterm_handler);      
 }
@@ -330,14 +322,8 @@ void CCrashHandler::UnSetProcessCPPExceptionHandlers()
   if(m_prevSigFPE!=NULL)
     signal(SIGFPE, m_prevSigFPE);     
 
-  if(m_prevSigILL!=NULL)
-    signal(SIGILL, m_prevSigILL);     
-
   if(m_prevSigINT!=NULL)
     signal(SIGINT, m_prevSigINT);     
-
-  if(m_prevSigSEGV!=NULL)
-    signal(SIGSEGV, m_prevSigSEGV);   
 
   if(m_prevSigTERM!=NULL)
    signal(SIGTERM, m_prevSigTERM);    
@@ -374,6 +360,13 @@ void CCrashHandler::SetThreadCPPExceptionHandlers()
   // http://msdn.microsoft.com/en-us/library/h46t5b69.aspx  
   handlers.m_prevUnexp = set_unexpected(cpp_unexp_handler);    
 
+  // Catch an interrupt (CTRL+C)
+  handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
+
+  // Catch illegal storage access handler
+  handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
+
+
   // Insert to list of handlers
   std::pair<DWORD, _cpp_thread_exception_handlers> _pair(dwThreadId, handlers);
   m_ThreadExceptionHandlers.insert(_pair);
@@ -400,6 +393,12 @@ void CCrashHandler::UnSetThreadCPPExceptionHandlers()
 
   if(handlers->m_prevUnexp!=NULL)
     set_unexpected(handlers->m_prevUnexp);
+
+  if(handlers->m_prevSigILL!=NULL)
+    signal(SIGINT, handlers->m_prevSigILL);     
+
+  if(handlers->m_prevSigSEGV!=NULL)
+    signal(SIGSEGV, handlers->m_prevSigSEGV);   
 }
 
 
