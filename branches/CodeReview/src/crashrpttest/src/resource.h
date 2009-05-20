@@ -19,20 +19,20 @@
 #define IDC_MAIN_SIGINT                 1011
 #define IDC_MAIN_SIGSEGV                1012
 #define IDC_MAIN_SIGTERM                1013
-#define IDC_BUTTON14                    1026
-#define IDC_BUTTON15                    1027
-#define IDC_BUTTON16                    1028
-#define IDC_BUTTON17                    1029
-#define IDC_BUTTON18                    1030
-#define IDC_BUTTON19                    1031
-#define IDC_BUTTON20                    1032
-#define IDC_BUTTON21                    1033
-#define IDC_BUTTON22                    1034
-#define IDC_BUTTON23                    1035
-#define IDC_BUTTON24                    1036
-#define IDC_BUTTON25                    1037
-#define IDC_BUTTON26                    1038
-
+#define IDC_THREAD_NOEXC                1026
+#define IDC_THREAD_WIN32                1027
+#define IDC_THREAD_TERM                 1028
+#define IDC_THREAD_UNEXP                1029
+#define IDC_THREAD_PURECALL             1030
+#define IDC_THREAD_SECURITY             1031
+#define IDC_THREAD_INVPAR               1032
+#define IDC_THREAD_NEW                  1033
+#define IDC_THREAD_SIGABRT              1034
+#define IDC_THREAD_SIGFPE               1035
+#define IDC_THREAD_SIGILL               1036
+#define IDC_THREAD_SIGINT               1037
+#define IDC_THREAD_SIGSEGV              1038
+#define IDC_THREAD_SIGTERM              1039
 
 
 // Next default values for new objects
@@ -41,7 +41,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        201
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
