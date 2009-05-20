@@ -110,10 +110,33 @@ int GenerateException(eExceptionType ExceptionType)
       sigfpe_test(1.0f);
     }
     break;
-  case ET_CPP_SIGILL: raise(SIGILL);  break;
-  case ET_CPP_SIGINT: raise(SIGINT);  break;
-  case ET_CPP_SIGSEGV: raise(SIGSEGV);  break;
-  case ET_CPP_SIGTERM: raise(SIGTERM);  break;
+  case ET_CPP_SIGILL: 
+    {
+      int result = raise(SIGILL);  
+      ATLASSERT(result==0);
+      return result;
+    }
+    break;
+  case ET_CPP_SIGINT: 
+    {
+      int result = raise(SIGINT);  
+      ATLASSERT(result==0);
+      return result;
+    }
+    break;
+  case ET_CPP_SIGSEGV: 
+    {
+      int result = raise(SIGSEGV);  
+      ATLASSERT(result==0);
+      return result;
+    }
+    break;
+  case ET_CPP_SIGTERM: 
+    {
+     int result = raise(SIGTERM);  break;
+     ATLASSERT(result==0);
+     return result;
+    }
   default:
     assert(0); // unknown type?
     return 1;
@@ -138,12 +161,14 @@ DWORD WINAPI CrashThread(LPVOID pParam)
     if(GenerateException(pInfo->m_ExceptionType)!=0)
     {
       crUninstallFromCurrentThread(pInfo->m_pCrashRptState);
+      ResetEvent(pInfo->m_hWakeUpEvent);
       return 1;  
     }
   }
 
   // Uninstall handlers from current thread
   crUninstallFromCurrentThread(pInfo->m_pCrashRptState);
+  ResetEvent(pInfo->m_hWakeUpEvent);
 
   // Exit this thread
   return 0;
