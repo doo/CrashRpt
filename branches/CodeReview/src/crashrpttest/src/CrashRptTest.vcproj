@@ -54,6 +54,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
@@ -104,6 +105,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin"
 			/>
 		</Configuration>
 		<Configuration
@@ -194,6 +196,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin"
 			/>
 		</Configuration>
 	</Configurations>
