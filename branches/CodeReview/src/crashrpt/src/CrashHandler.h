@@ -35,10 +35,14 @@ struct _cpp_thread_exception_handlers
   {
     m_prevTerm = NULL;
     m_prevUnexp = NULL;
+    m_prevSigILL = NULL;
+    m_prevSigSEGV = NULL;
   }
 
   terminate_handler m_prevTerm;   
   unexpected_handler m_prevUnexp;
+  void (__cdecl *m_prevSigILL)(int);
+  void (__cdecl *m_prevSigSEGV)(int);
 };
 
 ////////////////////////////// Class Definitions /////////////////////////////
@@ -246,9 +250,7 @@ protected:
 
   void (__cdecl *m_prevSigABRT)(int);
   void (__cdecl *m_prevSigFPE)(int);
-  void (__cdecl *m_prevSigILL)(int);
-  void (__cdecl *m_prevSigINT)(int);
-  void (__cdecl *m_prevSigSEGV)(int);
+  void (__cdecl *m_prevSigINT)(int);    
   void (__cdecl *m_prevSigTERM)(int);  
 
   std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
