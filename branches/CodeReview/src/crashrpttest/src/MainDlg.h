@@ -22,7 +22,8 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnOK)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
 
-    COMMAND_RANGE_HANDLER(IDC_MAIN_NOEXC, IDC_MAIN_SIGTERM, OnExceptionInMainThread)
+    COMMAND_RANGE_HANDLER(IDC_MAIN_WIN32, IDC_MAIN_SIGTERM, OnExceptionInMainThread)
+    COMMAND_RANGE_HANDLER(IDC_THREAD_WIN32, IDC_THREAD_SIGTERM, OnExceptionInWorkingThread)
 
 	END_MSG_MAP()
 
@@ -37,6 +38,7 @@ public:
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
   LRESULT OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	void CloseDialog(int nVal);
 };
