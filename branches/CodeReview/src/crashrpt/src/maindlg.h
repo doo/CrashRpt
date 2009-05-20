@@ -128,14 +128,16 @@ public:
       m_statIcon = GetDlgItem(IDI_APPICON);
       
       HICON hIcon = NULL;
+      // Set window icon (use IDR_MAINFRAME icon which is the default one for the application)
       // Try to load IDR_MAINFRAME icon
       hIcon = ::LoadIcon((HINSTANCE)GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINFRAME));
-      if(hIcon)
-        m_statIcon.SetIcon(hIcon);            
-      
-      // Set window icon (use IDR_MAINFRAME icon which is the default one for the application)
-      if(hIcon!=NULL)
-        SetIcon(hIcon, FALSE);
+
+      // If there is no IDR_MAINFRAME icon, use IDI_APPLICATION system icon
+      if(hIcon==NULL)
+        hIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
+
+      m_statIcon.SetIcon(hIcon);                  
+      //SetIcon(NULL, FALSE);
 
       //
       // Set failure heading
@@ -315,7 +317,7 @@ public:
       return 0;
 
     HDC hDC = (HDC)wParam;
-    ::SelectObject(hDC, GetStockObject(NULL_BRUSH));
+    //::SelectObject(hDC, GetStockObject(NULL_BRUSH));
     SetBkColor(hDC, RGB(0, 255, 255));
     SetTextColor(hDC, RGB(0, 255, 255));
     return (LRESULT)TRUE;
