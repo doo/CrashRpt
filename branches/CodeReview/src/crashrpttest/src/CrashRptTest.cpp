@@ -80,7 +80,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	_Module.Term();
 
   // Uninstall crash reporting
-  Uninstall(lpCrashRptState);
+  Uninstall(g_pCrashRptState);
 
 	::CoUninitialize();
 
