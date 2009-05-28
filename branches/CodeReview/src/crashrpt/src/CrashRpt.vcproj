@@ -315,26 +315,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="MailMsg.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -402,10 +382,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath="aboutdlg.h"
-				>
-			</File>
-			<File
 				RelativePath="CrashHandler.h"
 				>
 			</File>
@@ -414,23 +390,7 @@
 				>
 			</File>
 			<File
-				RelativePath="DeadLink.h"
-				>
-			</File>
-			<File
-				RelativePath="detaildlg.h"
-				>
-			</File>
-			<File
 				RelativePath="excprpt.h"
-				>
-			</File>
-			<File
-				RelativePath="MailMsg.h"
-				>
-			</File>
-			<File
-				RelativePath="maindlg.h"
 				>
 			</File>
 			<File
@@ -459,14 +419,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="chglog.txt"
-			>
-		</File>
-		<File
-			RelativePath="license.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

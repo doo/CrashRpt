@@ -98,10 +98,10 @@ CString CExceptionReport::getCrashFile()
 CString CExceptionReport::getCrashLog()
 {
    CString sFile;
-   MSXML::IXMLDOMDocument *pDoc  = NULL;
-   MSXML::IXMLDOMNode *root      = NULL;
-   MSXML::IXMLDOMNode *node      = NULL;
-   MSXML::IXMLDOMNode *newNode   = NULL;
+   IXMLDOMDocument *pDoc  = NULL;
+   IXMLDOMNode *root      = NULL;
+   IXMLDOMNode *node      = NULL;
+   IXMLDOMNode *newNode   = NULL;
    BSTR rootName = ::SysAllocString(L"Exception");
    VARIANT v;
    CString strTempDir;
@@ -110,14 +110,14 @@ CString CExceptionReport::getCrashLog()
 
    // Create an empty XML document
    CHECKHR(CoCreateInstance(
-      MSXML::CLSID_DOMDocument, 
+      CLSID_DOMDocument, 
       NULL, 
       CLSCTX_INPROC_SERVER,
-      MSXML::IID_IXMLDOMDocument, 
+      IID_IXMLDOMDocument, 
       (void**)&pDoc));
 
    // Create root node
-   root = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, rootName);
+   root = CreateDOMNode(pDoc, NODE_ELEMENT, rootName);
 
    //
    // Add exception record node
@@ -191,7 +191,7 @@ CExceptionReport::writeUserInfo(
   CString szUserEmail, 
   CString szDescription)
 {   
-   MSXML::IXMLDOMDocument *pDoc  = NULL;
+   IXMLDOMDocument *pDoc  = NULL;
    VARIANT v;
    VARIANT_BOOL res;
          
@@ -203,10 +203,10 @@ CExceptionReport::writeUserInfo(
    
    // Create an empty XML document
    CHECKHR(CoCreateInstance(
-      MSXML::CLSID_DOMDocument, 
+      CLSID_DOMDocument, 
       NULL, 
       CLSCTX_INPROC_SERVER,
-      MSXML::IID_IXMLDOMDocument, 
+      IID_IXMLDOMDocument, 
       (void**)&pDoc));
 
    
@@ -272,12 +272,12 @@ CString CExceptionReport::getSymbolFile(int index)
 //
 // Helper function 
 //
-MSXML::IXMLDOMNode*
-CExceptionReport::CreateDOMNode(MSXML::IXMLDOMDocument* pDoc, 
+IXMLDOMNode*
+CExceptionReport::CreateDOMNode(IXMLDOMDocument* pDoc, 
                                 int type, 
                                 BSTR bstrName)
 {
-    MSXML::IXMLDOMNode * node;
+    IXMLDOMNode * node;
     VARIANT vtype;
 
     vtype.vt = VT_I4;
@@ -287,17 +287,17 @@ CExceptionReport::CreateDOMNode(MSXML::IXMLDOMDocument* pDoc,
     return node;
 }
 
-MSXML::IXMLDOMNode*
+IXMLDOMNode*
 CExceptionReport::CreateMiscInfoNode(
-  MSXML::IXMLDOMDocument* pDoc, 
+  IXMLDOMDocument* pDoc, 
   CString szUserEmail,
   CString szDescription,
   CString szSystemTime)
 {
-   MSXML::IXMLDOMNode*     pNode    = NULL;
-   MSXML::IXMLDOMNode*     newNode    = NULL;
-   MSXML::IXMLDOMElement*  pElement = NULL;
-   MSXML::IXMLDOMElement*  root = NULL;
+   IXMLDOMNode*     pNode    = NULL;
+   IXMLDOMNode*     newNode    = NULL;
+   IXMLDOMElement*  pElement = NULL;
+   IXMLDOMElement*  root = NULL;
    BSTR nodeName                    = ::SysAllocString(L"MiscInfo");
    BSTR emailName                   = ::SysAllocString(L"UserEmail");
    BSTR descName                    = ::SysAllocString(L"Description");
@@ -310,11 +310,11 @@ CExceptionReport::CreateMiscInfoNode(
      return NULL;
 
    // Create MiscInfo node
-   pNode = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName);
+   pNode = CreateDOMNode(pDoc, NODE_ELEMENT, nodeName);
    CHECKHR(root->appendChild(pNode, &newNode));
 
    // Get element interface
-   CHECKHR(pNode->QueryInterface(MSXML::IID_IXMLDOMElement, (void**)&pElement));
+   CHECKHR(pNode->QueryInterface(IID_IXMLDOMElement, (void**)&pElement));
 
    //
    // Set UserEmail attribute
@@ -360,12 +360,12 @@ CleanUp:
 //
 //
 //
-MSXML::IXMLDOMNode*
-CExceptionReport::CreateExceptionRecordNode(MSXML::IXMLDOMDocument* pDoc, 
+IXMLDOMNode*
+CExceptionReport::CreateExceptionRecordNode(IXMLDOMDocument* pDoc, 
                                             EXCEPTION_RECORD* pExceptionRecord)
 {
-   MSXML::IXMLDOMNode*     pNode    = NULL;
-   MSXML::IXMLDOMElement*  pElement = NULL;
+   IXMLDOMNode*     pNode    = NULL;
+   IXMLDOMElement*  pElement = NULL;
    BSTR nodeName                    = ::SysAllocString(L"ExceptionRecord");
    BSTR modName                     = ::SysAllocString(L"ModuleName");
    BSTR codeName                    = ::SysAllocString(L"ExceptionCode");
@@ -375,10 +375,10 @@ CExceptionReport::CreateExceptionRecordNode(MSXML::IXMLDOMDocument* pDoc,
    CString sAddr;
 
    // Create exception record node
-   pNode = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName);
+   pNode = CreateDOMNode(pDoc, NODE_ELEMENT, nodeName);
 
    // Get element interface
-   CHECKHR(pNode->QueryInterface(MSXML::IID_IXMLDOMElement, (void**)&pElement));
+   CHECKHR(pNode->QueryInterface(IID_IXMLDOMElement, (void**)&pElement));
 
    //
    // Set module name attribute
@@ -509,11 +509,11 @@ CleanUp:
 //
 //
 //
-MSXML::IXMLDOMNode*
-CExceptionReport::CreateProcessorNode(MSXML::IXMLDOMDocument* pDoc)
+IXMLDOMNode*
+CExceptionReport::CreateProcessorNode(IXMLDOMDocument* pDoc)
 {
-   MSXML::IXMLDOMNode*     pNode    = NULL;
-   MSXML::IXMLDOMElement*  pElement = NULL;
+   IXMLDOMNode*     pNode    = NULL;
+   IXMLDOMElement*  pElement = NULL;
    BSTR nodeName                    = ::SysAllocString(L"Processor");
    BSTR archName                    = ::SysAllocString(L"Architecture");
    BSTR levelName                   = ::SysAllocString(L"Level");
@@ -522,10 +522,10 @@ CExceptionReport::CreateProcessorNode(MSXML::IXMLDOMDocument* pDoc)
    VARIANT v;
 
    // Create exception record node
-   pNode = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName);
+   pNode = CreateDOMNode(pDoc, NODE_ELEMENT, nodeName);
 
    // Get element interface
-   CHECKHR(pNode->QueryInterface(MSXML::IID_IXMLDOMElement, (void**)&pElement));
+   CHECKHR(pNode->QueryInterface(IID_IXMLDOMElement, (void**)&pElement));
 
    //
    // Get processor info
@@ -622,11 +622,11 @@ CleanUp:
 //
 //
 //
-MSXML::IXMLDOMNode* 
-CExceptionReport::CreateOSNode(MSXML::IXMLDOMDocument* pDoc)
+IXMLDOMNode* 
+CExceptionReport::CreateOSNode(IXMLDOMDocument* pDoc)
 {
-   MSXML::IXMLDOMNode*     pNode    = NULL;
-   MSXML::IXMLDOMElement*  pElement = NULL;
+   IXMLDOMNode*     pNode    = NULL;
+   IXMLDOMElement*  pElement = NULL;
    BSTR nodeName                    = ::SysAllocString(L"OperatingSystem");
    BSTR majorName                   = ::SysAllocString(L"MajorVersion");
    BSTR minorName                   = ::SysAllocString(L"MinorVersion");
@@ -636,10 +636,10 @@ CExceptionReport::CreateOSNode(MSXML::IXMLDOMDocument* pDoc)
    VARIANT v;
 
    // Create exception record node
-   pNode = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName);
+   pNode = CreateDOMNode(pDoc, NODE_ELEMENT, nodeName);
 
    // Get element interface
-   CHECKHR(pNode->QueryInterface(MSXML::IID_IXMLDOMElement, (void**)&pElement));
+   CHECKHR(pNode->QueryInterface(IID_IXMLDOMElement, (void**)&pElement));
 
    //
    // Get OS info
@@ -692,14 +692,14 @@ CleanUp:
 //
 //
 //
-MSXML::IXMLDOMNode* 
-CExceptionReport::CreateModulesNode(MSXML::IXMLDOMDocument* pDoc)
+IXMLDOMNode* 
+CExceptionReport::CreateModulesNode(IXMLDOMDocument* pDoc)
 {
-   MSXML::IXMLDOMNode*     pNode    = NULL;
-   MSXML::IXMLDOMNode*     pNode2   = NULL;
-   MSXML::IXMLDOMNode*     pNewNode = NULL;
-   MSXML::IXMLDOMElement*  pElement = NULL;
-   MSXML::IXMLDOMElement*  pElement2= NULL;
+   IXMLDOMNode*     pNode    = NULL;
+   IXMLDOMNode*     pNode2   = NULL;
+   IXMLDOMNode*     pNewNode = NULL;
+   IXMLDOMElement*  pElement = NULL;
+   IXMLDOMElement*  pElement2= NULL;
    BSTR nodeName                    = ::SysAllocString(L"Modules");
    BSTR nodeName2                   = ::SysAllocString(L"Module");
    BSTR fullPath                    = ::SysAllocString(L"FullPath");
@@ -714,7 +714,7 @@ CExceptionReport::CreateModulesNode(MSXML::IXMLDOMDocument* pDoc)
 
 
    // Create modules node
-   pNode = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName);
+   pNode = CreateDOMNode(pDoc, NODE_ELEMENT, nodeName);
 
    //
    // Add module information
@@ -723,10 +723,10 @@ CExceptionReport::CreateModulesNode(MSXML::IXMLDOMDocument* pDoc)
    while (node)
    {
       // Create module node
-      pNode2 = CreateDOMNode(pDoc, MSXML::NODE_ELEMENT, nodeName2);
+      pNode2 = CreateDOMNode(pDoc, NODE_ELEMENT, nodeName2);
 
       // Get element interface
-      CHECKHR(pNode2->QueryInterface(MSXML::IID_IXMLDOMElement, (void**)&pElement));
+      CHECKHR(pNode2->QueryInterface(IID_IXMLDOMElement, (void**)&pElement));
 
       //
       // Set full path

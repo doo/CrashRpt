@@ -90,3 +90,14 @@ CString CUtility::getSaveFileName()
 
    return _T("");
 }
+
+CString CUtility::GetModulePath(HMODULE hModule)
+{
+	CString string;
+	LPTSTR buf = string.GetBuffer(_MAX_PATH);
+	GetModuleFileName(hModule, buf, _MAX_PATH);
+	*(_tcsrchr(buf,'\\'))=0; // remove executable name
+	string.ReleaseBuffer();
+	return string;
+}
+

@@ -109,6 +109,10 @@ public:
    int 
    getTempDirectory(CString& strTemp);
 
+   static 
+   CString 
+   GetModulePath(HMODULE hModule);
+
 };
 
 #endif	// #ifndef _UTILITY_H_

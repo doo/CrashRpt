@@ -13,10 +13,9 @@
 #include "CrashHandler.h"
 #include "zlibcpp.h"
 #include "excprpt.h"
-#include "maindlg.h"
 #include "process.h"
-#include "mailmsg.h"
-#include <assert.h>
+#include "Utility.h"
+#include "resource.h"
 
 
 // global app module
@@ -177,61 +176,111 @@ void cpp_sigterm_handler(int sig)
   exit(1);
 }
 
-CCrashHandler::CCrashHandler(LPGETLOGFILE lpfn /*=NULL*/, 
-                             LPCTSTR lpcszTo /*=NULL*/, 
-                             LPCTSTR lpcszSubject /*=NULL*/)
+CCrashHandler::CCrashHandler()
 {
-   // wtl initialization stuff...
-	HRESULT hRes = ::CoInitialize(NULL);
-	ATLASSERT(SUCCEEDED(hRes));
-
-   hRes = _Module.Init(NULL, GetModuleHandle(_T("CrashRpt.dll")));
-   ATLASSERT(SUCCEEDED(hRes));
-
-	::DefWindowProc(NULL, 0, 0, 0L);
-
-   // initialize member data
-   m_lpfnCallback = NULL;
-   m_oldFilter    = NULL;
-
-   // save user supplied callback
-   if (lpfn)
-      m_lpfnCallback = lpfn;
-
-   // add this filter in the exception callback chain
-   m_oldFilter = SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
-
-   // Set C++ exception handlers
-   InitPrevCPPExceptionHandlerPointers();
-   SetProcessCPPExceptionHandlers();   
-   SetThreadCPPExceptionHandlers();
-
-   // attach this handler with this process
-   m_pid = _getpid();
-   _crashStateMap.Add(m_pid, this);
-
-   // save optional email info
-   m_sTo = lpcszTo;
-   m_sSubject = lpcszSubject;
 }
 
 CCrashHandler::~CCrashHandler()
 {
-   // reset exception callback
-   if (m_oldFilter)
-      SetUnhandledExceptionFilter(m_oldFilter);
-
-   // All installed per-thread C++ exception handlers should be uninstalled 
-   // using crUninstallFromCurrentThread() before this destructor call
-   assert(m_ThreadExceptionHandlers.size()==0);
-
-   _crashStateMap.Remove(m_pid);
-
-   // uninitialize
-   _Module.Term();
-	::CoUninitialize();
-
+  Destroy();
 }
+
+
+int CCrashHandler::Init(
+  LPCTSTR lpcszAppName,
+  LPCTSTR lpcszAppVersion,
+  LPGETLOGFILE lpfnCallback, 
+  LPCTSTR lpcszTo, 
+  LPCTSTR lpcszSubject)
+{ 
+  m_sAppName = lpcszAppName;
+
+  if(m_sAppName.IsEmpty())
+    m_sAppName = CUtility::getAppName();
+
+  m_sAppVersion = lpcszAppVersion;
+    
+  // Get handle to the EXE module used to create this process
+  HMODULE hModule = GetModuleHandle(NULL);
+  if(hModule==NULL)
+  {
+    ATLASSERT(hModule!=NULL);
+    return 1;
+  }
+
+  TCHAR szExeName[_MAX_PATH];
+  DWORD dwLength = GetModuleFileName(hModule, szExeName, _MAX_PATH);
+  if(GetLastError()!=0)
+  {
+    // Couldn't get the name of EXE that was used to create current process
+    ATLASSERT(0);
+    return 2;
+  }
+
+  m_sImageName = CString(szExeName, dwLength);
+  
+  // By default assume that CrashSender.exe is located in the same dir as EXE 
+  m_sPathToCrashSender = CUtility::GetModulePath(hModule);   
+
+  // initialize member data
+  m_lpfnCallback = NULL;
+  m_oldFilter    = NULL;
+
+  // save user supplied callback
+  if (lpfnCallback)
+    m_lpfnCallback = lpfnCallback;
+
+  // add this filter in the exception callback chain
+  m_oldFilter = SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+
+  // Set C++ exception handlers
+  InitPrevCPPExceptionHandlerPointers();
+   
+  int nSetProcessHandlers = SetProcessCPPExceptionHandlers();   
+  if(nSetProcessHandlers!=0)
+  {
+    ATLASSERT(nSetProcessHandlers==0);
+    return 3;
+  }
+
+  int nSetThreadHandlers = SetThreadCPPExceptionHandlers();
+  if(nSetThreadHandlers!=0)
+  {
+    ATLASSERT(nSetThreadHandlers==0);
+    return 3;
+  }
+
+  // attach this handler with this process
+  m_pid = _getpid();
+  _crashStateMap.Add(m_pid, this);
+   
+  // save optional email info
+  m_sTo = lpcszTo;
+  m_sSubject = lpcszSubject;
+
+  // OK.
+  return 0;
+}
+
+int CCrashHandler::Destroy()
+{
+  // Reset exception callback
+  if (m_oldFilter)
+    SetUnhandledExceptionFilter(m_oldFilter);
+
+  // All installed per-thread C++ exception handlers should be uninstalled 
+  // using crUninstallFromCurrentThread() before calling Destroy()
+  if(m_ThreadExceptionHandlers.size()!=0)
+  {
+    ATLASSERT(m_ThreadExceptionHandlers.size()==0);
+  }
+
+  _crashStateMap.Remove(m_pid);
+
+  // OK.
+  return 0;
+}
+
 
 // Sets internal pointers to previously used exception handlers to NULL
 void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
@@ -251,13 +300,18 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
   
 }
 
-void CCrashHandler::SetProcessCPPExceptionHandlers()
+int CCrashHandler::SetProcessCPPExceptionHandlers()
 {
   // Set CRT error mode
   // Write exception info to file
   HANDLE hLogFile = NULL;
   hLogFile = CreateFile(_T("crterror.log"), GENERIC_WRITE, FILE_SHARE_WRITE, 
       NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+  if(hLogFile==NULL)
+  {
+    ATLASSERT(hLogFile!=NULL);
+    return 1;
+  }
 
   _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
   _CrtSetReportFile(_CRT_ERROR, hLogFile);
@@ -283,8 +337,7 @@ void CCrashHandler::SetProcessCPPExceptionHandlers()
 #endif
 
    // Set up C++ signal handlers
-   //typedef void (__cdecl *sigh)(int);    
-
+  
    // Catch an abnormal program termination
    m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
 
@@ -296,9 +349,11 @@ void CCrashHandler::SetProcessCPPExceptionHandlers()
    
    // Catch a termination request
    m_prevSigTERM = signal(SIGTERM, cpp_sigterm_handler);      
+
+   return 0;
 }
 
-void CCrashHandler::UnSetProcessCPPExceptionHandlers()
+int CCrashHandler::UnSetProcessCPPExceptionHandlers()
 {
   // Unset all previously set handlers
 
@@ -327,10 +382,12 @@ void CCrashHandler::UnSetProcessCPPExceptionHandlers()
 
   if(m_prevSigTERM!=NULL)
    signal(SIGTERM, m_prevSigTERM);    
+
+  return 0;
 }
 
 // Installs C++ exception handlers that function on per-thread basis
-void CCrashHandler::SetThreadCPPExceptionHandlers()
+int CCrashHandler::SetThreadCPPExceptionHandlers()
 {
   DWORD dwThreadId = GetCurrentThreadId();
 
@@ -340,8 +397,8 @@ void CCrashHandler::SetThreadCPPExceptionHandlers()
   if(it!=m_ThreadExceptionHandlers.end())
   {
     // handlers are already set for the thread
-    assert(0);
-    return; // failed
+    ATLASSERT(0);
+    return 1; // failed
   }
   
   _cpp_thread_exception_handlers handlers;
@@ -370,9 +427,12 @@ void CCrashHandler::SetThreadCPPExceptionHandlers()
   // Insert to list of handlers
   std::pair<DWORD, _cpp_thread_exception_handlers> _pair(dwThreadId, handlers);
   m_ThreadExceptionHandlers.insert(_pair);
+
+  // OK.
+  return 0;
 }
 
-void CCrashHandler::UnSetThreadCPPExceptionHandlers()
+int CCrashHandler::UnSetThreadCPPExceptionHandlers()
 {
   DWORD dwThreadId = GetCurrentThreadId();
 
@@ -382,8 +442,8 @@ void CCrashHandler::UnSetThreadCPPExceptionHandlers()
   if(it==m_ThreadExceptionHandlers.end())
   {
     // no such handlers?
-    assert(0);
-    return;
+    ATLASSERT(0);
+    return 1;
   }
   
   _cpp_thread_exception_handlers* handlers = &(it->second);
@@ -398,101 +458,224 @@ void CCrashHandler::UnSetThreadCPPExceptionHandlers()
     signal(SIGINT, handlers->m_prevSigILL);     
 
   if(handlers->m_prevSigSEGV!=NULL)
-    signal(SIGSEGV, handlers->m_prevSigSEGV);   
+    signal(SIGSEGV, handlers->m_prevSigSEGV); 
+
+  // OK.
+  return 0;
 }
 
 
-void CCrashHandler::AddFile(LPCTSTR lpFile, LPCTSTR lpDesc)
+int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDesc)
 {
    // make sure the file exist
    HANDLE hFile = ::CreateFile(
-                     lpFile,
+                     pszFile,
                      GENERIC_READ,
                      FILE_SHARE_READ | FILE_SHARE_WRITE,
                      NULL,
                      OPEN_EXISTING,
                      FILE_ATTRIBUTE_NORMAL,
                      0);
-   if (hFile)
+
+   if (hFile==INVALID_HANDLE_VALUE)
    {
-      // add file to report
-      m_files[lpFile] = lpDesc;
-      ::CloseHandle(hFile);
+     ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
+     return 1;
    }
+
+   // Add file to file list.
+   m_files[pszFile] = pszDesc;
+
+   // Close handle
+   ::CloseHandle(hFile);   
+
+   // OK.
+   return 0;
 }
 
-void CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo)
+int CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo)
 {
-   CExceptionReport  rpt(pExInfo);
-   CMainDlg          mainDlg;
+   CExceptionReport  rpt(pExInfo);   
    CZLib             zlib;
-   CString           sTempFileName = CUtility::getTempFileName();
+//   CString           sTempFileName = CUtility::getTempFileName();
    unsigned int      i;
 
    // let client add application specific files to report
    if (m_lpfnCallback && !m_lpfnCallback(this))
-      return;
+      return 1;
 
    // add crash files to report
    m_files[CStringA(rpt.getCrashFile())] = CString((LPCTSTR)IDS_CRASH_DUMP);
-   ATL::CString szXMLName = rpt.getCrashLog();
-   m_files[CStringA(szXMLName)] = CString((LPCTSTR)IDS_CRASH_LOG);
+   CString sXmlName = rpt.getCrashLog();
+   m_files[CStringA(sXmlName)] = CString((LPCTSTR)IDS_CRASH_LOG);
 
    // add symbol files to report
    for (i = 0; i < (UINT)rpt.getNumSymbolFiles(); i++)
       m_files[CStringA(rpt.getSymbolFile(i))] = 
       CString((LPCTSTR)IDS_SYMBOL_FILE);
  
-   // display main dialog
-   mainDlg.m_pUDFiles = &m_files;
-   if (IDOK != mainDlg.DoModal())
+   BOOL bSend = LaunchCrashSender();
+   ATLASSERT(bSend);
+
+   if(!bSend)
    {
-     return;
+     CString szCaption;
+     szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
+     
+     CString szMessage;
+     szMessage.Format(_T("This program has stopped working due to unexpected error. We are sorry for inconvenience.\nDo you want to save error report? Press Yes to save. Press No to close application."));
+     INT_PTR res = MessageBox(NULL, szMessage, szCaption, MB_YESNO|MB_ICONERROR);
+     if(res==IDYES)
+     {
+       CString sTempFileName = CUtility::getTempFileName();
+
+       // zip the report
+       if (!zlib.Open(sTempFileName))
+         return 1;
+   
+       // add report files to zip
+       TStrStrMap::iterator cur = m_files.begin();
+       for (i = 0; i < m_files.size(); i++, cur++)
+       {
+         zlib.AddFile((char*)(LPCSTR)(*cur).first);
+       }
+
+       zlib.Close();
+
+       // Send report
+       BOOL bSave = CopyFile(sTempFileName, CUtility::getSaveFileName(), TRUE);
+       ATLASSERT(bSave==TRUE);
+     }     
    }
+
+   return 0;
+
+   //// display main dialog
+   //mainDlg.m_pUDFiles = &m_files;
+   //if (IDOK != mainDlg.DoModal())
+   //{
+   //  return;
+   //}
 
    // Write user email and problem description to XML
-   rpt.writeUserInfo(szXMLName, mainDlg.m_sEmail, mainDlg.m_sDescription);
+   //rpt.writeUserInfo(szXMLName, mainDlg.m_sEmail, mainDlg.m_sDescription);
 
    // zip the report
-   if (!zlib.Open(sTempFileName))
-      return;
+   /*if (!zlib.Open(sTempFileName))
+      return;*/
    
    // add report files to zip
-   TStrStrMap::iterator cur = m_files.begin();
-   for (i = 0; i < m_files.size(); i++, cur++)
-   {
-     zlib.AddFile((char*)(LPCSTR)(*cur).first);
-   }
+   //TStrStrMap::iterator cur = m_files.begin();
+   //for (i = 0; i < m_files.size(); i++, cur++)
+   //{
+   //  zlib.AddFile((char*)(LPCSTR)(*cur).first);
+   //}
 
-   zlib.Close();
+   //zlib.Close();
 
-   // Send report
+   //// Send report
 
-   if (m_sTo.IsEmpty() || 
-       !MailReport(rpt, sTempFileName, mainDlg.m_sEmail, mainDlg.m_sDescription))
-   {
-     SaveReport(rpt, sTempFileName);   
-   }
+   //if (m_sTo.IsEmpty() || 
+   //    !MailReport(rpt, sTempFileName, mainDlg.m_sEmail, mainDlg.m_sDescription))
+   //{
+   //  SaveReport(rpt, sTempFileName);   
+   //}
 
-   DeleteFile(sTempFileName);
+   //DeleteFile(sTempFileName);
 }
 
-BOOL CCrashHandler::SaveReport(CExceptionReport&, LPCTSTR lpcszFile)
+//BOOL CCrashHandler::SaveReport(CExceptionReport&, LPCTSTR lpcszFile)
+//{
+//   // let user more zipped report
+//   return (CopyFile(lpcszFile, CUtility::getSaveFileName(), TRUE));
+//}
+
+
+BOOL CCrashHandler::LaunchCrashSender()
 {
-   // let user more zipped report
-   return (CopyFile(lpcszFile, CUtility::getSaveFileName(), TRUE));
+  // Create CrashSender process
+
+  CString sCrashSenderName;
+  sCrashSenderName.Format(_T("%s\\%s"), 
+    m_sPathToCrashSender,
+#ifdef _DEBUG
+    _T("CrashSenderd.exe")
+#else
+    _T("CrashSender.exe")
+#endif //_DEBUG
+    );
+
+  STARTUPINFO si;
+  memset(&si, 0, sizeof(STARTUPINFO));
+  si.cb = sizeof(STARTUPINFO);
+  PROCESS_INFORMATION pi;
+  memset(&pi, 0, sizeof(PROCESS_INFORMATION));
+  BOOL bCreateProcess = CreateProcess(sCrashSenderName, 
+    NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+  if(!bCreateProcess)
+  {
+    ATLASSERT(bCreateProcess);
+    return FALSE;
+  }
+
+  CString sPipeName;
+  sPipeName.Format(_T("\\\\.\\pipe\\CrashRpt_%lu"), pi.dwProcessId);
+
+  HANDLE hPipe = INVALID_HANDLE_VALUE;
+
+  int MAX_ATTEMPTS = 120;
+  int i;
+  for(i=0; i<MAX_ATTEMPTS; i++)
+  {
+    hPipe = CreateFile(sPipeName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+    if(hPipe!=INVALID_HANDLE_VALUE)
+      break;
+    Sleep(1000);
+  }
+
+  if(hPipe==INVALID_HANDLE_VALUE)
+    return FALSE;
+
+  // Transfer crash files list
+  CStringW sCrashInfo;
+  sCrashInfo.Format(
+    _T("<crashrpt subject=\"%s\" mailto=\"%s\" appname=\"%s\" imagename=\"%s\">"), 
+    _ReplaceRestrictedXMLCharacters(m_sSubject), 
+    _ReplaceRestrictedXMLCharacters(m_sTo),
+    _ReplaceRestrictedXMLCharacters(m_sAppName),
+    _ReplaceRestrictedXMLCharacters(m_sImageName));
+
+  std::map<CStringA, CStringA>::iterator it;
+  for(it=m_files.begin(); it!=m_files.end(); it++)
+  {
+    CString sName = _ReplaceRestrictedXMLCharacters(CString(it->first));
+    CString sDesc = _ReplaceRestrictedXMLCharacters(CString(it->second));   
+    
+    CString sFile;
+    sFile.Format(_T("<file name=\"%s\" description=\"%s\"/>"), sName, sDesc);
+    sCrashInfo += sFile;
+  }
+
+  sCrashInfo += _T("</crashrpt>");
+
+  DWORD dwBytesWritten = 0;
+  WriteFile(hPipe, sCrashInfo.GetBuffer(), sCrashInfo.GetLength()*2, &dwBytesWritten, NULL);
+  ATLASSERT((int)dwBytesWritten == sCrashInfo.GetLength()*2);
+
+  // Clean up
+  CloseHandle(hPipe);
+
+  return TRUE;
 }
 
-BOOL CCrashHandler::MailReport(CExceptionReport&, LPCTSTR lpcszFile,
-                               LPCTSTR lpcszEmail, LPCTSTR lpcszDesc)
+CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
 {
-   CMailMsg msg;
-   msg
-      .SetTo(m_sTo)
-      .SetFrom(lpcszEmail)
-      .SetSubject(m_sSubject.IsEmpty()?_T("Incident Report"):m_sSubject)
-      .SetMessage(lpcszDesc)
-      .AddAttachment(lpcszFile, CUtility::getAppName() + _T(".zip"));
+  CString sResult;
 
-   return (msg.Send());
+  sResult = sText;
+  sResult.Replace(_T("\""), _T("&quot"));
+  sResult.Replace(_T("'"), _T("&apos"));
+
+  return sResult;
 }
+

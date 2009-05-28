@@ -21,7 +21,7 @@
 
 
 // Import MSXML interfaces
-#import "msxml.dll" named_guids raw_interfaces_only
+//#import "msxml.dll" named_guids raw_interfaces_only
 
 //
 // Modules linked list
@@ -68,25 +68,25 @@ private:
    PEXCEPTION_POINTERS m_excpInfo;
    CSimpleArray<CString> m_symFiles;
 
-   static MSXML::IXMLDOMNode* CreateDOMNode(MSXML::IXMLDOMDocument* pDoc, 
+   static IXMLDOMNode* CreateDOMNode(IXMLDOMDocument* pDoc, 
                                             int type, 
                                             BSTR bstrName);
 
-   MSXML::IXMLDOMNode*
+   IXMLDOMNode*
       CExceptionReport::CreateMiscInfoNode(
-      MSXML::IXMLDOMDocument* pDoc, 
+      IXMLDOMDocument* pDoc, 
       CString szUserEmail,
       CString szDescription,
       CString szSystemTime);
 
-   static MSXML::IXMLDOMNode* CreateExceptionRecordNode(MSXML::IXMLDOMDocument* pDoc, 
+   static IXMLDOMNode* CreateExceptionRecordNode(IXMLDOMDocument* pDoc, 
                                                         EXCEPTION_RECORD* pExceptionRecord);
 
-   static MSXML::IXMLDOMNode* CreateProcessorNode(MSXML::IXMLDOMDocument* pDoc);
+   static IXMLDOMNode* CreateProcessorNode(IXMLDOMDocument* pDoc);
 
-   static MSXML::IXMLDOMNode* CreateOSNode(MSXML::IXMLDOMDocument* pDoc);
+   static IXMLDOMNode* CreateOSNode(IXMLDOMDocument* pDoc);
 
-   static MSXML::IXMLDOMNode* CreateModulesNode(MSXML::IXMLDOMDocument* pDoc);
+   static IXMLDOMNode* CreateModulesNode(IXMLDOMDocument* pDoc);
 
    static BOOL CALLBACK miniDumpCallback(PVOID CallbackParam,
                                          CONST PMINIDUMP_CALLBACK_INPUT CallbackInput,
