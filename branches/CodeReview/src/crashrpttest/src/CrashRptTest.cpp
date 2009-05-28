@@ -8,6 +8,7 @@
 #include "aboutdlg.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
+#include <atlstr.h>
 
 CAppModule _Module;
 
@@ -53,10 +54,32 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 
   // Install crash reporting
+#ifdef TEST_DEPRECATED_FUNCS
+
   g_pCrashRptState = Install(
     CrashCallback, 
     _T("zexspectrum_1980@mail.ru"), 
     _T("Crash"));
+
+#else
+
+  CString szSubject;
+  szSubject.Format(_T("%s %s Error Report"), APP_NAME, APP_VERSION);
+
+  CRASHRPT_INFO info;
+  memset(&info, 0, sizeof(CRASHRPT_INFO));
+  info.cb = sizeof(CRASHRPT_INFO);  
+  info.pszAppName = APP_NAME;
+  info.pszAppVersion = APP_VERSION;
+  info.pszEmailSubject = szSubject;
+  info.pszEmailTo = _T("zexspectrum_1980@mail.ru");
+  info.pfnCrashCallback = CrashCallback;  
+
+  g_pCrashRptState = NULL;
+  int nInstResult = crInstall(&info, &g_pCrashRptState);
+  ATLASSERT(nInstResult==0 && g_pCrashRptState!=NULL);
+
+#endif //TEST_DEPRECATED_FUNCS
 
   /* Create another thread */
   g_CrashThreadInfo.m_pCrashRptState = g_pCrashRptState;
@@ -81,6 +104,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
   // Uninstall crash reporting
   Uninstall(g_pCrashRptState);
+
+#ifdef TEST_DEPRECATED_FUNCS
+
+  Uninstall(g_pCrashRptState);
+
+#else
+  
+  int nUninstResult = crUninstall(g_pCrashRptState);
+  ATLASSERT(nUninstResult==0);
+
+#endif //TEST_DEPRECATED_FUNCS
 
 	::CoUninitialize();
 
