@@ -87,7 +87,7 @@ BEGIN
     ICON            "",IDI_APPICON,5,6,20,20,0,WS_EX_TRANSPARENT
     LTEXT           "What does this report contain?",IDC_LINK,15,58,98,8,NOT WS_GROUP
     LTEXT           "Please send us this error report to help fix the problem and improve this software.",IDC_STATIC,15,39,252,8
-    LTEXT           "Your e-mail:",IDC_STATMAIL,15,97,38,8
+    LTEXT           "Your E-mail:",IDC_STATMAIL,15,97,38,8
     LTEXT           "Describe here what you were doing when the error occurred:",IDC_DESCRIBE,15,113,230,8
     CONTROL         "",IDC_HORZLINE,"Static",SS_ETCHEDHORZ,0,179,309,1
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,32,310,1
@@ -234,7 +234,7 @@ BEGIN
     ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
     ID_FILE_PRINT           "Print the active document\nPrint"
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
-    IDS_HEADER              "{\\bnsi\\bnsicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Microsoft Sans Serif;}}\n{\\*\\generator Msftedit 5.41.15.1503;}\\viewkind4\\uc1\\pard\\f0\\fs30 %s has has stopped working}\n "
+    IDS_HEADER              "{\\bnsi\\bnsicpg1252\\deff0\\deflang1033{\\fonttbl{\\f0\\fswiss\\fcharset0 Microsoft Sans Serif;}}\n{\\*\\generator Msftedit 5.41.15.1503;}\\viewkind4\\uc1\\pard\\f0\\fs30 %s has stopped working}\n "
     IDS_INVALID_EMAIL       "Please enter a valid E-mail address. For example, name@hotmail.com."
     IDS_ZIP_FILTER          "Zip Files (*.zip)"
     IDS_HTTP_HEADER_CONTENT_TYPE 
