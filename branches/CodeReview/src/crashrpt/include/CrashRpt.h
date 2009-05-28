@@ -23,19 +23,49 @@
 // Current CrashRpt version (1.1.0)
 #define CRASHRPT_VER 1100
 
-// Client crash callback
+// Client crash callback function prototype
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
-typedef struct tagCRASHRPT_INFO
+// Crash reporting general info
+typedef struct tagCR_INSTALL_INFO
 {
-  WORD cb;              // Size of this structure in bytes
-  PCTSTR pszAppName;    // Name of application
-  PCTSTR pszAppVersion; // Application version
-  PCTSTR pszEmailTo;    // E-mail address of crash reports recipient
-  PCTSTR pszEmailSubject; // Subject of crash report e-mail 
-  LPGETLOGFILE pfnCrashCallback;
+  WORD cb;                       // Size of this structure in bytes
+  PCTSTR pszAppName;             // Name of application
+  PCTSTR pszAppVersion;          // Application version
+  PCTSTR pszEmailTo;             // E-mail address of crash reports recipient
+  PCTSTR pszEmailSubject;        // Subject of crash report e-mail 
+  PCTSTR pszCrashSenderPath;     // Directory name where CrashSender.exe is located
+  LPGETLOGFILE pfnCrashCallback; // User crash callback
 }
-CRASHRPT_INFO, *PCRASHRPT_INFO;
+CR_INSTALL_INFO, *PCR_INSTALL_INFO;
+
+
+// Additional exception info 
+typedef struct tagCR_EXCEPTION_INFO
+{
+  WORD cb;                // Size of this structure in bytes; should be initialized before using
+  unsigned int code;      // Exception code
+  unsigned int subcode;   // Exception subcode
+}
+CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
+
+
+// Exception types for crRaiseException
+#define CR_WIN32_NULL_POINTER_EXCEPTION 1
+#define CR_CPP_TERMINATE_CALL           2
+#define CR_CPP_UNEXPECTED_CALL          3
+#define CR_CPP_PURE_CALL                4
+#define CR_CPP_SECURITY_ERROR           5
+#define CR_CPP_INVALID_PARAMETER        6
+#define CR_CPP_NEW_OPERATOR_ERROR       7
+#define CR_CPP_SIGABRT                  8
+#define CR_CPP_SIGFPE                   9
+#define CR_CPP_SIGILL                   10
+#define CR_CPP_SIGINT                   11
+#define CR_CPP_SIGSEGV                  12
+#define CR_CPP_SIGTERM                  13
+
+
 
 //-----------------------------------------------------------------------------
 // Install
@@ -61,7 +91,7 @@ CRASHRPT_INFO, *PCRASHRPT_INFO;
 //
 CRASHRPTAPI 
 LPVOID 
-__declspec(deprecated("The Install() function is deprecated. Consider using crInstall() instead of it."))
+__declspec(deprecated("The Install() function is deprecated. Consider using crInstall() instead."))
 Install(
    IN LPGETLOGFILE pfn OPTIONAL,                // client crash callback
    IN LPCTSTR lpTo OPTIONAL,                    // Email:to
@@ -86,7 +116,7 @@ Install(
 //
 CRASHRPTAPI 
 void 
-__declspec(deprecated("The Uninstall() function is deprecated. Consider using crUninstall() instead of it."))
+__declspec(deprecated("The Uninstall() function is deprecated. Consider using crUninstall() instead."))
 Uninstall(
    IN LPVOID lpState                            // State from Install()
    );
@@ -109,6 +139,7 @@ Uninstall(
 //
 CRASHRPTAPI 
 void 
+__declspec(deprecated("The AddFile() function is deprecated. Consider using crAddFile() instead."))
 AddFile(
    IN LPVOID lpState,                           // State from Install()
    IN LPCTSTR lpFile,                           // File name
@@ -131,6 +162,7 @@ AddFile(
 //
 CRASHRPTAPI 
 void 
+__declspec(deprecated("The GenerateErrorReport() function is deprecated. Consider using crGenerateErrorReport() instead."))
 GenerateErrorReport(
    IN LPVOID lpState,
    IN PEXCEPTION_POINTERS pExInfo OPTIONAL
@@ -144,8 +176,7 @@ GenerateErrorReport(
 CRASHRPTAPI 
 int
 crInstall(
-  PCRASHRPT_INFO pInfo,
-  LPVOID* ppState
+  PCR_INSTALL_INFO pInfo
 );
 
 //-----------------------------------------------------------------------------
@@ -155,14 +186,12 @@ crInstall(
 
 CRASHRPTAPI 
 int
-crUninstall(LPVOID ppState);
+crUninstall();
 
 //-----------------------------------------------------------------------------
 // crInstallToCurrentThread
 //   Installs C++ exception handlers for the current thread.
 //
-// Parameters
-//    lpState     State information returned from Install()
 //
 // Remarks 
 //    This call is needed when C++ exception mechanism is on (/EHsc compiler flag).
@@ -171,15 +200,12 @@ crUninstall(LPVOID ppState);
 
 CRASHRPTAPI 
 int 
-crInstallToCurrentThread(
-  IN LPVOID lpState);
+crInstallToCurrentThread();
 
 //-----------------------------------------------------------------------------
 // crUninstallToCurrentThread
 //   Uninstalls C++ exception handlers from the current thread.
 //
-// Parameters
-//    lpState     State information returned from Install()
 //
 // Remarks 
 //    This call is needed when C++ exception mechanism is on (/EHsc compiler flag).
@@ -190,8 +216,45 @@ crInstallToCurrentThread(
 
 CRASHRPTAPI 
 int 
-crUninstallFromCurrentThread(
-  IN LPVOID lpState);
+crUninstallFromCurrentThread();
+
+//-----------------------------------------------------------------------------
+// crAddFile
+
+CRASHRPTAPI 
+int
+crAddFile(
+   PCTSTR pszFile,
+   PCTSTR pszDesc 
+   );
+
+//-----------------------------------------------------------------------------
+// crGenerateErrorReport
+
+CRASHRPTAPI 
+int 
+crGenerateErrorReport(
+   _EXCEPTION_POINTERS* pExInfo = NULL,
+   CR_EXCEPTION_INFO* pAdditionalInfo = NULL
+   );
+
+//-----------------------------------------------------------------------------
+// crExceptionFilter
+
+CRASHRPTAPI
+int 
+crExceptionFilter(
+  unsigned int code, 
+  struct _EXCEPTION_POINTERS* ep);
+
+//-----------------------------------------------------------------------------
+// crRaiseException
+
+CRASHRPTAPI
+int
+crEmulateCrash(
+  unsigned ExceptionType);
 
 
-#endif
+
+#endif //_CRASHRPT_H_
