@@ -2,6 +2,9 @@
 //
 
 #include <stdio.h>
+#include <conio.h>
+#include <tchar.h>
+#include <assert.h>
 #include <process.h>
 #include "CrashRpt.h"
 
@@ -20,24 +23,51 @@ int main(int argc, char* argv[])
   argv; // this is to avoid C4100 unreferenced formal parameter warning
   
   // Install crash reporting
+
+#ifdef TEST_DEPRECATED_FUNCS
   lpvState = Install(NULL, NULL, NULL);
+#else
+  CR_INSTALL_INFO info;
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));
+  info.cb = sizeof(CR_INSTALL_INFO);
+  info.pszAppName = _T("CrashRpt Console Test");
+  info.pszAppVersion = _T("1.0.0");
+  info.pszEmailSubject = _T("CrashRpt Console Test 1.0.0 Error Report");
+  info.pszEmailTo = _T("zexspectrum_1980.mail.ru");
+
+  int nInstResult = crInstall(&info);
+  assert(nInstResult==0);
+  nInstResult;
+#endif //TEST_DEPRECATED_FUNCS
+  
+  printf("Press Enter to simulate a null pointer exception or any other key to exit...\n");
+  int n = _getch();
+  if(n==13)
+  {
 
 #ifdef _DEBUG
-   printf("Press a ENTER to simulate a null pointer exception...\n");
-   getchar();
-   __try
-   {
-      RaiseException(EXCEPTION_BREAKPOINT, 0, 0, NULL);
-   } 
-   __except(filter(GetExceptionCode(), GetExceptionInformation()))
-   {
-   }
+     __try
+     {
+        RaiseException(EXCEPTION_ACCESS_VIOLATION, 0, 0, NULL);
+     } 
+     __except(filter(GetExceptionCode(), GetExceptionInformation()))
+     {
+     }
 #else
-   printf("Press a ENTER to generate a null pointer exception...\n");
-   getchar();
-   int *p = 0;
-   *p = 0;
+     int *p = 0;
+     *p = 0;
 #endif // _DEBUG
-	return 0;
+  
+  }
+
+#ifdef TEST_DEPRECATED_FUNCS
+  Uninstall(lpvState);
+#else
+  int nUninstRes = crUninstall();
+  assert(nUninstRes==0);
+  nUninstRes;
+#endif //TEST_DEPRECATED_FUNCS
+
+  return 0;
 }
 
