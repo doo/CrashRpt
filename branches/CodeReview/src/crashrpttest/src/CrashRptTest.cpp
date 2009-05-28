@@ -66,18 +66,17 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   CString szSubject;
   szSubject.Format(_T("%s %s Error Report"), APP_NAME, APP_VERSION);
 
-  CRASHRPT_INFO info;
-  memset(&info, 0, sizeof(CRASHRPT_INFO));
-  info.cb = sizeof(CRASHRPT_INFO);  
+  CR_INSTALL_INFO info;
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));
+  info.cb = sizeof(CR_INSTALL_INFO);  
   info.pszAppName = APP_NAME;
   info.pszAppVersion = APP_VERSION;
   info.pszEmailSubject = szSubject;
   info.pszEmailTo = _T("zexspectrum_1980@mail.ru");
   info.pfnCrashCallback = CrashCallback;  
-
-  g_pCrashRptState = NULL;
-  int nInstResult = crInstall(&info, &g_pCrashRptState);
-  ATLASSERT(nInstResult==0 && g_pCrashRptState!=NULL);
+  
+  int nInstResult = crInstall(&info);
+  ATLASSERT(nInstResult==0);
 
 #endif //TEST_DEPRECATED_FUNCS
 
@@ -111,7 +110,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 #else
   
-  int nUninstResult = crUninstall(g_pCrashRptState);
+  int nUninstResult = crUninstall();
   ATLASSERT(nUninstResult==0);
 
 #endif //TEST_DEPRECATED_FUNCS

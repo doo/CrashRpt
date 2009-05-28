@@ -72,27 +72,27 @@ void CMainDlg::CloseDialog(int nVal)
 
 LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  eExceptionType type = ET_NO_EXCEPTION;
+  int type = 0;
 
   switch(wID)
   {
-  case IDC_MAIN_NOEXC: break;
-  case IDC_MAIN_WIN32: type = ET_UNHANDLED_WIN32_EXCEPTION; break;                              
-  case IDC_MAIN_TERM: type = ET_CPP_TERMINATE; break;                              
-  case IDC_MAIN_UNEXP: type = ET_CPP_UNEXPECTED; break;                              
-  case IDC_MAIN_PURECALL: type = ET_CPP_PURECALL; break;
-  case IDC_MAIN_SECURITY: type = ET_CPP_SECURITY; break;
-  case IDC_MAIN_INVPAR: type = ET_CPP_INVALIDPARAM; break;
-  case IDC_MAIN_NEW: type = ET_CPP_NEW; break;
-  case IDC_MAIN_SIGABRT: type = ET_CPP_SIGABRT; break;
-  case IDC_MAIN_SIGILL: type = ET_CPP_SIGILL; break;
-  case IDC_MAIN_SIGINT: type = ET_CPP_SIGINT; break;
-  case IDC_MAIN_SIGSEGV: type = ET_CPP_SIGSEGV; break;
-  case IDC_MAIN_SIGTERM: type = ET_CPP_SIGTERM; break;
+  case IDC_MAIN_NOEXC: return 0;
+  case IDC_MAIN_WIN32: type = CR_WIN32_NULL_POINTER_EXCEPTION; break;                              
+  case IDC_MAIN_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
+  case IDC_MAIN_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
+  case IDC_MAIN_PURECALL: type = CR_CPP_PURE_CALL; break;
+  case IDC_MAIN_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
+  case IDC_MAIN_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
+  case IDC_MAIN_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
+  case IDC_MAIN_SIGABRT: type = CR_CPP_SIGABRT; break;
+  case IDC_MAIN_SIGILL: type = CR_CPP_SIGILL; break;
+  case IDC_MAIN_SIGINT: type = CR_CPP_SIGINT; break;
+  case IDC_MAIN_SIGSEGV: type = CR_CPP_SIGSEGV; break;
+  case IDC_MAIN_SIGTERM: type = CR_CPP_SIGTERM; break;
   default: assert(0); break;
   }
 
-  int nResult = GenerateException(type);
+  int nResult = crEmulateCrash(type);
   if(nResult!=0)
   {
     MessageBox(_T("Error creating exception situation!"));
@@ -103,23 +103,23 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
 
 LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  eExceptionType type = ET_NO_EXCEPTION;
+  int type = 0;
 
   switch(wID)
   {
-  case IDC_THREAD_NOEXC: break;
-  case IDC_THREAD_WIN32: type = ET_UNHANDLED_WIN32_EXCEPTION; break;                              
-  case IDC_THREAD_TERM: type = ET_CPP_TERMINATE; break;                              
-  case IDC_THREAD_UNEXP: type = ET_CPP_UNEXPECTED; break;                              
-  case IDC_THREAD_PURECALL: type = ET_CPP_PURECALL; break;
-  case IDC_THREAD_SECURITY: type = ET_CPP_SECURITY; break;
-  case IDC_THREAD_INVPAR: type = ET_CPP_INVALIDPARAM; break;
-  case IDC_THREAD_NEW: type = ET_CPP_NEW; break;
-  case IDC_THREAD_SIGABRT: type = ET_CPP_SIGABRT; break;
-  case IDC_THREAD_SIGILL: type = ET_CPP_SIGILL; break;
-  case IDC_THREAD_SIGINT: type = ET_CPP_SIGINT; break;
-  case IDC_THREAD_SIGSEGV: type = ET_CPP_SIGSEGV; break;
-  case IDC_THREAD_SIGTERM: type = ET_CPP_SIGTERM; break;
+  case IDC_THREAD_NOEXC: return 0;
+  case IDC_THREAD_WIN32: type = CR_WIN32_NULL_POINTER_EXCEPTION; break;                              
+  case IDC_THREAD_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
+  case IDC_THREAD_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
+  case IDC_THREAD_PURECALL: type = CR_CPP_PURE_CALL; break;
+  case IDC_THREAD_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
+  case IDC_THREAD_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
+  case IDC_THREAD_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
+  case IDC_THREAD_SIGABRT: type = CR_CPP_SIGABRT; break;
+  case IDC_THREAD_SIGILL: type = CR_CPP_SIGILL; break;
+  case IDC_THREAD_SIGINT: type = CR_CPP_SIGINT; break;
+  case IDC_THREAD_SIGSEGV: type = CR_CPP_SIGSEGV; break;
+  case IDC_THREAD_SIGTERM: type = CR_CPP_SIGTERM; break;
   default: assert(0); break;
   }
 
