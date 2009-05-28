@@ -100,6 +100,7 @@ public:
    int Init(
       LPCTSTR lpcszAppName = NULL,
       LPCTSTR lpcszAppVersion = NULL,
+      LPCTSTR lpcszCrashSenderPath = NULL,
       LPGETLOGFILE lpfn = NULL,           
       LPCTSTR lpcszTo = NULL,             
       LPCTSTR lpcszSubject = NULL);
@@ -147,8 +148,19 @@ public:
    //
    int 
    GenerateErrorReport(
-      PEXCEPTION_POINTERS pExInfo         // Exception pointers (see MSDN)
+      PEXCEPTION_POINTERS pExInfo,         // Exception pointers (see MSDN)      
+      PCR_EXCEPTION_INFO pAdditionalInfo = NULL
       );
+
+
+   //-----------------------------------------------------------------------------
+   //
+   //
+
+   int GenerateCrashLogXML(
+     PCTSTR pszFileName, 
+     PEXCEPTION_POINTERS pExInfo,         
+     PCR_EXCEPTION_INFO pAdditionalInfo);
 
    //-----------------------------------------------------------------------------
    // SetProcessCPPExceptionHandlers
@@ -203,6 +215,8 @@ public:
    int 
    UnSetThreadCPPExceptionHandlers();
   
+   static CCrashHandler* GetCurrentProcessCrashHandler();
+
 protected:
 
   // Creates new process that would let user email the error report.

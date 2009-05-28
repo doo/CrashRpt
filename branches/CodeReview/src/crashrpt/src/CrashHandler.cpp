@@ -24,6 +24,7 @@ CAppModule _Module;
 // maps crash objects to processes
 CSimpleMap<int, CCrashHandler*> _crashStateMap;
 
+
 // unhandled exception callback set with SetUnhandledExceptionFilter()
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 {
@@ -189,6 +190,7 @@ CCrashHandler::~CCrashHandler()
 int CCrashHandler::Init(
   LPCTSTR lpcszAppName,
   LPCTSTR lpcszAppVersion,
+  LPCTSTR lpcszCrashSenderPath,
   LPGETLOGFILE lpfnCallback, 
   LPCTSTR lpcszTo, 
   LPCTSTR lpcszSubject)
@@ -219,8 +221,36 @@ int CCrashHandler::Init(
 
   m_sImageName = CString(szExeName, dwLength);
   
-  // By default assume that CrashSender.exe is located in the same dir as EXE 
-  m_sPathToCrashSender = CUtility::GetModulePath(hModule);   
+  CString sCrashSenderName;
+
+#ifdef _DEBUG
+  sCrashSenderName = _T("CrashSenderd.exe");
+#else
+  sCrashSenderName = _T("CrashSender.exe");
+#endif //_DEBUG
+  
+  if(lpcszCrashSenderPath==NULL)
+  {
+    // By default assume that CrashSender.exe is located in the same dir as EXE 
+    m_sPathToCrashSender = CUtility::GetModulePath(hModule);   
+  }
+  else
+    m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
+  
+  if(m_sPathToCrashSender.Right(1)!='\\')
+      m_sPathToCrashSender+="\\";
+  m_sPathToCrashSender+=sCrashSenderName;   
+
+  HANDLE hFile = CreateFile(m_sPathToCrashSender, FILE_GENERIC_READ, 
+    FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+  
+  if(hFile==INVALID_HANDLE_VALUE)
+  {
+    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
+    return 3; // CrashSender not found!
+  }
+
+  CloseHandle(hFile);
 
   // initialize member data
   m_lpfnCallback = NULL;
@@ -240,14 +270,14 @@ int CCrashHandler::Init(
   if(nSetProcessHandlers!=0)
   {
     ATLASSERT(nSetProcessHandlers==0);
-    return 3;
+    return 4;
   }
 
   int nSetThreadHandlers = SetThreadCPPExceptionHandlers();
   if(nSetThreadHandlers!=0)
   {
     ATLASSERT(nSetThreadHandlers==0);
-    return 3;
+    return 5;
   }
 
   // attach this handler with this process
@@ -460,6 +490,8 @@ int CCrashHandler::UnSetThreadCPPExceptionHandlers()
   if(handlers->m_prevSigSEGV!=NULL)
     signal(SIGSEGV, handlers->m_prevSigSEGV); 
 
+  m_ThreadExceptionHandlers.erase(it);
+
   // OK.
   return 0;
 }
@@ -493,7 +525,8 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDesc)
    return 0;
 }
 
-int CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo)
+int CCrashHandler::GenerateErrorReport(
+  PEXCEPTION_POINTERS pExInfo, PCR_EXCEPTION_INFO pAdditionalInfo)
 {
    CExceptionReport  rpt(pExInfo);   
    CZLib             zlib;
@@ -544,7 +577,10 @@ int CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo)
 
        // Send report
        BOOL bSave = CopyFile(sTempFileName, CUtility::getSaveFileName(), TRUE);
-       ATLASSERT(bSave==TRUE);
+       if(bSave==FALSE)
+       {
+         ATLASSERT(bSave==TRUE);
+       }
      }     
    }
 
@@ -595,22 +631,12 @@ BOOL CCrashHandler::LaunchCrashSender()
 {
   // Create CrashSender process
 
-  CString sCrashSenderName;
-  sCrashSenderName.Format(_T("%s\\%s"), 
-    m_sPathToCrashSender,
-#ifdef _DEBUG
-    _T("CrashSenderd.exe")
-#else
-    _T("CrashSender.exe")
-#endif //_DEBUG
-    );
-
   STARTUPINFO si;
   memset(&si, 0, sizeof(STARTUPINFO));
   si.cb = sizeof(STARTUPINFO);
   PROCESS_INFORMATION pi;
   memset(&pi, 0, sizeof(PROCESS_INFORMATION));
-  BOOL bCreateProcess = CreateProcess(sCrashSenderName, 
+  BOOL bCreateProcess = CreateProcess(m_sPathToCrashSender, 
     NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
   if(!bCreateProcess)
   {
@@ -679,3 +705,8 @@ CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
   return sResult;
 }
 
+CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
+{
+  int pid = _getpid();
+  return _crashStateMap.Lookup(pid);
+}
