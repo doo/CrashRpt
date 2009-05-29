@@ -10,13 +10,6 @@
 
 LPVOID lpvState = NULL;
 
-int filter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
-{
-  code; // this is to avoid  C4100 unreferenced formal parameter warning
-  GenerateErrorReport(lpvState, ep);
-  return EXCEPTION_EXECUTE_HANDLER;
-}
-
 int main(int argc, char* argv[])
 {
   argc; // this is to avoid C4100 unreferenced formal parameter warning
@@ -50,7 +43,7 @@ int main(int argc, char* argv[])
      {
         RaiseException(EXCEPTION_ACCESS_VIOLATION, 0, 0, NULL);
      } 
-     __except(filter(GetExceptionCode(), GetExceptionInformation()))
+     __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
      {
      }
 #else
