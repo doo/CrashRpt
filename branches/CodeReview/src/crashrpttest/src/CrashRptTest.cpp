@@ -18,10 +18,18 @@ CrashThreadInfo g_CrashThreadInfo;
 
 BOOL WINAPI CrashCallback(LPVOID lpvState)
 {
-   AddFile(lpvState, _T("dummy.log"), _T("Dummy Log File"));
-   AddFile(lpvState, _T("dummy.ini"), _T("Dummy INI File"));
+#ifdef TEST_DEPRECATED_FUNCS
+  AddFile(lpvState, _T("dummy.log"), _T("Dummy Log File"));
+  AddFile(lpvState, _T("dummy.ini"), _T("Dummy INI File"));
+#else
+  lpvState;
+  int nAddFile = crAddFile(_T("dummy.log"), _T("Dummy Log File"));
+  ATLASSERT(nAddFile==0);
+  nAddFile = crAddFile(_T("dummy.ini"), _T("Dummy INI File"));
+  ATLASSERT(nAddFile==0);
+#endif
 
-   return TRUE;
+  return TRUE;
 }
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
@@ -77,6 +85,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   
   int nInstResult = crInstall(&info);
   ATLASSERT(nInstResult==0);
+  nInstResult;
 
 #endif //TEST_DEPRECATED_FUNCS
 
@@ -102,8 +111,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	_Module.Term();
 
   // Uninstall crash reporting
-  Uninstall(g_pCrashRptState);
-
+  
 #ifdef TEST_DEPRECATED_FUNCS
 
   Uninstall(g_pCrashRptState);
@@ -112,6 +120,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   
   int nUninstResult = crUninstall();
   ATLASSERT(nUninstResult==0);
+  nUninstResult;
 
 #endif //TEST_DEPRECATED_FUNCS
 
