@@ -21,10 +21,47 @@
 //! Current CrashRpt version
 #define CRASHRPT_VER 1100
 
+/*! \defgroup CrashRptAPI CrashRpt Functions */
+/*! \defgroup DeprecatedAPI Obsolete Functions */
+/*! \defgroup CrashRptStructs CrashRpt Structures */
+
 //! Client crash callback function prototype
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
-//! Crash reporting general info used by crInstall()
+/*! \ingroup CrashRptStructs
+ *  \brief Crash reporting general info used by crInstall()
+ *
+ *  \remarks
+ *
+ *    - \c cb should be always contain size of this structure in bytes. 
+ *         Set it to \c sizeof(CR_INSTALL_INFO).
+ *
+ *    - \c pszAppName is a friendly name of client application. The application name is
+ *         displayed in Error Report dialog. This parameter can be NULL.
+ *         If this parameter is NULL, the name of EXE file that was used to start calling
+ *         process is used as the application name.
+ *
+ *    - \c pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
+ *         However, it is recommended to specify this parameter to simplify automatic crash 
+ *         report analysis and classification. If it equals to NULL, it is ignored.
+ * 
+ *    - \c pszEmailTo is the email address of the recipient of error reports, for example
+ *         "name@example.com". 
+ *         This parameter can be NULL. If it equals to NULL, user will be offered to save error
+ *         report to disk as ZIP file.
+ *
+ *    - \c pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
+ *         The crash sender process is responsible for letting end user know about the crash and 
+ *         sending the error report.
+ *         This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
+ *         the same directory as CrashRpt.dll.
+ *
+ *    - \c pfnCrashCallback is the user crash callback function. Crash callback function is
+ *         called by CrashRpt when crash occurs and allows user to add custom files to the 
+ *         error report or perform other actions. This parameter can be NULL.
+ *         If NULL, crash callback is not called.
+ */
+
 typedef struct tagCR_INSTALL_INFO
 {
   WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
@@ -38,10 +75,12 @@ typedef struct tagCR_INSTALL_INFO
 CR_INSTALL_INFO, *PCR_INSTALL_INFO;
 
 
-//! Additional exception info used by crGenerateCrashReport()
+/*! \ingroup CrashRptStructs
+ *  \brief Additional exception info used by crGenerateCrashReport()
+ */
 typedef struct tagCR_EXCEPTION_INFO
 {
-  WORD cb;                //!< Size of this structure in bytes; should be initialized before using
+  WORD cb;                //!< Size of this structure in bytes; should be initialized before using.
   unsigned int code;      //!< Exception code
   unsigned int subcode;   //!< Exception subcode
 }
@@ -63,9 +102,6 @@ CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 #define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal ()
 #define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request)
 
-/*! \defgroup CrashRptAPI CrashRpt API */
-/*! \defgroup DeprecatedAPI Obsolete Functions */
-
 /*! \ingroup DeprecatedAPI
  *  \brief Installs exception handlers for the current process.
  *
@@ -85,6 +121,9 @@ CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
  *    This function installs unhandled exception filter for all threads of calling process.
  *    It also installs various C++ exception/error handlers. For the list of handlers,
  *    please see crInstall().
+ *
+ *    This function assumes that CrashSender.exe is located in the same directory as CrashRpt.dll loaded
+ *    by this process. To specify different directory, use crInstall().
  *
  *    On crash, the error report is sent by E-mail using address and subject passed to the
  *    function as lpTo and lpSubject parameters, respectively. When E-mail client is not available,
@@ -107,7 +146,7 @@ Install(
  *
  *  \param[in] lpState State information returned from Install(), can be NULL.
  *
- *  \reprecated
+ *  \deprecated
  *    This function is deprecated. It is still supported for compatiblity with
  *    older versions of CrashRpt, however consider using crInstall() function instead.
  *    This function is implemented as a wrapper for crUninstall().
@@ -130,8 +169,8 @@ Uninstall(
  *  \brief Adds a file to the crash report.
  *  
  *  \param[in] lpState State information returned from Install(), can be NULL.
- *  \param[in] lpFile  Fully qualified file name.
- *  \param[in] lpDesc  Description of file, used by Error Report Details dialog.
+ *  \param[in] pszFile  Fully qualified file name.
+ *  \param[in] pszDesc  Description of file, used by Error Report Details dialog.
  *
  *  \deprecated
  *    This function is deprecated. It is still supported for compatiblity with
@@ -152,8 +191,8 @@ CRASHRPTAPI
 void 
 AddFile(
    IN LPVOID lpState,                         
-   IN LPCTSTR lpFile,                         
-   IN LPCTSTR lpDesc                          
+   IN LPCTSTR pszFile,                         
+   IN LPCTSTR pszDesc                          
    );
 
 /*! \ingroup DeprecatedAPI 
@@ -180,40 +219,52 @@ AddFile(
 
 CRASHRPTAPI 
 void 
-//__declspec(deprecated("The GenerateErrorReport() function is deprecated. Consider using crGenerateErrorReport() instead."))
 GenerateErrorReport(
    IN LPVOID lpState,
    IN PEXCEPTION_POINTERS pExInfo OPTIONAL
    );
 
+
+
 /*! \ingroup CrashRptAPI 
  *  \brief  Installs exception handlers for current process and C++ exception handlers that
  *          function on per-process basis.
- *  \param
  *
+ *  \param[in] pInfo General information.
+ *
+ *  \remarks
  *    This function installs unhandled exception filter for all threads of calling process.
  *    It also installs various C++ exception/error handlers that function for all threads.
  *
  *    Below is the list of installed handlers:
- *     - WIN32 unhandled exception filter [ SetUnhandledExceptionFilter() ]
- *     - C++ pure virtual call handler [ _set_purecall_handler() ]
- *     - C++ invalid parameter handler [ _set_invalid_parameter_handler() ]
- *     - C++ new operator error handler [ _set_new_handler() ]
- *     - C++ buffer overrun handler (for old versions of CRT) [ _set_security_error_handler() ]
- *     - C++ abort handler [ signal(SIGABRT) ]
- *     - C++ floating point error handler [ signal(SIGFPE ]
- *     - C++ illegal instruction handler [ signal(SIGINT) ]
- *     - C++ termination request [ signal(SIGTERM) ]
+ *     - WIN32 unhandled exception filter [ \c SetUnhandledExceptionFilter() ]
+ *     - C++ pure virtual call handler [ \c _set_purecall_handler() ]
+ *     - C++ invalid parameter handler [ \c _set_invalid_parameter_handler() ]
+ *     - C++ new operator error handler [ \c _set_new_handler() ]
+ *     - C++ buffer overrun handler (for old versions of CRT) [ \c _set_security_error_handler() ]
+ *     - C++ abort handler [ \c signal(SIGABRT) ]
+ *     - C++ floating point error handler [ \c signal(SIGFPE ]
+ *     - C++ illegal instruction handler [ \c signal(SIGINT) ]
+ *     - C++ termination request [ \c signal(SIGTERM) ]
  *
- *    On crash, the crash minidump file is created, which contains the CPU and 
+ *    The \c pInfo parameter contains all required information needed to install CrashRpt.
+ *    Set \c cb member of CR_INSTALL_INFO structure to \c sizeof(CR_INSTALL_INFO), 
+ *    otherwise function will fail. 
+ *
+ *    This function fails when \c pInfo->pszCrashSenderPath doesn't contain valid path to CrashSender.exe
+ *    or when pInfo->pszCrashSenderPath is equal to NULL, but CrashSender.exe is not located in the
+ *    directory where CrashRpt.dll located.
+ *
+ *    On crash, the crash minidump file is created, which contains CPU and 
  *    stack state information. Also XML file is created that contains additional 
- *    information that may be helpful for crash analysis.
+ *    information that may be helpful for crash analysis. These files along with several additional
+ *    files added with crAddFile() are packed to a single ZIP file.
  *
- *    When crash information is collected, another process CrashSender is launched 
- *    and the process where crash occur is terminated. The CrashSender process is 
+ *    When crash information is collected, another process, CrashSender, is launched 
+ *    and the process where crash had occured is terminated. The CrashSender process is 
  *    responsible for letting the user know about the crash and send the error report.
  * 
- *    The error report is sent by E-mail using address and subject passed to the
+ *    The error report is sent over E-mail using address and subject passed to the
  *    function as CR_INSTALL_INFO structure members. When E-mail client is not available, 
  *    user is offered to save the report to disk as ZIP archive. 
  *
@@ -228,11 +279,26 @@ crInstall(
 /*! \ingroup CrashRptAPI 
  *  \brief Unsinstalls exception handlers previously installed with crInstall().
  *
+ *  \return
+ *    This function returns zero if succeeded.
+ *
+ *  \remarks
+ *
+ *    Call this function on application exit to uninstall exception
+ *    handlers previously installed with crInstall(). After function call, the exception handlers
+ *    are restored to states that they had before calling crInstall().
+ *
+ *    This function fails if crInstall() wasn't previously called in context of
+ *    current process.
+ *
+ *
  */
 
 CRASHRPTAPI 
 int
 crUninstall();
+
+
 
 /*! \ingroup CrashRptAPI  
  *  \brief Installs C++ exception/error handlers for the current thread.
@@ -322,7 +388,15 @@ crAddFile(
  *  \param[in] pAdditionalInfo Additional information.
  *
  *  \remarks
+ *    Call this function to manually generate a crash report.
+ *
+ *    The crash report contains the crash minidump, crash log in XML format and
+ *    additional files added with AddFile().
+ *
+ *    If \c pExInfo is NULL, crash minidump might contain unusable information.
  *    
+ *    The \c pAdditionalInfo parameter specifies additional information about exception.
+ *    It can be NULL. 
  *
  */
 
@@ -343,7 +417,7 @@ crGenerateErrorReport(
  *  \param[in] ep   Exception pointers.
  *
  *  \remarks
- *     This function should be called instead of C++ structured exception filter
+ *     This function can be called instead of C++ structured exception filter
  *     inside of __try __except(Expression) statement. The function generates a error report
  *     and terminates calling process.
  *
