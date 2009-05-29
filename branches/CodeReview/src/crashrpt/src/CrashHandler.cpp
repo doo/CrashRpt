@@ -203,24 +203,48 @@ int CCrashHandler::Init(
   m_sAppVersion = lpcszAppVersion;
     
   // Get handle to the EXE module used to create this process
-  HMODULE hModule = GetModuleHandle(NULL);
-  if(hModule==NULL)
+  HMODULE hExeModule = GetModuleHandle(NULL);
+  if(hExeModule==NULL)
   {
-    ATLASSERT(hModule!=NULL);
+    ATLASSERT(hExeModule!=NULL);
     return 1;
   }
 
   TCHAR szExeName[_MAX_PATH];
-  DWORD dwLength = GetModuleFileName(hModule, szExeName, _MAX_PATH);
+  DWORD dwLength = GetModuleFileName(hExeModule, szExeName, _MAX_PATH);
   if(GetLastError()!=0)
   {
     // Couldn't get the name of EXE that was used to create current process
     ATLASSERT(0);
     return 2;
-  }
+  }  
 
   m_sImageName = CString(szExeName, dwLength);
+
+  CString sCrashRptName;
+
+#ifdef _DEBUG
+  sCrashRptName = _T("CrashRptd.dll");
+#else
+  sCrashRptName = _T("CrashRpt.dll");
+#endif //_DEBUG
+
+  // Get handle to the CrashRpt module that is loaded by current process
+  HMODULE hCrashRptModule = GetModuleHandle(sCrashRptName);
+  if(hCrashRptModule==NULL)
+  {
+    ATLASSERT(hCrashRptModule!=NULL);
+    return 3;
+  }  
   
+  if(lpcszCrashSenderPath==NULL)
+  {
+    // By default assume that CrashSender.exe is located in the same dir as CrashRpt.dll
+    m_sPathToCrashSender = CUtility::GetModulePath(hCrashRptModule);   
+  }
+  else
+    m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
+
   CString sCrashSenderName;
 
 #ifdef _DEBUG
@@ -228,15 +252,7 @@ int CCrashHandler::Init(
 #else
   sCrashSenderName = _T("CrashSender.exe");
 #endif //_DEBUG
-  
-  if(lpcszCrashSenderPath==NULL)
-  {
-    // By default assume that CrashSender.exe is located in the same dir as EXE 
-    m_sPathToCrashSender = CUtility::GetModulePath(hModule);   
-  }
-  else
-    m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
-  
+
   if(m_sPathToCrashSender.Right(1)!='\\')
       m_sPathToCrashSender+="\\";
   m_sPathToCrashSender+=sCrashSenderName;   
@@ -298,13 +314,16 @@ int CCrashHandler::Destroy()
   if (m_oldFilter)
     SetUnhandledExceptionFilter(m_oldFilter);
 
+  m_oldFilter = NULL;
+
   // All installed per-thread C++ exception handlers should be uninstalled 
   // using crUninstallFromCurrentThread() before calling Destroy()
   if(m_ThreadExceptionHandlers.size()!=0)
   {
-    ATLASSERT(m_ThreadExceptionHandlers.size()==0);
+    ATLASSERT(m_ThreadExceptionHandlers.size()==0);    
   }
 
+  m_ThreadExceptionHandlers.clear();
   _crashStateMap.Remove(m_pid);
 
   // OK.
@@ -447,7 +466,7 @@ int CCrashHandler::SetThreadCPPExceptionHandlers()
   // http://msdn.microsoft.com/en-us/library/h46t5b69.aspx  
   handlers.m_prevUnexp = set_unexpected(cpp_unexp_handler);    
 
-  // Catch an interrupt (CTRL+C)
+  // Catch an illegal instruction
   handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
 
   // Catch illegal storage access handler

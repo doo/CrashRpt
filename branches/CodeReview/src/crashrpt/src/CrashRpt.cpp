@@ -1,25 +1,24 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Module: CrashRpt.cpp
-//
-//    Desc: See CrashRpt.h
-//
-// Copyright (c) 2003 Michael Carruth
-//
-///////////////////////////////////////////////////////////////////////////////
+/*! \file   CrashRpt.cpp
+ *  \brief  Implementation of CrashRpt API
+ *  \date   2003-2009
+ *  \author Copyright (c) 2003 Michael Carruth
+ *  \author zexspectrum_1980@mail.ru
+ *  \todo
+ */
 
 #include "stdafx.h"
 #include "CrashRpt.h"
 #include "CrashHandler.h"
 
-CRASHRPTAPI LPVOID Install(LPGETLOGFILE pfn, LPCTSTR lpcszTo, LPCTSTR lpcszSubject)
+
+CRASHRPTAPI LPVOID Install(LPGETLOGFILE pfnCallback, LPCTSTR pszEmailTo, LPCTSTR pszEmailSubject)
 {
   CR_INSTALL_INFO info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);
-  info.pfnCrashCallback = pfn;
-  info.pszEmailTo = lpcszTo;
-  info.pszEmailSubject = lpcszSubject;
+  info.pfnCrashCallback = pfnCallback;
+  info.pszEmailTo = pszEmailTo;
+  info.pszEmailSubject = pszEmailSubject;
 
   crInstall(&info);
 
@@ -41,7 +40,7 @@ CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo
   crGenerateErrorReport(pExInfo, NULL);
 }
 
-int crInstall(CR_INSTALL_INFO* pInfo)
+CRASHRPTAPI int crInstall(CR_INSTALL_INFO* pInfo)
 {
   // Validate input parameters.
   if(pInfo==NULL || 
@@ -87,7 +86,7 @@ int crInstall(CR_INSTALL_INFO* pInfo)
   return 0;
 }
 
-int crUninstall()
+CRASHRPTAPI int crUninstall()
 {
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
@@ -257,7 +256,7 @@ int RecurseAlloc()
    return 0;
 }
 
-CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
+/*CRASHRPTAPI*/ int crEmulateCrash(unsigned ExceptionType)
 {
   switch(ExceptionType)
   {

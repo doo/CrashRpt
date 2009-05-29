@@ -102,105 +102,16 @@ PostBuild_Cmds=mkdir ..\include	copy crashrpt.h ..\include
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\CrashHandler.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CrashRpt.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\CrashRpt.rc
-# End Source File
-# Begin Source File
-
-SOURCE=.\excprpt.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\MailMsg.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.cpp
-# ADD CPP /Yc"stdafx.h"
-# End Source File
-# Begin Source File
-
-SOURCE=.\Utility.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\zlibcpp.cpp
+SOURCE=..\include\CrashRpt.h
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\aboutdlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\CrashHandler.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\CrashRpt.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\DeadLink.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\detaildlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\excprpt.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\MailMsg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\maindlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\resource.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Utility.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\zlibcpp.h
-# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=.\res\CrashRpt.ico
-# End Source File
 # End Group
-# Begin Source File
-
-SOURCE=.\chglog.txt
-# End Source File
-# Begin Source File
-
-SOURCE=.\license.txt
-# End Source File
 # End Target
 # End Project
