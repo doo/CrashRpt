@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "resource.h"
-
 #include "aboutdlg.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
@@ -42,13 +41,6 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	UIAddChildWindowContainer(m_hWnd);
 
 	return TRUE;
-}
-
-LRESULT CMainDlg::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	CAboutDlg dlg;
-	dlg.DoModal();
-	return 0;
 }
 
 LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

@@ -2,10 +2,7 @@
 //
 
 #include "stdafx.h"
-
 #include "resource.h"
-
-#include "aboutdlg.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
 #include <atlstr.h>
@@ -16,16 +13,32 @@ LPVOID g_pCrashRptState = NULL;
 HANDLE g_hWorkingThread = NULL;
 CrashThreadInfo g_CrashThreadInfo;
 
+// Helper function that returns path to application directory
+CString GetAppDir()
+{
+	CString string;
+	LPTSTR buf = string.GetBuffer(_MAX_PATH);
+	GetModuleFileName(NULL, buf, _MAX_PATH);
+	*(_tcsrchr(buf,'\\'))=0; // remove executable name
+	string.ReleaseBuffer();
+	return string;
+}
+
 BOOL WINAPI CrashCallback(LPVOID lpvState)
 {
+  CString sLogFile = GetAppDir() + _T("\\dummy.log");
+  CString sIniFile = GetAppDir() + _T("\\dummy.ini");
+
 #ifdef TEST_DEPRECATED_FUNCS
-  AddFile(lpvState, _T("dummy.log"), _T("Dummy Log File"));
-  AddFile(lpvState, _T("dummy.ini"), _T("Dummy INI File"));
+  AddFile(lpvState, sLogFile, _T("Dummy Log File"));
+  AddFile(lpvState, sLogFile, _T("Dummy INI File"));
 #else
   lpvState;
-  int nAddFile = crAddFile(_T("dummy.log"), _T("Dummy Log File"));
+  
+  int nAddFile = crAddFile(sLogFile, _T("Dummy Log File"));
   ATLASSERT(nAddFile==0);
-  nAddFile = crAddFile(_T("dummy.ini"), _T("Dummy INI File"));
+
+  nAddFile = crAddFile(sIniFile, _T("Dummy INI File"));
   ATLASSERT(nAddFile==0);
 #endif
 
