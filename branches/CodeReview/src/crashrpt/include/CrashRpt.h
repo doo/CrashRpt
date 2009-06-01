@@ -1,7 +1,7 @@
 /*! \file   CrashRpt.h
  *  \brief  Defines the interface for the CrashRpt.DLL.
  *  \date   2003-2009
- *  \author Copyright (c) 2003 Michael Carruth
+ *  \author Michael Carruth
  *  \author zexspectrum_1980@mail.ru
  *  \todo
  */
@@ -11,7 +11,7 @@
 
 #include <windows.h>
 
-// CrashRpt.h
+// This is needed for exporting/importing functions from/to CrashRpt.dll
 #ifdef CRASHRPT_EXPORTS
  #define CRASHRPTAPI __declspec(dllexport) 
 #else 
@@ -25,7 +25,16 @@
 /*! \defgroup DeprecatedAPI Obsolete Functions */
 /*! \defgroup CrashRptStructs CrashRpt Structures */
 
-//! Client crash callback function prototype
+/*! \ingroup CrashRptAPI
+ *  \brief Client crash callback function prototype
+ *  \param[in] lpvState Not used, always equals to NULL.
+ *
+ *  \remarks
+ *  The crash callback function is called when crash occurs. This way client application is
+ *  notified about the crash.
+ *  In crash callback, you can use crAddFile() to add a custom file to the error report.
+ *  
+ */
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
 /*! \ingroup CrashRptStructs
@@ -39,7 +48,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
  *    - \c pszAppName is a friendly name of client application. The application name is
  *         displayed in Error Report dialog. This parameter can be NULL.
  *         If this parameter is NULL, the name of EXE file that was used to start calling
- *         process is used as the application name.
+ *         process becomes the application name.
  *
  *    - \c pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
  *         However, it is recommended to specify this parameter to simplify automatic crash 
@@ -48,7 +57,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
  *    - \c pszEmailTo is the email address of the recipient of error reports, for example
  *         "name@example.com". 
  *         This parameter can be NULL. If it equals to NULL, user will be offered to save error
- *         report to disk as ZIP file.
+ *         report to disk as a ZIP file.
  *
  *    - \c pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *         The crash sender process is responsible for letting end user know about the crash and 
@@ -56,7 +65,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
  *         This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
  *         the same directory as CrashRpt.dll.
  *
- *    - \c pfnCrashCallback is the user crash callback function. Crash callback function is
+ *    - \c pfnCrashCallback is a pointer to the LPGETLOGFILE crash callback function. The crash callback function is
  *         called by CrashRpt when crash occurs and allows user to add custom files to the 
  *         error report or perform other actions. This parameter can be NULL.
  *         If NULL, crash callback is not called.
@@ -76,38 +85,38 @@ CR_INSTALL_INFO, *PCR_INSTALL_INFO;
 
 
 /*! \ingroup CrashRptStructs
- *  \brief Additional exception info used by crGenerateCrashReport()
+ *  \brief Additional exception info used by crGenerateCrashReport().
  */
 typedef struct tagCR_EXCEPTION_INFO
 {
   WORD cb;                //!< Size of this structure in bytes; should be initialized before using.
-  unsigned int code;      //!< Exception code
-  unsigned int subcode;   //!< Exception subcode
+  unsigned int code;      //!< Exception code.
+  unsigned int subcode;   //!< Exception subcode.
 }
 CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 
 
 // Exception types for crEmulateCrash
-#define CR_WIN32_NULL_POINTER_EXCEPTION 1    //!< Null pointer WIN32 exception
-#define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call
-#define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call
-#define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call
-#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error
-#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception
-#define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault
-#define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort)
-#define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception)
-#define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction)
-#define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C)
-#define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal ()
-#define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request)
+#define CR_WIN32_NULL_POINTER_EXCEPTION 1    //!< Null pointer WIN32 exception.
+#define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call.
+#define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call.
+#define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call.
+#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
+#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
+#define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
+#define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort).
+#define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception).
+#define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction).
+#define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C).
+#define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal (invalid storage access).
+#define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request).
 
 /*! \ingroup DeprecatedAPI
  *  \brief Installs exception handlers for the current process.
  *
- *  \param[in] pfnCallback Client crash callback
- *  \param[in] pszEmailTo Email address to send crash report
- *  \param[in] pszEmailSubject Subject line to be used with email
+ *  \param[in] pfnCallback Client crash callback.
+ *  \param[in] pszEmailTo Email address to send crash report.
+ *  \param[in] pszEmailSubject Subject line to be used with email.
  *
  *  \return Always returns NULL.
  *
@@ -445,5 +454,33 @@ crEmulateCrash(
   unsigned ExceptionType);
 
 
+
+/*! \ingroup CrashRptAPI 
+ *  \brief Gets the last CrashRpt error message.
+ *
+ *  \return This function returns length of error message in characters.
+ *
+ *  \param[out] pszBuffer Pointer to the buffer.
+ *  \param[in]  uBuffSize Size of buffer in characters.
+ *
+ *  \remarks
+ *    This function returns last CrashRpt error message. You can use this function
+ *    to retrieve the text status of the last called CrashRpt function.
+ *
+ *    If buffer is too small for the error message, the message is truncated.
+ *
+ */
+
+CRASHRPTAPI
+int
+crGetLastErrorMsg(
+  PTSTR pszBuffer, 
+  UINT uBuffSize);
+
+CRASHRPTAPI
+int
+crSetErrorMsg(
+  PTSTR pszErrorMsg
+);
 
 #endif //_CRASHRPT_H_
