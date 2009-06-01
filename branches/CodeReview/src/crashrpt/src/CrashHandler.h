@@ -41,10 +41,10 @@ struct _cpp_thread_exception_handlers
     m_prevSigSEGV = NULL;
   }
 
-  terminate_handler m_prevTerm;       
-  unexpected_handler m_prevUnexp;
-  void (__cdecl *m_prevSigILL)(int);
-  void (__cdecl *m_prevSigSEGV)(int);
+  terminate_handler m_prevTerm;        // Previous terminate handler   
+  unexpected_handler m_prevUnexp;      // Previous unexpected handler
+  void (__cdecl *m_prevSigILL)(int);   // Previous 
+  void (__cdecl *m_prevSigSEGV)(int);  // Previous illegal storage access handler
 };
 
 
@@ -215,13 +215,17 @@ public:
    int 
    UnSetThreadCPPExceptionHandlers();
   
-   static CCrashHandler* GetCurrentProcessCrashHandler();
+   static CCrashHandler* 
+   GetCurrentProcessCrashHandler();
 
 protected:
 
+  int CreateMinidump(PCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
+
   // Creates new process that would let user email the error report.
-  BOOL LaunchCrashSender();  
+  int LaunchCrashSender();  
   CString _ReplaceRestrictedXMLCharacters(CString szText);
+  int EmergencyNotifyUser();
 
   // Sets internal pointers to exception handlers to NULL
   void InitPrevCPPExceptionHandlerPointers();
@@ -252,7 +256,7 @@ protected:
   CString m_sAppName;            // Application name.
   CString m_sAppVersion;         // Application version.
   CString m_sImageName;          // Path to client executable file.
-  CString m_sPathToCrashSender;  // Path to crash sender exectuable file.
+  CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
 };
 
 #endif	// !_CRASHHANDLER_H_

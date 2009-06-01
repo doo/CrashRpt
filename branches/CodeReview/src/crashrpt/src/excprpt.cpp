@@ -42,12 +42,14 @@ CExceptionReport::CExceptionReport(PEXCEPTION_POINTERS ExceptionInfo)
 //
 CString CExceptionReport::getCrashFile()
 {
-   CString sFile;
+  CString sFile;
    CString sTempDir;
    
    // Create the dump file name
    CUtility::getTempDirectory(sTempDir);
    sFile.Format(_T("%s\\%s.dmp"), sTempDir, CUtility::getAppName());
+
+   
 
    // Create the file
    HANDLE hFile = CreateFile(
