@@ -4,27 +4,8 @@
 
 #include "stdafx.h"
 #include "resource.h"
-
-#include "aboutdlg.h"
 #include "MainDlg.h"
-#include "DeadLink.h"
 #include "Utility.h"
-
-//
-// RTF load callback
-//
-DWORD CALLBACK LoadRTFString(DWORD_PTR dwCookie, LPBYTE pbBuff, LONG cb, LONG *pcb)
-{
-   CString *sText = (CString*)dwCookie;
-   LONG lLen = sText->GetLength();
-
-   for (*pcb = 0; *pcb < cb && *pcb < lLen; (*pcb)++)
-   {  
-      pbBuff[*pcb] = CStringA(*sText).GetAt(*pcb);
-   }
-
-   return 0;
-}
 
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
@@ -41,59 +22,27 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 {
 	// center the dialog on the screen
 	CenterWindow();
-
-	// set icons
-	/*HICON hIcon = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME), 
-		IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
-	SetIcon(hIcon, TRUE);
-	HICON hIconSmall = (HICON)::LoadImage(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME), 
-		IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
-	SetIcon(hIconSmall, FALSE);*/
-  
-  //
-  // Use app icon
-  //
-  m_statIcon = GetDlgItem(IDI_APPICON);
-  
-  HICON hIcon = NULL;
-
-  HMODULE hModule = LoadLibrary(m_sImageName);
-  if(hModule)
-  {
-    // Use IDR_MAINFRAME icon which is the default one for the application.
-    hIcon = ::LoadIcon(hModule, MAKEINTRESOURCE(IDR_MAINFRAME));
-  }  
-
-  // If there is no IDR_MAINFRAME icon, use IDI_APPLICATION system icon
-  if(hIcon==NULL)
-  {
-    hIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
-  }
-
-  m_statIcon.SetIcon(hIcon);                  
+	
+  // Set window icon
   SetIcon(::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME)), 0);
 
+  // Load heading icon
+  HMODULE hExeModule = LoadLibrary(m_sImageName);
+  if(hExeModule)
+  {
+    // Use IDR_MAINFRAME icon which is the default one for the crashed application.
+    m_HeadingIcon = ::LoadIcon(hExeModule, MAKEINTRESOURCE(IDR_MAINFRAME));
+  }  
 
-
-  //
-  // Set failure heading
-  //
-  EDITSTREAM es;
-  es.pfnCallback = LoadRTFString;
-
-  CString sText;
-  sText.Format(IDS_HEADER, m_sAppName);
-  es.dwCookie = (DWORD_PTR)&sText;
-
-  CRichEditCtrl re;
-  re.Attach(GetDlgItem(IDC_HEADING_TEXT));
-  re.StreamIn(SF_RTF, es);
-  re.Detach();
-
-  //
-  // Hook dead link
-  //
+  // If there is no IDR_MAINFRAME icon in crashed EXE module, use IDI_APPLICATION system icon
+  if(m_HeadingIcon == NULL)
+  {
+    m_HeadingIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
+  }  
+ 
   m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
+  m_link.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
+
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
 
@@ -110,6 +59,14 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_linkMoreInfo.GetWindowRect(&rc1);
   m_statHorzLine.GetWindowRect(&rc2);
   m_nDeltaY = rc1.bottom+15-rc2.top;
+
+  LOGFONT lf;
+  memset(&lf, 0, sizeof(LOGFONT));
+  lf.lfHeight = 25;
+  lf.lfWeight = FW_NORMAL;
+  lf.lfQuality = ANTIALIASED_QUALITY;
+  _tcscpy_s(lf.lfFaceName, 32, _T("Tahoma"));
+  m_HeadingFont.CreateFontIndirect(&lf);
 
   ShowMoreInfo(FALSE);
 
@@ -158,18 +115,56 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
     GetClientRect(&rc1);
     rc1.bottom += k*m_nDeltaY;
     ResizeClient(rc1.Width(), rc1.Height());
+
+    if(bShow)
+      m_editEmail.SetFocus();
+    else
+      m_btnOk.SetFocus();
 }
 
-LRESULT CMainDlg::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	CAboutDlg dlg;
-	dlg.DoModal();
-	return 0;
+  CDCHandle dc((HDC)wParam);
+
+  RECT rcClient;
+  GetClientRect(&rcClient);
+
+  RECT rc;
+  CStatic statUpperHorzLine = GetDlgItem(IDC_UPPERHORZ);
+  statUpperHorzLine.GetWindowRect(&rc);
+  ScreenToClient(&rc);
+
+  COLORREF cr = GetSysColor(COLOR_3DFACE);
+  CBrush brush;
+  brush.CreateSolidBrush(cr);  
+
+  RECT rcHeading = {0, 0, rcClient.right, rc.bottom};
+  dc.FillRect(&rcHeading, (HBRUSH)GetStockObject(WHITE_BRUSH));
+
+  RECT rcBody = {0, rc.bottom, rcClient.right, rcClient.bottom};
+  dc.FillRect(&rcBody, brush);
+
+  rcHeading.left = 60;
+  rcHeading.right -= 10;
+
+  CString sHeading;
+  sHeading.Format(_T("%s has stopped working"), m_sAppName);
+  dc.SelectFont(m_HeadingFont);
+  dc.DrawTextEx(sHeading.GetBuffer(), sHeading.GetLength(), &rcHeading, 
+    DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
+
+  if(m_HeadingIcon)
+  {
+    ICONINFO ii;
+    m_HeadingIcon.GetIconInfo(&ii);
+    dc.DrawIcon(16, rcHeading.bottom/2 - ii.yHotspot, m_HeadingIcon);
+  }
+
+  return TRUE;
 }
 
 LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	// TODO: Add validation code 
 	CloseDialog(wID);
   PostQuitMessage(0);
 	return 0;
@@ -284,6 +279,35 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   CloseDialog(0);
   return 0;
  }
+
+void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
+{ 
+  TStrStrMap::iterator cur = m_files.begin();
+  unsigned int i;
+  for (i = 0; i < m_files.size(); i++, cur++)
+  {
+    CString sFileName = cur->first;
+    sFileName = sFileName.Mid(sFileName.ReverseFind('\\')+1);
+    if(sFileName.CompareNoCase(_T("crashlog.xml"))==0)
+    {
+      TiXmlDocument doc;
+  
+      TiXmlElement* root = doc.FirstChild("CrashRpt");
+      if(!root)
+        return;
+
+      // Write user e-mail
+
+      TiXmlElement* email = new TiXmlElement("UserEmail");
+      root->LinkEndChild(email);
+
+      TiXmlText* email_text = new TiXmlText(CStringA(m_sAppName));
+      app_name->LinkEndChild(app_name_text);
+
+              
+    }
+  }  
+}
 
 LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {

@@ -2,22 +2,14 @@
 //
 
 #include "stdafx.h"
-
 #include "resource.h"
-
-#include "aboutdlg.h"
 #include "MainDlg.h"
 #include "tinyxml.h"
 
 CAppModule _Module;
 
-int ParseFileList(
-  CStringA& text, 
-  CString& sAppName,
-  CString& sImageName,
-  CString& sSubject, 
-  CString& sMailTo, 
-  std::map<CStringA, CStringA>& file_list)
+int ParseFileList(CStringA& text, CString& sAppName, CString& sImageName,
+  CString& sSubject, CString& sMailTo, std::map<CStringA, CStringA>& file_list)
 {
   TiXmlDocument doc;
   doc.Parse(text.GetBuffer());
