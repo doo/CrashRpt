@@ -684,7 +684,7 @@ int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName, PEXCEPTION_POINTERS p
       sOSName = CString(buf, buf_size);
     
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CurrentBuild"), buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CurrentBuildNumber"), buf, &buf_size))
       sOSName += _T(" Build ") + CString(buf, buf_size);
 
     buf_size = 1024;
