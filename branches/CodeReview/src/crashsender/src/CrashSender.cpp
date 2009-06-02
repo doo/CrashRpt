@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "MainDlg.h"
 #include "tinyxml.h"
+#include "smtpclient.h"
 
 CAppModule _Module;
 
@@ -147,7 +148,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-  LoadLibrary(CRichEditCtrl::GetLibraryName());
+//  LoadLibrary(CRichEditCtrl::GetLibraryName());
+
+  CEmailMessage msg;
+  msg.m_sFrom = _T("zexspectrum_1980@mail.ru");
+  msg.m_sTo = _T("olegkrivtsov@mail.ru");
+  msg.m_sSubject = _T("Crash");
+  msg.m_sText = _T("abr");
+
+  CSmtpClient smtpClient;
+  smtpClient.SendEmail(msg);
+
+  return 1;
 
   CMainDlg dlgMain;
 

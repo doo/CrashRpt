@@ -72,8 +72,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\zlib\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -210,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\smtpclient.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -231,6 +237,10 @@
 			</File>
 			<File
 				RelativePath="..\..\crashrpt\src\Utility.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\zlibcpp.cpp"
 				>
 			</File>
 			<Filter
@@ -332,6 +342,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\smtpclient.h"
 				>
 			</File>
 			<File

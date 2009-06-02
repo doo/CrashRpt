@@ -6,6 +6,10 @@
 #include "resource.h"
 #include "MainDlg.h"
 #include "Utility.h"
+#include "tinyxml.h"
+#include <atlstr.h>
+#include "zip.h"
+#include "zlibcpp.h"
 
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
@@ -239,26 +243,29 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 
      return 0;
   }
-  
 
   // Write user email and problem description to XML
-  /*CCrashRpt
-  rpt.writeUserInfo(szXMLName, mainDlg.m_sEmail, mainDlg.m_sDescription);*/
+  WriteUserInfoToXML(m_sEmail, m_sDescription);
 
-   // zip the report
-   /*if (!zlib.Open(sTempFileName))
-      return;*/
+  // zip the report
+  CZLib zlib;
+  
+  CString sZipName = CUtility::getTempFileName();
+
+  if (!zlib.Open(sZipName))
+    return 0;
    
-   // add report files to zip
-   //TStrStrMap::iterator cur = m_files.begin();
-   //for (i = 0; i < m_files.size(); i++, cur++)
-   //{
-   //  zlib.AddFile((char*)(LPCSTR)(*cur).first);
-   //}
+  // add report files to zip
+  TStrStrMap::iterator cur = m_pUDFiles.begin();
+  unsigned i;
+  for (i = 0; i < m_pUDFiles.size(); i++, cur++)
+  {
+    zlib.AddFile((char*)(LPCSTR)(*cur).first);
+  }
 
-   //zlib.Close();
+  zlib.Close();
 
-   //// Send report
+  //// Send report
 
    //if (m_sTo.IsEmpty() || 
    //    !MailReport(rpt, sTempFileName, mainDlg.m_sEmail, mainDlg.m_sDescription))
@@ -282,9 +289,9 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 
 void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
 { 
-  TStrStrMap::iterator cur = m_files.begin();
+  TStrStrMap::iterator cur = m_pUDFiles.begin();
   unsigned int i;
-  for (i = 0; i < m_files.size(); i++, cur++)
+  for (i = 0; i < m_pUDFiles.size(); i++, cur++)
   {
     CString sFileName = cur->first;
     sFileName = sFileName.Mid(sFileName.ReverseFind('\\')+1);
@@ -292,7 +299,11 @@ void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
     {
       TiXmlDocument doc;
   
-      TiXmlElement* root = doc.FirstChild("CrashRpt");
+      bool bLoad = doc.LoadFile(cur->first);
+      if(!bLoad)
+        return;
+
+      TiXmlNode* root = doc.FirstChild("CrashRpt");
       if(!root)
         return;
 
@@ -301,10 +312,18 @@ void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
       TiXmlElement* email = new TiXmlElement("UserEmail");
       root->LinkEndChild(email);
 
-      TiXmlText* email_text = new TiXmlText(CStringA(m_sAppName));
-      app_name->LinkEndChild(app_name_text);
+      TiXmlText* email_text = new TiXmlText(CStringA(sEmail));
+      email->LinkEndChild(email_text);              
 
-              
+      // Write problem description
+
+      TiXmlElement* desc = new TiXmlElement("ProblemDescription");
+      root->LinkEndChild(desc);
+
+      TiXmlText* desc_text = new TiXmlText(CStringA(sDesc));
+      desc->LinkEndChild(desc_text);              
+
+      doc.SaveFile();
     }
   }  
 }
