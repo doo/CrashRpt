@@ -26,7 +26,7 @@ public:
 
 protected:
 
-  int GetRecipientSmtp(CEmailMessage& msg, std::map<WORD, CString>& host_list);
+  int GetSmtpServerName(CEmailMessage& msg, bool bLocal, std::map<WORD, CString>& host_list);
   int SendEmailToRecipient(CString sSmtpServer, CEmailMessage& msg);
   int GetMessageCode(LPSTR msg);
   BOOL CheckAddressSyntax(CString addr);

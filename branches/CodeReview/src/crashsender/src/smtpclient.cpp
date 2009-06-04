@@ -9,19 +9,21 @@
 
 CSmtpClient::CSmtpClient()
 {
-
+  // Initialize Winsock
+  WSADATA wsaData;
+  int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 }
 
 CSmtpClient::~CSmtpClient()
 {
-
+  WSACleanup();
 }
 
 int CSmtpClient::SendEmail(CEmailMessage& msg)
 {
   std::map<WORD, CString> host_list;
 
-  int res = GetRecipientSmtp(msg, host_list);
+  int res = GetSmtpServerName(msg, true, host_list);
   if(res!=0)
     return 1;
 
@@ -37,14 +39,19 @@ int CSmtpClient::SendEmail(CEmailMessage& msg)
   return 1;
 }
 
-int CSmtpClient::GetRecipientSmtp(CEmailMessage& msg, std::map<WORD, CString>& host_list)
+int CSmtpClient::GetSmtpServerName(CEmailMessage& msg, bool bLocal, std::map<WORD, CString>& host_list)
 {
   DNS_RECORD *apResult = NULL;
 
-  CString sServer = msg.m_sTo.Mid(msg.m_sTo.Find('@')+1);
-
+  CString sServer;
+  if(bLocal)
+    sServer = msg.m_sFrom.Mid(msg.m_sFrom.Find('@')+1);
+  else
+    sServer = msg.m_sTo.Mid(msg.m_sFrom.Find('@')+1);
+  
   int r = DnsQuery(sServer, DNS_TYPE_MX, DNS_QUERY_STANDARD, 
     NULL, (PDNS_RECORD*)&apResult, NULL);
+  
 
   if(r==0)
   {
@@ -71,8 +78,7 @@ int CSmtpClient::GetRecipientSmtp(CEmailMessage& msg, std::map<WORD, CString>& h
 int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage& msg)
 {
   int status = 1;
-  int iResult = -1;
-  WSADATA wsaData;
+  int iResult = -1;  
   CStringA sPostServer;
   struct addrinfo *result = NULL;
   struct addrinfo *ptr = NULL;
@@ -80,13 +86,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage& msg)
   CStringA sServiceName = "25";  
   SOCKET sock = INVALID_SOCKET;
   CStringA sMsg;
-  
-  // Initialize Winsock
-  iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
-  if (iResult != 0) 
-  {      
-    return 1;
-  }
+    
     
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_INET;
@@ -195,8 +195,7 @@ exit:
 
   // Clean up
   closesocket(sock);
-  freeaddrinfo(result);
-  WSACleanup();
+  freeaddrinfo(result);  
   return status;
 }
 

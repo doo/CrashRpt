@@ -152,7 +152,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
   CEmailMessage msg;
   msg.m_sFrom = _T("zexspectrum_1980@mail.ru");
-  msg.m_sTo = _T("olegkrivtsov@mail.ru");
+  msg.m_sTo = _T("zexspectrum_1980@mail.ru");
   msg.m_sSubject = _T("Crash");
   msg.m_sText = _T("abr");
 
