@@ -20,19 +20,35 @@
 #include "tinyxml.h"
 #include <time.h>
 
-// global app module
-CAppModule _Module;
+// This internal structure contains the list of processes 
+// that have called crInstall().
+struct _crash_handlers
+{
+  _crash_handlers(){};
 
-// maps crash objects to processes
-CSimpleMap<int, CCrashHandler*> _crashStateMap;
+  ~_crash_handlers()
+  {
+    // On destroy, check that client process has called crUninstall().
+    ATLASSERT(m_map.size()==0);
+  }
+
+  std::map<int, CCrashHandler*> m_map; // <PID, CrashHandler> pairs
+}
+g_CrashHandlers;
 
 
 // unhandled exception callback set with SetUnhandledExceptionFilter()
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 {
-   _crashStateMap.Lookup(_getpid())->GenerateErrorReport(pExInfo);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
 
-   return EXCEPTION_EXECUTE_HANDLER;
+  if(pCrashHandler!=NULL)
+   pCrashHandler->GenerateErrorReport(pExInfo);
+
+  exit(1);
+
+  return EXCEPTION_EXECUTE_HANDLER;
 }
 
 
@@ -42,7 +58,11 @@ void __cdecl cpp_terminate_handler()
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+   pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1); 
@@ -54,7 +74,11 @@ void __cdecl cpp_unexp_handler()
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+   pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1); 
@@ -67,7 +91,11 @@ void __cdecl cpp_purecall_handler()
   
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+   pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1); 
@@ -79,7 +107,11 @@ void __cdecl cpp_security_handler(int code, void *x)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report  
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+   pCrashHandler->GenerateErrorReport(0);
 
   exit(1); // Terminate program 
 }
@@ -91,7 +123,11 @@ void __cdecl cpp_invalid_parameter_handler(const wchar_t* expression, const wcha
 
    // Generate crash report (although without EXCEPTION_POINTERS information)
    // TODO: need to write additional info about this exception to crash report 
-   _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+   ATLASSERT(pCrashHandler!=NULL);
+
+   if(pCrashHandler!=NULL)
+     pCrashHandler->GenerateErrorReport(0);
 
    exit(1); // Terminate program
  }
@@ -102,7 +138,11 @@ int __cdecl cpp_new_handler(size_t size)
 
    // Generate crash report (although without EXCEPTION_POINTERS information)
    // TODO: need to write additional info about this exception to crash report 
-   _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+   ATLASSERT(pCrashHandler!=NULL);
+
+   if(pCrashHandler!=NULL)
+     pCrashHandler->GenerateErrorReport(0);
 
    exit(1); // Terminate program
 }
@@ -113,8 +153,12 @@ void cpp_sigabrt_handler(int sig)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
 
+  if(pCrashHandler!=NULL)
+    pCrashHandler->GenerateErrorReport(0);
+ 
   // Terminate program
   exit(1);
 }
@@ -125,7 +169,11 @@ void cpp_sigfpe_handler(int sig)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+   pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1);
@@ -137,7 +185,11 @@ void cpp_sigill_handler(int sig)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+    pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1);
@@ -149,7 +201,11 @@ void cpp_sigint_handler(int sig)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+    pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1);
@@ -161,7 +217,11 @@ void cpp_sigsegv_handler(int sig)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+    pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1);
@@ -173,7 +233,11 @@ void cpp_sigterm_handler(int sig)
 
   // Generate crash report (although without EXCEPTION_POINTERS information)
   // TODO: need to write additional info about this exception to crash report
-  _crashStateMap.Lookup(_getpid())->GenerateErrorReport(0);
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+    pCrashHandler->GenerateErrorReport(0);
 
   // Terminate program
   exit(1);
@@ -308,7 +372,7 @@ int CCrashHandler::Init(
 
   // attach this handler with this process
   m_pid = _getpid();
-  _crashStateMap.Add(m_pid, this);
+  g_CrashHandlers.m_map[m_pid] =  this;
    
   // save optional email info
   m_sTo = lpcszTo;
@@ -335,7 +399,14 @@ int CCrashHandler::Destroy()
   ATLASSERT(m_ThreadExceptionHandlers.size()==0);      
   m_ThreadExceptionHandlers.clear();
 
-  _crashStateMap.Remove(m_pid);
+  std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(m_pid);
+  if(it==g_CrashHandlers.m_map.end())
+  {
+    ATLASSERT(0); // No such crash handler list entry?
+    return 1;
+  }
+
+  g_CrashHandlers.m_map.erase(it);
 
   // OK.
   crSetErrorMsg(_T("Success."));
@@ -716,6 +787,31 @@ int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName, PEXCEPTION_POINTERS p
   TiXmlText* sys_time_text = new TiXmlText(szDateTime);
   sys_time->LinkEndChild(sys_time_text);
 
+  // Create crash GUID
+
+  UCHAR *pszUuid = 0; 
+  GUID *pguid = NULL;
+  pguid = new GUID;
+  if(pguid!=NULL)
+  {
+    HRESULT hr = CoCreateGuid(pguid);
+    if(SUCCEEDED(hr))
+    {
+      // Convert the GUID to a string
+      hr = UuidToStringA(pguid, &pszUuid);
+      if(SUCCEEDED(hr) && pszUuid!=NULL)
+      {
+        TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
+        root->LinkEndChild(crash_guid);
+
+        TiXmlText* crash_guid_text = new TiXmlText((char*)pszUuid);
+        crash_guid->LinkEndChild(crash_guid_text);
+
+        RpcStringFreeA(&pszUuid);
+      }
+    }
+    delete pguid; 
+  }
 
   // Save document to file
 
@@ -931,7 +1027,11 @@ CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
 CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
 {
   int pid = _getpid();
-  return _crashStateMap.Lookup(pid);
+  std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(pid);
+  if(it==g_CrashHandlers.m_map.end())
+    return NULL; // No handler for calling process.
+
+  return it->second;
 }
 
 

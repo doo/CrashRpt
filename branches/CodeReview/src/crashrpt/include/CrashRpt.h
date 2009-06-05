@@ -95,22 +95,6 @@ typedef struct tagCR_EXCEPTION_INFO
 }
 CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 
-
-// Exception types for crEmulateCrash
-#define CR_WIN32_NULL_POINTER_EXCEPTION 1    //!< Null pointer WIN32 exception.
-#define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call.
-#define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call.
-#define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call.
-#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
-#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
-#define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
-#define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort).
-#define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception).
-#define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction).
-#define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C).
-#define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal (invalid storage access).
-#define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request).
-
 /*! \ingroup DeprecatedAPI
  *  \brief Installs exception handlers for the current process.
  *
@@ -171,7 +155,7 @@ Install(
 CRASHRPTAPI 
 void 
 Uninstall(
-   IN LPVOID lpState                            // State from Install()
+   IN LPVOID lpState                            
    );
 
 /*! \ingroup DeprecatedAPI 
@@ -300,6 +284,7 @@ crInstall(
  *    This function fails if crInstall() wasn't previously called in context of
  *    current process.
  *
+ *    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
  */
 
@@ -330,6 +315,7 @@ crUninstall();
  *   main thread, so no need to call crInstallToCurrentThread() for the main thread.
  *
  *   This function fails if calling it twice for the same thread.
+ *   When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  * 
  *   Call crUninstallFromCurrentThread() to uninstall C++ exception handlers from
  *   current thread.
@@ -351,6 +337,7 @@ crInstallToCurrentThread();
  *    replaced with the handlers that were before call of crInstallToCurrentThread().
  *
  *    This function fails if crInstallToCurrentThread() wasn't called for current thread.
+ *    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
  *    No need to call this function for the main execution thread. The crUninstall()
  *    will automatically uninstall C++ exception handlers for the main thread.
@@ -375,6 +362,7 @@ crUninstallFromCurrentThread();
  *    call this function in crash callback.
  *  
  *    Function fails if pszFile doesn't exist at the moment of function call.
+ *    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
  */
 
@@ -391,13 +379,15 @@ crAddFile(
 /*! \ingroup CrashRptAPI  
  *  \brief Manually generates an errror report.
  *
- *  \return This function returns zero if succeeded.
+ *  \return This function doesn't return when succeeded. When failed, it returns a non-zero value.
+ *     Use crGetLastErrorMsg() to retrieve the error message.
  *  
  *  \param[in] pExInfo Exception pointers.
  *  \param[in] pAdditionalInfo Additional information.
  *
  *  \remarks
- *    Call this function to manually generate a crash report.
+ *    Call this function to manually generate a crash report. When crash information is collected,
+ *    the application is terminated.
  *
  *    The crash report contains the crash minidump, crash log in XML format and
  *    additional files added with AddFile().
@@ -426,6 +416,7 @@ crGenerateErrorReport(
  *  \param[in] ep   Exception pointers.
  *
  *  \remarks
+ *     
  *     This function can be called instead of C++ structured exception filter
  *     inside of __try __except(Expression) statement. The function generates a error report
  *     and terminates calling process.
@@ -434,7 +425,10 @@ crGenerateErrorReport(
  *     and the exception pointers are retrieved with GetExceptionInformation() intrinstic 
  *     function.
  *
+ *     This function generates crash report and terminates the calling process.
+ *
  *     If an error occurs, this function returns EXCEPTION_CONTINUE_SEARCH.
+ *     Use crGetLastErrorMsg() to retrieve the error message on fail.
  */
 
 CRASHRPTAPI
@@ -443,8 +437,56 @@ crExceptionFilter(
   unsigned int code, 
   struct _EXCEPTION_POINTERS* ep);
 
+
+
+// Exception types for crEmulateCrash
+#define CR_WIN32_NULL_POINTER_EXCEPTION 1    //!< Null pointer WIN32 exception.
+#define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call.
+#define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call.
+#define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call.
+#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
+#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
+#define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
+#define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort).
+#define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception).
+#define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction).
+#define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C).
+#define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal (invalid storage access).
+#define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request).
+
 /*! \ingroup CrashRptAPI  
  *  \brief Emulates a predefined crash situation.
+ *
+ *  \return This function doesn't return if succeeded. It returns non-zero value if
+ *          failed. Use crGetLastErrorMsg() to retrieve the error message.
+ *
+ *  \param[in] ExceptionType Type of crash.
+ *
+ *  \remarks
+ *
+ *    This function uses some a priori incorrect or vulnerable code or raises a C++ signal to
+ *    cause crash.
+ *
+ *    This function can be used to test if CrashRpt handles a crash situation correctly.
+ *    
+ *    CrashRpt will intercept an error or exception if crInstall() and/or crInstallToCurrentThread() 
+ *    were previously called. crInstall() installs exception handlers that function on per-process basis.
+ *    crInstallToCurrentThread() installs exception handlers that function on per-thread basis.
+ *    
+ *  \c ExceptionType can be one of the following constants:
+ *    - \c CR_WIN32_NULL_POINTER_EXCEPTION  This will generate a null pointer exception.
+ *    - \c CR_CPP_TERMINATE_CALL This results in call of terminate() C++ function.
+ *    - \c CR_CPP_UNEXPECTED_CALL This results in call of unexpected() C++ function.
+ *    - \c CR_CPP_PURE_CALL This emulates a call of pure virtual method call of a C++ class instance.
+ *    - \c CR_CPP_SECURITY_ERROR This emulates copy of large amount of data to a small buffer.
+ *    - \c CR_CPP_INVALID_PARAMETER This emulates an invalid parameter C++ exception.
+ *    - \c CR_CPP_NEW_OPERATOR_ERROR This emulates C++ new operator failure (no memory).
+ *    - \c CR_CPP_SIGABRT This raises SIGABRT signal (abnormal program termination).
+ *    - \c CR_CPP_SIGFPE This raises SIGFPE signal (floating point exception).
+ *    - \c CR_CPP_SIGILL This raises SIGILL signal (illegal instruction).
+ *    - \c CR_CPP_SIGINT This raises SIGINT signal.
+ *    - \c CR_CPP_SIGSEGV This raises SIGSEGV signal.
+ *    - \c cR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
  *
  */
 
@@ -464,6 +506,7 @@ crEmulateCrash(
  *  \param[in]  uBuffSize Size of buffer in characters.
  *
  *  \remarks
+ *
  *    This function returns last CrashRpt error message. You can use this function
  *    to retrieve the text status of the last called CrashRpt function.
  *
@@ -476,6 +519,8 @@ int
 crGetLastErrorMsg(
   PTSTR pszBuffer, 
   UINT uBuffSize);
+
+
 
 CRASHRPTAPI
 int
