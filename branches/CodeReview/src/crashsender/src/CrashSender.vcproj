@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MailMsg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainDlg.cpp"
 				>
 			</File>
@@ -334,6 +338,10 @@
 			>
 			<File
 				RelativePath=".\DetailDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MailMsg.h"
 				>
 			</File>
 			<File
