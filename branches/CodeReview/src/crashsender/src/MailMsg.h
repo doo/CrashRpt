@@ -11,10 +11,6 @@
 #ifndef _MAILMSG_H_
 #define _MAILMSG_H_
 
-#if _MSC_VER >= 1000
-#pragma once
-#endif // _MSC_VER >= 1000
-
 #include <xcmc.h>          // CMC function defs
 #include <mapi.h>          // MAPI function defs
 
@@ -23,7 +19,6 @@
 #include <atlstr.h>
 
 typedef std::map<CStringA, CStringA> TStrStrMap;
-
 
 //
 // Define CMC entry points
@@ -54,228 +49,28 @@ typedef CMC_return_code (FAR PASCAL *LPCMCQUERY) \
 class CMailMsg  
 {
 public:
-	CMailMsg();
+	
+  // Construction/destruction
+  CMailMsg();
 	virtual ~CMailMsg();
+  
+  // Operations
+  void SetTo(CString sAddress);
+  void SetFrom(CString sAddress);
+  void SetSubject(CString sSubject);
+  void SetMessage(CString sMessage);
+  void AddAttachment(CString sAttachment, CString sTitle = _T(""));
 
-   //-----------------------------------------------------------------------------
-   // SetTo
-   //    Sets the Email:To address
-   //
-   // Parameters
-   //    sAddress    Address
-   //    sName       Optional name
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    Only one To address can be set.  If called more than once
-   //    the last address will be used.
-   //
-   CMailMsg& 
-   SetTo(
-      CString sAddress, 
-      CString sName = _T("")
-      );
+  BOOL MAPIInitialize();
+  void MAPIFinalize();
+  BOOL MAPISend();   
 
-   //-----------------------------------------------------------------------------
-   // SetCc
-   //    Sets the Email:Cc address
-   //
-   // Parameters
-   //    sAddress    Address
-   //    sName       Optional name
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    Multiple Cc addresses can be set.
-   //
-   CMailMsg& 
-   SetCc(
-      CString sAddress, 
-      CString sName = _T("")
-      );
-
-   //-----------------------------------------------------------------------------
-   // SetBc
-   //    Sets the Email:Bcc address
-   //
-   // Parameters
-   //    sAddress    Address
-   //    sName       Optional name
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    Multiple Bcc addresses can be set.
-   //
-   CMailMsg& 
-   SetBc(
-      CString sAddress, 
-      CString sName = _T("")
-      );
-
-   //-----------------------------------------------------------------------------
-   // SetFrom
-   //    Sets the Email:From address
-   //
-   // Parameters
-   //    sAddress    Address
-   //    sName       Optional name
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    Only one From address can be set.  If called more than once
-   //    the last address will be used.
-   //
-   CMailMsg& 
-   SetFrom(
-      CString sAddress, 
-      CString sName = _T("")
-      );
-
-   //-----------------------------------------------------------------------------
-   // SetSubect
-   //    Sets the Email:Subject
-   //
-   // Parameters
-   //    sSubject    Subject
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    none
-   //
-   CMailMsg& 
-   SetSubject(
-      CString sSubject
-      ) {m_sSubject = CStringA(sSubject).GetBuffer(); return *this;};
-
-   //-----------------------------------------------------------------------------
-   // SetMessage
-   //    Sets the Email message body
-   //
-   // Parameters
-   //    sMessage    Message body
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    none
-   //
-   CMailMsg& 
-   SetMessage(
-      CString sMessage
-      ) {m_sMessage = CStringA(sMessage).GetBuffer(); return *this;};
-
-   //-----------------------------------------------------------------------------
-   // AddAttachment
-   //    Attaches a file to the email
-   //
-   // Parameters
-   //    sAttachment Fully qualified file name
-   //    sTitle      File display name
-   //
-   // Return Values
-   //    CMailMsg reference
-   //
-   // Remarks
-   //    none
-   //
-   CMailMsg& 
-   AddAttachment(
-      CString sAttachment, 
-      CString sTitle = _T("")
-      );
-
-   //-----------------------------------------------------------------------------
-   // Send
-   //    Send the email.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    TRUE if succesful
-   //
-   // Remarks
-   //    First simple MAPI is used if unsucessful CMC is used.
-   //
-   BOOL Send();
+  BOOL CMCSend();
 
 protected:
 
-   //-----------------------------------------------------------------------------
-   // CMCSend
-   //    Send email using CMC functions.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    TRUE if successful
-   //
-   // Remarks
-   //    none
-   //
-   BOOL CMCSend();
-
-   //-----------------------------------------------------------------------------
-   // MAPISend
-   //    Send email using MAPI functions.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    TRUE if successful
-   //
-   // Remarks
-   //    none
-   //
-   BOOL MAPISend();   
-
-   //-----------------------------------------------------------------------------
-   // Initialize
-   //    Initialize MAPI32.dll
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    TRUE if successful
-   //
-   // Remarks
-   //    none
-   //
-   BOOL Initialize();
-
-   //-----------------------------------------------------------------------------
-   // Uninitialize
-   //    Uninitialize MAPI32.dll
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    void
-   //
-   // Remarks
-   //    none
-   //
-   void Uninitialize();
-
-   TStrStrMap     m_from;                       // From <address,name>
-   TStrStrMap     m_to;                         // To <address,name>
-   TStrStrMap     m_cc;                         // Cc <address,name>
-   TStrStrMap     m_bcc;                        // Bcc <address,name>
+   CStringA       m_from;                       // From <address,name>
+   CStringA       m_to;                         // To <address,name>
    TStrStrMap     m_attachments;                // Attachment <file,title>
    CStringA       m_sSubject;                   // EMail subject
    CStringA       m_sMessage;                   // EMail message
@@ -292,4 +87,4 @@ protected:
    BOOL           m_bReady;                     // MAPI is loaded
 };
 
-#endif	// #ifndef _MAILMSG_H_
+#endif	// _MAILMSG_H_

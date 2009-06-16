@@ -15,6 +15,22 @@ public:
   std::set<CString> m_aAttachments;
 };
 
+struct SmtpClientNotification
+{
+  SmtpClientNotification()
+  {
+    m_nCompletionStatus = -1;    
+    m_hEvent = NULL;
+    m_nPercentCompleted = 0;
+  }
+
+  CComAutoCriticalSection m_cs;
+  int m_nCompletionStatus;
+  HANDLE m_hEvent;
+  int m_nPercentCompleted;
+  CString m_sStatusMsg;
+};
+
 class CSmtpClient
 {
 public:
@@ -22,15 +38,40 @@ public:
   CSmtpClient();
   ~CSmtpClient();
 
-  int SendEmail(CEmailMessage& msg);
+  int SendEmail(CEmailMessage* msg);
+  int SendEmailAssync(CEmailMessage* msg,  SmtpClientNotification* scn);
 
 protected:
 
-  int GetSmtpServerName(CEmailMessage& msg, bool bLocal, std::map<WORD, CString>& host_list);
-  int SendEmailToRecipient(CString sSmtpServer, CEmailMessage& msg);
-  int GetMessageCode(LPSTR msg);
-  BOOL CheckAddressSyntax(CString addr);
-  int SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce=0, UINT uResponceSize=0);
+  static int _SendEmail(CEmailMessage* msg, SmtpClientNotification* scn);
+
+  static int GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* scn, 
+    std::map<WORD, CString>& host_list);
+  
+  static int SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, 
+    SmtpClientNotification* scn);
+  
+  static int GetMessageCode(LPSTR msg);
+  
+  static int CheckAddressSyntax(CString addr);
+  
+  static int SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce=0, UINT uResponceSize=0);
+
+  static int Base64EncodeAttachment(CString sFileName, 
+    LPBYTE* ppEncodedFileData, int& nEncodedFileDataLen);
+
+  static CStringA UTF16toUTF8(const CStringW& utf16);
+
+  static void SetStatus(SmtpClientNotification* scn, CString sStatusMsg, 
+    int percentCompleted, bool bRelative=true);
+
+  static DWORD WINAPI SendThread(VOID* pParam);
+
+  struct SendThreadContext
+  {
+    CEmailMessage* m_msg;
+    SmtpClientNotification* m_scn;
+  };
 };
 
 
