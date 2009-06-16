@@ -18,7 +18,6 @@
 #endif // _MSC_VER >= 1000
 
 #include "crashrpt.h"      // defines LPGETLOGFILE callback
-#include "excprpt.h"       // bulk of crash report generation
 
 #include <map>
 #include <atltypes.h>

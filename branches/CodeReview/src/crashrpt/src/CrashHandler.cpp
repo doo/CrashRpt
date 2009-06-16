@@ -12,7 +12,6 @@
 #include <atlstr.h>
 #include "CrashHandler.h"
 #include "zlibcpp.h"
-#include "excprpt.h"
 #include "process.h"
 #include "Utility.h"
 #include "resource.h"

@@ -37,63 +37,6 @@
  */
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
-/*! \ingroup CrashRptStructs
- *  \brief Crash reporting general info used by crInstall()
- *
- *  \remarks
- *
- *    - \c cb should be always contain size of this structure in bytes. 
- *         Set it to \c sizeof(CR_INSTALL_INFO).
- *
- *    - \c pszAppName is a friendly name of client application. The application name is
- *         displayed in Error Report dialog. This parameter can be NULL.
- *         If this parameter is NULL, the name of EXE file that was used to start calling
- *         process becomes the application name.
- *
- *    - \c pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
- *         However, it is recommended to specify this parameter to simplify automatic crash 
- *         report analysis and classification. If it equals to NULL, it is ignored.
- * 
- *    - \c pszEmailTo is the email address of the recipient of error reports, for example
- *         "name@example.com". 
- *         This parameter can be NULL. If it equals to NULL, user will be offered to save error
- *         report to disk as a ZIP file.
- *
- *    - \c pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
- *         The crash sender process is responsible for letting end user know about the crash and 
- *         sending the error report.
- *         This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
- *         the same directory as CrashRpt.dll.
- *
- *    - \c pfnCrashCallback is a pointer to the LPGETLOGFILE crash callback function. The crash callback function is
- *         called by CrashRpt when crash occurs and allows user to add custom files to the 
- *         error report or perform other actions. This parameter can be NULL.
- *         If NULL, crash callback is not called.
- */
-
-typedef struct tagCR_INSTALL_INFO
-{
-  WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
-  PCTSTR pszAppName;             //!< Name of application.
-  PCTSTR pszAppVersion;          //!< Application version.
-  PCTSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
-  PCTSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
-  PCTSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-  LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
-}
-CR_INSTALL_INFO, *PCR_INSTALL_INFO;
-
-
-/*! \ingroup CrashRptStructs
- *  \brief Additional exception info used by crGenerateCrashReport().
- */
-typedef struct tagCR_EXCEPTION_INFO
-{
-  WORD cb;                //!< Size of this structure in bytes; should be initialized before using.
-  unsigned int code;      //!< Exception code.
-  unsigned int subcode;   //!< Exception subcode.
-}
-CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 
 /*! \ingroup DeprecatedAPI
  *  \brief Installs exception handlers for the current process.
@@ -217,6 +160,77 @@ GenerateErrorReport(
    IN PEXCEPTION_POINTERS pExInfo OPTIONAL
    );
 
+
+
+#define CR_HTML 0 //!< Send error report via HTML connection
+#define CR_SMTP 1 //!< Send error report via SMTP connection
+#define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client)
+
+/*! \ingroup CrashRptStructs
+ *  \brief Crash reporting general info used by crInstall()
+ *
+ *  \remarks
+ *
+ *    - \c cb should be always contain size of this structure in bytes. 
+ *         Set it to \c sizeof(CR_INSTALL_INFO).
+ *
+ *    - \c pszAppName is a friendly name of client application. The application name is
+ *         displayed in Error Report dialog. This parameter can be NULL.
+ *         If this parameter is NULL, the name of EXE file that was used to start calling
+ *         process becomes the application name.
+ *
+ *    - \c pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
+ *         However, it is recommended to specify this parameter to simplify automatic crash 
+ *         report analysis and classification. If it equals to NULL, it is ignored.
+ * 
+ *    - \c pszEmailTo is the email address of the recipient of error reports, for example
+ *         "name@example.com". 
+ *         This parameter can be NULL. If it equals to NULL, user will be offered to save error
+ *         report to disk as a ZIP file.
+ *
+ *    - \c pszEmailSubject is the subject of the email message. If this parameter is NULL,
+ *         the default subject of form '<app_name> v.<app_version> Error Report' is generated.
+ *
+ *    - \c pszUrl is the URL of a server-side script that would receive crash report data via HTTP
+ *         connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
+ *
+ *    - \c pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
+ *         The crash sender process is responsible for letting end user know about the crash and 
+ *         sending the error report.
+ *         This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
+ *         the same directory as CrashRpt.dll.
+ *
+ *    - \c pfnCrashCallback is a pointer to the LPGETLOGFILE crash callback function. The crash callback function is
+ *         called by CrashRpt when crash occurs and allows user to add custom files to the 
+ *         error report or perform other actions. This parameter can be NULL.
+ *         If NULL, crash callback is not called.
+ *
+ *    - \c uPriorities is an array that defines the preferred ways of sending error reports. 
+ *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
+ *         A priority may be an integer number greater or equal to zero.
+ *         The element having index CR_HTML defines priority for using HTML connection.
+ *         The element having index CR_SMTP defines priority for using SMTP connection.
+ *         The element having index CR_SMAPI defines priority for using the default mail client.
+ *         The ways having greater priority will be tried first. If priorities are equal to each other, HTML
+ *         connection will be tried first, SMTP connection will be tried second and simple MAPI will be tried
+ *         last. 
+ *
+ *        
+ */
+
+typedef struct tagCR_INSTALL_INFO
+{
+  WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
+  PCTSTR pszAppName;             //!< Name of application.
+  PCTSTR pszAppVersion;          //!< Application version.
+  PCTSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  PCTSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  PCTSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  PCTSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
+  UINT uPriorities[3];           //!< Array of error sending transport priorities.
+}
+CR_INSTALL_INFO, *PCR_INSTALL_INFO;
 
 
 /*! \ingroup CrashRptAPI 
@@ -373,6 +387,18 @@ crAddFile(
    PCTSTR pszDesc 
    );
 
+
+
+/*! \ingroup CrashRptStructs
+ *  \brief Additional exception info used by crGenerateCrashReport().
+ */
+typedef struct tagCR_EXCEPTION_INFO
+{
+  WORD cb;                //!< Size of this structure in bytes; should be initialized before using.
+  unsigned int code;      //!< Exception code.
+  unsigned int subcode;   //!< Exception subcode.
+}
+CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 
 
 
