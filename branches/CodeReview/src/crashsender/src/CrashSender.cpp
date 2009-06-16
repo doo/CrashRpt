@@ -6,6 +6,8 @@
 #include "MainDlg.h"
 #include "tinyxml.h"
 #include "smtpclient.h"
+#include "httpsend.h"
+
 
 CAppModule _Module;
 

@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib"
+				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\httpsend.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MailMsg.cpp"
 				>
 			</File>
@@ -338,6 +342,10 @@
 			>
 			<File
 				RelativePath=".\DetailDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\httpsend.h"
 				>
 			</File>
 			<File

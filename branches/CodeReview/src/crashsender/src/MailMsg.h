@@ -63,8 +63,9 @@ public:
 
   BOOL MAPIInitialize();
   void MAPIFinalize();
+  
+  BOOL Send();
   BOOL MAPISend();   
-
   BOOL CMCSend();
 
 protected:

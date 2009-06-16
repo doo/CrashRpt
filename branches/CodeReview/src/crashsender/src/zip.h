@@ -1,150 +1,203 @@
-/* zip.h -- IO for compress .zip files using zlib 
-   Version 0.15 alpha, Mar 19th, 1998,
-
-   Copyright (C) 1998 Gilles Vollant
-
-   This unzip package allow creates .ZIP file, compatible with PKZip 2.04g
-     WinZip, InfoZip tools and compatible.
-   Encryption and multi volume ZipFile (span) are not supported.
-   Old compressions used by old PKZip 1.x are not supported
-
-  For uncompress .zip file, look at unzip.h
-
-   THIS IS AN ALPHA VERSION. AT THIS STAGE OF DEVELOPPEMENT, SOMES API OR STRUCTURE
-   CAN CHANGE IN FUTURE VERSION !!
-   I WAIT FEEDBACK at mail info@winimage.com
-   Visit also http://www.winimage.com/zLibDll/zip.htm for evolution
-
-   Condition of use and distribution are the same than zlib :
-
-  This software is provided 'as-is', without any express or implied
-  warranty.  In no event will the authors be held liable for any damages
-  arising from the use of this software.
-
-  Permission is granted to anyone to use this software for any purpose,
-  including commercial applications, and to alter it and redistribute it
-  freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not
-     claim that you wrote the original software. If you use this software
-     in a product, an acknowledgment in the product documentation would be
-     appreciated but is not required.
-  2. Altered source versions must be plainly marked as such, and must not be
-     misrepresented as being the original software.
-  3. This notice may not be removed or altered from any source distribution.
-
-
-*/
-
-/* for more info about .ZIP format, see 
-      ftp://ftp.cdrom.com/pub/infozip/doc/appnote-970311-iz.zip
-   PkWare has also a specification at :
-      ftp://ftp.pkware.com/probdesc.zip
-*/
-
 #ifndef _zip_H
 #define _zip_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-#ifndef _ZLIB_H
-#include "zlib.h"
-#endif
+// ZIP functions -- for creating zip files
+// This file is a repackaged form of the Info-Zip source code available
+// at www.info-zip.org. The original copyright notice may be found in
+// zip.cpp. The repackaging was done by Lucian Wischik to simplify and
+// extend its use in Windows/C++. Also to add encryption and unicode.
 
-#if defined(STRICTZIP) || defined(STRICTZIPUNZIP)
-/* like the STRICT of WIN32, we define a pointer that cannot be converted
-    from (void*) without cast */
-typedef struct TagzipFile__ { int unused; } zipFile__; 
-typedef zipFile__ *zipFile;
+
+#ifndef _unzip_H
+DECLARE_HANDLE(HZIP);
+#endif
+// An HZIP identifies a zip file that is being created
+
+typedef DWORD ZRESULT;
+// return codes from any of the zip functions. Listed later.
+
+
+
+HZIP CreateZip(const TCHAR *fn, const char *password);
+HZIP CreateZip(void *buf,unsigned int len, const char *password);
+HZIP CreateZipHandle(HANDLE h, const char *password);
+// CreateZip - call this to start the creation of a zip file.
+// As the zip is being created, it will be stored somewhere:
+// to a pipe:              CreateZipHandle(hpipe_write);
+// in a file (by handle):  CreateZipHandle(hfile);
+// in a file (by name):    CreateZip("c:\\test.zip");
+// in memory:              CreateZip(buf, len);
+// or in pagefile memory:  CreateZip(0, len);
+// The final case stores it in memory backed by the system paging file,
+// where the zip may not exceed len bytes. This is a bit friendlier than
+// allocating memory with new[]: it won't lead to fragmentation, and the
+// memory won't be touched unless needed. That means you can give very
+// large estimates of the maximum-size without too much worry.
+// As for the password, it lets you encrypt every file in the archive.
+// (This api doesn't support per-file encryption.)
+// Note: because pipes don't allow random access, the structure of a zipfile
+// created into a pipe is slightly different from that created into a file
+// or memory. In particular, the compressed-size of the item cannot be
+// stored in the zipfile until after the item itself. (Also, for an item added
+// itself via a pipe, the uncompressed-size might not either be known until
+// after.) This is not normally a problem. But if you try to unzip via a pipe
+// as well, then the unzipper will not know these things about the item until
+// after it has been unzipped. Therefore: for unzippers which don't just write
+// each item to disk or to a pipe, but instead pre-allocate memory space into
+// which to unzip them, then either you have to create the zip not to a pipe,
+// or you have to add items not from a pipe, or at least when adding items
+// from a pipe you have to specify the length.
+// Note: for windows-ce, you cannot close the handle until after CloseZip.
+// but for real windows, the zip makes its own copy of your handle, so you
+// can close yours anytime.
+
+
+ZRESULT ZipAdd(HZIP hz,const TCHAR *dstzn, const TCHAR *fn);
+ZRESULT ZipAdd(HZIP hz,const TCHAR *dstzn, void *src,unsigned int len);
+ZRESULT ZipAddHandle(HZIP hz,const TCHAR *dstzn, HANDLE h);
+ZRESULT ZipAddHandle(HZIP hz,const TCHAR *dstzn, HANDLE h, unsigned int len);
+ZRESULT ZipAddFolder(HZIP hz,const TCHAR *dstzn);
+// ZipAdd - call this for each file to be added to the zip.
+// dstzn is the name that the file will be stored as in the zip file.
+// The file to be added to the zip can come
+// from a pipe:  ZipAddHandle(hz,"file.dat", hpipe_read);
+// from a file:  ZipAddHandle(hz,"file.dat", hfile);
+// from a filen: ZipAdd(hz,"file.dat", "c:\\docs\\origfile.dat");
+// from memory:  ZipAdd(hz,"subdir\\file.dat", buf,len);
+// (folder):     ZipAddFolder(hz,"subdir");
+// Note: if adding an item from a pipe, and if also creating the zip file itself
+// to a pipe, then you might wish to pass a non-zero length to the ZipAddHandle
+// function. This will let the zipfile store the item's size ahead of the
+// compressed item itself, which in turn makes it easier when unzipping the
+// zipfile from a pipe.
+
+ZRESULT ZipGetMemory(HZIP hz, void **buf, unsigned long *len);
+// ZipGetMemory - If the zip was created in memory, via ZipCreate(0,len),
+// then this function will return information about that memory block.
+// buf will receive a pointer to its start, and len its length.
+// Note: you can't add any more after calling this.
+
+ZRESULT CloseZip(HZIP hz);
+// CloseZip - the zip handle must be closed with this function.
+
+unsigned int FormatZipMessage(ZRESULT code, TCHAR *buf,unsigned int len);
+// FormatZipMessage - given an error code, formats it as a string.
+// It returns the length of the error message. If buf/len points
+// to a real buffer, then it also writes as much as possible into there.
+
+
+
+// These are the result codes:
+#define ZR_OK         0x00000000     // nb. the pseudo-code zr-recent is never returned,
+#define ZR_RECENT     0x00000001     // but can be passed to FormatZipMessage.
+// The following come from general system stuff (e.g. files not openable)
+#define ZR_GENMASK    0x0000FF00
+#define ZR_NODUPH     0x00000100     // couldn't duplicate the handle
+#define ZR_NOFILE     0x00000200     // couldn't create/open the file
+#define ZR_NOALLOC    0x00000300     // failed to allocate some resource
+#define ZR_WRITE      0x00000400     // a general error writing to the file
+#define ZR_NOTFOUND   0x00000500     // couldn't find that file in the zip
+#define ZR_MORE       0x00000600     // there's still more data to be unzipped
+#define ZR_CORRUPT    0x00000700     // the zipfile is corrupt or not a zipfile
+#define ZR_READ       0x00000800     // a general error reading the file
+// The following come from mistakes on the part of the caller
+#define ZR_CALLERMASK 0x00FF0000
+#define ZR_ARGS       0x00010000     // general mistake with the arguments
+#define ZR_NOTMMAP    0x00020000     // tried to ZipGetMemory, but that only works on mmap zipfiles, which yours wasn't
+#define ZR_MEMSIZE    0x00030000     // the memory size is too small
+#define ZR_FAILED     0x00040000     // the thing was already failed when you called this function
+#define ZR_ENDED      0x00050000     // the zip creation has already been closed
+#define ZR_MISSIZE    0x00060000     // the indicated input file size turned out mistaken
+#define ZR_PARTIALUNZ 0x00070000     // the file had already been partially unzipped
+#define ZR_ZMODE      0x00080000     // tried to mix creating/opening a zip 
+// The following come from bugs within the zip library itself
+#define ZR_BUGMASK    0xFF000000
+#define ZR_NOTINITED  0x01000000     // initialisation didn't work
+#define ZR_SEEK       0x02000000     // trying to seek in an unseekable file
+#define ZR_NOCHANGE   0x04000000     // changed its mind on storage, but not allowed
+#define ZR_FLATE      0x05000000     // an internal error in the de/inflation code
+
+
+
+
+
+
+// e.g.
+//
+// (1) Traditional use, creating a zipfile from existing files
+//     HZIP hz = CreateZip("c:\\simple1.zip",0);
+//     ZipAdd(hz,"znsimple.bmp", "c:\\simple.bmp");
+//     ZipAdd(hz,"znsimple.txt", "c:\\simple.txt");
+//     CloseZip(hz);
+//
+// (2) Memory use, creating an auto-allocated mem-based zip file from various sources
+//     HZIP hz = CreateZip(0,100000, 0);
+//     // adding a conventional file...
+//     ZipAdd(hz,"src1.txt",  "c:\\src1.txt");
+//     // adding something from memory...
+//     char buf[1000]; for (int i=0; i<1000; i++) buf[i]=(char)(i&0x7F);
+//     ZipAdd(hz,"file.dat",  buf,1000);
+//     // adding something from a pipe...
+//     HANDLE hread,hwrite; CreatePipe(&hread,&hwrite,NULL,0);
+//     HANDLE hthread = CreateThread(0,0,ThreadFunc,(void*)hwrite,0,0);
+//     ZipAdd(hz,"unz3.dat",  hread,1000);  // the '1000' is optional.
+//     WaitForSingleObject(hthread,INFINITE);
+//     CloseHandle(hthread); CloseHandle(hread);
+//     ... meanwhile DWORD WINAPI ThreadFunc(void *dat)
+//                   { HANDLE hwrite = (HANDLE)dat;
+//                     char buf[1000]={17};
+//                     DWORD writ; WriteFile(hwrite,buf,1000,&writ,NULL);
+//                     CloseHandle(hwrite);
+//                     return 0;
+//                   }
+//     // and now that the zip is created, let's do something with it:
+//     void *zbuf; unsigned long zlen; ZipGetMemory(hz,&zbuf,&zlen);
+//     HANDLE hfz = CreateFile("test2.zip",GENERIC_WRITE,0,0,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,0);
+//     DWORD writ; WriteFile(hfz,zbuf,zlen,&writ,NULL);
+//     CloseHandle(hfz);
+//     CloseZip(hz);
+//
+// (3) Handle use, for file handles and pipes
+//     HANDLE hzread,hzwrite; CreatePipe(&hzread,&hzwrite,0,0);
+//     HANDLE hthread = CreateThread(0,0,ZipReceiverThread,(void*)hzread,0,0);
+//     HZIP hz = CreateZipHandle(hzwrite,0);
+//     // ... add to it
+//     CloseZip(hz);
+//     CloseHandle(hzwrite);
+//     WaitForSingleObject(hthread,INFINITE);
+//     CloseHandle(hthread);
+//     ... meanwhile DWORD WINAPI ZipReceiverThread(void *dat)
+//                   { HANDLE hread = (HANDLE)dat;
+//                     char buf[1000];
+//                     while (true)
+//                     { DWORD red; ReadFile(hread,buf,1000,&red,NULL);
+//                       // ... and do something with this zip data we're receiving
+//                       if (red==0) break;
+//                     }
+//                     CloseHandle(hread);
+//                     return 0;
+//                   }
+
+
+
+// Now we indulge in a little skullduggery so that the code works whether
+// the user has included just zip or both zip and unzip.
+// Idea: if header files for both zip and unzip are present, then presumably
+// the cpp files for zip and unzip are both present, so we will call
+// one or the other of them based on a dynamic choice. If the header file
+// for only one is present, then we will bind to that particular one.
+ZRESULT CloseZipZ(HZIP hz);
+unsigned int FormatZipMessageZ(ZRESULT code, char *buf,unsigned int len);
+bool IsZipHandleZ(HZIP hz);
+#ifdef _unzip_H
+#undef CloseZip
+#define CloseZip(hz) (IsZipHandleZ(hz)?CloseZipZ(hz):CloseZipU(hz))
 #else
-typedef voidp zipFile;
+#define CloseZip CloseZipZ
+#define FormatZipMessage FormatZipMessageZ
 #endif
 
-#define ZIP_OK                                  (0)
-#define ZIP_ERRNO               (Z_ERRNO)
-#define ZIP_PARAMERROR                  (-102)
-#define ZIP_INTERNALERROR               (-104)
-
-/* tm_zip contain date/time info */
-typedef struct tm_zip_s 
-{
-	uInt tm_sec;            /* seconds after the minute - [0,59] */
-	uInt tm_min;            /* minutes after the hour - [0,59] */
-	uInt tm_hour;           /* hours since midnight - [0,23] */
-	uInt tm_mday;           /* day of the month - [1,31] */
-	uInt tm_mon;            /* months since January - [0,11] */
-	uInt tm_year;           /* years - [1980..2044] */
-} tm_zip;
-
-typedef struct
-{
-	tm_zip      tmz_date;       /* date in understandable format           */
-    uLong       dosDate;       /* if dos_date == 0, tmu_date is used      */
-/*    uLong       flag;        */   /* general purpose bit flag        2 bytes */
-
-    uLong       internal_fa;    /* internal file attributes        2 bytes */
-    uLong       external_fa;    /* external file attributes        4 bytes */
-} zip_fileinfo;
-
-extern zipFile ZEXPORT zipOpen OF((const char *pathname, int append));
-/*
-  Create a zipfile.
-	 pathname contain on Windows NT a filename like "c:\\zlib\\zlib111.zip" or on
-	   an Unix computer "zlib/zlib111.zip".
-	 if the file pathname exist and append=1, the zip will be created at the end
-	   of the file. (useful if the file contain a self extractor code)
-	 If the zipfile cannot be opened, the return value is NULL.
-     Else, the return value is a zipFile Handle, usable with other function
-	   of this zip package.
 
 
-*/
-
-extern int ZEXPORT zipOpenNewFileInZip OF((zipFile file,
-					   const char* filename,
-					   const zip_fileinfo* zipfi,
-					   const void* extrafield_local,
-					   uInt size_extrafield_local,
-					   const void* extrafield_global,
-					   uInt size_extrafield_global,
-					   const char* comment,
-					   int method,
-					   int level));
-/*
-  Open a file in the ZIP for writing.
-  filename : the filename in zip (if NULL, '-' without quote will be used
-  *zipfi contain supplemental information
-  if extrafield_local!=NULL and size_extrafield_local>0, extrafield_local
-    contains the extrafield data the the local header
-  if extrafield_global!=NULL and size_extrafield_global>0, extrafield_global
-    contains the extrafield data the the local header
-  if comment != NULL, comment contain the comment string
-  method contain the compression method (0 for store, Z_DEFLATED for deflate)
-  level contain the level of compression (can be Z_DEFAULT_COMPRESSION)
-*/
-
-extern int ZEXPORT zipWriteInFileInZip OF((zipFile file,
-					   const voidp buf,
-					   unsigned len));
-/*
-  Write data in the zipfile
-*/
-
-extern int ZEXPORT zipCloseFileInZip OF((zipFile file));
-/*
-  Close the current file in the zipfile
-*/
-
-extern int ZEXPORT zipClose OF((zipFile file,
-				const char* global_comment));
-/*
-  Close the zipfile
-*/
-
-#ifdef __cplusplus
-}
 #endif
-
-#endif /* _zip_H */

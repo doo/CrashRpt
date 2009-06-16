@@ -55,7 +55,7 @@ void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
   m_attachments[CStringA(sAttachment).GetBuffer()] = CStringA(sTitle).GetBuffer();  
 }
 
-BOOL CMailMsg::Initialize()
+BOOL CMailMsg::MAPIInitialize()
 {
    m_hMapi = ::LoadLibrary(_T("mapi32.dll"));
    
@@ -77,7 +77,7 @@ BOOL CMailMsg::Initialize()
    return m_bReady;
 }
 
-void CMailMsg::Finalize()
+void CMailMsg::MAPIFinalize()
 {
    ::FreeLibrary(m_hMapi);
 }
@@ -104,7 +104,7 @@ BOOL CMailMsg::MAPISend()
    ULONG                status = 0;
    MapiMessage          message;
 
-   if(!m_bReady && !Initialize())
+   if(!m_bReady && !MAPIInitialize())
      return FALSE;
    
    pRecipients = new MapiRecipDesc[2];
@@ -129,12 +129,12 @@ BOOL CMailMsg::MAPISend()
    // set to
    pRecipients[nIndex].ulReserved = 0;
    pRecipients[nIndex].ulRecipClass = MAPI_TO;
-   pRecipients[nIndex].lpszAddress = m_to.begin()->first;
-   pRecipients[nIndex].lpszName = m_to.begin()->second;
+   pRecipients[nIndex].lpszAddress = m_to;
+   pRecipients[nIndex].lpszName = m_to;
    pRecipients[nIndex].ulEIDSize = 0;
    pRecipients[nIndex].lpEntryID = NULL;
-   nIndex++;
    
+   nIndex=0;   
    // add attachments
     for (p = m_attachments.begin(), nIndex = 0;
       p != m_attachments.end(); p++, nIndex++)
@@ -148,18 +148,18 @@ BOOL CMailMsg::MAPISend()
     }
     
     message.ulReserved                        = 0;
-    message.lpszSubject                       = (LPTSTR)m_sSubject.GetBuffer();
-    message.lpszNoteText                      = (LPTSTR)m_sMessage.GetBuffer();
+    message.lpszSubject                       = m_sSubject.GetBuffer();
+    message.lpszNoteText                      = m_sMessage.GetBuffer();
     message.lpszMessageType                   = NULL;
     message.lpszDateReceived                  = NULL;
     message.lpszConversationID                = NULL;
     message.flFlags                           = 0;
-    message.lpOriginator                      = m_from.size() ? pRecipients : NULL;
-    message.nRecipCount                       = (ULONG)nRecipients - m_from.size(); // don't count originator
-    message.lpRecips                          = nRecipients - m_from.size() ? &pRecipients[m_from.size()] : NULL;
+    message.lpOriginator                      = pRecipients;
+    message.nRecipCount                       = 1;
+    message.lpRecips                          = &pRecipients[1];
     message.nFileCount                        = nAttachments;
     message.lpFiles                           = nAttachments ? pAttachments : NULL;
-
+    
     status = m_lpMapiSendMail(0, 0, &message, MAPI_DIALOG, 0);
 
     if (pRecipients)
@@ -183,14 +183,14 @@ BOOL CMailMsg::CMCSend()
   CMC_boolean          bAvailable = FALSE;
   CMC_time             t_now = {0};
 
-  if (!m_bReady && !Initialize())
+  if (!m_bReady && !MAPIInitialize())
     return FALSE;
 
   pRecipients = new CMC_recipient[2];
   pAttachments = new CMC_attachment[m_attachments.size()];
 
   // set to
-  pRecipients[nIndex].name = m_to.begin()->second.GetBuffer();
+  pRecipients[nIndex].name = m_to.GetBuffer();
   pRecipients[nIndex].name_type = CMC_TYPE_INDIVIDUAL;
   pRecipients[nIndex].address = (CMC_string)(LPCSTR)m_to;
   pRecipients[nIndex].role = CMC_ROLE_TO;
@@ -198,7 +198,7 @@ BOOL CMailMsg::CMCSend()
   pRecipients[nIndex].recip_extensions = NULL;
    
   // set from
-  pRecipients[nIndex+1].name = m_from.begin()->second.GetBuffer();
+  pRecipients[nIndex+1].name = m_from.GetBuffer();
   pRecipients[nIndex+1].name_type = CMC_TYPE_INDIVIDUAL;
   pRecipients[nIndex+1].address = (CMC_string)(LPCSTR)m_from;
   pRecipients[nIndex+1].role = CMC_ROLE_ORIGINATOR;
