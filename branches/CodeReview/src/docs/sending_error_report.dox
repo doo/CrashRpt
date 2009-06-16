@@ -1,0 +1,15 @@
+/*!
+
+\page send_report Sending Error Report
+
+When crash occurs, CrashRpt builds an error report and sends it
+to the software developers using one of the following: 
+ - HTTP connection to a server-side script
+ - SMTP connection to recipient's mailbox
+ - the default E-mail client application (Micrsoft Outlook, Mozilla Thunderbird and so on)
+
+If one of these ways fails, CrashRpt tries others in turn. If all ones fail, CrashRpt saves
+the error report to Unsent Error Reports folder. The error reports from Unsent Error Reports
+folder will be resent on the next application start.
+
+*/

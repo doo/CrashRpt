@@ -1,0 +1,16 @@
+/*!
+
+\page error_report Error Report
+
+The error report contains crash minidump file (.DMP), which has system information, 
+CPU state and stack trace. The minidump in most cases can be used on developer's 
+side to determine the reason of crash and try to fix the problem.
+
+In addition, CrashRpt generates an XML crash log file. This file contains various
+information that might be useful for crash classification and analysis.
+
+Client application can specify custom files, for example, log files, to be included 
+to crash report via the crash callback.
+
+
+*/
