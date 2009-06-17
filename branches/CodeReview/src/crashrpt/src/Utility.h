@@ -17,6 +17,7 @@
 
 #include "stdafx.h"
 #include <atltypes.h> // CString
+#include <shlobj.h>
 
 
 ////////////////////////////// Class Definitions /////////////////////////////
@@ -109,10 +110,19 @@ public:
    int 
    getTempDirectory(CString& strTemp);
 
-   static 
-   CString 
-   GetModulePath(HMODULE hModule);
+   // Returns path to directory where EXE or DLL module is located.
+   static CString GetModulePath(HMODULE hModule);
 
+   // Generates unique identifier (GUID)
+   static int GenerateGUID(CString& sGUID);  
+
+   // Returns current system time as string (uses UTC time format).
+   static int GetSystemTimeUTC(CString& sTime);  
+
+   // Returns friendly name of operating system (name, version, service pack)
+   static int GetOSFriendlyName(CString& sOSName);  
+
+   static int GetSpecialFolder(int csidl, CString& sFolderPath);
 };
 
 #endif	// #ifndef _UTILITY_H_

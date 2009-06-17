@@ -220,12 +220,11 @@ public:
 protected:
 
   int CreateMinidump(PCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
-
-  // Creates new process that would let user email the error report.
+  int ZipErrorReport(CString sFileName);  
   int LaunchCrashSender();  
-  CString _ReplaceRestrictedXMLCharacters(CString szText);
-  int EmergencyNotifyUser();
 
+  CString _ReplaceRestrictedXMLCharacters(CString sText);
+  
   // Sets internal pointers to exception handlers to NULL
   void InitPrevCPPExceptionHandlerPointers();
 
@@ -256,6 +255,9 @@ protected:
   CString m_sAppVersion;         // Application version.
   CString m_sImageName;          // Path to client executable file.
   CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
+  CString m_sCrashGUID;          // Unique ID of the crash report.
+  CString m_sOSName;             // Operating system name.
+  CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
 };
 
 #endif	// !_CRASHHANDLER_H_

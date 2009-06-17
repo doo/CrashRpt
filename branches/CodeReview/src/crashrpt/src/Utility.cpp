@@ -12,7 +12,7 @@
 #include "Utility.h"
 #include "atldlgs.h"
 #include "resource.h"
-
+#include <time.h>
 
 FILETIME CUtility::getLastWriteFileTime(CString sFile)
 {
@@ -101,3 +101,95 @@ CString CUtility::GetModulePath(HMODULE hModule)
 	return string;
 }
 
+int CUtility::GetSystemTimeUTC(CString& sTime)
+{
+  sTime.Empty();
+
+  // Get system time in UTC format
+
+  time_t cur_time;
+  time(&cur_time);
+  char szDateTime[64];
+
+  struct tm timeinfo;
+  gmtime_s(&timeinfo, &cur_time);
+  strftime(szDateTime, 64,  "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+
+  sTime = CStringA(szDateTime);
+
+  return 0;
+}
+
+int CUtility::GenerateGUID(CString& sGUID)
+{
+  int status = 1;
+  sGUID.Empty();
+
+  // Create GUID
+
+  UCHAR *pszUuid = 0; 
+  GUID *pguid = NULL;
+  pguid = new GUID;
+  if(pguid!=NULL)
+  {
+    HRESULT hr = CoCreateGuid(pguid);
+    if(SUCCEEDED(hr))
+    {
+      // Convert the GUID to a string
+      hr = UuidToStringA(pguid, &pszUuid);
+      if(SUCCEEDED(hr) && pszUuid!=NULL)
+      { 
+        status = 0;
+        sGUID = CStringA((char*)pszUuid);
+        RpcStringFreeA(&pszUuid);
+      }
+    }
+    delete pguid; 
+  }
+
+  return status;
+}
+
+int CUtility::GetOSFriendlyName(CString& sOSName)
+{
+  sOSName.Empty();
+
+  CRegKey regKey;
+  LONG lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), KEY_READ);
+  if(lResult==ERROR_SUCCESS)
+  {    
+    TCHAR buf[1024];
+    ULONG buf_size = 0;
+
+    buf_size = 1024;
+    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("ProductName"), buf, &buf_size))
+      sOSName = CString(buf, buf_size);
+    
+    buf_size = 1024;
+    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CurrentBuildNumber"), buf, &buf_size))
+      sOSName += _T(" Build ") + CString(buf, buf_size);
+
+    buf_size = 1024;
+    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CSDVersion"), buf, &buf_size))
+      sOSName += _T(" ") + CString(buf, buf_size);
+
+    regKey.Close();
+    return 0;
+  }
+
+  return 1;
+}
+
+int CUtility::GetSpecialFolder(int csidl, CString& sFolderPath)
+{
+  sFolderPath.Empty();
+
+  TCHAR szPath[_MAX_PATH];
+  BOOL bResult = SHGetSpecialFolderPath(NULL, szPath, csidl, TRUE);
+  if(!bResult)
+    return 1;
+
+  sFolderPath = CString(szPath);
+
+  return 0;
+}

@@ -11,13 +11,13 @@
 #include "stdafx.h"
 #include <atlstr.h>
 #include "CrashHandler.h"
-#include "zlibcpp.h"
+#include "zip.h"
 #include "process.h"
 #include "Utility.h"
 #include "resource.h"
 #include <sys/stat.h>
 #include "tinyxml.h"
-#include <time.h>
+
 
 // This internal structure contains the list of processes 
 // that have called crInstall().
@@ -339,6 +339,46 @@ int CCrashHandler::Init(
 
   CloseHandle(hFile);
 
+  // Generate unique GUID for this crash report.
+  if(0!=CUtility::GenerateGUID(m_sCrashGUID))
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't generate crash GUID."));
+    return 4; 
+  }
+
+  // Get operating system friendly name.
+  if(0!=CUtility::GetOSFriendlyName(m_sOSName))
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't get operating system's friendly name."));
+    return 5; 
+  }
+
+  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports folder.
+  CString sLocalAppDataFolder;
+  CUtility::GetSpecialFolder(CSIDL_LOCAL_APPDATA, sLocalAppDataFolder);
+  if(sLocalAppDataFolder.Right(1)!='\\')
+    sLocalAppDataFolder += _T("\\");
+  
+  CString sCrashRptFolder = sLocalAppDataFolder+_T("CrashRpt");
+  if(FALSE==CreateDirectory(sCrashRptFolder, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't create CrashRpt directory."));
+    return 6; 
+  }
+
+  CString sUnsentCrashReportsFolder = sCrashRptFolder+_T("\\UnsentCrashReports");
+  if(FALSE==CreateDirectory(sUnsentCrashReportsFolder, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't create UnsentCrashReports directory."));
+    return 7; 
+  }
+
+  m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolder;
+
   // initialize member data
   m_lpfnCallback = NULL;
   m_oldFilter    = NULL;
@@ -429,6 +469,16 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
   m_prevSigINT = NULL;  
   m_prevSigTERM = NULL;
   
+}
+
+CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
+{
+  int pid = _getpid();
+  std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(pid);
+  if(it==g_CrashHandlers.m_map.end())
+    return NULL; // No handler for calling process.
+
+  return it->second;
 }
 
 int CCrashHandler::SetProcessCPPExceptionHandlers()
@@ -680,7 +730,24 @@ int CCrashHandler::GenerateErrorReport(
       m_files[CStringA(sFileName)] = CString((LPCTSTR)IDS_CRASH_LOG);
     }
   }
-     
+  
+  // Save error report as ZIP archive.
+  CString sZipName = m_sUnsentCrashReportsFolder+_T("\\")+m_sCrashGUID+_T(".zip");
+  int zipped = ZipErrorReport(sZipName);
+  if(zipped!=0)
+  {
+    ATLASSERT(zipped==0);
+    
+    // Failed to create zip.
+    // Try notify user about crash using message box.
+    CString szCaption;
+    szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
+    CString szMessage;
+    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to create error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
+    return 2;
+  }
+
   // Launch the CrashSender process that would notify user about crash
   // and send the error report by E-mail.
   
@@ -688,11 +755,16 @@ int CCrashHandler::GenerateErrorReport(
   if(result!=0)
   {
     ATLASSERT(result==0);
+    crSetErrorMsg(_T("Error launching CrashSender.exe"));
+    
     // Failed to launch crash sender process.
     // Try notify user about crash using message box.
-    EmergencyNotifyUser();      
-    crSetErrorMsg(_T("Error sending error report by E-mail."));
-    return 2;
+    CString szCaption;
+    szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
+    CString szMessage;
+    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to run CrashSender.exe and send error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
+    return 3;
   }
 
   crSetErrorMsg(_T("Success."));
@@ -712,7 +784,6 @@ int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName, PEXCEPTION_POINTERS p
   CStringA sCrashRptVer;
   sCrashRptVer.Format("%d", CRASHRPT_VER);
   root->SetAttribute("version", sCrashRptVer);
-
 
   // Write application name 
 
@@ -739,78 +810,31 @@ int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName, PEXCEPTION_POINTERS p
   image_name->LinkEndChild(image_name_text);
 
   // Write operating system friendly name
+  
+  TiXmlElement* os_name = new TiXmlElement("OperatingSystem");
+  root->LinkEndChild(os_name);
 
-  CRegKey regKey;
-  LONG lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), KEY_READ);
-  if(lResult==ERROR_SUCCESS)
-  {
-    CStringA sOSName;
-    
-    TCHAR buf[1024];
-    ULONG buf_size = 0;
-
-    buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("ProductName"), buf, &buf_size))
-      sOSName = CString(buf, buf_size);
-    
-    buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CurrentBuildNumber"), buf, &buf_size))
-      sOSName += _T(" Build ") + CString(buf, buf_size);
-
-    buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CSDVersion"), buf, &buf_size))
-      sOSName += _T(" ") + CString(buf, buf_size);
-
-    TiXmlElement* os_name = new TiXmlElement("OperatingSystem");
-    root->LinkEndChild(os_name);
-
-    TiXmlText* os_name_text = new TiXmlText(sOSName.GetBuffer());
-    os_name->LinkEndChild(os_name_text);
-
-    regKey.Close();
-  }
-
+  TiXmlText* os_name_text = new TiXmlText(CStringA(m_sOSName).GetBuffer());
+  os_name->LinkEndChild(os_name_text);
+  
   // Write system time in UTC format
 
-  time_t cur_time;
-  time(&cur_time);
-  char szDateTime[64];
-
-  struct tm timeinfo;
-  gmtime_s(&timeinfo, &cur_time);
-  strftime(szDateTime, 64,  "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+  CString sSystemTime;
+  CUtility::GetSystemTimeUTC(sSystemTime);
 
   TiXmlElement* sys_time = new TiXmlElement("SystemTimeUTC");
   root->LinkEndChild(sys_time);
 
-  TiXmlText* sys_time_text = new TiXmlText(szDateTime);
+  TiXmlText* sys_time_text = new TiXmlText(CStringA(sSystemTime));
   sys_time->LinkEndChild(sys_time_text);
 
-  // Create crash GUID
+  // Write crash GUID
 
-  UCHAR *pszUuid = 0; 
-  GUID *pguid = NULL;
-  pguid = new GUID;
-  if(pguid!=NULL)
-  {
-    HRESULT hr = CoCreateGuid(pguid);
-    if(SUCCEEDED(hr))
-    {
-      // Convert the GUID to a string
-      hr = UuidToStringA(pguid, &pszUuid);
-      if(SUCCEEDED(hr) && pszUuid!=NULL)
-      {
-        TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
-        root->LinkEndChild(crash_guid);
+  TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
+  root->LinkEndChild(crash_guid);
 
-        TiXmlText* crash_guid_text = new TiXmlText((char*)pszUuid);
-        crash_guid->LinkEndChild(crash_guid_text);
-
-        RpcStringFreeA(&pszUuid);
-      }
-    }
-    delete pguid; 
-  }
+  TiXmlText* crash_guid_text = new TiXmlText(CStringA(m_sCrashGUID));
+  crash_guid->LinkEndChild(crash_guid_text);
 
   // Save document to file
 
@@ -877,6 +901,43 @@ int CCrashHandler::CreateMinidump(PCTSTR pszFileName, EXCEPTION_POINTERS* pExInf
   // Close file
   CloseHandle(hFile);
 
+  return 0;
+}
+
+int CCrashHandler::ZipErrorReport(CString sFileName)
+{
+  CString sTempFileName = CUtility::getTempFileName();
+
+  HZIP hz = CreateZip(sFileName, NULL);
+  if (hz==NULL)
+  {
+    crSetErrorMsg(_T("Couldn't create zip archive for the error report."));
+    return 1;
+  }
+
+  // add report files to zip
+  TStrStrMap::iterator cur = m_files.begin();
+  unsigned i;
+  for (i = 0; i < m_files.size(); i++, cur++)
+  {    
+    CString szFilePath = (*cur).first;
+    int pos = szFilePath.ReverseFind('\\');
+    CString szFileName; 
+    if(pos>=0) 
+      szFileName = szFilePath.Mid(pos+1);
+    else
+      szFileName = szFilePath;
+        
+    ZRESULT zr = ZipAdd(hz, szFileName, szFilePath);
+    if(zr!=ZR_OK)
+    {
+      crSetErrorMsg(_T("Couldn't add file to zip archive."));
+      CloseZip(hz);
+      return 1;
+    }
+  }
+
+  CloseZip(hz);    
   return 0;
 }
 
@@ -966,52 +1027,6 @@ int CCrashHandler::LaunchCrashSender()
   return 0;
 }
 
-int CCrashHandler::EmergencyNotifyUser()
-{
-  crSetErrorMsg(_T("Success."));
-
-  CString szCaption;
-  szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
-   
-  CString szMessage;
-  szMessage.Format(_T("This program has stopped working due to unexpected error. We are sorry for inconvenience.\nPress Yes to save the error report. Press No to close application."));
-  INT_PTR res = MessageBox(NULL, szMessage, szCaption, MB_YESNO|MB_ICONERROR);
-  if(res==IDYES)
-  {
-    CString sTempFileName = CUtility::getTempFileName();
-
-    CZLib zlib;
-    
-    // zip the report
-    if (!zlib.Open(sTempFileName))
-    {
-      crSetErrorMsg(_T("Couldn't zip the error report."));
-      return 1;
-    }
-
-    // add report files to zip
-    TStrStrMap::iterator cur = m_files.begin();
-    unsigned i;
-    for (i = 0; i < m_files.size(); i++, cur++)
-    {
-      zlib.AddFile((char*)(LPCSTR)(*cur).first);
-    }
-
-    zlib.Close();
-
-    // Send report
-    BOOL bSave = CopyFile(sTempFileName, CUtility::getSaveFileName(), TRUE);
-    if(bSave==FALSE)
-    {
-      ATLASSERT(bSave==TRUE);
-      crSetErrorMsg(_T("Couldn't save error report to specified file."));
-      return 1;
-    }
-  }
-
-  return 0;
-}
-
 CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
 {
   CString sResult;
@@ -1023,15 +1038,6 @@ CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
   return sResult;
 }
 
-CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
-{
-  int pid = _getpid();
-  std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(pid);
-  if(it==g_CrashHandlers.m_map.end())
-    return NULL; // No handler for calling process.
-
-  return it->second;
-}
 
 
 

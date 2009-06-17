@@ -237,7 +237,8 @@ CRASHRPTAPI int crGetLastErrorMsg(PTSTR pszBuffer, UINT uBuffSize)
 CRASHRPTAPI int crSetErrorMsg(PTSTR pszErrorMsg)
 {  
   g_cs.Lock();
-  g_sErrorMsg[GetCurrentThreadId()] = pszErrorMsg;
+  DWORD dwThreadId = GetCurrentThreadId();
+  g_sErrorMsg[dwThreadId] = pszErrorMsg;
   g_cs.Unlock();
   return 0;
 }

@@ -155,7 +155,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\..\tinyxml"
+				AdditionalIncludeDirectories="..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -186,7 +186,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib"
 				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -295,26 +295,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="excprpt.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -338,26 +318,6 @@
 			</File>
 			<File
 				RelativePath="Utility.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="zlibcpp.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -428,6 +388,37 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+			<Filter
+				Name="zip_utils"
+				>
+				<File
+					RelativePath="..\..\zip_utils\unzip.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\zip_utils\zip.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4311"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -470,6 +461,18 @@
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxml.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="zip_utils"
+				>
+				<File
+					RelativePath="..\..\zip_utils\unzip.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\zip_utils\zip.h"
 					>
 				</File>
 			</Filter>
