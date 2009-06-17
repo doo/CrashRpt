@@ -49,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib"
+				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
@@ -247,10 +247,6 @@
 				RelativePath="..\..\crashrpt\src\Utility.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\zlibcpp.cpp"
-				>
-			</File>
 			<Filter
 				Name="tinyxml"
 				>
@@ -335,6 +331,36 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+			<Filter
+				Name="zip_utils"
+				>
+				<File
+					RelativePath="..\..\zip_utils\unzip.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\zip_utils\zip.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -381,6 +407,18 @@
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxml.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="zip_utils"
+				>
+				<File
+					RelativePath="..\..\zip_utils\unzip.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\zip_utils\zip.h"
 					>
 				</File>
 			</Filter>

@@ -9,8 +9,6 @@
 #include "tinyxml.h"
 #include <atlstr.h>
 #include "zip.h"
-#include "zlibcpp.h"
-
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 {
@@ -246,46 +244,9 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 
   // Write user email and problem description to XML
   WriteUserInfoToXML(m_sEmail, m_sDescription);
-
-  // zip the report
-  CZLib zlib;
   
-  CString sZipName = CUtility::getTempFileName();
-
-  if (!zlib.Open(sZipName))
-    return 0;
-   
-  // add report files to zip
-  TStrStrMap::iterator cur = m_pUDFiles.begin();
-  unsigned i;
-  for (i = 0; i < m_pUDFiles.size(); i++, cur++)
-  {
-    zlib.AddFile((char*)(LPCSTR)(*cur).first);
-  }
-
-  zlib.Close();
-
-  //// Send report
-
-   //if (m_sTo.IsEmpty() || 
-   //    !MailReport(rpt, sTempFileName, mainDlg.m_sEmail, mainDlg.m_sDescription))
-   //{
-   //  SaveReport(rpt, sTempFileName);   
-   //}
-
-  /*CMailMsg msg;
-   msg
-      .SetTo(m_sTo)
-      .SetFrom(lpcszEmail)
-      .SetSubject(m_sSubject.IsEmpty()?_T("Incident Report"):m_sSubject)
-      .SetMessage(lpcszDesc)
-      .AddAttachment(lpcszFile, CUtility::getAppName() + _T(".zip"));
-
-  DeleteFile(sTempFileName);
-  */
-  CloseDialog(0);
   return 0;
- }
+}
 
 void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
 { 
