@@ -387,7 +387,21 @@ crAddFile(
    PCTSTR pszDesc 
    );
 
-
+// Exception types
+#define CR_WIN32_UNHANDLED_EXCEPTION    1    //!< WIN32 unhandled exception.
+#define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call.
+#define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call.
+#define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call.
+#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
+#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
+#define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
+#define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort).
+#define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception).
+#define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction).
+#define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C).
+#define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal (invalid storage access).
+#define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request).
+#define CR_WIN32_STRUCTURED_EXCEPTION   14   //!< Structured exception filter. 
 
 /*! \ingroup CrashRptStructs
  *  \brief Additional exception info used by crGenerateCrashReport().
@@ -395,6 +409,8 @@ crAddFile(
 typedef struct tagCR_EXCEPTION_INFO
 {
   WORD cb;                //!< Size of this structure in bytes; should be initialized before using.
+  PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
+  int exctype;            //!< Exception type.
   unsigned int code;      //!< Exception code.
   unsigned int subcode;   //!< Exception subcode.
 }
@@ -408,28 +424,23 @@ CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
  *  \return This function doesn't return when succeeded. When failed, it returns a non-zero value.
  *     Use crGetLastErrorMsg() to retrieve the error message.
  *  
- *  \param[in] pExInfo Exception pointers.
- *  \param[in] pAdditionalInfo Additional information.
+ *  \param[in] pExceptionInfo Exception information. 
  *
  *  \remarks
  *    Call this function to manually generate a crash report. When crash information is collected,
  *    the application is terminated.
  *
  *    The crash report contains the crash minidump, crash log in XML format and
- *    additional files added with AddFile().
+ *    additional custom files added with AddFile().
  *
- *    If \c pExInfo is NULL, crash minidump might contain unusable information.
- *    
- *    The \c pAdditionalInfo parameter specifies additional information about exception.
- *    It can be NULL. 
+ *    The exception information should be passed using CR_EXCEPTION_INFO structure. 
  *
  */
 
 CRASHRPTAPI 
 int 
-crGenerateErrorReport(
-   _EXCEPTION_POINTERS* pExInfo,
-   CR_EXCEPTION_INFO* pAdditionalInfo
+crGenerateErrorReport(   
+   CR_EXCEPTION_INFO* pExceptionInfo
    );
 
 
@@ -464,22 +475,6 @@ crExceptionFilter(
   struct _EXCEPTION_POINTERS* ep);
 
 
-
-// Exception types for crEmulateCrash
-#define CR_WIN32_NULL_POINTER_EXCEPTION 1    //!< Null pointer WIN32 exception.
-#define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call.
-#define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call.
-#define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call.
-#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
-#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
-#define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
-#define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort).
-#define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception).
-#define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction).
-#define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C).
-#define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal (invalid storage access).
-#define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request).
-
 /*! \ingroup CrashRptAPI  
  *  \brief Emulates a predefined crash situation.
  *
@@ -500,7 +495,7 @@ crExceptionFilter(
  *    crInstallToCurrentThread() installs exception handlers that function on per-thread basis.
  *    
  *  \c ExceptionType can be one of the following constants:
- *    - \c CR_WIN32_NULL_POINTER_EXCEPTION  This will generate a null pointer exception.
+ *    - \c CR_WIN32_UNHANDLED_EXCEPTION  This will generate a null pointer exception.
  *    - \c CR_CPP_TERMINATE_CALL This results in call of terminate() C++ function.
  *    - \c CR_CPP_UNEXPECTED_CALL This results in call of unexpected() C++ function.
  *    - \c CR_CPP_PURE_CALL This emulates a call of pure virtual method call of a C++ class instance.

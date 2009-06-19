@@ -37,7 +37,7 @@ struct _cpp_thread_exception_handlers
     m_prevTerm = NULL;
     m_prevUnexp = NULL;
     m_prevSigILL = NULL;
-    m_prevSigSEGV = NULL;
+    //m_prevSigSEGV = NULL;
   }
 
   terminate_handler m_prevTerm;        // Previous terminate handler   
@@ -147,8 +147,7 @@ public:
    //
    int 
    GenerateErrorReport(
-      PEXCEPTION_POINTERS pExInfo,         // Exception pointers (see MSDN)      
-      PCR_EXCEPTION_INFO pAdditionalInfo = NULL
+      PCR_EXCEPTION_INFO pExceptionInfo = NULL
       );
 
 
@@ -158,8 +157,7 @@ public:
 
    int GenerateCrashLogXML(
      PCTSTR pszFileName, 
-     PEXCEPTION_POINTERS pExInfo,         
-     PCR_EXCEPTION_INFO pAdditionalInfo);
+     PCR_EXCEPTION_INFO pExceptionInfo);
 
    //-----------------------------------------------------------------------------
    // SetProcessCPPExceptionHandlers

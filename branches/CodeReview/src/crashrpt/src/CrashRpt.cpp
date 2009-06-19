@@ -39,7 +39,12 @@ CRASHRPTAPI void AddFile(LPVOID lpState, LPCTSTR lpFile, LPCTSTR lpDesc)
 
 CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
 {
-  crGenerateErrorReport(pExInfo, NULL);
+  CR_EXCEPTION_INFO ei;
+  memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+  ei.cb = sizeof(CR_EXCEPTION_INFO);
+  ei.exctype = CR_WIN32_UNHANDLED_EXCEPTION;
+
+  crGenerateErrorReport(&ei);
 }
 
 CRASHRPTAPI int crInstall(CR_INSTALL_INFO* pInfo)
@@ -193,9 +198,18 @@ CRASHRPTAPI int crAddFile(PCTSTR pszFile, PCTSTR pszDesc)
 }
 
 CRASHRPTAPI int crGenerateErrorReport(
-  _EXCEPTION_POINTERS* pExInfo, CR_EXCEPTION_INFO* pAdditionalInfo)
+  CR_EXCEPTION_INFO* pExceptionInfo)
 {
-  crSetErrorMsg(_T("Success."));
+  crSetErrorMsg(_T("Unspecified error."));
+
+  if(pExceptionInfo==NULL || 
+     pExceptionInfo->cb!=sizeof(CR_EXCEPTION_INFO))
+  {
+    crSetErrorMsg(_T("Exception info is NULL or invalid."));
+    ATLASSERT(pExceptionInfo!=NULL);
+    ATLASSERT(pExceptionInfo->cb==sizeof(CR_EXCEPTION_INFO));
+    return 1;
+  }
 
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
@@ -205,10 +219,10 @@ CRASHRPTAPI int crGenerateErrorReport(
     // Handler is not installed for current process 
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
     ATLASSERT(pCrashHandler!=NULL);
-    return 1;
+    return 2;
   } 
 
-  return pCrashHandler->GenerateErrorReport(pExInfo, pAdditionalInfo);  
+  return pCrashHandler->GenerateErrorReport(pExceptionInfo);  
 }
 
 CRASHRPTAPI int crGetLastErrorMsg(PTSTR pszBuffer, UINT uBuffSize)
@@ -257,12 +271,15 @@ CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS*
     return EXCEPTION_CONTINUE_SEARCH; 
   }
 
-  CR_EXCEPTION_INFO additional_info;
-  additional_info.cb = sizeof(CR_EXCEPTION_INFO);
-  additional_info.code = code;
-  additional_info.subcode = 0;
+  CR_EXCEPTION_INFO ei;
+  memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+  ei.cb = sizeof(CR_EXCEPTION_INFO);  
+  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.pexcptrs = ep;
+  ei.code = code;
+  
 
-  int nGenerate = pCrashHandler->GenerateErrorReport(ep, &additional_info);
+  int nGenerate = pCrashHandler->GenerateErrorReport(&ei);
   if(!nGenerate)
     return EXCEPTION_CONTINUE_SEARCH;
     
@@ -322,7 +339,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 
   switch(ExceptionType)
   {
-  case CR_WIN32_NULL_POINTER_EXCEPTION:
+  case CR_WIN32_UNHANDLED_EXCEPTION:
     {
       int *p = 0;
       *p = 0;
