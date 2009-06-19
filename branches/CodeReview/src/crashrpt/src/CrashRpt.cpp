@@ -276,8 +276,6 @@ CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS*
   ei.cb = sizeof(CR_EXCEPTION_INFO);  
   ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
   ei.pexcptrs = ep;
-  ei.code = code;
-  
 
   int nGenerate = pCrashHandler->GenerateErrorReport(&ei);
   if(!nGenerate)
@@ -313,17 +311,42 @@ CBase::~CBase()
    m_pDerived -> function();
 }
 
-#pragma warning(disable: 4723) // avoid C4723 warning
-float sigfpe_test(float a)
-{
-  // division by zero
-  return (a/0.0f);
+#include <float.h>
+float sigfpe_test(float)
+{ 
+  // Code taken from http://www.devx.com/cplus/Article/34993/1954
+
+  //Set the x86 floating-point control word according to what
+  //exceptions you want to trap. 
+  _clearfp(); //Always call _clearfp before setting the control
+              //word
+  //Because the second parameter in the following call is 0, it
+  //only returns the floating-point control word
+  unsigned int cw = _controlfp(0, 0); //Get the default control
+                                      //word
+  //Set the exception masks off for exceptions that you want to
+  //trap.  When a mask bit is set, the corresponding floating-point
+  //exception is //blocked from being generating.
+  cw &=~(EM_OVERFLOW|EM_UNDERFLOW|EM_ZERODIVIDE|
+         EM_DENORMAL|EM_INVALID);
+  //For any bit in the second parameter (mask) that is 1, the 
+  //corresponding bit in the first parameter is used to update
+  //the control word.  
+  unsigned int cwOriginal = _controlfp(cw, MCW_EM); //Set it.
+                              //MCW_EM is defined in float.h.
+                              //Restore the original value when done:
+                              //_controlfp(cwOriginal, MCW_EM);
+
+  // Divide by zero
+
+  float a = 1;
+  float b = 0;
+  float c = a/b;
+
+  return 0;
 }
 
 #define BIG_NUMBER 0x1fffffff
-
-int coalesced = 0;
-
 #pragma warning(disable: 4717) // avoid C4717 warning
 int RecurseAlloc() 
 {
@@ -394,6 +417,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
     {
       // floating point exception ( /fp:except compiler option)
       sigfpe_test(1.0f);
+      return 1;
     }
     break;
   case CR_CPP_SIGILL: 

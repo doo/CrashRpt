@@ -120,7 +120,7 @@ BOOL CMailMsg::MAPISend()
    // set from
    pRecipients[nIndex].ulReserved = 0;
    pRecipients[nIndex].ulRecipClass = MAPI_ORIG;
-   pRecipients[nIndex].lpszAddress = m_from;
+   pRecipients[nIndex].lpszAddress = m_from.GetBuffer();
    pRecipients[nIndex].lpszName = "";
    pRecipients[nIndex].ulEIDSize = 0;
    pRecipients[nIndex].lpEntryID = NULL;
@@ -129,8 +129,8 @@ BOOL CMailMsg::MAPISend()
    // set to
    pRecipients[nIndex].ulReserved = 0;
    pRecipients[nIndex].ulRecipClass = MAPI_TO;
-   pRecipients[nIndex].lpszAddress = m_to;
-   pRecipients[nIndex].lpszName = m_to;
+   pRecipients[nIndex].lpszAddress = m_to.GetBuffer();
+   pRecipients[nIndex].lpszName = m_to.GetBuffer();
    pRecipients[nIndex].ulEIDSize = 0;
    pRecipients[nIndex].lpEntryID = NULL;
    
@@ -142,8 +142,9 @@ BOOL CMailMsg::MAPISend()
       pAttachments[nIndex].ulReserved        = 0;
       pAttachments[nIndex].flFlags           = 0;
       pAttachments[nIndex].nPosition         = 0xFFFFFFFF;
-      pAttachments[nIndex].lpszPathName      = p->first;
-      pAttachments[nIndex].lpszFileName      = p->second;
+      CStringA sPathName = p->first;
+      pAttachments[nIndex].lpszPathName      = sPathName.GetBuffer();
+      pAttachments[nIndex].lpszFileName      = p->second.GetBuffer();
       pAttachments[nIndex].lpFileType        = NULL;
     }
     

@@ -17,6 +17,7 @@
 #include "resource.h"
 #include <sys/stat.h>
 #include "tinyxml.h"
+#include <rtcapi.h>
 
 
 // This internal structure contains the list of processes 
@@ -38,7 +39,7 @@ g_CrashHandlers;
 
 
 // unhandled exception callback set with SetUnhandledExceptionFilter()
-LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
+LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 {
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
@@ -49,7 +50,7 @@ LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_WIN32_UNHANDLED_EXCEPTION;
-    ei.pexcptrs = pExInfo;
+    ei.pexcptrs = pExceptionPtrs;
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -70,12 +71,16 @@ void __cdecl cpp_terminate_handler()
 
   if(pCrashHandler!=NULL)
   {    
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_TERMINATE_CALL;
-    ei.pexcptrs = NULL;    
+    ei.pexcptrs = excptrs;    
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -93,14 +98,16 @@ void __cdecl cpp_unexp_handler()
 
   if(pCrashHandler!=NULL)
   { 
-    EXCEPTION_POINTERS* ep = (EXCEPTION_POINTERS*)__pxcptinfoptrs();
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_UNEXPECTED_CALL;
-    ei.pexcptrs = NULL;    
+    ei.pexcptrs = excptrs;    
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -119,12 +126,16 @@ void __cdecl cpp_purecall_handler()
 
   if(pCrashHandler!=NULL)
   {    
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_PURE_CALL;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
+    ei.pexcptrs = excptrs;    
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -133,30 +144,34 @@ void __cdecl cpp_purecall_handler()
   exit(1); 
 }
 
-void __cdecl cpp_security_handler(int code, void *x)
-{
-  // Security error (buffer overrun).
-  
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
+//void __cdecl cpp_security_handler(int code, void *x)
+//{
+//  // Security error (buffer overrun).
+//  
+//  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+//  ATLASSERT(pCrashHandler!=NULL);
+//
+//  if(pCrashHandler!=NULL)
+//  {    
+//    // Fill in the exception info
+//    CR_EXCEPTION_INFO ei;
+//    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+//    ei.cb = sizeof(CR_EXCEPTION_INFO);
+//    ei.exctype = CR_CPP_SECURITY_ERROR;
+//    ei.pexcptrs = NULL;    
+//
+//    pCrashHandler->GenerateErrorReport(&ei);
+//  }
+//
+//  exit(1); // Terminate program 
+//}
 
-  if(pCrashHandler!=NULL)
-  {    
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SECURITY_ERROR;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  exit(1); // Terminate program 
-}
-
-void __cdecl cpp_invalid_parameter_handler(const wchar_t* expression, const wchar_t* function, 
-  const wchar_t* file, unsigned int line, uintptr_t pReserved)
+void __cdecl cpp_invalid_parameter_handler(
+  const wchar_t* expression, 
+  const wchar_t* function, 
+  const wchar_t* file, 
+  unsigned int line, 
+  uintptr_t pReserved)
  {
    // Invalid parameter exception
    
@@ -164,13 +179,21 @@ void __cdecl cpp_invalid_parameter_handler(const wchar_t* expression, const wcha
    ATLASSERT(pCrashHandler!=NULL);
 
   if(pCrashHandler!=NULL)
-  {    
+  { 
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_INVALID_PARAMETER;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
+    ei.pexcptrs = excptrs;
+    ei.expression = expression;
+    ei.function = function;
+    ei.file = file;
+    ei.line = line;    
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -178,7 +201,7 @@ void __cdecl cpp_invalid_parameter_handler(const wchar_t* expression, const wcha
    exit(1); // Terminate program
  }
 
-int __cdecl cpp_new_handler(size_t size)
+int __cdecl cpp_new_handler(size_t)
 {
   // 'new' operator memory allocation exception
    
@@ -186,13 +209,18 @@ int __cdecl cpp_new_handler(size_t size)
   ATLASSERT(pCrashHandler!=NULL);
 
   if(pCrashHandler!=NULL)
-  {    
+  { 
+    // Although it's not good to allocate memory here, we'll try...
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_NEW_OPERATOR_ERROR;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
+    ei.pexcptrs = NULL;    
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -200,7 +228,7 @@ int __cdecl cpp_new_handler(size_t size)
    exit(1); // Terminate program
 }
 
-void cpp_sigabrt_handler(int code)
+void cpp_sigabrt_handler(int)
 {
   // Caught SIGABRT C++ signal
 
@@ -208,14 +236,18 @@ void cpp_sigabrt_handler(int code)
   ATLASSERT(pCrashHandler!=NULL);
 
   if(pCrashHandler!=NULL)
-  {    
+  { 
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_SIGABRT;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
-    ei.code = code;
+    ei.pexcptrs = excptrs;    
+    
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -224,7 +256,7 @@ void cpp_sigabrt_handler(int code)
   exit(1);
 }
 
-void cpp_sigfpe_handler(int code)
+void cpp_sigfpe_handler(int /*code*/, int subcode)
 {
   // Floating point exception (SIGFPE)
  
@@ -233,14 +265,17 @@ void cpp_sigfpe_handler(int code)
 
   if(pCrashHandler!=NULL)
   {    
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_SIGFPE;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
-    ei.code = code;
-    ei.subcode = 0;
+    ei.pexcptrs = excptrs;        
+    ei.fpe_subcode = subcode;
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -249,7 +284,7 @@ void cpp_sigfpe_handler(int code)
   exit(1);
 }
 
-void cpp_sigill_handler(int code)
+void cpp_sigill_handler(int)
 {
   // Illegal instruction (SIGILL)
 
@@ -258,13 +293,16 @@ void cpp_sigill_handler(int code)
 
   if(pCrashHandler!=NULL)
   {    
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_UNEXPECTED_CALL;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
-    ei.code = code;
+    ei.pexcptrs = excptrs;        
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -273,7 +311,7 @@ void cpp_sigill_handler(int code)
   exit(1);
 }
 
-void cpp_sigint_handler(int code)
+void cpp_sigint_handler(int)
 {
   // Interruption (SIGINT)
 
@@ -281,14 +319,17 @@ void cpp_sigint_handler(int code)
   ATLASSERT(pCrashHandler!=NULL);
 
   if(pCrashHandler!=NULL)
-  {    
+  { 
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_SIGINT;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
-    ei.code = code;
+    ei.pexcptrs = excptrs;        
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -297,7 +338,7 @@ void cpp_sigint_handler(int code)
   exit(1);
 }
 
-void cpp_sigsegv_handler(int code)
+void cpp_sigsegv_handler(int)
 {
   // Invalid storage access (SIGSEGV)
 
@@ -305,14 +346,20 @@ void cpp_sigsegv_handler(int code)
   ATLASSERT(pCrashHandler!=NULL);
   
   if(pCrashHandler!=NULL)
-  {    
+  {     
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    if(_pxcptinfoptrs!=NULL)
+      excptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
+    else
+      pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);    
-    ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
-    ei.code = code;
-    
+    ei.pexcptrs = excptrs;
+        
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
@@ -320,7 +367,7 @@ void cpp_sigsegv_handler(int code)
   exit(1);
 }
 
-void cpp_sigterm_handler(int code)
+void cpp_sigterm_handler(int)
 {
   // Termination request (SIGTERM)
 
@@ -329,13 +376,16 @@ void cpp_sigterm_handler(int code)
 
   if(pCrashHandler!=NULL)
   {    
+    // Get exception pointers
+    EXCEPTION_POINTERS* excptrs = NULL;
+    pCrashHandler->GetExceptionPointers(&excptrs);
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
     ei.exctype = CR_CPP_UNEXPECTED_CALL;
-    ei.pexcptrs = (EXCEPTION_POINTERS*)_pxcptinfoptrs;    
-    ei.code = code;
+    ei.pexcptrs = excptrs;        
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
@@ -628,7 +678,8 @@ int CCrashHandler::SetProcessCPPExceptionHandlers()
    m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
 
    // Catch a floating point error
-   m_prevSigFPE = signal(SIGFPE, cpp_sigfpe_handler);     
+   typedef void (*sigh)(int);
+   m_prevSigFPE = signal(SIGFPE, (sigh)cpp_sigfpe_handler);     
 
    // Catch illegal instruction handler
    m_prevSigINT = signal(SIGINT, cpp_sigint_handler);     
@@ -714,7 +765,7 @@ int CCrashHandler::SetThreadCPPExceptionHandlers()
   handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
 
   // Catch illegal storage access errors
-  //handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
+  handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
 
   // Insert the structure to the list of handlers
   std::pair<DWORD, _cpp_thread_exception_handlers> _pair(dwThreadId, handlers);
@@ -883,63 +934,109 @@ int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName,
 
   TiXmlDocument doc;
   
+  // Add root element
   TiXmlElement* root = new TiXmlElement("CrashRpt");
   doc.LinkEndChild(root);
 
+  // Write CrashRpt version
   CStringA sCrashRptVer;
   sCrashRptVer.Format("%d", CRASHRPT_VER);
   root->SetAttribute("version", sCrashRptVer);
 
-  // Write application name 
+  // Write crash GUID
+  TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
+  root->LinkEndChild(crash_guid);
+  TiXmlText* crash_guid_text = new TiXmlText(CStringA(m_sCrashGUID));
+  crash_guid->LinkEndChild(crash_guid_text);
 
+  // Write application name 
   TiXmlElement* app_name = new TiXmlElement("AppName");
   root->LinkEndChild(app_name);
-
   TiXmlText* app_name_text = new TiXmlText(CStringA(m_sAppName));
   app_name->LinkEndChild(app_name_text);
 
   // Write application version 
-
   TiXmlElement* app_ver = new TiXmlElement("AppVersion");
   root->LinkEndChild(app_ver);
-
   TiXmlText* app_ver_text = new TiXmlText(CStringA(m_sAppVersion));
   app_ver->LinkEndChild(app_ver_text);
 
   // Write EXE image name
-
   TiXmlElement* image_name = new TiXmlElement("ImageName");
   root->LinkEndChild(image_name);
-
   TiXmlText* image_name_text = new TiXmlText(CStringA(m_sImageName));
   image_name->LinkEndChild(image_name_text);
 
-  // Write operating system friendly name
-  
+  // Write operating system friendly name  
   TiXmlElement* os_name = new TiXmlElement("OperatingSystem");
   root->LinkEndChild(os_name);
-
   TiXmlText* os_name_text = new TiXmlText(CStringA(m_sOSName).GetBuffer());
   os_name->LinkEndChild(os_name_text);
   
   // Write system time in UTC format
-
   CString sSystemTime;
   CUtility::GetSystemTimeUTC(sSystemTime);
-
   TiXmlElement* sys_time = new TiXmlElement("SystemTimeUTC");
   root->LinkEndChild(sys_time);
-
   TiXmlText* sys_time_text = new TiXmlText(CStringA(sSystemTime));
   sys_time->LinkEndChild(sys_time_text);
+  
+  // Write exception type
+  CStringA sExcType;
+  sExcType.Format("%d", pExceptionInfo->exctype);  
+  TiXmlElement* exc_type = new TiXmlElement("ExceptionType");
+  root->LinkEndChild(exc_type);  
+  TiXmlText* exc_type_text = new TiXmlText(sExcType);
+  exc_type->LinkEndChild(exc_type_text);
 
-  // Write crash GUID
+  if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
+  {
+    // Write FPE exception subcode
+    CStringA sFpeSubcode;
+    sFpeSubcode.Format("%d", pExceptionInfo->fpe_subcode);    
+    TiXmlElement* fpe_subcode = new TiXmlElement("FPESubcode");
+    root->LinkEndChild(fpe_subcode);  
+    TiXmlText* fpe_subcode_text = new TiXmlText(sFpeSubcode);
+    fpe_subcode->LinkEndChild(fpe_subcode_text);
+  }
 
-  TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
-  root->LinkEndChild(crash_guid);
+  if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
+  {
+    if(pExceptionInfo->expression!=NULL)
+    {
+      // Write expression      
+      TiXmlElement* expr = new TiXmlElement("InvParamExpression");
+      root->LinkEndChild(expr);  
+      TiXmlText* expr_text = new TiXmlText(CStringA(pExceptionInfo->expression));
+      expr->LinkEndChild(expr_text);
+    }
 
-  TiXmlText* crash_guid_text = new TiXmlText(CStringA(m_sCrashGUID));
-  crash_guid->LinkEndChild(crash_guid_text);
+    if(pExceptionInfo->function!=NULL)
+    {
+      // Write function      
+      TiXmlElement* func = new TiXmlElement("InvParamFunction");
+      root->LinkEndChild(func);  
+      TiXmlText* func_text = new TiXmlText(CStringA(pExceptionInfo->function));
+      func->LinkEndChild(func_text);
+    }
+
+    if(pExceptionInfo->file!=NULL)
+    {
+      // Write file
+      TiXmlElement* file = new TiXmlElement("InvParamFile");
+      root->LinkEndChild(file);  
+      TiXmlText* file_text = new TiXmlText(CStringA(pExceptionInfo->file));
+      file->LinkEndChild(file_text);
+    }
+    
+    // Write line
+    CStringA sLine;
+    sLine.Format("%d", pExceptionInfo->line);    
+    TiXmlElement* line = new TiXmlElement("InvParamLine");
+    root->LinkEndChild(line);  
+    TiXmlText* line_text = new TiXmlText(sLine);
+    line->LinkEndChild(line_text);
+  }
 
   // Save document to file
 
@@ -1143,6 +1240,68 @@ CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
   return sResult;
 }
 
+void CCrashHandler::GetExceptionPointers(EXCEPTION_POINTERS** ppExceptionPointers)
+{
+  // The following code was taken from VC++ 8.0 CRT (invarg.c: line 104)
+  
+  EXCEPTION_RECORD ExceptionRecord;
+  CONTEXT ContextRecord;
+  memset(&ContextRecord, 0, sizeof(CONTEXT));
+  
+#ifdef _X86_
+
+  __asm {
+      mov dword ptr [ContextRecord.Eax], eax
+      mov dword ptr [ContextRecord.Ecx], ecx
+      mov dword ptr [ContextRecord.Edx], edx
+      mov dword ptr [ContextRecord.Ebx], ebx
+      mov dword ptr [ContextRecord.Esi], esi
+      mov dword ptr [ContextRecord.Edi], edi
+      mov word ptr [ContextRecord.SegSs], ss
+      mov word ptr [ContextRecord.SegCs], cs
+      mov word ptr [ContextRecord.SegDs], ds
+      mov word ptr [ContextRecord.SegEs], es
+      mov word ptr [ContextRecord.SegFs], fs
+      mov word ptr [ContextRecord.SegGs], gs
+      pushfd
+      pop [ContextRecord.EFlags]
+  }
+
+  ContextRecord.ContextFlags = CONTEXT_CONTROL;
+#pragma warning(push)
+#pragma warning(disable:4311)
+  ContextRecord.Eip = (ULONG)_ReturnAddress();
+  ContextRecord.Esp = (ULONG)_AddressOfReturnAddress();
+#pragma warning(pop)
+  ContextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress()-1);
+
+#elif defined (_IA64_) || defined (_AMD64_)
+
+  /* Need to fill up the Context in IA64 and AMD64. */
+  RtlCaptureContext(&ContextRecord);
+
+#else  /* defined (_IA64_) || defined (_AMD64_) */
+
+  ZeroMemory(&ContextRecord, sizeof(ContextRecord));
+
+#endif  /* defined (_IA64_) || defined (_AMD64_) */
+
+  ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
+
+  ExceptionRecord.ExceptionCode = 0;
+  ExceptionRecord.ExceptionAddress = _ReturnAddress();
+
+  ///
+  
+  EXCEPTION_RECORD* pExceptionRecord = new EXCEPTION_RECORD;
+  memcpy(pExceptionRecord, &ExceptionRecord, sizeof(EXCEPTION_RECORD));
+  CONTEXT* pContextRecord = new CONTEXT;
+  memcpy(pContextRecord, &ContextRecord, sizeof(CONTEXT));
+
+  *ppExceptionPointers = new EXCEPTION_POINTERS;
+  (*ppExceptionPointers)->ExceptionRecord = pExceptionRecord;
+  (*ppExceptionPointers)->ContextRecord = pContextRecord;  
+}
 
 
 

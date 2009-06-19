@@ -37,7 +37,7 @@ struct _cpp_thread_exception_handlers
     m_prevTerm = NULL;
     m_prevUnexp = NULL;
     m_prevSigILL = NULL;
-    //m_prevSigSEGV = NULL;
+    m_prevSigSEGV = NULL;
   }
 
   terminate_handler m_prevTerm;        // Previous terminate handler   
@@ -215,8 +215,10 @@ public:
    static CCrashHandler* 
    GetCurrentProcessCrashHandler();
 
-protected:
+   static void GetExceptionPointers(EXCEPTION_POINTERS** pExceptionPointers);
 
+protected:
+  
   int CreateMinidump(PCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
   int ZipErrorReport(CString sFileName);  
   int LaunchCrashSender();  

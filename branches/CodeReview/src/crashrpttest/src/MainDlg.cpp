@@ -77,6 +77,7 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
   case IDC_MAIN_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
   case IDC_MAIN_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
   case IDC_MAIN_SIGABRT: type = CR_CPP_SIGABRT; break;
+  case IDC_MAIN_SIGFPE: type = CR_CPP_SIGFPE; break;
   case IDC_MAIN_SIGILL: type = CR_CPP_SIGILL; break;
   case IDC_MAIN_SIGINT: type = CR_CPP_SIGINT; break;
   case IDC_MAIN_SIGSEGV: type = CR_CPP_SIGSEGV; break;
@@ -108,6 +109,7 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
   case IDC_THREAD_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
   case IDC_THREAD_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
   case IDC_THREAD_SIGABRT: type = CR_CPP_SIGABRT; break;
+  case IDC_MAIN_SIGFPE: type = CR_CPP_SIGFPE; break;
   case IDC_THREAD_SIGILL: type = CR_CPP_SIGILL; break;
   case IDC_THREAD_SIGINT: type = CR_CPP_SIGINT; break;
   case IDC_THREAD_SIGSEGV: type = CR_CPP_SIGSEGV; break;

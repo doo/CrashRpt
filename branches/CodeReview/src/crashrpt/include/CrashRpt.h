@@ -411,8 +411,11 @@ typedef struct tagCR_EXCEPTION_INFO
   WORD cb;                //!< Size of this structure in bytes; should be initialized before using.
   PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
   int exctype;            //!< Exception type.
-  unsigned int code;      //!< Exception code.
-  unsigned int subcode;   //!< Exception subcode.
+  unsigned int fpe_subcode;  //!< Floating point exception subcode.
+  const wchar_t* expression; //!< Assertion expression.
+  const wchar_t* function;   //!< Function in which assertion happened.
+  const wchar_t* file;       //!< File in which assertion happened.
+  unsigned int line;         //!< Line number.
 }
 CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 
