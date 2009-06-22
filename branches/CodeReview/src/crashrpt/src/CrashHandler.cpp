@@ -413,7 +413,9 @@ int CCrashHandler::Init(
   LPCTSTR lpcszCrashSenderPath,
   LPGETLOGFILE lpfnCallback, 
   LPCTSTR lpcszTo, 
-  LPCTSTR lpcszSubject)
+  LPCTSTR lpcszSubject,
+  LPCTSTR lpcszUrl,
+  UINT (*puPriorities)[3])
 { 
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -434,8 +436,8 @@ int CCrashHandler::Init(
   }
 
   TCHAR szExeName[_MAX_PATH];
-  DWORD dwLength = GetModuleFileName(hExeModule, szExeName, _MAX_PATH);
-  if(GetLastError()!=0)
+  DWORD dwLength = GetModuleFileName(hExeModule, szExeName, _MAX_PATH);  
+  if(dwLength==0)
   {
     // Couldn't get the name of EXE that was used to create current process
     ATLASSERT(0);
@@ -534,7 +536,14 @@ int CCrashHandler::Init(
 
   m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolder;
 
-  // initialize member data
+  if(lpcszUrl!=NULL)
+    m_sUrl = CString(lpcszUrl);
+
+  if(puPriorities!=NULL)
+    memcpy(&m_uPriorities, puPriorities, 3*sizeof(UINT));
+  else
+    memset(&m_uPriorities, 0, 3*sizeof(UINT));
+  
   m_lpfnCallback = NULL;
   m_oldFilter    = NULL;
 
@@ -1218,12 +1227,16 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 
   CStringW sCrashInfo;
   sCrashInfo.Format(
-    _T("<crashrpt subject=\"%s\" mailto=\"%s\" appname=\"%s\" imagename=\"%s\" zipname=\"%s\" />"), 
+    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\" smtp_priority=\"%d\" mapi_priority=\"%d\" />"), 
     _ReplaceRestrictedXMLCharacters(m_sSubject), 
     _ReplaceRestrictedXMLCharacters(m_sTo),
+    _ReplaceRestrictedXMLCharacters(m_sUrl),
     _ReplaceRestrictedXMLCharacters(m_sAppName),
     _ReplaceRestrictedXMLCharacters(m_sImageName),
-    _ReplaceRestrictedXMLCharacters(sZipName));
+    _ReplaceRestrictedXMLCharacters(sZipName),
+    m_uPriorities[CR_HTTP],
+    m_uPriorities[CR_SMTP],
+    m_uPriorities[CR_SMAPI]);
 
   DWORD dwBytesWritten = 0;
   BOOL bWrite = WriteFile(hPipe, sCrashInfo.GetBuffer(), sCrashInfo.GetLength()*2, &dwBytesWritten, NULL);

@@ -2,7 +2,7 @@
  *  \brief  Implementation of CrashRpt API
  *  \date   2003-2009
  *  \author Copyright (c) 2003 Michael Carruth
- *  \author zexspectrum_1980@mail.ru
+ *  \author zexspectrum_1980@gmail.com
  *  \todo
  */
 
@@ -63,7 +63,7 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
 
   // Validate input parameters.
   if(pInfo==NULL || 
-     pInfo->cb!=sizeof(CR_INSTALL_INFO))
+     pInfo->cb!=sizeof(CR_INSTALL_INFOW))
   {
     ATLASSERT(pInfo->cb==sizeof(CR_INSTALL_INFO));
     ATLASSERT(pInfo != NULL);        
@@ -96,7 +96,9 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
     pInfo->pszCrashSenderPath,
     pInfo->pfnCrashCallback,
     pInfo->pszEmailTo,
-    pInfo->pszEmailSubject);
+    pInfo->pszEmailSubject,
+    pInfo->pszUrl,
+    &pInfo->uPriorities);
   
   if(nInitResult!=0)
   {

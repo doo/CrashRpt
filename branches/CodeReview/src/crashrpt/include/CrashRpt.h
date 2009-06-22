@@ -2,7 +2,7 @@
  *  \brief  Defines the interface for the CrashRpt.DLL.
  *  \date   2003-2009
  *  \author Michael Carruth
- *  \author zexspectrum_1980@mail.ru
+ *  \author zexspectrum_1980@gmail.com
  *  \todo
  */
 
@@ -194,7 +194,7 @@ GenerateErrorReport(
 
 
 
-#define CR_HTML 0 //!< Send error report via HTML connection
+#define CR_HTTP 0 //!< Send error report via HTTP connection
 #define CR_SMTP 1 //!< Send error report via SMTP connection
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client)
 
@@ -280,10 +280,10 @@ CR_INSTALL_INFOA, *PCR_INSTALL_INFOA;
 
 #ifdef UNICODE
 typedef CR_INSTALL_INFOW CR_INSTALL_INFO;
-typedef PCR_INSTALL_INFOW CR_INSTALL_INFO;
+typedef PCR_INSTALL_INFOW PCR_INSTALL_INFO;
 #else
 typedef CR_INSTALL_INFOA CR_INSTALL_INFO;
-#define PCR_INSTALL_INFOA PCR_INSTALL_INFO; 
+typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO; 
 #endif // UNICODE
 
 /*! \ingroup CrashRptAPI 

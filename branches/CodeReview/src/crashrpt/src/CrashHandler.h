@@ -104,7 +104,9 @@ public:
       LPCTSTR lpcszCrashSenderPath = NULL,
       LPGETLOGFILE lpfn = NULL,           
       LPCTSTR lpcszTo = NULL,             
-      LPCTSTR lpcszSubject = NULL);
+      LPCTSTR lpcszSubject = NULL,
+      LPCTSTR lpcszUrl = NULL,
+      UINT (*puPriorities)[3] = NULL);
 
    //-----------------------------------------------------------------------------
    // Destroy
@@ -252,6 +254,8 @@ protected:
   TStrStrMap m_files;            // Custom files to add.
   CString m_sTo;                 // Email:To.
   CString m_sSubject;            // Email:Subject.
+  CString m_sUrl;                // URL for sending reports via HTTP.
+  UINT m_uPriorities[3];         // Which way to prefer when sending crash report?
   CString m_sAppName;            // Application name.
   CString m_sAppVersion;         // Application version.
   CString m_sImageName;          // Path to client executable file.
