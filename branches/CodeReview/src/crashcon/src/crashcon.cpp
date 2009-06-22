@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
   info.pszAppName = _T("CrashRpt Console Test");
   info.pszAppVersion = _T("1.0.0");
   info.pszEmailSubject = _T("CrashRpt Console Test 1.0.0 Error Report");
-  info.pszEmailTo = _T("zexspectrum_1980.mail.ru");
+  info.pszEmailTo = _T("zexspectrum_1980.gmail.com");
 
   int nInstResult = crInstall(&info);
   assert(nInstResult==0);
