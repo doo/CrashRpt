@@ -3,35 +3,35 @@
 
 
 LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{  
+{ 
+  DlgResize_Init();
+
+  HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+  SetIcon(hIcon, FALSE);
+  SetIcon(hIcon, TRUE);
+
   m_prgProgress = GetDlgItem(IDC_PROGRESS);
   m_prgProgress.SetRange(0, 100);
 
-  m_listView = GetDlgItem(IDC_LIST);
-  m_listView.InsertColumn(0, _T("Message"), LVCFMT_LEFT, 300);
+  m_listBox = GetDlgItem(IDC_LIST);  
 
   return TRUE;
 }
 
 LRESULT CProgressDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {  
-  CloseDialog(0);
+  AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
   return 0;
 }
 
 
 LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
-  CloseDialog(0);
+  //GetParent().PostMessage(WM_CLOSE);
+  CButton m_btnCancel = GetDlgItem(IDCANCEL);
+  m_btnCancel.EnableWindow(0);
   return 0;
 }
-
-void CProgressDlg::CloseDialog(int nVal)
-{
-	DestroyWindow();
-	::PostQuitMessage(nVal);
-}
-
 
 void CProgressDlg::Start()
 {  
@@ -42,8 +42,8 @@ void CProgressDlg::Start()
   SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
   FlashWindow(FALSE);
 
-  SetTimer(0, 3000, NULL);
-  SetTimer(1, 200, NULL);
+  SetTimer(1, 3000, NULL);
+  SetTimer(0, 200, NULL);
 }
 
 LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -55,18 +55,17 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
     int nProgressPct = 0;
     std::vector<CString> messages;
 
-    m_pctx->m_cs.Lock();
-    nProgressPct = m_pctx->m_nProgressPct;
-    messages = m_pctx->m_Messages;
-    m_pctx->m_Messages.clear();
-    m_pctx->m_cs.Unlock();
-
+    GetSenderThreadStatus(m_pctx, nProgressPct, messages);
+    
     m_prgProgress.SetPos(nProgressPct);
 
     unsigned i;
     for(i=0; i<messages.size(); i++)
     {
-      m_listView.InsertItem(0, messages[i], 0);
+      int count = m_listBox.GetCount();
+      int indx = m_listBox.InsertString(count, messages[i]);
+      m_listBox.SetTopIndex(indx);
+
     }
   }
 

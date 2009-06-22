@@ -28,7 +28,7 @@ struct SmtpClientNotification
   int m_nCompletionStatus;
   HANDLE m_hEvent;
   int m_nPercentCompleted;
-  CString m_sStatusMsg;
+  std::vector<CString> m_statusLog;
 };
 
 class CSmtpClient

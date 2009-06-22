@@ -84,9 +84,12 @@ int CSmtpClient::_SendEmail(CEmailMessage* msg, SmtpClientNotification* scn)
   {
     if(0==SendEmailToRecipient(it->second, msg, scn))
     {
+      SetStatus(scn, _T("Finished OK."), 100, false);
       return 0;
     }
   }
+
+  SetStatus(scn, _T("Error sending email."), 100, false);
 
   return 1;
 }
@@ -145,7 +148,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   sMessageText.Replace(_T("\r\n.\r\n"),_T("\r\n*\r\n"));
   CString sUTF8Text = UTF16toUTF8(sMessageText);
 
-  sStatusMsg.Format(_T("Getting address info of %s port %s"), sSmtpServer, sServiceName);
+  sStatusMsg.Format(_T("Getting address info of %s port %s"), sSmtpServer, CString(sServiceName));
   SetStatus(scn, sStatusMsg, 1);
 
   memset(&hints, 0, sizeof(hints));
@@ -167,7 +170,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     if(sock==INVALID_SOCKET)
       goto exit;
  
-    sStatusMsg.Format(_T("Connecting to SMTP server %s port %s"), sSmtpServer, sServiceName);
+    sStatusMsg.Format(_T("Connecting to SMTP server %s port %s"), sSmtpServer, CString(sServiceName));
     SetStatus(scn, sStatusMsg, 1);
 
     res = connect(sock, ptr->ai_addr, (int)ptr->ai_addrlen);
@@ -279,7 +282,11 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     int buf_len = 0;
     int nEncode=Base64EncodeAttachment(sFileName, &buf, buf_len);
     if(nEncode!=0)
+    {
+      sStatusMsg.Format(_T("Error BASE64-encoding attachment %s"), sFileName);
+      SetStatus(scn, sStatusMsg, 1);
       goto exit;
+    }
 
     // Send encoded data
     sMsg = CStringA((char*)buf, buf_len);        
@@ -308,7 +315,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
 
 exit:
 
-  sStatusMsg.Format(_T("Finished"));
+  sStatusMsg.Format(_T("Finished with error code %d"), status);
   SetStatus(scn, sStatusMsg, 100, false);
 
   // Clean up
@@ -426,7 +433,7 @@ void CSmtpClient::SetStatus(SmtpClientNotification* scn, CString sStatusMsg,
 
   scn->m_cs.Lock();
   
-  scn->m_sStatusMsg = sStatusMsg;
+  scn->m_statusLog.push_back(sStatusMsg);
   
   if(bRel)
   {

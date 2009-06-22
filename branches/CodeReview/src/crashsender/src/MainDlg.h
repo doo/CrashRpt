@@ -50,6 +50,7 @@ public:
   HANDLE m_hSenderThread;
   SenderThreadContext m_ctx;
 
+  
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 
@@ -61,6 +62,7 @@ public:
     MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)    
     MESSAGE_HANDLER(WM_CLOSE, OnClose)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
+    MESSAGE_HANDLER(WM_TRAYICON, OnTrayIcon)
 
     COMMAND_ID_HANDLER(IDC_LINK, OnLinkClick)
     COMMAND_ID_HANDLER(IDC_MOREINFO, OnMoreInfoClick)    
@@ -77,6 +79,7 @@ public:
   LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
+  LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
 
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -89,4 +92,5 @@ public:
   void ShowMoreInfo(BOOL bShow);
   void AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc);
   int CreateTrayIcon(bool bCreate, HWND hWndParent);
+  
 };

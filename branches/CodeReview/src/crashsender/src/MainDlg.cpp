@@ -238,14 +238,13 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 
   // Write user email and problem description to XML
   AddUserInfoToCrashDescriptorXML(m_sEmailFrom, m_sDescription);
- 
   
   m_ctx.m_hCancelEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
   m_ctx.m_nStatus = 0;
   m_ctx.m_nProgressPct = 0;
   m_ctx.m_sZipName = m_sZipName;
   m_ctx.m_sEmailTo = m_sEmailTo;
-  m_ctx.m_sEmailFrom = m_sEmailFrom;
+  m_ctx.m_sEmailFrom = m_sEmailFrom.IsEmpty()?m_sEmailTo:m_sEmailFrom;
   m_ctx.m_sEmailSubject = m_sEmailSubject;
   m_ctx.m_sEmailText = m_sDescription;
   m_ctx.m_sUrl = m_sUrl;
@@ -255,24 +254,23 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   m_hSenderThread = CreateThread(NULL, 0, SenderThread, (LPVOID)&m_ctx, NULL, &dwThreadId);
 
   ShowWindow(SW_HIDE);
-  m_dlgProgress.m_pctx = &m_ctx;
-  m_dlgProgress.Start();  
-  
-  SetTimer(0, 1000, NULL);
-
   CreateTrayIcon(true, m_hWnd);
-
+  m_dlgProgress.m_pctx = &m_ctx;
+  m_dlgProgress.Start();    
+  SetTimer(0, 500, NULL);
+    
   return 0;
 }
+
 
 LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0)
   {
-    CreateTrayIcon(false, m_hWnd);
     KillTimer(0);
-    CloseDialog(0);
-  }  
+    //CloseDialog(0);    
+  }
+  
   return 0;
 }
 
@@ -363,3 +361,15 @@ int CMainDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 }
 
                
+LRESULT CMainDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+  UINT uMouseMsg = (UINT)lParam; 
+
+	if(uMouseMsg==WM_LBUTTONDBLCLK)
+	{
+    AnimateWindow(m_dlgProgress, 200, AW_BLEND); 
+		SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);		
+    m_dlgProgress.SetFocus();
+	}	
+  return 0;
+}

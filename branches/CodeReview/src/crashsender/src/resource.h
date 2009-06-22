@@ -38,6 +38,7 @@
 #define IDC_PROGRESS1                   1027
 #define IDC_PROGRESS                    1027
 #define IDC_LIST                        1028
+#define IDC_LIST1                       1029
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -54,7 +55,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        214
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1029
+#define _APS_NEXT_CONTROL_VALUE         1030
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -260,6 +260,16 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     dlgMain.m_pUDFiles)!=0)
     return 1;  
 
+  /*dlgMain.m_sAppName = _T("AppName");
+  dlgMain.m_sImageName = _T("");
+  dlgMain.m_sEmailSubject = _T("Crash");
+  dlgMain.m_sEmailFrom = _T("zexspectrum_1980@gmail.com");
+  dlgMain.m_sEmailTo = _T("zexspectrum_1980@gmail.com");
+  dlgMain.m_uPriorities[CR_HTTP] = 3;
+  dlgMain.m_uPriorities[CR_SMTP] = 2;
+  dlgMain.m_uPriorities[CR_SMAPI] = 1;
+  dlgMain.m_sZipName = _T("C:\\Documents and Settings\\koa\\Local Settings\\Application Data\\CrashRpt\\UnsentCrashReports\\49d5564b-f552-4d73-b7fa-250a0c3d6fd3.zip");*/
+
 	if(dlgMain.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));
