@@ -71,11 +71,27 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
 CRASHRPTAPI 
 LPVOID 
-Install(
+InstallW(
    LPGETLOGFILE pfnCallback,
-   LPCTSTR pszEmailTo,    
-   LPCTSTR pszEmailSubject
+   LPCWSTR pszEmailTo,    
+   LPCWSTR pszEmailSubject
    );
+
+CRASHRPTAPI 
+LPVOID 
+InstallA(
+   LPGETLOGFILE pfnCallback,
+   LPCSTR pszEmailTo,    
+   LPCSTR pszEmailSubject
+   );
+
+
+#ifdef UNICODE
+#define Install InstallW
+#else
+#define Install InstallA
+#endif //UNICODE
+
 
 /*! \ingroup DeprecatedAPI
  *  \brief Uninstalls the exception filters set up by Install().
@@ -125,11 +141,27 @@ Uninstall(
 
 CRASHRPTAPI 
 void 
-AddFile(
+AddFileW(
    IN LPVOID lpState,                         
-   IN LPCTSTR pszFile,                         
-   IN LPCTSTR pszDesc                          
+   IN LPCWSTR pszFile,                         
+   IN LPCWSTR pszDesc                          
    );
+
+CRASHRPTAPI 
+void 
+AddFileA(
+   IN LPVOID lpState,                         
+   IN LPCWSTR pszFile,                         
+   IN LPCWSTR pszDesc                          
+   );
+
+#ifdef UNICODE
+#define AddFile AddFileW
+#else
+#define AddFile AddFileA
+#endif //UNICODE
+
+
 
 /*! \ingroup DeprecatedAPI 
  *  \brief Generates the crash report.
@@ -218,20 +250,41 @@ GenerateErrorReport(
  *        
  */
 
-typedef struct tagCR_INSTALL_INFO
+typedef struct tagCR_INSTALL_INFOW
 {
   WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
-  PCTSTR pszAppName;             //!< Name of application.
-  PCTSTR pszAppVersion;          //!< Application version.
-  PCTSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
-  PCTSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
-  PCTSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
-  PCTSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  PCWSTR pszAppName;             //!< Name of application.
+  PCWSTR pszAppVersion;          //!< Application version.
+  PCWSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  PCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  PCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  PCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
 }
-CR_INSTALL_INFO, *PCR_INSTALL_INFO;
+CR_INSTALL_INFOW, *PCR_INSTALL_INFOW;
 
+typedef struct tagCR_INSTALL_INFOA
+{
+  WORD cb;                      //!< Size of this structure in bytes; must be initialized before using!
+  PCSTR pszAppName;             //!< Name of application.
+  PCSTR pszAppVersion;          //!< Application version.
+  PCSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  PCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  PCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  PCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
+  UINT uPriorities[3];           //!< Array of error sending transport priorities.
+}
+CR_INSTALL_INFOA, *PCR_INSTALL_INFOA;
+
+#ifdef UNICODE
+typedef CR_INSTALL_INFOW CR_INSTALL_INFO;
+typedef PCR_INSTALL_INFOW CR_INSTALL_INFO;
+#else
+typedef CR_INSTALL_INFOA CR_INSTALL_INFO;
+#define PCR_INSTALL_INFOA PCR_INSTALL_INFO; 
+#endif // UNICODE
 
 /*! \ingroup CrashRptAPI 
  *  \brief  Installs exception handlers for current process and C++ exception handlers that
@@ -279,9 +332,21 @@ CR_INSTALL_INFO, *PCR_INSTALL_INFO;
 
 CRASHRPTAPI 
 int
-crInstall(
-  PCR_INSTALL_INFO pInfo
+crInstallW(
+  PCR_INSTALL_INFOW pInfo
 );
+
+CRASHRPTAPI 
+int
+crInstallA(
+  PCR_INSTALL_INFOA pInfo
+);
+
+#ifdef UNICODE
+#define crInstall crInstallW
+#else
+#define crInstall crInstallA
+#endif //UNICODE
 
 /*! \ingroup CrashRptAPI 
  *  \brief Unsinstalls exception handlers previously installed with crInstall().
@@ -305,7 +370,6 @@ crInstall(
 CRASHRPTAPI 
 int
 crUninstall();
-
 
 
 /*! \ingroup CrashRptAPI  
@@ -382,10 +446,25 @@ crUninstallFromCurrentThread();
 
 CRASHRPTAPI 
 int
-crAddFile(
-   PCTSTR pszFile,
-   PCTSTR pszDesc 
+crAddFileW(
+   PCWSTR pszFile,
+   PCWSTR pszDesc 
    );
+
+CRASHRPTAPI 
+int
+crAddFileA(
+   PCSTR pszFile,
+   PCSTR pszDesc 
+   );
+
+#ifdef UNICODE
+#define crAddFile crAddFileW
+#else
+#define crAddFile crAddFileA
+#endif //UNICODE
+
+
 
 // Exception types
 #define CR_WIN32_UNHANDLED_EXCEPTION    1    //!< WIN32 unhandled exception.
@@ -401,7 +480,6 @@ crAddFile(
 #define CR_CPP_SIGINT                   11   //!< C++ SIGINT signal (CTRL+C).
 #define CR_CPP_SIGSEGV                  12   //!< C++ SIGSEGV signal (invalid storage access).
 #define CR_CPP_SIGTERM                  13   //!< C++ SIGTERM signal (termination request).
-#define CR_WIN32_STRUCTURED_EXCEPTION   14   //!< Structured exception filter. 
 
 /*! \ingroup CrashRptStructs
  *  \brief Additional exception info used by crGenerateCrashReport().
@@ -540,16 +618,23 @@ crEmulateCrash(
 
 CRASHRPTAPI
 int
-crGetLastErrorMsg(
+crGetLastErrorMsgW(
   PTSTR pszBuffer, 
   UINT uBuffSize);
 
-
-
 CRASHRPTAPI
 int
-crSetErrorMsg(
-  PTSTR pszErrorMsg
-);
+crGetLastErrorMsgA(
+  PSTR pszBuffer, 
+  UINT uBuffSize);
+
+#ifdef UNICODE
+#define crGetLastErrorMsg crGetLastErrorMsgW
+#else
+#define crGetLastErrorMsg crGetLastErrorMsgA
+#endif //UNICODE
+
 
 #endif //_CRASHRPT_H_
+
+
