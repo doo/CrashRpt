@@ -18,7 +18,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   WIN32_FIND_DATA   findFileData   = {0};
   HANDLE            hFind          = NULL;
   CString           sSize;
-  LVITEM            lvi            = {0};
+  //LVITEM            lvi            = {0};
   TStrStrMap::iterator p;
   unsigned i;
   for (i = 0, p = m_pUDFiles.begin(); p != m_pUDFiles.end(); p++, i++)
@@ -126,7 +126,7 @@ void CDetailDlg::SelectItem(int iItem)
   ::SetWindowTextA(GetDlgItem(IDC_FILE_EDIT), (char*)buffer);
 }
 
-LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   EndDialog(0);
   return 0;

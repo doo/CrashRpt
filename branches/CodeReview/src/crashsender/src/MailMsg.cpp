@@ -96,8 +96,7 @@ BOOL CMailMsg::Send()
 BOOL CMailMsg::MAPISend()
 {
    TStrStrMap::iterator p;
-   int                  nIndex = 0;
-   int                  nRecipients = 0;
+   int                  nIndex = 0;   
    MapiRecipDesc*       pRecipients = NULL;
    int                  nAttachments = 0;
    MapiFileDesc*        pAttachments = NULL;

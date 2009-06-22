@@ -8,7 +8,7 @@
 #include <atlctrlx.h>
 #include "MailMsg.h"
 #include "DetailDlg.h"
-
+#include "ProgressDlg.h"
 
 class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 		public CMessageFilter, public CIdleHandler
@@ -21,7 +21,8 @@ public:
   CString     m_sSubject;
   CString     m_sEmail;         // Email: From
   CString     m_sDescription;   // Email: Body
-  
+  CString     m_sZipName;
+
   TStrStrMap  m_pUDFiles;      // Files <name,desc>
 
   CStatic m_statIcon;  
@@ -38,6 +39,8 @@ public:
   int m_nDeltaY;
   CFont m_HeadingFont;
   CIcon m_HeadingIcon;
+
+  CProgressDlg m_dlgProgress;
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
@@ -73,5 +76,5 @@ public:
 
 	void CloseDialog(int nVal);
   void ShowMoreInfo(BOOL bShow);
-  void WriteUserInfoToXML(CString sEmail, CString sDesc);
+  void AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc);
 };

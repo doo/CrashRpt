@@ -8,7 +8,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   BOOL bStatus = FALSE;
 	TCHAR* hdrs = _T("Content-Type: application/x-www-form-urlencoded");
 	LPCTSTR accept[2]={_T("*/*"), NULL};
-  size_t uFileSize = 0;
+  int uFileSize = 0;
   BYTE* uchFileData = NULL;
   int nEncodedFileDataLen = 0;  
   HINTERNET hSession = NULL;
@@ -68,7 +68,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   // Encode file data using BASE64
   dwFlags = ATL_BASE64_FLAG_NONE;
   nEncodedFileDataLen = Base64EncodeGetRequiredLength(uFileSize, dwFlags);
-  int nPOSTRequestLen = nEncodedFileDataLen+strlen(szPrefix)+strlen(szSuffix);
+  int nPOSTRequestLen = nEncodedFileDataLen+(int)strlen(szPrefix)+(int)strlen(szSuffix);
 
   chPOSTRequest = new char[nPOSTRequestLen];    
   memset(chPOSTRequest, 0, nPOSTRequestLen);
@@ -92,7 +92,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
 	if(hRequest==NULL)
 	  return FALSE; // Coudn't open request	
 
-  bResult = HttpSendRequest(hRequest, hdrs, _tcslen(hdrs), 
+  bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 
     sPOSTRequest.GetBuffer(), sPOSTRequest.GetLength());
     
   if(bResult == FALSE)
@@ -131,7 +131,7 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
                            LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, 
                            LPTSTR szURI, UINT cbURI)
 {  
-	TCHAR szPort[256]=_T("");
+	//TCHAR szPort[256]=_T("");
 	DWORD dwPosition=0;
 	BOOL bFlag=FALSE;
 
@@ -199,7 +199,7 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
 	if(dwPosition<_tcslen(szURL))
   { 
     // find URI
-    int len = _tcslen(szURL)-dwPosition;
+    int len = (int)(_tcslen(szURL)-dwPosition);
 		_tcsncpy_s(szURI, cbURI, (szURL+dwPosition), len);
     szURI[len] = 0;
 	}

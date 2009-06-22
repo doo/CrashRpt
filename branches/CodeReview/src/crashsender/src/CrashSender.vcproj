@@ -139,12 +139,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
-				WarningLevel="3"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
 			/>
 			<Tool
@@ -161,8 +162,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\zlib\lib"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -217,6 +220,10 @@
 			</File>
 			<File
 				RelativePath=".\MainDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProgressDlg.cpp"
 				>
 			</File>
 			<File
@@ -346,6 +353,15 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\zip_utils\zip.cpp"
@@ -357,6 +373,16 @@
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
+							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4311"
 						/>
 					</FileConfiguration>
 				</File>
@@ -380,6 +406,10 @@
 			</File>
 			<File
 				RelativePath=".\MainDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProgressDlg.h"
 				>
 			</File>
 			<File

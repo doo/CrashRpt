@@ -7,12 +7,13 @@
 #include "tinyxml.h"
 #include "smtpclient.h"
 #include "httpsend.h"
-
+#include "unzip.h"
+#include "utility.h"
 
 CAppModule _Module;
 
-int ParseFileList(CStringA& text, CString& sAppName, CString& sImageName,
-  CString& sSubject, CString& sMailTo, std::map<CStringA, CStringA>& file_list)
+int ParseCrashInfo(CStringA& text, CString& sAppName, CString& sImageName,
+  CString& sSubject, CString& sMailTo, CString& sZipName)
 {
   TiXmlDocument doc;
   doc.Parse(text.GetBuffer());
@@ -27,6 +28,7 @@ int ParseFileList(CStringA& text, CString& sAppName, CString& sImageName,
   const char* pszImageName = hRoot.ToElement()->Attribute("imagename");
   const char* pszSubject = hRoot.ToElement()->Attribute("subject");
   const char* pszMailTo = hRoot.ToElement()->Attribute("mailto");
+  const char* pszZipName = hRoot.ToElement()->Attribute("zipname");
 
   if(pszAppName)
     sAppName = pszAppName;
@@ -40,19 +42,83 @@ int ParseFileList(CStringA& text, CString& sAppName, CString& sImageName,
   if(pszMailTo!=NULL)
     sMailTo = pszMailTo;
 
-  TiXmlHandle hFile = hRoot.ToElement()->FirstChild("file");
-  while(hFile.ToElement()!=NULL)
-  {
-    const char* szFileName = hFile.ToElement()->Attribute("name");
-    const char* szFileDesc = hFile.ToElement()->Attribute("description");
+  if(pszZipName!=NULL)
+    sZipName = pszZipName;
+  
+  return 0;
+}
 
-    if(szFileName && szFileDesc)
-    {      
-      file_list[szFileName] = szFileDesc;
+int 
+GetFileList(CString sZipName, std::map<CStringA, CStringA>& file_list)
+{
+  HZIP hz = OpenZip(sZipName, NULL);
+  if(hz==NULL)
+    return 1;
+
+  int index = -1;
+  ZIPENTRY ze;
+  ZRESULT zr = FindZipItem(hz, _T("crashrpt.xml"), false, &index, &ze);
+  if(zr!=ZR_OK)
+  {
+    CloseZip(hz);
+    return 2;
+  }
+
+  CString sTempFileName = CUtility::getTempFileName();
+  zr = UnzipItem(hz, index, sTempFileName);
+  if(zr!=ZR_OK)
+  {
+    CloseZip(hz);
+    return 2;
+  }
+
+  CString sTempDir = CUtility::getTempFileName();
+  DeleteFile(sTempDir);
+
+  BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
+  
+  TiXmlDocument doc;
+  bool bLoad = doc.LoadFile(CStringA(sTempFileName));
+  if(!bLoad)
+  {
+    CloseZip(hz);
+    return 3;
+  }
+
+  TiXmlHandle hRoot = doc.FirstChild("CrashRpt");
+  if(hRoot.ToElement()==NULL)
+  {
+    CloseZip(hz);
+    return 4;
+  }
+  
+  TiXmlHandle fl = hRoot.FirstChild("FileList");
+  if(fl.ToElement()==0)
+  {
+    CloseZip(hz);
+    return 5;
+  }
+
+  TiXmlHandle fi = fl.FirstChild("FileItem");
+  while(fi.ToElement()!=0)
+  {
+    const char* pszName = fi.ToElement()->Attribute("name");
+    const char* pszDesc = fi.ToElement()->Attribute("description");
+
+    if(pszName!=NULL && pszDesc!=NULL)
+    {
+      CStringA sFileName = sTempDir + _T("\\") + CString(pszName);      
+      int index = -1;
+      ZIPENTRY ze;
+      ZRESULT zr = FindZipItem(hz, CString(pszName), false, &index, &ze);
+      zr = UnzipItem(hz, index, CString(sFileName));
+      file_list[sFileName]=CStringA(pszDesc);
     }
 
-    hFile = hFile.ToElement()->NextSibling("file");
+    fi = fi.ToElement()->NextSibling("FileItem");
   }
+
+  CloseZip(hz);
 
   return 0;
 }
@@ -63,7 +129,8 @@ GetCrashInfoThroughPipe(
   CString& sImageName,
   CString& sSubject,
   CString& sMailTo,
-  std::map<CStringA, CStringA>& file_list)
+  CString& sZipName,
+  std::map<CStringA, CStringA> &file_list)
 {
   // Create named pipe to get crash information from client process.
   
@@ -126,8 +193,9 @@ GetCrashInfoThroughPipe(
   }
 
   // Parse text
-  int nParseResult = ParseFileList(CStringA(data), sAppName, sImageName, 
-    sSubject, sMailTo, file_list);
+  CStringA sDataA = CStringA(data);
+  int nParseResult = ParseCrashInfo(sDataA, sAppName, sImageName, 
+    sSubject, sMailTo, sZipName);
   if(nParseResult!=0)
   {
     ATLASSERT(nParseResult==0);
@@ -137,9 +205,13 @@ GetCrashInfoThroughPipe(
   // Disconnect
   BOOL bDisconnected = DisconnectNamedPipe(hPipe);
   ATLASSERT(bDisconnected);
+  bDisconnected;
 
   CloseHandle(hPipe);
   CloseHandle(overlapped.hEvent); 
+
+  if(0!=GetFileList(sZipName, file_list))
+    return 7;
 
   // Success
   return 0;
@@ -157,6 +229,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     dlgMain.m_sImageName,
     dlgMain.m_sSubject, 
     dlgMain.m_sEmail, 
+    dlgMain.m_sZipName,
     dlgMain.m_pUDFiles)!=0)
     return 1;  
 

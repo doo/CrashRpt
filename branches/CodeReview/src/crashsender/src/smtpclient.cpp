@@ -14,11 +14,13 @@ CSmtpClient::CSmtpClient()
   WSADATA wsaData;
   int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
   ATLASSERT(iResult==0); 
+  iResult;
 }
 
 CSmtpClient::~CSmtpClient()
 {
   int iResult = WSACleanup();
+  iResult;
   ATLASSERT(iResult==0);
 }
 
@@ -344,7 +346,7 @@ CStringA CSmtpClient::UTF16toUTF8(const CStringW& utf16)
 
 int CSmtpClient::SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce, UINT uResponceSize)
 {	
-  int msg_len = strlen(pszMessage);
+  int msg_len = (int)strlen(pszMessage);
 
   int res = send(sock, pszMessage, msg_len, 0);	
 	if(pszResponce==NULL) 
@@ -366,7 +368,7 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
   *ppEncodedFileData = NULL;
   nEncodedFileDataLen = 0;
 
-  size_t uFileSize = 0;
+  int uFileSize = 0;
   BYTE* uchFileData = NULL;  
   struct _stat st;
   CStringA sFileNameA = CStringA(sFileName);
@@ -382,7 +384,7 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
   // Read file data to buffer.
   FILE* f = NULL;
   errno_t err = fopen_s(&f, sFileNameA, "rb");
-  if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
+  if(err!=0 || !f || fread(uchFileData, uFileSize, 1, f)!=1)
   {
     delete [] uchFileData;
     uchFileData = NULL;

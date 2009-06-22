@@ -9,6 +9,7 @@
 #include "tinyxml.h"
 #include <atlstr.h>
 #include "zip.h"
+#include "unzip.h"
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 {
@@ -72,6 +73,8 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
   ShowMoreInfo(FALSE);
 
+  m_dlgProgress.Create(0);
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -85,43 +88,43 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 void CMainDlg::ShowMoreInfo(BOOL bShow)
 {
-    CRect rc1, rc2;
+  CRect rc1, rc2;
 
-    m_statEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-    m_editEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-    m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-    m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-    
-    int k = bShow?-1:1;
+  m_statEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+  m_editEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+  m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+  m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
+  
+  int k = bShow?-1:1;
 
-    m_statHorzLine.GetWindowRect(&rc1);
-    ScreenToClient(&rc1);
-    rc1.OffsetRect(0, k*m_nDeltaY);
-    m_statHorzLine.MoveWindow(&rc1);
+  m_statHorzLine.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_statHorzLine.MoveWindow(&rc1);
 
-    m_statCrashRpt.GetWindowRect(&rc1);
-    ScreenToClient(&rc1);
-    rc1.OffsetRect(0, k*m_nDeltaY);
-    m_statCrashRpt.MoveWindow(&rc1);
+  m_statCrashRpt.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_statCrashRpt.MoveWindow(&rc1);
 
-    m_btnOk.GetWindowRect(&rc1);
-    ScreenToClient(&rc1);
-    rc1.OffsetRect(0, k*m_nDeltaY);
-    m_btnOk.MoveWindow(&rc1);
+  m_btnOk.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_btnOk.MoveWindow(&rc1);
 
-    m_btnCancel.GetWindowRect(&rc1);
-    ScreenToClient(&rc1);
-    rc1.OffsetRect(0, k*m_nDeltaY);
-    m_btnCancel.MoveWindow(&rc1);
+  m_btnCancel.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_btnCancel.MoveWindow(&rc1);
 
-    GetClientRect(&rc1);
-    rc1.bottom += k*m_nDeltaY;
-    ResizeClient(rc1.Width(), rc1.Height());
+  GetClientRect(&rc1);
+  rc1.bottom += k*m_nDeltaY;
+  ResizeClient(rc1.Width(), rc1.Height());
 
-    if(bShow)
-      m_editEmail.SetFocus();
-    else
-      m_btnOk.SetFocus();
+  if(bShow)
+    m_editEmail.SetFocus();
+  else
+    m_btnOk.SetFocus();
 }
 
 LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -208,7 +211,7 @@ LRESULT CMainDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 }
 
 LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
+{  
   HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
   HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
@@ -243,20 +246,25 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   }
 
   // Write user email and problem description to XML
-  WriteUserInfoToXML(m_sEmail, m_sDescription);
+  AddUserInfoToCrashDescriptorXML(m_sEmail, m_sDescription);
+ 
+  ShowWindow(SW_HIDE);
+  m_dlgProgress.Start();  
   
   return 0;
 }
 
-void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
+void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
+  HZIP hz = CreateZip(m_sZipName, NULL);
+  
   TStrStrMap::iterator cur = m_pUDFiles.begin();
   unsigned int i;
   for (i = 0; i < m_pUDFiles.size(); i++, cur++)
   {
     CString sFileName = cur->first;
     sFileName = sFileName.Mid(sFileName.ReverseFind('\\')+1);
-    if(sFileName.CompareNoCase(_T("crashlog.xml"))==0)
+    if(sFileName.CompareNoCase(_T("crashrpt.xml"))==0)
     {
       TiXmlDocument doc;
   
@@ -284,9 +292,14 @@ void CMainDlg::WriteUserInfoToXML(CString sEmail, CString sDesc)
       TiXmlText* desc_text = new TiXmlText(CStringA(sDesc));
       desc->LinkEndChild(desc_text);              
 
-      doc.SaveFile();
+      doc.SaveFile();      
     }
+
+    ZRESULT zr = ZipAdd(hz, sFileName, CString(cur->first));
+    ATLASSERT(zr==ZR_OK);      
   }  
+
+  CloseZip(hz);
 }
 
 LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)

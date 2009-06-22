@@ -8,6 +8,7 @@
 #define IDR_LICENSE                     210
 #define IDD_DETAILDLG                   211
 #define IDD_MAINDLG                     212
+#define IDD_PROGRESSDLG                 213
 #define IDS_NAME                        1000
 #define IDS_DESC                        1001
 #define IDS_TYPE                        1002
@@ -34,6 +35,9 @@
 #define IDC_HORZLINE                    1024
 #define IDC_CRASHRPT                    1025
 #define IDC_UPPERHORZ                   1026
+#define IDC_PROGRESS1                   1027
+#define IDC_PROGRESS                    1027
+#define IDC_LIST                        1028
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -48,9 +52,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        213
+#define _APS_NEXT_RESOURCE_VALUE        214
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1027
+#define _APS_NEXT_CONTROL_VALUE         1029
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
