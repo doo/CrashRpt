@@ -79,7 +79,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
   g_pCrashRptState = Install(
     CrashCallback, 
-    _T("zexspectrum_1980@mail.ru"), 
+    _T("zexspectrum_1980@gmail.com"), 
     _T("Crash"));
 
 #else
@@ -93,7 +93,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppName = APP_NAME;
   info.pszAppVersion = APP_VERSION;
   info.pszEmailSubject = szSubject;
-  info.pszEmailTo = _T("zexspectrum_1980@mail.ru");
+  info.pszEmailTo = _T("zexspectrum_1980@gmail.com");  
   info.pfnCrashCallback = CrashCallback;  
   
   int nInstResult = crInstall(&info);
