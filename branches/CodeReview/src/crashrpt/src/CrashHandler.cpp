@@ -38,7 +38,6 @@ struct _crash_handlers
 g_CrashHandlers;
 
 
-// unhandled exception callback set with SetUnhandledExceptionFilter()
 LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 {
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
@@ -264,10 +263,13 @@ void cpp_sigfpe_handler(int /*code*/, int subcode)
   ATLASSERT(pCrashHandler!=NULL);
 
   if(pCrashHandler!=NULL)
-  {    
+  {     
     // Get exception pointers
     EXCEPTION_POINTERS* excptrs = NULL;
-    pCrashHandler->GetExceptionPointers(&excptrs);
+    if(_pxcptinfoptrs!=NULL)
+      excptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
+    else
+      pCrashHandler->GetExceptionPointers(&excptrs);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -301,7 +303,7 @@ void cpp_sigill_handler(int)
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_UNEXPECTED_CALL;
+    ei.exctype = CR_CPP_SIGILL;
     ei.pexcptrs = excptrs;        
 
     pCrashHandler->GenerateErrorReport(&ei);
@@ -358,6 +360,7 @@ void cpp_sigsegv_handler(int)
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);    
+    ei.exctype = CR_CPP_SIGSEGV;
     ei.pexcptrs = excptrs;
         
     pCrashHandler->GenerateErrorReport(&ei);
@@ -384,7 +387,7 @@ void cpp_sigterm_handler(int)
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_UNEXPECTED_CALL;
+    ei.exctype = CR_CPP_SIGTERM;
     ei.pexcptrs = excptrs;        
 
     pCrashHandler->GenerateErrorReport(&ei);
@@ -616,8 +619,7 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
    m_prevSec = NULL;
 #endif
 
-  m_prevSigABRT = NULL;
-  m_prevSigFPE = NULL;
+  m_prevSigABRT = NULL;  
   m_prevSigINT = NULL;  
   m_prevSigTERM = NULL;
   
@@ -676,11 +678,7 @@ int CCrashHandler::SetProcessCPPExceptionHandlers()
   
    // Catch an abnormal program termination
    m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
-
-   // Catch a floating point error
-   typedef void (*sigh)(int);
-   m_prevSigFPE = signal(SIGFPE, (sigh)cpp_sigfpe_handler);     
-
+   
    // Catch illegal instruction handler
    m_prevSigINT = signal(SIGINT, cpp_sigint_handler);     
    
@@ -713,10 +711,7 @@ int CCrashHandler::UnSetProcessCPPExceptionHandlers()
      
   if(m_prevSigABRT!=NULL)
     signal(SIGABRT, m_prevSigABRT);  
-
-  if(m_prevSigFPE!=NULL)
-    signal(SIGFPE, m_prevSigFPE);     
-
+  
   if(m_prevSigINT!=NULL)
     signal(SIGINT, m_prevSigINT);     
 
@@ -761,6 +756,10 @@ int CCrashHandler::SetThreadCPPExceptionHandlers()
   // http://msdn.microsoft.com/en-us/library/h46t5b69.aspx  
   handlers.m_prevUnexp = set_unexpected(cpp_unexp_handler);    
 
+  // Catch a floating point error
+  typedef void (*sigh)(int);
+  handlers.m_prevSigFPE = signal(SIGFPE, (sigh)cpp_sigfpe_handler);     
+
   // Catch an illegal instruction
   handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
 
@@ -800,6 +799,9 @@ int CCrashHandler::UnSetThreadCPPExceptionHandlers()
 
   if(handlers->m_prevUnexp!=NULL)
     set_unexpected(handlers->m_prevUnexp);
+
+  if(handlers->m_prevSigFPE!=NULL)
+    signal(SIGFPE, handlers->m_prevSigFPE);     
 
   if(handlers->m_prevSigILL!=NULL)
     signal(SIGINT, handlers->m_prevSigILL);     
@@ -875,16 +877,13 @@ int CCrashHandler::GenerateErrorReport(
       m_files[CStringA(sFileName)] = CString((LPCTSTR)IDS_CRASH_DUMP);
     }
 
-    /* Create crash log file in XML format. */
+    /* Create crash report descriptor file in XML format. */
   
-    sFileName.Format(_T("%s\\crashlog.xml"), sTempDir, CUtility::getAppName());
-    result = GenerateCrashLogXML(sFileName, pExceptionInfo);
+    sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, CUtility::getAppName());
+    m_files[CStringA(sFileName)] = CString((LPCTSTR)IDS_CRASH_LOG);
+    result = GenerateCrashDescriptorXML(sFileName, pExceptionInfo);
     ATLASSERT(result==0);
-
-    if(result==0)
-    {
-      m_files[CStringA(sFileName)] = CString((LPCTSTR)IDS_CRASH_LOG);
-    }
+    result;
   }
   
   // Save error report as ZIP archive.
@@ -907,7 +906,7 @@ int CCrashHandler::GenerateErrorReport(
   // Launch the CrashSender process that would notify user about crash
   // and send the error report by E-mail.
   
-  int result = LaunchCrashSender();
+  int result = LaunchCrashSender(sZipName);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -927,7 +926,7 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
-int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName,          
+int CCrashHandler::GenerateCrashDescriptorXML(PCTSTR pszFileName,          
      PCR_EXCEPTION_INFO pExceptionInfo)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -1038,6 +1037,32 @@ int CCrashHandler::GenerateCrashLogXML(PCTSTR pszFileName,
     line->LinkEndChild(line_text);
   }
 
+  // Write list of files that present in this crash report
+
+  TiXmlElement* file_list = new TiXmlElement("FileList");
+  root->LinkEndChild(file_list);      
+
+  TStrStrMap::iterator cur = m_files.begin();
+  unsigned i;
+  for (i = 0; i < m_files.size(); i++, cur++)
+  {    
+    CStringA sFilePath = (*cur).first;
+
+    int pos = -1;
+    sFilePath.Replace('/', '\\');
+    pos = sFilePath.ReverseFind('\\');
+    if(pos!=-1)
+      sFilePath = sFilePath.Mid(pos+1);
+
+    CStringA sFileDesc = (*cur).second;
+
+    TiXmlElement* file_item = new TiXmlElement("FileItem");
+    file_list->LinkEndChild(file_item);      
+
+    file_item->SetAttribute("name", sFilePath);    
+    file_item->SetAttribute("description", sFileDesc);    
+  }
+
   // Save document to file
 
   bool bSave = doc.SaveFile(CStringA(pszFileName).GetBuffer());
@@ -1143,7 +1168,7 @@ int CCrashHandler::ZipErrorReport(CString sFileName)
   return 0;
 }
 
-int CCrashHandler::LaunchCrashSender()
+int CCrashHandler::LaunchCrashSender(CString sZipName)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -1193,24 +1218,12 @@ int CCrashHandler::LaunchCrashSender()
 
   CStringW sCrashInfo;
   sCrashInfo.Format(
-    _T("<crashrpt subject=\"%s\" mailto=\"%s\" appname=\"%s\" imagename=\"%s\">"), 
+    _T("<crashrpt subject=\"%s\" mailto=\"%s\" appname=\"%s\" imagename=\"%s\" zipname=\"%s\" />"), 
     _ReplaceRestrictedXMLCharacters(m_sSubject), 
     _ReplaceRestrictedXMLCharacters(m_sTo),
     _ReplaceRestrictedXMLCharacters(m_sAppName),
-    _ReplaceRestrictedXMLCharacters(m_sImageName));
-
-  std::map<CStringA, CStringA>::iterator it;
-  for(it=m_files.begin(); it!=m_files.end(); it++)
-  {
-    CString sName = _ReplaceRestrictedXMLCharacters(CString(it->first));
-    CString sDesc = _ReplaceRestrictedXMLCharacters(CString(it->second));   
-    
-    CString sFile;
-    sFile.Format(_T("<file name=\"%s\" description=\"%s\"/>"), sName, sDesc);
-    sCrashInfo += sFile;
-  }
-
-  sCrashInfo += _T("</crashrpt>");
+    _ReplaceRestrictedXMLCharacters(m_sImageName),
+    _ReplaceRestrictedXMLCharacters(sZipName));
 
   DWORD dwBytesWritten = 0;
   BOOL bWrite = WriteFile(hPipe, sCrashInfo.GetBuffer(), sCrashInfo.GetLength()*2, &dwBytesWritten, NULL);

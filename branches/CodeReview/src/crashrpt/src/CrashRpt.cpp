@@ -13,7 +13,7 @@
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
-CRASHRPTAPI LPVOID Install(LPGETLOGFILE pfnCallback, LPCTSTR pszEmailTo, LPCTSTR pszEmailSubject)
+CRASHRPTAPI LPVOID InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWSTR pszEmailSubject)
 {
   CR_INSTALL_INFO info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
@@ -27,14 +27,24 @@ CRASHRPTAPI LPVOID Install(LPGETLOGFILE pfnCallback, LPCTSTR pszEmailTo, LPCTSTR
   return NULL;
 }
 
+CRASHRPTAPI LPVOID InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR pszEmailSubject)
+{
+  return InstallW(pfnCallback, CStringW(pszEmailTo), CStringW(pszEmailSubject));
+}
+
 CRASHRPTAPI void Uninstall(LPVOID lpState)
 {
   crUninstall();  
 }
 
-CRASHRPTAPI void AddFile(LPVOID lpState, LPCTSTR lpFile, LPCTSTR lpDesc)
+CRASHRPTAPI void AddFileW(LPVOID lpState, LPCWSTR lpFile, LPCWSTR lpDesc)
 { 
   crAddFile(lpFile, lpDesc);
+}
+
+CRASHRPTAPI void AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
+{
+  AddFileW(lpState, CStringW(lpFile), CStringW(lpDesc));
 }
 
 CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
@@ -47,7 +57,7 @@ CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo
   crGenerateErrorReport(&ei);
 }
 
-CRASHRPTAPI int crInstall(CR_INSTALL_INFO* pInfo)
+CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -96,6 +106,66 @@ CRASHRPTAPI int crInstall(CR_INSTALL_INFO* pInfo)
 
   // OK.  
   return 0;
+}
+
+CRASHRPTAPI int crInstallA(CR_INSTALL_INFOA* pInfo)
+{
+  if(pInfo==NULL)
+    return crInstallW((CR_INSTALL_INFOW*)NULL);
+
+  // Convert pInfo members to wide char
+
+  CStringW sAppName;
+  CStringW sAppVersion;
+  CStringW sCrashSenderPath;
+  CStringW sEmailSubject;
+  CStringW sEmailTo;
+  CStringW sUrl;
+
+  CR_INSTALL_INFOW ii;
+  memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
+  ii.cb = sizeof(CR_INSTALL_INFOW);
+  ii.pfnCrashCallback = pInfo->pfnCrashCallback;
+
+  if(pInfo->pszAppName!=NULL)
+  {
+    sAppName = CStringW(pInfo->pszAppName);
+    ii.pszAppName = sAppName;
+  }
+
+  if(pInfo->pszAppVersion!=NULL)
+  {
+    sAppVersion = CStringW(pInfo->pszAppVersion);
+    ii.pszAppVersion = sAppVersion;
+  }
+
+  if(pInfo->pszCrashSenderPath!=NULL)
+  {
+    sCrashSenderPath = CStringW(pInfo->pszCrashSenderPath);
+    ii.pszCrashSenderPath = sCrashSenderPath;
+  }
+
+  if(pInfo->pszEmailSubject!=NULL)
+  {
+    sEmailSubject = CStringW(pInfo->pszEmailSubject);
+    ii.pszEmailSubject = sEmailSubject;
+  }
+
+  if(pInfo->pszEmailTo!=NULL)
+  {
+    sEmailTo = CStringW(pInfo->pszEmailTo);
+    ii.pszEmailTo = sEmailTo;
+  }
+
+  if(pInfo->pszUrl!=NULL)
+  {
+    sUrl = CStringW(pInfo->pszUrl);
+    ii.pszUrl = sUrl;
+  }
+
+  memcpy(&ii.uPriorities, pInfo->uPriorities, 3*sizeof(UINT));
+
+  return crInstallW(&ii);
 }
 
 CRASHRPTAPI int crUninstall()
@@ -172,7 +242,7 @@ CRASHRPTAPI int crUninstallFromCurrentThread()
   return 0;
 }
 
-CRASHRPTAPI int crAddFile(PCTSTR pszFile, PCTSTR pszDesc)
+CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -195,6 +265,30 @@ CRASHRPTAPI int crAddFile(PCTSTR pszFile, PCTSTR pszDesc)
 
   // OK.
   return 0;
+}
+
+CRASHRPTAPI int crAddFileA(PCSTR pszFile, PCSTR pszDesc)
+{
+  // Convert parameters to wide char
+  PCTSTR ptszFile = NULL;
+  PCTSTR ptszDesc = NULL;
+
+  CStringW sFile;
+  CStringW sDesc;
+
+  if(pszFile)
+  {
+    sFile = CStringW(pszFile);
+    ptszFile = sFile;
+  }
+
+  if(pszDesc)
+  {
+    sDesc = CStringW(pszDesc);
+    ptszDesc = sDesc;
+  }
+
+  return crAddFileW(ptszFile, ptszDesc);
 }
 
 CRASHRPTAPI int crGenerateErrorReport(
@@ -225,8 +319,11 @@ CRASHRPTAPI int crGenerateErrorReport(
   return pCrashHandler->GenerateErrorReport(pExceptionInfo);  
 }
 
-CRASHRPTAPI int crGetLastErrorMsg(PTSTR pszBuffer, UINT uBuffSize)
+CRASHRPTAPI int crGetLastErrorMsgW(PWSTR pszBuffer, UINT uBuffSize)
 {
+  if(pszBuffer==NULL)
+    return -1; // Null pointer to buffer
+
   g_cs.Lock();
 
   DWORD dwThreadId = GetCurrentThreadId();
@@ -248,7 +345,24 @@ CRASHRPTAPI int crGetLastErrorMsg(PTSTR pszBuffer, UINT uBuffSize)
   return size;
 }
 
-CRASHRPTAPI int crSetErrorMsg(PTSTR pszErrorMsg)
+CRASHRPTAPI int crGetLastErrorMsgA(PSTR pszBuffer, UINT uBuffSize)
+{  
+  if(pszBuffer==NULL)
+    return -1;
+
+  CStringW sBufferW;
+  WCHAR* pwszBuffer = sBufferW.GetBufferSetLength(uBuffSize);
+  
+  int res = crGetLastErrorMsgW(pwszBuffer, uBuffSize);
+
+  CStringA sBufferA = sBufferW;
+
+  strcpy_s(pszBuffer, uBuffSize, sBufferA);
+
+  return res;
+}
+
+int crSetErrorMsg(PTSTR pszErrorMsg)
 {  
   g_cs.Lock();
   DWORD dwThreadId = GetCurrentThreadId();
@@ -274,7 +388,7 @@ CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS*
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);  
-  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.exctype = CR_WIN32_UNHANDLED_EXCEPTION;
   ei.pexcptrs = ep;
 
   int nGenerate = pCrashHandler->GenerateErrorReport(&ei);
@@ -312,7 +426,7 @@ CBase::~CBase()
 }
 
 #include <float.h>
-float sigfpe_test(float)
+void sigfpe_test()
 { 
   // Code taken from http://www.devx.com/cplus/Article/34993/1954
 
@@ -322,7 +436,8 @@ float sigfpe_test(float)
               //word
   //Because the second parameter in the following call is 0, it
   //only returns the floating-point control word
-  unsigned int cw = _controlfp(0, 0); //Get the default control
+  unsigned int cw; 
+  _controlfp_s(&cw, 0, 0); //Get the default control
                                       //word
   //Set the exception masks off for exceptions that you want to
   //trap.  When a mask bit is set, the corresponding floating-point
@@ -332,7 +447,8 @@ float sigfpe_test(float)
   //For any bit in the second parameter (mask) that is 1, the 
   //corresponding bit in the first parameter is used to update
   //the control word.  
-  unsigned int cwOriginal = _controlfp(cw, MCW_EM); //Set it.
+  unsigned int cwOriginal;
+  _controlfp_s(&cwOriginal, cw, MCW_EM); //Set it.
                               //MCW_EM is defined in float.h.
                               //Restore the original value when done:
                               //_controlfp(cwOriginal, MCW_EM);
@@ -342,8 +458,7 @@ float sigfpe_test(float)
   float a = 1;
   float b = 0;
   float c = a/b;
-
-  return 0;
+  c; 
 }
 
 #define BIG_NUMBER 0x1fffffff
@@ -416,7 +531,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
   case CR_CPP_SIGFPE:
     {
       // floating point exception ( /fp:except compiler option)
-      sigfpe_test(1.0f);
+      sigfpe_test();
       return 1;
     }
     break;

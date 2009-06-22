@@ -123,6 +123,7 @@ public:
    static int GetOSFriendlyName(CString& sOSName);  
 
    static int GetSpecialFolder(int csidl, CString& sFolderPath);
+   
 };
 
 #endif	// #ifndef _UTILITY_H_

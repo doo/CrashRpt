@@ -36,17 +36,19 @@ struct _cpp_thread_exception_handlers
   {
     m_prevTerm = NULL;
     m_prevUnexp = NULL;
+    m_prevSigFPE = NULL;
     m_prevSigILL = NULL;
     m_prevSigSEGV = NULL;
   }
 
   terminate_handler m_prevTerm;        // Previous terminate handler   
   unexpected_handler m_prevUnexp;      // Previous unexpected handler
+  void (__cdecl *m_prevSigFPE)(int);   // Previous FPE handler
   void (__cdecl *m_prevSigILL)(int);   // Previous 
   void (__cdecl *m_prevSigSEGV)(int);  // Previous illegal storage access handler
 };
 
-
+int crSetErrorMsg(PTSTR pszErrorMsg);
 
 ////////////////////////////// Class Definitions /////////////////////////////
 
@@ -155,7 +157,7 @@ public:
    //
    //
 
-   int GenerateCrashLogXML(
+   int GenerateCrashDescriptorXML(
      PCTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
@@ -221,7 +223,7 @@ protected:
   
   int CreateMinidump(PCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
   int ZipErrorReport(CString sFileName);  
-  int LaunchCrashSender();  
+  int LaunchCrashSender(CString sZipName);  
 
   CString _ReplaceRestrictedXMLCharacters(CString sText);
   
@@ -238,8 +240,7 @@ protected:
   _secerr_handler_func m_prevSec; // Previous security exception filter
 #endif
 
-  void (__cdecl *m_prevSigABRT)(int); // Previous SIGABRT handler
-  void (__cdecl *m_prevSigFPE)(int);  // Previous SIGFPE handler
+  void (__cdecl *m_prevSigABRT)(int); // Previous SIGABRT handler  
   void (__cdecl *m_prevSigINT)(int);  // Previous SIGINT handler
   void (__cdecl *m_prevSigTERM)(int); // Previous SIGTERM handler
 

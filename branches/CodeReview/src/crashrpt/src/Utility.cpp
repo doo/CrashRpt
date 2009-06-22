@@ -193,3 +193,4 @@ int CUtility::GetSpecialFolder(int csidl, CString& sFolderPath)
 
   return 0;
 }
+
