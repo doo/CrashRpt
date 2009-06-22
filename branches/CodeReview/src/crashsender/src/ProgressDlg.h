@@ -2,19 +2,24 @@
 
 #include <atlstr.h>
 #include "resource.h"
+#include "SenderThread.h"
 
-#define WM_TRAYICON (WM_USER+128)
+
 
 class CProgressDlg : public CDialogImpl<CProgressDlg>
 {
 public:
 	enum { IDD = IDD_PROGRESSDLG };
   
+  CProgressBarCtrl m_prgProgress;
+  CListViewCtrl m_listView;
+
+
 	BEGIN_MSG_MAP(CProgressDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-    MESSAGE_HANDLER(WM_TIMER, OnTimer)
-    COMMAND_ID_HANDLER(IDOK, OnOK)
-    COMMAND_ID_HANDLER(IDCANCEL, OnOK)
+    MESSAGE_HANDLER(WM_CLOSE, OnClose)
+    MESSAGE_HANDLER(WM_TIMER, OnTimer)    
+    COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -23,14 +28,17 @@ public:
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+  LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
-	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 
-  int CreateTrayIcon(bool bCreate, HWND hWndParent);
+  
 
   void Start();
+  void CloseDialog(int nVal);
+
+  SenderThreadContext* m_pctx;
 };
 
 

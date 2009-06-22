@@ -49,7 +49,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\CrashRpt\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -224,6 +224,10 @@
 			</File>
 			<File
 				RelativePath=".\ProgressDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SenderThread.cpp"
 				>
 			</File>
 			<File
@@ -414,6 +418,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SenderThread.h"
 				>
 			</File>
 			<File

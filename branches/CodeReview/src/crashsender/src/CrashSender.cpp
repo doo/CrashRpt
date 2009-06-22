@@ -9,11 +9,12 @@
 #include "httpsend.h"
 #include "unzip.h"
 #include "utility.h"
+#include "CrashRpt.h"
 
 CAppModule _Module;
 
 int ParseCrashInfo(CStringA& text, CString& sAppName, CString& sImageName,
-  CString& sSubject, CString& sMailTo, CString& sZipName)
+  CString& sSubject, CString& sMailTo, CString& sUrl, UINT (*puPriorities)[3], CString& sZipName)
 {
   TiXmlDocument doc;
   doc.Parse(text.GetBuffer());
@@ -28,7 +29,11 @@ int ParseCrashInfo(CStringA& text, CString& sAppName, CString& sImageName,
   const char* pszImageName = hRoot.ToElement()->Attribute("imagename");
   const char* pszSubject = hRoot.ToElement()->Attribute("subject");
   const char* pszMailTo = hRoot.ToElement()->Attribute("mailto");
+  const char* pszUrl = hRoot.ToElement()->Attribute("url");
   const char* pszZipName = hRoot.ToElement()->Attribute("zipname");
+  const char* pszHttpPriority = hRoot.ToElement()->Attribute("http_priority");
+  const char* pszSmtpPriority = hRoot.ToElement()->Attribute("smtp_priority");
+  const char* pszMapiPriority = hRoot.ToElement()->Attribute("mapi_priority");
 
   if(pszAppName)
     sAppName = pszAppName;
@@ -42,8 +47,26 @@ int ParseCrashInfo(CStringA& text, CString& sAppName, CString& sImageName,
   if(pszMailTo!=NULL)
     sMailTo = pszMailTo;
 
+  if(pszUrl!=NULL)
+    sUrl = pszUrl;
+
   if(pszZipName!=NULL)
     sZipName = pszZipName;
+
+  if(pszHttpPriority!=NULL)
+    (*puPriorities)[CR_HTTP] = atoi(pszHttpPriority);
+  else
+    (*puPriorities)[CR_HTTP] = 0;
+
+  if(pszSmtpPriority!=NULL)
+    (*puPriorities)[CR_SMTP] = atoi(pszSmtpPriority);
+  else
+    (*puPriorities)[CR_SMTP] = 0;
+
+  if(pszMapiPriority!=NULL)
+    (*puPriorities)[CR_SMAPI] = atoi(pszMapiPriority);
+  else
+    (*puPriorities)[CR_SMAPI] = 0;
   
   return 0;
 }
@@ -129,6 +152,8 @@ GetCrashInfoThroughPipe(
   CString& sImageName,
   CString& sSubject,
   CString& sMailTo,
+  CString& sUrl,
+  UINT (*puPriorities)[3],
   CString& sZipName,
   std::map<CStringA, CStringA> &file_list)
 {
@@ -195,7 +220,7 @@ GetCrashInfoThroughPipe(
   // Parse text
   CStringA sDataA = CStringA(data);
   int nParseResult = ParseCrashInfo(sDataA, sAppName, sImageName, 
-    sSubject, sMailTo, sZipName);
+    sSubject, sMailTo, sUrl, puPriorities, sZipName);
   if(nParseResult!=0)
   {
     ATLASSERT(nParseResult==0);
@@ -227,9 +252,11 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
   if(GetCrashInfoThroughPipe(
     dlgMain.m_sAppName,
     dlgMain.m_sImageName,
-    dlgMain.m_sSubject, 
-    dlgMain.m_sEmail, 
-    dlgMain.m_sZipName,
+    dlgMain.m_sEmailSubject, 
+    dlgMain.m_sEmailTo, 
+    dlgMain.m_sUrl,
+    &dlgMain.m_uPriorities,
+    dlgMain.m_sZipName,    
     dlgMain.m_pUDFiles)!=0)
     return 1;  
 

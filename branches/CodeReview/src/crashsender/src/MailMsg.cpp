@@ -117,33 +117,32 @@ BOOL CMailMsg::MAPISend()
      return FALSE;
 
    // set from
-   pRecipients[nIndex].ulReserved = 0;
-   pRecipients[nIndex].ulRecipClass = MAPI_ORIG;
-   pRecipients[nIndex].lpszAddress = m_from.GetBuffer();
-   pRecipients[nIndex].lpszName = "";
-   pRecipients[nIndex].ulEIDSize = 0;
-   pRecipients[nIndex].lpEntryID = NULL;
-   nIndex++;
-   
+   pRecipients[0].ulReserved = 0;
+   pRecipients[0].ulRecipClass = MAPI_ORIG;
+   pRecipients[0].lpszAddress = m_from.GetBuffer();
+   pRecipients[0].lpszName = "";
+   pRecipients[0].ulEIDSize = 0;
+   pRecipients[0].lpEntryID = NULL;
+      
    // set to
-   pRecipients[nIndex].ulReserved = 0;
-   pRecipients[nIndex].ulRecipClass = MAPI_TO;
-   pRecipients[nIndex].lpszAddress = m_to.GetBuffer();
-   pRecipients[nIndex].lpszName = m_to.GetBuffer();
-   pRecipients[nIndex].ulEIDSize = 0;
-   pRecipients[nIndex].lpEntryID = NULL;
+   pRecipients[1].ulReserved = 0;
+   pRecipients[1].ulRecipClass = MAPI_TO;
+   pRecipients[1].lpszAddress = m_to.GetBuffer();
+   pRecipients[1].lpszName = m_to.GetBuffer();
+   pRecipients[1].ulEIDSize = 0;
+   pRecipients[1].lpEntryID = NULL;
+      
    
-   nIndex=0;   
    // add attachments
+   nIndex=0;   
     for (p = m_attachments.begin(), nIndex = 0;
       p != m_attachments.end(); p++, nIndex++)
     {
       pAttachments[nIndex].ulReserved        = 0;
       pAttachments[nIndex].flFlags           = 0;
       pAttachments[nIndex].nPosition         = 0xFFFFFFFF;
-      CStringA sPathName = p->first;
-      pAttachments[nIndex].lpszPathName      = sPathName.GetBuffer();
-      pAttachments[nIndex].lpszFileName      = p->second.GetBuffer();
+      pAttachments[nIndex].lpszPathName      = (LPCSTR)p->first;
+      pAttachments[nIndex].lpszFileName      = p->second;
       pAttachments[nIndex].lpFileType        = NULL;
     }
     

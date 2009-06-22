@@ -73,7 +73,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
   ShowMoreInfo(FALSE);
 
-  m_dlgProgress.Create(0);
+  m_dlgProgress.Create(m_hWnd);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -168,24 +168,15 @@ LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
   return TRUE;
 }
 
-LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	CloseDialog(wID);
-  PostQuitMessage(0);
-	return 0;
-}
-
 LRESULT CMainDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CloseDialog(wID);
-  PostQuitMessage(0);
+	CloseDialog(wID);  
 	return 0;
 }
 
 LRESULT CMainDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  CloseDialog(0);
-  PostQuitMessage(0);
+  CloseDialog(0);  
   return 0;
 }
 
@@ -217,9 +208,9 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
   int      nDescLen = ::GetWindowTextLength(hWndDesc);
 
-  LPTSTR lpStr = m_sEmail.GetBufferSetLength(nEmailLen+1);
+  LPTSTR lpStr = m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
   ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
-  m_sEmail.ReleaseBuffer();
+  m_sEmailFrom.ReleaseBuffer();
 
   lpStr = m_sDescription.GetBufferSetLength(nDescLen+1);
   ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
@@ -230,9 +221,9 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   // it [1] contains a @ and [2] the last . comes
   // after the @.
   //
-  if (m_sEmail.GetLength() &&
-      (m_sEmail.Find(_T('@')) < 0 ||
-       m_sEmail.ReverseFind(_T('.')) < m_sEmail.Find(_T('@'))))
+  if (m_sEmailFrom.GetLength() &&
+      (m_sEmailFrom.Find(_T('@')) < 0 ||
+       m_sEmailFrom.ReverseFind(_T('.')) < m_sEmailFrom.Find(_T('@'))))
   {
      // alert user
      TCHAR szBuf[256];
@@ -246,11 +237,42 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   }
 
   // Write user email and problem description to XML
-  AddUserInfoToCrashDescriptorXML(m_sEmail, m_sDescription);
+  AddUserInfoToCrashDescriptorXML(m_sEmailFrom, m_sDescription);
  
+  
+  m_ctx.m_hCancelEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+  m_ctx.m_nStatus = 0;
+  m_ctx.m_nProgressPct = 0;
+  m_ctx.m_sZipName = m_sZipName;
+  m_ctx.m_sEmailTo = m_sEmailTo;
+  m_ctx.m_sEmailFrom = m_sEmailFrom;
+  m_ctx.m_sEmailSubject = m_sEmailSubject;
+  m_ctx.m_sEmailText = m_sDescription;
+  m_ctx.m_sUrl = m_sUrl;
+  memcpy(&m_ctx.m_uPriorities, &m_uPriorities, 3*sizeof(UINT));
+
+  DWORD dwThreadId = 0;
+  m_hSenderThread = CreateThread(NULL, 0, SenderThread, (LPVOID)&m_ctx, NULL, &dwThreadId);
+
   ShowWindow(SW_HIDE);
+  m_dlgProgress.m_pctx = &m_ctx;
   m_dlgProgress.Start();  
   
+  SetTimer(0, 1000, NULL);
+
+  CreateTrayIcon(true, m_hWnd);
+
+  return 0;
+}
+
+LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0)
+  {
+    CreateTrayIcon(false, m_hWnd);
+    KillTimer(0);
+    CloseDialog(0);
+  }  
   return 0;
 }
 
@@ -313,3 +335,31 @@ LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
   SetTextColor(hDC, RGB(0, 255, 255));
   return (LRESULT)TRUE;
 }
+
+int CMainDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
+{
+  NOTIFYICONDATA nf;
+	memset(&nf,0,sizeof(NOTIFYICONDATA));
+	nf.cbSize = sizeof(NOTIFYICONDATA);
+	nf.hWnd = hWndParent;
+	nf.uID = 0;
+	
+	if(bCreate==true) // add icon to tray
+	{
+		nf.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+		nf.uCallbackMessage = WM_TRAYICON;
+		nf.uVersion = NOTIFYICON_VERSION;
+
+		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+	  _tcscpy_s(nf.szTip, 128, _T("Sending Error Report"));
+		
+		Shell_NotifyIcon(NIM_ADD, &nf);
+	}
+	else // delete icon
+	{
+		Shell_NotifyIcon(NIM_DELETE, &nf);
+	}
+  return 0;
+}
+
+               

@@ -86,6 +86,8 @@ protected:
    LPMAPILOGOFF   m_lpMapiLogoff;               // Mapi func pointer
    
    BOOL           m_bReady;                     // MAPI is loaded
+
+   CString m_sErrorMsg;
 };
 
 #endif	// _MAILMSG_H_
