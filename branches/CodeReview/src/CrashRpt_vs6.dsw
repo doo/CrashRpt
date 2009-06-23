@@ -3,6 +3,18 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "CrashRptTest"=.\crashrpttest\src\CrashRptTest.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "CrashRpt_vs6"=.\crashrpt\src\CrashRpt_vs6.dsp - Package Owner=<4>
 
 Package=<5>
@@ -15,7 +27,19 @@ Package=<4>
 
 ###############################################################################
 
-Project: "CrashSender_vs6"=.\CRASHSENDER\SRC\CrashSender_vs6\CrashSender_vs6.dsp - Package Owner=<4>
+Project: "CrashSender_vs6"=.\crashsender\src\CrashSender_vs6.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "crashcon"=.\crashcon\src\crashcon.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -11,6 +11,11 @@
 #define _WIN32_IE	0x0400
 #define _RICHEDIT_VER	0x0100
 
+
+#if _MSC_VER>=1300
+#include <atlstr.h>
+#endif
+
 #include <atlbase.h>
 #include <atlapp.h>
 
@@ -21,6 +26,12 @@ extern CAppModule _Module;
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
+
+#if _MSC_VER<1300
+#define _WTL_USE_CSTRING
+#include <atlmisc.h>
+#endif
+
 
 #if _MSC_VER>=1400
 #if defined _M_IX86

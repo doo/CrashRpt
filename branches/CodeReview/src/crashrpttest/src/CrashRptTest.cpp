@@ -5,7 +5,7 @@
 #include "resource.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
-#include <atlstr.h>
+
 
 CAppModule _Module;
 
