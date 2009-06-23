@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="CrashRpt_vs.NET"
+	Name="CrashRpt"
 	ProjectGUID="{759A0834-D412-4B85-9E1B-8EE191FF68DF}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -34,12 +34,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib "
-				OutputFile="$(OutDir)/CrashRpt_vs.NET.dll"
+				OutputFile="..\..\CrashRptd.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/CrashRpt_vs.NET.pdb"
 				SubSystem="2"
-				ImportLibrary="$(OutDir)/CrashRpt_vs.NET.lib"
+				ImportLibrary="..\..\lib\CrashRptd.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
