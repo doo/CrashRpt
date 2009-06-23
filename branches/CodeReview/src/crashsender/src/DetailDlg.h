@@ -1,6 +1,6 @@
 #pragma once
 
-#include <atlstr.h>
+#include <atlctrls.h>
 #include "resource.h"
 #include "MailMsg.h"
 

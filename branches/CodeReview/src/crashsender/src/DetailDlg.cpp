@@ -23,8 +23,9 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   unsigned i;
   for (i = 0, p = m_pUDFiles.begin(); p != m_pUDFiles.end(); p++, i++)
   {     
+	  CString sFileName = p->first.c_str();
     SHFILEINFO sfi;
-    SHGetFileInfo(CString(p->first), 0, &sfi, sizeof(sfi),
+    SHGetFileInfo(sFileName, 0, &sfi, sizeof(sfi),
       SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
 
     int iImage = -1;
@@ -35,10 +36,12 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     }
 
     int nItem = m_list.InsertItem(i, sfi.szDisplayName, iImage);
-    m_list.SetItemText(nItem, 1, CString(p->second));
-    m_list.SetItemText(nItem, 2, CString(sfi.szTypeName));
+	CString sFileDesc = p->second.c_str();
+	CString sFileType = sfi.szTypeName;
+    m_list.SetItemText(nItem, 1, sFileDesc);
+    m_list.SetItemText(nItem, 2, sFileType);
 
-    hFind = FindFirstFile(CString(p->first), &findFileData);
+    hFind = FindFirstFile(sFileName, &findFileData);
     if (INVALID_HANDLE_VALUE != hFind)
     {
       FindClose(hFind);
@@ -82,7 +85,8 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
   TStrStrMap::iterator p = m_pUDFiles.begin();
   for (int i = 0; i < iItem; i++, p++);
 
-  dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), CString(p->first),
+  CString sFileName = p->first.c_str();
+  dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
     0, 0, SW_SHOWNORMAL);
   ATLASSERT(dwRet > 32);
 
@@ -105,8 +109,9 @@ void CDetailDlg::SelectItem(int iItem)
   //
   // Display file contents in preview window
   //
+  CString sFileName = p->first.c_str();
   HANDLE hFile = CreateFile(
-     CString(p->first),
+     sFileName,
      GENERIC_READ,
      FILE_SHARE_READ | FILE_SHARE_WRITE,
      NULL,

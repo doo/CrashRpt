@@ -11,14 +11,14 @@
 #ifndef _MAILMSG_H_
 #define _MAILMSG_H_
 
+#include "stdafx.h"
 #include <xcmc.h>          // CMC function defs
 #include <mapi.h>          // MAPI function defs
 
 #include <map>
-#include <atltypes.h>
-#include <atlstr.h>
+#include <string>
 
-typedef std::map<CStringA, CStringA> TStrStrMap;
+typedef std::map<std::string, std::string> TStrStrMap;
 
 //
 // Define CMC entry points
@@ -70,11 +70,11 @@ public:
 
 protected:
 
-   CStringA       m_from;                       // From <address,name>
-   CStringA       m_to;                         // To <address,name>
+   std::string    m_from;                       // From <address,name>
+   std::string    m_to;                         // To <address,name>
    TStrStrMap     m_attachments;                // Attachment <file,title>
-   CStringA       m_sSubject;                   // EMail subject
-   CStringA       m_sMessage;                   // EMail message
+   std::string    m_sSubject;                   // EMail subject
+   std::string    m_sMessage;                   // EMail message
 
    HMODULE        m_hMapi;                      // Handle to MAPI32.DLL
    LPCMCQUERY     m_lpCmcQueryConfiguration;    // Cmc func pointer

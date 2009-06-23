@@ -68,7 +68,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   lf.lfHeight = 25;
   lf.lfWeight = FW_NORMAL;
   lf.lfQuality = ANTIALIASED_QUALITY;
-  _tcscpy_s(lf.lfFaceName, 32, _T("Tahoma"));
+  _TCSCPY_S(lf.lfFaceName, 32, _T("Tahoma"));
   m_HeadingFont.CreateFontIndirect(&lf);
 
   ShowMoreInfo(FALSE);
@@ -276,19 +276,21 @@ LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, B
 
 void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
+  USES_CONVERSION;
+
   HZIP hz = CreateZip(m_sZipName, NULL);
   
   TStrStrMap::iterator cur = m_pUDFiles.begin();
   unsigned int i;
   for (i = 0; i < m_pUDFiles.size(); i++, cur++)
   {
-    CString sFileName = cur->first;
+    CString sFileName = cur->first.c_str();
     sFileName = sFileName.Mid(sFileName.ReverseFind('\\')+1);
     if(sFileName.CompareNoCase(_T("crashrpt.xml"))==0)
     {
       TiXmlDocument doc;
   
-      bool bLoad = doc.LoadFile(cur->first);
+      bool bLoad = doc.LoadFile(cur->first.c_str());
       if(!bLoad)
         return;
 
@@ -315,7 +317,8 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       doc.SaveFile();      
     }
 
-    ZRESULT zr = ZipAdd(hz, sFileName, CString(cur->first));
+	LPTSTR lptszFilePath = A2T(cur->first.c_str());
+    ZRESULT zr = ZipAdd(hz, sFileName, lptszFilePath);
     ATLASSERT(zr==ZR_OK);      
   }  
 
@@ -349,7 +352,7 @@ int CMainDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 		nf.uVersion = NOTIFYICON_VERSION;
 
 		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
-	  _tcscpy_s(nf.szTip, 128, _T("Sending Error Report"));
+	  _TCSCPY_S(nf.szTip, 128, _T("Sending Error Report"));
 		
 		Shell_NotifyIcon(NIM_ADD, &nf);
 	}

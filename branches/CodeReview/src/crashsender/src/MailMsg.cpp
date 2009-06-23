@@ -119,7 +119,7 @@ BOOL CMailMsg::MAPISend()
    // set from
    pRecipients[0].ulReserved = 0;
    pRecipients[0].ulRecipClass = MAPI_ORIG;
-   pRecipients[0].lpszAddress = m_from.GetBuffer();
+   pRecipients[0].lpszAddress = (LPSTR)m_from.c_str();
    pRecipients[0].lpszName = "";
    pRecipients[0].ulEIDSize = 0;
    pRecipients[0].lpEntryID = NULL;
@@ -127,8 +127,8 @@ BOOL CMailMsg::MAPISend()
    // set to
    pRecipients[1].ulReserved = 0;
    pRecipients[1].ulRecipClass = MAPI_TO;
-   pRecipients[1].lpszAddress = m_to.GetBuffer();
-   pRecipients[1].lpszName = m_to.GetBuffer();
+   pRecipients[1].lpszAddress = (LPSTR)m_to.c_str();
+   pRecipients[1].lpszName = (LPSTR)m_to.c_str();
    pRecipients[1].ulEIDSize = 0;
    pRecipients[1].lpEntryID = NULL;
       
@@ -141,14 +141,14 @@ BOOL CMailMsg::MAPISend()
       pAttachments[nIndex].ulReserved        = 0;
       pAttachments[nIndex].flFlags           = 0;
       pAttachments[nIndex].nPosition         = 0xFFFFFFFF;
-      pAttachments[nIndex].lpszPathName      = (LPCSTR)p->first;
-      pAttachments[nIndex].lpszFileName      = p->second;
+	  pAttachments[nIndex].lpszPathName      = (LPSTR)p->first.c_str();
+	  pAttachments[nIndex].lpszFileName      = (LPSTR)p->second.c_str();
       pAttachments[nIndex].lpFileType        = NULL;
     }
     
     message.ulReserved                        = 0;
-    message.lpszSubject                       = m_sSubject.GetBuffer();
-    message.lpszNoteText                      = m_sMessage.GetBuffer();
+	message.lpszSubject                       = (LPSTR)m_sSubject.c_str();
+    message.lpszNoteText                      = (LPSTR)m_sMessage.c_str();
     message.lpszMessageType                   = NULL;
     message.lpszDateReceived                  = NULL;
     message.lpszConversationID                = NULL;
@@ -189,17 +189,17 @@ BOOL CMailMsg::CMCSend()
   pAttachments = new CMC_attachment[m_attachments.size()];
 
   // set to
-  pRecipients[nIndex].name = m_to.GetBuffer();
+  pRecipients[nIndex].name = (LPSTR)m_to.c_str();
   pRecipients[nIndex].name_type = CMC_TYPE_INDIVIDUAL;
-  pRecipients[nIndex].address = (CMC_string)(LPCSTR)m_to;
+  pRecipients[nIndex].address = (CMC_string)(LPCSTR)m_to.c_str();
   pRecipients[nIndex].role = CMC_ROLE_TO;
   pRecipients[nIndex].recip_flags = 0;
   pRecipients[nIndex].recip_extensions = NULL;
    
   // set from
-  pRecipients[nIndex+1].name = m_from.GetBuffer();
+  pRecipients[nIndex+1].name = (LPSTR)m_from.c_str();
   pRecipients[nIndex+1].name_type = CMC_TYPE_INDIVIDUAL;
-  pRecipients[nIndex+1].address = (CMC_string)(LPCSTR)m_from;
+  pRecipients[nIndex+1].address = (CMC_string)(LPCSTR)m_from.c_str();
   pRecipients[nIndex+1].role = CMC_ROLE_ORIGINATOR;
   pRecipients[nIndex+1].recip_flags = CMC_RECIP_LAST_ELEMENT;
   pRecipients[nIndex+1].recip_extensions = NULL;
@@ -208,9 +208,9 @@ BOOL CMailMsg::CMCSend()
   for (p = m_attachments.begin(), nIndex = 0;
     p != m_attachments.end(); p++, nIndex++)
   {
-    pAttachments[nIndex].attach_title       = p->second.GetBuffer();
+    pAttachments[nIndex].attach_title       = (LPSTR)p->second.c_str();
     pAttachments[nIndex].attach_type        = NULL;
-    pAttachments[nIndex].attach_filename    = (CMC_string)(LPCSTR)p->first;
+	pAttachments[nIndex].attach_filename    = (CMC_string)(LPCSTR)p->first.c_str();
     pAttachments[nIndex].attach_flags       = 0;
     pAttachments[nIndex].attach_extensions  = NULL;
   }
@@ -219,11 +219,9 @@ BOOL CMailMsg::CMCSend()
 
   message.message_reference                 = NULL;
   message.message_type                      = NULL;
-  CStringA sSubject = CStringA(m_sSubject);
-  CStringA sMessage = CStringA(m_sMessage);
-  message.subject                           = sSubject.GetBuffer();
+  message.subject                           = (LPSTR)m_sSubject.c_str();
   message.time_sent                         = t_now;
-  message.text_note                         = sMessage.GetBuffer();
+  message.text_note                         = (LPSTR)m_sMessage.c_str();
   message.recipients                        = pRecipients;
   message.attachments                       = pAttachments;
   message.message_flags                     = 0;

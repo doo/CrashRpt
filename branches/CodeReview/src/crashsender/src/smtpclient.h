@@ -1,9 +1,9 @@
 #pragma once
 #include "stdafx.h"
-#include <atlstr.h>
 #include <set>
 #include <map>
 #include <vector>
+#include <string>
 
 class CEmailMessage
 {
@@ -60,7 +60,7 @@ protected:
   static int Base64EncodeAttachment(CString sFileName, 
     LPBYTE* ppEncodedFileData, int& nEncodedFileDataLen);
 
-  static CStringA UTF16toUTF8(const CStringW& utf16);
+  static std::string UTF16toUTF8(LPCWSTR utf16);
 
   static void SetStatus(SmtpClientNotification* scn, CString sStatusMsg, 
     int percentCompleted, bool bRelative=true);

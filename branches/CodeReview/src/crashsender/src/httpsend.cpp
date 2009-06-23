@@ -58,7 +58,11 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   
   uFileSize = st.st_size;
   uchFileData = new BYTE[uFileSize];
+#if _MSC_VER<1400
+  f = _tfopen(sFileName.GetBuffer(), _T("rb"));
+#else
   _tfopen_s(&f, sFileName.GetBuffer(), _T("rb"));
+#endif
   if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
   {
     goto exit;  
@@ -80,7 +84,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   if(!bEncoded)
     goto exit;
   
-  strcpy_s(chPOSTRequest+strlen(szPrefix)+nEncodedFileDataLen, nPOSTRequestLen, szSuffix);
+  STRCPY_S(chPOSTRequest+strlen(szPrefix)+nEncodedFileDataLen, nPOSTRequestLen, szSuffix);
 
   sPOSTRequest = CStringA(chPOSTRequest, nPOSTRequestLen);
   sPOSTRequest.Replace("+", "%2B");
@@ -140,13 +144,13 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
 
 	if(!_tcsncmp((szURL+dwPosition+1), _T("/"), 1)){	// is PROTOCOL
 		if(szProtocol){
-			_tcsncpy_s(szProtocol, cbProtocol, szURL, dwPosition);
+			_TCSNCPY_S(szProtocol, cbProtocol, szURL, dwPosition);
 			szProtocol[dwPosition]=0;
 		}
 		bFlag=TRUE;
 	}else{	// is HOST 
 		if(szProtocol){
-			_tcsncpy_s(szProtocol, cbProtocol, _T("http"), 4);
+			_TCSNCPY_S(szProtocol, cbProtocol, _T("http"), 4);
 			szProtocol[5]=0;
 		}
 	}
@@ -175,24 +179,24 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
 	if(bFlag)
   {
 		TCHAR sztmp[256]=_T("");
-		_tcsncpy_s(sztmp, 256, (szURL+dwFind+1), dwPosition-dwFind);
+		_TCSNCPY_S(sztmp, 256, (szURL+dwFind+1), dwPosition-dwFind);
 		dwPort=_ttol(sztmp);
     int len = dwFind-dwStartPosition;
-		_tcsncpy_s(szAddress, cbAddress, (szURL+dwStartPosition), len);
+		_TCSNCPY_S(szAddress, cbAddress, (szURL+dwStartPosition), len);
     szAddress[len]=0;
 	}
   else if(!_tcscmp(szProtocol,_T("https")))
   {
 		dwPort=INTERNET_DEFAULT_HTTPS_PORT;
     int len = dwPosition-dwStartPosition;
-		_tcsncpy_s(szAddress, cbAddress, (szURL+dwStartPosition), len);
+		_TCSNCPY_S(szAddress, cbAddress, (szURL+dwStartPosition), len);
     szAddress[len]=0;
 	}
   else 
   {
 		dwPort=INTERNET_DEFAULT_HTTP_PORT;
     int len = dwPosition-dwStartPosition;
-		_tcsncpy_s(szAddress, cbAddress, (szURL+dwStartPosition), len);    
+		_TCSNCPY_S(szAddress, cbAddress, (szURL+dwStartPosition), len);    
     szAddress[len]=0;
 	}
 
@@ -200,7 +204,7 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
   { 
     // find URI
     int len = (int)(_tcslen(szURL)-dwPosition);
-		_tcsncpy_s(szURI, cbURI, (szURL+dwPosition), len);
+		_TCSNCPY_S(szURI, cbURI, (szURL+dwPosition), len);
     szURI[len] = 0;
 	}
   else

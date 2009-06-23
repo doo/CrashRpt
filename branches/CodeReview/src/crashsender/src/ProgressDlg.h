@@ -1,6 +1,5 @@
 #pragma once
 
-#include <atlstr.h>
 #include "resource.h"
 #include "SenderThread.h"
 #include "httpsend.h"

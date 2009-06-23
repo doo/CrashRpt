@@ -72,8 +72,10 @@ int ParseCrashInfo(CStringA& text, CString& sAppName, CString& sImageName,
 }
 
 int 
-GetFileList(CString sZipName, std::map<CStringA, CStringA>& file_list)
+GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
 {
+  USES_CONVERSION;
+
   HZIP hz = OpenZip(sZipName, NULL);
   if(hz==NULL)
     return 1;
@@ -130,12 +132,14 @@ GetFileList(CString sZipName, std::map<CStringA, CStringA>& file_list)
 
     if(pszName!=NULL && pszDesc!=NULL)
     {
-      CStringA sFileName = sTempDir + _T("\\") + CString(pszName);      
+	    CString sFileName = pszName;
+      CString sFilePathName = sTempDir + _T("\\") + CString(pszName);      
       int index = -1;
-      ZIPENTRY ze;
-      ZRESULT zr = FindZipItem(hz, CString(pszName), false, &index, &ze);
-      zr = UnzipItem(hz, index, CString(sFileName));
-      file_list[sFileName]=CStringA(pszDesc);
+      ZIPENTRY ze;	  
+      ZRESULT zr = FindZipItem(hz, sFileName, false, &index, &ze);
+      zr = UnzipItem(hz, index, sFilePathName);
+	    LPSTR pszFilePathName = T2A(sFilePathName.GetBuffer(0));
+      file_list[pszFilePathName]=pszDesc;
     }
 
     fi = fi.ToElement()->NextSibling("FileItem");
@@ -155,7 +159,7 @@ GetCrashInfoThroughPipe(
   CString& sUrl,
   UINT (*puPriorities)[3],
   CString& sZipName,
-  std::map<CStringA, CStringA> &file_list)
+  std::map<std::string, std::string> &file_list)
 {
   // Create named pipe to get crash information from client process.
   

@@ -390,8 +390,13 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
 
   // Read file data to buffer.
   FILE* f = NULL;
-  errno_t err = fopen_s(&f, sFileNameA, "rb");
-  if(err!=0 || !f || fread(uchFileData, uFileSize, 1, f)!=1)
+#if _MSC_VER<1400
+  f = fopen(sFileNameA, "rb");
+#else
+  errno_t err = fopen_s(&f, sFileNameA, "rb");  
+#endif 
+
+  if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
   {
     delete [] uchFileData;
     uchFileData = NULL;

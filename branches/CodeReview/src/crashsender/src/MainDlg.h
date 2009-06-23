@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <atlstr.h>
+#include <atlctrls.h>
 #include <atlctrlx.h>
 #include "MailMsg.h"
 #include "DetailDlg.h"
