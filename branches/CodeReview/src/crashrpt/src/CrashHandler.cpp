@@ -19,6 +19,21 @@
 #include "tinyxml.h"
 #include <rtcapi.h>
 
+#if _MSC_VER<1400
+
+// Taken from: http://msdn.microsoft.com/en-us/library/s975zw7k(VS.71).aspx
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
+// _ReturnAddress and _AddressOfReturnAddress should be prototyped before use 
+EXTERNC void * _AddressOfReturnAddress(void);
+EXTERNC void * _ReturnAddress(void);
+
+#endif //_MSC_VER<1400
+
 
 // This internal structure contains the list of processes 
 // that had called crInstall().
@@ -57,7 +72,7 @@ LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
   // Terminate program
   exit(1);
 
-  return EXCEPTION_EXECUTE_HANDLER;
+  //return EXCEPTION_EXECUTE_HANDLER;
 }
 
 
@@ -143,27 +158,29 @@ void __cdecl cpp_purecall_handler()
   exit(1); 
 }
 
-//void __cdecl cpp_security_handler(int code, void *x)
-//{
-//  // Security error (buffer overrun).
-//  
-//  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-//  ATLASSERT(pCrashHandler!=NULL);
-//
-//  if(pCrashHandler!=NULL)
-//  {    
-//    // Fill in the exception info
-//    CR_EXCEPTION_INFO ei;
-//    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-//    ei.cb = sizeof(CR_EXCEPTION_INFO);
-//    ei.exctype = CR_CPP_SECURITY_ERROR;
-//    ei.pexcptrs = NULL;    
-//
-//    pCrashHandler->GenerateErrorReport(&ei);
-//  }
-//
-//  exit(1); // Terminate program 
-//}
+#if _MSCVER<1400
+void __cdecl cpp_security_handler(int code, void *x)
+{
+  // Security error (buffer overrun).
+  
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {    
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SECURITY_ERROR;
+    ei.pexcptrs = NULL;    
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  exit(1); // Terminate program 
+}
+#endif //_MSCVER<1400
 
 void __cdecl cpp_invalid_parameter_handler(
   const wchar_t* expression, 
@@ -621,7 +638,11 @@ int CCrashHandler::Destroy()
 void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
 {
   m_prevPurec = NULL;
+
+#if _MSC_VER>=1400
   m_prevInvpar = NULL;
+#endif
+
   m_prevNewHandler = NULL;
 
 #if _MSC_VER<1400    
@@ -671,8 +692,10 @@ int CCrashHandler::SetProcessCPPExceptionHandlers()
   // http://msdn.microsoft.com/en-us/library/t296ys27.aspx
   m_prevPurec = _set_purecall_handler(cpp_purecall_handler);    
 
+#if _MSC_VER>=1400
   // Catch invalid parameter exceptions.
   m_prevInvpar = _set_invalid_parameter_handler(cpp_invalid_parameter_handler); 
+#endif
 
   // Catch new operator memory allocation exceptions
   m_prevNewHandler = _set_new_handler(cpp_new_handler);
@@ -707,8 +730,10 @@ int CCrashHandler::UnSetProcessCPPExceptionHandlers()
   if(m_prevPurec!=NULL)
     _set_purecall_handler(m_prevPurec);
 
+#if _MSC_VER>=1400
   if(m_prevInvpar!=NULL)
     _set_invalid_parameter_handler(m_prevInvpar);
+#endif //_MSC_VER>=1400
 
   if(m_prevNewHandler!=NULL)
     _set_new_handler(m_prevNewHandler);
@@ -716,7 +741,7 @@ int CCrashHandler::UnSetProcessCPPExceptionHandlers()
 #if _MSC_VER<1400    
   if(m_prevSec!=NULL)
     _set_security_error_handler(m_prevSec);
-#endif
+#endif //_MSC_VER<1400
      
   if(m_prevSigABRT!=NULL)
     signal(SIGABRT, m_prevSigABRT);  
@@ -1297,9 +1322,12 @@ void CCrashHandler::GetExceptionPointers(EXCEPTION_POINTERS** ppExceptionPointer
 #pragma warning(push)
 #pragma warning(disable:4311)
   ContextRecord.Eip = (ULONG)_ReturnAddress();
+//#if _MSC_VER>=1400
   ContextRecord.Esp = (ULONG)_AddressOfReturnAddress();
+//#endif // TODO: make this work in VS.NET
 #pragma warning(pop)
   ContextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress()-1);
+
 
 #elif defined (_IA64_) || defined (_AMD64_)
 

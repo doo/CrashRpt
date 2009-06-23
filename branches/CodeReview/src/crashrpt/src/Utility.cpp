@@ -45,6 +45,10 @@ CString CUtility::getAppName()
 int CUtility::getTempDirectory(CString& strTemp)
 {
   TCHAR* pszTempVar = NULL;
+  
+#if _MSC_VER<1400
+  pszTempVar = _tgetenv(_T("TEMP"));
+#else
   size_t len = 0;
   errno_t err = _tdupenv_s(&pszTempVar, &len, _T("TEMP"));
   if(err!=0)
@@ -52,6 +56,7 @@ int CUtility::getTempDirectory(CString& strTemp)
     // Couldn't get environment variable TEMP    
     return 1;
   }
+#endif   
 
   strTemp = CString(pszTempVar);
   free(pszTempVar);
@@ -110,10 +115,15 @@ int CUtility::GetSystemTimeUTC(CString& sTime)
   time_t cur_time;
   time(&cur_time);
   char szDateTime[64];
-
+  
+#if _MSC_VER<1400
+  struct tm* timeinfo = gmtime(&cur_time);
+  strftime(szDateTime, 64,  "%Y-%m-%dT%H:%M:%SZ", timeinfo);
+#else
   struct tm timeinfo;
   gmtime_s(&timeinfo, &cur_time);
   strftime(szDateTime, 64,  "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
+#endif
 
   sTime = CStringA(szDateTime);
 

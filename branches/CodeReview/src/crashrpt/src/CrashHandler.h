@@ -235,7 +235,11 @@ protected:
   LPTOP_LEVEL_EXCEPTION_FILTER  m_oldFilter;      // previous exception filter
       
   _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter
-  _invalid_parameter_handler m_prevInvpar; // Previous invalid parameter exception filter
+
+#if _MSC_VER>=1400
+  _invalid_parameter_handler m_prevInvpar; // Previous invalid parameter exception filter  
+#endif
+
   _PNH m_prevNewHandler; // Previous new operator exception filter
 
 #if _MSC_VER<1400

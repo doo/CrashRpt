@@ -335,13 +335,13 @@ CRASHRPTAPI int crGetLastErrorMsgW(PWSTR pszBuffer, UINT uBuffSize)
   {
     // No error message for current thread.
     CString sErrorMsg = _T("No error.");
-    _tcsncpy_s(pszBuffer, uBuffSize, sErrorMsg.GetBuffer(), sErrorMsg.GetLength());
+    _TCSNCPY_S(pszBuffer, uBuffSize, sErrorMsg.GetBuffer(), sErrorMsg.GetLength());
     int size =  sErrorMsg.GetLength();
     g_cs.Unlock();
     return size;
   }
   
-  _tcsncpy_s(pszBuffer, uBuffSize, it->second.GetBuffer(), it->second.GetLength());
+  _TCSNCPY_S(pszBuffer, uBuffSize, it->second.GetBuffer(), it->second.GetLength());
   int size = it->second.GetLength();
   g_cs.Unlock();
   return size;
@@ -359,7 +359,7 @@ CRASHRPTAPI int crGetLastErrorMsgA(PSTR pszBuffer, UINT uBuffSize)
 
   CStringA sBufferA = sBufferW;
 
-  strcpy_s(pszBuffer, uBuffSize, sBufferA);
+  STRCPY_S(pszBuffer, uBuffSize, sBufferA);
 
   return res;
 }
@@ -439,7 +439,11 @@ void sigfpe_test()
   //Because the second parameter in the following call is 0, it
   //only returns the floating-point control word
   unsigned int cw; 
+#if _MSC_VER<1400
+  cw = _controlfp(0, 0); //Get the default control
+#else
   _controlfp_s(&cw, 0, 0); //Get the default control
+#endif 
                                       //word
   //Set the exception masks off for exceptions that you want to
   //trap.  When a mask bit is set, the corresponding floating-point
@@ -450,7 +454,11 @@ void sigfpe_test()
   //corresponding bit in the first parameter is used to update
   //the control word.  
   unsigned int cwOriginal;
+#if _MSC_VER<1400
+  cwOriginal = _controlfp(cw, MCW_EM); //Set it.
+#else
   _controlfp_s(&cwOriginal, cw, MCW_EM); //Set it.
+#endif
                               //MCW_EM is defined in float.h.
                               //Restore the original value when done:
                               //_controlfp(cwOriginal, MCW_EM);
@@ -508,7 +516,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       char large_buffer[] = "This string is longer than 10 characters!!!";
       // vulnerable code
       char buffer[10];
-#pragma warning(suppress:4996) // avoid C4996 warning
+#pragma warning(disable:4996) // avoid C4996 warning
       strcpy(buffer, large_buffer); // overrun buffer !!!      
     }
     break;
@@ -563,9 +571,9 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
     break;
   case CR_CPP_SIGTERM: 
     {
-     int result = raise(SIGTERM);  break;
-     ATLASSERT(result==0);
+     int result = raise(SIGTERM);  
      crSetErrorMsg(_T("Error raising SIGTERM."));
+	 ATLASSERT(result==0);     
      return result;
     }
   default:

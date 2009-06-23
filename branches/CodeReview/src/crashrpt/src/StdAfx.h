@@ -20,6 +20,15 @@ extern CAppModule _Module;
 
 #include <atlwin.h>
 
+#if _MSC_VER<1400
+#define _TCSNCPY_S(strDest, sizeInBytes, strSource, count) _tcsncpy(strDest, strSource, count)
+#define STRCPY_S(strDestination, numberOfElements, strSource) strcpy(strDestination, strSource)
+#else
+#define _TCSNCPY_S(strDest, sizeInBytes, strSource, count) _tcsncpy_s(strDest, sizeInBytes, strSource, count)
+#define STRCPY_S(strDestination, numberOfElements, strSource) strcpy_s(strDestination, numberOfElements, strSource)
+#endif
+
+
 //#define CRASHRPTAPI extern "C" __declspec(dllexport)
 #pragma warning(disable: 4100)
 #define chSTR2(x) #x
