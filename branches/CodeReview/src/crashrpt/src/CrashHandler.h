@@ -20,14 +20,18 @@
 #include "crashrpt.h"      // defines LPGETLOGFILE callback
 
 #include <map>
-#include <atltypes.h>
-
 #include <stdlib.h>
 #include <signal.h>
-#include <dbghelp.h>
 #include <exception>
+#include <string>
 
-typedef std::map<CStringA, CStringA> TStrStrMap;
+#if _MSC_VER<1300
+#define PULONG_PTR PULONG
+#endif
+
+#include <dbghelp.h>
+
+typedef std::map<CString, CString> TStrStrMap;
 
 /* This structure contains pointer to the exception handlers for a thread.*/
 struct _cpp_thread_exception_handlers
@@ -160,7 +164,7 @@ public:
    //
 
    int GenerateCrashDescriptorXML(
-     PCTSTR pszFileName, 
+     LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
    //-----------------------------------------------------------------------------
@@ -223,7 +227,7 @@ public:
 
 protected:
   
-  int CreateMinidump(PCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
+  int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
   int ZipErrorReport(CString sFileName);  
   int LaunchCrashSender(CString sZipName);  
 
@@ -234,15 +238,18 @@ protected:
 
   LPTOP_LEVEL_EXCEPTION_FILTER  m_oldFilter;      // previous exception filter
       
+#if _MSC_VER>=1300
   _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter
+  _PNH m_prevNewHandler; // Previous new operator exception filter
+#endif
 
 #if _MSC_VER>=1400
   _invalid_parameter_handler m_prevInvpar; // Previous invalid parameter exception filter  
 #endif
 
-  _PNH m_prevNewHandler; // Previous new operator exception filter
 
-#if _MSC_VER<1400
+
+#if _MSC_VER>=1300 && _MSC_VER<1400
   _secerr_handler_func m_prevSec; // Previous security exception filter
 #endif
 

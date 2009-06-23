@@ -125,7 +125,7 @@ int CUtility::GetSystemTimeUTC(CString& sTime)
   strftime(szDateTime, 64,  "%Y-%m-%dT%H:%M:%SZ", &timeinfo);
 #endif
 
-  sTime = CStringA(szDateTime);
+  sTime = szDateTime;
 
   return 0;
 }
@@ -150,7 +150,7 @@ int CUtility::GenerateGUID(CString& sGUID)
       if(SUCCEEDED(hr) && pszUuid!=NULL)
       { 
         status = 0;
-        sGUID = CStringA((char*)pszUuid);
+        sGUID = A2T((char*)pszUuid);
         RpcStringFreeA(&pszUuid);
       }
     }
@@ -172,15 +172,15 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
     ULONG buf_size = 0;
 
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("ProductName"), buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryValue(_T("ProductName"), buf, &buf_size))
       sOSName = CString(buf, buf_size);
     
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CurrentBuildNumber"), buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryValue(_T("CurrentBuildNumber"), buf, &buf_size))
       sOSName += _T(" Build ") + CString(buf, buf_size);
 
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(_T("CSDVersion"), buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryValue(_T("CSDVersion"), buf, &buf_size))
       sOSName += _T(" ") + CString(buf, buf_size);
 
     regKey.Close();

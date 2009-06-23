@@ -10,6 +10,8 @@
 #include "CrashRpt.h"
 #include "CrashHandler.h"
 
+WTL::CAppModule _Module;
+
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
@@ -19,8 +21,8 @@ CRASHRPTAPI LPVOID InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWST
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);
   info.pfnCrashCallback = pfnCallback;
-  info.pszEmailTo = pszEmailTo;
-  info.pszEmailSubject = pszEmailSubject;
+  info.pszEmailTo = (const char*)pszEmailTo;
+  info.pszEmailSubject = (const char*)pszEmailSubject;
 
   crInstall(&info);
 
@@ -29,7 +31,11 @@ CRASHRPTAPI LPVOID InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWST
 
 CRASHRPTAPI LPVOID InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR pszEmailSubject)
 {
-  return InstallW(pfnCallback, CStringW(pszEmailTo), CStringW(pszEmailSubject));
+  USES_CONVERSION;
+  LPWSTR lpwszEmailTo = A2W(pszEmailTo);
+  LPWSTR lpwszEmailSubject = A2W(pszEmailSubject);
+
+  return InstallW(pfnCallback, lpwszEmailTo, lpwszEmailSubject);
 }
 
 CRASHRPTAPI void Uninstall(LPVOID lpState)
@@ -39,12 +45,15 @@ CRASHRPTAPI void Uninstall(LPVOID lpState)
 
 CRASHRPTAPI void AddFileW(LPVOID lpState, LPCWSTR lpFile, LPCWSTR lpDesc)
 { 
-  crAddFile(lpFile, lpDesc);
+  crAddFileW(lpFile, lpDesc);
 }
 
 CRASHRPTAPI void AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
 {
-  AddFileW(lpState, CStringW(lpFile), CStringW(lpDesc));
+  USES_CONVERSION;
+  LPWSTR lpwszFile = A2W(lpFile);
+  LPWSTR lpwszDesc = A2W(lpDesc);
+  AddFileW(lpState, lpwszFile, lpwszDesc);
 }
 
 CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
@@ -60,6 +69,8 @@ CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo
 CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
 {
   crSetErrorMsg(_T("Success."));
+
+  USES_CONVERSION;
 
   // Validate input parameters.
   if(pInfo==NULL || 
@@ -90,14 +101,21 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
     return 3; 
   }
 
+  LPTSTR ptszAppName = W2T(pInfo->pszAppName);
+  LPTSTR ptszAppVersion = W2T(pInfo->pszAppVersion);
+  LPTSTR ptszCrashSenderPath = W2T(pInfo->pszCrashSenderPath);
+  LPTSTR ptszEmailTo = W2T(pInfo->pszEmailTo);
+  LPTSTR ptszEmailSubject = W2T(pInfo->pszEmailSubject);
+  LPTSTR ptszUrl = W2T(pInfo->pszUrl);
+
   int nInitResult = pCrashHandler->Init(
-    pInfo->pszAppName, 
-    pInfo->pszAppVersion, 
-    pInfo->pszCrashSenderPath,
+    ptszAppName, 
+    ptszAppVersion, 
+    ptszCrashSenderPath,
     pInfo->pfnCrashCallback,
-    pInfo->pszEmailTo,
-    pInfo->pszEmailSubject,
-    pInfo->pszUrl,
+    ptszEmailTo,
+    ptszEmailSubject,
+    ptszUrl,
     &pInfo->uPriorities);
   
   if(nInitResult!=0)
@@ -117,12 +135,13 @@ CRASHRPTAPI int crInstallA(CR_INSTALL_INFOA* pInfo)
 
   // Convert pInfo members to wide char
 
-  CStringW sAppName;
-  CStringW sAppVersion;
-  CStringW sCrashSenderPath;
-  CStringW sEmailSubject;
-  CStringW sEmailTo;
-  CStringW sUrl;
+  USES_CONVERSION;
+  LPWSTR lpwszAppName = NULL;
+  LPWSTR lpwszAppVersion = NULL;
+  LPWSTR lpwszCrashSenderPath = NULL;
+  LPWSTR lpwszEmailSubject = NULL;
+  LPWSTR lpwszEmailTo = NULL;
+  LPWSTR lpwszUrl = NULL;
 
   CR_INSTALL_INFOW ii;
   memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
@@ -131,38 +150,38 @@ CRASHRPTAPI int crInstallA(CR_INSTALL_INFOA* pInfo)
 
   if(pInfo->pszAppName!=NULL)
   {
-    sAppName = CStringW(pInfo->pszAppName);
-    ii.pszAppName = sAppName;
+    lpwszAppName = A2W(pInfo->pszAppName);
+    ii.pszAppName = lpwszAppName;
   }
 
   if(pInfo->pszAppVersion!=NULL)
   {
-    sAppVersion = CStringW(pInfo->pszAppVersion);
-    ii.pszAppVersion = sAppVersion;
+    lpwszAppVersion = A2W(pInfo->pszAppVersion);
+    ii.pszAppVersion = lpwszAppVersion;
   }
 
   if(pInfo->pszCrashSenderPath!=NULL)
   {
-    sCrashSenderPath = CStringW(pInfo->pszCrashSenderPath);
-    ii.pszCrashSenderPath = sCrashSenderPath;
+    lpwszCrashSenderPath = A2W(pInfo->pszCrashSenderPath);
+    ii.pszCrashSenderPath = lpwszCrashSenderPath;
   }
 
   if(pInfo->pszEmailSubject!=NULL)
   {
-    sEmailSubject = CStringW(pInfo->pszEmailSubject);
-    ii.pszEmailSubject = sEmailSubject;
+    lpwszEmailSubject = A2W(pInfo->pszEmailSubject);
+    ii.pszEmailSubject = lpwszEmailSubject;
   }
 
   if(pInfo->pszEmailTo!=NULL)
   {
-    sEmailTo = CStringW(pInfo->pszEmailTo);
-    ii.pszEmailTo = sEmailTo;
+    lpwszEmailTo = A2W(pInfo->pszEmailTo);
+    ii.pszEmailTo = lpwszEmailTo;
   }
 
   if(pInfo->pszUrl!=NULL)
   {
-    sUrl = CStringW(pInfo->pszUrl);
-    ii.pszUrl = sUrl;
+    lpwszUrl = A2W(pInfo->pszUrl);
+    ii.pszUrl = lpwszUrl;
   }
 
   memcpy(&ii.uPriorities, pInfo->uPriorities, 3*sizeof(UINT));
@@ -248,6 +267,8 @@ CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 {
   crSetErrorMsg(_T("Success."));
 
+  USES_CONVERSION;
+
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
 
@@ -257,8 +278,11 @@ CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
     return 1; // No handler installed for current process?
   }
-   
-  int nAddResult = pCrashHandler->AddFile(pszFile, pszDesc);
+  
+  LPTSTR lptszFile = W2T(pszFile);
+  LPTSTR lptszDesc = W2T(pszDesc);
+
+  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDesc);
   if(nAddResult!=0)
   {
     ATLASSERT(nAddResult==0);
@@ -272,25 +296,23 @@ CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 CRASHRPTAPI int crAddFileA(PCSTR pszFile, PCSTR pszDesc)
 {
   // Convert parameters to wide char
-  PCTSTR ptszFile = NULL;
-  PCTSTR ptszDesc = NULL;
 
-  CStringW sFile;
-  CStringW sDesc;
+  USES_CONVERSION;
 
+  LPWSTR pwszFile = NULL;
+  LPWSTR pwszDesc = NULL;
+  
   if(pszFile)
   {
-    sFile = CStringW(pszFile);
-    ptszFile = sFile;
+    pwszFile = A2W(pszFile);
   }
 
   if(pszDesc)
   {
-    sDesc = CStringW(pszDesc);
-    ptszDesc = sDesc;
+    pwszDesc = A2W(pszDesc);    
   }
 
-  return crAddFileW(ptszFile, ptszDesc);
+  return crAddFileW(pwszFile, pwszDesc);
 }
 
 CRASHRPTAPI int crGenerateErrorReport(
@@ -326,6 +348,8 @@ CRASHRPTAPI int crGetLastErrorMsgW(PWSTR pszBuffer, UINT uBuffSize)
   if(pszBuffer==NULL)
     return -1; // Null pointer to buffer
 
+  USES_CONVERSION;
+
   g_cs.Lock();
 
   DWORD dwThreadId = GetCurrentThreadId();
@@ -335,13 +359,15 @@ CRASHRPTAPI int crGetLastErrorMsgW(PWSTR pszBuffer, UINT uBuffSize)
   {
     // No error message for current thread.
     CString sErrorMsg = _T("No error.");
-    _TCSNCPY_S(pszBuffer, uBuffSize, sErrorMsg.GetBuffer(), sErrorMsg.GetLength());
+	LPWSTR pwszErrorMsg = T2W(sErrorMsg.GetBuffer(0));
+	WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
     int size =  sErrorMsg.GetLength();
     g_cs.Unlock();
     return size;
   }
   
-  _TCSNCPY_S(pszBuffer, uBuffSize, it->second.GetBuffer(), it->second.GetLength());
+  LPWSTR pwszErrorMsg = T2W(it->second.GetBuffer(0));
+  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, it->second.GetLength());
   int size = it->second.GetLength();
   g_cs.Unlock();
   return size;
@@ -352,14 +378,17 @@ CRASHRPTAPI int crGetLastErrorMsgA(PSTR pszBuffer, UINT uBuffSize)
   if(pszBuffer==NULL)
     return -1;
 
-  CStringW sBufferW;
-  WCHAR* pwszBuffer = sBufferW.GetBufferSetLength(uBuffSize);
-  
+  USES_CONVERSION;
+
+  WCHAR* pwszBuffer = new WCHAR[uBuffSize];
+    
   int res = crGetLastErrorMsgW(pwszBuffer, uBuffSize);
+  
+  LPSTR paszBuffer = W2A(pwszBuffer);  
 
-  CStringA sBufferA = sBufferW;
+  STRCPY_S(pszBuffer, uBuffSize, paszBuffer);
 
-  STRCPY_S(pszBuffer, uBuffSize, sBufferA);
+  delete [] pwszBuffer;
 
   return res;
 }

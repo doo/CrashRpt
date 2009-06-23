@@ -16,7 +16,7 @@
 #endif // _MSC_VER >= 1000
 
 #include "stdafx.h"
-#include <atltypes.h> // CString
+//#include <atltypes.h> // CString
 #include <shlobj.h>
 
 

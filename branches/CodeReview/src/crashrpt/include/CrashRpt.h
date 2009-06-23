@@ -253,12 +253,12 @@ GenerateErrorReport(
 typedef struct tagCR_INSTALL_INFOW
 {
   WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
-  PCWSTR pszAppName;             //!< Name of application.
-  PCWSTR pszAppVersion;          //!< Application version.
-  PCWSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
-  PCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
-  PCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
-  PCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPCWSTR pszAppName;             //!< Name of application.
+  LPCWSTR pszAppVersion;          //!< Application version.
+  LPCWSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
 }
@@ -267,12 +267,12 @@ CR_INSTALL_INFOW, *PCR_INSTALL_INFOW;
 typedef struct tagCR_INSTALL_INFOA
 {
   WORD cb;                      //!< Size of this structure in bytes; must be initialized before using!
-  PCSTR pszAppName;             //!< Name of application.
-  PCSTR pszAppVersion;          //!< Application version.
-  PCSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
-  PCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
-  PCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
-  PCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPCSTR pszAppName;             //!< Name of application.
+  LPCSTR pszAppVersion;          //!< Application version.
+  LPCSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
 }
@@ -447,15 +447,15 @@ crUninstallFromCurrentThread();
 CRASHRPTAPI 
 int
 crAddFileW(
-   PCWSTR pszFile,
-   PCWSTR pszDesc 
+   LPCWSTR pszFile,
+   LPCWSTR pszDesc 
    );
 
 CRASHRPTAPI 
 int
 crAddFileA(
-   PCSTR pszFile,
-   PCSTR pszDesc 
+   LPCSTR pszFile,
+   LPCSTR pszDesc 
    );
 
 #ifdef UNICODE
