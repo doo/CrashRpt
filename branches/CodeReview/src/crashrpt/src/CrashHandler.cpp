@@ -74,7 +74,9 @@ LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
   // Terminate program
   exit(1);
 
+#if _MSC_VER<1300 // This is to make MSVC6.0 compiler happy
   return EXCEPTION_EXECUTE_HANDLER;
+#endif
 }
 
 
@@ -160,7 +162,7 @@ void __cdecl cpp_purecall_handler()
   exit(1); 
 }
 
-#if _MSCVER<1400
+#if _MSC_VER<1400
 void __cdecl cpp_security_handler(int code, void *x)
 {
   // Security error (buffer overrun).
@@ -993,7 +995,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
 
   // Write CrashRpt version
   CString sCrashRptVer;
-  sCrashRptVer.Format("%d", CRASHRPT_VER);
+  sCrashRptVer.Format(_T("%d"), CRASHRPT_VER);
   LPSTR lpszCrashRptVer = T2A(sCrashRptVer.GetBuffer(0));
   root->SetAttribute("version", lpszCrashRptVer);
 
@@ -1043,7 +1045,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   
   // Write exception type
   CString sExcType;
-  sExcType.Format("%d", pExceptionInfo->exctype);  
+  sExcType.Format(_T("%d"), pExceptionInfo->exctype);  
   TiXmlElement* exc_type = new TiXmlElement("ExceptionType");
   root->LinkEndChild(exc_type);  
   LPSTR lpszExcType = T2A(sExcType.GetBuffer(0));
@@ -1054,7 +1056,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   {
     // Write FPE exception subcode
     CString sFpeSubcode;
-    sFpeSubcode.Format("%d", pExceptionInfo->fpe_subcode);    
+    sFpeSubcode.Format(_T("%d"), pExceptionInfo->fpe_subcode);    
     TiXmlElement* fpe_subcode = new TiXmlElement("FPESubcode");
     root->LinkEndChild(fpe_subcode);  
 	LPSTR lpszFpeSubcode = T2A(sFpeSubcode.GetBuffer(0));
@@ -1096,7 +1098,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     
     // Write line
     CString sLine;
-    sLine.Format("%d", pExceptionInfo->line);    
+    sLine.Format(_T("%d"), pExceptionInfo->line);    
     TiXmlElement* line = new TiXmlElement("InvParamLine");
     root->LinkEndChild(line);  
 	LPSTR lpszLine = T2A(sLine.GetBuffer(0));
@@ -1243,6 +1245,8 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 {
   crSetErrorMsg(_T("Success."));
 
+  USES_CONVERSION;
+
   /* Create CrashSender process */
 
   STARTUPINFO si;
@@ -1303,7 +1307,7 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
   LPSTR lpszCrashInfo =  T2A(sCrashInfo.GetBuffer(0));
   
   DWORD dwBytesWritten = 0;
-  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, strlen(lpszCrashInfo), &dwBytesWritten, NULL);
+  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, (DWORD)strlen(lpszCrashInfo), &dwBytesWritten, NULL);
   
   if(!bWrite || (int)dwBytesWritten == strlen(lpszCrashInfo))
   {

@@ -73,7 +73,9 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
   case IDC_MAIN_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_MAIN_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
   case IDC_MAIN_PURECALL: type = CR_CPP_PURE_CALL; break;
+#if _MSC_VER>=1300 && _MSC_VER<1400
   case IDC_MAIN_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
+#endif
   case IDC_MAIN_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
   case IDC_MAIN_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
   case IDC_MAIN_SIGABRT: type = CR_CPP_SIGABRT; break;
@@ -105,7 +107,9 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
   case IDC_THREAD_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_THREAD_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
   case IDC_THREAD_PURECALL: type = CR_CPP_PURE_CALL; break;
+#if _MSC_VER>=1300 && _MSC_VER<1400
   case IDC_THREAD_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
+#endif //_MSC_VER>=1300 && _MSC_VER<1400
   case IDC_THREAD_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
   case IDC_THREAD_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
   case IDC_THREAD_SIGABRT: type = CR_CPP_SIGABRT; break;

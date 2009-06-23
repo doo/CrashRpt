@@ -17,12 +17,12 @@ std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling th
 
 CRASHRPTAPI LPVOID InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWSTR pszEmailSubject)
 {
-  CR_INSTALL_INFO info;
+  CR_INSTALL_INFOW info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);
   info.pfnCrashCallback = pfnCallback;
-  info.pszEmailTo = (const char*)pszEmailTo;
-  info.pszEmailSubject = (const char*)pszEmailSubject;
+  info.pszEmailTo = pszEmailTo;
+  info.pszEmailSubject = pszEmailSubject;
 
   crInstall(&info);
 
@@ -101,12 +101,12 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
     return 3; 
   }
 
-  LPTSTR ptszAppName = W2T(pInfo->pszAppName);
-  LPTSTR ptszAppVersion = W2T(pInfo->pszAppVersion);
-  LPTSTR ptszCrashSenderPath = W2T(pInfo->pszCrashSenderPath);
-  LPTSTR ptszEmailTo = W2T(pInfo->pszEmailTo);
-  LPTSTR ptszEmailSubject = W2T(pInfo->pszEmailSubject);
-  LPTSTR ptszUrl = W2T(pInfo->pszUrl);
+  LPTSTR ptszAppName = W2T((LPWSTR)pInfo->pszAppName);
+  LPTSTR ptszAppVersion = W2T((LPWSTR)pInfo->pszAppVersion);
+  LPTSTR ptszCrashSenderPath = W2T((LPWSTR)pInfo->pszCrashSenderPath);
+  LPTSTR ptszEmailTo = W2T((LPWSTR)pInfo->pszEmailTo);
+  LPTSTR ptszEmailSubject = W2T((LPWSTR)pInfo->pszEmailSubject);
+  LPTSTR ptszUrl = W2T((LPWSTR)pInfo->pszUrl);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -279,8 +279,8 @@ CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
     return 1; // No handler installed for current process?
   }
   
-  LPTSTR lptszFile = W2T(pszFile);
-  LPTSTR lptszDesc = W2T(pszDesc);
+  LPTSTR lptszFile = W2T((LPWSTR)pszFile);
+  LPTSTR lptszDesc = W2T((LPWSTR)pszDesc);
 
   int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDesc);
   if(nAddResult!=0)
@@ -538,6 +538,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       CDerived derived;
     }
     break;
+#if _MSC_VER>=1300 && _MSC_VER<1400
   case CR_CPP_SECURITY_ERROR:
     {
       // Cause buffer overrun (/GS compiler option)
@@ -549,6 +550,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       strcpy(buffer, large_buffer); // overrun buffer !!!      
     }
     break;
+#endif //_MSC_VER>=1300 && _MSC_VER<1400
   case CR_CPP_INVALID_PARAMETER:
     {
       char* formatString;

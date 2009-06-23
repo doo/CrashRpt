@@ -470,10 +470,20 @@ crAddFileA(
 #define CR_WIN32_UNHANDLED_EXCEPTION    1    //!< WIN32 unhandled exception.
 #define CR_CPP_TERMINATE_CALL           2    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          3    //!< C++ unexpected() call.
+
+#if _MSC_VER>=1300
 #define CR_CPP_PURE_CALL                4    //!< C++ pure virtual function call.
-#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
-#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
+#define CR_CPP_INVALID_PARAMETER        5    //!< Invalid parameter exception.
+#endif
+
+#if _MSC_VER>=1300 && _MSC_VER<1400
+#define CR_CPP_SECURITY_ERROR           6    //!< Buffer overrun error.
+#endif
+
+#if _MSC_VER>=1400
 #define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
+#endif 
+
 #define CR_CPP_SIGABRT                  8    //!< C++ SIGABRT signal (abort).
 #define CR_CPP_SIGFPE                   9    //!< C++ SIGFPE signal (flotating point exception).
 #define CR_CPP_SIGILL                   10   //!< C++ SIGILL signal (illegal instruction).

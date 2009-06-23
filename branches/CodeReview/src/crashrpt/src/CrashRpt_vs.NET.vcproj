@@ -173,6 +173,9 @@
 				RelativePath=".\CrashHandler.h">
 			</File>
 			<File
+				RelativePath="..\include\CrashRpt.h">
+			</File>
+			<File
 				RelativePath=".\resource.h">
 			</File>
 			<File

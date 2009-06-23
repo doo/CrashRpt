@@ -135,6 +135,8 @@ int CUtility::GenerateGUID(CString& sGUID)
   int status = 1;
   sGUID.Empty();
 
+  USES_CONVERSION;
+
   // Create GUID
 
   UCHAR *pszUuid = 0; 
@@ -160,6 +162,12 @@ int CUtility::GenerateGUID(CString& sGUID)
   return status;
 }
 
+#if _MSC_VER<1300
+#define REG_KEY_QUERY_VALUE(regKey, name, buf, buf_size) (regKey) ##.QueryValue(name, buf, buf_size)
+#else
+#define REG_KEY_QUERY_VALUE(regKey, name, buf, buf_size) (regKey) ##.QueryStringValue(name, buf, buf_size)
+#endif 
+
 int CUtility::GetOSFriendlyName(CString& sOSName)
 {
   sOSName.Empty();
@@ -171,16 +179,20 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
     TCHAR buf[1024];
     ULONG buf_size = 0;
 
+	const TCHAR* PRODUCT_NAME = _T("ProductName");
+	const TCHAR* CURRENT_BUILD_NUMBER = _T("CurrentBuildNumber");
+	const TCHAR* CSD_VERSION = _T("CSDVersion");
+
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryValue(_T("ProductName"), buf, &buf_size))
+    if(ERROR_SUCCESS == REG_KEY_QUERY_VALUE(regKey, PRODUCT_NAME, buf, &buf_size))
       sOSName = CString(buf, buf_size);
     
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryValue(_T("CurrentBuildNumber"), buf, &buf_size))
+    if(ERROR_SUCCESS == REG_KEY_QUERY_VALUE(regKey, CURRENT_BUILD_NUMBER, buf, &buf_size))
       sOSName += _T(" Build ") + CString(buf, buf_size);
 
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryValue(_T("CSDVersion"), buf, &buf_size))
+    if(ERROR_SUCCESS == REG_KEY_QUERY_VALUE(regKey, CSD_VERSION, buf, &buf_size))
       sOSName += _T(" ") + CString(buf, buf_size);
 
     regKey.Close();

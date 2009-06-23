@@ -19,18 +19,19 @@
 
 #define _RICHEDIT_VER	0x0100
 
-#include <atlbase.h>
-#include <atlapp.h>
-extern CAppModule _Module;
-#include <atlwin.h>
-
+// CString-related includes
 #if _MSC_VER>=1300
 #include <atlstr.h>
+#include <atltypes.h>
 #else
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
 #endif 
 
+#include <atlbase.h>
+#include <atlapp.h>
+extern CAppModule _Module;
+#include <atlwin.h>
 
 
 #if _MSC_VER<1400
