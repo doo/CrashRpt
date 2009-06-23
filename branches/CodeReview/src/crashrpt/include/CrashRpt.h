@@ -480,7 +480,7 @@ crAddFileA(
 #define CR_CPP_SECURITY_ERROR           6    //!< Buffer overrun error.
 #endif
 
-#if _MSC_VER>=1400
+#if _MSC_VER>=1300
 #define CR_CPP_NEW_OPERATOR_ERROR       7    //!< C++ new operator fault.
 #endif 
 

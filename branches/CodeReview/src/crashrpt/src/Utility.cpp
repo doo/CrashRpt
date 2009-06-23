@@ -10,9 +10,9 @@
 
 #include "stdafx.h"
 #include "Utility.h"
-#include "atldlgs.h"
 #include "resource.h"
 #include <time.h>
+#include "atldlgs.h"
 
 FILETIME CUtility::getLastWriteFileTime(CString sFile)
 {
@@ -179,9 +179,9 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
     TCHAR buf[1024];
     ULONG buf_size = 0;
 
-	const TCHAR* PRODUCT_NAME = _T("ProductName");
-	const TCHAR* CURRENT_BUILD_NUMBER = _T("CurrentBuildNumber");
-	const TCHAR* CSD_VERSION = _T("CSDVersion");
+	TCHAR* PRODUCT_NAME = _T("ProductName");
+	TCHAR* CURRENT_BUILD_NUMBER = _T("CurrentBuildNumber");
+	TCHAR* CSD_VERSION = _T("CSDVersion");
 
     buf_size = 1024;
     if(ERROR_SUCCESS == REG_KEY_QUERY_VALUE(regKey, PRODUCT_NAME, buf, &buf_size))

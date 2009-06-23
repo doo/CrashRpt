@@ -134,7 +134,7 @@ void __cdecl cpp_unexp_handler()
   exit(1); 
 }
 
-
+#if _MSC_VER>=1300
 void __cdecl cpp_purecall_handler()
 {
   // Pure virtual function call
@@ -161,8 +161,9 @@ void __cdecl cpp_purecall_handler()
   // Terminate program
   exit(1); 
 }
+#endif
 
-#if _MSC_VER<1400
+#if _MSC_VER>=1300 && _MSC_VER<1400
 void __cdecl cpp_security_handler(int code, void *x)
 {
   // Security error (buffer overrun).
@@ -184,7 +185,7 @@ void __cdecl cpp_security_handler(int code, void *x)
 
   exit(1); // Terminate program 
 }
-#endif //_MSCVER<1400
+#endif 
 
 #if _MSC_VER>=1300
 void __cdecl cpp_invalid_parameter_handler(
@@ -1064,6 +1065,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     fpe_subcode->LinkEndChild(fpe_subcode_text);
   }
 
+#if _MSC_VER>=1300
   if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
   {
     if(pExceptionInfo->expression!=NULL)
@@ -1105,6 +1107,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     TiXmlText* line_text = new TiXmlText(lpszLine);
     line->LinkEndChild(line_text);
   }
+#endif 
 
   // Write list of files that present in this crash report
 

@@ -24,7 +24,7 @@ CRASHRPTAPI LPVOID InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWST
   info.pszEmailTo = pszEmailTo;
   info.pszEmailSubject = pszEmailSubject;
 
-  crInstall(&info);
+  crInstallW(&info);
 
   return NULL;
 }
@@ -532,12 +532,14 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       unexpected();
     }
     break;
+#if _MSC_VER>=1300
   case CR_CPP_PURE_CALL:
     {
       // pure virtual method call
       CDerived derived;
     }
     break;
+#endif
 #if _MSC_VER>=1300 && _MSC_VER<1400
   case CR_CPP_SECURITY_ERROR:
     {
@@ -551,6 +553,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
     }
     break;
 #endif //_MSC_VER>=1300 && _MSC_VER<1400
+#if _MSC_VER>=1300
   case CR_CPP_INVALID_PARAMETER:
     {
       char* formatString;
@@ -559,11 +562,14 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       printf(formatString);
     }
     break;
+#endif
+#if _MSC_VER>=1300
   case CR_CPP_NEW_OPERATOR_ERROR:
     {
       RecurseAlloc();
     }
     break;
+#endif //_MSC_VER>=1300
   case CR_CPP_SIGABRT: 
     {
       abort();
