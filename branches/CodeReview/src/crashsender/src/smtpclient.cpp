@@ -146,7 +146,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   CString sMessageText = msg->m_sText;
   sMessageText.Replace(_T("\n"),_T("\r\n"));
   sMessageText.Replace(_T("\r\n.\r\n"),_T("\r\n*\r\n"));
-  CString sUTF8Text = UTF16toUTF8(sMessageText);
+  std::string sUTF8Text = UTF16toUTF8(sMessageText);
 
   sStatusMsg.Format(_T("Getting address info of %s port %s"), sSmtpServer, CString(sServiceName));
   SetStatus(scn, sStatusMsg, 1);
@@ -249,7 +249,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   sMsg =  "--KkK170891tpbkKk__FV_KKKkkkjjwq\r\n";
   sMsg += "Content-Type: text/plain; charset=UTF-8\r\n";
   sMsg += "\r\n";  
-  sMsg += sUTF8Text;
+  sMsg += sUTF8Text.c_str();
   sMsg += "\r\n";
   res = SendMsg(sock, sMsg);
   if(res!=sMsg.GetLength())
@@ -338,16 +338,18 @@ int CSmtpClient::CheckAddressSyntax(CString addr)
 	return TRUE;
 }
 
-CStringA CSmtpClient::UTF16toUTF8(const CStringW& utf16)
+std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
 {
-   CStringA utf8;
+   std::string utf8;
    int len = WideCharToMultiByte(CP_UTF8, 0, utf16, -1, NULL, 0, 0, 0);
    if (len>1)
    { 
-      char *ptr = utf8.GetBuffer(len-1);
-      if (ptr) WideCharToMultiByte(CP_UTF8, 0, utf16, -1, ptr, len, 0, 0);
-      utf8.ReleaseBuffer();
+	  char* buf = new char[len+1];	  
+      WideCharToMultiByte(CP_UTF8, 0, utf16, -1, buf, len, 0, 0);
+      utf8 = buf;
+	  delete [] buf;
    }
+   
    return utf8;
 }
 

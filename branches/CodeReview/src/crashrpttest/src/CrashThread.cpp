@@ -20,7 +20,7 @@ DWORD WINAPI CrashThread(LPVOID pParam)
     {
       crUninstallFromCurrentThread();
       ResetEvent(pInfo->m_hWakeUpEvent);
-      return 1;  
+      break;
     }
   }
 

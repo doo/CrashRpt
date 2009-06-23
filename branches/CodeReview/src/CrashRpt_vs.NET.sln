@@ -7,6 +7,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashSender", "crashsender\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptTest", "crashrpttest\src\CrashRptTest_vs.NET.vcproj", "{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}"
+	ProjectSection(ProjectDependencies) = postProject
+		{759A0834-D412-4B85-9E1B-8EE191FF68DF} = {759A0834-D412-4B85-9E1B-8EE191FF68DF}
+		{939312D6-690A-4103-92C5-4D89025BF10A} = {939312D6-690A-4103-92C5-4D89025BF10A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crashcon", "crashcon\src\crashcon_vs.NET.vcproj", "{26D45404-F202-438D-80D5-E1B57B7A22E1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{759A0834-D412-4B85-9E1B-8EE191FF68DF} = {759A0834-D412-4B85-9E1B-8EE191FF68DF}
+		{939312D6-690A-4103-92C5-4D89025BF10A} = {939312D6-690A-4103-92C5-4D89025BF10A}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -21,6 +33,14 @@ Global
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Debug.Build.0 = Debug|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release.ActiveCfg = Release|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release.Build.0 = Release|Win32
+		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Debug.ActiveCfg = Debug|Win32
+		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Debug.Build.0 = Debug|Win32
+		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Release.ActiveCfg = Release|Win32
+		{97B22865-FFCE-4BD0-ABE5-3BE707B59B88}.Release.Build.0 = Release|Win32
+		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Debug.ActiveCfg = Debug|Win32
+		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Debug.Build.0 = Debug|Win32
+		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Release.ActiveCfg = Release|Win32
+		{26D45404-F202-438D-80D5-E1B57B7A22E1}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
