@@ -1307,9 +1307,10 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
   LPSTR lpszCrashInfo =  T2A(sCrashInfo.GetBuffer(0));
   
   DWORD dwBytesWritten = 0;
-  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, (DWORD)strlen(lpszCrashInfo), &dwBytesWritten, NULL);
+  DWORD dwLength = (DWORD)strlen(lpszCrashInfo);
+  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, dwLength, &dwBytesWritten, NULL);
   
-  if(!bWrite || (int)dwBytesWritten == strlen(lpszCrashInfo))
+  if(bWrite==FALSE || (int)dwBytesWritten == dwLength)
   {
     ATLASSERT(bWrite);
     ATLASSERT((int)dwBytesWritten == strlen(lpszCrashInfo));

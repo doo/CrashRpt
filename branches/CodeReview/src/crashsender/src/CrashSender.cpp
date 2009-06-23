@@ -206,7 +206,7 @@ GetCrashInfoThroughPipe(
   }
 
   // Read incoming data
-  CStringW data;
+  CStringA sDataA;
   for(;;)
   {
     DWORD dwBytesRead = 0;
@@ -214,11 +214,10 @@ GetCrashInfoThroughPipe(
     BOOL bRead = ReadFile(hPipe, buffer, 1024, &dwBytesRead, NULL);
     if(!bRead)
       break;
-    data += CStringW((wchar_t*)buffer, dwBytesRead/2);
+    sDataA += CStringA((char*)buffer, dwBytesRead);
   }
 
-  // Parse text
-  CStringA sDataA = CStringA(data);
+  // Parse text  
   int nParseResult = ParseCrashInfo(sDataA, sAppName, sImageName, 
     sSubject, sMailTo, sUrl, puPriorities, sZipName);
   if(nParseResult!=0)
