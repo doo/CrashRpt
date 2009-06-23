@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib "
-				OutputFile="..\..\CrashRptd.dll"
+				OutputFile="..\..\bin\CrashRptd.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/CrashRpt_vs.NET.pdb"

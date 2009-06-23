@@ -48,7 +48,7 @@ void CProgressDlg::Start()
 
 LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  WORD wTimerId = wParam;
+  WORD wTimerId = (WORD)wParam;
 
   if(wTimerId==0)
   {

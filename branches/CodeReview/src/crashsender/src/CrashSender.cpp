@@ -101,6 +101,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
   DeleteFile(sTempDir);
 
   BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
+  ATLASSERT(bCreateDir);
   
   TiXmlDocument doc;
   bool bLoad = doc.LoadFile(CStringA(sTempFileName));
