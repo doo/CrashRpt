@@ -84,7 +84,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 CrashRptd.lib /nologo /subsystem:windows /debug /machine:I386 /out:"../bin/Debug/CrashRptTest.exe" /pdbtype:sept /libpath:"..\..\lib"
+# ADD LINK32 CrashRptd.lib /nologo /subsystem:windows /debug /machine:I386 /out:"..\..\bin\CrashRptTest.exe" /pdbtype:sept /libpath:"..\..\lib"
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -103,6 +103,15 @@ PostBuild_Cmds=copy ..\..\crashrpt\bin\debug\crashrpt.dll ..\bin\debug	copy ..\.
 # Begin Source File
 
 SOURCE=.\CrashRptTest.cpp
+
+!IF  "$(CFG)" == "CrashRptTest - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "CrashRptTest - Win32 Debug"
+
+# ADD CPP /Yu
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
@@ -110,12 +119,24 @@ SOURCE=.\CrashRptTest.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\CrashRptTestDlg.cpp
+SOURCE=.\CrashThread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StdAfx.cpp
-# ADD CPP /Yc"stdafx.h"
+SOURCE=.\MainDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\stdafx.cpp
+
+!IF  "$(CFG)" == "CrashRptTest - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "CrashRptTest - Win32 Debug"
+
+# ADD CPP /Yc
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -127,7 +148,11 @@ SOURCE=.\CrashRptTest.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CrashRptTestDlg.h
+SOURCE=.\CrashThread.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MainDlg.h
 # End Source File
 # Begin Source File
 
@@ -141,14 +166,6 @@ SOURCE=.\StdAfx.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
-
-SOURCE=.\res\CrashRptTest.rc2
-# End Source File
-# Begin Source File
-
-SOURCE=.\icon1.ico
-# End Source File
 # End Group
 # End Target
 # End Project
