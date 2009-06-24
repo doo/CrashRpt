@@ -19,8 +19,13 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 }
 
 LRESULT CProgressDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{  
+{    
+ #if _MSC_VER>=1300
   AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+#else
+  ShowWindow(SW_HIDE);
+#endif
+
   return 0;
 }
 
@@ -42,8 +47,8 @@ void CProgressDlg::Start()
   SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
   FlashWindow(FALSE);
 
-  SetTimer(1, 3000, NULL);
-  SetTimer(0, 200, NULL);
+  SetTimer(1, 3000);
+  SetTimer(0, 200);
 }
 
 LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -71,7 +76,11 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
 
   if(wTimerId==1)
   {
+#if _MSC_VER>=1300
     AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+#else
+    ShowWindow(SW_HIDE);
+#endif
     KillTimer(1);
   }
 

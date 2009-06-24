@@ -1,7 +1,8 @@
 #include "stdafx.h"
 #include "httpsend.h"
 #include <wininet.h>
-#include <atlenc.h>
+#include <sys/stat.h>
+#include "base64.h"
 
 BOOL CHttpSender::Send(CString sURL, CString sFileName)
 { 
@@ -25,7 +26,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   BOOL bEncoded = FALSE;
   BOOL bResult = FALSE;
   char* chPOSTRequest = NULL;
-  CStringA sPOSTRequest;
+  std::string sPOSTRequest;
   char* szPrefix="crashrpt=\"";
   char* szSuffix="\"";
 
@@ -52,16 +53,16 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
 	  goto exit; // Couldn't connect
 	
   // Load file data into memory
-  res = _tstat(sFileName.GetBuffer(), &st);
+  res = _tstat(sFileName.GetBuffer(0), &st);
   if(res!=0)
     goto exit; // File not found
   
   uFileSize = st.st_size;
   uchFileData = new BYTE[uFileSize];
 #if _MSC_VER<1400
-  f = _tfopen(sFileName.GetBuffer(), _T("rb"));
+  f = _tfopen(sFileName.GetBuffer(0), _T("rb"));
 #else
-  _tfopen_s(&f, sFileName.GetBuffer(), _T("rb"));
+  _tfopen_s(&f, sFileName.GetBuffer(0), _T("rb"));
 #endif
   if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
   {
@@ -70,25 +71,27 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   fclose(f);
 
   // Encode file data using BASE64
-  dwFlags = ATL_BASE64_FLAG_NONE;
-  nEncodedFileDataLen = Base64EncodeGetRequiredLength(uFileSize, dwFlags);
-  int nPOSTRequestLen = nEncodedFileDataLen+(int)strlen(szPrefix)+(int)strlen(szSuffix);
+  //dwFlags = ATL_BASE64_FLAG_NONE;
+  //nEncodedFileDataLen = Base64EncodeGetRequiredLength(uFileSize, dwFlags);
+  //int nPOSTRequestLen = nEncodedFileDataLen+(int)strlen(szPrefix)+(int)strlen(szSuffix);
 
-  chPOSTRequest = new char[nPOSTRequestLen];    
-  memset(chPOSTRequest, 0, nPOSTRequestLen);
-
-  memcpy(chPOSTRequest, szPrefix, strlen(szPrefix));  
+  //chPOSTRequest = new char[nPOSTRequestLen];    
+  //memset(chPOSTRequest, 0, nPOSTRequestLen);
   
-  bEncoded = Base64Encode(uchFileData, uFileSize, chPOSTRequest+strlen(szPrefix), 
-                          &nEncodedFileDataLen, dwFlags);
-  if(!bEncoded)
-    goto exit;
+  //memcpy(chPOSTRequest, szPrefix, strlen(szPrefix));  
   
-  STRCPY_S(chPOSTRequest+strlen(szPrefix)+nEncodedFileDataLen, nPOSTRequestLen, szSuffix);
+  //bEncoded = Base64Encode(uchFileData, uFileSize, chPOSTRequest+strlen(szPrefix), 
+  //                        &nEncodedFileDataLen, dwFlags);
+  //if(!bEncoded)
+  //  goto exit;
+  
+  //STRCPY_S(chPOSTRequest+strlen(szPrefix)+nEncodedFileDataLen, nPOSTRequestLen, szSuffix);
 
-  sPOSTRequest = CStringA(chPOSTRequest, nPOSTRequestLen);
-  sPOSTRequest.Replace("+", "%2B");
-  sPOSTRequest.Replace("/", "%2F");
+  //sPOSTRequest = CStringA(chPOSTRequest, nPOSTRequestLen);
+  sPOSTRequest = base64_encode(uchFileData, uFileSize);
+  sPOSTRequest = szPrefix + sPOSTRequest + szSuffix;  
+  //sPOSTRequest.replace("+", "%2B");
+  //sPOSTRequest.replace("/", "%2F");
 
   // Send POST request
   hRequest = HttpOpenRequest(hConnect, _T("POST"),
@@ -97,7 +100,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
 	  return FALSE; // Coudn't open request	
 
   bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 
-    sPOSTRequest.GetBuffer(), sPOSTRequest.GetLength());
+    (void*)sPOSTRequest.c_str(), sPOSTRequest.length());
     
   if(bResult == FALSE)
 		return FALSE; // Couldn't send request

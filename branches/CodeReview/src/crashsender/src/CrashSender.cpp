@@ -13,11 +13,11 @@
 
 CAppModule _Module;
 
-int ParseCrashInfo(CStringA& text, CString& sAppName, CString& sImageName,
+int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sImageName,
   CString& sSubject, CString& sMailTo, CString& sUrl, UINT (*puPriorities)[3], CString& sZipName)
 {
   TiXmlDocument doc;
-  doc.Parse(text.GetBuffer());
+  doc.Parse(text);
   if(doc.Error())
     return 1;
 
@@ -103,8 +103,10 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
   BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
   ATLASSERT(bCreateDir);
   
+  LPSTR lpszTempFileName = T2A(sTempFileName.GetBuffer(0));
+
   TiXmlDocument doc;
-  bool bLoad = doc.LoadFile(CStringA(sTempFileName));
+  bool bLoad = doc.LoadFile(lpszTempFileName);
   if(!bLoad)
   {
     CloseZip(hz);
@@ -211,7 +213,7 @@ GetCrashInfoThroughPipe(
   }
 
   // Read incoming data
-  CStringA sDataA;
+  std::string sDataA;
   for(;;)
   {
     DWORD dwBytesRead = 0;
@@ -219,11 +221,11 @@ GetCrashInfoThroughPipe(
     BOOL bRead = ReadFile(hPipe, buffer, 1024, &dwBytesRead, NULL);
     if(!bRead)
       break;
-    sDataA += CStringA((char*)buffer, dwBytesRead);
+    sDataA += std::string((char*)buffer, dwBytesRead);
   }
 
   // Parse text  
-  int nParseResult = ParseCrashInfo(sDataA, sAppName, sImageName, 
+  int nParseResult = ParseCrashInfo(sDataA.c_str(), sAppName, sImageName, 
     sSubject, sMailTo, sUrl, puPriorities, sZipName);
   if(nParseResult!=0)
   {

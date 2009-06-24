@@ -10,7 +10,6 @@
 
 #include "stdafx.h"
 #include "MailMsg.h"
-#include <atltypes.h>
 
 CMailMsg::CMailMsg()
 {
@@ -32,27 +31,27 @@ CMailMsg::~CMailMsg()
 
 void CMailMsg::SetFrom(CString sAddress)
 {  
-  m_from = CStringA(sAddress).GetBuffer();  
+  m_from = sAddress;
 }
 
 void CMailMsg::SetTo(CString sAddress)
 {
-  m_to = CStringA(sAddress).GetBuffer();
+  m_to = sAddress;
 }
 
 void CMailMsg::SetSubject(CString sSubject)
 {
-  m_sSubject = CStringA(sSubject).GetBuffer();   
+  m_sSubject = sSubject;
 }
 
 void CMailMsg::SetMessage(CString sMessage) 
 {
-  m_sMessage = CStringA(sMessage).GetBuffer(); 
+  m_sMessage = sMessage;
 };
 
 void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
 {
-  m_attachments[CStringA(sAttachment).GetBuffer()] = CStringA(sTitle).GetBuffer();  
+  m_attachments[sAttachment.GetBuffer(0)] = sTitle.GetBuffer(0);  
 }
 
 BOOL CMailMsg::MAPIInitialize()

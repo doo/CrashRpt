@@ -3,11 +3,11 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include <windows.h>
 #include "resource.h"
 #include "MainDlg.h"
 #include "Utility.h"
 #include "tinyxml.h"
-#include <atlstr.h>
 #include "zip.h"
 #include "unzip.h"
 
@@ -155,7 +155,7 @@ LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
   CString sHeading;
   sHeading.Format(_T("%s has stopped working"), m_sAppName);
   dc.SelectFont(m_HeadingFont);
-  dc.DrawTextEx(sHeading.GetBuffer(), sHeading.GetLength(), &rcHeading, 
+  dc.DrawTextEx(sHeading.GetBuffer(0), sHeading.GetLength(), &rcHeading, 
     DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
 
   if(m_HeadingIcon)
@@ -257,7 +257,7 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
   CreateTrayIcon(true, m_hWnd);
   m_dlgProgress.m_pctx = &m_ctx;
   m_dlgProgress.Start();    
-  SetTimer(0, 500, NULL);
+  SetTimer(0, 500);
     
   return 0;
 }
@@ -303,7 +303,7 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* email = new TiXmlElement("UserEmail");
       root->LinkEndChild(email);
 
-      TiXmlText* email_text = new TiXmlText(CStringA(sEmail));
+      TiXmlText* email_text = new TiXmlText(sEmail);
       email->LinkEndChild(email_text);              
 
       // Write problem description
@@ -311,13 +311,13 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* desc = new TiXmlElement("ProblemDescription");
       root->LinkEndChild(desc);
 
-      TiXmlText* desc_text = new TiXmlText(CStringA(sDesc));
+      TiXmlText* desc_text = new TiXmlText(sDesc);
       desc->LinkEndChild(desc_text);              
 
       doc.SaveFile();      
     }
 
-	LPTSTR lptszFilePath = A2T(cur->first.c_str());
+	LPTSTR lptszFilePath = A2T((char*)cur->first.c_str());
     ZRESULT zr = ZipAdd(hz, sFileName, lptszFilePath);
     ATLASSERT(zr==ZR_OK);      
   }  
@@ -349,7 +349,9 @@ int CMainDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 	{
 		nf.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
 		nf.uCallbackMessage = WM_TRAYICON;
+#if _MSC_VER>=1300		
 		nf.uVersion = NOTIFYICON_VERSION;
+#endif
 
 		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
 	  _TCSCPY_S(nf.szTip, 128, _T("Sending Error Report"));
@@ -370,8 +372,12 @@ LRESULT CMainDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BO
 
 	if(uMouseMsg==WM_LBUTTONDBLCLK)
 	{
+#if _MSC_VER>=1300
     AnimateWindow(m_dlgProgress, 200, AW_BLEND); 
-		SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);		
+#else
+	ShowWindow(SW_SHOW);
+#endif
+	SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);		
     m_dlgProgress.SetFocus();
 	}	
   return 0;

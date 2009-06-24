@@ -58,7 +58,7 @@ protected:
   static int SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce=0, UINT uResponceSize=0);
 
   static int Base64EncodeAttachment(CString sFileName, 
-    LPBYTE* ppEncodedFileData, int& nEncodedFileDataLen);
+	  std::string& sEncodedFileData);
 
   static std::string UTF16toUTF8(LPCWSTR utf16);
 
