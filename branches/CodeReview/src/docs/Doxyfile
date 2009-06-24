@@ -145,7 +145,7 @@ VERBATIM_HEADERS       = NO
 #---------------------------------------------------------------------------
 ALPHABETICAL_INDEX     = NO
 COLS_IN_ALPHA_INDEX    = 5
-IGNORE_PREFIX          = cr
+IGNORE_PREFIX          = cr CR_
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
@@ -226,7 +226,7 @@ EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
-PREDEFINED             =                          
+PREDEFINED             = CRASHRPTAPI                         
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------

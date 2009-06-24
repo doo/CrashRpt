@@ -343,7 +343,7 @@ CRASHRPTAPI int crGenerateErrorReport(
   return pCrashHandler->GenerateErrorReport(pExceptionInfo);  
 }
 
-CRASHRPTAPI int crGetLastErrorMsgW(PWSTR pszBuffer, UINT uBuffSize)
+CRASHRPTAPI int crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
 {
   if(pszBuffer==NULL)
     return -1; // Null pointer to buffer
@@ -373,7 +373,7 @@ CRASHRPTAPI int crGetLastErrorMsgW(PWSTR pszBuffer, UINT uBuffSize)
   return size;
 }
 
-CRASHRPTAPI int crGetLastErrorMsgA(PSTR pszBuffer, UINT uBuffSize)
+CRASHRPTAPI int crGetLastErrorMsgA(LPSTR pszBuffer, UINT uBuffSize)
 {  
   if(pszBuffer==NULL)
     return -1;
