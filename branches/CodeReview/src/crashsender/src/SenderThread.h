@@ -19,6 +19,6 @@ struct SenderThreadContext
   UINT m_uPriorities[3];
 };
 
-BOOL GetSenderThreadStatus(SenderThreadContext* pc, int& nProgressPct, std::vector<CString>& msg_log);
+BOOL GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log);
 DWORD WINAPI SenderThread(LPVOID lpParam);
 

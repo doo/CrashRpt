@@ -9,7 +9,7 @@ CEmailMessage msg;
 SmtpClientNotification scn;
 CSmtpClient smtp;  
 
-BOOL GetSenderThreadStatus(SenderThreadContext* pc, int& nProgressPct, std::vector<CString>& msg_log)
+BOOL GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
   if(stage==2)
   {

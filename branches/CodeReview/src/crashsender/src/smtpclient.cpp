@@ -434,7 +434,7 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
 #if _MSC_VER<1400
   f = fopen(lpszFileNameA, "rb");
 #else
-  errno_t err = _tfopen_s(&f, sFileName, _T("rb"));  
+  /*errno_t err = */_tfopen_s(&f, sFileName, _T("rb"));  
 #endif 
 
   if(!f || fread(uchFileData, uFileSize, 1, f)!=1)

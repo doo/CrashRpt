@@ -60,7 +60,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
     int nProgressPct = 0;
     std::vector<CString> messages;
 
-    GetSenderThreadStatus(m_pctx, nProgressPct, messages);
+    GetSenderThreadStatus(nProgressPct, messages);
     
     m_prgProgress.SetPos(nProgressPct);
 
