@@ -135,6 +135,13 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* s
 
   return 1;
 }
+#else
+int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* scn, 
+                                   std::map<WORD, CString>& host_list)
+{
+	return 1;
+}
+
 #endif
 
 int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, SmtpClientNotification* scn)
@@ -388,7 +395,7 @@ int CSmtpClient::SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce, UIN
 
   int msg_len = (int)_tcslen(pszMessage);
 
-  LPSTR lpszMessageA = T2A(pszMessage);
+  LPSTR lpszMessageA = T2A((TCHAR*)pszMessage);
   
   int res = send(sock, lpszMessageA, msg_len, 0);	
 	if(pszResponce==NULL) 

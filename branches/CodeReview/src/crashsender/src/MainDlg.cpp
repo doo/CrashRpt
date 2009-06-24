@@ -303,7 +303,7 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* email = new TiXmlElement("UserEmail");
       root->LinkEndChild(email);
 
-      LPSTR lpszEmail = T2A(sEmail);
+      LPSTR lpszEmail = T2A(sEmail.GetBuffer(0));
       TiXmlText* email_text = new TiXmlText(lpszEmail);
       email->LinkEndChild(email_text);              
 
@@ -312,7 +312,7 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* desc = new TiXmlElement("ProblemDescription");
       root->LinkEndChild(desc);
 
-      LPSTR lpszDesc = T2A(sDesc);
+      LPSTR lpszDesc = T2A(sDesc.GetBuffer(0));
       TiXmlText* desc_text = new TiXmlText(lpszDesc);
       desc->LinkEndChild(desc_text);              
 

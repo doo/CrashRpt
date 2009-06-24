@@ -32,36 +32,36 @@ CMailMsg::~CMailMsg()
 void CMailMsg::SetFrom(CString sAddress)
 {  
   USES_CONVERSION;
-  LPSTR lpszAddress = T2A(sAddress);
+  LPSTR lpszAddress = T2A(sAddress.GetBuffer(0));
   m_from = lpszAddress;
 }
 
 void CMailMsg::SetTo(CString sAddress)
 {
   USES_CONVERSION;
-  LPSTR lpszAddress = T2A(sAddress);
+  LPSTR lpszAddress = T2A(sAddress.GetBuffer(0));
   m_to = lpszAddress;
 }
 
 void CMailMsg::SetSubject(CString sSubject)
 {
   USES_CONVERSION;
-  LPSTR lpszSubject = T2A(sSubject);
+  LPSTR lpszSubject = T2A(sSubject.GetBuffer(0));
   m_sSubject = lpszSubject;
 }
 
 void CMailMsg::SetMessage(CString sMessage) 
 {
   USES_CONVERSION;
-  LPSTR lpszMessage = T2A(sMessage);
+  LPSTR lpszMessage = T2A(sMessage.GetBuffer(0));
   m_sMessage = lpszMessage;
 };
 
 void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
 {
   USES_CONVERSION;
-  LPSTR lpszAttachment = T2A(sAttachment);
-  LPSTR lpszTitle = T2A(sTitle);
+  LPSTR lpszAttachment = T2A(sAttachment.GetBuffer(0));
+  LPSTR lpszTitle = T2A(sTitle.GetBuffer(0));
   m_attachments[lpszAttachment] = lpszTitle;  
 }
 
