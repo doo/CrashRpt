@@ -97,7 +97,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
 	  return FALSE; // Coudn't open request	
 
   bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 
-    (void*)sPOSTRequest.c_str(), sPOSTRequest.length());
+    (void*)sPOSTRequest.c_str(), (DWORD)sPOSTRequest.length());
     
   if(bResult == FALSE)
 		return FALSE; // Couldn't send request

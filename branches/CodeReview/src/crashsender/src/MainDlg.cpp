@@ -321,7 +321,8 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 
 	LPTSTR lptszFilePath = A2T((char*)cur->first.c_str());
     ZRESULT zr = ZipAdd(hz, sFileName, lptszFilePath);
-    ATLASSERT(zr==ZR_OK);      
+    ATLASSERT(zr==ZR_OK); 
+	zr;
   }  
 
   CloseZip(hz);

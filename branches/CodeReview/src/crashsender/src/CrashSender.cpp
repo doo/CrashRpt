@@ -102,6 +102,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
 
   BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
   ATLASSERT(bCreateDir);
+  bCreateDir;
   
   LPSTR lpszTempFileName = T2A(sTempFileName.GetBuffer(0));
 
