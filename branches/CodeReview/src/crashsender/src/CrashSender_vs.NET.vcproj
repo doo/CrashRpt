@@ -140,6 +140,9 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
 			<File
+				RelativePath=".\base64.cpp">
+			</File>
+			<File
 				RelativePath=".\CrashSender.cpp">
 			</File>
 			<File
@@ -286,6 +289,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
+			<File
+				RelativePath=".\base64.h">
+			</File>
 			<File
 				RelativePath=".\DetailDlg.h">
 			</File>

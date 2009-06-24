@@ -3,13 +3,16 @@
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-//#include <iphlpapi.h>
-//#include <Windns.h>
-//#include <atlenc.h>
-#include <Ws2tcpip.h>
-//#include <Wspiapi.h>
 #include <sys/stat.h>
 #include "base64.h"
+
+#if _MSC_VER>=1300
+#include <iphlpapi.h>
+#include <Windns.h>
+#else
+#include <Ws2tcpip.h>
+#endif
+
 
 CSmtpClient::CSmtpClient()
 {
@@ -97,10 +100,11 @@ int CSmtpClient::_SendEmail(CEmailMessage* msg, SmtpClientNotification* scn)
   return 1;
 }
 
+#if _MSC_VER>=1300
 int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* scn, 
                                    std::map<WORD, CString>& host_list)
 {
-  /*DNS_RECORD *apResult = NULL;
+  DNS_RECORD *apResult = NULL;
 
   CString sServer;
   sServer = msg->m_sTo.Mid(msg->m_sTo.Find('@')+1);
@@ -127,10 +131,11 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* s
     }
 
     return 0;
-  } */
+  }
 
   return 1;
 }
+#endif
 
 int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, SmtpClientNotification* scn)
 {
@@ -155,16 +160,16 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   CString sMessageText = msg->m_sText;
   sMessageText.Replace(_T("\n"),_T("\r\n"));
   sMessageText.Replace(_T("\r\n.\r\n"),_T("\r\n*\r\n"));
-  LPWSTR lpwszMessageText = T2W(sMessageText);
+  LPWSTR lpwszMessageText = T2W(sMessageText.GetBuffer(0));
   std::string sUTF8Text = UTF16toUTF8(lpwszMessageText);
 
   sStatusMsg.Format(_T("Getting address info of %s port %s"), sSmtpServer, CString(sServiceName));
   SetStatus(scn, sStatusMsg, 1);
 
   int res = SOCKET_ERROR;
-  LPSTR lpszSubject = NULL;
-  LPSTR lpszFrom = NULL;
-  LPSTR lpszTo = NULL;
+  //LPSTR lpszSubject = NULL;
+  //LPSTR lpszFrom = NULL;
+  //LPSTR lpszTo = NULL;
   char buf[1024]="";
   std::string sEncodedFileData;
 
@@ -174,7 +179,9 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_protocol = IPPROTO_TCP;  
 
-  iResult = getaddrinfo(CStringA(sSmtpServer), sServiceName, &hints, &result);
+  LPSTR lpszSmtpServer = T2A(sSmtpServer);
+  LPSTR lpszServiceName = T2A(sServiceName);
+  iResult = getaddrinfo(lpszSmtpServer, lpszServiceName, &hints, &result);
   if(iResult!=0)
     goto exit;
   
@@ -218,21 +225,21 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   SetStatus(scn, sStatusMsg, 1);
 
   // send HELO
-	res=SendMsg(sock, "HELO CrashSender\r\n", responce, 1024);
+	res=SendMsg(sock, _T("HELO CrashSender\r\n"), responce, 1024);
   if(res!=250)
     goto exit;
 	
   sStatusMsg.Format(_T("Sending sender and recipient information"));
   SetStatus(scn, sStatusMsg, 1);
 
-  lpszFrom = T2A(msg->m_sFrom.GetBuffer(0));
-  sMsg.Format("MAIL FROM:<%s>\r\n", lpszFrom);
+  //lpszFrom = T2A(msg->m_sFrom.GetBuffer(0));
+  sMsg.Format(_T("MAIL FROM:<%s>\r\n"), msg->m_sFrom);
   res=SendMsg(sock, sMsg, responce, 1024);
   if(res!=250)
     goto exit;
 	
-  lpszTo = T2A(msg->m_sTo.GetBuffer(0));
-  sMsg.Format("RCPT TO:<%s>\r\n", lpszTo);
+  //lpszTo = T2A(msg->m_sTo.GetBuffer(0));
+  sMsg.Format(_T("RCPT TO:<%s>\r\n"), msg->m_sTo);
   res=SendMsg(sock, sMsg, responce, 1024);
   if(res!=250)
   {
@@ -243,16 +250,16 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   SetStatus(scn, sStatusMsg, 1);
 
   // Send DATA
-  res=SendMsg(sock, "DATA\r\n", responce, 1024);
+  res=SendMsg(sock, _T("DATA\r\n"), responce, 1024);
   if(res!=354)
     goto exit;
     
 
-  str.Format("From: <%s>\r\n", lpszFrom);
+  str.Format(_T("From: <%s>\r\n"), msg->m_sFrom);
   sMsg  = str;
-  str.Format("To: <%s>\r\n", lpszTo);
+  str.Format(_T("To: <%s>\r\n"), msg->m_sTo);
   sMsg += str;
-  str.Format("Subject: %s\r\n", lpszSubject);
+  str.Format(_T("Subject: %s\r\n"), msg->m_sSubject);
   sMsg += str;
   sMsg += "MIME-Version: 1.0\r\n";
   sMsg += "Content-Type: multipart/mixed; boundary=KkK170891tpbkKk__FV_KKKkkkjjwq\r\n";
@@ -299,7 +306,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   
     // Encode data
     LPBYTE buf = NULL;
-    int buf_len = 0;
+    //int buf_len = 0;
     int nEncode=Base64EncodeAttachment(sFileName, sEncodedFileData);
     if(nEncode!=0)
     {
@@ -309,7 +316,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     }
 
     // Send encoded data
-    sMsg = CString((char*)buf, buf_len);        
+    sMsg = sEncodedFileData.c_str();        
     res = SendMsg(sock, sMsg);
     if(res!=sMsg.GetLength())
       goto exit;
@@ -323,11 +330,11 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     goto exit;
 
   // End of message marker
-	if(250!=SendMsg(sock, "\r\n.\r\n", responce, 1024))
+	if(250!=SendMsg(sock, _T("\r\n.\r\n"), responce, 1024))
     goto exit;
 
 	// quit
-	if(221!=SendMsg(sock, "QUIT \r\n", responce, 1024))
+	if(221!=SendMsg(sock, _T("QUIT \r\n"), responce, 1024))
     goto exit;
 
   // OK.
@@ -375,11 +382,15 @@ std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
    return utf8;
 }
 
-int CSmtpClient::SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce, UINT uResponceSize)
+int CSmtpClient::SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce, UINT uResponceSize)
 {	
-  int msg_len = (int)strlen(pszMessage);
+  USES_CONVERSION;
 
-  int res = send(sock, pszMessage, msg_len, 0);	
+  int msg_len = (int)_tcslen(pszMessage);
+
+  LPSTR lpszMessageA = T2A(pszMessage);
+  
+  int res = send(sock, lpszMessageA, msg_len, 0);	
 	if(pszResponce==NULL) 
     return res;
 
@@ -396,9 +407,8 @@ int CSmtpClient::SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce, UINT u
 int CSmtpClient::Base64EncodeAttachment(CString sFileName, 
 										std::string& sEncodedFileData)
 {
-  //*ppEncodedFileData = NULL;
-  //nEncodedFileDataLen = 0;
-
+  USES_CONVERSION;
+  
   int uFileSize = 0;
   BYTE* uchFileData = NULL;  
   struct _stat st;
@@ -417,7 +427,7 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
 #if _MSC_VER<1400
   f = fopen(lpszFileNameA, "rb");
 #else
-  errno_t err = fopen_s(&f, sFileNameA, "rb");  
+  errno_t err = _tfopen_s(&f, sFileName, _T("rb"));  
 #endif 
 
   if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
@@ -428,29 +438,10 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
   }
   
   fclose(f);
-
   
-  //DWORD dwFlags = ATL_BASE64_FLAG_NONE;
-  //int nEncodedLen = Base64EncodeGetRequiredLength(uFileSize, dwFlags);
-
-  // Allocate buffer for encoded file data
-  //char* pchEncodedFileData = new char[nEncodedLen];    
-
-  // Encode file data
-  //BOOL bEncoded = Base64Encode(uchFileData, uFileSize, pchEncodedFileData, 
-  //    &nEncodedLen, dwFlags);
-  //if(!bEncoded)
-  //{
-  //  delete [] pchEncodedFileData;
-  //  return 3; // Couldn't BASE64 encode    
-  //}
-
   sEncodedFileData = base64_encode(uchFileData, uFileSize);
 
   delete [] uchFileData;
-
-  //*ppEncodedFileData = (LPBYTE)pchEncodedFileData;
-  //nEncodedFileDataLen = nEncodedLen;
 
   // OK.
   return 0;

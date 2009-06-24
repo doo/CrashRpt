@@ -31,27 +31,38 @@ CMailMsg::~CMailMsg()
 
 void CMailMsg::SetFrom(CString sAddress)
 {  
-  m_from = sAddress;
+  USES_CONVERSION;
+  LPSTR lpszAddress = T2A(sAddress);
+  m_from = lpszAddress;
 }
 
 void CMailMsg::SetTo(CString sAddress)
 {
-  m_to = sAddress;
+  USES_CONVERSION;
+  LPSTR lpszAddress = T2A(sAddress);
+  m_to = lpszAddress;
 }
 
 void CMailMsg::SetSubject(CString sSubject)
 {
-  m_sSubject = sSubject;
+  USES_CONVERSION;
+  LPSTR lpszSubject = T2A(sSubject);
+  m_sSubject = lpszSubject;
 }
 
 void CMailMsg::SetMessage(CString sMessage) 
 {
-  m_sMessage = sMessage;
+  USES_CONVERSION;
+  LPSTR lpszMessage = T2A(sMessage);
+  m_sMessage = lpszMessage;
 };
 
 void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
 {
-  m_attachments[sAttachment.GetBuffer(0)] = sTitle.GetBuffer(0);  
+  USES_CONVERSION;
+  LPSTR lpszAttachment = T2A(sAttachment);
+  LPSTR lpszTitle = T2A(sTitle);
+  m_attachments[lpszAttachment] = lpszTitle;  
 }
 
 BOOL CMailMsg::MAPIInitialize()

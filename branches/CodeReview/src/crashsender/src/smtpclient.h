@@ -55,7 +55,7 @@ protected:
   
   static int CheckAddressSyntax(CString addr);
   
-  static int SendMsg(SOCKET sock, PCSTR pszMessage, PSTR pszResponce=0, UINT uResponceSize=0);
+  static int SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce=0, UINT uResponceSize=0);
 
   static int Base64EncodeAttachment(CString sFileName, 
 	  std::string& sEncodedFileData);

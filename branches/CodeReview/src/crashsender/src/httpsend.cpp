@@ -3,6 +3,21 @@
 #include <wininet.h>
 #include <sys/stat.h>
 #include "base64.h"
+#include <string>
+
+void _str_replace(std::string& str, char* charToReplace, char* strToInsert)
+{  
+  size_t found;
+
+  size_t len = strlen(strToInsert);
+
+  found=str.find_first_of(charToReplace);
+  while (found!=std::string::npos)
+  {
+    str.replace(found, 1, strToInsert);
+    found=str.find_first_of(charToReplace, found+len);
+  }  
+}
 
 BOOL CHttpSender::Send(CString sURL, CString sFileName)
 { 
@@ -11,7 +26,7 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
 	LPCTSTR accept[2]={_T("*/*"), NULL};
   int uFileSize = 0;
   BYTE* uchFileData = NULL;
-  int nEncodedFileDataLen = 0;  
+  //int nEncodedFileDataLen = 0;  
   HINTERNET hSession = NULL;
   HINTERNET hConnect = NULL;
   HINTERNET hRequest = NULL;
@@ -22,8 +37,8 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   struct _stat st;
   int res = -1;
   FILE* f = NULL;
-  DWORD dwFlags = 0;
-  BOOL bEncoded = FALSE;
+  //DWORD dwFlags = 0;
+  //BOOL bEncoded = FALSE;
   BOOL bResult = FALSE;
   char* chPOSTRequest = NULL;
   std::string sPOSTRequest;
@@ -70,29 +85,11 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   }
   fclose(f);
 
-  // Encode file data using BASE64
-  //dwFlags = ATL_BASE64_FLAG_NONE;
-  //nEncodedFileDataLen = Base64EncodeGetRequiredLength(uFileSize, dwFlags);
-  //int nPOSTRequestLen = nEncodedFileDataLen+(int)strlen(szPrefix)+(int)strlen(szSuffix);
-
-  //chPOSTRequest = new char[nPOSTRequestLen];    
-  //memset(chPOSTRequest, 0, nPOSTRequestLen);
-  
-  //memcpy(chPOSTRequest, szPrefix, strlen(szPrefix));  
-  
-  //bEncoded = Base64Encode(uchFileData, uFileSize, chPOSTRequest+strlen(szPrefix), 
-  //                        &nEncodedFileDataLen, dwFlags);
-  //if(!bEncoded)
-  //  goto exit;
-  
-  //STRCPY_S(chPOSTRequest+strlen(szPrefix)+nEncodedFileDataLen, nPOSTRequestLen, szSuffix);
-
-  //sPOSTRequest = CStringA(chPOSTRequest, nPOSTRequestLen);
   sPOSTRequest = base64_encode(uchFileData, uFileSize);
   sPOSTRequest = szPrefix + sPOSTRequest + szSuffix;  
-  //sPOSTRequest.replace("+", "%2B");
-  //sPOSTRequest.replace("/", "%2F");
-
+  _str_replace(sPOSTRequest, "+", "%2B");
+  _str_replace(sPOSTRequest, "/", "%2F");
+  
   // Send POST request
   hRequest = HttpOpenRequest(hConnect, _T("POST"),
 		                         szURI, NULL, NULL, accept, 0, 1);	
@@ -138,6 +135,10 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
                            LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, 
                            LPTSTR szURI, UINT cbURI)
 {  
+	cbURI;
+	cbAddress;
+	cbProtocol;
+
 	//TCHAR szPort[256]=_T("");
 	DWORD dwPosition=0;
 	BOOL bFlag=FALSE;
