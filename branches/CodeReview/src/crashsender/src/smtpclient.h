@@ -20,13 +20,15 @@ struct SmtpClientNotification
   SmtpClientNotification()
   {
     m_nCompletionStatus = -1;    
-    m_hEvent = NULL;
+    m_hCompletionEvent = NULL;
+    m_hCancelEvent = NULL;
     m_nPercentCompleted = 0;
   }
 
   CComAutoCriticalSection m_cs;
   int m_nCompletionStatus;
-  HANDLE m_hEvent;
+  HANDLE m_hCompletionEvent;
+  HANDLE m_hCancelEvent;
   int m_nPercentCompleted;
   std::vector<CString> m_statusLog;
 };
@@ -55,12 +57,16 @@ protected:
   
   static int CheckAddressSyntax(CString addr);
   
-  static int SendMsg(SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce=0, UINT uResponceSize=0);
+  static int SendMsg(SmtpClientNotification*, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce=0, UINT uResponceSize=0);
+
+  static int CheckAttachmentOK(CString sFileName);
 
   static int Base64EncodeAttachment(CString sFileName, 
 	  std::string& sEncodedFileData);
 
   static std::string UTF16toUTF8(LPCWSTR utf16);
+
+  static bool IsUserCancelled(SmtpClientNotification* scn);
 
   static void SetStatus(SmtpClientNotification* scn, CString sStatusMsg, 
     int percentCompleted, bool bRelative=true);

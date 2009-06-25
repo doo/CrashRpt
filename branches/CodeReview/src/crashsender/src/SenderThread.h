@@ -20,5 +20,7 @@ struct SenderThreadContext
 };
 
 BOOL GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log);
+void CancelSenderThread();
+//BOOL IsSenderThreadCancelled();
 DWORD WINAPI SenderThread(LPVOID lpParam);
 

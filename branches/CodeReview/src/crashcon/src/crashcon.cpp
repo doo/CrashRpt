@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 #ifdef _DEBUG
      __try
      {
-        RaiseException(EXCEPTION_ACCESS_VIOLATION, 0, 0, NULL);
+        RaiseException(123, EXCEPTION_NONCONTINUABLE, 0, NULL);
      } 
      __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
      {

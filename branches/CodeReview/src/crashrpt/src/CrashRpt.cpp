@@ -419,14 +419,14 @@ CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS*
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);  
-  ei.exctype = CR_WIN32_UNHANDLED_EXCEPTION;
+  ei.exctype = CR_CPP_SEH;
   ei.pexcptrs = ep;
+  ei.code = code;
 
-  int nGenerate = pCrashHandler->GenerateErrorReport(&ei);
-  if(!nGenerate)
-    return EXCEPTION_CONTINUE_SEARCH;
-    
-  return EXCEPTION_EXECUTE_HANDLER;
+  pCrashHandler->GenerateErrorReport(&ei);
+  
+  // If goes here than GenerateErrorReport() failed
+  return EXCEPTION_CONTINUE_SEARCH;  
 }
 
 //-----------------------------------------------------------------------------------------------

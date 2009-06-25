@@ -9,8 +9,17 @@ CEmailMessage msg;
 SmtpClientNotification scn;
 CSmtpClient smtp;  
 
+HttpSendParams hp;
+CHttpSender http;
+
+CMailMsg mailmsg;
+
 BOOL GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
+  if(stage==1)
+  {
+  }
+
   if(stage==2)
   {
     scn.m_cs.Lock();
@@ -23,10 +32,20 @@ BOOL GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log)
   return FALSE;
 }
 
+void CancelSenderThread()
+{
+  SetEvent(scn.m_hCancelEvent);
+}
+
 BOOL SendOverHTTP(SenderThreadContext* pc)
 {
+  stage = 1;
+
+  hp.m_sFileName = pc->m_sZipName;
+  hp.m_sURL = pc->m_sUrl;
+  
   CHttpSender httpsender;
-  BOOL bSend = httpsender.Send(pc->m_sUrl, pc->m_sZipName);
+  BOOL bSend = httpsender.SendAssync(&hp);
   return bSend;
 }
 
@@ -48,7 +67,8 @@ BOOL SendOverSMTP(SenderThreadContext* pc, SmtpClientNotification* pscn)
 
 BOOL SendOverSMAPI(SenderThreadContext* pc)
 {
-  CMailMsg mailmsg;
+  stage = 3;
+  
   mailmsg.SetFrom(pc->m_sEmailFrom);
   mailmsg.SetTo(pc->m_sEmailTo);
   mailmsg.SetSubject(pc->m_sEmailSubject);
@@ -68,10 +88,28 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 {
   SenderThreadContext* pc = (SenderThreadContext*)lpParam;
   
-  scn.m_hEvent = CreateEvent(0, FALSE, FALSE, 0);
-  SendOverSMTP(pc, &scn);  
+  scn.m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
+  scn.m_hCancelEvent = CreateEvent(0, FALSE, FALSE, 0);
 
-  WaitForSingleObject(scn.m_hEvent, INFINITE);
+  hp.m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
+
+  /*SendOverHTTP(pc);  
+  WaitForSingleObject(hp.m_hCompletionEvent, INFINITE);
+
+  if(hp.m_nCompletionStatus==0)
+    goto exit;
+
+  SendOverSMTP(pc, &scn);  
+  WaitForSingleObject(scn.m_hCompletionEvent, INFINITE);
+
+  if(scn.m_nCompletionStatus==0)
+    goto exit;*/
+
+  BOOL bMAPIInit = mailmsg.MAPIInitialize();
+  
+  BOOL bSend = SendOverSMAPI(pc);
+
+exit:
 
   return 0;
 }

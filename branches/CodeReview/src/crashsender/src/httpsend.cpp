@@ -5,7 +5,7 @@
 #include "base64.h"
 #include <string>
 
-void _str_replace(std::string& str, char* charToReplace, char* strToInsert)
+void CHttpSender::_str_replace(std::string& str, char* charToReplace, char* strToInsert)
 {  
   size_t found;
 
@@ -19,14 +19,39 @@ void _str_replace(std::string& str, char* charToReplace, char* strToInsert)
   }  
 }
 
-BOOL CHttpSender::Send(CString sURL, CString sFileName)
+BOOL CHttpSender::SendAssync(HttpSendParams* params)
+{
+  DWORD dwThreadId = 0;
+  
+  ResetEvent(params->m_hCompletionEvent);
+
+  HANDLE hThread = CreateThread(NULL, 0, HttpSendThread, (void*)params, 0, &dwThreadId);
+  if(hThread==NULL)
+    return FALSE;
+
+  return TRUE;
+}
+
+DWORD WINAPI CHttpSender::HttpSendThread(VOID* pParam)
+{
+  HttpSendParams* params = (HttpSendParams*)pParam;
+   
+  int nResult = _Send(params->m_sURL, params->m_sFileName);
+
+  params->m_nCompletionStatus = nResult;  
+
+  SetEvent(params->m_hCompletionEvent);
+
+  return nResult;
+}
+
+BOOL CHttpSender::_Send(CString sURL, CString sFileName)
 { 
   BOOL bStatus = FALSE;
 	TCHAR* hdrs = _T("Content-Type: application/x-www-form-urlencoded");
 	LPCTSTR accept[2]={_T("*/*"), NULL};
   int uFileSize = 0;
   BYTE* uchFileData = NULL;
-  //int nEncodedFileDataLen = 0;  
   HINTERNET hSession = NULL;
   HINTERNET hConnect = NULL;
   HINTERNET hRequest = NULL;
@@ -37,8 +62,6 @@ BOOL CHttpSender::Send(CString sURL, CString sFileName)
   struct _stat st;
   int res = -1;
   FILE* f = NULL;
-  //DWORD dwFlags = 0;
-  //BOOL bEncoded = FALSE;
   BOOL bResult = FALSE;
   char* chPOSTRequest = NULL;
   std::string sPOSTRequest;
@@ -138,8 +161,7 @@ void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
 	cbURI;
 	cbAddress;
 	cbProtocol;
-
-	//TCHAR szPort[256]=_T("");
+	
 	DWORD dwPosition=0;
 	BOOL bFlag=FALSE;
 

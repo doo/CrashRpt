@@ -265,7 +265,7 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL&
 
 LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0)
+  if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0 )
   {
     KillTimer(0);
     //CloseDialog(0);    

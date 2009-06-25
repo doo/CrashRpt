@@ -685,22 +685,6 @@ int CCrashHandler::SetProcessCPPExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
 
-  // Set CRT error mode
-  // Write exception info to file
-  HANDLE hLogFile = NULL;
-  hLogFile = CreateFile(_T("crterror.log"), GENERIC_WRITE, FILE_SHARE_WRITE, 
-      NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-  if(hLogFile==NULL)
-  {
-    ATLASSERT(hLogFile!=NULL);
-    crSetErrorMsg(_T("Couldn't create CRT log file."));
-    return 1;
-  }
-
-  _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
-  _CrtSetReportFile(_CRT_ERROR, hLogFile);
-
-
 #if _MSC_VER>=1300
   // Catch pure virtual function calls.
   // Because there is one _purecall_handler for the whole process, 
@@ -1053,6 +1037,18 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   TiXmlText* exc_type_text = new TiXmlText(lpszExcType);
   exc_type->LinkEndChild(exc_type_text);
 
+  if(pExceptionInfo->exctype==CR_CPP_SEH)
+  {
+    // Write SEH exception code
+    CString sSEHCode;
+    sSEHCode.Format(_T("%d"), pExceptionInfo->code);    
+    TiXmlElement* sehcode = new TiXmlElement("SEHCode");
+    root->LinkEndChild(sehcode);  
+	  LPSTR lpszSEHCode = T2A(sSEHCode.GetBuffer(0));
+    TiXmlText* sehcode_text = new TiXmlText(lpszSEHCode);
+    sehcode->LinkEndChild(sehcode_text);
+  }
+
   if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
   {
     // Write FPE exception subcode
@@ -1060,12 +1056,12 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     sFpeSubcode.Format(_T("%d"), pExceptionInfo->fpe_subcode);    
     TiXmlElement* fpe_subcode = new TiXmlElement("FPESubcode");
     root->LinkEndChild(fpe_subcode);  
-	LPSTR lpszFpeSubcode = T2A(sFpeSubcode.GetBuffer(0));
+	  LPSTR lpszFpeSubcode = T2A(sFpeSubcode.GetBuffer(0));
     TiXmlText* fpe_subcode_text = new TiXmlText(lpszFpeSubcode);
     fpe_subcode->LinkEndChild(fpe_subcode_text);
   }
 
-#if _MSC_VER>=1300
+#if _MSC_VER>=1400
   if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
   {
     if(pExceptionInfo->expression!=NULL)
@@ -1073,7 +1069,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
       // Write expression      
       TiXmlElement* expr = new TiXmlElement("InvParamExpression");
       root->LinkEndChild(expr);  
-	  LPSTR lpszExpr = W2A(pExceptionInfo->expression);
+	    LPSTR lpszExpr = W2A(pExceptionInfo->expression);
       TiXmlText* expr_text = new TiXmlText(lpszExpr);
       expr->LinkEndChild(expr_text);
     }
@@ -1083,7 +1079,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
       // Write function      
       TiXmlElement* func = new TiXmlElement("InvParamFunction");
       root->LinkEndChild(func);  
-	  LPSTR lpszFunc = W2A(pExceptionInfo->function);
+	    LPSTR lpszFunc = W2A(pExceptionInfo->function);
       TiXmlText* func_text = new TiXmlText(lpszFunc);
       func->LinkEndChild(func_text);
     }
@@ -1093,7 +1089,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
       // Write file
       TiXmlElement* file = new TiXmlElement("InvParamFile");
       root->LinkEndChild(file);  
-	  LPSTR lpszFile = W2A(pExceptionInfo->file);
+	    LPSTR lpszFile = W2A(pExceptionInfo->file);
       TiXmlText* file_text = new TiXmlText(lpszFile);
       file->LinkEndChild(file_text);
     }
@@ -1103,7 +1099,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     sLine.Format(_T("%d"), pExceptionInfo->line);    
     TiXmlElement* line = new TiXmlElement("InvParamLine");
     root->LinkEndChild(line);  
-	LPSTR lpszLine = T2A(sLine.GetBuffer(0));
+	  LPSTR lpszLine = T2A(sLine.GetBuffer(0));
     TiXmlText* line_text = new TiXmlText(lpszLine);
     line->LinkEndChild(line_text);
   }
@@ -1131,8 +1127,8 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     TiXmlElement* file_item = new TiXmlElement("FileItem");
     file_list->LinkEndChild(file_item);      
 
-	LPSTR lpszFilePath = T2A(sFilePath.GetBuffer(0));
-	LPSTR lpszFileDesc = T2A(sFileDesc.GetBuffer(0));
+	  LPSTR lpszFilePath = T2A(sFilePath.GetBuffer(0));
+	  LPSTR lpszFileDesc = T2A(sFileDesc.GetBuffer(0));
 
     file_item->SetAttribute("name", lpszFilePath);    
     file_item->SetAttribute("description", lpszFileDesc);    

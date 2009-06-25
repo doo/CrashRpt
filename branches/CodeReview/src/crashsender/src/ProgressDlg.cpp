@@ -31,8 +31,8 @@ LRESULT CProgressDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 
 LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{  
-  //GetParent().PostMessage(WM_CLOSE);
+{ 
+  CancelSenderThread();
   CButton m_btnCancel = GetDlgItem(IDCANCEL);
   m_btnCancel.EnableWindow(0);
   return 0;

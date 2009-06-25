@@ -1,6 +1,6 @@
 /*!
 
-\page error_report Error Report
+\page error_report About an Error Report
 
 The error report contains crash minidump file (.DMP), which has system information, 
 CPU state and stack trace. The minidump in most cases can be used on developer's 

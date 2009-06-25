@@ -4,10 +4,221 @@
 
 \section license License
 
-
 \section download Download
 
 <a href="http://code.google.com/p/crashrpt/">CrashRpt page on Google Code</a>
 
+\section Compilation
+
+Download and unzip the source code of CrashRpt. Open the complete.dsw workspace 
+located in the top level directory. This workspace contains the source for the 
+two sample applications and the CrashRpt library. You only need to build the 
+CrashRpt project - crashrpt.dsp.
+
+Notes:
+1. CrashRpt library uses the WTL for its GUI components, so WTL must be installed 
+and properly configured in order to build the CrashRpt library. You can download 
+the WTL here. If you're new to the WTL then CodeProject has some article here, and 
+there is a good starting guide here. 
+
+2. CrashRpt library uses Microsoft's Debug Help library (dbghelp.dll). The proper 
+h and lib files must be installed and properly configured in order to build the 
+CrashRpt library. These files are available in the Debugging SDK, which can be 
+downloaded here (be sure to select the SDK setup option). 
+
+After the build completes, you should end up with the following:
+
+crashrpt\include
+crashrpt.h 
+
+crashrpt\bin\debug or crashrpt\bin\release
+crashrpt.dll
+ 
+crashrpt\lib
+crashrpt.lib 
+
+crashrpt\src
+[all source files...]
+
+Linking against the library
+
+To implicitly link against the library, you need to include the crashrpt.h file 
+and link in the crashrpt.lib file. I find it easiest to add the following two 
+lines to my main application file.
+
+#include "[whateveryourpath]/crashrpt/include/crashrpt.h"
+#pragma comment(lib, "[whateveryourpath]/crashrpt/lib/crashrpt")
+
+Figure 3 - Integrating CrashRpt with your application 
+
+Generate debug symbols
+
+To get the most out of the minidump, the debugger needs your application's debug 
+symbols. By default release builds don't generate debug symbols. You can configure 
+VC to generate debug symbols for release builds by changing a couple of project 
+settings.
+
+With the release build configuration selected, on the C/C++ tab under the General 
+category, select 'Program Database' under Debug info.
+
+Figure 9 - C++ Project Settings
+
+On the Link tab under the General category, check the 'Generate debug info' 
+option. Figure 9 - Link Project Settings
+
+Now release builds will generate debug symbols in a PDB file. Keep all executables 
+and PDB files for each release that ships to customers. You will need these files t
+o read minidump files in the debugger.
+
+Using the Crash Report
+
+Using the Crash Log
+
+The crash log is an XML file that describes details about the crash including the 
+type of exception, the module and offset where the exception occurred, as well as 
+some cursory operating system and hardware information. I wrote the crash log to 
+make it easier to catalog crashes. A crash can be uniquely identified by the module, 
+offset and exception code. This information could be inspected by a developer or an 
+automated process, and compared against previously reported problems. If a match is 
+found, the developer or automated process, could inform the user of the solution 
+without having to debug the error again.
+
+The log is divided into four different sections or nodes. The first node is 
+ExceptionRecord we discussed earlier.
+
+Figure 10 - ExceptionRecord Node
+
+Next is the Processor node, which contains a little information about the user's CPU.
+
+Figure 11 - Process Node
+
+Next is the OperatingSystem node, which contains the user's operating system version 
+information.
+
+Figure 12 - OperatingSystem Node
+
+Last is the Modules node. This node contains the path, version, base address, size, 
+and time stamp for every module loaded by the deceased application.
+
+Figure 13 - Modules Node
+Using the Crash Dump File
+
+The crash dump file is a minidump created with the help of the DbgHelp DLL's 
+MiniDumpWriteDump function. The minidump contains various information about the state 
+of the application when the error occurred including the call stack, local variables, 
+and loaded modules. For more on creating minidumps, check out Andy Pennell's article.
+
+You can view minidump files in VS.NET or the WinDbg debugger. Because WinDbg is free, 
+I'll use it in the following example. You can download WinDbg from here. I'm using 
+version 6.1.0017.0 in the example.
+
+The sample application included with this article does nothing but generate a null 
+pointer exception. I'll use the sample to generate a crash and demonstrate how to use 
+the resulting minidump.
+
+When you run the sample application, click on the bomb button to generate a null 
+pointer exception, and save the resulting crash report. Then extract the crash.dmp 
+file from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D.
+
+Next, you need to set the symbol path for WinDbg with the .sympath command. Switch 
+to the command window (ALT+1) and enter .sympath followed by a space followed by the 
+semi-colon delimited list of directories to search.
+
+.sympath c:\downloads\CrashRptTest
+
+Figure 14 - Setting the symbol path
+
+Similarly you need to set the executable and source search paths with the .exepath 
+and .srcpath commands.
+
+.exepath c:\downloads\CrashRptTest
+.srcpath c:\downloads\CrashRptTest
+
+Figure 15 - Setting the source and executable paths
+
+The final step is to change the debugger context to the context record associated 
+with the exception by entering the .ecxr command.
+
+.ecxr
+
+Figure 15 - Setting the exception context record
+
+If everything is configured correctly, you should now be able to walk the call stack, 
+see local variables, and loaded modules. You can even have WinDbg highlight the offending 
+line of code by double clicking the CrashRptTest frame in the Call Stack window (ALT+6). 
+Note: The exact line number may be a little off due to linker optimizations.
+
+Figure 16 - The Promised Land: Using WinDbg to Locate the Cause of a Null Pointer Exception
+Deployment
+
+The CrashRpt library relies on a couple of redistributable libraries. To be sure the 
+library has access to the required files, you can distribute the ZLib and DbgHelp 
+I've included.
+Figure 17 - Redistributable Libraries
+Library 	File Version 	Description
+CrashRpt.DLL 	3.0.2.1 	Crash report library
+ZLib.DLL 	1.1.3.0 	ZLib compression library
+DbgHlp.DLL 	6.1.17.1 	Microsoft debug help library
+What to ship and what to save
+
+As I mentioned earlier, to debug a crash you need not only the minidupmp file, but also 
+the symbol and executable files that make up your application. When preparing a build to 
+be released to clients, you should always save the exact executable modules you ship to 
+clients, along with the corresponding debug symbols. This way when a crash report comes in, 
+you will have the modules and debug symbols that the debugger will need to properly 
+interpret the minidump.
+
+I've received several comments/inquiries about shipping debug builds or debug symbols. 
+You should never ship debug builds or debug symbols as they will not only take up more 
+space on your CD/download/client's workstation, but they will also make reverse engineering 
+your code a trivial exercise. To be clear, what I'm suggesting is modify your release build 
+configuration so that it generates debug symbols, saving both the release builds of your 
+modules and their corresponding debug symbols in your source control system and delivering 
+only the release builds of your modules to clients (as you do today). When a crash report 
+comes in, you use the release build and debug symbols you archived, along with the minidump 
+included in the crash report, to debug the crash.
+
+Note: CrashRpt uses Microsoft's Debug Help library (dbghelp.dll). This library was shipped 
+with Windows XP, but certain versions are redistributable. I recommend you to install the 
+dbghelp.dll file, included in the source/demo attachments, along the crashrpt.dll into your 
+application's directory to avoid the possible conflict or missing dependency issues.. 
+A word about preferred base load addresses
+
+Every executable module (EXE, DLL, OCX, whatever) has a preferred base load address. This 
+is the address in the application's process space that the loader will try to map that module. 
+If two or more modules list the same base load address, the loader will be forced to relocate 
+the modules until each module loads at a unique address. Not only does this slow down the 
+start up time of your application, but it also makes it impossible to debug fatal exceptions. 
+In order to use the minidump file, you must ensure that your application's modules do not collide. 
+You can use rebase.exe or manually override the preferred base load address for each conflicting 
+module. Either way you need to make sure that your application modules always load at the same 
+address for the minidump file to be useful. You can find more information about this in John 
+Robbin's April 1998 MSJ column.
+References
+
+For additional information about topics directly related to this article, see the links below:
+
+    * Debugging Tools for Windows.
+    * WTL Download.
+    * ZLib Compression Library.
+    * Reading Minidump Files with VS.NET.
+    * John Robbins on Crash Dumps.
+    * April 1998 MSJ Bugslayer Column.
+    * WTL Reference. 
+
+Change History
+
+    * 03/17/2003
+          o Replaced MFC with WTL.
+          o Changed crashrpt interface.
+          o Major refactoring.
+          o Updated article.
+          o Details dialog preview window now uses system defined window color instead of white.
+          o Directory structure not saved in ZIP.
+          o Support for use by multiple apps.
+          o Buffer overrun error when previewing files > 32k.
+          o Main dialog now displays app icon. 
+    * 01/12/2003
+          o Initial release. 
 
 */
