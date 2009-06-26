@@ -70,7 +70,7 @@ BEGIN
     LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,51,22,114,8
 END
 
-IDD_MAINDLG DIALOGEX 0, 0, 241, 279
+IDD_MAINDLG DIALOGEX 0, 0, 241, 314
 STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
 CAPTION "CrashRptTest"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
@@ -101,11 +101,14 @@ BEGIN
     PUSHBUTTON      "C++ SIGSEGV signal",IDC_THREAD_SIGSEGV,129,201,95,14
     PUSHBUTTON      "C++ SIGTERM signal",IDC_THREAD_SIGTERM,129,217,95,14
     PUSHBUTTON      "C++ new operator error",IDC_THREAD_NEW,130,233,95,14
-    DEFPUSHBUTTON   "Close",IDOK,99,258,50,14
-    PUSHBUTTON      "&About...",ID_APP_ABOUT,183,258,50,14
-    GROUPBOX        "Main thread",IDC_STATIC,7,32,108,219
+    DEFPUSHBUTTON   "Close",IDOK,96,293,50,14
+    GROUPBOX        "Main thread",IDC_STATIC,7,32,108,253
     LTEXT           "Click any button below to generate exception in the main execution thread or in another (working) thread.",IDC_STATIC,7,7,227,20
-    GROUPBOX        "Working thread",IDC_STATIC,126,32,108,219
+    GROUPBOX        "Working thread",IDC_STATIC,126,32,108,252
+    PUSHBUTTON      "Uncontinuable exception",IDC_MAIN_SEH,14,249,95,14
+    PUSHBUTTON      "Uncontinuable Exception",IDC_THREAD_SEH,130,249,95,14
+    PUSHBUTTON      "Manual Crash Report",IDC_MAIN_MANUALREPORT,14,267,95,14
+    PUSHBUTTON      "Manual Crash Report",IDC_THREAD_MANUALREPORT,130,267,95,14
 END
 
 
@@ -131,7 +134,7 @@ BEGIN
         RIGHTMARGIN, 234
         VERTGUIDE, 14
         TOPMARGIN, 7
-        BOTTOMMARGIN, 272
+        BOTTOMMARGIN, 307
         HORZGUIDE, 32
         HORZGUIDE, 49
         HORZGUIDE, 65

@@ -256,7 +256,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
   CMainDlg dlgMain;
 
-  /*if(GetCrashInfoThroughPipe(
+  if(GetCrashInfoThroughPipe(
     dlgMain.m_sAppName,
     dlgMain.m_sImageName,
     dlgMain.m_sEmailSubject, 
@@ -265,18 +265,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     &dlgMain.m_uPriorities,
     dlgMain.m_sZipName,    
     dlgMain.m_pUDFiles)!=0)
-    return 1; */ 
-
-  dlgMain.m_sAppName = _T("AppName");
-  dlgMain.m_sImageName = _T("");
-  dlgMain.m_sEmailSubject = _T("Crash");
-  dlgMain.m_sEmailFrom = _T("zexspectrum@gmail.com");
-  dlgMain.m_sEmailTo = _T("zexspectrum@gmail.com");
-  dlgMain.m_uPriorities[CR_HTTP] = 3;
-  dlgMain.m_uPriorities[CR_SMTP] = 2;
-  dlgMain.m_uPriorities[CR_SMAPI] = 1;
-  dlgMain.m_sUrl = _T("http://trackerlib.sourceforge.net/test.php");
-  dlgMain.m_sZipName = _T("C:\\Users\\Oleg\\AppData\\Local\\CrashRpt\\UnsentCrashReports\\3f647f16-0b7a-4678-94d4-f11be0eefda7.zip");
+    return 1; 
 
 	if(dlgMain.Create(NULL) == NULL)
 	{

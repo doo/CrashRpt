@@ -104,6 +104,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
   /* Create another thread */
   g_CrashThreadInfo.m_pCrashRptState = g_pCrashRptState;
+  g_CrashThreadInfo.m_bStop = false;
   g_CrashThreadInfo.m_hWakeUpEvent = CreateEvent(NULL, FALSE, FALSE, _T("WakeUpEvent"));
   ATLASSERT(g_CrashThreadInfo.m_hWakeUpEvent!=NULL);
 
@@ -122,6 +123,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();
+
+  // Close another thread
+  g_CrashThreadInfo.m_bStop = true;
+  SetEvent(g_CrashThreadInfo.m_hWakeUpEvent);
+  // Wait until thread terminates
+  WaitForSingleObject(g_hWorkingThread, INFINITE);
 
   // Uninstall crash reporting
   

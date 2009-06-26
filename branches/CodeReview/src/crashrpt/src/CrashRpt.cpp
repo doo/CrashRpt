@@ -40,11 +40,13 @@ CRASHRPTAPI LPVOID InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR 
 
 CRASHRPTAPI void Uninstall(LPVOID lpState)
 {
+  lpState;
   crUninstall();  
 }
 
 CRASHRPTAPI void AddFileW(LPVOID lpState, LPCWSTR lpFile, LPCWSTR lpDesc)
 { 
+  lpState;
   crAddFileW(lpFile, lpDesc);
 }
 
@@ -58,11 +60,14 @@ CRASHRPTAPI void AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
 
 CRASHRPTAPI void GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
 {
+  lpState;
+
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);
-  ei.exctype = CR_WIN32_UNHANDLED_EXCEPTION;
-
+  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.pexcptrs = pExInfo;
+  
   crGenerateErrorReport(&ei);
 }
 
@@ -405,7 +410,7 @@ int crSetErrorMsg(PTSTR pszErrorMsg)
 
 CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
 {
-  crSetErrorMsg(_T("Success."));
+  crSetErrorMsg(_T("Unspecified error."));
 
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
@@ -419,14 +424,19 @@ CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS*
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);  
-  ei.exctype = CR_CPP_SEH;
+  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
   ei.pexcptrs = ep;
   ei.code = code;
 
-  pCrashHandler->GenerateErrorReport(&ei);
+  int res = pCrashHandler->GenerateErrorReport(&ei);
+  if(res!=0)
+  {    
+    return EXCEPTION_CONTINUE_SEARCH;  
+  }
   
-  // If goes here than GenerateErrorReport() failed
-  return EXCEPTION_CONTINUE_SEARCH;  
+  // If goes here than GenerateErrorReport() failed  
+  crSetErrorMsg(_T("Success."));
+  return EXCEPTION_EXECUTE_HANDLER;  
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -512,23 +522,26 @@ int RecurseAlloc()
 
 CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 {
-  crSetErrorMsg(_T("Success."));
+  crSetErrorMsg(_T("Unspecified error."));
 
   switch(ExceptionType)
   {
-  case CR_WIN32_UNHANDLED_EXCEPTION:
+  case CR_WIN32_STRUCTURED_EXCEPTION:
     {
+      // Access violation
       int *p = 0;
       *p = 0;
     }
     break;
   case CR_CPP_TERMINATE_CALL:
     {
+      // Call terminate
       terminate();
     }
     break;
   case CR_CPP_UNEXPECTED_CALL:
     {
+      // Call unexpected
       unexpected();
     }
     break;
@@ -555,7 +568,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 #endif //_MSC_VER>=1300 && _MSC_VER<1400
 #if _MSC_VER>=1300
   case CR_CPP_INVALID_PARAMETER:
-    {
+    {      
       char* formatString;
       // Call printf_s with invalid parameters.
       formatString = NULL;
@@ -566,12 +579,14 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 #if _MSC_VER>=1300
   case CR_CPP_NEW_OPERATOR_ERROR:
     {
+      // Cause memory allocation error
       RecurseAlloc();
     }
     break;
 #endif //_MSC_VER>=1300
   case CR_CPP_SIGABRT: 
     {
+      // Call abort
       abort();
     }
     break;
@@ -580,46 +595,50 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       // floating point exception ( /fp:except compiler option)
       sigfpe_test();
       return 1;
-    }
-    break;
+    }    
   case CR_CPP_SIGILL: 
     {
       int result = raise(SIGILL);  
       ATLASSERT(result==0);
       crSetErrorMsg(_T("Error raising SIGILL."));
       return result;
-    }
-    break;
+    }    
   case CR_CPP_SIGINT: 
     {
       int result = raise(SIGINT);  
       ATLASSERT(result==0);
       crSetErrorMsg(_T("Error raising SIGINT."));
       return result;
-    }
-    break;
+    }    
   case CR_CPP_SIGSEGV: 
     {
       int result = raise(SIGSEGV);  
       ATLASSERT(result==0);
       crSetErrorMsg(_T("Error raising SIGSEGV."));
       return result;
-    }
-    break;
+    }    
   case CR_CPP_SIGTERM: 
     {
      int result = raise(SIGTERM);  
      crSetErrorMsg(_T("Error raising SIGTERM."));
-	 ATLASSERT(result==0);     
+	   ATLASSERT(result==0);     
      return result;
     }
+  case CR_NONCONTINUABLE_EXCEPTION: 
+    {
+      // Raise noncontinuable software exception
+      RaiseException(123, EXCEPTION_NONCONTINUABLE, 0, NULL);        
+    }
+    break;
   default:
-    ATLASSERT(0); // unknown type?
-    crSetErrorMsg(_T("Unknown exception type specified."));
-    return 1;
+    {
+      crSetErrorMsg(_T("Unknown exception type specified."));    
+      ATLASSERT(0); // unknown type?
+    }
+    break;
   }
  
-  return 0;
+  return 1;
 }
 
 

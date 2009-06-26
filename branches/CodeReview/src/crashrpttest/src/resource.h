@@ -19,6 +19,8 @@
 #define IDC_MAIN_SIGINT                 1011
 #define IDC_MAIN_SIGSEGV                1012
 #define IDC_MAIN_SIGTERM                1013
+#define IDC_MAIN_SEH                    1014
+#define IDC_MAIN_MANUALREPORT           1015
 #define IDC_THREAD_NOEXC                1026
 #define IDC_THREAD_WIN32                1027
 #define IDC_THREAD_TERM                 1028
@@ -33,7 +35,8 @@
 #define IDC_THREAD_SIGINT               1037
 #define IDC_THREAD_SIGSEGV              1038
 #define IDC_THREAD_SIGTERM              1039
-
+#define IDC_THREAD_SEH                  1040
+#define IDC_THREAD_MANUALREPORT        1041
 
 // Next default values for new objects
 // 
@@ -41,7 +44,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        201
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1040
+#define _APS_NEXT_CONTROL_VALUE         1042
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

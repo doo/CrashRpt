@@ -285,5 +285,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="CrashRptTest.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

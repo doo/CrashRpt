@@ -75,7 +75,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
-				LinkIncremental="2"
+				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"

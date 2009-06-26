@@ -223,10 +223,9 @@ public:
    static CCrashHandler* 
    GetCurrentProcessCrashHandler();
 
-   static void GetExceptionPointers(EXCEPTION_POINTERS** pExceptionPointers);
-
 protected:
   
+  void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** pExceptionPointers);
   int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
   int ZipErrorReport(CString sFileName);  
   int LaunchCrashSender(CString sZipName);  
@@ -246,8 +245,6 @@ protected:
 #if _MSC_VER>=1400
   _invalid_parameter_handler m_prevInvpar; // Previous invalid parameter exception filter  
 #endif
-
-
 
 #if _MSC_VER>=1300 && _MSC_VER<1400
   _secerr_handler_func m_prevSec; // Previous security exception filter
@@ -274,6 +271,8 @@ protected:
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
+
+  BOOL m_bInitialized;
 };
 
 #endif	// !_CRASHHANDLER_H_

@@ -189,7 +189,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib"
 				OutputFile="../../bin/CrashRptd.dll"
-				LinkIncremental="2"
+				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
 				GenerateDebugInformation="true"

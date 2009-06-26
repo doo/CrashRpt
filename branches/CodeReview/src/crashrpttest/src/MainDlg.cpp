@@ -32,6 +32,17 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
 	SetIcon(hIconSmall, FALSE);
 
+#if _MSC_VER!=1300
+  ::EnableWindow(GetDlgItem(IDC_MAIN_SECURITY), 0);
+  ::EnableWindow(GetDlgItem(IDC_THREAD_SECURITY), 0);
+#endif
+
+#if _MSC_VER<1400
+  ::EnableWindow(GetDlgItem(IDC_MAIN_INVPAR), 0);
+  ::EnableWindow(GetDlgItem(IDC_THREAD_INVPAR), 0);
+#endif
+
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -69,7 +80,7 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
   switch(wID)
   {
   case IDC_MAIN_NOEXC: return 0;
-  case IDC_MAIN_WIN32: type = CR_WIN32_UNHANDLED_EXCEPTION; break;                              
+  case IDC_MAIN_WIN32: type = CR_WIN32_STRUCTURED_EXCEPTION; break;                              
   case IDC_MAIN_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_MAIN_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
 #if _MSC_VER>=1300
@@ -87,13 +98,30 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
   case IDC_MAIN_SIGINT: type = CR_CPP_SIGINT; break;
   case IDC_MAIN_SIGSEGV: type = CR_CPP_SIGSEGV; break;
   case IDC_MAIN_SIGTERM: type = CR_CPP_SIGTERM; break;
-  default: assert(0); break;
+  case IDC_MAIN_SEH: type = CR_NONCONTINUABLE_EXCEPTION; break;
+  case IDC_MAIN_MANUALREPORT:
+    {
+      test_generate_report();
+      return 0;
+    };
+  default: ATLASSERT(0); break;
   }
 
-  int nResult = crEmulateCrash(type);
-  if(nResult!=0)
+  if(type!=CR_NONCONTINUABLE_EXCEPTION)
   {
-    MessageBox(_T("Error creating exception situation!"));
+    int nResult = crEmulateCrash(type);
+    if(nResult!=0)
+    {
+      TCHAR szErrorMsg[256];
+      CString sError = _T("Error creating exception situation!\nErrorMsg:");
+      crGetLastErrorMsg(szErrorMsg, 256);
+      sError+=szErrorMsg;
+      MessageBox(sError);
+    }
+  }
+  else
+  {
+    test_seh();
   }
 
   return 0;
@@ -106,7 +134,7 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
   switch(wID)
   {
   case IDC_THREAD_NOEXC: return 0;
-  case IDC_THREAD_WIN32: type = CR_WIN32_UNHANDLED_EXCEPTION; break;                              
+  case IDC_THREAD_WIN32: type = CR_WIN32_STRUCTURED_EXCEPTION; break;                              
   case IDC_THREAD_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
   case IDC_THREAD_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
 #if _MSC_VER>=1300
@@ -123,6 +151,8 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
   case IDC_THREAD_SIGINT: type = CR_CPP_SIGINT; break;
   case IDC_THREAD_SIGSEGV: type = CR_CPP_SIGSEGV; break;
   case IDC_THREAD_SIGTERM: type = CR_CPP_SIGTERM; break;
+  case IDC_THREAD_SEH: type = CR_NONCONTINUABLE_EXCEPTION; break; 
+  case IDC_THREAD_MANUALREPORT: type = 128; break;
   default: assert(0); break;
   }
 

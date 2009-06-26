@@ -79,7 +79,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
  *    \c pfnCallback defines the callback function that is called on crash. The callback can be
  *    used to add a custom file to crash report using AddFile() function. This parameter can be NULL.
  *
- *    \c pszEmailTo defines the valid email address of recipient.
+ *    \c pszEmailTo should be the valid email address of recipient. 
  *
  *    \c pszEmailSubject is the email subject. If this parameter is NULL, the default subject is 
  *    generated.
@@ -126,11 +126,11 @@ InstallA(
 /*! \ingroup DeprecatedAPI
  *  \brief Uninstalls the exception filters set up by Install().
  *
- *  \param[in] lpState State information returned from Install(), can be NULL.
+ *  \param[in] lpState State information returned from Install(), ignored and should be NULL.
  *
  *  \deprecated
  *    This function is deprecated. It is still supported for compatiblity with
- *    older versions of CrashRpt, however consider using crInstall() function instead.
+ *    older versions of CrashRpt, however consider using crUninstall() function instead.
  *    This function is implemented as a wrapper for crUninstall().
   *
  *  \remarks
@@ -150,7 +150,7 @@ Uninstall(
 /*! \ingroup DeprecatedAPI 
  *  \brief Adds a file to the crash report.
  *  
- *  \param[in] lpState State information returned from Install(), can be NULL.
+ *  \param[in] lpState State information returned from Install(), ignored and should be NULL.
  *  \param[in] pszFile  Fully qualified file name.
  *  \param[in] pszDesc  Description of file, used by Error Report Details dialog.
  *
@@ -210,7 +210,7 @@ AddFileA(
 /*! \ingroup DeprecatedAPI 
  *  \brief Generates the crash report.
  *  
- *  \param[in] lpState     State information returned from Install(), can be NULL.
+ *  \param[in] lpState     State information returned from Install(), ignored and should be NULL.
  *  \param[in] pExInfo     Pointer to an EXCEPTION_POINTERS structure, can be NULL.
  * 
  *  \deprecated
@@ -228,8 +228,8 @@ AddFileA(
  *    \c pExInfo defines the exception pointers for generating crash minidump file.
  *    If \c pExInfo is NULL, current CPU state is used to create exception pointers.
  *
- *    If succeeds, this function doesn't return control to the caller and the caller process
- *    is terminated.
+ *    This function generates the error report and returns control to the caller. It doesn't
+ *    terminate the caller process.
  *
  */
 
@@ -279,7 +279,7 @@ GenerateErrorReport(
  *         This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
  *         the same directory as CrashRpt.dll.
  *
- *    - \c pfnCrashCallback is a pointer to the LPGETLOGFILE crash callback function. The crash callback function is
+ *    - \c pfnCrashCallback is a pointer to the LPGETLOGFILE() crash callback function. The crash callback function is
  *         called by CrashRpt when crash occurs and allows user to add custom files to the 
  *         error report or perform other actions. This parameter can be NULL.
  *         If NULL, crash callback is not called.
@@ -341,25 +341,27 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
 #endif // UNICODE
 
 /*! \ingroup CrashRptAPI 
- *  \brief  Installs exception handlers for current process and C++ exception handlers that
- *          function on per-process basis.
+ *  \brief  Installs exception handlers for all threads of the caller process.
  *
  *  \param[in] pInfo General information.
  *
  *  \remarks
- *    This function installs unhandled exception filter for all threads of calling process.
+ *    This function installs unhandled exception filter for all threads of caller process.
  *    It also installs various C++ exception/error handlers that function for all threads.
  *
  *    Below is the list of installed handlers:
- *     - WIN32 unhandled exception filter [ \c SetUnhandledExceptionFilter() ]
+ *     - WIN32 top-level unhandled exception filter [ \c SetUnhandledExceptionFilter() ]
  *     - C++ pure virtual call handler (Visual Studio .NET 2003 and later) [ \c _set_purecall_handler() ]
- *     - C++ invalid parameter handler (Visual Studio .NET 2003 and later) [ \c _set_invalid_parameter_handler() ]
+ *     - C++ invalid parameter handler (Visual Studio .NET 2005 and later) [ \c _set_invalid_parameter_handler() ]
  *     - C++ new operator error handler (Visual Studio .NET 2003 and later) [ \c _set_new_handler() ]
  *     - C++ buffer overrun handler (Visual Studio .NET only) [ \c _set_security_error_handler() ]
  *     - C++ abort handler [ \c signal(SIGABRT) ]
  *     - C++ illegal instruction handler [ \c signal(SIGINT) ]
  *     - C++ termination request [ \c signal(SIGTERM) ]
  *
+ *    In a multithreaded program, additionally use crInstallToCurrentThread() function for each execution
+ *    thread, except the main thread.
+ * 
  *    The \c pInfo parameter contains all required information needed to install CrashRpt.
  *    Set \c cb member of CR_INSTALL_INFO structure to \c sizeof(CR_INSTALL_INFO), 
  *    otherwise function will fail. 
@@ -379,7 +381,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  * 
  *    The error report can be sent over E-mail using address and subject passed to the
  *    function as CR_INSTALL_INFO structure members. Another way of sending error report is an HTTP 
- *    request using \c pszUrl member of CR_INSTALL_INFO. 
+ *    request using \c pszUrl member of CR_INSTALL_INFO. If both the E-mail address and
+ *    URL are not specified, this function fails.
  *
  *    crInstallW() and crInstallA() are wide-character and multi-byte character versions of crInstall()
  *    function. The crInstall() macro defines character set independent mapping for these functions.
@@ -404,7 +407,11 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      info.pszEmailTo = _T("myname@hotmail.com");  
  *      // The URL to send reports via HTTP connection
  *      info.pszUrl = _T("http://myappname.com/utils/crashrpt.php"); 
- *      info.pfnCrashCallback = CrashCallback;  
+ *      info.pfnCrashCallback = CrashCallback; 
+ *      info.uPriorities[CR_HTTP] = 3; // Try HTTP first
+ *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
+ *      info.uPriorities[CR_SMAPI] = 1; // Try system email program last
+ *
  *      int nInstResult = crInstall(&info);
  *      assert(nInstResult==0);
  *   
@@ -589,7 +596,7 @@ crAddFileA(
 
 
 // Exception types
-#define CR_WIN32_UNHANDLED_EXCEPTION    0    //!< WIN32 unhandled exception.
+#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
 
@@ -612,7 +619,6 @@ crAddFileA(
 #define CR_CPP_SIGINT                   10   //!< C++ SIGINT signal (CTRL+C).
 #define CR_CPP_SIGSEGV                  11   //!< C++ SIGSEGV signal (invalid storage access).
 #define CR_CPP_SIGTERM                  12   //!< C++ SIGTERM signal (termination request).
-#define CR_CPP_SEH                      13   //!< C++ structured exception.
 
 /*! \ingroup CrashRptStructs
  *  \brief Extended exception info used by crGenerateCrashReport().
@@ -621,17 +627,16 @@ crAddFileA(
  *
  *  This structure contains essential information needed to generate crash minidump file and
  *  provide the developer with other information about the error.
- * 
  *
  *  \c cb must contain the size of this structure in bytes.
  *
  *  \c pexcptrs should contain the exception pointers. The exception pointers usually have
- *  information like CPU registers state, stack track for each execution thread, operating system
+ *  information like CPU registers state, stack trace for each execution thread, operating system
  *  and processor info. If this parameter is NULL, the current CPU state is used to generate exception
  *  pointers.
  *
  *  \c exctype is the type of exception. This parameter may be one of the following:
- *     - \c CR_WIN32_UNHANDLED_EXCEPTION Win32 unhandled exception
+ *     - \c CR_WIN32_STRUCTURED_EXCEPTION Win32 structured exception
  *     - \c CR_CPP_TERMINATE_CALL        C++ terminate() function call
  *     - \c CR_CPP_UNEXPECTED_CALL       C++ unexpected() function call
  *     - \c CR_CPP_PURE_CALL Pure virtual method call (Visual Studio .NET 2003 and later) 
@@ -644,12 +649,11 @@ crAddFileA(
  *     - \c CR_CPP_SIGINT  C++ SIGINT signal
  *     - \c CR_CPP_SIGSEGV C++ invalid storage access
  *     - \c CR_CPP_SIGTERM C++ termination request
- *     - \c CR_CPP_SEH     C++ structured exception
  * 
  *   The \c exctype can be used for crash report classification on developers' side.
  * 
- *   \c code is used if \c exctype is CR_CPP_SEH and represents the exception code retrieved with
- *   GetExceptionCode() instrinsic function.
+ *   \c code is used if \c exctype is CR_WIN32_STRUCTURED_EXCEPTION and represents the structured exception code. 
+ *   If \c pexptrs is NULL, this value is used to initialize \c pexptrs->ExceptionCode member, otherwise it is ignored.
  *
  *   \c fpe_subcode is used if \c exctype is equal to CR_CPP_SIGFPE. It defines the floating point
  *   exception subcode (see \c signal() function ducumentation in MSDN).
@@ -665,7 +669,7 @@ typedef struct tagCR_EXCEPTION_INFO
   WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
   PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
   int exctype;               //!< Exception type.
-  int code;                  //!< Code of structured exception.
+  DWORD code;                //!< Code of structured exception.
   unsigned int fpe_subcode;  //!< Floating point exception subcode.
   const wchar_t* expression; //!< Assertion expression.
   const wchar_t* function;   //!< Function in which assertion happened.
@@ -679,7 +683,7 @@ CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
 /*! \ingroup CrashRptAPI  
  *  \brief Manually generates an errror report.
  *
- *  \return This function doesn't return when succeeded. When failed, it returns a non-zero value.
+ *  \return This function returns zero if succeeded. When failed, it returns a non-zero value.
  *     Use crGetLastErrorMsg() to retrieve the error message.
  *  
  *  \param[in] pExceptionInfo Exception information. 
@@ -687,10 +691,10 @@ CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
  *  \remarks
  *
  *    Call this function to manually generate a crash report. When crash information is collected,
- *    the application is terminated.
+ *    control is returned to the caller. The crGenerateErrorReport() doesn't terminate the caller process.
  *
- *    The crash report contains the crash minidump, crash log in XML format and
- *    additional custom files added with AddFile().
+ *    The crash report contains crash minidump, crash descriptor in XML format and
+ *    additional custom files added with crAddFile().
  *
  *    The exception information should be passed using CR_EXCEPTION_INFO structure. 
  *
@@ -700,15 +704,22 @@ CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
  *    CR_EXCEPTION_INFO ei;
  *    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO);
  *    ei.cb = sizeof(CR_EXCEPTION_INFO);
- *    ei.exctype = CR_WIN32_UNHANDLED_EXCEPTION;
+ *    ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+ *    ei.code = EXCEPTION_ACCESS_VIOLATION;
  *    ei.pexcptrs = NULL;
  *
  *    int result = crGenerateErrorReport(&ei);
  *
- *    // If goes here, crGenerateErrorReport() has failed
- *    // Get the last error message
- *    TCHAR szErrorMsg[256];
- *    crGetLastErrorMsg(szErrorMsg, 256);
+ *    if(result!=0)
+ *    {
+ *      // If goes here, crGenerateErrorReport() has failed
+ *      // Get the last error message
+ *      TCHAR szErrorMsg[256];
+ *      crGetLastErrorMsg(szErrorMsg, 256);
+ *    }
+ *   
+ *    // Manually terminate program
+ *    ExitProcess(0);
  *
  *    \endcode
  */
@@ -721,9 +732,9 @@ crGenerateErrorReport(
 
 
 /*! \ingroup CrashRptAPI 
- *  \brief Can be used as C++ structured exception filter.
+ *  \brief Can be used as a structured exception filter.
  *
- *  \return This function doesn't return if succeded.
+ *  \return This function returns EXCEPTION_EXECUTE_HANDLER if succeeds, else EXCEPTION_CONTINUE_SEARCH.
  *
  *  \param[in] code Exception code.
  *  \param[in] ep   Exception pointers.
@@ -732,16 +743,16 @@ crGenerateErrorReport(
  *     
  *     This function can be called instead of C++ structured exception filter
  *     inside of __try __except(Expression) statement. The function generates a error report
- *     and terminates calling process.
+ *     and returns control to the exception handler block.
  *
  *     The exception code is usually retrieved with GetExceptionCode() intrinsic function
  *     and the exception pointers are retrieved with GetExceptionInformation() intrinsic 
  *     function.
  *
- *     This function generates crash report and terminates the caller process.
- *
  *     If an error occurs, this function returns EXCEPTION_CONTINUE_SEARCH.
  *     Use crGetLastErrorMsg() to retrieve the error message on fail.
+ *
+ *     
  *
  *     The following example shows how to use crExceptionFilter().
  *    
@@ -753,7 +764,8 @@ crGenerateErrorReport(
  *     }
  *     __except(crExceptionFilter(GetExceptionCode(), GetExceptionInformation()))
  *     {   
- *       // if goes here, crExceptionFilter() has failed
+ *       // Terminate program
+ *       ExitProcess(1);
  *     }
  *
  *     \endcode 
@@ -765,19 +777,20 @@ crExceptionFilter(
   unsigned int code, 
   struct _EXCEPTION_POINTERS* ep);
 
+#define CR_NONCONTINUABLE_EXCEPTION  32   
 
 /*! \ingroup CrashRptAPI  
  *  \brief Emulates a predefined crash situation.
  *
- *  \return This function doesn't return if succeeded. It returns non-zero value if
- *          failed. Use crGetLastErrorMsg() to retrieve the error message.
+ *  \return This function doesn't return if succeded. If failed, returns non-zero value. Call crGetLastErrorMsg()
+ *   to get the last error message().
  *
  *  \param[in] ExceptionType Type of crash.
  *
  *  \remarks
  *
- *    This function uses some a priori incorrect or vulnerable code or raises a C++ signal to
- *    cause crash.
+ *    This function uses some a priori incorrect or vulnerable code or raises a C++ signal or raises an uncontinuable
+ *    software exception to cause crash.
  *
  *    This function can be used to test if CrashRpt handles a crash situation correctly.
  *    
@@ -786,7 +799,7 @@ crExceptionFilter(
  *    crInstallToCurrentThread() installs exception handlers that function on per-thread basis.
  *    
  *  \c ExceptionType can be one of the following constants:
- *    - \c CR_WIN32_UNHANDLED_EXCEPTION  This will generate a null pointer exception.
+ *    - \c CR_WIN32_STRUCTURED_EXCEPTION  This will generate a null pointer exception.
  *    - \c CR_CPP_TERMINATE_CALL This results in call of terminate() C++ function.
  *    - \c CR_CPP_UNEXPECTED_CALL This results in call of unexpected() C++ function.
  *    - \c CR_CPP_PURE_CALL This emulates a call of pure virtual method call of a C++ class instance (Visual Studio .NET 2003 and later).
@@ -794,11 +807,12 @@ crExceptionFilter(
  *    - \c CR_CPP_SECURITY_ERROR This emulates copy of large amount of data to a small buffer (Visual Studio .NET 2003 only).
  *    - \c CR_CPP_INVALID_PARAMETER This emulates an invalid parameter C++ exception (Visual Studio 2005 and later). 
  *    - \c CR_CPP_SIGABRT This raises SIGABRT signal (abnormal program termination).
- *    - \c CR_CPP_SIGFPE This raises SIGFPE signal (floating point exception).
- *    - \c CR_CPP_SIGILL This raises SIGILL signal (illegal instruction).
+ *    - \c CR_CPP_SIGFPE This causes floating point exception.
+ *    - \c CR_CPP_SIGILL This raises SIGILL signal (illegal instruction signal).
  *    - \c CR_CPP_SIGINT This raises SIGINT signal.
  *    - \c CR_CPP_SIGSEGV This raises SIGSEGV signal.
- *    - \c cR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
+ *    - \c CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
+ *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result is the same as in CR_WIN32_STRUCTURED_EXCEPTION).
  *
  *  The following example shows how to use crEmulateCrash() function.
  *
