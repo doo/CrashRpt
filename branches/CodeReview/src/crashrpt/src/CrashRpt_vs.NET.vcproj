@@ -35,7 +35,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib "
 				OutputFile="..\..\bin\CrashRptd.dll"
-				LinkIncremental="2"
+				LinkIncremental="0"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/CrashRpt_vs.NET.pdb"
 				SubSystem="2"
@@ -146,6 +146,12 @@
 					RelativePath="..\..\zip_utils\zip.cpp">
 					<FileConfiguration
 						Name="Debug|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							DisableSpecificWarnings="4311"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							DisableSpecificWarnings="4311"/>

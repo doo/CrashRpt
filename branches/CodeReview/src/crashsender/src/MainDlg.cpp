@@ -186,7 +186,7 @@ void CMainDlg::CloseDialog(int nVal)
 	::PostQuitMessage(nVal);
 }
 
-LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   CDetailDlg dlg;
   dlg.m_pUDFiles = m_pUDFiles;
@@ -194,14 +194,14 @@ LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
   return 0;
 }
 
-LRESULT CMainDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CMainDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
  m_linkMoreInfo.EnableWindow(0);
  ShowMoreInfo(TRUE);
  return 0;
 }
 
-LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
   HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);

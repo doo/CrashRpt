@@ -152,6 +152,9 @@ void __cdecl cpp_purecall_handler()
 void __cdecl cpp_security_handler(int code, void *x)
 {
   // Security error (buffer overrun).
+
+  code;
+  x;
   
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
@@ -171,7 +174,7 @@ void __cdecl cpp_security_handler(int code, void *x)
 }
 #endif 
 
-#if _MSC_VER>=1300
+#if _MSC_VER>=1400
 void __cdecl cpp_invalid_parameter_handler(
   const wchar_t* expression, 
   const wchar_t* function, 
@@ -203,7 +206,9 @@ void __cdecl cpp_invalid_parameter_handler(
 
    exit(1); // Terminate program
  }
+#endif
 
+#if _MSC_VER>=1300
 int __cdecl cpp_new_handler(size_t)
 {
   // 'new' operator memory allocation exception
@@ -365,6 +370,13 @@ void cpp_sigterm_handler(int)
 CCrashHandler::CCrashHandler()
 {
   m_bInitialized = FALSE;
+
+  m_oldFilter = NULL;
+  InitPrevCPPExceptionHandlerPointers();
+  m_lpfnCallback = NULL;
+  m_pid = 0;
+  memset(&m_uPriorities, 0, 3*sizeof(UINT));
+
 }
 
 CCrashHandler::~CCrashHandler()
@@ -398,10 +410,10 @@ int CCrashHandler::Init(
   // save email info
   m_sTo = lpcszTo;
 
-  if(m_sTo==NULL && m_sUrl==NULL)
+  if(m_sTo.IsEmpty() && m_sUrl.IsEmpty())
   {
     crSetErrorMsg(_T("Error reports recipient's address is not defined."));
-    ATLASSERT(m_sTo!=NULL || m_sUrl!=NULL);
+    ATLASSERT(!m_sTo.IsEmpty() || !m_sUrl.IsEmpty());
     return 1;
   }
 
@@ -645,7 +657,6 @@ int CCrashHandler::SetProcessCPPExceptionHandlers()
 
   _set_error_mode(_OUT_TO_STDERR);
 
-
 #if _MSC_VER>=1300
   // Catch pure virtual function calls.
   // Because there is one _purecall_handler for the whole process, 
@@ -674,7 +685,9 @@ int CCrashHandler::SetProcessCPPExceptionHandlers()
    // Set up C++ signal handlers
   
    // Catch an abnormal program termination
+#if _MSC_VER>=1400
    _set_abort_behavior(_CALL_REPORTFAULT, _CALL_REPORTFAULT);
+#endif
    m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
    
    // Catch illegal instruction handler

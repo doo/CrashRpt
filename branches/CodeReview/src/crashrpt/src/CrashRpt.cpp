@@ -350,7 +350,7 @@ CRASHRPTAPI int crGenerateErrorReport(
 
 CRASHRPTAPI int crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
 {
-  if(pszBuffer==NULL)
+  if(pszBuffer==NULL || uBuffSize==0)
     return -1; // Null pointer to buffer
 
   USES_CONVERSION;
@@ -372,7 +372,7 @@ CRASHRPTAPI int crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
   }
   
   LPWSTR pwszErrorMsg = T2W(it->second.GetBuffer(0));
-  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, it->second.GetLength());
+  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, uBuffSize-1);
   int size = it->second.GetLength();
   g_cs.Unlock();
   return size;
@@ -566,7 +566,7 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
     }
     break;
 #endif //_MSC_VER>=1300 && _MSC_VER<1400
-#if _MSC_VER>=1300
+#if _MSC_VER>=1400
   case CR_CPP_INVALID_PARAMETER:
     {      
       char* formatString;

@@ -65,7 +65,7 @@
 				WarningLevel="4"
 				WarnAsError="false"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool

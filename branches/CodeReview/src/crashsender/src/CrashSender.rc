@@ -316,6 +316,8 @@ BEGIN
     IDS_SYMBOL_FILE         "Symbol File"
 END
 
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\CrashSender.exe.manifest"
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
-copy ..\..\zlib\bin\zlib.dll ..\..\bin
+copy ..\..\zlib\bin\zlib1.dll ..\..\bin
 "/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
@@ -88,7 +88,7 @@ copy ..\..\zlib\bin\zlib.dll ..\..\bin
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_X86_"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Debug/crashcon.pch"
@@ -106,7 +106,7 @@ copy ..\..\zlib\bin\zlib.dll ..\..\bin
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptd.lib"
 				OutputFile="../../bin/crashcond.exe"
-				LinkIncremental="2"
+				LinkIncremental="0"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../lib"
 				GenerateDebugInformation="TRUE"
@@ -119,8 +119,8 @@ copy ..\..\zlib\bin\zlib.dll ..\..\bin
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\zlib\bin\zlib.dll ..\..\bin
-copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+copy ..\..\zlib\bin\zlib1.dll ..\..\bin
 "/>
 			<Tool
 				Name="VCPreBuildEventTool"/>

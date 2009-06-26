@@ -86,6 +86,8 @@ LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /
 #if _MSC_VER>=1300
   case IDC_MAIN_PURECALL: type = CR_CPP_PURE_CALL; break;
   case IDC_MAIN_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
+#endif
+#if _MSC_VER>=1400
   case IDC_MAIN_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;  
 #endif
 #if _MSC_VER>=1300 && _MSC_VER<1400
@@ -140,6 +142,8 @@ LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWN
 #if _MSC_VER>=1300
   case IDC_THREAD_PURECALL: type = CR_CPP_PURE_CALL; break;
   case IDC_THREAD_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
+#endif
+#if _MSC_VER>=1400
   case IDC_THREAD_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
 #endif
 #if _MSC_VER>=1300 && _MSC_VER<1400

@@ -304,6 +304,9 @@ BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
+
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\CrashRptTest.exe.manifest"
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
