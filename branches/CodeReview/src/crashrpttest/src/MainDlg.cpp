@@ -37,7 +37,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   ::EnableWindow(GetDlgItem(IDC_THREAD_SECURITY), 0);
 #endif
 
-#if ( _MSC_VER>=1400 )
+#if ( _MSC_VER<1400 )
   ::EnableWindow(GetDlgItem(IDC_MAIN_INVPAR), 0);
   ::EnableWindow(GetDlgItem(IDC_THREAD_INVPAR), 0);
 #endif

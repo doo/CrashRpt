@@ -242,7 +242,7 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   
   m_ctx.m_sZipName = m_sZipName;
   m_ctx.m_sEmailTo = m_sEmailTo;
-  m_ctx.m_sEmailFrom = m_sEmailFrom.IsEmpty()?m_sEmailTo:m_sEmailFrom;
+  m_ctx.m_sEmailFrom = m_sEmailFrom;
   m_ctx.m_sEmailSubject = m_sEmailSubject;
   m_ctx.m_sEmailText = m_sDescription;
   m_ctx.m_sUrl = m_sUrl;

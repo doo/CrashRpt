@@ -9,7 +9,7 @@ using one of the following way:
  - via Simple MAPI programming interface (the user's default E-mail client application)
 
 If one of these ways fails, CrashRpt tries others in turn. If all ones fail, CrashRpt saves
-the error report to <LOCAL_APP_DATA>\\CrashRpt\\UnsentErrorReports\\<AppName>_<AppVersion> folder. 
+the error report to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
 
 \section httpsend Sending Crash Report using HTTP request
 

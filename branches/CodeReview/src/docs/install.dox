@@ -55,13 +55,13 @@ CrashRpt package, depending on your version of Visual Studio:
 In Visual Studio window, open Tools->
 Options->Projects and Solutions->VC++ Directories.
 - In the 'Show directories for' combo select 'Include files', then add 
-  the path to <CRASHRPT_HOME>\\CrashRpt\\include directory to the list below.
+  the path to [CRASHRPT_HOME]\\CrashRpt\\include directory to the list below.
 - In the 'Show directories for' combo select 'Library files', then add 
-  the path to <CRASHRPT_HOME>\\lib directory to the list below.
+  the path to [CRASHRPT_HOME]\\lib directory to the list below.
 - In the 'Show directories for' combo select 'Executable files', then add 
-  the path to <CRASHRPT_HOME>\\bin directory to the list below.
+  the path to [CRASHRPT_HOME]\\bin directory to the list below.
 
-Here <CRASHRPT_HOME> should be replaced with the actual path of the 
+Here [CRASHRPT_HOME] should be replaced with the actual path of the 
 directory you unzipped the CrashRpt package.
 
 \section bugrpt Report a Bug

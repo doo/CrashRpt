@@ -65,30 +65,52 @@ void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
   m_attachments[lpszAttachment] = lpszTitle;  
 }
 
+BOOL CMailMsg::DetectMailClient()
+{
+  CRegKey regKey;
+  TCHAR buf[1024];
+  ULONG buf_size = 0;
+
+  LONG lResult = regKey.Open(HKEY_CURRENT_USER, _T("SOFTWARE\\Software\\Clients\\Mail"), KEY_READ);
+  if(lResult==ERROR_SUCCESS)
+  {    
+    buf_size = 1024;
+    LONG result = regKey.QueryStringValue(_T(""), buf, &buf_size);
+    if(result==ERROR_SUCCESS)
+    {
+      m_sEmailClientName = CString(buf, buf_size);      
+      return TRUE;  
+    }
+
+    regKey.Close();
+  }  
+
+  lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Software\\Clients\\Mail"), KEY_READ);
+  if(lResult==ERROR_SUCCESS)
+  {    
+    buf_size = 1024;
+    LONG result = regKey.QueryStringValue(_T(""), buf, &buf_size);
+    if(result==ERROR_SUCCESS)
+    {
+      m_sEmailClientName = CString(buf, buf_size);
+      return TRUE;  
+    }
+
+    regKey.Close();
+  }
+
+  return FALSE;
+}
+
 BOOL CMailMsg::MAPIInitialize()
 {   
    // Determine if there is default email program
 
-   CRegKey regKey;
-   LONG lResult = regKey.Open(HKEY_CURRENT_USER, _T("SOFTWARE\\Software\\Clients\\Mail"), KEY_READ);
-   if(lResult!=ERROR_SUCCESS)
-   {
-     m_sErrorMsg = _T("Error opening registry key HKCU\\SOFTWARE\\Software\\Clients\\Mail");
-     return FALSE;
-   }
+   if(!DetectMailClient())
+     m_sErrorMsg = _T("Error detecting E-mail client");
+   else
+     m_sErrorMsg = _T("Detected E-mail client ") + m_sEmailClientName;
    
-   TCHAR buf[1024];
-   ULONG buf_size = 0;
-	  
-   buf_size = 1024;
-   LONG result = regKey.QueryStringValue(_T(""), buf, &buf_size);
-   if(result!=ERROR_SUCCESS)
-   {
-     m_sErrorMsg = _T("Error querying default value of registry key HKCU\\SOFTWARE\\Software\\Clients\\Mail");
-     return FALSE;  
-   }
-
-   m_sEmailClientName = CString(buf, buf_size);
    
    // Load MAPI.dll
 
@@ -96,7 +118,7 @@ BOOL CMailMsg::MAPIInitialize()
    if (!m_hMapi)
    {
      m_sErrorMsg = _T("Error loading mapi32.dll");
-      return FALSE;
+     return FALSE;
    }
 
    m_lpCmcQueryConfiguration = (LPCMCQUERY)::GetProcAddress(m_hMapi, "cmc_query_configuration");
@@ -142,6 +164,9 @@ BOOL CMailMsg::Send()
 
 BOOL CMailMsg::MAPISend()
 {
+  if(m_lpMapiSendMail==NULL)
+      return FALSE;
+
    TStrStrMap::iterator p;
    int                  nIndex = 0;   
    MapiRecipDesc*       pRecipients = NULL;
@@ -153,6 +178,15 @@ BOOL CMailMsg::MAPISend()
    if(!m_bReady && !MAPIInitialize())
      return FALSE;
    
+   LHANDLE hMapiSession = 0;
+   status = m_lpMapiLogon(NULL, NULL, NULL, MAPI_LOGON_UI|MAPI_PASSWORD_UI, NULL, &hMapiSession);
+   if(status!=SUCCESS_SUCCESS)
+   {
+     m_sErrorMsg.Format(_T("MAPILogon has failed with code %X."), status);
+     return FALSE;
+   }
+
+
    pRecipients = new MapiRecipDesc[2];
    if(!pRecipients)
    {
@@ -211,14 +245,15 @@ BOOL CMailMsg::MAPISend()
     message.lpRecips                          = &pRecipients[1];
     message.nFileCount                        = nAttachments;
     message.lpFiles                           = nAttachments ? pAttachments : NULL;
-    
-    status = m_lpMapiSendMail(0, 0, &message, MAPI_DIALOG, 0);
+        
+    status = m_lpMapiSendMail(hMapiSession, 0, &message, 0/*MAPI_DIALOG*/, 0);    
 
     if(status!=SUCCESS_SUCCESS)
     {
-      m_sErrorMsg = _T("MAPISendMail has failed.");
-      //! \todo Status messages for each MAPISendMail error code
+      m_sErrorMsg.Format(_T("MAPISendMail has failed with code %X."), status);      
     }
+
+    m_lpMapiLogoff(hMapiSession, NULL, 0, 0);
 
     if (pRecipients)
        delete [] pRecipients;

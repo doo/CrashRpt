@@ -64,6 +64,7 @@ public:
   BOOL MAPIInitialize();
   void MAPIFinalize();
   
+  BOOL DetectMailClient();
   CString GetEmailClientName();
   BOOL Send();
   BOOL MAPISend();   

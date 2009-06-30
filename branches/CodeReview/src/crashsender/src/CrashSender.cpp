@@ -15,7 +15,7 @@ CAppModule _Module;
 
 int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sImageName,
   CString& sSubject, CString& sMailTo, CString& sUrl, UINT (*puPriorities)[3], CString& sZipName)
-{
+{  
   TiXmlDocument doc;
   doc.Parse(text);
   if(doc.Error())

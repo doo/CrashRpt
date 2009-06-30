@@ -59,6 +59,9 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   char* szPrefix="crashrpt=\"";
   char* szSuffix="\"";
   CString sErrorMsg;
+  CHAR szResponce[1024];
+  DWORD dwBufSize = 1024;
+  DWORD dwHeaderIndx = 0;
 
   an->SetProgress(_T("Start sending error report over HTTP"), 0, false);
 
@@ -152,7 +155,26 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 		goto exit; // Couldn't send request
   }
 	  
-  an->SetProgress(_T("Sending error report over HTTP completed OK"), 100, false);
+  an->SetProgress(_T("Sending error report over HTTP completed OK"), 10, true);
+    
+  HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE, szResponce, &dwBufSize, NULL); 
+  if(atoi(szResponce)!=200)
+  {
+    CString msg;
+    msg.Format(_T("Error! The server returned code %s"), CString(szResponce));
+    an->SetProgress(msg, 0);
+    goto exit;
+  }    
+
+  InternetReadFile(hRequest, szResponce, 1024, &dwBufSize);
+  if(memcmp(szResponce, "CR_SUCCESS", 10)!=0)
+  {
+    CString msg = _T("Error! The server didn't return CR_SUCCESS.");    
+    an->SetProgress(msg, 0);
+    goto exit;
+  }
+
+  an->SetProgress(_T("Sent OK"), 100, false);
   bStatus = TRUE;
 
 exit:

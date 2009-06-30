@@ -50,7 +50,7 @@ BOOL SendOverSMTP(SenderThreadContext* pc)
     an.SetProgress(_T("No E-mail address is specified for sending error report over SMTP; skipping."), 0);
     return FALSE;
   }
-  msg.m_sFrom = pc->m_sEmailFrom;
+  msg.m_sFrom = (!pc->m_sEmailFrom.IsEmpty())?pc->m_sEmailFrom:pc->m_sEmailTo;
   msg.m_sTo = pc->m_sEmailTo;
   msg.m_sSubject = pc->m_sEmailSubject;
   msg.m_sText = pc->m_sEmailText;
@@ -154,6 +154,12 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
     if(bResult==FALSE)
       continue;
 
+    if(id==CR_SMAPI && bResult==TRUE)
+    {
+      status = 0;
+      break;
+    }
+
     WaitForSingleObject(an.m_hCompletionEvent, INFINITE);
     if(an.m_nCompletionStatus==0)
     {
@@ -164,8 +170,7 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
   if(status==0)
   {
-    an.SetProgress(_T("[status_success]"), 0);  
-    DeleteFile(pc->m_sZipName);
+    an.SetProgress(_T("[status_success]"), 0);      
   }
   else
   {

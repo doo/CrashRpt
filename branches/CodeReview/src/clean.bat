@@ -5,6 +5,14 @@ erase *.ncb
 erase *.opt
 erase *.ilk
 
+erase bin\*.pdb
+erase bin\*.ilk
+erase bin\*d.exe
+erase bin\*d.dll
+
+erase lib\*d.lib
+erase lib\*.exp
+
 rmdir /S /Q crashcon\src\Debug
 rmdir /S /Q crashcon\src\Release
 erase /A H crashcon\src\*.user
