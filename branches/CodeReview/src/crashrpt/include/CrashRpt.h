@@ -115,7 +115,9 @@ InstallA(
    LPCSTR pszEmailSubject
    );
 
-
+/*! \brief Character set-independent mapping of InstallW() and InstallA() functions. 
+ *  \ingroup DeprecatedAPI
+ */
 #ifdef UNICODE
 #define Install InstallW 
 #else
@@ -199,6 +201,9 @@ AddFileA(
    IN LPCWSTR pszDesc                          
    );
 
+/*! \brief Character set-independent mapping of AddFileW() and AddFileA() functions. 
+ *  \ingroup DeprecatedAPI
+ */
 #ifdef UNICODE
 #define AddFile AddFileW
 #else
@@ -294,8 +299,8 @@ GenerateErrorReport(
  *         connection will be tried first, SMTP connection will be tried second and simple MAPI will be tried
  *         last. 
  *
- *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
- *    versions of CR_INSTALL_INFO. CR_INSTALL_INFO macro defines character set independent mapping.
+ *    CR_INSTALL_INFOW() and CR_INSTALL_INFOA() structures are wide-character and multi-byte character 
+ *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
  *        
  */
 
@@ -332,6 +337,9 @@ typedef struct tagCR_INSTALL_INFOA
 }
 CR_INSTALL_INFOA, *PCR_INSTALL_INFOA;
 
+/*! \brief Character set-independent mapping of CR_INSTALL_INFOW() and CR_INSTALL_INFOA() structures.
+ *  \ingroup CrashRptStructs
+ */
 #ifdef UNICODE
 typedef CR_INSTALL_INFOW CR_INSTALL_INFO;
 typedef PCR_INSTALL_INFOW PCR_INSTALL_INFO;
@@ -439,6 +447,9 @@ crInstallA(
   PCR_INSTALL_INFOA pInfo
 );
 
+/*! \brief Character set-independent mapping of crInstallW() and crInstallA() functions. 
+ * \ingroup CrashRptAPI
+ */
 #ifdef UNICODE
 #define crInstall crInstallW
 #else
@@ -587,6 +598,9 @@ crAddFileA(
    LPCSTR pszDesc 
    );
 
+/*! \brief Character set-independent mapping of crAddFileW() and crAddFileA() functions. 
+ *  \ingroup CrashRptAPI
+ */
 #ifdef UNICODE
 #define crAddFile crAddFileW
 #else
@@ -877,6 +891,7 @@ crGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize);
 
+//! Character set-independent mapping of crGetLastErrorW() and crGetLastErrorA() functions. 
 #ifdef UNICODE
 #define crGetLastErrorMsg crGetLastErrorMsgW
 #else

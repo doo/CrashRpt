@@ -451,7 +451,7 @@ int CCrashHandler::Init(
     // Couldn't get the name of EXE that was used to create current process
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't get the name of EXE that was used to create current process."));
-    return 2;
+    return 1;
   }  
 
   m_sImageName = CString(szExeName, dwLength);
@@ -470,7 +470,7 @@ int CCrashHandler::Init(
   {
     ATLASSERT(hCrashRptModule!=NULL);
     crSetErrorMsg(_T("Couldn't get handle to CrashRpt.dll."));
-    return 3;
+    return 1;
   }  
   
   if(lpcszCrashSenderPath==NULL)
@@ -500,7 +500,7 @@ int CCrashHandler::Init(
   {
     ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
     crSetErrorMsg(_T("Couldn't locate CrashSender.exe in specified directory."));
-    return 3; // CrashSender not found!
+    return 1; // CrashSender not found!
   }
 
   CloseHandle(hFile);
@@ -510,7 +510,7 @@ int CCrashHandler::Init(
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't generate crash GUID."));
-    return 4; 
+    return 1; 
   }
 
   // Get operating system friendly name.
@@ -518,10 +518,10 @@ int CCrashHandler::Init(
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't get operating system's friendly name."));
-    return 5; 
+    return 1; 
   }
 
-  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports folder.
+  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName folder.
   CString sLocalAppDataFolder;
 
   DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
@@ -535,7 +535,7 @@ int CCrashHandler::Init(
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't create CrashRpt directory."));
-    return 6; 
+    return 1; 
   }
 
   CString sUnsentCrashReportsFolder = sCrashRptFolder+_T("\\UnsentCrashReports");
@@ -543,10 +543,19 @@ int CCrashHandler::Init(
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't create UnsentCrashReports directory."));
-    return 7; 
+    return 1; 
   }
 
-  m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolder;
+  CString str = sUnsentCrashReportsFolder+_T("\\")+m_sAppName+_T("_")+m_sAppVersion;
+  CString sUnsentCrashReportsFolderAppName = CUtility::ReplaceInvalidCharsInFileName(str);
+  if(FALSE==CreateDirectory(sUnsentCrashReportsFolderAppName, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't create UnsentCrashReports\\AppName directory."));
+    return 1; 
+  }
+
+  m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolderAppName;
    
   // add this filter in the exception callback chain
   m_oldFilter = SetUnhandledExceptionFilter(Win32UnhandledExceptionFilter);
@@ -559,7 +568,7 @@ int CCrashHandler::Init(
   {
     ATLASSERT(nSetProcessHandlers==0);
     crSetErrorMsg(_T("Couldn't set C++ exception handlers for current process."));
-    return 4;
+    return 1;
   }
 
   int nSetThreadHandlers = SetThreadCPPExceptionHandlers();
@@ -567,7 +576,7 @@ int CCrashHandler::Init(
   {
     ATLASSERT(nSetThreadHandlers==0);
     crSetErrorMsg(_T("Couldn't set C++ exception handlers for main execution thread."));
-    return 5;
+    return 1;
   }
 
   // associate this handler with the caller process

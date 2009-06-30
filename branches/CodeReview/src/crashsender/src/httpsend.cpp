@@ -5,47 +5,38 @@
 #include "base64.h"
 #include <string>
 
-void CHttpSender::_str_replace(std::string& str, char* charToReplace, char* strToInsert)
-{  
-  size_t found;
-
-  size_t len = strlen(strToInsert);
-
-  found=str.find_first_of(charToReplace);
-  while (found!=std::string::npos)
-  {
-    str.replace(found, 1, strToInsert);
-    found=str.find_first_of(charToReplace, found+len);
-  }  
-}
-
-BOOL CHttpSender::SendAssync(HttpSendParams* params)
+BOOL CHttpSender::SendAssync(CString sUrl, CString sFileName, AssyncNotification* an)
 {
   DWORD dwThreadId = 0;
   
-  ResetEvent(params->m_hCompletionEvent);
-
-  HANDLE hThread = CreateThread(NULL, 0, HttpSendThread, (void*)params, 0, &dwThreadId);
+  ResetEvent(an->m_hCompletionEvent);
+  HttpSendThreadParams params = {sUrl, sFileName, an};
+  HANDLE hThread = CreateThread(NULL, 0, HttpSendThread, (void*)&params, 0, &dwThreadId);
   if(hThread==NULL)
     return FALSE;
+
+  WaitForSingleObject(an->m_hCompletionEvent, INFINITE);
 
   return TRUE;
 }
 
 DWORD WINAPI CHttpSender::HttpSendThread(VOID* pParam)
 {
-  HttpSendParams* params = (HttpSendParams*)pParam;
+  HttpSendThreadParams* params = (HttpSendThreadParams*)pParam;
    
-  int nResult = _Send(params->m_sURL, params->m_sFileName);
+  HttpSendThreadParams param_copy = *params;
+  SetEvent(params->an->m_hCompletionEvent);
 
-  params->m_nCompletionStatus = nResult;  
+  int nResult = _Send(params->m_sURL, params->m_sFileName, params->an);
 
-  SetEvent(params->m_hCompletionEvent);
+  param_copy.an->m_nCompletionStatus = nResult?0:1;  
+
+  SetEvent(param_copy.an->m_hCompletionEvent);
 
   return nResult;
 }
 
-BOOL CHttpSender::_Send(CString sURL, CString sFileName)
+BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 { 
   BOOL bStatus = FALSE;
 	TCHAR* hdrs = _T("Content-Type: application/x-www-form-urlencoded");
@@ -64,17 +55,29 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName)
   FILE* f = NULL;
   BOOL bResult = FALSE;
   char* chPOSTRequest = NULL;
-  std::string sPOSTRequest;
+  CStringA sPOSTRequest;
   char* szPrefix="crashrpt=\"";
   char* szSuffix="\"";
+  CString sErrorMsg;
+
+  an->SetProgress(_T("Start sending error report over HTTP"), 0, false);
+
+  an->SetProgress(_T("Creating Internet connection"), 3, false);
+
+  if(an->IsCancelled()){ goto exit; }
 
   // Create Internet session
 	hSession = InternetOpen(_T("CrashRpt"),
 		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if(hSession==NULL)
+  {
+    an->SetProgress(_T("Error creating Internet conection"), 0);
 	  goto exit; // Couldn't create internet session
+  }
   
   ParseURL(sURL, szProtocol, 512, szServer, 512, dwPort, szURI, 1024);
+
+  an->SetProgress(_T("Connecting to server"), 5, false);
 
   // Connect to server
 	hConnect = InternetConnect(
@@ -88,12 +91,22 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName)
     1);
 	
 	if(hConnect==NULL)
+  {
+    an->SetProgress(_T("Error connecting to server"), 0);
 	  goto exit; // Couldn't connect
+  }
 	
+  if(an->IsCancelled()){ goto exit; }
+
+  an->SetProgress(_T("Preparing HTTP request data"), 7, false);
+
   // Load file data into memory
   res = _tstat(sFileName.GetBuffer(0), &st);
   if(res!=0)
+  {
+    an->SetProgress(_T("Error opening file"), 0);
     goto exit; // File not found
+  }
   
   uFileSize = st.st_size;
   uchFileData = new BYTE[uFileSize];
@@ -104,27 +117,42 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName)
 #endif
   if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
   {
+    an->SetProgress(_T("Error reading file"), 0);
     goto exit;  
   }
   fclose(f);
 
-  sPOSTRequest = base64_encode(uchFileData, uFileSize);
+  sPOSTRequest = base64_encode(uchFileData, uFileSize).c_str();
   sPOSTRequest = szPrefix + sPOSTRequest + szSuffix;  
-  _str_replace(sPOSTRequest, "+", "%2B");
-  _str_replace(sPOSTRequest, "/", "%2F");
+  sPOSTRequest.Replace("+", "%2B");
+  sPOSTRequest.Replace("/", "%2F");  
   
+  an->SetProgress(_T("Opening HTTP request"), 10);
+
+  if(an->IsCancelled()){ goto exit; }
+
   // Send POST request
   hRequest = HttpOpenRequest(hConnect, _T("POST"),
 		                         szURI, NULL, NULL, accept, 0, 1);	
 	if(hRequest==NULL)
-	  return FALSE; // Coudn't open request	
+  {
+    an->SetProgress(_T("Error opening HTTP request"), 0);
+	  goto exit; // Coudn't open request	
+  }
 
+  if(an->IsCancelled()){ goto exit; }
+
+  an->SetProgress(_T("Sending HTTP request"), 50);
   bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 
-    (void*)sPOSTRequest.c_str(), (DWORD)sPOSTRequest.length());
+    (void*)sPOSTRequest.GetBuffer(), (DWORD)sPOSTRequest.GetLength());
     
   if(bResult == FALSE)
-		return FALSE; // Couldn't send request
+  {
+    an->SetProgress(_T("Error sending HTTP request"), 100, false);
+		goto exit; // Couldn't send request
+  }
 	  
+  an->SetProgress(_T("Sending error report over HTTP completed OK"), 100, false);
   bStatus = TRUE;
 
 exit:

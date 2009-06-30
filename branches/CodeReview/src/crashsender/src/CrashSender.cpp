@@ -266,7 +266,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     dlgMain.m_sZipName,    
     dlgMain.m_pUDFiles)!=0)
     return 1; 
-
+  
 	if(dlgMain.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));

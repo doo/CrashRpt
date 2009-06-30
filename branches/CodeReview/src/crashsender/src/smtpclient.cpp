@@ -5,14 +5,8 @@
 #include <ws2tcpip.h>
 #include <sys/stat.h>
 #include "base64.h"
-
-#if _MSC_VER>=1300
 #include <iphlpapi.h>
 #include <Windns.h>
-#else
-#include <Ws2tcpip.h>
-#endif
-
 
 CSmtpClient::CSmtpClient()
 {
@@ -35,16 +29,16 @@ int CSmtpClient::SendEmail(CEmailMessage* msg)
   return _SendEmail(msg, NULL);
 }
 
-int CSmtpClient::SendEmailAssync(CEmailMessage* msg,  SmtpClientNotification* scn)
+int CSmtpClient::SendEmailAssync(CEmailMessage* msg,  AssyncNotification* scn)
 {
   DWORD dwThreadId = 0;
-  SendThreadContext ctx;
+  SmtpSendThreadContext ctx;
   ctx.m_msg = msg;
   ctx.m_scn = scn;
  
   ResetEvent(scn->m_hCompletionEvent);
 
-  HANDLE hThread = CreateThread(NULL, 0, SendThread, (void*)&ctx, 0, &dwThreadId);
+  HANDLE hThread = CreateThread(NULL, 0, SmtpSendThread, (void*)&ctx, 0, &dwThreadId);
   if(hThread==NULL)
     return 1;
 
@@ -54,12 +48,12 @@ int CSmtpClient::SendEmailAssync(CEmailMessage* msg,  SmtpClientNotification* sc
   return 0;
 }
 
-DWORD WINAPI CSmtpClient::SendThread(VOID* pParam)
+DWORD WINAPI CSmtpClient::SmtpSendThread(VOID* pParam)
 {
-  SendThreadContext* ctx = (SendThreadContext*)pParam;
+  SmtpSendThreadContext* ctx = (SmtpSendThreadContext*)pParam;
   
   CEmailMessage* msg = ctx->m_msg;
-  SmtpClientNotification* scn = ctx->m_scn;
+  AssyncNotification* scn = ctx->m_scn;
 
   SetEvent(scn->m_hCompletionEvent); // signal that parameters have been copied
 
@@ -75,55 +69,55 @@ DWORD WINAPI CSmtpClient::SendThread(VOID* pParam)
 }
 
 
-int CSmtpClient::_SendEmail(CEmailMessage* msg, SmtpClientNotification* scn)
+int CSmtpClient::_SendEmail(CEmailMessage* msg, AssyncNotification* scn)
 {
-  SetStatus(scn, _T("Start sending email"), 0, false);
+  scn->SetProgress(_T("Start sending email"), 0, false);
 
   std::map<WORD, CString> host_list;
 
   int res = GetSmtpServerName(msg, scn, host_list);
   if(res!=0)
   {
-    SetStatus(scn, _T("Error querying DNS record."), 100, false);
+    scn->SetProgress(_T("Error querying DNS record."), 100, false);
     return 1;
   }
 
   std::map<WORD, CString>::iterator it;
   for(it=host_list.begin(); it!=host_list.end(); it++)
   {
-    if(IsUserCancelled(scn))    
+    if(scn->IsCancelled())    
       return 2;
 
     int res = SendEmailToRecipient(it->second, msg, scn);
     if(res==0)
     {
-      SetStatus(scn, _T("Finished OK."), 100, false);
+      scn->SetProgress(_T("Finished OK."), 100, false);
       return 0;
     }
     if(res==2)
     {
-      SetStatus(scn, _T("Critical error detected."), 100, false);
+      scn->SetProgress(_T("Critical error detected."), 100, false);
       return 2;
     }
   }
 
-  SetStatus(scn, _T("Error sending email."), 100, false);
+  scn->SetProgress(_T("Error sending email."), 100, false);
 
   return 1;
 }
 
-#if _MSC_VER>=1300
-int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* scn, 
+
+int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn, 
                                    std::map<WORD, CString>& host_list)
 {
   DNS_RECORD *apResult = NULL;
 
   CString sServer;
-  sServer = msg->m_sTo.Mid(msg->m_sTo.Find('@')+1);
+  sServer = msg->m_sFrom.Mid(msg->m_sFrom.Find('@')+1);
  
   CString sStatusMsg;
   sStatusMsg.Format(_T("Quering MX record of domain %s"), sServer);
-  SetStatus(scn, sStatusMsg, 2);
+  scn->SetProgress(sStatusMsg, 2);
 
   int r = DnsQuery(sServer, DNS_TYPE_MX, DNS_QUERY_STANDARD, 
     NULL, (PDNS_RECORD*)&apResult, NULL);
@@ -145,29 +139,20 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* s
   }
 
   sStatusMsg.Format(_T("DNS query failed with code %d"), r);
-  SetStatus(scn, sStatusMsg, 2);
+  scn->SetProgress(sStatusMsg, 2);
   return 1;
 }
-#else
-int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, SmtpClientNotification* scn, 
-                                   std::map<WORD, CString>& host_list)
-{
-	return 1;
-}
 
-#endif
 
-int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, SmtpClientNotification* scn)
+int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, AssyncNotification* scn)
 {
   int status = 1;
   
   USES_CONVERSION;  
 
-#if WINVER>=0x0500
   struct addrinfo *result = NULL;
   struct addrinfo *ptr = NULL;
   struct addrinfo hints;
-#endif
 
   int iResult = -1;  
   CString sPostServer;
@@ -190,19 +175,18 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     if(CheckAttachmentOK(*it)!=0)
     {
       sStatusMsg.Format(_T("Attachment not found: %s"), *it);
-      SetStatus(scn, sStatusMsg, 1);
+      scn->SetProgress(sStatusMsg, 1);
       return 2; // critical error
     }
   }
 
   sStatusMsg.Format(_T("Getting address info of %s port %s"), sSmtpServer, CString(sServiceName));
-  SetStatus(scn, sStatusMsg, 1);
+  scn->SetProgress(sStatusMsg, 1);
 
   int res = SOCKET_ERROR;
   char buf[1024]="";
   std::string sEncodedFileData;
 
-#if WINVER>=0x0500
   memset(&hints, 0, sizeof(hints));
   hints.ai_family = AF_INET;
   hints.ai_socktype = SOCK_STREAM;
@@ -216,20 +200,20 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   
   for(ptr=result; ptr != NULL ;ptr=ptr->ai_next) 
   {
-    if(IsUserCancelled(scn)) {status = 2; goto exit;}
+    if(scn->IsCancelled()) {status = 2; goto exit;}
 
     sStatusMsg.Format(_T("Creating socket"));
-    SetStatus(scn, sStatusMsg, 1);
+    scn->SetProgress(sStatusMsg, 1);
 
     sock = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
     if(sock==INVALID_SOCKET)
     {
-      SetStatus(scn, _T("Socket creation failed."), 1);
+      scn->SetProgress(_T("Socket creation failed."), 1);
       goto exit;
     }
  
     sStatusMsg.Format(_T("Connecting to SMTP server %s port %s"), sSmtpServer, CString(sServiceName));
-    SetStatus(scn, sStatusMsg, 1);
+    scn->SetProgress(sStatusMsg, 1);
 
     res = connect(sock, ptr->ai_addr, (int)ptr->ai_addrlen);
     if(res!=SOCKET_ERROR)
@@ -237,21 +221,20 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     
     closesocket(sock);
   }
-#endif
 
   if(res==SOCKET_ERROR)
     goto exit;
 
   sStatusMsg.Format(_T("Connected OK."));
-  SetStatus(scn, sStatusMsg, 5);
+  scn->SetProgress(sStatusMsg, 5);
   
-  if(IsUserCancelled(scn)) {status = 2; goto exit;}
+  if(scn->IsCancelled()) {status = 2; goto exit;}
 
   res = recv(sock, buf, 1024, 0);
   if(res==SOCKET_ERROR)
   {
     sStatusMsg.Format(_T("Failed to receive greeting message from SMTP server (recv code %d)."), res);
-    SetStatus(scn, sStatusMsg, 1);
+    scn->SetProgress(sStatusMsg, 1);
     goto exit;
   }
 
@@ -264,35 +247,49 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   char responce[1024];
 
   sStatusMsg.Format(_T("Sending HELO"));
-  SetStatus(scn, sStatusMsg, 1);
+  scn->SetProgress(sStatusMsg, 1);
 
   // send HELO
 	res=SendMsg(scn, sock, _T("HELO CrashSender\r\n"), responce, 1024);
   if(res!=250)
+  {
+    sStatusMsg = CString(responce, 1024);
+    scn->SetProgress(sStatusMsg, 0);    
     goto exit;
+  }
 	
   sStatusMsg.Format(_T("Sending sender and recipient information"));
-  SetStatus(scn, sStatusMsg, 1);
+  scn->SetProgress(sStatusMsg, 1);
   
   sMsg.Format(_T("MAIL FROM:<%s>\r\n"), msg->m_sFrom);
   res=SendMsg(scn, sock, sMsg, responce, 1024);
   if(res!=250)
+  {
+    sStatusMsg = CString(responce, 1024);
+    scn->SetProgress(sStatusMsg, 0);    
     goto exit;
+  }
 	
   sMsg.Format(_T("RCPT TO:<%s>\r\n"), msg->m_sTo);
   res=SendMsg(scn, sock, sMsg, responce, 1024);
   if(res!=250)
   {
+    sStatusMsg = CString(responce, 1024);
+    scn->SetProgress(sStatusMsg, 0);
     goto exit;
   }
 
   sStatusMsg.Format(_T("Start sending email data"));
-  SetStatus(scn, sStatusMsg, 1);
+  scn->SetProgress(sStatusMsg, 1);
 
   // Send DATA
   res=SendMsg(scn, sock, _T("DATA\r\n"), responce, 1024);
   if(res!=354)
+  {
+    sStatusMsg = CString(responce, 1024);
+    scn->SetProgress(sStatusMsg, 0);    
     goto exit;
+  }
     
 
   str.Format(_T("From: <%s>\r\n"), msg->m_sFrom);
@@ -311,7 +308,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
   /* Message text */
 
   sStatusMsg.Format(_T("Sending message text"));
-  SetStatus(scn, sStatusMsg, 15);
+  scn->SetProgress(sStatusMsg, 15);
 
   sMsg =  "--KkK170891tpbkKk__FV_KKKkkkjjwq\r\n";
   sMsg += "Content-Type: text/plain; charset=UTF-8\r\n";
@@ -323,7 +320,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     goto exit;
 
   sStatusMsg.Format(_T("Sending attachments"));
-  SetStatus(scn, sStatusMsg, 1);
+  scn->SetProgress(sStatusMsg, 1);
 
   /* Attachments. */
   for(it=msg->m_aAttachments.begin(); it!=msg->m_aAttachments.end(); it++)
@@ -351,7 +348,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
     if(nEncode!=0)
     {
       sStatusMsg.Format(_T("Error BASE64-encoding attachment %s"), sFileName);
-      SetStatus(scn, sStatusMsg, 1);
+      scn->SetProgress(sStatusMsg, 1);
       goto exit;
     }
 
@@ -371,28 +368,34 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, S
 
   // End of message marker
 	if(250!=SendMsg(scn, sock, _T("\r\n.\r\n"), responce, 1024))
+  {
+    sStatusMsg = CString(responce, 1024);
+    scn->SetProgress(sStatusMsg, 0);    
     goto exit;
+  }
 
 	// quit
 	if(221!=SendMsg(scn, sock, _T("QUIT \r\n"), responce, 1024))
+  {
+    sStatusMsg = CString(responce, 1024);
+    scn->SetProgress(sStatusMsg, 0);    
     goto exit;
+  }
 
   // OK.
   status = 0;
 
 exit:
 
-  if(IsUserCancelled(scn)) 
+  if(scn->IsCancelled()) 
     status = 2;
 
   sStatusMsg.Format(_T("Finished with error code %d"), status);
-  SetStatus(scn, sStatusMsg, 100, false);
+  scn->SetProgress(sStatusMsg, 100, false);
 
   // Clean up
   closesocket(sock);
-#if WINVER>=0x0500
   freeaddrinfo(result);  
-#endif
   return status;
 }
 
@@ -425,11 +428,11 @@ std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
    return utf8;
 }
 
-int CSmtpClient::SendMsg(SmtpClientNotification* scn, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce, UINT uResponceSize)
+int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce, UINT uResponceSize)
 {	
   USES_CONVERSION;
 
-  if(IsUserCancelled(scn)) {return -1;}
+  if(scn->IsCancelled()) {return -1;}
 
   int msg_len = (int)_tcslen(pszMessage);
 
@@ -506,40 +509,4 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
   return 0;
 }
 
-void CSmtpClient::SetStatus(SmtpClientNotification* scn, CString sStatusMsg, 
-                            int percentCompleted, bool bRel)
-{
-  if(scn==NULL)
-    return;
-
-  scn->m_cs.Lock();
-  
-  scn->m_statusLog.push_back(sStatusMsg);
-  
-  if(bRel)
-  {
-    scn->m_nPercentCompleted += percentCompleted;
-    if(scn->m_nPercentCompleted>100)
-    {
-      scn->m_nPercentCompleted = 100;
-    }
-  }
-  else
-    scn->m_nPercentCompleted = percentCompleted;
-
-  scn->m_cs.Unlock();
-} 
-
-bool CSmtpClient::IsUserCancelled(SmtpClientNotification* scn)
-{
-  DWORD dwWaitResult = WaitForSingleObject(scn->m_hCancelEvent, 0);
-  if(dwWaitResult==WAIT_OBJECT_0)
-  {
-    SetEvent(scn->m_hCancelEvent);
-    SetStatus(scn, _T("Cancelled by user."), 0);
-    return true;
-  }
-  
-  return false;
-}
 

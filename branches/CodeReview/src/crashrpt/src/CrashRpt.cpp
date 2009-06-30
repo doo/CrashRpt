@@ -1,11 +1,3 @@
-/*! \file   CrashRpt.cpp
- *  \brief  Implementation of CrashRpt API
- *  \date   2003-2009
- *  \author Copyright (c) 2003 Michael Carruth
- *  \author zexspectrum_1980@gmail.com
- *  \todo
- */
-
 #include "stdafx.h"
 #include "CrashRpt.h"
 #include "CrashHandler.h"
@@ -364,8 +356,8 @@ CRASHRPTAPI int crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
   {
     // No error message for current thread.
     CString sErrorMsg = _T("No error.");
-	LPWSTR pwszErrorMsg = T2W(sErrorMsg.GetBuffer(0));
-	WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
+	  LPWSTR pwszErrorMsg = T2W(sErrorMsg.GetBuffer(0));
+	  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
     int size =  sErrorMsg.GetLength();
     g_cs.Unlock();
     return size;
@@ -430,11 +422,11 @@ CRASHRPTAPI int crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS*
 
   int res = pCrashHandler->GenerateErrorReport(&ei);
   if(res!=0)
-  {    
+  {
+    // If goes here than GenerateErrorReport() failed  
     return EXCEPTION_CONTINUE_SEARCH;  
-  }
+  }  
   
-  // If goes here than GenerateErrorReport() failed  
   crSetErrorMsg(_T("Success."));
   return EXCEPTION_EXECUTE_HANDLER;  
 }

@@ -1,33 +1,29 @@
 #pragma once
 #include "stdafx.h"
 #include <string>
-
-struct HttpSendParams
-{
-  CString m_sURL;
-  CString m_sFileName;
-  HANDLE m_hCompletionEvent;
-  int m_nCompletionStatus;
-};
+#include "smtpclient.h"
 
 class CHttpSender
 {
 public:
   
-  BOOL SendAssync(HttpSendParams* params);
+  BOOL SendAssync(CString sUrl, CString sFileName, AssyncNotification* an);
 
 private:
-
-  static void _str_replace(std::string& str, char* charToReplace, char* strToInsert);
 
   static void ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
     LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI);
 
-  static BOOL _Send(CString sURL, CString sFileName);
+  static BOOL _Send(CString sURL, CString sFileName, AssyncNotification* an);
 
   static DWORD WINAPI HttpSendThread(VOID* pParam);
 
-  
+  struct HttpSendThreadParams
+  {
+    CString m_sURL;
+    CString m_sFileName;
+    AssyncNotification* an;
+  };
 };
 
 

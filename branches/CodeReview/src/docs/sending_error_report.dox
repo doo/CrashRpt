@@ -5,17 +5,11 @@
 When crash occurs, CrashRpt builds an error report and sends it to the software developers 
 using one of the following way: 
  - via HTTP request to a server-side script
- - via SMTP connection to recipient's mailbox
+ - via connection to an SMTP server
  - via Simple MAPI programming interface (the user's default E-mail client application)
 
 If one of these ways fails, CrashRpt tries others in turn. If all ones fail, CrashRpt saves
-the error report to \%UnsentErrorReports\% folder. 
-
-\section smapisend Sending Crash Report using Simple MAPI
-
-
-\section smtpsend Sending Crash Report using SMTP connection
-
+the error report to <LOCAL_APP_DATA>\\CrashRpt\\UnsentErrorReports\\<AppName>_<AppVersion> folder. 
 
 \section httpsend Sending Crash Report using HTTP request
 
@@ -28,12 +22,12 @@ of 64 predefined characters. The server-side script should base64-decode the ZIP
 
 The encoded data are passed to the script by POST as parameter named "crashrpt".
 
-Below is an example server-side PHP script can receive a crash report and write it to a file.
+Below is an example server-side PHP script that can receive a crash report and write it to a file.
 
 \code
 <?php
 
-$fileroot = "/home/username/crash_repots/";
+$fileroot = "/home/username/crash_reports/";
 
 
 // Checks if field is correct
@@ -67,5 +61,25 @@ fclose($file);
 exit(0);
 ?>
 \endcode
+
+\section smtpsend Sending Crash Report using SMTP connection
+
+CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
+connection without any user interaction.
+
+If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP
+server name and relay the email message to that server.
+
+If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX 
+record of recipent's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+
+This way may fail if firewall blocks outgoing connections on port 25. 
+
+\section smapisend Sending Crash Report using Simple MAPI
+
+CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. This requires some user interaction.
+
+This way has the lowest priority by default.
+
 
 */

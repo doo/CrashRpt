@@ -64,9 +64,11 @@ public:
   BOOL MAPIInitialize();
   void MAPIFinalize();
   
+  CString GetEmailClientName();
   BOOL Send();
   BOOL MAPISend();   
   BOOL CMCSend();
+  CString GetLastErrorMsg(){ return m_sErrorMsg; }
 
 protected:
 
@@ -86,8 +88,9 @@ protected:
    LPMAPILOGOFF   m_lpMapiLogoff;               // Mapi func pointer
    
    BOOL           m_bReady;                     // MAPI is loaded
+   CString        m_sEmailClientName;
 
-   CString m_sErrorMsg;
+   CString        m_sErrorMsg;
 };
 
 #endif	// _MAILMSG_H_

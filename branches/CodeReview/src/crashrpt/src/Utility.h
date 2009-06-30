@@ -121,7 +121,11 @@ public:
    // Returns friendly name of operating system (name, version, service pack)
    static int GetOSFriendlyName(CString& sOSName);  
 
+   // Returns path to a special folder (for example %LOCAL_APP_DATA%)
    static int GetSpecialFolder(int csidl, CString& sFolderPath);
+
+   // Replaces restricted characters in file name
+   static CString ReplaceInvalidCharsInFileName(CString sFileName);
    
 };
 

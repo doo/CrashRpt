@@ -74,7 +74,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
-				LinkIncremental="2"
+				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -164,7 +164,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
 				SubSystem="2"
 				TargetMachine="1"
@@ -489,6 +489,10 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
+			<File
+				RelativePath=".\res\CrashSender.exe.manifest"
+				>
+			</File>
 			<File
 				RelativePath=".\res\CrashSender.ico"
 				>

@@ -62,9 +62,9 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | 
 CAPTION "Sending Error Report"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "Cancel",IDCANCEL,209,91,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,7,91,50,14
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,20,252,9
-    LTEXT           "The error report is now being sent...",IDC_STATIC,7,7,118,8
+    LTEXT           "The error report is now being sent...",IDC_TEXT,7,7,252,8,SS_ENDELLIPSIS
     LISTBOX         IDC_LIST,7,36,252,48,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
@@ -213,6 +213,13 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// RT_MANIFEST
+//
+
+1                       RT_MANIFEST             "res\\CrashSender.exe.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -315,8 +322,6 @@ BEGIN
     IDS_CRASH_LOG           "Crash Log"
     IDS_SYMBOL_FILE         "Symbol File"
 END
-
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "res\\CrashSender.exe.manifest"
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

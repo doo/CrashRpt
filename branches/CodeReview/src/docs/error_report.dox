@@ -31,10 +31,10 @@ version, processor type, CPU registers state and local variables and stack trace
 execution thread. The minidump in most cases can be used on developer's side to determine 
 the reason of crash and try to fix the problem.
 
-In addition, CrashRpt generates an XML crash log file. This file contains various
-information that might be useful for crash classification and analysis.
+In addition, CrashRpt generates an XML crash descriptor file. This file contains various
+information that might be useful for crash analysis.
 
-Client application can specify custom files, for example, application logs, to be included 
-to crash report via the crash callback.
+The custom files, for example, application logs, can be included to crash report via the 
+crash callback.
 
 */

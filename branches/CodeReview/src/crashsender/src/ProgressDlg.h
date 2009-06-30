@@ -19,7 +19,7 @@ public:
   BEGIN_DLGRESIZE_MAP(CProgressDlg)
     DLGRESIZE_CONTROL(IDC_PROGRESS, DLSZ_SIZE_X)
     DLGRESIZE_CONTROL(IDC_LIST, DLSZ_SIZE_X|DLSZ_SIZE_Y)
-    DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_X|DLSZ_MOVE_Y)    
+    DLGRESIZE_CONTROL(IDCANCEL, DLSZ_MOVE_Y)    
   END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CProgressDlg)
@@ -44,6 +44,8 @@ public:
 
   void Start();
   void CloseDialog(int nVal);
+
+  BOOL m_bFinished;
   
 };
 

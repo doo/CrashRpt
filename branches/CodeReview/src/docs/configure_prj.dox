@@ -1,0 +1,192 @@
+/*!
+
+\page configure_prj Using CrashRpt in Your Project
+
+This page is organized in the following sections:
+- \ref useapi
+- \ref crtdll
+- \ref prgdb
+- \ref savefiles
+- \ref rlsfiles
+
+
+\section useapi Using CrashRpt API
+
+The CrashRpt library provides several API functions that can be used in your project.
+
+Do not forget to include the CrashRpt header in the beginning of your code. 
+
+\code
+// Include CrashRpt header
+#include "CrashRpt.h"
+\endcode
+
+You also need to add the \b CrashRpt.lib to the list of input libraries for your project.
+In the Solution Explorer window, right-click your project and choose Properties item in the
+context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
+and then add \b CrashRpt.lib to the list of libraries.
+
+To enable crash reporting support in your VC++ project, you should use crInstall()
+and crInstallToCurrentThread() functions. 
+
+The crInstall() function installs exception handlers that function on per-process basis. You can
+create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
+The crash callback is called on crash and allows to add custom files to the error report or perform
+another action.
+
+The crInstallToCurrentThread() function installs exception handlers that function on per-thread basis. 
+In a multithread program you should call the crInstallToCurrentThread() for all 
+threads except the main one.
+
+On application exit, you should use crUninstall() and crUninstallFromCurrentThread()
+functions to unset exception handlers.
+
+Example:
+
+\code
+
+#include "CrashRpt.h"
+
+// ..
+
+BOOL WINAPI CrashCallback(LPVOID lpvState)
+{
+  CString sLogFile = GetAppDir() + _T("\\dummy.log");
+  CString sIniFile = GetAppDir() + _T("\\dummy.ini");
+
+  crAddFile(sLogFile, _T("Dummy Log File"));  
+  crAddFile(sIniFile, _T("Dummy INI File"));
+ 
+  return TRUE;
+}
+
+
+// ..
+
+CR_INSTALL_INFO info;
+memset(&info, 0, sizeof(CR_INSTALL_INFO));
+info.cb = sizeof(CR_INSTALL_INFO);  
+info.pszAppName = _T("My Application");
+info.pszAppVersion = _T("1.3.5");
+info.pszEmailSubject = _T("Error Report from My Application 1.3.5");
+info.pszEmailTo = _T("myapp_support@hotmail.com");  
+info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");
+info.pfnCrashCallback = CrashCallback; 
+info.uPriorities[CT_HTTP] = 3;  // try HTTP first
+info.uPriorities[CR_SMTP] = 2;  // try SMTP second
+info.uPriorities[CR_SMAPI] = 1; // try Simple MAPI last  
+
+  
+int nInstResult = crInstall(&info);
+
+// .. your code follows here ..
+
+int nUninstResult = crUninstall();
+
+\endcode
+
+Typically an application creates and maintains a log file where operations and errors are
+written. Such log file can be helpful for crash analysis and should be added to the error
+report. You can add application-specific files to the error report using crAddFile() function.
+
+Sometimes it is required to remotely debug some application logics error. Such an error,
+for example, infinite loop, may not cause program crash. To collect the information about
+error that doesn't cause crash, the software developer might provide an ability to generate 
+error report manually on user demand,
+for example on a key combination press. The crGenerateErrorReport() allows to generate an error
+report manually.
+
+Visual C++ provides structured exception handling mechanism. You may use __try{}__except(Expression){}
+construction to catch a structured exception in your program. Use crExceptionFilter() function to
+generate an error report when structured exception occurs.
+
+When you install crash reporting support to your program, it is important to test if CrashReport
+intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation.
+
+Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
+text error message of the last called function, use crGetLastError().
+
+CrashReport API Reference:
+- \ref CrashRptAPI
+- \ref CrashRptStructs
+- \ref DeprecatedAPI
+
+\section crtdll Use CRT as Multi-Threaded DLL (/MD) in Release Configuration
+
+It is important that you configure your project to use C++ runtime libraries (CRT)
+as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
+And CrashRpt won't work properly if CRT is used in different way.
+
+In the Solution Explorer window, right-click your project and open project Properties. 
+Then choose Configuration Properties->C/C++->Code Generation. In Runtime Library field,
+choose Multi-threaded DLL (/MD).
+
+This should be done for all projects in your solution.
+
+NOTE: In Debug configuration it is not important what CRT linkage you use.
+
+\image html crtdll.png "Multi-threaded DLL (/MD)"    
+
+
+\section prgdb Enable Program Database (/Zi) in Release Configuration
+
+To get the most out of the crash minidump, the debugger needs your application's debug 
+symbols. By default Release builds don't generate debug symbols. 
+
+In the Solution Explorer window, right-click your project and open project Properties. 
+Then choose Configuration Properties->C/C++->General. In Debug Information Format field,
+choose Program Database (/Zi).
+
+This should be done for all projects in your solution that support program database 
+(EXE, DLL and so on).
+
+\image html program_database.png "Program Database (/Zi)"
+
+
+\section savefiles What Files Must be Saved Locally Before Software Release
+
+When you are ready for the software release, the following steps must be
+performed to be able properly read end user error reports later.
+  
+- Create a directory, for example name it 'CrashRptSaved'.
+- In that directory create a subdirectory for your software release,
+  for example 'MyApp v.1.3.5'.
+- Copy all binary files (*.EXE, *.DLLs) from your project output. 
+- Copy all program database files (*.PDB) from your project output. 
+
+It is recommended to direct all project output to \c bin directory and 
+then just copy entire \c bin directory. These steps should be performed for 
+exactly the same software build that you release. If you rebuild the project 
+after files are copied, you must copy the files again.
+
+It is good idea to automate these steps as a post-build event. That would guarantee you won't
+forget to copy the files.
+
+When a crash report comes in, you use the release build and debug symbols you copied, 
+along with the minidump included in the crash report, to debug the crash.
+
+\note
+
+The files copied to CrashRptSaved directory should be stored locally during the software 
+life time. The saved files should NOT be included in the software release package and sent to 
+end users. You should never ship debug builds or debug symbols (PDB files) as they will 
+not only take up more 
+space on your CD/download/client's machine, but they will also make reverse engineering 
+your code a trivial exercise. 
+
+\section rlsfiles What Files Should be Distributed in Software Release Package
+
+You must always distribute the following files with your software release.
+
+- \b bin\CrashRpt.dll (113 KB in size)
+- \b bin\CrashSender.exe (220 KB in size)
+- \b dbghelp\bin\dbghelp.dll (1056 KB in size)
+- \b zlib\bin\zlib1.dll (59 KB in size)
+
+It is recommended that you place these files to the directory where your application executable
+file is located.
+
+The CrashRpt.dll and CrashSender.exe are core CrashRpt modules. dbghelp.dll (Microsoft Debug Help Library) 
+and zlib1.dll (ZLib) are dependent modules.
+
+*/

@@ -71,7 +71,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				OutputFile="..\..\bin\crashcon.exe"
-				LinkIncremental="1"
+				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Release/crashcon.pdb"
@@ -104,7 +104,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -169,7 +169,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptd.lib"
 				OutputFile="../../bin/crashcond.exe"
-				LinkIncremental="2"
+				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../lib"
 				GenerateDebugInformation="true"
@@ -202,7 +202,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\zlib\bin\zlib.dll ..\..\bin&#x0D;&#x0A;copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

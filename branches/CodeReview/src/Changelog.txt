@@ -1,0 +1,28 @@
+#=============================================
+# Change History 
+#==============================================
+
+
+==============================================
+ Ver. 1.1
+==============================================
+
+
+
+
+==============================================
+ Ver. 1.0
+==============================================
+
+    * 03/17/2003
+          o Replaced MFC with WTL.
+          o Changed crashrpt interface.
+          o Major refactoring.
+          o Updated article.
+          o Details dialog preview window now uses system defined window color instead of white.
+          o Directory structure not saved in ZIP.
+          o Support for use by multiple apps.
+          o Buffer overrun error when previewing files > 32k.
+          o Main dialog now displays app icon. 
+    * 01/12/2003
+          o Initial release. 

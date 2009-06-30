@@ -176,6 +176,7 @@ LRESULT CMainDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 
 LRESULT CMainDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+  CreateTrayIcon(FALSE, m_hWnd);
   CloseDialog(0);  
   return 0;
 }
@@ -239,9 +240,6 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   // Write user email and problem description to XML
   AddUserInfoToCrashDescriptorXML(m_sEmailFrom, m_sDescription);
   
-  m_ctx.m_hCancelEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-  m_ctx.m_nStatus = 0;
-  m_ctx.m_nProgressPct = 0;
   m_ctx.m_sZipName = m_sZipName;
   m_ctx.m_sEmailTo = m_sEmailTo;
   m_ctx.m_sEmailFrom = m_sEmailFrom.IsEmpty()?m_sEmailTo:m_sEmailFrom;
@@ -267,8 +265,7 @@ LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, B
 {
   if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0 )
   {
-    KillTimer(0);
-    //CloseDialog(0);    
+    KillTimer(0);    
   }
   
   return 0;

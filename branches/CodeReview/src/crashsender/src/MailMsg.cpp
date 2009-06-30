@@ -66,11 +66,38 @@ void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
 }
 
 BOOL CMailMsg::MAPIInitialize()
-{
-   m_hMapi = ::LoadLibrary(_T("mapi32.dll"));
+{   
+   // Determine if there is default email program
+
+   CRegKey regKey;
+   LONG lResult = regKey.Open(HKEY_CURRENT_USER, _T("SOFTWARE\\Software\\Clients\\Mail"), KEY_READ);
+   if(lResult!=ERROR_SUCCESS)
+   {
+     m_sErrorMsg = _T("Error opening registry key HKCU\\SOFTWARE\\Software\\Clients\\Mail");
+     return FALSE;
+   }
    
+   TCHAR buf[1024];
+   ULONG buf_size = 0;
+	  
+   buf_size = 1024;
+   LONG result = regKey.QueryStringValue(_T(""), buf, &buf_size);
+   if(result!=ERROR_SUCCESS)
+   {
+     m_sErrorMsg = _T("Error querying default value of registry key HKCU\\SOFTWARE\\Software\\Clients\\Mail");
+     return FALSE;  
+   }
+
+   m_sEmailClientName = CString(buf, buf_size);
+   
+   // Load MAPI.dll
+
+   m_hMapi = ::LoadLibrary(_T("mapi32.dll"));
    if (!m_hMapi)
+   {
+     m_sErrorMsg = _T("Error loading mapi32.dll");
       return FALSE;
+   }
 
    m_lpCmcQueryConfiguration = (LPCMCQUERY)::GetProcAddress(m_hMapi, "cmc_query_configuration");
    m_lpCmcLogon = (LPCMCLOGON)::GetProcAddress(m_hMapi, "cmc_logon");
@@ -84,12 +111,22 @@ BOOL CMailMsg::MAPIInitialize()
    m_bReady = (m_lpCmcLogon && m_lpCmcSend && m_lpCmcLogoff) ||
               (m_lpMapiLogon && m_lpMapiSendMail && m_lpMapiLogoff);
 
+   if(!m_bReady)
+   {
+     m_sErrorMsg = _T("Not found required function entries in mapi32.dll");
+   }
+
    return m_bReady;
 }
 
 void CMailMsg::MAPIFinalize()
 {
    ::FreeLibrary(m_hMapi);
+}
+
+CString CMailMsg::GetEmailClientName()
+{
+  return m_sEmailClientName;
 }
 
 BOOL CMailMsg::Send()
@@ -118,13 +155,19 @@ BOOL CMailMsg::MAPISend()
    
    pRecipients = new MapiRecipDesc[2];
    if(!pRecipients)
+   {
+     m_sErrorMsg = _T("Error allocating memory");
      return FALSE;
+   }
 
    nAttachments = (int)m_attachments.size();
    if (nAttachments)
      pAttachments = new MapiFileDesc[nAttachments];
    if(!pAttachments)
+   {
+     m_sErrorMsg = _T("Error allocating memory");
      return FALSE;
+   }
 
    // set from
    pRecipients[0].ulReserved = 0;
@@ -151,13 +194,13 @@ BOOL CMailMsg::MAPISend()
       pAttachments[nIndex].ulReserved        = 0;
       pAttachments[nIndex].flFlags           = 0;
       pAttachments[nIndex].nPosition         = 0xFFFFFFFF;
-	  pAttachments[nIndex].lpszPathName      = (LPSTR)p->first.c_str();
-	  pAttachments[nIndex].lpszFileName      = (LPSTR)p->second.c_str();
+	    pAttachments[nIndex].lpszPathName      = (LPSTR)p->first.c_str();
+	    pAttachments[nIndex].lpszFileName      = (LPSTR)p->second.c_str();
       pAttachments[nIndex].lpFileType        = NULL;
     }
     
     message.ulReserved                        = 0;
-	message.lpszSubject                       = (LPSTR)m_sSubject.c_str();
+	  message.lpszSubject                       = (LPSTR)m_sSubject.c_str();
     message.lpszNoteText                      = (LPSTR)m_sMessage.c_str();
     message.lpszMessageType                   = NULL;
     message.lpszDateReceived                  = NULL;
@@ -170,6 +213,12 @@ BOOL CMailMsg::MAPISend()
     message.lpFiles                           = nAttachments ? pAttachments : NULL;
     
     status = m_lpMapiSendMail(0, 0, &message, MAPI_DIALOG, 0);
+
+    if(status!=SUCCESS_SUCCESS)
+    {
+      m_sErrorMsg = _T("MAPISendMail has failed.");
+      //! \todo Status messages for each MAPISendMail error code
+    }
 
     if (pRecipients)
        delete [] pRecipients;
