@@ -22,6 +22,8 @@ of 64 predefined characters. The server-side script should base64-decode the ZIP
 
 The encoded data are passed to the script by POST as parameter named "crashrpt".
 
+If the script succeeds in saving the error report, it should return the "CR_SUCCESS" as server responce content.
+
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
 
 \code
@@ -58,6 +60,8 @@ if($file==FALSE)
 fwrite($file, $filedata);
 fclose($file);
 
+// OK.
+echo "CR_SUCCESS";
 exit(0);
 ?>
 \endcode
