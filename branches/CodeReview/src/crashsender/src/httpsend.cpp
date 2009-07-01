@@ -61,7 +61,7 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   CString sErrorMsg;
   CHAR szResponce[1024];
   DWORD dwBufSize = 1024;
-  DWORD dwHeaderIndx = 0;
+  //DWORD dwHeaderIndx = 0;
 
   an->SetProgress(_T("Start sending error report over HTTP"), 0, false);
 
