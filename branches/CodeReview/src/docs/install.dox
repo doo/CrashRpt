@@ -36,6 +36,12 @@ There are four projects in the CrashRpt solution.
 
 \section Compilation
 
+By default the CrashRpt release package already contains the binaries 
+compiled with Visual Studio 2005. It is recommended that you compile
+the CrashRpt yourself using your version of Visual Studio.
+
+To compile CrashRpt yourself follow these steps.
+
 -# Download and unzip the source code of CrashRpt to any directory. 
 -# You also need to download the latest version of WTL from 
 <a href="http://sourceforge.net/projects/wtl">here</a>.
@@ -52,6 +58,9 @@ CrashRpt package, depending on your version of Visual Studio:
 
 \section link Include and Lib Directories
 
+It is recommened that you let the Viual C++ compiler know about CrashRpt 
+using the following steps:
+
 In Visual Studio window, open Tools->
 Options->Projects and Solutions->VC++ Directories.
 - In the 'Show directories for' combo select 'Include files', then add 
@@ -63,6 +72,25 @@ Options->Projects and Solutions->VC++ Directories.
 
 Here [CRASHRPT_HOME] should be replaced with the actual path of the 
 directory you unzipped the CrashRpt package.
+
+\section builddox Generating Project Documentation
+
+By default the documentation is already generated and included into the CrashRpt release
+package. To open the documentation, open \c index.html file in the top-level of 
+CrashRpt package.
+
+You can build documentation yourself as described below. 
+
+The CrashRpt documentation can be generated using the Doxygen tool. You can download
+the tool from <a href="http://www.stack.nl/~dimitri/doxygen/">here</a>. 
+
+To build the documentation, go to the \c docs folder and type in the command line:
+
+\code
+doxygen doxyfile
+\endcode
+
+When doxygen finishes, go to the top level directory and open \c index.html.
 
 \section bugrpt Report a Bug
 

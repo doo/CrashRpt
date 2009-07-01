@@ -26,20 +26,28 @@ In the Solution Explorer window, right-click your project and choose Properties 
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries.
 
-To enable crash reporting support in your VC++ project, you should use crInstall()
-and crInstallToCurrentThread() functions. 
+To enable crash reporting support in your VC++ project you use crInstall()
+and crInstallToCurrentThread() functions. There are two functions because of difference in how different
+exception handlers work. Some of them work for entire process and others work for the caller thread
+only.
 
-The crInstall() function installs exception handlers that function on per-process basis. You can
+The crInstall() function installs exception handlers that work on per-process basis. Typically you
+call the crInstall() at the beginning of your \b main() or \b WinMain() function. You can
 create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
 The crash callback is called on crash and allows to add custom files to the error report or perform
 another action.
 
 The crInstallToCurrentThread() function installs exception handlers that function on per-thread basis. 
 In a multithread program you should call the crInstallToCurrentThread() for all 
-threads except the main one.
+threads except the main one. Typically you call this function at the beginning of the thread
+procedure.
 
-On application exit, you should use crUninstall() and crUninstallFromCurrentThread()
-functions to unset exception handlers.
+On application exit, you should use crUninstall() to unset exception handlers. 
+
+If you have several working threads, just before the return of thread procedure call 
+crUninstallFromCurrentThread() to unset exception handlers from the caller thread. No need to call
+crUninstallFromCurrentThread() in the main executrion thread, because crUninstall() will do that for
+you automatically.
 
 Example:
 
@@ -104,7 +112,7 @@ When you install crash reporting support to your program, it is important to tes
 intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation.
 
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
-text error message of the last called function, use crGetLastError().
+text error message of the last called function, use crGetLastErrorMsg().
 
 CrashReport API Reference:
 - \ref CrashRptAPI

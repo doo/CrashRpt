@@ -371,8 +371,6 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    thread, except the main thread.
  * 
  *    The \c pInfo parameter contains all required information needed to install CrashRpt.
- *    Set \c cb member of CR_INSTALL_INFO structure to \c sizeof(CR_INSTALL_INFO), 
- *    otherwise function will fail. 
  *
  *    This function fails when \c pInfo->pszCrashSenderPath doesn't contain valid path to CrashSender.exe
  *    or when \c pInfo->pszCrashSenderPath is equal to NULL, but CrashSender.exe is not located in the
@@ -388,8 +386,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    responsible for letting the user know about the crash and send the error report.
  * 
  *    The error report can be sent over E-mail using address and subject passed to the
- *    function as CR_INSTALL_INFO structure members. Another way of sending error report is an HTTP 
- *    request using \c pszUrl member of CR_INSTALL_INFO. If both the E-mail address and
+ *    function as CR_INSTALL_INFO() structure members. Another way of sending error report is an HTTP 
+ *    request using \c pszUrl member of CR_INSTALL_INFO(). If both the E-mail address and
  *    URL are not specified, this function fails.
  *
  *    crInstallW() and crInstallA() are wide-character and multi-byte character versions of crInstall()
@@ -526,7 +524,8 @@ crUninstall();
  *
  *   // .. Create a thread
  *   DWORD dwThreadId = 0;
- *   HANDLE hWorkingThread = CreateThread(NULL, 0, ThreadProc, (LPVOID)NULL, 0, &dwThreadId);
+ *   HANDLE hWorkingThread = CreateThread(NULL, 0, 
+ *            ThreadProc, (LPVOID)NULL, 0, &dwThreadId);
  *
  *   \endcode
  */
@@ -590,6 +589,10 @@ crAddFileW(
    LPCWSTR pszFile,
    LPCWSTR pszDesc 
    );
+
+/*! \ingroup CrashRptAPI
+ *  \copydoc crAddFileW()
+ */
 
 CRASHRPTAPI 
 int
@@ -890,6 +893,10 @@ int
 crGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize);
+
+/*! \brief Defines character set-independent mapping for crGetLastErrorW() and crGetLastErrorA().
+ *  \ingroup CrashRptAPI
+ */
 
 //! Character set-independent mapping of crGetLastErrorW() and crGetLastErrorA() functions. 
 #ifdef UNICODE

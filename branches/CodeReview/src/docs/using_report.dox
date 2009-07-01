@@ -145,9 +145,11 @@ You can not uniquely identify the exception by its address. And you can't determ
 without debugging symbols.
 
 To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program
-database files (PDB) are locally stored. Then double-click on the minidump file name. This should
+database files (PDB) are locally stored. You copy the minidump to that folder to ensure the debugger find 
+the program database files and binaries. Then double-click on the minidump file name. This should
 open it using an associated program (for example, Visual Studio). When minidump file is loaded
-in Visual Studio, press F5 to run it. 
+in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see
+the place in your source code where exception had occurred.
 
 The most interesting for you is the call stack. Open the Call Stack window to see the stack trace.
 Each line of stack trace contains the name of module where crash occured, the name of symbol (function or class),
@@ -158,21 +160,25 @@ On of the most probable reason of program crash is using a pointer to a variable
 checking if it is not equal to NULL. So, in most cases such check would make code more robust.
 
 Sometimes you can't determine the location of the crash and the error message is displayed
-'No symbols loaded for any stack frame'. This may be because of two reasons.
+'No symbols loaded for any stack frame'. This may be because of the following reasons.
 
--# You have wrong or missing PDB files. Open the Modules window and check the symbol status
-   for modules of your program. If the status is 'Module not loaded' than you have missing PDB. 
-   Or maybe you didn't save locally the correct PDB files.
-   In such case you won't be able to properly read any of received crash reports.
--# If symbols for some modules of your program are loaded, and you have the error, than
-   there were no debugging symbols generated for the code where crash had occured. Check that
-   you set Program Database (/Zd) compiler flag.
+- Debugger may not locate the correct PDB and binary files. Try to open Tools->Options->Debugging->Symbols
+  and enter the path to the directory where your PDB files are located. Then reopen the minidump.
+
+- You have wrong or missing PDB files. Open the Modules window and check the symbol status
+  for modules of your program. If the status is 'Module not loaded' than you have missing PDB. 
+  Or maybe you didn't save locally the correct PDB files.
+  In such case you won't be able to properly read any of received crash reports.
+
+- If symbols for some modules of your program are loaded, and you have the error, than
+  there were no debugging symbols generated for the code where crash had occured. Check that
+  you set Program Database (/Zd) compiler flag.                    
 
 \section windbg Using WinDbg to Open Error Reports
 
 You can use the WinDbg program from Microsoft Debugging Tools framework for opening 
 crash minidumps. It is freely distributed. Hovewer, if you have Visual Studio installed,
-why not to use it?
+why not to use Visual Studio?
 
 Let's show hot to use WinDbg using an example. Run the sample CrashRpt aplication, 
 click on any button to generate an exception. Then extract the crashdump.dmp file 
