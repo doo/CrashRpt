@@ -638,7 +638,7 @@ crAddFileA(
 #define CR_CPP_SIGTERM                  12   //!< C++ SIGTERM signal (termination request).
 
 /*! \ingroup CrashRptStructs
- *  \brief Extended exception info used by crGenerateCrashReport().
+ *  \brief Extended exception info used by crGenerateErrorReport().
  *
  *  \remarks
  *
@@ -647,10 +647,8 @@ crAddFileA(
  *
  *  \c cb must contain the size of this structure in bytes.
  *
- *  \c pexcptrs should contain the exception pointers. The exception pointers usually have
- *  information like CPU registers state, stack trace for each execution thread, operating system
- *  and processor info. If this parameter is NULL, the current CPU state is used to generate exception
- *  pointers.
+ *  \c pexcptrs should contain the exception pointers. If this parameter is NULL, 
+ *     the current CPU state is used to generate exception pointers.
  *
  *  \c exctype is the type of exception. This parameter may be one of the following:
  *     - \c CR_WIN32_STRUCTURED_EXCEPTION Win32 structured exception
@@ -894,11 +892,10 @@ crGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize);
 
-/*! \brief Defines character set-independent mapping for crGetLastErrorW() and crGetLastErrorA().
+/*! \brief Defines character set-independent mapping for crGetLastErrorMsgW() and crGetLastErrorMsgA().
  *  \ingroup CrashRptAPI
  */
 
-//! Character set-independent mapping of crGetLastErrorW() and crGetLastErrorA() functions. 
 #ifdef UNICODE
 #define crGetLastErrorMsg crGetLastErrorMsgW
 #else

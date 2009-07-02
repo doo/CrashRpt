@@ -21,7 +21,7 @@
 #include <rtcapi.h>
 #endif
 
-#if _MSC_VER!=1400
+#ifndef _AddressOfReturnAddress
 
 // Taken from: http://msdn.microsoft.com/en-us/library/s975zw7k(VS.71).aspx
 #ifdef __cplusplus
@@ -34,7 +34,7 @@
 EXTERNC void * _AddressOfReturnAddress(void);
 EXTERNC void * _ReturnAddress(void);
 
-#endif //_MSC_VER<1400
+#endif 
 
 
 // This internal structure contains the list of processes 
