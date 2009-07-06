@@ -97,7 +97,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pfnCrashCallback = CrashCallback;    
   info.uPriorities[CR_SMTP] = 1;
   info.uPriorities[CR_SMAPI] = 0;  
-  
+    
   int nInstResult = crInstall(&info);
   ATLASSERT(nInstResult==0);
   nInstResult;

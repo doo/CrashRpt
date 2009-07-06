@@ -3,6 +3,7 @@
 #include <wininet.h>
 #include <sys/stat.h>
 #include "base64.h"
+#include "md5.h"
 #include <string>
 
 BOOL CHttpSender::SendAssync(CString sUrl, CString sFileName, AssyncNotification* an)
@@ -55,13 +56,18 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   FILE* f = NULL;
   BOOL bResult = FALSE;
   char* chPOSTRequest = NULL;
+  CStringA sMD5Hash;
   CStringA sPOSTRequest;
   char* szPrefix="crashrpt=\"";
   char* szSuffix="\"";
   CString sErrorMsg;
   CHAR szResponce[1024];
   DWORD dwBufSize = 1024;
-  //DWORD dwHeaderIndx = 0;
+  MD5 md5;
+  MD5_CTX md5_ctx;
+  unsigned char md5_hash[16];
+  int i=0;  
+  CString msg;
 
   an->SetProgress(_T("Start sending error report over HTTP"), 0, false);
 
@@ -125,10 +131,24 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   }
   fclose(f);
 
+  md5.MD5Init(&md5_ctx);
+  md5.MD5Update(&md5_ctx, uchFileData, uFileSize);
+  md5.MD5Final(md5_hash, &md5_ctx);
+  
+  sMD5Hash = _T("&md5=");
+  for(i=0; i<16; i++)
+  {
+    CString number;
+    number.Format(_T("%02X"), md5_hash[i]);
+    sMD5Hash += number;
+  }
+  
   sPOSTRequest = base64_encode(uchFileData, uFileSize).c_str();
   sPOSTRequest = szPrefix + sPOSTRequest + szSuffix;  
   sPOSTRequest.Replace("+", "%2B");
   sPOSTRequest.Replace("/", "%2F");  
+
+  sPOSTRequest += sMD5Hash;
   
   an->SetProgress(_T("Opening HTTP request"), 10);
 
@@ -167,10 +187,14 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   }    
 
   InternetReadFile(hRequest, szResponce, 1024, &dwBufSize);
-  if(memcmp(szResponce, "CR_SUCCESS", 10)!=0)
+  szResponce[dwBufSize] = 0;
+  msg = CStringA(szResponce, dwBufSize);
+  msg = _T("Server returned:")+msg;
+  an->SetProgress(msg, 0);
+    
+  if(atoi(szResponce)!=200)
   {
-    CString msg = _T("Error! The server didn't return CR_SUCCESS.");    
-    an->SetProgress(msg, 0);
+    an->SetProgress(_T("Failed"), 100, false);
     goto exit;
   }
 

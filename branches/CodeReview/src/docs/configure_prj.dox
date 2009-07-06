@@ -26,6 +26,13 @@ In the Solution Explorer window, right-click your project and choose Properties 
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries.
 
+All CrashRpt functions that have character set dependent arguments have two versions of function name 
+(multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crInstall()
+function has two versions of function name: crInstallA() and crInstallW(). Typically you use
+character set independent mapping of function name in your program, for example use crInstall() that 
+expands into crInstallW() if you use wide character set or into crInstallA() if you use multibyte 
+character set.
+
 To enable crash reporting support in your VC++ project you use crInstall()
 and crInstallToCurrentThread() functions. There are two functions because of difference in how different
 exception handlers work. Some of them work for entire process and others work for the caller thread
@@ -108,13 +115,13 @@ Visual C++ provides structured exception handling mechanism. You may use __try{}
 construction to catch a structured exception in your program. Use crExceptionFilter() function to
 generate an error report when structured exception occurs.
 
-When you install crash reporting support to your program, it is important to test if CrashReport
+When you install crash reporting support to your program, it is important to test if CrashRpt
 intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation.
 
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
 text error message of the last called function, use crGetLastErrorMsg().
 
-CrashReport API Reference:
+CrashRpt API Reference:
 - \ref CrashRptAPI
 - \ref CrashRptStructs
 - \ref DeprecatedAPI

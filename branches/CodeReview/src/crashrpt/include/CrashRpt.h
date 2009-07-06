@@ -252,6 +252,7 @@ GenerateErrorReport(
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client)
 
 /*! \ingroup CrashRptStructs
+ *  \struct CR_INSTALL_INFOW()
  *  \brief Crash reporting general info used by crInstall()
  *
  *  \remarks
@@ -316,10 +317,12 @@ typedef struct tagCR_INSTALL_INFOW
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
 }
-CR_INSTALL_INFOW, *PCR_INSTALL_INFOW;
+CR_INSTALL_INFOW;
+
+typedef CR_INSTALL_INFOW *PCR_INSTALL_INFOW;
 
 /*! \ingroup CrashRptStructs
- *
+ *  \struct CR_INSTALL_INFOA
  *  \copydoc CR_INSTALL_INFOW
  */
 
@@ -335,9 +338,11 @@ typedef struct tagCR_INSTALL_INFOA
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
 }
-CR_INSTALL_INFOA, *PCR_INSTALL_INFOA;
+CR_INSTALL_INFOA;
 
-/*! \brief Character set-independent mapping of CR_INSTALL_INFOW() and CR_INSTALL_INFOA() structures.
+typedef CR_INSTALL_INFOA *PCR_INSTALL_INFOA;
+
+/*! \brief Character set-independent mapping of CR_INSTALL_INFOW and CR_INSTALL_INFOA structures.
  *  \ingroup CrashRptStructs
  */
 #ifdef UNICODE
@@ -427,6 +432,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      crUninstall();
  *    }
  *    \endcode
+ *
+ *  \sa crInstallW(), crInstallA(), crInstall(), crUninstall()
  */
 
 CRASHRPTAPI 
@@ -471,6 +478,7 @@ crInstallA(
  *
  *    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
+ *  \sa crInstallW(), crInstallA(), crInstall(), crUninstall()
  */
 
 CRASHRPTAPI 
@@ -528,6 +536,8 @@ crUninstall();
  *            ThreadProc, (LPVOID)NULL, 0, &dwThreadId);
  *
  *   \endcode
+ *
+ *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread()
  */
 
 CRASHRPTAPI 
@@ -550,12 +560,13 @@ crInstallToCurrentThread();
  *
  *    No need to call this function for the main execution thread. The crUninstall()
  *    will automatically uninstall C++ exception handlers for the main thread.
+ *
+ *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread()
  */
 
 CRASHRPTAPI 
 int 
 crUninstallFromCurrentThread();
-
 
 
 /*! \ingroup CrashRptAPI  
@@ -581,6 +592,8 @@ crUninstallFromCurrentThread();
  *    The crAddFileW() and crAddFileA() are wide-character and multibyte-character
  *    versions of crAddFile() function. The crAddFile() macro defines character set
  *    independent mapping.
+ *
+ *  \sa crAddFileW(), crAddFileA(), crAddFile()
  */
 
 CRASHRPTAPI 
@@ -691,9 +704,9 @@ typedef struct tagCR_EXCEPTION_INFO
   const wchar_t* file;       //!< File in which assertion happened.
   unsigned int line;         //!< Line number.
 }
-CR_EXCEPTION_INFO, *PCR_EXCEPTION_INFO;
+CR_EXCEPTION_INFO;
 
-
+typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
 
 /*! \ingroup CrashRptAPI  
  *  \brief Manually generates an errror report.
@@ -829,6 +842,11 @@ crExceptionFilter(
  *    - \c CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
  *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result is the same as in CR_WIN32_STRUCTURED_EXCEPTION).
  *
+ *  The CR_WIN32_STRUCTURED_EXCEPTION uses incorrect code to cause a null pointer write error.
+ *
+ *  The CR_CPP_NONCONTINUABLE_EXCEPTION has the same effect as CR_WIN32_STRUCTURED_EXCEPTION, but it uses
+ *  \b RaiseException() function call to raise noncontinuable software exception.
+ *
  *  The following example shows how to use crEmulateCrash() function.
  *
  *  \code
@@ -873,6 +891,8 @@ crEmulateCrash(
  *  TCHAR szErrorMsg[256];
  *  crGetLastErrorMsg(szErrorMsg, 256);
  *  \endcode
+ *
+ *  \sa crGetLastErrorMsgA(), crGetLastErrorMsgW(), crGetLastErrorMsg()
  */
 
 CRASHRPTAPI

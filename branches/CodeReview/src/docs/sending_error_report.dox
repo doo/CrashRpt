@@ -22,7 +22,24 @@ of 64 predefined characters. The server-side script should base64-decode the ZIP
 
 The encoded data are passed to the script by POST as parameter named "crashrpt".
 
-If the script succeeds in saving the error report, it should return the "CR_SUCCESS" as server responce content.
+Before encoding, an MD5 hash for the file data is calculated. The server-side script can extract the MD5 hash
+from "md5" parameter.
+
+The script should return the status of the request completion as server responce content. The responce should begin 
+with return code followed with literal description. For example, "400 Invalid parameter". Here 400 is error code 
+and Invalid parameter is error description.
+
+If the script succeeds in saving the error report, it should return the "200 Success" as server responce content.
+If the script encountered an error, it should return the 4xx error code, for example "400 Invalid parameter". 
+Error codes between 400 and 450 are reserved and can't be user-redefined. You can define your own error codes starting 
+from error code 451.
+
+The following error codes are defined for the current version of CrashRpt:
+
+- 200 Success
+- 400 Invalid parameter
+- 401 MD5 hash is invalid
+- 402 Couldn't save data to local storage
 
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
 
@@ -37,16 +54,27 @@ function checkOK($field)
 {
   if (eregi("\r",$field) || eregi("\n",$field))
   {
-    die("Invalid Input!"); 
+    echo "400 Invalid parameter";
+    exit(1);
   }
 }
 
 /*** Begin ***/
 
 checkOK($_POST["crashrpt"]);
+checkOK($_POST["md5"]);
 
 // Decode file data
 $filedata = base64_decode( $_POST["crashrpt"] );
+
+// Check that decoded data have valid MD5 hash
+$my_md5_hash = strtolower(md5($filedata));
+$their_md5_hash = strtolower($_POST["md5"]);
+if($my_md5_hash!=$their_md5_hash)
+{
+  echo "401 MD5 hash is invalid (yours is ".$their_md5_hash.",but mine is ".$my_md5_hash.")";
+  exit(1);
+}
 
 // Generate ZIP file name
 $datetime = date(DATE_RFC822);
@@ -55,13 +83,16 @@ $filename = $fileroot.md5($filedata.$datetime).".zip";
 // Write decoded data to file
 $file = fopen($filename, "w");
 if($file==FALSE)
-  die("Couldn't create file $filename.");
+{
+  echo "402 Couldn't save data to local storage"; 
+  exit(1);
+}
 
 fwrite($file, $filedata);
 fclose($file);
 
 // OK.
-echo "CR_SUCCESS";
+echo "200 Success";
 exit(0);
 ?>
 \endcode

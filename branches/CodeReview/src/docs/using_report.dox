@@ -174,27 +174,27 @@ Sometimes you can't determine the location of the crash and the error message is
   there were no debugging symbols generated for the code where crash had occured. Check that
   you set Program Database (/Zd) compiler flag.                    
 
-\section windbg Using WinDbg to Open Error Reports
+\section windbg Using WinDbg to Open Minidump Files
 
-You can use the WinDbg program from Microsoft Debugging Tools framework for opening 
+You can use the WinDbg program from <b>Microsoft Debugging Tools for Windows</b> framework for opening 
 crash minidumps. It is freely distributed. Hovewer, if you have Visual Studio installed,
 why not to use Visual Studio?
 
-Let's show hot to use WinDbg using an example. Run the sample CrashRpt aplication, 
-click on any button to generate an exception. Then extract the crashdump.dmp file 
+Let's show hot to use WinDbg using an example. Run the sample CrashRptTest aplication that presents in
+CrashRpt package, and then click on any button to generate an exception. Then extract the crashdump.dmp file 
 from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D.
 
 Next, you need to set the symbol path for WinDbg with the .sympath command. Switch 
 to the command window (ALT+1) and enter .sympath followed by a space followed by the 
 semi-colon delimited list of directories to search.
 
-.sympath D:\CrashRptSaved\CrashRptTest_v1.1.0
+.sympath D:\\CrashRptSaved\\CrashRptTest_v1.1.0
 
 Similarly you need to set the executable and source search paths with the .exepath 
 and .srcpath commands.
 
-.exepath D:\CrashRptSaved\CrashRptTest_v1.1.0
-.srcpath D:\Projects\CrashRpt\CrashRptTest\src
+.exepath D:\\CrashRptSaved\\CrashRptTest_v1.1.0
+.srcpath D:\\Projects\\CrashRpt\\CrashRptTest\src
 
 The final step is to change the debugger context to the context record associated 
 with the exception by entering the .ecxr command.
