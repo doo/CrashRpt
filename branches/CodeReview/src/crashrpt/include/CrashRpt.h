@@ -300,8 +300,8 @@ GenerateErrorReport(
  *         connection will be tried first, SMTP connection will be tried second and simple MAPI will be tried
  *         last. 
  *
- *    CR_INSTALL_INFOW() and CR_INSTALL_INFOA() structures are wide-character and multi-byte character 
- *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
+ *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
+ *    versions of CR_INSTALL_INFO. CR_INSTALL_INFO typedef defines character set independent mapping.
  *        
  */
 

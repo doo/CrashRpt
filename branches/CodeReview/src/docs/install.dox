@@ -2,6 +2,24 @@
 
 \page installation Installation
 
+The CrashRpt library installation is the required step. The recommended way of CrashRpt 
+installation is described below. The installation typically
+consists of unzipping the CrashRpt package, recompiling the CrashRpt using your version
+of Visual Studio, adding include and lib paths and (optionally) building documentation.
+
+
+
+The following topics are covered in this page:
+
+- \ref license
+- \ref download
+- \ref chlog
+- \ref structure
+- \ref compilation
+- \ref link
+- \ref builddox
+- \ref bugrpt
+
 \section license License
 
 You can find the license text <a href="..\..\license.txt">here</a>
@@ -34,7 +52,7 @@ There are four projects in the CrashRpt solution.
   works with console applications.
    
 
-\section Compilation
+\section compilation Compilation
 
 By default the CrashRpt release package already contains the binaries 
 compiled with Visual Studio 2005. It is recommended that you compile

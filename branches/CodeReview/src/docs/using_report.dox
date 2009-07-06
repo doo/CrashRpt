@@ -156,7 +156,7 @@ Each line of stack trace contains the name of module where crash occured, the na
 offset from beginning of symbol code, source file and line number. This should be enough to
 locate the error, assume the most probable reason and try to fix.
 
-On of the most probable reason of program crash is using a pointer to a variable without
+One of the most probable reason of program crash is using a pointer to a variable without
 checking if it is not equal to NULL. So, in most cases such check would make code more robust.
 
 Sometimes you can't determine the location of the crash and the error message is displayed

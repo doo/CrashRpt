@@ -107,9 +107,14 @@ BOOL CMailMsg::MAPIInitialize()
    // Determine if there is default email program
 
    if(!DetectMailClient())
+   {
      m_sErrorMsg = _T("Error detecting E-mail client");
+     return FALSE;
+   }
    else
+   {
      m_sErrorMsg = _T("Detected E-mail client ") + m_sEmailClientName;
+   }
    
    
    // Load MAPI.dll

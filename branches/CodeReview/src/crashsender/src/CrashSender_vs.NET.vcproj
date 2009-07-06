@@ -159,6 +159,9 @@
 				RelativePath=".\MainDlg.cpp">
 			</File>
 			<File
+				RelativePath=".\md5.cpp">
+			</File>
+			<File
 				RelativePath=".\ProgressDlg.cpp">
 			</File>
 			<File
@@ -304,6 +307,9 @@
 			</File>
 			<File
 				RelativePath=".\MainDlg.h">
+			</File>
+			<File
+				RelativePath=".\md5.h">
 			</File>
 			<File
 				RelativePath=".\ProgressDlg.h">
