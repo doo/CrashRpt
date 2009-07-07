@@ -4,6 +4,7 @@
 
 This page is organized in the following sections:
 - \ref useapi
+- \ref crtver
 - \ref crtdll
 - \ref prgdb
 - \ref savefiles
@@ -126,6 +127,18 @@ CrashRpt API Reference:
 - \ref CrashRptStructs
 - \ref DeprecatedAPI
 
+\section crtver Use the Same Version of CRT for All Application Modules
+
+Ensure that all modules that exist in your application use the same version of CRT. 
+If some dependent modules were compiled using an older version of CRT, you should recompile them 
+to ensure that single version or CRT DLL is used. 
+
+For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
+application was compiled in Visual Studio .NET 2003 and used CRT 7.1 linked as DLL. 
+In such situation an exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will 
+intercept exceptions in CRT 8.0 only. 
+
+
 \section crtdll Use CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
 It is important that you configure your project to use C++ runtime libraries (CRT)
@@ -138,7 +151,7 @@ choose Multi-threaded DLL (/MD).
 
 This should be done for all projects in your solution.
 
-NOTE: In Debug configuration it is not important what CRT linkage you use.
+\note In Debug configuration it is not important what CRT linkage you use.
 
 \image html crtdll.png "Multi-threaded DLL (/MD)"    
 
