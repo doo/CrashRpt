@@ -2,14 +2,20 @@
 
 \page send_report Sending Error Report
 
-When crash occurs, CrashRpt builds an error report and sends it to the software developers 
+When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. 
+The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
+
+\note CrashRpt saves an error report as a ZIP archive to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
+In the current CrashRpt version crash report files are not removed, even if they are sent to the recipient successfuly.           
+
+The CrashSender.exe displays GUI and when user confirms error report submission, 
+it attempts to send the error report it to the software support team
 using one of the following way: 
  - via HTTP request to a server-side script
  - via connection to an SMTP server
  - via Simple MAPI programming interface (the user's default E-mail client application)
 
-If one of these ways fails, CrashRpt tries others in turn. If all ones fail, CrashRpt saves
-the error report to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
+If one of these ways fails, CrashRpt tries others in turn. 
 
 \section httpsend Sending Crash Report using HTTP request
 
@@ -30,7 +36,7 @@ with return code followed with literal description. For example, "400 Invalid pa
 and Invalid parameter is error description.
 
 If the script succeeds in saving the error report, it should return the "200 Success" as server responce content.
-If the script encountered an error, it should return the 4xx error code, for example "400 Invalid parameter". 
+If the script encounters an error, it should return a 4xx error code, for example "400 Invalid parameter". 
 Error codes between 400 and 450 are reserved and can't be user-redefined. You can define your own error codes starting 
 from error code 451.
 
@@ -100,7 +106,8 @@ exit(0);
 \section smtpsend Sending Crash Report using SMTP connection
 
 CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
-connection without any user interaction.
+connection without any user interaction. An error report is sent as an E-mail multi-part message with 
+attachments.
 
 If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP
 server name and relay the email message to that server.
@@ -112,7 +119,9 @@ This way may fail if firewall blocks outgoing connections on port 25.
 
 \section smapisend Sending Crash Report using Simple MAPI
 
-CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. This requires some user interaction.
+CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
+An error report is sent as an E-mail multi-part message with attachments.
+This requires some user interaction.
 
 This way has the lowest priority by default.
 

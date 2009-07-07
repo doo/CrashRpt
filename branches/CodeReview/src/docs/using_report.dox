@@ -2,7 +2,7 @@
 
 \page using_error_report Using an Error Report
 
-This page is organized in following sections:
+This page is organized in the following sections:
 
 - \ref about
 - \ref zip_structure
@@ -12,7 +12,7 @@ This page is organized in following sections:
 
 \section about About Analysing Error Reports
 
-When software release having CrashRpt support enabled is done, sooner or later you
+When software release having CrashRpt support enabled is made, sooner or later you
 start receiving crash reports. 
 
 Count of received crash reports may depend on robustness of your software to various 
@@ -167,12 +167,12 @@ Sometimes you can't determine the location of the crash and the error message is
 
 - You have wrong or missing PDB files. Open the Modules window and check the symbol status
   for modules of your program. If the status is 'Module not loaded' than you have missing PDB. 
-  Or maybe you didn't save locally the correct PDB files.
+  Or maybe correct PDB files weren't saved locally before software release.
   In such case you won't be able to properly read any of received crash reports.
 
 - If symbols for some modules of your program are loaded, and you have the error, than
-  there were no debugging symbols generated for the code where crash had occured. Check that
-  you set Program Database (/Zd) compiler flag.                    
+  there were no debugging symbols generated for the module where crash had occured. Check that
+  you set Program Database (/Zd) compiler flag for all modules of your application.                    
 
 \section windbg Using WinDbg to Open Minidump Files
 
