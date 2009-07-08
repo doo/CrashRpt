@@ -6,10 +6,10 @@ When crash occurs, CrashRpt builds and saves an error report and then runs anoth
 The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
 
 \note CrashRpt saves an error report as a ZIP archive to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
-In the current CrashRpt version crash report files are not removed, even if they are sent to the recipient successfuly.           
+In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.           
 
 The CrashSender.exe displays GUI and when user confirms error report submission, 
-it attempts to send the error report it to the software support team
+it attempts to send the error report to the software support team
 using one of the following way: 
  - via HTTP request to a server-side script
  - via connection to an SMTP server
