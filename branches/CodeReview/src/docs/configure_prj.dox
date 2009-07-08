@@ -13,8 +13,6 @@ This page is organized in the following sections:
 
 \section useapi Using CrashRpt API
 
-The CrashRpt library provides several API functions that can be used in your project.
-
 Do not forget to include the CrashRpt header in the beginning of your code. 
 
 \code
@@ -26,6 +24,14 @@ You also need to add the \b CrashRpt.lib to the list of input libraries for your
 In the Solution Explorer window, right-click your project and choose Properties item in the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries.
+
+The CrashRpt library provides several API functions and structures that can be used in your 
+project (see \ref CrashRptAPI and \ref CrashRptStructs). 
+
+\note Older versions of CrashRpt provided different set of API functions that are now 
+declared obsolete. They are still supported for compatibility vith older versions of CrashRpt,
+but it is recommended that you use the newer functions instead. Here is the complete list of
+\ref DeprecatedAPI.
 
 All CrashRpt functions that have character set dependent arguments have two versions of function name 
 (multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crInstall()
@@ -103,7 +109,7 @@ void main()
     szErrorMsg[0]=0;
 
     crGetLastErrorMsg(szErrorMsg);
-    _tprintf(szErrorMsg);
+    _tprintf(_T("%s\n"), szErrorMsg);
 
     assert(nInstResult==0);
   }
@@ -242,7 +248,7 @@ You must always distribute the following files with your software release.
 It is recommended that you place these files to the directory where your application executable
 file is located.
 
-The CrashRpt.dll and CrashSender.exe are core CrashRpt modules. dbghelp.dll (Microsoft Debug Help Library) 
-and zlib1.dll (ZLib) are dependent modules.
+The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
+and \b zlib1.dll (ZLib) are dependent modules.
 
 */
