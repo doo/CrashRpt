@@ -25,6 +25,7 @@ software support team.
 The CrashRpt documentation is organized in the following topics:
 
 - \subpage installation
+- \subpage demos
 - \subpage configure_prj
 - \subpage error_report
 - \subpage send_report
