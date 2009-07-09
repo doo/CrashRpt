@@ -17,7 +17,7 @@ using one of the following way:
 
 If one of these ways fails, CrashRpt tries others in turn. 
 
-\section httpsend Sending Crash Report using HTTP request
+\section httpsend Sending Crash Report Using HTTP Connection
 
 Many software products have web sites on the Internet. Such web servers typically have some 
 scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish an HTTP connection
@@ -103,7 +103,7 @@ exit(0);
 ?>
 \endcode
 
-\section smtpsend Sending Crash Report using SMTP connection
+\section smtpsend Sending Crash Report Using SMTP Connection
 
 CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
 connection without any user interaction. An error report is sent as an E-mail multi-part message with 
@@ -117,7 +117,7 @@ record of recipent's domain. Many SMTP servers may block direct access to them t
 
 This way may fail if firewall blocks outgoing connections on port 25. 
 
-\section smapisend Sending Crash Report using Simple MAPI
+\section smapisend Sending Crash Report Using Simple MAPI
 
 CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
 An error report is sent as an E-mail multi-part message with attachments.

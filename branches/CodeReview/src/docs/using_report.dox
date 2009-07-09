@@ -12,7 +12,7 @@ This page is organized in the following sections:
 
 \section about About Analysing Error Reports
 
-When software release having CrashRpt support enabled is made, sooner or later you
+When a software release is made and CrashRpt support is enabled in your software, sooner or later you
 start receiving crash reports. 
 
 Count of received crash reports may depend on robustness of your software to various 
@@ -132,11 +132,11 @@ of CRT is used in your application.
 
 \section minidump Using Crash Minidump (crashdump.dmp)
 
-The crash dump file is a collection of memory ranges, CPU register states and system information
-created with the help of the DbgHelp DLL's \b MiniDumpWriteDump() function. The minidump contains 
-various information about the state of the application when the error occurred. This includes 
-CPU registers, the call stack and local variables for each excecution thread, 
-and list of loaded and unloaded modules.
+The crash dump file is a collection of memory ranges, CPU register states, the call stack and 
+local variables for each excecution thread, the list of loaded and unloaded modules
+and system information. The minidump is created with the help of the DbgHelp DLL's 
+\b MiniDumpWriteDump() function. The minidump contains 
+various information about the state of the application when the error occurred. 
 
 The crash minidump is unusable without the debugging symbols database (program database, PDB).
 Application modules may be loaded at memory addresses different from time to time. This is common
@@ -156,7 +156,7 @@ Each line of stack trace contains the name of module where crash occured, the na
 offset from beginning of symbol code, source file and line number. This should be enough to
 locate the error, assume the most probable reason and try to fix.
 
-One of the most probable reason of program crash is using a pointer to a variable without
+One of the most probable reasons of program crash is using a pointer to a variable without
 checking if it is not equal to NULL. So, in most cases such check would make code more robust.
 
 Sometimes you can't determine the location of the crash and the error message is displayed
