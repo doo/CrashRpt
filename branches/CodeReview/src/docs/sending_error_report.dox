@@ -1,6 +1,6 @@
 /*!
 
-\page send_report Sending Error Report
+\page send_report Sending Error Reports
 
 When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. 
 The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
