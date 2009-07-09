@@ -301,7 +301,7 @@ GenerateErrorReport(
  *         last. 
  *
  *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
- *    versions of CR_INSTALL_INFO. CR_INSTALL_INFO typedef defines character set independent mapping.
+ *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
  *        
  */
 
@@ -433,7 +433,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    }
  *    \endcode
  *
- *  \sa crInstallW(), crInstallA(), crInstall(), crUninstall()
+ *  \sa crInstallW(), crInstallA(), crInstall(), CR_INSTALL_INFOW, 
+ *      CR_INSTALL_INFOA, CR_INSTALL_INFO, crUninstall()
  */
 
 CRASHRPTAPI 
