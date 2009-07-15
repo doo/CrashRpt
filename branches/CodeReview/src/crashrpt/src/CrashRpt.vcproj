@@ -434,6 +434,7 @@
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -443,6 +444,7 @@
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
 				</File>
@@ -456,7 +458,7 @@
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311"
+							DisableSpecificWarnings="4311;4996"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -466,7 +468,7 @@
 							Name="VCCLCompilerTool"
 							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311"
+							DisableSpecificWarnings="4311;4996"
 						/>
 					</FileConfiguration>
 				</File>
