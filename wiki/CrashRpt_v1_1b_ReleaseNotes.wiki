@@ -3,7 +3,7 @@
 
 = Introduction =
 
-CrashRpt v1.1b contains a lot of improvements over previous version of CrashRpt. Below the list of changes is listed. 
+CrashRpt v1.1b contains a lot of improvements over previous version of CrashRpt. Below the list of changes is presented. 
 
 This release has status 'beta' and is made available for public beta testing. We appreciate any user feedback, bug reports and feature requests.
 
