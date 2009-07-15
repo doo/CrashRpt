@@ -1,0 +1,63 @@
+#summary CrashRpt v.1.1b Release Notes.
+#labels Featured
+
+= Introduction =
+
+CrashRpt v1.1b contains a lot of improvements over previous version of CrashRpt. Below the list of changes is listed. 
+
+This release has status 'beta' and is made available for public beta testing. We appreciate any user feedback, bug reports and feature requests.
+
+= What's New =
+
+Major Features:
+
+- Removed support of Visual Studio 6.0 and added support of VS.NET 2003,
+  VS 2005 and VS 2008
+
+- New API functions (crInstall(); crUninstall(); crInstallToCurrentThread();
+  crUninstallFromCurrentThread(); crGenerateErrorReport(); crExceptionFilter();
+  crEmulateCrash(); crGetLastErrorMsg())
+
+- Character set specific functions have A and W suffixes. Introduced macros for
+  defining character set indepandent function names mapping
+
+- Support of various C++ exception handlers (Visual Studio-specific)
+
+- Crash report generation and crash sending functionality are separeted into 
+  different modules (CrashRpt.dll and CrashSender.exe)
+
+- New ways of sending error reports: using HTTP connection, using SMTP embed client or
+  (as in 1.0) using Simple MAPI.
+
+- Each error report is now assigned a unique CrashGUID
+
+- Doxygen-based documentation system
+
+- Revamped GUI of Send Error Report dialog
+
+- New Error Report Sending Progress dialog
+
+- Improved crash descriptor XML format
+
+
+Minor features:
+
+- Using TinyXml framework instead of MSXML
+
+- Using the latest version (at the moment) of dbghelp 
+
+- Using the latest version (at the moment) of zlib
+
+= Requirements = 
+
+- Windows operating system
+- Microsoft Visual C++ .NET 2003, 2005, 2008
+
+= Installing = 
+
+Unzip the CrashRpt v1.1b archive to any folder, open index.html at the top level directory and follow the instructions in Installation page of documentation.
+
+= Providing Feedback =
+
+If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
+
