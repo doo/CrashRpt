@@ -18,7 +18,10 @@ int main(int argc, char* argv[])
   // Install crash reporting
 
 #ifdef TEST_DEPRECATED_FUNCS
-  lpvState = Install(NULL, NULL, NULL);
+  lpvState = Install(
+    NULL, 
+    _T("test@hotmail.com"), 
+    NULL);
 #else
   CR_INSTALL_INFO info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
@@ -26,7 +29,7 @@ int main(int argc, char* argv[])
   info.pszAppName = _T("CrashRpt Console Test");
   info.pszAppVersion = _T("1.0.0");
   info.pszEmailSubject = _T("CrashRpt Console Test 1.0.0 Error Report");
-  info.pszEmailTo = _T("zexspectrum_1980.gmail.com");
+  info.pszEmailTo = _T("test@hotmail.com");
 
   int nInstResult = crInstall(&info);
   assert(nInstResult==0);
