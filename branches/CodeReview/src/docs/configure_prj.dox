@@ -13,19 +13,19 @@ This page is organized in the following sections:
 
 \section useapi Using CrashRpt API
 
-Do not forget to include the CrashRpt header in the beginning of your code. 
+Do not forget to include \c CrashRpt.h header file in the beginning of your code. 
 
 \code
 // Include CrashRpt header
 #include "CrashRpt.h"
 \endcode
 
-You also need to add the \b CrashRpt.lib to the list of input libraries for your project.
+You also need to add \b CrashRpt.lib to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item in the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries.
 
-The CrashRpt library provides several API functions and structures that can be used in your 
+CrashRpt library provides several API functions and structures that can be used in your 
 project (see \ref CrashRptAPI and \ref CrashRptStructs). 
 
 \note Older versions of CrashRpt provided different set of API functions that are now 
@@ -33,34 +33,36 @@ declared obsolete. They are still supported for compatibility with older version
 but it is recommended that you use the newer functions instead. Here is the complete list of
 \ref DeprecatedAPI.
 
-All CrashRpt functions that have character set dependent arguments have two versions of function name 
+All CrashRpt functions have \c cr prefix.
+
+All CrashRpt functions using character set dependent arguments have two versions of function name 
 (multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crInstall()
-function has two versions of function name: crInstallA() and crInstallW(). Typically you use
+function has two versions of function name: crInstallA() and crInstallW(). Typically you use a
 character set independent mapping of function name in your program, for example use crInstall() that 
 expands into crInstallW() if you use wide character set or into crInstallA() if you use multibyte 
 character set.
 
-To enable crash reporting support in your VC++ project you use crInstall()
-and crInstallToCurrentThread() functions. There are two functions because of difference in how different
-exception handlers work. Some of them work for entire process and others work for the caller thread
+To enable crash reporting support in your C++ application you use crInstall()
+and crInstallToCurrentThread() functions. There are two functions because of difference in work of
+exception handlers. Some of them work for entire process and others work for caller thread
 only.
 
-The crInstall() function installs exception handlers that work on per-process basis. Typically you
+The function crInstall() installs exception handlers that work on per-process basis. Typically you
 call the crInstall() in the beginning of your \b main() or \b WinMain() function. You can
 create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
 The crash callback is called on crash and allows to add custom files to the error report or perform
 another action.
 
-The crInstallToCurrentThread() function installs exception handlers that work on per-thread basis. 
-In a multithread program you should call the crInstallToCurrentThread() for all 
+The function crInstallToCurrentThread() installs exception handlers that work on per-thread basis. 
+In a multithread program you call the crInstallToCurrentThread() for all 
 threads except the main one. Typically you call this function in the beginning of the thread
 procedure.
 
-On application exit, you should use crUninstall() to unset exception handlers. 
+On application exit, you should use the crUninstall() function to unset exception handlers. 
 
-If you have several working threads, just before the return of thread procedure call 
-crUninstallFromCurrentThread() to unset exception handlers from the caller thread. No need to call
-crUninstallFromCurrentThread() in the main executrion thread, because crUninstall() will do that for
+If you have several worker threads, just before the return of a thread procedure call the
+crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
+crUninstallFromCurrentThread() function in the main executrion thread, because crUninstall() will do that for
 you automatically.
 
 Example:
@@ -69,7 +71,7 @@ Example:
 
 #include "CrashRpt.h"
 #include <assert.h> // Using assert()
-#include <atlstr.h> // Using CString
+#include <atlstr.h> // Using ATL::CString
 
 // .. Define the crash callback
 
@@ -136,14 +138,14 @@ void main()
 \endcode
 
 Typically an application creates and maintains a log file where operations and errors are
-written. Such log file can be helpful for crash analysis and should be added to the error
+written. Such log file can be helpful for crash analysis and should be added to an error
 report. You add application-specific files to the error report using crAddFile() function.
 
 Sometimes it is required to remotely debug some application logics error. Such an error,
 for example, infinite loop, may not cause program crash. To collect the information about
 error that doesn't cause crash, a software developer might provide an ability to generate 
 error report manually on user demand,
-for example on a key combination press. The crGenerateErrorReport() allows to generate an error
+for example on a key combination press. The crGenerateErrorReport() function allows to generate an error
 report manually.
 
 Visual C++ provides structured exception handling mechanism. You may use __try{}__except(Expression){}
@@ -169,7 +171,7 @@ as Multi-threaded DLL (/MD) for Release configuration. This is the way recommend
 And CrashRpt won't work properly if CRT is used in different way.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
-Then choose Configuration Properties->C/C++->Code Generation. In Runtime Library field,
+Then choose Configuration Properties->C/C++->Code Generation. In the Runtime Library field,
 choose Multi-threaded DLL (/MD).
 
 This should be done for all projects in your solution to share single CRT DLL.
@@ -183,11 +185,11 @@ This should be done for all projects in your solution to share single CRT DLL.
 
 Ensure that all modules that exist in your application use the same version of CRT. 
 If some dependent modules were compiled using an older version of CRT, you should recompile them 
-to ensure that single version or CRT DLL is used. 
+to ensure the single version or CRT DLL is used. 
 
 For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
 application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. 
-In such situation an exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will 
+In such situation a C++ exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will 
 intercept exceptions in CRT 8.0 only. 
 
 
@@ -197,19 +199,19 @@ To get the most out of the crash minidump, the debugger needs your application's
 symbols. By default Release builds don't generate debug symbols. 
 
 In the Solution Explorer window, right-click your project and open project Properties. 
-Then choose Configuration Properties->C/C++->General. In Debug Information Format field,
+Then choose Configuration Properties->C/C++->General. In the Debug Information Format field,
 choose Program Database (/Zi).
 
 This should be done for all projects in your solution that support program database 
-(EXE, DLL and so on).
+(EXE, DLL).
 
 \image html program_database.png "Program Database (/Zi)"
 
 
-\section savefiles What Files Must be Saved Locally Before Software Release
+\section savefiles What Files Should be Saved Locally Before Software Release
 
-When you are ready for the software release, the following steps must be
-performed to be able properly read end user error reports later.
+When you are ready for a software release, the following steps must be
+performed to be able to properly read end user error reports later.
   
 - Create a directory, for example name it 'CrashRptSaved'.
 - In that directory create a subdirectory for your software release,
@@ -219,7 +221,7 @@ performed to be able properly read end user error reports later.
 
 It is recommended to direct all project output to \c bin directory and 
 then just copy entire \c bin directory. These steps should be performed for 
-exactly the same software build that you release. If you rebuild the project 
+exactly the same software build that you plan to release. If you rebuild the project 
 after files are copied, you must copy the files again.
 
 It is good idea to automate these steps as a post-build event. That would guarantee you won't
@@ -229,7 +231,7 @@ When a crash report comes in, you use the release build and debug symbols you co
 along with the minidump included in the crash report, to debug the crash.
 
 Before release is made, it is recommended that you check if exceptions are properly 
-intercepted (use crEmulateCrash()),
+intercepted (use the crEmulateCrash() function),
 that error reports are properly received by your support team and that you can properly read
 received error reports.
 
@@ -240,7 +242,7 @@ not only take up more
 space on your CD/download/client's machine, but they will also make reverse engineering 
 your code a trivial exercise. 
 
-\section rlsfiles What Files Should be Distributed in Your Software Release Package
+\section rlsfiles What Files Should be Distributed with Your Software Release Package
 
 You must always distribute the following files with your software release.
 

@@ -4,17 +4,17 @@
 
 \section crashrpttest About CrashRptTest Demo
 
-The \b CrashRptTest demo application shows how CrashRpt intercepts exceptions and
-sends error reports to software support team. It has simple dialog based GUI that
+\b CrashRptTest demo application shows how CrashRpt intercepts exceptions and
+how it sends error reports to software support team. The application has simple dialog based GUI that
 allows to choose what type of exception to generate. 
 
-To run the CrashRptTest demo, open \c bin directory and run \b CrashRptTest.exe.
+To run CrashRptTest demo, open \c bin directory and run \b CrashRptTest.exe.
 You can also compile the demo yourself.
 
-The CrashRptTest application is designed to test the most probable crash situations.
+CrashRptTest application is designed to test the most probable crash situations.
 
 There are two columns of buttons to test if exceptions are properly handled in the 
-main execution thread and in another, working, thread.
+main execution thread and in another, worker, thread.
 
 Each button allows to generate some kind of exception to cause crash or generate
 an error report manually without crash. 
@@ -24,11 +24,11 @@ an error report manually without crash.
 
 \section crashcon About Crashcon Demo
 
-The \b crashcon demo is a console application. It generates a win32 structured 
+\b crashcon demo is a console application. It generates a win32 structured 
 exception and shows how CrashRpt intercepts the exception and sends an error
 report to software support team.
 
-To run the crashcon demo, open \c bin directory and run \b crashcon.exe.
+To run the demo, open \c bin directory and run \b crashcon.exe.
 You can also compile the demo yourself.
 
 \image html crashcon.png "crashcon"

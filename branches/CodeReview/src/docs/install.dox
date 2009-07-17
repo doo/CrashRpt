@@ -2,10 +2,11 @@
 
 \page installation Installation
 
-The CrashRpt library installation is the required step. The recommended way of CrashRpt 
+CrashRpt library installation is a required step. The recommended way of CrashRpt 
 installation is described below. The installation typically
-consists of unzipping the CrashRpt package, recompiling the CrashRpt using your version
-of Visual Studio, adding include and lib paths and (optionally) building documentation.
+consists of unzipping the CrashRpt archive, compiling the CrashRpt using your version
+of Visual Studio, adding include and lib paths to your Visual Studio IDE and 
+(optionally) building CrashRpt documentation using Doxygen.
 
 
 
@@ -38,14 +39,14 @@ The change log is available
 
 There are four projects in the CrashRpt solution.
 
-- \b CrashRpt is the dynamic link library project. It contains CrashRpt
+- \b CrashRpt is a dynamic link library project. It contains CrashRpt
   API implementation and provides functionality to intercept exceptions
   and generate an error report.
 
-- \b CrashSender is the executable project. It contains functionality 
-  to show GUI, send the error report and show sending progress.
+- \b CrashSender is an executable project. It contains functionality 
+  to show GUI, send the error report and show error report sending progress.
 
-- \b CrashRptTest is test GUI application that helps to check that 
+- \b CrashRptTest is a GUI application that helps to check that 
    CrashRpt API functions work as expected.
 
 - \b crashcon is a console application that helps to test how CrashRpt
@@ -54,11 +55,12 @@ There are four projects in the CrashRpt solution.
 
 \section compilation Compilation
 
-By default the CrashRpt release package already contains the binaries 
-compiled with Visual Studio 2005. It is recommended that you compile
-the CrashRpt yourself using your version of Visual Studio.
+By default CrashRpt release package already contains binary files 
+compiled with Visual Studio 2005 in its \c bin directory. 
+However, it is strongly recommended that you compile
+CrashRpt yourself using your version of Visual Studio.
 
-To compile CrashRpt yourself follow these steps.
+To compile CrashRpt yourself follow the following steps:
 
 -# Download and unzip the source code of CrashRpt to any directory. 
 -# You also need to download the latest version of WTL from 
@@ -89,15 +91,15 @@ Options->Projects and Solutions->VC++ Directories.
   the path to [CRASHRPT_HOME]\\bin directory to the list below.
 
 Here [CRASHRPT_HOME] should be replaced with the actual path of the 
-directory you unzipped the CrashRpt package.
+directory you unzipped CrashRpt package to.
 
 \section builddox Generating Project Documentation
 
-By default the documentation is already generated and included into the CrashRpt release
-package. To open the documentation, open \c index.html file in the top-level of 
+By default project documentation is already generated and included into the CrashRpt release
+package. To open the documentation, click \c index.html file in the top-level directrory of 
 CrashRpt package.
 
-You can build documentation yourself as described below. 
+You can also build documentation yourself as described below: 
 
 The CrashRpt documentation can be generated using the Doxygen tool. You can download
 the tool from <a href="http://www.stack.nl/~dimitri/doxygen/">here</a>. 
@@ -113,5 +115,6 @@ When doxygen finishes, go to the top level directory and open \c index.html.
 \section bugrpt Report a Bug
 
 If you detect an issue please let us know <a href="http://code.google.com/p/crashrpt/issues/list">here</a>.
+We appreciate your feedback.
 
 */
