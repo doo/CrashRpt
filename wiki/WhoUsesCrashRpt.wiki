@@ -1,0 +1,13 @@
+#summary The list of software projects using CrashRpt.
+#labels Featured,Phase-Support
+
+= Introduction =
+
+We are interested in knowing how many software products use CrashRpt to handle errors and collect error reports.
+
+Support CrashRpt project by adding your project name and logo to the list! Make a comment to this wiki page and provide your project's name and a hyperlink to your project's logo small image. We will be happy to include it to the list. 
+
+
+= Software Products that Use CrashRpt =
+
+You have a chance to be the first!
