@@ -141,8 +141,7 @@ various information about the state of the application when the error occurred.
 The crash minidump is unusable without the debugging symbols database (program database, PDB).
 Application modules may be loaded at memory addresses different from time to time. This is common
 for Windows Vista and its Address Space Layout Randomization (/DYNAMICBASE:YES compiler flag).  
-You can not uniquely identify the exception by its address. And you can't determine the exception module
-without debugging symbols.
+You can not uniquely identify the exception by its address. 
 
 To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program
 database files (PDB) are locally stored. You copy the minidump to that folder to ensure the debugger find 
@@ -172,7 +171,7 @@ Sometimes you can't determine the location of the crash and the error message is
 
 - If symbols for some modules of your program are loaded, and you have the error, than
   there were no debugging symbols generated for the module where crash had occured. Check that
-  you set Program Database (/Zd) compiler flag for all modules of your application.                    
+  you set Program Database (/Zi) compiler flag for all modules of your application.                    
 
 \section windbg Using WinDbg to Open Minidump Files
 

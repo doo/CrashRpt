@@ -10,7 +10,7 @@ In the current CrashRpt version crash report files are not removed, even if they
 
 The CrashSender.exe displays GUI and when user confirms error report submission, 
 it attempts to send the error report to the software support team
-using one of the following way: 
+using one of the following ways: 
  - via HTTP request to a server-side script
  - via connection to an SMTP server
  - via Simple MAPI programming interface (the user's default E-mail client application)
