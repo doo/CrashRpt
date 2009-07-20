@@ -22,10 +22,11 @@ the crash report, and finally it compresses and sends the crash report to the
 software support team.
 
 
-The CrashRpt documentation is organized in the following topics:
+The documentation is organized in the following topics:
 
 - \subpage installation
 - \subpage demos
+- \subpage exception_handling
 - \subpage configure_prj
 - \subpage error_report
 - \subpage send_report
