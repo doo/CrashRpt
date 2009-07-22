@@ -11,5 +11,5 @@ Yes, they are listed in the table below:
 
 || *Name || *Description || *Link ||
 || google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
-|| Mozilla Firefox Crash Reporting System || || https://developer.mozilla.org/en/Crash_reporting
-|| Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx
+|| Mozilla Firefox Crash Reporting System || || https://developer.mozilla.org/en/Crash_reporting ||
+|| Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
