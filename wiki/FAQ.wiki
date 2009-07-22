@@ -1,0 +1,15 @@
+#summary Frequently Asked Questions
+#labels Featured
+
+* Why should I use CrashRpt in my Visual C++ project?
+
+CrashRpt provides functionality to properly handle structured Win32 exceptions, C++ runtime libraries (CRT) errors and C++ interruption signals. It would take a lot of efforts from you to implement this yourself. CrashRpt collects all information you need to debug the problem. CrashRpt can deliver error reports using HTTP request, SMTP connection and through Simple MAPI. In addition, CrashRpt is well documented, so its easy to start using it in your project.
+
+* Are there  any analogous software for crash reporting?
+
+Yes, they are listed in the table below:
+
+|| *Name || *Description || *Link ||
+|| google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
+|| Mozilla Firefox Crash Reporting System || || https://developer.mozilla.org/en/Crash_reporting
+|| Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx
