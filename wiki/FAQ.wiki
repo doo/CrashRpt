@@ -18,3 +18,8 @@ Yes, they are listed in the table below:
 
 Since v1.1 of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
 
+* How do I properly install CrashRpt?
+
+Download the latest stable version of CrashRpt from the Featured Downloads section of the main page. Unzip the archive to any folder, then go to the top level directory and click the index.html file to open project documentation. Then follow the directions in Installation page of the documentation.
+
+ 
