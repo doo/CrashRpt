@@ -13,3 +13,8 @@ Yes, they are listed in the table below:
 || google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
 || Mozilla Firefox Crash Reporting System || || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
+
+* What Visual C++ versions I can use CrashRpt in?
+
+Since v1.1 of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
+
