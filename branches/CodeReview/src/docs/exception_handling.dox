@@ -11,6 +11,7 @@ The page covers the following topics:
 - \ref structured_exc
 - \ref crt_errors
 - \ref cpp_signals
+- \ref getting_exception_context
 - \ref exception_handling_reference
 
 \section about_exceptions About Exceptions
@@ -272,7 +273,8 @@ int _tmain(int argc, _TCHAR* argv[])
 \endcode
 
 Use the \b _set_new_handler() function to handle memory allocation faults. This function can be used
-in VC++ .NET 2003 and later. This function works for all threads of the caller process. 
+in VC++ .NET 2003 and later. This function works for all threads of the caller process. Consider also
+using the \b _set_new_mode() function to define error behaviour for the \b malloc() function. 
 
 Example (taken from MSDN):
 
@@ -349,8 +351,16 @@ In Visual C++, there are 6 types of signals:
  - \c SIGSEGV Illegal storage access
  - \c SIGTERM Termination request
 
-MSDN say that the \c SIGILL, \c SIGSEGV, and \c SIGTERM signals are not generated unded Windows NT and 
-included for ANSI compatiblity. 
+MSDN says that the \c SIGILL, \c SIGSEGV, and \c SIGTERM signals are not generated under Windows NT and 
+included for ANSI compatiblity. However, if you set the SIGSEGV signal handler, it is called by CRT 
+instead of structured exception handler set with \b SetUnhandledExceptionFilter() function and the global
+variable \b _pxcptinfoptrs contains a pointer to the exception information. 
+The \b _pxcptinfoptrs can be also used in the SIGFPE handler. In all other signal handlers it seems to be NULL.
+
+The SIGFPE signal handler is called by CRT when a floating point error occurs, such as division by zero. 
+However, by default floating point exceptions are not generated, instead NaN or infinity numbers are generated 
+as the result of a floating point operation. Use the \b _controlfp_s() function to enable the floating point
+exception generation.
 
 You can generate all 6 signals manually using \b raise() function. 
 
@@ -381,6 +391,119 @@ Although it is not well documented in MSDN, it seems that you should install SIG
 signal handlers for each new thread in your program. The SIGABRT, SIGINT and SIGTERM signal handlers
 seems to work for all threads of the caller process, so you should install them once in your \b main()
 program.
+
+\section getting_exception_context Retrieving Exception Information
+
+When an exception occurs you typically want to get the CPU state just before 
+the exception had occurred. You use the information to debug the problem. 
+The way you retrieve the exception information differs
+depending on the exception handler you use.
+
+In the unhandled structured exception handler set with the \b SetUnhandledExceptionFilter() function, 
+the exception information is retrieved from \b EXCEPTION_POINTERS structure passed as 
+function parameter.
+
+In __try{}__catch(Expression){} construction you retrieve exception information using \b GetExceptionInformation()
+instrinsic function and pass it to the structured exception filter function as parameter.
+
+In the SIGFPE and SIGSEGV signal handlers you can retrieve the exception information from the \b _pxcptinfoptrs
+global CRT variable that is declared in <signal.h>. This variable is not documented well in MSDN.
+
+In other signal handlers and in CRT error handlers you have no ability to easily extract the exception information.
+In CrashRpt a workaround is used that was found in CRT source files (see CRT 8.0 source files, invarg.c, line 104).
+
+The following code shows how to get current CPU state used as exception information.
+
+\code
+
+#if _MSC_VER>=1300
+#include <rtcapi.h>
+#endif
+
+#ifndef _AddressOfReturnAddress
+
+// Taken from: http://msdn.microsoft.com/en-us/library/s975zw7k(VS.71).aspx
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
+// _ReturnAddress and _AddressOfReturnAddress should be prototyped before use 
+EXTERNC void * _AddressOfReturnAddress(void);
+EXTERNC void * _ReturnAddress(void);
+
+#endif 
+
+// The following function retrieves exception info
+
+void GetExceptionPointers(DWORD dwExceptionCode, 
+  EXCEPTION_POINTERS** ppExceptionPointers)
+{
+  // The following code was taken from VC++ 8.0 CRT (invarg.c: line 104)
+  
+  EXCEPTION_RECORD ExceptionRecord;
+  CONTEXT ContextRecord;
+  memset(&ContextRecord, 0, sizeof(CONTEXT));
+  
+#ifdef _X86_
+
+  __asm {
+      mov dword ptr [ContextRecord.Eax], eax
+      mov dword ptr [ContextRecord.Ecx], ecx
+      mov dword ptr [ContextRecord.Edx], edx
+      mov dword ptr [ContextRecord.Ebx], ebx
+      mov dword ptr [ContextRecord.Esi], esi
+      mov dword ptr [ContextRecord.Edi], edi
+      mov word ptr [ContextRecord.SegSs], ss
+      mov word ptr [ContextRecord.SegCs], cs
+      mov word ptr [ContextRecord.SegDs], ds
+      mov word ptr [ContextRecord.SegEs], es
+      mov word ptr [ContextRecord.SegFs], fs
+      mov word ptr [ContextRecord.SegGs], gs
+      pushfd
+      pop [ContextRecord.EFlags]
+  }
+
+  ContextRecord.ContextFlags = CONTEXT_CONTROL;
+#pragma warning(push)
+#pragma warning(disable:4311)
+  ContextRecord.Eip = (ULONG)_ReturnAddress();
+  ContextRecord.Esp = (ULONG)_AddressOfReturnAddress();
+#pragma warning(pop)
+  ContextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress()-1);
+
+
+#elif defined (_IA64_) || defined (_AMD64_)
+
+  /* Need to fill up the Context in IA64 and AMD64. */
+  RtlCaptureContext(&ContextRecord);
+
+#else  /* defined (_IA64_) || defined (_AMD64_) */
+
+  ZeroMemory(&ContextRecord, sizeof(ContextRecord));
+
+#endif  /* defined (_IA64_) || defined (_AMD64_) */
+
+  ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
+
+  ExceptionRecord.ExceptionCode = dwExceptionCode;
+  ExceptionRecord.ExceptionAddress = _ReturnAddress();
+
+  ///
+  
+  EXCEPTION_RECORD* pExceptionRecord = new EXCEPTION_RECORD;
+  memcpy(pExceptionRecord, &ExceptionRecord, sizeof(EXCEPTION_RECORD));
+  CONTEXT* pContextRecord = new CONTEXT;
+  memcpy(pContextRecord, &ContextRecord, sizeof(CONTEXT));
+
+  *ppExceptionPointers = new EXCEPTION_POINTERS;
+  (*ppExceptionPointers)->ExceptionRecord = pExceptionRecord;
+  (*ppExceptionPointers)->ContextRecord = pContextRecord;  
+}
+\endcode
+ 
+
 
 \section exception_handling_reference Reference
 
