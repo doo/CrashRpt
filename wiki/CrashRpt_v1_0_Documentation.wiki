@@ -230,7 +230,7 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen3.
 
 On the Link tab under the General category, check the 'Generate debug info' option.
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen10.png
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen4.png
 
 *Figure 10 - Link Project Settings*
 
@@ -244,21 +244,26 @@ The crash log is an XML file that describes details about the crash including th
 
 The log is divided into four different sections or nodes. The first node is ExceptionRecord we discussed earlier.
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen11.png
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen5.png
 
 * Figure 11 - ExceptionRecord Node*
 
 Next is the Processor node, which contains a little information about the user's CPU.
 
-Figure 11 - Process Node
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen6.png
+
+*Figure 11 - Process Node*
 
 Next is the OperatingSystem node, which contains the user's operating system version information.
 
-Figure 12 - OperatingSystem Node
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen7.png
+
+*Figure 12 - OperatingSystem Node*
 
 Last is the Modules node. This node contains the path, version, base address, size, and time stamp for every module loaded by the deceased application.
 
-Figure 13 - Modules Node
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen8.png
+*Figure 13 - Modules Node*
 
 = Using the Crash Dump File =
 
@@ -276,7 +281,7 @@ Next, you need to set the symbol path for WinDbg with the .sympath command. Swit
 .sympath c:\downloads\CrashRptTest
 }}}
 
-Figure 14 - Setting the symbol path
+*Figure 14 - Setting the symbol path*
 
 Similarly you need to set the executable and source search paths with the .exepath and .srcpath commands.
 
@@ -297,6 +302,8 @@ Collapse
 *Figure 15 - Setting the exception context record*
 
 If everything is configured correctly, you should now be able to walk the call stack, see local variables, and loaded modules. You can even have WinDbg highlight the offending line of code by double clicking the CrashRptTest frame in the Call Stack window (ALT+6). Note: The exact line number may be a little off due to linker optimizations.
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen9.png
 
 *Figure 16 - The Promised Land: Using WinDbg to Locate the Cause of a Null Pointer Exception*
 
@@ -349,5 +356,5 @@ For additional information about topics directly related to this article, see th
       * Support for use by multiple apps.
       * Buffer overrun error when previewing files > 32k.
       * Main dialog now displays app icon. 
-    * 01/12/2003
-      * Initial release. 
+  * 01/12/2003
+    * Initial release. 
