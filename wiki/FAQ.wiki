@@ -18,8 +18,41 @@ Yes, they are listed in the table below:
 
 Since v1.1 of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
 
+* What is current CrashRpt project status?
+
+The latest version of CrashRpt is v1.1 beta. We are currently preparing for the v1.1 final release. 
+
+The previous version, CrashRpt v1.0 is declared deprecated and not recommended for download.
+
 * How do I properly install CrashRpt?
 
 Download the latest stable version of CrashRpt from the Featured Downloads section of the main page. Unzip the archive to any folder, then go to the top level directory and click the index.html file to open project documentation. Then follow the directions in Installation page of the documentation.
 
+* How do I use CrashRpt in my Visual C++ project?
+
+Go to the top level directory of CrashRpt package and click the index.html file to open project documentation. Then follow the directions in Using CrashRpt in Your Visual C++ Project page of the documentation.
+
+* What is an error report?
+
+The error report refers to a collection of files intended to help the developer diagnose the cause of a crash.
+
+The error report contains crash minidump file (crashdump.dmp), which has operating system version, processor type, CPU registers state and local variables and stack trace for each execution thread. The minidump in most cases can be used on developer's side to determine the reason of the crash and try to fix the problem.
+
+In addition, CrashRpt generates an XML crash descriptor file. The file contains various information that might be useful for crash analysis.
+
+Custom files, for example, application log files, can be included into crash report via the crash callback. 
+
+* How do I use an error report for debugging the crash?
+
+A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as
+
+    - crash minidump (crashdump.dmp),
+    - crash descriptor XML (crashrpt.xml)
+    - and optionally application specific files, for example, application log files.
+
+The crash descriptor is an XML file that contains the basic information about the crash,
+for example exception type, operating system name, application name and version. 
  
+The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each excecution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studion or in WinDbg program. 
+
+See the documentation contained in the CrashRpt release package for more information.
