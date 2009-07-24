@@ -39,8 +39,8 @@ Download and unzip the source code attached to this article. Open the complete.d
 
 Notes:
 
-  # CrashRpt library uses the WTL for its GUI components, so WTL must be installed and properly configured in order to build the CrashRpt library. You can download the WTL here. If you're new to the WTL then CodeProject has some article here, and there is a good starting guide here.
-  # CrashRpt library uses Microsoft's Debug Help library (dbghelp.dll). The proper h and lib files must be installed and properly configured in order to build the CrashRpt library. These files are available in the Debugging SDK, which can be downloaded here (be sure to select the SDK setup option). 
+  # CrashRpt library uses the WTL for its GUI components, so WTL must be installed and properly configured in order to build the CrashRpt library. You can download the WTL [http://www.microsoft.com/downloads/details.aspx?FamilyID=128e26ee-2112-4cf7-b28e-7727d9a1f288&DisplayLang=en here]. If you're new to the WTL then CodeProject has some article [http://www.codeproject.com/wtl here], and there is a good starting guide [http://www.clipcode.net/content/wtl_guide/chapter1.htm here].
+  # CrashRpt library uses Microsoft's Debug Help library (dbghelp.dll). The proper h and lib files must be installed and properly configured in order to build the CrashRpt library. These files are available in the Debugging SDK, which can be downloaded [http://www.microsoft.com/ddk/debugging/default.asp here] (be sure to select the SDK setup option). 
 
 After the build completes, you should end up with the following:
 
