@@ -68,8 +68,6 @@ To implicitly link against the library, you need to include the crashrpt.h file 
 #pragma comment(lib, "[whateveryourpath]/crashrpt/lib/crashrpt")
 }}}
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen3.png
-
 *Figure 3 - Integrating CrashRpt with your application*
 
 = Initializing the library =
@@ -106,8 +104,6 @@ Install(
    );
 }}}
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen4.png
-
 *Figure 4 - The Install() function*
 
 All of the parameters are optional. The first parameter is a pointer to a crash callback function defined as:
@@ -117,8 +113,6 @@ All of the parameters are optional. The first parameter is a pointer to a crash 
 
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 }}}
-
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen5.png
 
 *Figure 5 - Client crash callback*
 
@@ -156,8 +150,6 @@ Uninstall(
    );
 }}}
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen6.png
-
 *Figure 6 - The Uninstall function*
 
 You would only ever call Uninstall if you decided, after calling Install, that you did not want the CrashRpt library to intercept exceptions. So, basically you will probably never call this method directly.
@@ -192,8 +184,6 @@ AddFile(
    );
 }}}
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen7.png
-
 *Figure 7 - The AddFile function*
 
 This is useful when your application uses or produces external files such as initialization files or log files. When a report is generated, it will include these additional files.
@@ -225,8 +215,6 @@ GenerateErrorReport(
    );
 }}}
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen8.png
-
 *Figure 8 - The GenerateErrorReport function*
 
 If you do not supply a valid EXCEPTION_POINTERS, structure the minidump callstack may be incomplete.
@@ -236,7 +224,7 @@ To get the most out of the minidump, the debugger needs your application's debug
 
 With the release build configuration selected, on the C/C++ tab under the General category, select 'Program Database' under Debug info.
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen9.png
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen3.png
 
 *Figure 9 - C++ Project Settings*
 
@@ -338,31 +326,28 @@ References
 
 For additional information about topics directly related to this article, see the links below:
 
-  * [http://www.microsoft.com/ddk/debugging/ Debugging Tools for Windows. ]
+  * [http://www.microsoft.com/ddk/debugging/ Debugging Tools for Windows.]
   * [http://www.microsoft.com/downloads/details.aspx?FamilyID=128e26ee-2112-4cf7-b28e-7727d9a1f288&DisplayLang=en WTL Download.]
   * [http://www.zlib.org/ ZLib Compression Library.]
   * [http://www.codeproject.com/KB/debug/postmortemdebug_standalone1.asp Reading Minidump Files with VS.NET].
   * [http://www.wintellect.com/resources/newsletters/nov2001.aspx John Robbins on Crash Dumps].
-  * [http://www.microsoft.com/msj/0498/bugslayer0498.htm April 1998 MSJ Bugslayer Column].
+  * [http://www.microsoft.com/msj/0498/bugslayer0498.htm April 1998 MSJ Bugslayer Column]
   * [http://www.clipcode.net/content/wtl_guide/ WTL Reference]. 
 
 = Change History =
 
-    * 03/17/2003
-
-      Major Changes.
-          o Replaced MFC with WTL.
-          o Changed crashrpt interface.
-          o Major refactoring.
-          o Updated article. 
-
-      Minor Changes.
-          o Details dialog preview window now uses system defined window color instead of white.
-          o Directory structure not saved in ZIP. 
-
-      Bugs Fixed
-          o Support for use by multiple apps.
-          o Buffer overrun error when previewing files > 32k.
-          o Main dialog now displays app icon. 
+  * 03/17/2003
+    * Major Changes.
+      * Replaced MFC with WTL.
+      * Changed crashrpt interface.
+      * Major refactoring.
+      * Updated article. 
+    * Minor Changes.
+      * Details dialog preview window now uses system defined window color instead of white.
+      * Directory structure not saved in ZIP. 
+    * Bugs Fixed
+      * Support for use by multiple apps.
+      * Buffer overrun error when previewing files > 32k.
+      * Main dialog now displays app icon. 
     * 01/12/2003
-          o Initial release. 
+      * Initial release. 
