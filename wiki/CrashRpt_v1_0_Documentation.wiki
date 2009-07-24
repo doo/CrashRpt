@@ -55,75 +55,58 @@ crashrpt\src
 = Linking against the library =
 
 To implicitly link against the library, you need to include the crashrpt.h file and link in the crashrpt.lib file. I find it easiest to add the following two lines to my main application file.
-Collapse
 
+{{{
 #include "[whateveryourpath]/crashrpt/include/crashrpt.h"
 
 #pragma comment(lib, "[whateveryourpath]/crashrpt/lib/crashrpt")
+}}}
 
 Figure 3 - Integrating CrashRpt with your application
-Initializing the library
+
+= Initializing the library =
 
 The library needs to be initialized before it will catch any exceptions. You do this by calling the Install method, usually from your main function. The Install method is detailed below.
-Collapse
 
+{{{
 //-----------------------------------------------------------------------------
-
 // Install
-
 //    Initializes the library and optionally set the client crash callback and
-
 //    set up the email details.
-
 //
-
 // Parameters
-
 //    pfn         Client crash callback
-
 //    lpTo        Email address to send crash report
-
 //    lpSubject   Subject line to be used with email
-
 //
-
 // Return Values
-
 //    If the function succeeds, the return value is a pointer to the underlying
-
 //    crash object created.  This state information is required as the first
-
 //    parameter to all other crash report functions.
-
 //
-
 // Remarks
-
 //    Passing NULL for lpTo will disable the email feature and cause the crash 
-
 //    report to be saved to disk.
-
 //
 
 CRASHRPTAPI 
 LPVOID 
 Install(
    IN LPGETLOGFILE pfn OPTIONAL,                // client crash callback
-
    IN LPCTSTR lpTo OPTIONAL,                    // Email:to
-
    IN LPCTSTR lpSubject OPTIONAL                // Email:subject
-
    );
+}}}
 
 Figure 4 - The Install() function
 
 All of the parameters are optional. The first parameter is a pointer to a crash callback function defined as:
-Collapse
 
+{{{
 // Client crash callback
 
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
+}}}
 
 Figure 5 - Client crash callback
 
@@ -136,44 +119,30 @@ The third parameter is the subject line used in the generated mail message.
 The Install function returns a pointer to the underlying object that implements the real functionality of this library. This value is required for all subsequent calls into the library.
 
 If, after you have called Install, you decide to unhook the CrashRpt library, you would call Uninstall.
-Collapse
 
+{{{
 //-----------------------------------------------------------------------------
-
 // Uninstall
-
 //    Uninstalls the unhandled exception filter set up in Install().
-
 //
-
 // Parameters
-
 //    lpState     State information returned from Install()
-
 //
-
 // Return Values
-
 //    void
-
 //
-
 // Remarks
-
 //    This call is optional.  The crash report library will automatically 
-
 //    deinitialize when the library is unloaded.  Call this function to
-
 //    unhook the exception filter manually.
-
 //
 
 CRASHRPTAPI 
 void 
 Uninstall(
    IN LPVOID lpState                            // State from Install()
-
    );
+}}}
 
 Figure 6 - The Uninstall function
 
@@ -181,50 +150,33 @@ You would only ever call Uninstall if you decided, after calling Install, that y
 Adding custom files to the report
 
 The client application can, at any time, supply files to be included in the crash report by calling the AddFile function.
-Collapse
 
+{{{
 //-----------------------------------------------------------------------------
-
 // AddFile
-
 //    Adds a file to the crash report.
-
 //
-
 // Parameters
-
 //    lpState     State information returned from Install()
-
 //    lpFile      Fully qualified file name
-
 //    lpDesc      Description of file, used by details dialog
-
 //
-
 // Return Values
-
 //    void
-
 //
-
 // Remarks
-
 //    This function can be called anytime after Install() to add one or more
-
 //    files to the generated crash report.
-
 //
 
 CRASHRPTAPI 
 void 
 AddFile(
    IN LPVOID lpState,                           // State from Install()
-
    IN LPCTSTR lpFile,                           // File name
-
    IN LPCTSTR lpDesc                            // File desc
-
    );
+}}}
 
 Figure 7 - The AddFile function
 
@@ -232,34 +184,21 @@ This is useful when your application uses or produces external files such as ini
 Manually generating a report
 
 You can force report generation by calling the GenerateErrorReport. This is useful if you want to provide an easy way to gather debugging information about your application to help debug a non-fatal bug.
-Collapse
 
+{{{
 //-----------------------------------------------------------------------------
-
 // GenerateErrorReport
-
 //    Generates the crash report.
-
 //
-
 // Parameters
-
 //    lpState     State information returned from Install()
-
 //    pExInfo     Pointer to an EXCEPTION_POINTERS structure
-
 //
-
 // Return Values
-
 //    void
-
 //
-
 // Remarks
-
 //    Call this function to manually generate a crash report.
-
 //
 
 CRASHRPTAPI 
@@ -268,6 +207,7 @@ GenerateErrorReport(
    IN LPVOID lpState,
    IN PEXCEPTION_POINTERS pExInfo OPTIONAL
    );
+}}}
 
 Figure 8 - The GenerateErrorReport function
 
@@ -304,7 +244,8 @@ Figure 12 - OperatingSystem Node
 Last is the Modules node. This node contains the path, version, base address, size, and time stamp for every module loaded by the deceased application.
 
 Figure 13 - Modules Node
-Using the Crash Dump File
+
+= Using the Crash Dump File =
 
 The crash dump file is a minidump created with the help of the DbgHelp DLL's MiniDumpWriteDump function. The minidump contains various information about the state of the application when the error occurred including the call stack, local variables, and loaded modules. For more on creating minidumps, check out Andy Pennell's article.
 
@@ -315,24 +256,28 @@ The sample application included with this article does nothing but generate a nu
 When you run the sample application, click on the bomb button to generate a null pointer exception, and save the resulting crash report. Then extract the crash.dmp file from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D.
 
 Next, you need to set the symbol path for WinDbg with the .sympath command. Switch to the command window (ALT+1) and enter .sympath followed by a space followed by the semi-colon delimited list of directories to search.
-Collapse
 
+{{{
 .sympath c:\downloads\CrashRptTest
+}}}
 
 Figure 14 - Setting the symbol path
 
 Similarly you need to set the executable and source search paths with the .exepath and .srcpath commands.
-Collapse
 
+{{{
 .exepath c:\downloads\CrashRptTest
 .srcpath c:\downloads\CrashRptTest
+}}}
 
 Figure 15 - Setting the source and executable paths
 
 The final step is to change the debugger context to the context record associated with the exception by entering the .ecxr command.
 Collapse
 
+{{{
 .ecxr
+}}}
 
 Figure 15 - Setting the exception context record
 
@@ -342,18 +287,21 @@ Figure 16 - The Promised Land: Using WinDbg to Locate the Cause of a Null Pointe
 Deployment
 
 The CrashRpt library relies on a couple of redistributable libraries. To be sure the library has access to the required files, you can distribute the ZLib and DbgHelp I've included.
-Library 	File Version 	Description
-CrashRpt.DLL 	3.0.2.1 	Crash report library
-ZLib.DLL 	1.1.3.0 	ZLib compression library
-DbgHlp.DLL 	6.1.17.1 	Microsoft debug help library
+
+|| *Library*    || *File Version* || *Description* ||
+|| CrashRpt.DLL || 3.0.2.1        || Crash report library ||
+|| ZLib.DLL     || 1.1.3.0        || ZLib compression library ||
+|| DbgHelp.DLL 	|| 6.1.17.1       || Microsoft debug help library ||
+
 Figure 17 - Redistributable Libraries
-What to ship and what to save
+
+= What to ship and what to save = 
 
 As I mentioned earlier, to debug a crash you need not only the minidupmp file, but also the symbol and executable files that make up your application. When preparing a build to be released to clients, you should always save the exact executable modules you ship to clients, along with the corresponding debug symbols. This way when a crash report comes in, you will have the modules and debug symbols that the debugger will need to properly interpret the minidump.
 
 I've received several comments/inquiries about shipping debug builds or debug symbols. You should never ship debug builds or debug symbols as they will not only take up more space on your CD/download/client's workstation, but they will also make reverse engineering your code a trivial exercise. To be clear, what I'm suggesting is modify your release build configuration so that it generates debug symbols, saving both the release builds of your modules and their corresponding debug symbols in your source control system and delivering only the release builds of your modules to clients (as you do today). When a crash report comes in, you use the release build and debug symbols you archived, along with the minidump included in the crash report, to debug the crash.
 
-Note: CrashRpt uses Microsoft's Debug Help library (dbghelp.dll). This library was shipped with Windows XP, but certain versions are redistributable. I recommend you to install the dbghelp.dll file, included in the source/demo attachments, along the crashrpt.dll into your application's directory to avoid the possible conflict or missing dependency issues..
+*Note:* CrashRpt uses Microsoft's Debug Help library (dbghelp.dll). This library was shipped with Windows XP, but certain versions are redistributable. I recommend you to install the dbghelp.dll file, included in the source/demo attachments, along the crashrpt.dll into your application's directory to avoid the possible conflict or missing dependency issues..
 A word about preferred base load addresses
 
 Every executable module (EXE, DLL, OCX, whatever) has a preferred base load address. This is the address in the application's process space that the loader will try to map that module. If two or more modules list the same base load address, the loader will be forced to relocate the modules until each module loads at a unique address. Not only does this slow down the start up time of your application, but it also makes it impossible to debug fatal exceptions. In order to use the minidump file, you must ensure that your application's modules do not collide. You can use rebase.exe or manually override the preferred base load address for each conflicting module. Either way you need to make sure that your application modules always load at the same address for the minidump file to be useful. You can find more information about this in John Robbin's April 1998 MSJ column.
@@ -361,15 +309,15 @@ References
 
 For additional information about topics directly related to this article, see the links below:
 
-    * Debugging Tools for Windows.
-    * WTL Download.
-    * ZLib Compression Library.
-    * Reading Minidump Files with VS.NET.
-    * John Robbins on Crash Dumps.
-    * April 1998 MSJ Bugslayer Column.
-    * WTL Reference. 
+  * [http://www.microsoft.com/ddk/debugging/ Debugging Tools for Windows. ]
+  * [http://www.microsoft.com/downloads/details.aspx?FamilyID=128e26ee-2112-4cf7-b28e-7727d9a1f288&DisplayLang=en WTL Download.]
+  * [http://www.zlib.org/ ZLib Compression Library.]
+  * Reading Minidump Files with VS.NET.
+  * John Robbins on Crash Dumps.
+  * April 1998 MSJ Bugslayer Column.
+  * WTL Reference. 
 
-Change History
+= Change History =
 
     * 03/17/2003
 
