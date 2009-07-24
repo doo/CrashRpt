@@ -270,7 +270,7 @@ Last is the Modules node. This node contains the path, version, base address, si
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen8.png
 *Figure 13 - Modules Node*
 
-= Using the Crash Dump File =
+== Using the Crash Dump File ==
 
 The crash dump file is a minidump created with the help of the DbgHelp DLL's `MiniDumpWriteDump` function. The minidump contains various information about the state of the application when the error occurred including the call stack, local variables, and loaded modules. For more on creating minidumps, check out [http://www.codeproject.com/script/Submit/postmortemdebug_standalone1.asp Andy Pennell's article].
 
@@ -324,14 +324,15 @@ The CrashRpt library relies on a couple of redistributable libraries. To be sure
 
 *Figure 17 - Redistributable Libraries*
 
-= What to ship and what to save = 
+== What to ship and what to save == 
 
 As I mentioned earlier, to debug a crash you need not only the minidupmp file, but also the symbol and executable files that make up your application. When preparing a build to be released to clients, you should always save the exact executable modules you ship to clients, along with the corresponding debug symbols. This way when a crash report comes in, you will have the modules and debug symbols that the debugger will need to properly interpret the minidump.
 
 I've received several comments/inquiries about shipping debug builds or debug symbols. You should never ship debug builds or debug symbols as they will not only take up more space on your CD/download/client's workstation, but they will also make reverse engineering your code a trivial exercise. To be clear, what I'm suggesting is modify your release build configuration so that it generates debug symbols, saving both the release builds of your modules and their corresponding debug symbols in your source control system and delivering only the release builds of your modules to clients (as you do today). When a crash report comes in, you use the release build and debug symbols you archived, along with the minidump included in the crash report, to debug the crash.
 
 *Note:* CrashRpt uses Microsoft's Debug Help library (dbghelp.dll). This library was shipped with Windows XP, but certain versions are redistributable. I recommend you to install the dbghelp.dll file, included in the source/demo attachments, along the crashrpt.dll into your application's directory to avoid the possible conflict or missing dependency issues..
-A word about preferred base load addresses
+
+== A word about preferred base load addresses ==
 
 Every executable module (EXE, DLL, OCX, whatever) has a preferred base load address. This is the address in the application's process space that the loader will try to map that module. If two or more modules list the same base load address, the loader will be forced to relocate the modules until each module loads at a unique address. Not only does this slow down the start up time of your application, but it also makes it impossible to debug fatal exceptions. In order to use the minidump file, you must ensure that your application's modules do not collide. You can use rebase.exe or manually override the preferred base load address for each conflicting module. Either way you need to make sure that your application modules always load at the same address for the minidump file to be useful. You can find more information about this in [http://www.microsoft.com/msj/0498/bugslayer0498.htm John Robbin's April 1998 MSJ column].
 References
