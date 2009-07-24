@@ -8,7 +8,7 @@ It is recommended that you use v1.1 instead. You can find the documentation for 
 
 ----
 
-<wiki:toc max_depth="1" />
+<wiki:toc max_depth="2" />
 
 = Overview =
 
@@ -191,7 +191,7 @@ AddFile(
 
 This is useful when your application uses or produces external files such as initialization files or log files. When a report is generated, it will include these additional files.
 
-= Manually generating a report = 
+== Manually generating a report == 
 
 You can force report generation by calling the `GenerateErrorReport`. This is useful if you want to provide an easy way to gather debugging information about your application to help debug a non-fatal bug.
 
