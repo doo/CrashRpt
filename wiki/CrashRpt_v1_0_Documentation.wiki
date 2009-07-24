@@ -2,7 +2,7 @@
 #labels Featured,Phase-Deploy
 
 ----
-*NOTE:* This is the documentation for CrashRpt v1.0. CrashRpt v1.0 is obsolete. 
+*NOTE:* This is the documentation for CrashRpt v1.0. CrashRpt v1.0 is obsolete. This documentation can also be found in [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article by Mike Carruth on CodeProject.com.
 
 It is recommended that you use v1.1 instead. You can find the documentation for v1.1 in the CrashRpt package (click index.html).
 
@@ -268,6 +268,7 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen7.
 Last is the Modules node. This node contains the path, version, base address, size, and time stamp for every module loaded by the deceased application.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen8.png
+
 *Figure 13 - Modules Node*
 
 == Using the Crash Dump File ==
@@ -298,7 +299,6 @@ Similarly you need to set the executable and source search paths with the .exepa
 *Figure 15 - Setting the source and executable paths*
 
 The final step is to change the debugger context to the context record associated with the exception by entering the .ecxr command.
-Collapse
 
 {{{
 .ecxr
