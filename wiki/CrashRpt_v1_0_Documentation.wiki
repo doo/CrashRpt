@@ -223,7 +223,7 @@ GenerateErrorReport(
 
 If you do not supply a valid `EXCEPTION_POINTERS`, structure the minidump callstack may be incomplete.
 
-= Generate debug symbols = 
+== Generate debug symbols == 
 
 To get the most out of the minidump, the debugger needs your application's debug symbols. By default release builds don't generate debug symbols. You can configure VC to generate debug symbols for release builds by changing a couple of project settings.
 
