@@ -36,7 +36,7 @@ In an older version of CrashRpt v1.0, the documentation can be found in [CrashRp
 
 * How do I properly install CrashRpt?
 
-Download the latest stable version of CrashRpt from the Featured Downloads section of the main page. Unzip the archive to any folder, then go to the top level directory and click the index.html file to open project documentation. Then follow the directions in Installation page of the documentation.
+Download the latest stable version of CrashRpt from the [http://code.google.com/p/crashrpt/downloads/list Downloads] page. Unzip the archive to any folder, then go to the top level directory and click the index.html file to open project documentation. Then follow the directions in Installation page of the documentation.
 
 * How do I use CrashRpt in my Visual C++ project?
 
