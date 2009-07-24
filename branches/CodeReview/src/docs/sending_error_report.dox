@@ -47,6 +47,12 @@ The following error codes are defined for the current version of CrashRpt:
 - 401 MD5 hash is invalid
 - 402 Couldn't save data to local storage
 
+\note
+
+When creating your own script, be careful with the script's return code. If your script succeeds in
+saving error report it should return '200 Success'. If crash sending process 
+encounters another error code, it attempts sending the error report using another way.
+
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
 
 \code
