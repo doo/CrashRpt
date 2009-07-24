@@ -1,5 +1,5 @@
 #summary Frequently Asked Questions
-#labels Featured
+#labels Featured,Phase-Deploy
 
 * What is CrashRpt?
 
@@ -9,11 +9,17 @@ CrashRpt library is a light-weight error handling framework. The library will in
 
 CrashRpt provides functionality to properly handle structured Win32 exceptions, C++ runtime libraries (CRT) errors and C++ interruption signals. It would take a lot of efforts from you to implement this yourself. CrashRpt collects all information you need to debug the problem. CrashRpt can deliver error reports using HTTP request, SMTP connection and through Simple MAPI. In addition, CrashRpt is well documented, so its easy to start using it in your project.
 
+* What is current CrashRpt project status?
+
+The latest version of CrashRpt is v1.1 beta. We are currently preparing for the v1.1 final release. 
+
+The previous version, CrashRpt v1.0 is declared deprecated and not recommended for download.
+
 * Are there  any analogous software for crash reporting?
 
 Yes, they are listed in the table below:
 
-|| *Name || *Description || *Link ||
+|| *Name* || *Description* || *Link* ||
 || google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
@@ -22,11 +28,9 @@ Yes, they are listed in the table below:
 
 Since v1.1 of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
 
-* What is current CrashRpt project status?
+* Where do I look for CrashRpt documentation?
 
-The latest version of CrashRpt is v1.1 beta. We are currently preparing for the v1.1 final release. 
-
-The previous version, CrashRpt v1.0 is declared deprecated and not recommended for download.
+CrashRpt documentation is included into the CrashRpt release package. To open the documentation, click the index.html in the top level directory of the CrashRpt package.
 
 * How do I properly install CrashRpt?
 
@@ -38,7 +42,7 @@ Go to the top level directory of CrashRpt package and click the index.html file 
 
 * What is an error report?
 
-The error report refers to a collection of files intended to help the developer diagnose the cause of a crash.
+An error report refers to a collection of files intended to help the developer diagnose the cause of a crash.
 
 The error report contains crash minidump file (crashdump.dmp), which has operating system version, processor type, CPU registers state and local variables and stack trace for each execution thread. The minidump in most cases can be used on developer's side to determine the reason of the crash and try to fix the problem.
 
@@ -46,7 +50,14 @@ In addition, CrashRpt generates an XML crash descriptor file. The file contains 
 
 Custom files, for example, application log files, can be included into crash report via the crash callback. 
 
-* How do I use an error report for debugging the crash?
+* How CrashRpt delivers me error reports from end users?
+
+CrashRpt sends error reports back to your software support team using any of the following ways:
+  * via HTTP request to a server-side script
+  * via connection to an SMTP server
+  * via Simple MAPI programming interface (the user's default E-mail client application)
+
+* How do I use an error report for debugging a crash?
 
 A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as
   * crash minidump (crashdump.dmp),
