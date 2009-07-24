@@ -2,10 +2,9 @@
 #labels Featured,Phase-Deploy
 
 ----
-*NOTE:* This is the documentation for CrashRpt v1.0. CrashRpt v1.0 is obsolete. This documentation can also be found in [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article by Mike Carruth on CodeProject.com.
+*NOTE:* This is the documentation for CrashRpt v1.0. CrashRpt v1.0 is obsolete. It is recommended that you use v1.1 instead. You can find the documentation for v1.1 in the CrashRpt package (click index.html).
 
-It is recommended that you use v1.1 instead. You can find the documentation for v1.1 in the CrashRpt package (click index.html).
-
+This article can also be found in [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article by Mike Carruth on CodeProject.com.
 ----
 
 <wiki:toc max_depth="2" />
