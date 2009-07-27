@@ -170,9 +170,9 @@ The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll
 
 You should always distribute dbghelp.dll with your software, because the version of dbghelp.dll may be different on end user's machine. 
 
-== I do not like that I should distribute all these DLLs. Can I compile them all as static libs?
+== I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
-No, this is impossible. 
+No, this is impossible, because of many reasons. 
 
 
 
