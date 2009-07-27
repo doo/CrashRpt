@@ -202,9 +202,7 @@ You should always distribute dbghelp.dll with your software, because the version
 
 No, this is impossible, because of many reasons. 
 
-
-
-= Using Error Reports =
+= Error Reports Creation and Delivery = 
 
 == What is an error report? ==
 
@@ -260,6 +258,9 @@ This way has the lowest priority by default.
 == What does crashrpt do when all attempts to send error report fails? == 
 
 CrashRpt saves an error report as a ZIP archive to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
+
+
+= Using Error Reports =
 
 == What do I do when I start receiving error reports after software release? ==
 
