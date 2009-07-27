@@ -106,11 +106,11 @@ Typically your process (EXE) loads `CrashRpt.dll` into process address space whe
 
 It is enough to set exception handlers in the process once. No need to set handlers in each DLL's `DllMain()` function, because handlers work on per-process basis.
 
-== How do I use crashrpt across process boundaries?
+== How do I use crashrpt across process boundaries? == 
 
 Each process loads its own copy of 'CrashRpt.dll'. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently CrashRpt doesn't support such possiblity. 
 
-== How do I use crashrpt in a mutli-threaded application?
+== How do I use crashrpt in a mutli-threaded application? ==
 
 You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
