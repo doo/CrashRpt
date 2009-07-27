@@ -50,6 +50,10 @@ Note that some exceptions related to security can't be intercepted. Since CRT 8.
 
 For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
 
+== Does using crashrpt makes it easier for somebody to reverse engineer my code? ==
+
+Actually not. To use CrashRpt you enable program database generation in Release configuration (/Zi compiler flag) and this generates .PDB file for your project. PDB file contains information that can be used to reverse engineer your code, however you typically store it locally and do not distribute with your software release package. So, using crashrpt doesn't affect the difficulty of reverse engineering your code. 
+
 = Using crashrpt =
 
 == What Visual C++ versions I can use crashrpt in? ==
