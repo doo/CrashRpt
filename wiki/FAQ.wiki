@@ -42,17 +42,15 @@ Yes, they are listed in the table below:
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
 
-== Does crashrpt intercepts _exactly_ all exceptions that may occur in my program? == 
+== How do I report a bug in crashrpt?
 
-CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
+You can create an issue in our issue tracker http://code.google.com/p/crashrpt/issues/list. We appreciate your feedback. 
 
-Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
+Note that creating an issue requires you to be signed in using Google account.
 
-For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
+== How do I contribute into crashrpt project?
 
-== Does using crashrpt makes it easier for somebody to reverse engineer my code? ==
-
-Actually not. To use CrashRpt you enable program database generation in Release configuration (/Zi compiler flag) and this generates .PDB file for your project. PDB file contains information that can be used to reverse engineer your code, however you typically store it locally and do not distribute with your software release package. So, using crashrpt doesn't affect the difficulty of reverse engineering your code. 
+You can create a topic in crashpt group http://groups.google.com/group/crashrpt and describe there how you would like to contribute. After that project owner will add your email to the list of project members and you will be able to make changes in source code.
 
 = Using crashrpt =
 
@@ -101,6 +99,18 @@ Here [CRASHRPT_HOME] should be replaced with the actual path of the directory yo
 == How do I use crashrpt in my Visual C++ project? ==
 
 Go to the top level directory of CrashRpt package and click the index.html file to open project documentation. Then follow the directions in Using CrashRpt in Your Visual C++ Project page of the documentation.
+
+== Does crashrpt intercepts _exactly_ all exceptions that may occur in my program? == 
+
+CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
+
+Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
+
+For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
+
+== Does using crashrpt makes it easier for somebody to reverse engineer my code? ==
+
+Actually not. To use CrashRpt you enable program database generation in Release configuration (/Zi compiler flag) and this generates .PDB file for your project. PDB file contains information that can be used to reverse engineer your code, however you typically store it locally and do not distribute with your software release package. So, using crashrpt doesn't affect the difficulty of reverse engineering your code. 
 
 == What is the required way of CRT linkage for crashrpt to work properly? ==
 
