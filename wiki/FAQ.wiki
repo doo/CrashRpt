@@ -72,21 +72,21 @@ You also need to download the latest version of WTL from here. Unzip the WTL arc
 
 * Compiling *
 
-By default CrashRpt release package already contains binary files compiled with Visual Studio 2005 in its bin directory. However, it is strongly recommended that you compile CrashRpt yourself using your version of Visual Studio.
+By default CrashRpt release package already contains binary files compiled with Visual Studio 2005 in its `bin` directory. However, it is strongly recommended that you compile CrashRpt yourself using your version of Visual Studio.
 
 To compile CrashRpt yourself follow the following steps:
 
    # Open one of solution files available in the top level directory of CrashRpt package, depending on your version of Visual Studio:
-          * CrashRpt_vs.NET.sln
-          * CrashRpt_vs2005.sln
-          * CrashRpt_vs2008.sln
-   # Choose the Release build configuration and press F7 to build the solution.
+          * `CrashRpt_vs.NET.sln`
+          * `CrashRpt_vs2005.sln`
+          * `CrashRpt_vs2008.sln`
+   # Choose the `Release` build configuration and press `F7` to build the solution.
 
 * Include and Lib directories *
 
 It is recommened that you let the Viual C++ compiler know about CrashRpt using the following steps:
 
-In Visual Studio window, open Tools-> Options->Projects and Solutions->VC++ Directories.
+In Visual Studio window, open Tools->Options->Projects and Solutions->VC++ Directories.
 
     * In the 'Show directories for' combo select 'Include files', then add the path to [CRASHRPT_HOME]\CrashRpt\include directory to the list below.
     * In the 'Show directories for' combo select 'Library files', then add the path to [CRASHRPT_HOME]\lib directory to the list below.
