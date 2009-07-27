@@ -42,6 +42,14 @@ Yes, they are listed in the table below:
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
 
+== Does crashrpt intercepts _exactly_ all exceptions that may occur in my program? == 
+
+CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
+
+Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
+
+For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
+
 = Using crashrpt =
 
 == What Visual C++ versions I can use crashrpt in? ==
@@ -140,11 +148,3 @@ Each module (EXE, DLL) in your project is linked to CRT (C++ runtime libraries).
 Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
 If you plan to use CRT as a static link library (which is not recommended to do), you have to add exception handling functionality in EACH project module in your solution in form of .cpp files. This makes impossible the way when you implement exception handling code inside of a dynamic link library (such way CrashRpt is implemented).
-
-== Does crashrpt intercepts _exactly_ all exceptions that may occur in my program? == 
-
-CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
-
-Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
-
-For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
