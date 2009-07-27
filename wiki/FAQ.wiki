@@ -216,6 +216,12 @@ In addition, CrashRpt generates an XML crash descriptor file. The file contains 
 
 Custom files, for example, application log files, can be included into crash report via the crash callback. 
 
+== How does crashrpt create an error report when crash occurs? ==
+
+When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. The parent process is then terminated. If you generate error report manually, the parent process is not terminated.
+
+CrashRpt saves an error report as a ZIP archive to LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
+
 == How crashrpt delivers me error reports from end users? ==
 
 CrashRpt sends error reports back to your software support team using any of the following ways:
@@ -237,7 +243,7 @@ See CrashRpt project documentation for more information.
 
 CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP connection without any user interaction. An error report is sent as an E-mail multi-part message with attachments.
 
-This way CrashSender.exe creates SMTP connection with a mail server (port 25) and send crash reports without additional user interaction. There are two SMTP servers that can be used to relay email: sender's mailbox and recipient's mailbox. 
+This way `CrashSender.exe` creates SMTP connection with a mail server (port 25) and send crash reports without additional user interaction. There are two SMTP servers that can be used to relay email: sender's mailbox and recipient's mailbox. 
 
 If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP server name and relay the email message to that server.
 
