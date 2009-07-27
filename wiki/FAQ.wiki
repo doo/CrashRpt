@@ -136,8 +136,8 @@ When you are ready for a software release, the following steps must be performed
 
     * Create a directory, for example name it 'CrashRptSaved'.
     * In that directory create a subdirectory for your software release, for example 'MyApp v.1.3.5'.
-    * Copy all binary files (*.EXE, *.DLL) from your project output.
-    * Copy all program database files (*.PDB) from your project output.
+    * Copy all binary files (.EXE, .DLL) from your project output.
+    * Copy all program database files (.PDB) from your project output.
 
 It is recommended to direct all project output to bin directory and then just copy entire bin directory. These steps should be performed for exactly the same software build that you plan to release. If you rebuild the project after files are copied, you must copy the files again.
 
