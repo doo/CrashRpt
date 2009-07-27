@@ -220,7 +220,7 @@ Custom files, for example, application log files, can be included into crash rep
 
 When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. The parent process is then terminated. If you generate error report manually, the parent process is not terminated.
 
-CrashRpt saves an error report as a ZIP archive to LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
+CrashRpt saves an error report as a ZIP archive to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
 
 == How crashrpt delivers me error reports from end users? ==
 
