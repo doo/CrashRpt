@@ -223,6 +223,38 @@ CrashRpt sends error reports back to your software support team using any of the
   * via connection to an SMTP server
   * via Simple MAPI programming interface (the user's default E-mail client application)
 
+If one of these ways fails, CrashRpt tries others in turn. You can define the preferred order of ways used to send reports.
+
+== How does crashrpt send me error reports using HTTP connection? ==
+
+Many software products have web sites on the Internet. Such web servers typically have some scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish an HTTP connection to a server-side script and send the error report as a script parameter.
+
+This way is not affected by firewalls, because most of firewalls have HTTP port 8080 open. However, this way requires a server with some script that you create and deploy yourself.
+
+See CrashRpt project documentation for more information.
+
+== How does crashrpt send me error reports using SMTP connection? ==
+
+CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP connection without any user interaction. An error report is sent as an E-mail multi-part message with attachments.
+
+This way CrashSender.exe creates SMTP connection with a mail server (port 25) and send crash reports without additional user interaction. There are two SMTP servers that can be used to relay email: sender's mailbox and recipient's mailbox. 
+
+If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP server name and relay the email message to that server.
+
+If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX record of recipent's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+
+This way won't work when firewall is enabled and port 25 is closed for outbound traffic (SMTP client won't be able to even connect). Since many organizations and even home users have firewalls that silently block port 25, this way is fails for many users. 
+
+== How does crashrpt send me error reports using Simple MAPI programming interface? ==
+
+CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. An error report is sent as an E-mail multi-part message with attachments. This requires some user interaction.
+
+This way has the lowest priority by default. 
+
+== What does crashrpt do when all attempts to send error report fails? == 
+
+CrashRpt saves an error report as a ZIP archive to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
+
 == What do I do when I start receiving error reports after software release? ==
 
 When a software release is made and CrashRpt support is enabled in your software, sooner or later you start receiving crash reports.
