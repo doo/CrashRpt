@@ -42,13 +42,13 @@ Yes, they are listed in the table below:
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
 
-== How do I report a bug in crashrpt?
+== How do I report a bug in crashrpt? ==
 
 You can create an issue in our issue tracker http://code.google.com/p/crashrpt/issues/list. We appreciate your feedback. 
 
 Note that creating an issue requires you to be signed in using Google account.
 
-== How do I contribute into crashrpt project?
+== How do I contribute into crashrpt project? ==
 
 You can create a topic in crashpt group http://groups.google.com/group/crashrpt and describe there how you would like to contribute. After that project owner will add your email to the list of project members and you will be able to make changes in source code.
 
