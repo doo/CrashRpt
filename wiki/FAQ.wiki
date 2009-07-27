@@ -122,6 +122,10 @@ Several project modules may share single CRT DLL. This reduces to minimum the ov
 
 If you plan to use CRT as a static link library (which is not recommended to do), you have to add exception handling functionality in EACH project module in your solution in form of .cpp files. This makes impossible the way when you implement exception handling code inside of a dynamic link library (such way CrashRpt is implemented).
 
+== Can I compile crashrpt as a static library? ==
+
+No, it is not recommended to do. 
+
 == Why should I enable Program Database (/Zi) compiler flag? ==
 
 To get the most out of the crash minidump, the debugger needs your application's debug symbols. By default Release builds don't generate debug symbols. The crash minidump is unusable without the debugging symbols database (program database, PDB). 
@@ -162,10 +166,13 @@ It is recommended that you place these files to the directory where your applica
 
 The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll` (Microsoft Debug Help Library) and `zlib1.dll` (ZLib) are dependent modules. 
 
+== I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
+You should always distribute dbghelp.dll with your software, because the version of dbghelp.dll may be different on end user's machine. 
 
+== I do not like that I should distribute all these DLLs. Can I compile them all as static libs?
 
-
+No, this is impossible. 
 
 
 
