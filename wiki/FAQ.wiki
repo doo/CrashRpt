@@ -68,19 +68,19 @@ In an older version of CrashRpt v1.0, the documentation can be found in [CrashRp
 
 Download the latest stable version of CrashRpt from the [http://code.google.com/p/crashrpt/downloads/list Downloads] page. Unzip the archive to any folder.
 
+You also need to download the latest version of WTL from here. Unzip the WTL archive to some folder. In Visual Studio, open Tools-> Options->Projects and Solutions->VC++ Directories. In the 'Show directories for' combo select 'Include files', then add the path to WTL\include directory to the list below.
+
 * Compiling *
 
 By default CrashRpt release package already contains binary files compiled with Visual Studio 2005 in its bin directory. However, it is strongly recommended that you compile CrashRpt yourself using your version of Visual Studio.
 
 To compile CrashRpt yourself follow the following steps:
 
-   1. Download and unzip the source code of CrashRpt to any directory.
-   2. You also need to download the latest version of WTL from here. Unzip the WTL archive to some folder. In Visual Studio, open Tools-> Options->Projects and Solutions->VC++ Directories. In the 'Show directories for' combo select 'Include files', then add the path to WTL\include directory to the list below.
-   3. Open one of solution files available in the top level directory of CrashRpt package, depending on your version of Visual Studio:
+   # Open one of solution files available in the top level directory of CrashRpt package, depending on your version of Visual Studio:
           * CrashRpt_vs.NET.sln
           * CrashRpt_vs2005.sln
           * CrashRpt_vs2008.sln
-   4. Choose the Release build configuration and press F7 to build the solution.
+   # Choose the Release build configuration and press F7 to build the solution.
 
 * Include and Lib directories *
 
