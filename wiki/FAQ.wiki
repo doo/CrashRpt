@@ -64,11 +64,67 @@ In an older version of CrashRpt v1.0, the documentation can be found in [CrashRp
 
 == How do I properly install crashrpt? ==
 
-Download the latest stable version of CrashRpt from the [http://code.google.com/p/crashrpt/downloads/list Downloads] page. Unzip the archive to any folder, then go to the top level directory and click the index.html file to open project documentation. Then follow the directions in Installation page of the documentation.
+* Downloading *
+
+Download the latest stable version of CrashRpt from the [http://code.google.com/p/crashrpt/downloads/list Downloads] page. Unzip the archive to any folder.
+
+* Compiling *
+
+By default CrashRpt release package already contains binary files compiled with Visual Studio 2005 in its bin directory. However, it is strongly recommended that you compile CrashRpt yourself using your version of Visual Studio.
+
+To compile CrashRpt yourself follow the following steps:
+
+   1. Download and unzip the source code of CrashRpt to any directory.
+   2. You also need to download the latest version of WTL from here. Unzip the WTL archive to some folder. In Visual Studio, open Tools-> Options->Projects and Solutions->VC++ Directories. In the 'Show directories for' combo select 'Include files', then add the path to WTL\include directory to the list below.
+   3. Open one of solution files available in the top level directory of CrashRpt package, depending on your version of Visual Studio:
+          * CrashRpt_vs.NET.sln
+          * CrashRpt_vs2005.sln
+          * CrashRpt_vs2008.sln
+   4. Choose the Release build configuration and press F7 to build the solution.
+
+* Include and Lib directories *
+
+It is recommened that you let the Viual C++ compiler know about CrashRpt using the following steps:
+
+In Visual Studio window, open Tools-> Options->Projects and Solutions->VC++ Directories.
+
+    * In the 'Show directories for' combo select 'Include files', then add the path to [CRASHRPT_HOME]\CrashRpt\include directory to the list below.
+    * In the 'Show directories for' combo select 'Library files', then add the path to [CRASHRPT_HOME]\lib directory to the list below.
+    * In the 'Show directories for' combo select 'Executable files', then add the path to [CRASHRPT_HOME]\bin directory to the list below.
+
+Here [CRASHRPT_HOME] should be replaced with the actual path of the directory you unzipped CrashRpt package to.
 
 == How do I use crashrpt in my Visual C++ project? ==
 
 Go to the top level directory of CrashRpt package and click the index.html file to open project documentation. Then follow the directions in Using CrashRpt in Your Visual C++ Project page of the documentation.
+
+== What is the required way of CRT linkage for crashrpt to work properly? ==
+
+It is important that you configure your project to use C++ runtime libraries (CRT) as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN. And CrashRpt won't work properly if CRT is used in different way.
+
+In the Solution Explorer window, right-click your project and open project Properties. Then choose Configuration Properties->C/C++->Code Generation. In the Runtime Library field, choose Multi-threaded DLL (/MD).
+
+This should be done for all projects in your solution to share single CRT DLL.
+
+== What do I do if modules of my application use different versions of CRT? ==
+
+Ensure that all modules that exist in your application use the same version of CRT. If some dependent modules were compiled using an older version of CRT, you should recompile them to ensure the single version or CRT DLL is used.
+
+For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a C++ exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only.
+
+== What do I do if my project uses CRT as a static library? ==
+
+In such case you can't use CrashRpt in your project, even if you compile it as a static library.
+
+Each module (EXE, DLL) in your project is linked to CRT (C++ runtime libraries). You may link CRT as multithreaded static library or as multithreaded dynamic link library. When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
+
+Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
+
+If you plan to use CRT as a static link library (which is not recommended to do), you have to add exception handling functionality in EACH project module in your solution in form of .cpp files. This makes impossible the way when you implement exception handling code inside of a dynamic link library (such way CrashRpt is implemented).
+
+
+
+= Using Error Reports =
 
 == What is an error report? ==
 
@@ -124,27 +180,3 @@ Sometimes you can't determine the location of the crash and the error message is
   * You have wrong or missing PDB files. Open the Modules window and check the symbol status for modules of your program. If the status is 'Module not loaded' than you have missing PDB. Or maybe correct PDB files weren't saved locally before software release. In such case you won't be able to properly read any of received crash reports.
 
   * If symbols for some modules of your program are loaded, and you have the error, than there were no debugging symbols generated for the module where crash had occured. Check that you set Program Database (/Zi) compiler flag for all modules of your application.
-
-== What is the required way of CRT linkage for crashrpt to work properly? ==
-
-It is important that you configure your project to use C++ runtime libraries (CRT) as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN. And CrashRpt won't work properly if CRT is used in different way.
-
-In the Solution Explorer window, right-click your project and open project Properties. Then choose Configuration Properties->C/C++->Code Generation. In the Runtime Library field, choose Multi-threaded DLL (/MD).
-
-This should be done for all projects in your solution to share single CRT DLL.
-
-== What do I do if modules of my application use different versions of CRT? ==
-
-Ensure that all modules that exist in your application use the same version of CRT. If some dependent modules were compiled using an older version of CRT, you should recompile them to ensure the single version or CRT DLL is used.
-
-For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a C++ exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only.
-
-== What do I do if my project uses CRT as a static library? ==
-
-In such case you can't use CrashRpt in your project, even if you compile it as a static library.
-
-Each module (EXE, DLL) in your project is linked to CRT (C++ runtime libraries). You may link CRT as multithreaded static library or as multithreaded dynamic link library. When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
-
-Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
-
-If you plan to use CRT as a static link library (which is not recommended to do), you have to add exception handling functionality in EACH project module in your solution in form of .cpp files. This makes impossible the way when you implement exception handling code inside of a dynamic link library (such way CrashRpt is implemented).
