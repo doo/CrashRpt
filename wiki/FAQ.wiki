@@ -103,6 +103,20 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 See the documentation contained in the CrashRpt release package for more information.
 
+== How do I open a crash minidump file (.DMP) ==
+
+To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program database files (PDB) are locally stored. You copy the minidump to that folder to ensure the debugger find the program database files and binaries. Then double-click on the minidump file name. This should open it using an associated program (for example, Visual Studio). When minidump file is loaded in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see the place in your source code where exception had occurred.
+
+== I open minidump, but symbols are not loaded. What do I do? ==
+
+Sometimes you can't determine the location of the crash and the error message is displayed 'No symbols loaded for any stack frame'. This may be because of the following reasons.
+
+  * Debugger may not locate the correct PDB and binary files. Try to open Tools->Options->Debugging->Symbols and enter the path to the directory where your PDB files are located. Then reopen the minidump.
+
+  * You have wrong or missing PDB files. Open the Modules window and check the symbol status for modules of your program. If the status is 'Module not loaded' than you have missing PDB. Or maybe correct PDB files weren't saved locally before software release. In such case you won't be able to properly read any of received crash reports.
+
+  * If symbols for some modules of your program are loaded, and you have the error, than there were no debugging symbols generated for the module where crash had occured. Check that you set Program Database (/Zi) compiler flag for all modules of your application.
+
 == What is the required way of CRT linkage for crashrpt to work properly? ==
 
 It is important that you configure your project to use C++ runtime libraries (CRT) as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN. And CrashRpt won't work properly if CRT is used in different way.
@@ -126,3 +140,11 @@ Each module (EXE, DLL) in your project is linked to CRT (C++ runtime libraries).
 Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
 If you plan to use CRT as a static link library (which is not recommended to do), you have to add exception handling functionality in EACH project module in your solution in form of .cpp files. This makes impossible the way when you implement exception handling code inside of a dynamic link library (such way CrashRpt is implemented).
+
+== Does crashrpt intercepts _exactly_ all exceptions that may occur in my program? == 
+
+CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
+
+Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
+
+For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
