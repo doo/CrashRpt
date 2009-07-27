@@ -90,15 +90,29 @@ It is recommened that you let the Viual C++ compiler know about CrashRpt using t
 
 In Visual Studio window, open Tools->Options->Projects and Solutions->VC++ Directories.
 
-    * In the 'Show directories for' combo select 'Include files', then add the path to [CRASHRPT_HOME]\CrashRpt\include directory to the list below.
-    * In the 'Show directories for' combo select 'Library files', then add the path to [CRASHRPT_HOME]\lib directory to the list below.
-    * In the 'Show directories for' combo select 'Executable files', then add the path to [CRASHRPT_HOME]\bin directory to the list below.
+    * In the 'Show directories for' combo select 'Include files', then add the path to `[CRASHRPT_HOME]\CrashRpt\include` directory to the list below.
+    * In the 'Show directories for' combo select 'Library files', then add the path to `[CRASHRPT_HOME]\lib` directory to the list below.
+    * In the 'Show directories for' combo select 'Executable files', then add the path to `[CRASHRPT_HOME]\bin` directory to the list below.
 
-Here [CRASHRPT_HOME] should be replaced with the actual path of the directory you unzipped CrashRpt package to.
+Here `[CRASHRPT_HOME]` should be replaced with the actual path of the directory you unzipped CrashRpt package to.
 
 == How do I use crashrpt in my Visual C++ project? ==
 
 Go to the top level directory of CrashRpt package and click the index.html file to open project documentation. Then follow the directions in Using CrashRpt in Your Visual C++ Project page of the documentation.
+
+== How CrashRpt.dll is loaded and how it is shared between other modules loaded into process address space? ==
+
+Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the process' address space.
+
+It is enough to set exception handlers in the process once. No need to set handlers in each DLL's `DllMain()` function, because handlers work on per-process basis.
+
+== How do I use CrashRpt across process boundaries?
+
+Each process loads its own copy of 'CrashRpt.dll'. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently CrashRpt doesn't support such possiblity. 
+
+== How do I use CrashRpt in a mutli-threaded application?
+
+You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
 == Does crashrpt intercepts _exactly_ all exceptions that may occur in my program? == 
 
