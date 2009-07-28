@@ -308,7 +308,17 @@ See the documentation contained in the CrashRpt release package for more informa
 
 == What is crash GUID? ==
 
+A crash descriptor XML contains *CrashGUID* tag.
+
 A crash GUID is an unique identifier that is assigned to an error report. GUIDs are generated using special algorithm that guarantees that there is very low probability of generating the same GUID twice on different user machines. The crash GUID can be used, for example, as a primary key if you plan to store crash reports in a database.
+
+== How do I determine the name and version of the application that generated the error report?  ==
+
+A crash descriptor XML contains *AppName* and *AppVersion* tags that you use to determine what application sent you the report. You are typically interested in analysing error reports from the latest version of your software and ignore reports from older versions.
+
+== How do I determine the OS version for the error report? ==
+
+A crash descriptor XML contains *OperatingSystem* tag that is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
 
 == How do I open a crash minidump file (.DMP)? ==
 
