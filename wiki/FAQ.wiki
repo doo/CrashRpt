@@ -130,6 +130,14 @@ Actually not. To use CrashRpt you enable program database generation in Release 
 
 All CrashRpt functions using character set dependent arguments have two versions of function name (multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multibyte character set.
 
+== Why would I want to add a custom file to an error report? == 
+
+Typically an application creates and maintains a log file where operations and errors are written. Such log file can be helpful for crash analysis and should be added to an error report. 
+
+== Why would I want to generate error report without crash? ==
+
+Sometimes it is required to remotely debug some application logics error. Such an error, for example, infinite loop, may not cause program crash. To collect the information about error that doesn't cause crash, a software developer might provide an ability to generate error report manually on user demand, for example on a key combination press. 
+
 == What is the required way of CRT linkage for crashrpt to work properly? ==
 
 It is important that you configure your project to use C++ runtime libraries (CRT) as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN. And CrashRpt won't work properly if CRT is used in different way.
@@ -165,6 +173,14 @@ To get the most out of the crash minidump, the debugger needs your application's
 In the Solution Explorer window, right-click your project and open project Properties. Then choose Configuration Properties->C/C++->General. In the Debug Information Format field, choose Program Database (/Zi).
 
 This should be done for all projects in your solution that support program database (EXE, DLL).
+
+== Shoud I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
+
+This is not necessary, because a minidump file itself contains the list of loaded modules of your application. 
+
+== How do I test if crashrpt intercepts exceptions in my application? ==
+
+When you install crash reporting support to your program, it is important to test if CrashRpt intercepts exceptions properly. Use `crEmulateCrash()` function to emulate an exceptional situation. 
 
 == What files do I save locally before my software is released? ==
 
