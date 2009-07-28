@@ -1,5 +1,5 @@
 #summary CrashRpt v1.0 Documentation.
-#labels Featured,Phase-Deploy
+#labels Phase-Deploy
 
 ----
 *NOTE:* This is the documentation for CrashRpt v1.0. CrashRpt v1.0 is obsolete. It is recommended that you use v1.1 instead. You can find the documentation for v1.1 in the CrashRpt package (click index.html).
