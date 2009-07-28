@@ -100,6 +100,17 @@ Here `[CRASHRPT_HOME]` should be replaced with the actual path of the directory 
 
 Go to the top level directory of CrashRpt package and click the index.html file to open project documentation. Then follow the directions in Using CrashRpt in Your Visual C++ Project page of the documentation.
 
+== What .h file should I include in my code and what .lib file should I link my code to? ==
+
+Do not forget to include `CrashRpt.h` header file in the beginning of your code.
+
+{{{
+// Include CrashRpt header
+#include "CrashRpt.h"
+}}}
+
+You also need to add `CrashRpt.lib` to the list of input libraries for your project. In the Solution Explorer window, right-click your project and choose Properties item in the context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies and then add `CrashRpt.lib` to the list of libraries.
+
 == How crashrpt.dll is loaded and how it is shared between other modules loaded into process address space? ==
 
 Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the process' address space.
@@ -308,17 +319,15 @@ See the documentation contained in the CrashRpt release package for more informa
 
 == What is crash GUID? ==
 
-A crash descriptor XML contains *CrashGUID* tag.
-
-A crash GUID is an unique identifier that is assigned to an error report. GUIDs are generated using special algorithm that guarantees that there is very low probability of generating the same GUID twice on different user machines. The crash GUID can be used, for example, as a primary key if you plan to store crash reports in a database.
+A crash descriptor XML contains `CrashGUID` tag. The crash GUID is an unique identifier that is assigned to an error report. GUIDs are generated using special algorithm that guarantees that there is very low probability of generating the same GUID twice on different user machines. The crash GUID can be used, for example, as a primary key if you plan to store crash reports in a database.
 
 == How do I determine the name and version of the application that generated the error report?  ==
 
-A crash descriptor XML contains *AppName* and *AppVersion* tags that you use to determine what application sent you the report. You are typically interested in analysing error reports from the latest version of your software and ignore reports from older versions.
+A crash descriptor XML contains `AppName` and `AppVersion` tags that you use to determine what application sent you the report. You are typically interested in analysing error reports from the latest version of your software and ignore reports from older versions.
 
 == How do I determine the OS version for the error report? ==
 
-A crash descriptor XML contains *OperatingSystem* tag that is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
+A crash descriptor XML contains `OperatingSystem` tag that is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
 
 == How do I open a crash minidump file (.DMP)? ==
 
