@@ -275,7 +275,7 @@ CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to
 
 This way has the lowest priority by default. 
 
-== What does crashrpt do when all attempts to send error report fails? == 
+== What does crashrpt do when all attempts to send error report fail? == 
 
 CrashRpt saves an error report as a ZIP archive to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
 
