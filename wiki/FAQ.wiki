@@ -236,11 +236,11 @@ Custom files, for example, application log files, can be included into crash rep
 
 == How does crashrpt create an error report when crash occurs? ==
 
-When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. The parent process is then terminated. If you generate error report manually, the parent process is not terminated.
+When crash occurs, CrashRpt builds and saves an error report and then runs another process named `CrashSender.exe`. The parent process is then terminated. If you generate error report manually, the parent process is not terminated.
 
 CrashRpt saves an error report as a ZIP archive to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. In the current CrashRpt version crash report files are not removed, even if they had been sent to the recipient successfuly.
 
-== How crashrpt delivers me error reports from end users? ==
+== How does crashrpt deliver me error reports from end users? ==
 
 CrashRpt sends error reports back to your software support team using any of the following ways:
   * via HTTP request to a server-side script
@@ -306,9 +306,15 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 See the documentation contained in the CrashRpt release package for more information.
 
+== What is crash GUID? ==
+
+A crash GUID is an unique identifier that is assigned to an error report. GUIDs are generated using special algorithm that guarantees that there is very low probability of generating the same GUID twice on different user machines. The crash GUID can be used, for example, as a primary key if you plan to store crash reports in a database.
+
 == How do I open a crash minidump file (.DMP)? ==
 
 To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program database files (PDB) are locally stored. You copy the minidump to that folder to ensure the debugger find the program database files and binaries. Then double-click on the minidump file name. This should open it using an associated program (for example, Visual Studio). When minidump file is loaded in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see the place in your source code where exception had occurred.
+
+Alternatively, you can open the minidump file using WinDbg program from Microsoft Debugging Tools that is freely distributed.
 
 == I open minidump, but symbols are not loaded. What do I do? ==
 
