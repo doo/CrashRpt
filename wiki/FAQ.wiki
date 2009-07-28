@@ -260,6 +260,10 @@ CrashRpt sends error reports back to your software support team using any of the
 
 If one of these ways fails, CrashRpt tries others in turn. You can define the preferred order of ways used to send reports.
 
+== Are there any crash report size limitations? ==
+
+Yes, they are. A crash report should be as small as possible (~100 KB). This is because of limitations of size of email attachments and HTTP request size. If the error report is larger than the limit, it is possible that the error report won't be delivered to the software support team.
+
 == How does crashrpt send me error reports using HTTP connection? ==
 
 Many software products have web sites on the Internet. Such web servers typically have some scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish an HTTP connection to a server-side script and send an error report as a script parameter.
