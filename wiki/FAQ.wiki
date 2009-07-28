@@ -176,7 +176,7 @@ This should be done for all projects in your solution that support program datab
 
 == Shoud I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
 
-This is not necessary, because a minidump file itself contains the list of loaded modules of your application. 
+This is not necessary, because a minidump file itself contains the list of loaded modules of your application and their actual load addresses. 
 
 == How do I test if crashrpt intercepts exceptions in my application? ==
 
