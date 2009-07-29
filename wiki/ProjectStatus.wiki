@@ -1,0 +1,6 @@
+#summary Current crashrpt project status and statistics.
+#labels Featured
+
+<wiki:gadget url="http://www.ohloh.net/p/gwt/widgets/project_basic_stats.xml" height="220" border="1" />
+
+<wiki:gadget url="http://www.ohloh.net/p/gwt/widgets/project_languages.xml" width="340" height="200" border="1" />
