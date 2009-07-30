@@ -3,7 +3,6 @@
  *  \date   2003-2009
  *  \author Michael Carruth (mcarruth@gmail.com)
  *  \author zeXspectrum (zexspectrum@gmail.com)
- *  \todo Move all strings to resources
  */
 
 #ifndef _CRASHRPT_H_
@@ -19,7 +18,7 @@
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1100
+#define CRASHRPT_VER 1101
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -55,6 +54,7 @@
  */
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
+#ifndef _CRASHRPT_REMOVE_DEPRECATED
 
 /*! \ingroup DeprecatedAPI
  *  \brief Installs exception handlers for the current process.
@@ -245,6 +245,7 @@ GenerateErrorReport(
    PEXCEPTION_POINTERS pExInfo
    );
 
+#endif //_CRASHRPT_REMOVE_DEPRECATED
 
 
 #define CR_HTTP 0 //!< Send error report via HTTP connection
@@ -360,14 +361,15 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *
  *  \remarks
  *    This function installs unhandled exception filter for all threads of caller process.
- *    It also installs various C++ exception/error handlers that function for all threads.
+ *    It also installs various C++ exception/error handlers that function for all threads of the caller process.
+ *    For more information, see \ref exception_handling
  *
  *    Below is the list of installed handlers:
  *     - WIN32 top-level unhandled exception filter [ \c SetUnhandledExceptionFilter() ]
  *     - C++ pure virtual call handler (Visual Studio .NET 2003 and later) [ \c _set_purecall_handler() ]
  *     - C++ invalid parameter handler (Visual Studio .NET 2005 and later) [ \c _set_invalid_parameter_handler() ]
  *     - C++ new operator error handler (Visual Studio .NET 2003 and later) [ \c _set_new_handler() ]
- *     - C++ buffer overrun handler (Visual Studio .NET only) [ \c _set_security_error_handler() ]
+ *     - C++ buffer overrun handler (Visual Studio .NET 2003 only) [ \c _set_security_error_handler() ]
  *     - C++ abort handler [ \c signal(SIGABRT) ]
  *     - C++ illegal instruction handler [ \c signal(SIGINT) ]
  *     - C++ termination request [ \c signal(SIGTERM) ]
@@ -731,10 +733,10 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
  *
  *    \code
  *    CR_EXCEPTION_INFO ei;
- *    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO);
+ *    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
  *    ei.cb = sizeof(CR_EXCEPTION_INFO);
  *    ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
- *    ei.code = EXCEPTION_ACCESS_VIOLATION;
+ *    ei.code = 1234;
  *    ei.pexcptrs = NULL;
  *
  *    int result = crGenerateErrorReport(&ei);
