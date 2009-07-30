@@ -12,10 +12,6 @@
 #define _RICHEDIT_VER	0x0100
 
 
-#if _MSC_VER>=1300
-#include <atlstr.h>
-#endif
-
 #include <atlbase.h>
 #include <atlapp.h>
 
@@ -27,11 +23,8 @@ extern CAppModule _Module;
 #include <atlctrls.h>
 #include <atldlgs.h>
 
-#if _MSC_VER<1300
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
-#endif
-
 
 #if _MSC_VER>=1400
 #if defined _M_IX86
@@ -45,5 +38,4 @@ extern CAppModule _Module;
 #endif
 #endif 
 
-#define APP_NAME _T("CrashRpt Tests")
-#define APP_VERSION _T("1.0.0")
+

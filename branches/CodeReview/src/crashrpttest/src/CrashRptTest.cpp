@@ -84,19 +84,18 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 #else
 
-  CString szSubject;
-  szSubject.Format(_T("%s %s Error Report"), APP_NAME, APP_VERSION);
-
   CR_INSTALL_INFO info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
-  info.pszAppName = APP_NAME;
-  info.pszAppVersion = APP_VERSION;
-  info.pszEmailSubject = szSubject;
-  info.pszEmailTo = _T("test@hotmail.com");    
+  info.pszAppName = _T("CrashRpt Tests");
+  info.pszAppVersion = _T("1.0.1");
+  info.pszEmailSubject = _T("Error from CrashRptTests v1.0.1");
+  info.pszEmailTo = _T("test@hotmail.com");
+  info.pszUrl = _T("http://test.com/test.php");
   info.pfnCrashCallback = CrashCallback;    
-  info.uPriorities[CR_SMTP] = 1;
-  info.uPriorities[CR_SMAPI] = 0;  
+  info.uPriorities[CR_HTTP] = 3;
+  info.uPriorities[CR_SMTP] = 2;
+  info.uPriorities[CR_SMAPI] = 1;  
     
   int nInstResult = crInstall(&info);
   ATLASSERT(nInstResult==0);
