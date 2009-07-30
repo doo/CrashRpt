@@ -333,6 +333,10 @@ A crash descriptor XML contains `AppName` and `AppVersion` tags that you use to 
 
 A crash descriptor XML contains `OperatingSystem` tag that is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
 
+== What is an ExceptionType tag in the crash descriptor XML? ==
+
+The exception type shows what exception handler cathed the exception. For example, type 1 means that the exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
+
 == How do I open a crash minidump file (.DMP)? ==
 
 To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program database files (PDB) are locally stored. You copy the minidump to that folder to ensure the debugger find the program database files and binaries. Then double-click on the minidump file name. This should open it using an associated program (for example, Visual Studio). When minidump file is loaded in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see the place in your source code where exception had occurred.
