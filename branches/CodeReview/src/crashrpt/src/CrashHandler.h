@@ -17,18 +17,13 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "crashrpt.h"      // defines LPGETLOGFILE callback
-
+#include "crashrpt.h"      
+#include <new.h>
 #include <map>
 #include <stdlib.h>
 #include <signal.h>
 #include <exception>
 #include <string>
-
-#if _MSC_VER<1300
-#define PULONG_PTR PULONG
-#endif
-
 #include <dbghelp.h>
 
 typedef std::map<CString, CString> TStrStrMap;

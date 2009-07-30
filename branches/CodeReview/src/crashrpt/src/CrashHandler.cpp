@@ -396,40 +396,6 @@ int CCrashHandler::Init(
   UINT (*puPriorities)[3])
 { 
   crSetErrorMsg(_T("Unspecified error."));
-
-  m_sAppName = lpcszAppName;
-
-  if(m_sAppName.IsEmpty())
-    m_sAppName = CUtility::getAppName();
-
-  m_sAppVersion = lpcszAppVersion;
-
-  if(lpcszUrl!=NULL)
-    m_sUrl = CString(lpcszUrl);
-
-  // save email info
-  m_sTo = lpcszTo;
-
-  if(m_sTo.IsEmpty() && m_sUrl.IsEmpty())
-  {
-    crSetErrorMsg(_T("Error reports recipient's address is not defined."));
-    ATLASSERT(!m_sTo.IsEmpty() || !m_sUrl.IsEmpty());
-    return 1;
-  }
-
-  m_sSubject = lpcszSubject;
-
-  if(m_sSubject.IsEmpty())
-  {
-    // Generate the default subject
-    m_sSubject.Format(_T("%s %s Error Report"), m_sAppName, 
-      m_sAppVersion.IsEmpty()?_T("[unknown_ver]"):m_sAppVersion);
-  }
-
-  if(puPriorities!=NULL)
-    memcpy(&m_uPriorities, puPriorities, 3*sizeof(UINT));
-  else
-    memset(&m_uPriorities, 0, 3*sizeof(UINT));
   
   // save user supplied callback
   if (lpfnCallback)
@@ -454,8 +420,74 @@ int CCrashHandler::Init(
     return 1;
   }  
 
+  // Save EXE image name
   m_sImageName = CString(szExeName, dwLength);
 
+  // Save application name
+  m_sAppName = lpcszAppName;
+
+  // If no app name provided, use the default (EXE name)
+  if(m_sAppName.IsEmpty())
+    m_sAppName = CUtility::getAppName();
+
+  // Save app version
+  m_sAppVersion = lpcszAppVersion;
+
+  // If no app version provided, use the default (EXE product version)
+  if(m_sAppVersion.IsEmpty())
+  {
+    DWORD dwBuffSize = GetFileVersionInfoSize(szExeName, 0);
+    LPBYTE pBuff = new BYTE[dwBuffSize];
+    
+    if(0!=GetFileVersionInfo(szExeName, 0, dwBuffSize, pBuff))
+    {
+      VS_FIXEDFILEINFO* fi = NULL;
+      UINT uLen = 0;
+      VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
+
+      WORD dwVerMajor = (WORD)(fi->dwProductVersionMS>>16);
+      WORD dwVerMinor = (WORD)(fi->dwProductVersionMS&0xFF);
+      WORD dwPatchLevel = (WORD)(fi->dwProductVersionLS>>16);
+      WORD dwVerBuild = (WORD)(fi->dwProductVersionLS&0xFF);
+
+      m_sAppVersion.Format(_T("%u.%u.%u.%u"), 
+        dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);
+    }
+
+    delete [] pBuff;
+  }
+
+  if(lpcszUrl!=NULL)
+    m_sUrl = CString(lpcszUrl);
+
+  // save email info
+  m_sTo = lpcszTo;
+
+  if(m_sTo.IsEmpty() && m_sUrl.IsEmpty())
+  {
+    crSetErrorMsg(_T("Error reports recipient's address is not defined."));
+    ATLASSERT(!m_sTo.IsEmpty() || !m_sUrl.IsEmpty());
+    return 1;
+  }
+
+  // Save E-mail subject
+  m_sSubject = lpcszSubject;
+
+  // If the subject is empty...
+  if(m_sSubject.IsEmpty())
+  {
+    // Generate the default subject
+    m_sSubject.Format(_T("%s %s Error Report"), m_sAppName, 
+      m_sAppVersion.IsEmpty()?_T("[unknown_ver]"):m_sAppVersion);
+  }
+
+  // Save report sending priorities
+  if(puPriorities!=NULL)
+    memcpy(&m_uPriorities, puPriorities, 3*sizeof(UINT));
+  else
+    memset(&m_uPriorities, 0, 3*sizeof(UINT));
+
+  // Get crashrpt library name
   CString sCrashRptName;
 
 #ifdef _DEBUG
@@ -481,6 +513,7 @@ int CCrashHandler::Init(
   else
     m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
 
+  // Get CrashSender EXE name
   CString sCrashSenderName;
 
 #ifdef _DEBUG
@@ -521,7 +554,7 @@ int CCrashHandler::Init(
     return 1; 
   }
 
-  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName folder.
+  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
   CString sLocalAppDataFolder;
 
   DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;

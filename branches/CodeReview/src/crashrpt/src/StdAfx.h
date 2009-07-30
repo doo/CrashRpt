@@ -7,21 +7,15 @@
 
 #define _RICHEDIT_VER	0x0100
 
-#if _MSC_VER>=1300
-#include <atlstr.h>
-#include <atltypes.h>
-#endif
-
 #include <atlbase.h>
 #include <atlapp.h>
 extern CAppModule _Module;
 #include <atlwin.h>
 
 // CString-related includes
-#if _MSC_VER<1300
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
-#endif 
+
 
 #if _MSC_VER<1400
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy(strDest, strSource, count)
