@@ -42,13 +42,13 @@ Yes, they are listed in the table below:
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
 
-== How do I report a bug in crashrpt? ==
+== How do I report a bug in crashrpt or request a new feature? ==
 
 You can create an issue in our issue tracker http://code.google.com/p/crashrpt/issues/list. We appreciate your feedback. 
 
 Note that creating an issue requires you to be signed in using Google account.
 
-== How do I contribute into crashrpt project? ==
+== How do I contribute into crashrpt project development? ==
 
 You can create a topic in crashpt group http://groups.google.com/group/crashrpt and describe there how you would like to contribute. After that project owner will add your email to the list of project members and you will be able to make changes in source code.
 
@@ -95,6 +95,18 @@ In Visual Studio window, open Tools->Options->Projects and Solutions->VC++ Direc
     * In the 'Show directories for' combo select 'Executable files', then add the path to `[CRASHRPT_HOME]\bin` directory to the list below.
 
 Here `[CRASHRPT_HOME]` should be replaced with the actual path of the directory you unzipped CrashRpt package to.
+
+== What third-party libraries does crashrpt use internally? ==
+
+CrashRpt uses the following libraries:
+
+|| *Name* || *Description* || *Link* ||
+|| WTL || Used for GUI management || http://sourceforge.net/projects/wtl/ ||
+|| Debug Help Library || Used to create crash minidumps || http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx || 
+|| TinyXml || Used to create and edit XML files || http://www.grinninglizard.com/tinyxml/ ||
+|| ZLib || Used to create ZIP archives || http://www.zlib.net/ ||
+|| zip utils || Makes using ZLib easier || http://www.codeproject.com/KB/files/zip_utils.aspx || 
+
 
 == How do I use crashrpt in my Visual C++ project? ==
 
