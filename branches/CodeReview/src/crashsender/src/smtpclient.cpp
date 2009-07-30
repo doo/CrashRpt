@@ -129,7 +129,7 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn,
       if(apResult->wType==DNS_TYPE_MX)        
       {
         host_list[apResult->Data.MX.wPreference] = 
-        CStringW(apResult->Data.MX.pNameExchange);
+        CString(apResult->Data.MX.pNameExchange);
       }
 
       apResult = apResult->pNext;

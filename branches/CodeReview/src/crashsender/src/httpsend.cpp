@@ -39,6 +39,7 @@ DWORD WINAPI CHttpSender::HttpSendThread(VOID* pParam)
 
 BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 { 
+  USES_CONVERSION;
   BOOL bStatus = FALSE;
 	TCHAR* hdrs = _T("Content-Type: application/x-www-form-urlencoded");
 	LPCTSTR accept[2]={_T("*/*"), NULL};
@@ -56,8 +57,9 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   FILE* f = NULL;
   BOOL bResult = FALSE;
   char* chPOSTRequest = NULL;
-  CStringA sMD5Hash;
-  CStringA sPOSTRequest;
+  CString sMD5Hash;
+  CString sPOSTRequest;
+  LPSTR szPOSTRequest; // ASCII
   char* szPrefix="crashrpt=\"";
   char* szSuffix="\"";
   CString sErrorMsg;
@@ -67,7 +69,7 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   MD5_CTX md5_ctx;
   unsigned char md5_hash[16];
   int i=0;  
-  CString msg;
+  CString msg; 
 
   an->SetProgress(_T("Start sending error report over HTTP"), 0, false);
 
@@ -145,8 +147,8 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   
   sPOSTRequest = base64_encode(uchFileData, uFileSize).c_str();
   sPOSTRequest = szPrefix + sPOSTRequest + szSuffix;  
-  sPOSTRequest.Replace("+", "%2B");
-  sPOSTRequest.Replace("/", "%2F");  
+  sPOSTRequest.Replace(_T("+"), _T("%2B"));
+  sPOSTRequest.Replace(_T("/"), _T("%2F"));  
 
   sPOSTRequest += sMD5Hash;
   
@@ -165,9 +167,11 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 
   if(an->IsCancelled()){ goto exit; }
 
+  szPOSTRequest = T2A(sPOSTRequest.GetBuffer(0));
+
   an->SetProgress(_T("Sending HTTP request"), 50);
   bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 
-    (void*)sPOSTRequest.GetBuffer(), (DWORD)sPOSTRequest.GetLength());
+    (void*)szPOSTRequest, (DWORD)strlen(szPOSTRequest));
     
   if(bResult == FALSE)
   {
@@ -188,7 +192,7 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
 
   InternetReadFile(hRequest, szResponce, 1024, &dwBufSize);
   szResponce[dwBufSize] = 0;
-  msg = CStringA(szResponce, dwBufSize);
+  msg = CString(szResponce, dwBufSize);
   msg = _T("Server returned:")+msg;
   an->SetProgress(msg, 0);
     
