@@ -333,7 +333,7 @@ A crash descriptor XML contains `AppName` and `AppVersion` tags that you use to 
 
 A crash descriptor XML contains `OperatingSystem` tag that is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
 
-== What is an ExceptionType tag in the crash descriptor XML? ==
+== What is an `ExceptionType` tag in the crash descriptor XML? ==
 
 The exception type shows what exception handler cathed the exception. For example, type 1 means that the exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
 
