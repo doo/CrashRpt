@@ -266,8 +266,8 @@ GenerateErrorReport(
  *         process becomes the application name.
  *
  *    - \c pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
- *         However, it is recommended to specify this parameter to simplify automatic crash 
- *         report analysis and classification. If it equals to NULL, it is ignored.
+ *         If it equals to NULL, product version extracted from executable file which started the process and 
+ *         the product version is used as application version.
  * 
  *    - \c pszEmailTo is the email address of the recipient of error reports, for example
  *         "name@example.com". 
@@ -275,7 +275,7 @@ GenerateErrorReport(
  *         E-mail client.
  *
  *    - \c pszEmailSubject is the subject of the email message. If this parameter is NULL,
- *         the default subject of form '<app_name> v.<app_version> Error Report' is generated.
+ *         the default subject of form '<app_name> <app_version> Error Report' is generated.
  *
  *    - \c pszUrl is the URL of a server-side script that would receive crash report data via HTTP
  *         connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
