@@ -335,7 +335,7 @@ A crash descriptor XML contains `OperatingSystem` tag that is the friendly name 
 
 == What is an `ExceptionType` tag in the crash descriptor XML? ==
 
-The exception type shows what exception handler cathed the exception. For example, type 1 means that the exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
+The exception type shows what exception handler cathed the exception. For example, type 0 means that the structured win32 exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
 
 == How do I open a crash minidump file (.DMP)? ==
 
