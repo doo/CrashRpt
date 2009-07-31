@@ -172,8 +172,8 @@ And CrashRpt won't work properly if CRT is used in different way. See the \ref c
 for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
-Then choose Configuration Properties->C/C++->Code Generation. In the Runtime Library field,
-choose Multi-threaded DLL (/MD).
+Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
+choose <b>Multi-threaded DLL (/MD)</b>.
 
 This should be done for all projects in your solution to share single CRT DLL.
 
@@ -195,20 +195,24 @@ In such situation a C++ exception in the dependent module won't be intercepted b
 intercept exceptions in CRT 8.0 only. 
 
 
-\section prgdb Enable Program Database (/Zi) in Release Configuration
+\section prgdb Enable Program Database (/Zi, /DEBUG) in Release Configuration
 
 To get the most out of the crash minidump, the debugger needs your application's debug 
 symbols. By default Release builds don't generate debug symbols. 
 
-In the Solution Explorer window, right-click your project and open project Properties. 
-Then choose Configuration Properties->C/C++->General. In the Debug Information Format field,
-choose Program Database (/Zi).
+-# In the Solution Explorer window, right-click your project and open project Properties. 
+Then choose Configuration Properties->C/C++->General. In the <b>Debug Information Format</b> field,
+choose <b>Program Database (/Zi)</b>.
+-# Choose Configuration Properties->Linker->Debugging. In the <b>Generate Debug Info</b> field,
+choose <b>Yes (/DEBUG)</b>. In the <b>Generate Program Database File</b> field,
+enter the name for your PDB file, for example <b>\$(TargetDir)\$(TargetName).pdb</b>.
 
-This should be done for all projects in your solution that support program database 
+Steps 1 and 2 should be done for all projects in your solution that support program database 
 (EXE, DLL).
 
 \image html program_database.png "Program Database (/Zi)"
 
+\image html linker_debugger_settings.png "Enabling Debugging Information in Linker"
 
 \section savefiles What Files Should be Saved Locally Before Software Release
 

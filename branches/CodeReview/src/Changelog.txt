@@ -9,7 +9,9 @@
 
 - Improved documentation; New page About Exceptions and Exception Handling
 
-- 
+- Refactored error report sending code
+
+- Extended Email message text generation for error reports being sent over email
 
 --- Ver. 1.1 ---
 
