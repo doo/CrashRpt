@@ -1316,11 +1316,12 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 
   CString sCrashInfo;
   sCrashInfo.Format(
-    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\" smtp_priority=\"%d\" mapi_priority=\"%d\" />"), 
+    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" appver=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\" smtp_priority=\"%d\" mapi_priority=\"%d\" />"), 
     _ReplaceRestrictedXMLCharacters(m_sSubject), 
     _ReplaceRestrictedXMLCharacters(m_sTo),
     _ReplaceRestrictedXMLCharacters(m_sUrl),
     _ReplaceRestrictedXMLCharacters(m_sAppName),
+    _ReplaceRestrictedXMLCharacters(m_sAppVersion),
     _ReplaceRestrictedXMLCharacters(m_sImageName),
     _ReplaceRestrictedXMLCharacters(sZipName),
     m_uPriorities[CR_HTTP],

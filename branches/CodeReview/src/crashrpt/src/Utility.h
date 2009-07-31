@@ -126,7 +126,6 @@ public:
 
    // Replaces restricted characters in file name
    static CString ReplaceInvalidCharsInFileName(CString sFileName);
-   
 };
 
 #endif	// #ifndef _UTILITY_H_

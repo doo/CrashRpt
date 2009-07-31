@@ -221,3 +221,4 @@ CString CUtility::ReplaceInvalidCharsInFileName(CString sFileName)
 	return sFileName;
 }
 
+
