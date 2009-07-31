@@ -1,5 +1,15 @@
 ======= Change History ========
 
+--- Ver. 1.1.1 ---
+
+- Support of Visual Studio Express edition
+
+- MD5 hash for error report is calculated and attached to email 
+  when error report is sent over email
+
+- Improved documentation; New page About Exceptions and Exception Handling
+
+- 
 
 --- Ver. 1.1 ---
 
