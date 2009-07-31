@@ -319,6 +319,10 @@ The purpose of an error report is to help you determine the reason of the proble
 
 The normal scenario is that your software becomes more and more stable with each release and less and less error reports are received.
 
+== How do I check integrity of a received error report?  ==
+
+You may calculate MD5 hash for your error report and compare it with the MD5 hash that is attached to the error report. When you receive error reports using HTTP connection, the MD5 hash is passed to the server-side script through the 'md5' parameter. When you receive error reports using email, the MD5 hash is attached to the email.
+
 == How do I use an error report for debugging a crash? ==
 
 A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as
