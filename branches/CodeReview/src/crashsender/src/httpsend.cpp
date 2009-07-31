@@ -9,14 +9,17 @@
 BOOL CHttpSender::SendAssync(CString sUrl, CString sFileName, AssyncNotification* an)
 {
   DWORD dwThreadId = 0;
-  
-  ResetEvent(an->m_hCompletionEvent);
-  HttpSendThreadParams params = {sUrl, sFileName, an};
+    
+  HttpSendThreadParams params; 
+  params.m_sURL = sUrl;
+  params.m_sFileName = sFileName;
+  params.an = an;
+
   HANDLE hThread = CreateThread(NULL, 0, HttpSendThread, (void*)&params, 0, &dwThreadId);
   if(hThread==NULL)
     return FALSE;
 
-  WaitForSingleObject(an->m_hCompletionEvent, INFINITE);
+  an->WaitForCompletion();
 
   return TRUE;
 }
@@ -25,14 +28,15 @@ DWORD WINAPI CHttpSender::HttpSendThread(VOID* pParam)
 {
   HttpSendThreadParams* params = (HttpSendThreadParams*)pParam;
    
-  HttpSendThreadParams param_copy = *params;
-  SetEvent(params->an->m_hCompletionEvent);
+  CString sURL = params->m_sURL;
+  CString sFileName = params->m_sFileName;
+  AssyncNotification* an = params->an;
 
-  int nResult = _Send(params->m_sURL, params->m_sFileName, params->an);
+  an->SetCompleted(0);
 
-  param_copy.an->m_nCompletionStatus = nResult?0:1;  
+  int nResult = _Send(sURL, sFileName, an);
 
-  SetEvent(param_copy.an->m_hCompletionEvent);
+  an->SetCompleted( nResult?0:1 );  
 
   return nResult;
 }

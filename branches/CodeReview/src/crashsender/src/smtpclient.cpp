@@ -36,15 +36,14 @@ int CSmtpClient::SendEmailAssync(CEmailMessage* msg,  AssyncNotification* scn)
   ctx.m_msg = msg;
   ctx.m_scn = scn;
  
-  ResetEvent(scn->m_hCompletionEvent);
+  //ResetEvent(scn->m_hCompletionEvent);
 
   HANDLE hThread = CreateThread(NULL, 0, SmtpSendThread, (void*)&ctx, 0, &dwThreadId);
   if(hThread==NULL)
     return 1;
 
-  WaitForSingleObject(scn->m_hCompletionEvent, INFINITE);
-  ResetEvent(scn->m_hCompletionEvent);
-  
+  scn->WaitForCompletion();
+ 
   return 0;
 }
 
@@ -55,15 +54,11 @@ DWORD WINAPI CSmtpClient::SmtpSendThread(VOID* pParam)
   CEmailMessage* msg = ctx->m_msg;
   AssyncNotification* scn = ctx->m_scn;
 
-  SetEvent(scn->m_hCompletionEvent); // signal that parameters have been copied
+  scn->SetCompleted(0);
 
   int nResult = _SendEmail(msg, scn);
 
-  scn->m_cs.Lock();
-  scn->m_nCompletionStatus = nResult;  
-  scn->m_cs.Unlock();
-
-  SetEvent(scn->m_hCompletionEvent);
+  scn->SetCompleted(nResult);
 
   return nResult;
 }

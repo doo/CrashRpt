@@ -41,7 +41,7 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
     size_t count = fread(buff, 1, 512, f);
     if(count>0)
     {
-      md5.MD5Update(&md5_ctx, buff, count);
+      md5.MD5Update(&md5_ctx, buff, (unsigned int)count);
     }
   }
 
@@ -60,12 +60,7 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 
 void GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
-  msg_log.clear();
-  an.m_cs.Lock();
-  nProgressPct = an.m_nPercentCompleted;
-  msg_log = an.m_statusLog;
-  an.m_statusLog.clear();
-  an.m_cs.Unlock();  
+  an.GetProgress(nProgressPct, msg_log); 
 }
 
 void CancelSenderThread()
@@ -242,10 +237,6 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
   int status = 1;
 
-  an.m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
-  an.m_hCancelEvent = CreateEvent(0, FALSE, FALSE, 0);
-  an.m_hFeedbackEvent = CreateEvent(0, FALSE, FALSE, 0);
-
   std::multimap<int, int> order;
 
   std::pair<int, int> pair3(pc->m_uPriorities[CR_SMAPI], CR_SMAPI);
@@ -286,8 +277,7 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
       break;
     }
 
-    WaitForSingleObject(an.m_hCompletionEvent, INFINITE);
-    if(an.m_nCompletionStatus==0)
+    if(0==an.WaitForCompletion())
     {
       status = 0;
       break;

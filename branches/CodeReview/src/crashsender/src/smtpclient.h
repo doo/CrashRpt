@@ -20,10 +20,10 @@ struct AssyncNotification
   AssyncNotification()
   {
     m_nCompletionStatus = -1;    
-    m_hCompletionEvent = NULL;
-    m_hCancelEvent = NULL;
-    m_hFeedbackEvent = NULL;
     m_nPercentCompleted = 0;
+    m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
+    m_hCancelEvent = CreateEvent(0, FALSE, FALSE, 0);
+    m_hFeedbackEvent = CreateEvent(0, FALSE, FALSE, 0);
   }
 
   void SetProgress(CString sStatusMsg, int percentCompleted, bool bRelative=true)
@@ -44,11 +44,35 @@ struct AssyncNotification
     m_cs.Unlock();
   }
 
+  void GetProgress(int& nProgressPct, std::vector<CString>& msg_log)
+  {
+    msg_log.clear();
+    
+    m_cs.Lock();
+    nProgressPct = m_nPercentCompleted;
+    msg_log = m_statusLog;
+    m_statusLog.clear();
+    m_cs.Unlock();
+  }
+
   void SetCompleted(int nCompletionStatus)
   {
     m_cs.Lock();
     m_nCompletionStatus = nCompletionStatus;
     m_cs.Unlock();
+    SetEvent(m_hCompletionEvent);
+  }
+
+  int WaitForCompletion()
+  {
+    WaitForSingleObject(m_hCompletionEvent, INFINITE);
+    
+    int status = -1;
+    m_cs.Lock();
+    status = m_nCompletionStatus;
+    m_cs.Unlock();
+
+    return status;
   }
 
   void Cancel()
@@ -80,9 +104,13 @@ struct AssyncNotification
 
   void FeedbackReady(int code)
   {
+    m_cs.Lock();
     m_nCompletionStatus = code;
+    m_cs.Unlock();
     SetEvent(m_hFeedbackEvent);      
   }
+
+private:
 
   CComAutoCriticalSection m_cs;
   int m_nCompletionStatus;
