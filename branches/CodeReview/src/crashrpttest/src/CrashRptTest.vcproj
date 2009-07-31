@@ -171,6 +171,8 @@
 				OutputFile="..\..\bin\CrashRptTest.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
