@@ -193,7 +193,7 @@ BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
   InternetReadFile(hRequest, szResponce, 1024, &dwBufSize);
   szResponce[dwBufSize] = 0;
   msg = CString(szResponce, dwBufSize);
-  msg = _T("Server returned:")+msg;
+  msg = _T("Server returned:") + msg;
   an->SetProgress(msg, 0);
     
   if(atoi(szResponce)!=200)

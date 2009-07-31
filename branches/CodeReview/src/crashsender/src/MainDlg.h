@@ -20,6 +20,7 @@ public:
 	enum { IDD = IDD_MAINDLG };
 
   CString     m_sAppName;
+  CString     m_sAppVersion;
   CString     m_sImageName;
   CString     m_sEmailSubject;
   CString     m_sEmailFrom;     // Email: From  

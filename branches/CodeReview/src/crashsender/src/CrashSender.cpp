@@ -13,7 +13,7 @@
 
 CAppModule _Module;
 
-int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sImageName,
+int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sAppVersion, CString& sImageName,
   CString& sSubject, CString& sMailTo, CString& sUrl, UINT (*puPriorities)[3], CString& sZipName)
 {  
   TiXmlDocument doc;
@@ -26,6 +26,7 @@ int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sImageName,
     return 1;
 
   const char* pszAppName = hRoot.ToElement()->Attribute("appname");
+  const char* pszAppVersion= hRoot.ToElement()->Attribute("appver");
   const char* pszImageName = hRoot.ToElement()->Attribute("imagename");
   const char* pszSubject = hRoot.ToElement()->Attribute("subject");
   const char* pszMailTo = hRoot.ToElement()->Attribute("mailto");
@@ -37,6 +38,9 @@ int ParseCrashInfo(LPCSTR text, CString& sAppName, CString& sImageName,
 
   if(pszAppName)
     sAppName = pszAppName;
+
+  if(pszAppVersion)
+    sAppVersion = pszAppVersion;
 
   if(pszImageName)
     sImageName = pszImageName;
@@ -157,6 +161,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
 int 
 GetCrashInfoThroughPipe(
   CString& sAppName,
+  CString& sAppVersion,
   CString& sImageName,
   CString& sSubject,
   CString& sMailTo,
@@ -226,7 +231,7 @@ GetCrashInfoThroughPipe(
   }
 
   // Parse text  
-  int nParseResult = ParseCrashInfo(sDataA.c_str(), sAppName, sImageName, 
+  int nParseResult = ParseCrashInfo(sDataA.c_str(), sAppName, sAppVersion, sImageName, 
     sSubject, sMailTo, sUrl, puPriorities, sZipName);
   if(nParseResult!=0)
   {
@@ -258,6 +263,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
   if(GetCrashInfoThroughPipe(
     dlgMain.m_sAppName,
+    dlgMain.m_sAppVersion,
     dlgMain.m_sImageName,
     dlgMain.m_sEmailSubject, 
     dlgMain.m_sEmailTo, 

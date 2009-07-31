@@ -4,6 +4,8 @@
 #include "smtpclient.h"
 #include "httpsend.h"
 #include "CrashRpt.h"
+#include "md5.h"
+#include "Utility.h"
 
 int attempt = 0;
 AssyncNotification an;
@@ -11,6 +13,50 @@ CEmailMessage msg;
 CSmtpClient smtp;  
 CHttpSender http;
 CMailMsg mailmsg;
+
+int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
+{
+  FILE* f = NULL;
+  BYTE buff[512];
+  MD5 md5;
+  MD5_CTX md5_ctx;
+  unsigned char md5_hash[16];
+  int i;
+
+  sMD5Hash.Empty();
+
+#if _MSC_VER<1400
+  f = _tfopen(sFileName.GetBuffer(0), _T("rb"));
+#else
+  _tfopen_s(&f, sFileName.GetBuffer(0), _T("rb"));
+#endif
+
+  if(f==NULL) 
+    return -1;
+
+  md5.MD5Init(&md5_ctx);
+  
+  while(!feof(f))
+  {
+    size_t count = fread(buff, 1, 512, f);
+    if(count>0)
+    {
+      md5.MD5Update(&md5_ctx, buff, count);
+    }
+  }
+
+  fclose(f);
+  md5.MD5Final(md5_hash, &md5_ctx);
+
+  for(i=0; i<16; i++)
+  {
+    CString number;
+    number.Format(_T("%02x"), md5_hash[i]);
+    sMD5Hash += number;
+  }
+
+  return 0;
+}
 
 void GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
@@ -43,8 +89,44 @@ BOOL SendOverHTTP(SenderThreadContext* pc)
   return bSend;
 }
 
+CString FormatEmailText(SenderThreadContext* pc)
+{
+  CString sFileTitle = pc->m_sZipName;
+  sFileTitle.Replace('/', '\\');
+  int pos = sFileTitle.ReverseFind('\\');
+  if(pos>=0)
+    sFileTitle = sFileTitle.Mid(pos+1);
+
+  CString sText;
+
+  sText += _T("This is an error report from ") + pc->m_sAppName + _T(" ") + pc->m_sAppVersion+_T(".\n\n");
+ 
+  if(!pc->m_sEmailFrom.IsEmpty())
+  {
+    sText += _T("This error report was sent by ") + pc->m_sEmailFrom + _T(".\n");
+    sText += _T("If you need additional info about the problem, you may want to contact this user again.\n\n");
+  }     
+
+  if(!pc->m_sEmailFrom.IsEmpty())
+  {
+    sText += _T("The user has provided the following problem description:\n<<< ") + pc->m_sEmailText + _T(" >>>\n\n");    
+  }
+
+  sText += _T("You may find detailed information about the error in files attached to this message:\n\n");
+  sText += sFileTitle + _T(" is a ZIP archive which contains crash descriptor XML (crashrpt.xml), crash minidump (crashdump.dmp) ");
+  sText += _T("and possibly other files that your application added to the crash report.\n\n");
+
+  sText += sFileTitle + _T(".md5 file contains MD5 hash for the ZIP archive. You might want to use this file to check integrity of the error report.\n\n");
+  
+  sText += _T("For additional information about using error reports, see FAQ http://code.google.com/p/crashrpt/wiki/FAQ\n");
+
+  return sText;
+}
+
 BOOL SendOverSMTP(SenderThreadContext* pc)
 {  
+  USES_CONVERSION;
+
   if(pc->m_sEmailTo.IsEmpty())
   {
     an.SetProgress(_T("No E-mail address is specified for sending error report over SMTP; skipping."), 0);
@@ -53,14 +135,40 @@ BOOL SendOverSMTP(SenderThreadContext* pc)
   msg.m_sFrom = (!pc->m_sEmailFrom.IsEmpty())?pc->m_sEmailFrom:pc->m_sEmailTo;
   msg.m_sTo = pc->m_sEmailTo;
   msg.m_sSubject = pc->m_sEmailSubject;
-  msg.m_sText = pc->m_sEmailText;
+  msg.m_sText = FormatEmailText(pc);
+  
   msg.m_aAttachments.insert(pc->m_sZipName);  
+
+  // Create and attach MD5 hash file
+  CString sErrorRptHash;
+  CalcFileMD5Hash(pc->m_sZipName, sErrorRptHash);
+  CString sFileTitle = pc->m_sZipName;
+  sFileTitle.Replace('/', '\\');
+  int pos = sFileTitle.ReverseFind('\\');
+  if(pos>=0)
+    sFileTitle = sFileTitle.Mid(pos+1);
+  sFileTitle += _T(".md5");
+  CString sTempDir;
+  CUtility::getTempDirectory(sTempDir);
+  CString sTmpFileName = sTempDir +_T("\\")+ sFileTitle;
+  FILE* f = NULL;
+  _TFOPEN_S(f, sTmpFileName, _T("wt"));
+  if(f!=NULL)
+  {   
+    LPSTR szErrorRptHash = T2A(sErrorRptHash.GetBuffer(0));
+    fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
+    fclose(f);
+    msg.m_aAttachments.insert(sTmpFileName);  
+  }
+
   int res = smtp.SendEmailAssync(&msg, &an); 
   return (res==0);
 }
 
 BOOL SendOverSMAPI(SenderThreadContext* pc)
 {  
+  USES_CONVERSION;
+
   if(pc->m_sEmailTo.IsEmpty())
   {
     an.SetProgress(_T("No E-mail address is specified for sending error report over Simple MAPI; skipping."), 0);
@@ -99,8 +207,26 @@ BOOL SendOverSMAPI(SenderThreadContext* pc)
   int pos = sFileTitle.ReverseFind('\\');
   if(pos>=0)
     sFileTitle = sFileTitle.Mid(pos+1);
-  mailmsg.SetMessage(pc->m_sEmailText);
+  mailmsg.SetMessage(FormatEmailText(pc));
   mailmsg.AddAttachment(pc->m_sZipName, sFileTitle);
+
+  // Create and attach MD5 hash file
+  CString sErrorRptHash;
+  CalcFileMD5Hash(pc->m_sZipName, sErrorRptHash);
+  sFileTitle += _T(".md5");
+  CString sTempDir;
+  CUtility::getTempDirectory(sTempDir);
+  CString sTmpFileName = sTempDir +_T("\\")+ sFileTitle;
+  FILE* f = NULL;
+  _TFOPEN_S(f, sTmpFileName, _T("wt"));
+  if(f!=NULL)
+  { 
+    LPSTR szErrorRptHash = T2A(sErrorRptHash.GetBuffer(0));
+    fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
+    fclose(f);
+    mailmsg.AddAttachment(sTmpFileName, sFileTitle);  
+  }
+
   BOOL bSend = mailmsg.Send();
   if(!bSend)
     an.SetProgress(mailmsg.GetLastErrorMsg(), 100, false);

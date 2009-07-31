@@ -240,6 +240,8 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   // Write user email and problem description to XML
   AddUserInfoToCrashDescriptorXML(m_sEmailFrom, m_sDescription);
   
+  m_ctx.m_sAppName = m_sAppName;
+  m_ctx.m_sAppVersion = m_sAppVersion;
   m_ctx.m_sZipName = m_sZipName;
   m_ctx.m_sEmailTo = m_sEmailTo;
   m_ctx.m_sEmailFrom = m_sEmailFrom;

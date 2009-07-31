@@ -3,7 +3,9 @@
 #include <vector>
 
 struct SenderThreadContext
-{   
+{ 
+  CString m_sAppName;
+  CString m_sAppVersion;
   CString m_sEmailFrom;
   CString m_sEmailTo;
   CString m_sEmailSubject;
