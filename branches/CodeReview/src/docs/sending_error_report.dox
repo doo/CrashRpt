@@ -31,27 +31,21 @@ The encoded data are passed to the script by POST as parameter named "crashrpt".
 Before encoding, an MD5 hash for the file data is calculated. The server-side script can extract the MD5 hash
 from "md5" parameter.
 
-The script should return the status of the request completion as server responce content. The responce should begin 
-with return code followed with literal description. For example, "400 Invalid parameter". Here 400 is error code 
-and Invalid parameter is error description.
+The script should return the status of the request completion as server responce content. In HTTP/1.0 and since, 
+the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
+and a textual reason phrase (such as "Not Found").
 
 If the script succeeds in saving the error report, it should return the "200 Success" as server responce content.
-If the script encounters an error, it should return a 4xx error code, for example "400 Invalid parameter". 
-Error codes between 400 and 450 are reserved and can't be user-redefined. You can define your own error codes starting 
-from error code 451.
-
-The following error codes are defined for the current version of CrashRpt:
-
-- 200 Success
-- 400 Invalid parameter
-- 401 MD5 hash is invalid
-- 402 Couldn't save data to local storage
+If the script encounters an error, it should return a 4xx error code, for example "450 Invalid parameter". 
+Note that some error codes are reserved by HTTP specification. If the script uses custom error codes, they shouldn't
+intersect with standard predefined HTTP codes. 
 
 \note
 
 When creating your own script, be careful with the script's return code. If your script succeeds in
 saving error report it should return '200 Success'. If crash sending process 
-encounters another error code, it attempts sending the error report using another way.
+encounters another error code, it attempts sending the error report using another way. In such situation
+you may receive the same error report several times through different transport.
 
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
 
@@ -66,7 +60,7 @@ function checkOK($field)
 {
   if (eregi("\r",$field) || eregi("\n",$field))
   {
-    echo "400 Invalid parameter";
+    echo "450 Invalid parameter";
     exit(1);
   }
 }
@@ -84,7 +78,7 @@ $my_md5_hash = strtolower(md5($filedata));
 $their_md5_hash = strtolower($_POST["md5"]);
 if($my_md5_hash!=$their_md5_hash)
 {
-  echo "401 MD5 hash is invalid (yours is ".$their_md5_hash.",but mine is ".$my_md5_hash.")";
+  echo "451 MD5 hash is invalid (yours is ".$their_md5_hash.",but mine is ".$my_md5_hash.")";
   exit(1);
 }
 
@@ -96,7 +90,7 @@ $filename = $fileroot.md5($filedata.$datetime).".zip";
 $file = fopen($filename, "w");
 if($file==FALSE)
 {
-  echo "402 Couldn't save data to local storage"; 
+  echo "452 Couldn't save data to local storage"; 
   exit(1);
 }
 
