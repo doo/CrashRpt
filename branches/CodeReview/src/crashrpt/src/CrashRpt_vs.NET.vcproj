@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib "
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
 				OutputFile="..\..\bin\CrashRptd.dll"
 				LinkIncremental="0"
 				GenerateDebugInformation="TRUE"
@@ -83,7 +83,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib "
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
