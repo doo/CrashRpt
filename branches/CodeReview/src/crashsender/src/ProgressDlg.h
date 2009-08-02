@@ -27,6 +27,7 @@ public:
     MESSAGE_HANDLER(WM_CLOSE, OnClose)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)    
     COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
+    COMMAND_HANDLER(IDC_LIST, LBN_SELCHANGE, OnListSelChanged)
 
     CHAIN_MSG_MAP(CDialogResize<CProgressDlg>)
 	END_MSG_MAP()
@@ -39,8 +40,9 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-
+  LRESULT OnListSelChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+
 
   void Start();
   void CloseDialog(int nVal);

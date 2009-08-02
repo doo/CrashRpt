@@ -9,6 +9,7 @@
 #define IDD_DETAILDLG                   211
 #define IDD_MAINDLG                     212
 #define IDD_PROGRESSDLG                 213
+#define IDR_POPUPMENU                   214
 #define IDS_NAME                        1000
 #define IDS_DESC                        1001
 #define IDS_TYPE                        1002
@@ -40,6 +41,9 @@
 #define IDC_LIST                        1028
 #define IDC_LIST1                       1029
 #define IDC_TEXT                        1030
+#define IDC_RADIO1                      1031
+#define ID_MENU1_COPYTHISLINE           32772
+#define ID_MENU1_COPYTHEWHOLELOG        32773
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -54,9 +58,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        214
-#define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1031
+#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_COMMAND_VALUE         32774
+#define _APS_NEXT_CONTROL_VALUE         1032
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

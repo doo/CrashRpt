@@ -13,7 +13,8 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   m_prgProgress = GetDlgItem(IDC_PROGRESS);
   m_prgProgress.SetRange(0, 100);
 
-  m_listBox = GetDlgItem(IDC_LIST);  
+  m_listBox = GetDlgItem(IDC_LIST); 
+  m_listBox.ModifyStyle(0, LBS_NOTIFY);
 
   return TRUE;
 }
@@ -142,3 +143,13 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
   return 0;
 }
 
+LRESULT CProgressDlg::OnListSelChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  POINT pt;
+  GetCursorPos(&pt);
+
+  CMenu popup_menu;
+  popup_menu.LoadMenu(IDR_POPUPMENU);
+  popup_menu.TrackPopupMenu(TPM_CENTERALIGN, pt.x, pt.y, m_hWnd); 
+  return 0;
+}
