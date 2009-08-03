@@ -4,7 +4,7 @@
 
 This page describes techniques of handling exceptions in Visual C++ programs under Windows. 
 CrashRpt uses the techniques described below internally. Reading this page is not 
-necessarily for using CrashRpt. Read this page if you need extended knowledge of 
+necessary for using CrashRpt. Read this page if you need extended knowledge of 
 exception handling. 
 
 The page covers the following topics:

@@ -80,7 +80,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib shell32.lib Comdlg32.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -161,6 +161,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				FloatingPointExceptions="true"
+				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Debug/CrashRpt.pch"
@@ -187,7 +188,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib shell32.lib Comdlg32.lib"
 				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"

@@ -1,12 +1,8 @@
 #include "stdafx.h"
 #include "smtpclient.h"
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <Windns.h>
 #include <sys/stat.h>
 #include "base64.h"
-#include <iphlpapi.h>
-#include <Windns.h>
 
 CSmtpClient::CSmtpClient()
 {

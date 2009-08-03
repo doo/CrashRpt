@@ -57,6 +57,7 @@ g_CrashHandlers;
 
 LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 {
+  MessageBox(NULL, _T("unh"), _T("ar"), 0);
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
@@ -924,7 +925,7 @@ int CCrashHandler::GenerateErrorReport(
 
   BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
   if(bCreateDir)
-  {
+  {    
     /* Create crash minidump file */
 
     CString sFileName;
@@ -934,18 +935,22 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      m_files[sFileName] = CString((LPCTSTR)IDS_CRASH_DUMP);
+      CString sDesc;
+      sDesc.LoadString(IDS_CRASH_DUMP);
+      m_files[sFileName] = sDesc;
     }
-
+    
     /* Create crash report descriptor file in XML format. */
   
     sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, CUtility::getAppName());
-    m_files[sFileName] = CString((LPCTSTR)IDS_CRASH_LOG);
+    CString sDesc;
+    sDesc.LoadString(IDS_CRASH_LOG);
+    m_files[sFileName] = sDesc;
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
     ATLASSERT(result==0);
     result;
   }
-  
+    
   // Save error report as ZIP archive.
   CString sZipName = m_sUnsentCrashReportsFolder+_T("\\")+m_sCrashGUID+_T(".zip");
   int zipped = ZipErrorReport(sZipName);

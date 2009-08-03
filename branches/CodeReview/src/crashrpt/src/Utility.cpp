@@ -177,17 +177,21 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
 	  TCHAR* CURRENT_BUILD_NUMBER = _T("CurrentBuildNumber");
 	  TCHAR* CSD_VERSION = _T("CSDVersion");
 
+#pragma warning(disable:4996)
+
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(PRODUCT_NAME, buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryValue(PRODUCT_NAME, buf, &buf_size))
       sOSName = CString(buf, buf_size);
     
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(CURRENT_BUILD_NUMBER, buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryValue(CURRENT_BUILD_NUMBER, buf, &buf_size))
       sOSName += _T(" Build ") + CString(buf, buf_size);
 
     buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryStringValue(CSD_VERSION, buf, &buf_size))
+    if(ERROR_SUCCESS == regKey.QueryValue(CSD_VERSION, buf, &buf_size))
       sOSName += _T(" ") + CString(buf, buf_size);
+
+#pragma warning(default:4996)
 
     regKey.Close();
     return 0;

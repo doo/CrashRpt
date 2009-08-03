@@ -634,4 +634,14 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 }
 
 
+// --------------------------------------------------------------
+// DllMain()
+
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD /*fdwReason*/, LPVOID /*lpvReserved*/)
+{
+  HRESULT hRes = _Module.Init(NULL, hinstDLL);
+  ATLASSERT(SUCCEEDED(hRes));
+
+  return TRUE;
+}
 

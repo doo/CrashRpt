@@ -23,7 +23,8 @@ LRESULT CProgressDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 {    
   if(m_bFinished)
   {
-    GetParent().PostMessage(WM_CLOSE);
+	HWND hWndParent = ::GetParent(m_hWnd);
+	::PostMessage(hWndParent, WM_CLOSE, 0, 0);
     return 0;
   }
 
@@ -36,7 +37,8 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 { 
   if(m_bFinished)
   {
-    GetParent().PostMessage(WM_CLOSE);
+	HWND hWndParent = ::GetParent(m_hWnd);
+	::PostMessage(hWndParent, WM_CLOSE, 0, 0);
     return 0;
   }
 
@@ -85,7 +87,8 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       { 
         m_bFinished = TRUE;
         statText.SetWindowText(_T("Completed successfuly!"));
-        GetParent().PostMessage(WM_CLOSE);
+        HWND hWndParent = ::GetParent(m_hWnd);
+        ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
 
       if(messages[i].CompareNoCase(_T("[status_failed]"))==0)

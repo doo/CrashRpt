@@ -11,11 +11,8 @@
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
 
-#if _MSC_VER >= 1000
 #pragma once
-#endif // _MSC_VER >= 1000
 
-#include "stdafx.h"
 #include <shlobj.h>
 
 

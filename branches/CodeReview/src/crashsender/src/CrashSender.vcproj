@@ -54,6 +54,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
+				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -72,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
+				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
@@ -163,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
+				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
@@ -276,6 +277,14 @@
 			<File
 				RelativePath=".\smtpclient.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp"
