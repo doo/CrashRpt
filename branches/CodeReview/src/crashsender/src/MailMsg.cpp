@@ -90,8 +90,9 @@ BOOL CMailMsg::DetectMailClient()
   if(lResult==ERROR_SUCCESS)
   {    
     buf_size = 1024;
-#pragma warning(suppress:4996)
+#pragma warning(disable:4996)
     LONG result = regKey.QueryValue(_T(""), buf, &buf_size);
+#pragma warning(default:4996)
     if(result==ERROR_SUCCESS)
     {
       m_sEmailClientName = CString(buf, buf_size);

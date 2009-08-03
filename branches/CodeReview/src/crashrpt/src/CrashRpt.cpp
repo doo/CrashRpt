@@ -641,6 +641,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD /*fdwReason*/, LPVOID /*lpvReserve
 {
   HRESULT hRes = _Module.Init(NULL, hinstDLL);
   ATLASSERT(SUCCEEDED(hRes));
+  hRes;
 
   return TRUE;
 }
