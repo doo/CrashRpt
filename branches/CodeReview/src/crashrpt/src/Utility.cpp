@@ -179,16 +179,16 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
 
 #pragma warning(disable:4996)
 
-    buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryValue(PRODUCT_NAME, buf, &buf_size))
+    buf_size = 1023;
+    if(ERROR_SUCCESS == regKey.QueryValue(buf, PRODUCT_NAME, &buf_size))
       sOSName = CString(buf, buf_size);
     
-    buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryValue(CURRENT_BUILD_NUMBER, buf, &buf_size))
+    buf_size = 1023;
+    if(ERROR_SUCCESS == regKey.QueryValue(buf, CURRENT_BUILD_NUMBER, &buf_size))
       sOSName += _T(" Build ") + CString(buf, buf_size);
 
-    buf_size = 1024;
-    if(ERROR_SUCCESS == regKey.QueryValue(CSD_VERSION, buf, &buf_size))
+    buf_size = 1023;
+    if(ERROR_SUCCESS == regKey.QueryValue(buf, CSD_VERSION, &buf_size))
       sOSName += _T(" ") + CString(buf, buf_size);
 
 #pragma warning(default:4996)

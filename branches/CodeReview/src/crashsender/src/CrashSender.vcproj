@@ -78,6 +78,7 @@
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\CrashSenderd.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>

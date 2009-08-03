@@ -89,9 +89,9 @@ BOOL CMailMsg::DetectMailClient()
   lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Clients\\Mail"), KEY_READ);
   if(lResult==ERROR_SUCCESS)
   {    
-    buf_size = 1024;
+    buf_size = 1023;
 #pragma warning(disable:4996)
-    LONG result = regKey.QueryValue(_T(""), buf, &buf_size);
+    LONG result = regKey.QueryValue(buf, _T(""), &buf_size);
 #pragma warning(default:4996)
     if(result==ERROR_SUCCESS)
     {

@@ -212,7 +212,7 @@ Steps 1 and 2 should be done for all projects in your solution that support prog
 
 \image html program_database.png "Program Database (/Zi)"
 
-\image html linker_debugger_settings.png "Enabling Debugging Information in Linker"
+\image html linker_debug_settings.png "Enabling Debugging Information in Linker"
 
 \section savefiles What Files Should be Saved Locally Before Software Release
 
