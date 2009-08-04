@@ -153,6 +153,8 @@ LRESULT CProgressDlg::OnListSelChanged(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
   CMenu popup_menu;
   popup_menu.LoadMenu(IDR_POPUPMENU);
-  popup_menu.TrackPopupMenu(TPM_CENTERALIGN, pt.x, pt.y, m_hWnd); 
+
+  CMenu submenu = popup_menu.GetSubMenu(0);  
+  submenu.TrackPopupMenu(TPM_CENTERALIGN, pt.x, pt.y, m_hWnd); 
   return 0;
 }

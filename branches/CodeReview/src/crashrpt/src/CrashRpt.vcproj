@@ -86,7 +86,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../zlib/lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\Bin/CrashRpt.pdb"
+				ProgramDatabaseFile="..\..\Bin\CrashRpt.pdb"
 				OptimizeReferences="2"
 				OptimizeForWindows98="1"
 				BaseAddress="0x2000000"
