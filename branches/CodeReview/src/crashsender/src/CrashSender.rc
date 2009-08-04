@@ -30,8 +30,8 @@ IDR_POPUPMENU MENU
 BEGIN
     POPUP "menu1"
     BEGIN
-        MENUITEM "Copy this line",              ID_MENU1_COPYTHISLINE
-        MENUITEM "Copy the whole log",          ID_MENU1_COPYTHEWHOLELOG
+        MENUITEM "Copy selected line(s)",       ID_MENU1_COPYSEL
+        MENUITEM "Copy the whole log",          ID_MENU1_COPYLOG
     END
 END
 
@@ -92,7 +92,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,7,91,50,14
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",WS_BORDER,7,20,252,9
     LTEXT           "The error report is now being sent...",IDC_TEXT,7,7,252,8,SS_ENDELLIPSIS
-    LISTBOX         IDC_LIST,7,36,252,48,LBS_SORT | LBS_NOINTEGRALHEIGHT | LBS_EXTENDEDSEL | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,35,252,49
 END
 
 

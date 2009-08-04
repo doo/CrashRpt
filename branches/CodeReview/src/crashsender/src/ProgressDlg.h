@@ -13,7 +13,7 @@ public:
 	enum { IDD = IDD_PROGRESSDLG };
   
   CProgressBarCtrl m_prgProgress;
-  CListBox m_listBox;
+  CListViewCtrl m_listView;
   SenderThreadContext* m_pctx;
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)
@@ -26,8 +26,10 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_CLOSE, OnClose)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)        
-    COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
-    COMMAND_HANDLER(IDC_LIST, LBN_SELCHANGE, OnListSelChanged)
+    COMMAND_ID_HANDLER(IDCANCEL, OnCancel)    
+    COMMAND_ID_HANDLER(ID_MENU1_COPYSEL, OnCopySel)
+    COMMAND_ID_HANDLER(ID_MENU1_COPYLOG, OnCopyLog)
+    NOTIFY_HANDLER(IDC_LIST, NM_RCLICK, OnListRClick)
 
     CHAIN_MSG_MAP(CDialogResize<CProgressDlg>)
 	END_MSG_MAP()
@@ -40,12 +42,15 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-  LRESULT OnListSelChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+  LRESULT OnListRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+  LRESULT OnCopySel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+  LRESULT OnCopyLog(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 
 
   void Start();
   void CloseDialog(int nVal);
+  void SetClipboard(CString& sData);
 
   BOOL m_bFinished;
   

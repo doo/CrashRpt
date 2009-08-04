@@ -374,12 +374,8 @@ LRESULT CMainDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BO
 
 	if(uMouseMsg==WM_LBUTTONDBLCLK)
 	{
-#if _MSC_VER>=1300
-    AnimateWindow(m_dlgProgress, 200, AW_BLEND); 
-#else
-	ShowWindow(SW_SHOW);
-#endif
-	SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);		
+	  m_dlgProgress.ShowWindow(SW_SHOW);
+  	//m_dlgProgress.SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);		
     m_dlgProgress.SetFocus();
 	}	
   return 0;

@@ -13,9 +13,10 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   m_prgProgress = GetDlgItem(IDC_PROGRESS);
   m_prgProgress.SetRange(0, 100);
 
-  m_listBox = GetDlgItem(IDC_LIST); 
-  m_listBox.ModifyStyle(0, LBS_NOTIFY);
-
+  m_listView = GetDlgItem(IDC_LIST); 
+  m_listView.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
+  m_listView.InsertColumn(0, _T("Status"), LVCFMT_LEFT, 2048);
+  
   return TRUE;
 }
 
@@ -126,28 +127,26 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         ShowWindow(SW_HIDE);
       }
 
-      int count = m_listBox.GetCount();
-      int indx = m_listBox.InsertString(count, messages[i]);
-      m_listBox.SetTopIndex(indx);
+      int count = m_listView.GetItemCount();
+      int indx = m_listView.InsertItem(count, messages[i]);
+      m_listView.EnsureVisible(indx, TRUE);
 
     }
   }
 
   if(wTimerId==1)
   {
-#if _MSC_VER>=1300
     AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
-#else
-    ShowWindow(SW_HIDE);
-#endif
     KillTimer(1);
   }
 
   return 0;
 }
 
-LRESULT CProgressDlg::OnListSelChanged(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
+LRESULT CProgressDlg::OnListRClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{  
+  LPNMITEMACTIVATE lpnmitem = (LPNMITEMACTIVATE) pnmh;
+
   POINT pt;
   GetCursorPos(&pt);
 
@@ -155,6 +154,72 @@ LRESULT CProgressDlg::OnListSelChanged(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
   popup_menu.LoadMenu(IDR_POPUPMENU);
 
   CMenu submenu = popup_menu.GetSubMenu(0);  
-  submenu.TrackPopupMenu(TPM_CENTERALIGN, pt.x, pt.y, m_hWnd); 
+
+  if(lpnmitem->iItem<0)
+  {
+    submenu.EnableMenuItem(ID_MENU1_COPYSEL, MF_BYCOMMAND|MF_GRAYED);
+  }
+
+  submenu.TrackPopupMenu(TPM_LEFTALIGN, pt.x, pt.y, m_hWnd); 
   return 0;
+}
+
+LRESULT CProgressDlg::OnCopySel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CString sData;
+  int i;
+  for(i=0; i<m_listView.GetItemCount(); i++)
+  {
+    DWORD dwState = m_listView.GetItemState(i, LVIS_SELECTED);
+    if(dwState==0)
+      continue;
+
+    TCHAR buf[4096];
+    buf[0]=0;
+    int n = m_listView.GetItemText(i, 0, buf, 4095);
+    sData += CString(buf,n);
+    sData += "\r\n";
+  }
+
+  SetClipboard(sData);  
+
+  return 0;
+}
+
+LRESULT CProgressDlg::OnCopyLog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CString sData;
+  int i;
+  for(i=0; i<m_listView.GetItemCount(); i++)
+  {
+    TCHAR buf[4096];
+    buf[0]=0;
+    int n = m_listView.GetItemText(i, 0, buf, 4095);
+    sData += CString(buf,n);
+    sData += "\r\n";
+  }
+
+  SetClipboard(sData);  
+
+  return 0;
+}
+
+void CProgressDlg::SetClipboard(CString& sData)
+{
+  if (OpenClipboard())
+  {
+    EmptyClipboard();
+    HGLOBAL hClipboardData;
+    DWORD dwSize = (sData.GetLength()+1)*sizeof(TCHAR);
+    hClipboardData = GlobalAlloc(GMEM_DDESHARE, dwSize);
+    TCHAR* pszData = (TCHAR*)GlobalLock(hClipboardData);
+    _tcsncpy_s(pszData, dwSize/sizeof(TCHAR), sData, sData.GetLength()*sizeof(TCHAR));
+    GlobalUnlock(hClipboardData);
+#ifdef _UNICODE
+    SetClipboardData(CF_UNICODETEXT, hClipboardData);
+#else
+    SetClipboardData(CF_TEXT, hClipboardData);    
+#endif
+    CloseClipboard();
+  }
 }
