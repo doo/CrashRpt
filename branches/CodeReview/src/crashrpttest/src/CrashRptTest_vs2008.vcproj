@@ -81,6 +81,7 @@
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\CrashRptTestd.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -106,7 +107,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -196,7 +197,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

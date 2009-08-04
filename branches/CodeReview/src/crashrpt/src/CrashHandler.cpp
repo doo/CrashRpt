@@ -963,7 +963,7 @@ int CCrashHandler::GenerateErrorReport(
     CString szCaption;
     szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
     CString szMessage;
-    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to create error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to create the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 2;
   }
@@ -982,7 +982,7 @@ int CCrashHandler::GenerateErrorReport(
     CString szCaption;
     szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
     CString szMessage;
-    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to run CrashSender.exe and send error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to run CrashSender.exe and send the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 3;
   }
@@ -1300,7 +1300,7 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 
   HANDLE hPipe = INVALID_HANDLE_VALUE;
 
-  int MAX_ATTEMPTS = 120;
+  int MAX_ATTEMPTS = 30;
   int i;
   for(i=0; i<MAX_ATTEMPTS; i++)
   {
