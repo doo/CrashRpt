@@ -155,7 +155,7 @@ Each line of stack trace contains the name of module where crash occured, the na
 offset from beginning of symbol code, source file and line number. This should be enough to
 locate the error, assume the most probable reason and try to fix.
 
-\image html call_stack.png "Fragment of code where exception occurred and call stack"
+\image html call_stack.png "Fragment of code where exception occurred and the call stack"
 
 One of the most probable reasons of program crash is using a pointer to a variable without
 checking if it is not equal to NULL. So, in most cases such check would make code more robust.
@@ -169,11 +169,11 @@ Sometimes you can't determine the location of the crash and the error message is
 \image html symbols_load_paths.png "Where to load symbols from"
 
 - You have wrong or missing PDB files. Open the Modules window and check the symbol status
-  for modules of your program. If the status is 'Not symbols loaded.' than you have missing PDB. 
+  for modules of your program. If the status is 'No symbols loaded.' than you have missing PDB. 
   Or maybe correct PDB files weren't saved locally before software release.
   In such case you won't be able to properly read any of received crash reports.
 
-\image html modules.png "Symols Loaded status for each module"
+\image html modules.png "'Symols Loaded' status for each module"
 
 - If symbols for some modules of your program are loaded, and you have the error, than
   there were no debugging symbols generated for the module where crash had occured. Check that
