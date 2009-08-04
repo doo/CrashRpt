@@ -204,7 +204,7 @@ LRESULT CProgressDlg::OnCopyLog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   return 0;
 }
 
-void CProgressDlg::SetClipboard(CString& sData)
+int CProgressDlg::SetClipboard(CString& sData)
 {
   if (OpenClipboard())
   {
@@ -213,13 +213,20 @@ void CProgressDlg::SetClipboard(CString& sData)
     DWORD dwSize = (sData.GetLength()+1)*sizeof(TCHAR);
     hClipboardData = GlobalAlloc(GMEM_DDESHARE, dwSize);
     TCHAR* pszData = (TCHAR*)GlobalLock(hClipboardData);
-    _tcsncpy_s(pszData, dwSize/sizeof(TCHAR), sData, sData.GetLength()*sizeof(TCHAR));
-    GlobalUnlock(hClipboardData);
+    if(pszData!=NULL)
+    {      
+      _TCSNCPY_S(pszData, dwSize/sizeof(TCHAR), sData, sData.GetLength()*sizeof(TCHAR));
+      GlobalUnlock(hClipboardData);
 #ifdef _UNICODE
-    SetClipboardData(CF_UNICODETEXT, hClipboardData);
+      SetClipboardData(CF_UNICODETEXT, hClipboardData);
 #else
-    SetClipboardData(CF_TEXT, hClipboardData);    
+      SetClipboardData(CF_TEXT, hClipboardData);    
 #endif
-    CloseClipboard();
+      CloseClipboard();
+      return 0;
+   }
+   CloseClipboard();
   }
+
+  return 1;
 }

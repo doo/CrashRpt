@@ -40,8 +40,8 @@
 				OutputFile="..\..\bin\crashcon.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Release/crashcon.pdb"
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile=""
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="1"/>
@@ -110,7 +110,7 @@ copy ..\..\zlib\bin\zlib1.dll ..\..\bin
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="../../lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile=".\Debug/crashcon.pdb"
+				ProgramDatabaseFile="..\..\bin\crashcond.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool

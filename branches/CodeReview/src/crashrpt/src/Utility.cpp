@@ -48,6 +48,7 @@ int CUtility::getTempDirectory(CString& strTemp)
   
 #if _MSC_VER<1400
   pszTempVar = _tgetenv(_T("TEMP"));
+  strTemp = CString(pszTempVar);
 #else
   size_t len = 0;
   errno_t err = _tdupenv_s(&pszTempVar, &len, _T("TEMP"));
@@ -56,10 +57,9 @@ int CUtility::getTempDirectory(CString& strTemp)
     // Couldn't get environment variable TEMP    
     return 1;
   }
-#endif   
-
   strTemp = CString(pszTempVar);
   free(pszTempVar);
+#endif    
 
   return 0;
 }

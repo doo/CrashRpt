@@ -37,7 +37,7 @@
 				OutputFile="..\..\bin\CrashRptd.dll"
 				LinkIncremental="0"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/CrashRpt_vs.NET.pdb"
+				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				SubSystem="2"
 				ImportLibrary="..\..\lib\CrashRptd.lib"
 				TargetMachine="1"/>
@@ -86,7 +86,7 @@
 				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

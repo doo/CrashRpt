@@ -50,7 +50,7 @@ public:
 
   void Start();
   void CloseDialog(int nVal);
-  void SetClipboard(CString& sData);
+  int SetClipboard(CString& sData);
 
   BOOL m_bFinished;
   
