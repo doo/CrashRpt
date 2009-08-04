@@ -123,6 +123,9 @@ public:
 
    // Replaces restricted characters in file name
    static CString ReplaceInvalidCharsInFileName(CString sFileName);
+
+   // Moves a file to the Recycle Bin or removes the file permanently
+   static int RecycleFile(CString sFilePath, bool bPermanentDelete);
 };
 
 #endif	// #ifndef _UTILITY_H_

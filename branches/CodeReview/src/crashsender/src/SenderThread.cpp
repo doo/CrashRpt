@@ -286,7 +286,9 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
   if(status==0)
   {
-    an.SetProgress(_T("[status_success]"), 0);      
+    an.SetProgress(_T("[status_success]"), 0);
+    // Move the ZIP to Recycle Bin
+    CUtility::RecycleFile(pc->m_sZipName, false);
   }
   else
   {

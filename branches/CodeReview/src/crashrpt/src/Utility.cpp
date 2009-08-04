@@ -13,6 +13,8 @@
 #include "resource.h"
 #include <time.h>
 #include "atldlgs.h"
+#include <shellapi.h>
+
 
 FILETIME CUtility::getLastWriteFileTime(CString sFile)
 {
@@ -223,6 +225,29 @@ CString CUtility::ReplaceInvalidCharsInFileName(CString sFileName)
 	sFileName.Replace(_T("<"),_T("_"));
 	sFileName.Replace(_T(">"),_T("_"));
 	return sFileName;
+}
+
+int CUtility::RecycleFile(CString sFilePath, bool bPermanentDelete)
+{
+  SHFILEOPSTRUCT fop;
+  memset(&fop, 0, sizeof(SHFILEOPSTRUCT));
+  fop.fFlags |= FOF_SILENT;                // don't report progress
+  fop.fFlags |= FOF_NOERRORUI;             // don't report errors
+  fop.fFlags |= FOF_NOCONFIRMATION;        // don't confirm delete
+  fop.wFunc = FO_DELETE;                   // REQUIRED: delete operation
+  fop.pFrom = sFilePath.GetBuffer(0);      // REQUIRED: which file(s)
+  fop.pTo = NULL;                          // MUST be NULL
+  if (bPermanentDelete) 
+  { 
+    // if delete requested..
+    fop.fFlags &= ~FOF_ALLOWUNDO;   // ..don't use Recycle Bin
+  } 
+  else 
+  {                                 // otherwise..
+    fop.fFlags |= FOF_ALLOWUNDO;    // ..send to Recycle Bin
+  }
+  
+  return SHFileOperation(&fop); // do it!  
 }
 
 
