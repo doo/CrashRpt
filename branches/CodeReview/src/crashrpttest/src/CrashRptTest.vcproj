@@ -80,7 +80,7 @@
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\CrashRptTestd.pdb"
+				ProgramDatabaseFile="..\..\bin\CrashRptTestd.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
