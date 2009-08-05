@@ -29,9 +29,9 @@ CrashRpt provides functionality to properly handle structured Win32 exceptions, 
 
 == What is current crashrpt project status? ==
 
-The latest version of CrashRpt is v1.1 beta. We are currently preparing for the v1.1 final release. 
+The latest version of CrashRpt is v1.1.1. 
 
-The previous version, CrashRpt v1.0 is declared deprecated and not recommended for download.
+An older version, CrashRpt v1.0 is declared deprecated and not recommended for download.
 
 == Are there  any analogous software for crash reporting? ==
 
@@ -56,7 +56,25 @@ You can create a topic in crashpt group http://groups.google.com/group/crashrpt 
 
 == What Visual C++ versions I can use crashrpt in? ==
 
-Since v1.1 of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
+Visual C++ 6.0 is not supported anymore.
+
+Since v1.1b of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. 
+
+Since v1.1.1 of CrashRpt you can compile and use CrashRpt in Visual C++ Express Edition (EVC++ 2005 and EVC++ 2008). For additional info on compiling CrashRpt in VC++ Express, see below.
+
+== How do I compile CrashRpt in Visual C++ Express? ==
+
+First of all, download the latest version of WTL from here http://sourceforge.net/projects/wtl/ WTL is an open source project that is constantly evolves and adapts to new versions of Visual Studio (including VS Express). The latest version at the moment is WTL 8.1.
+
+Unzip WTL archive to any folder. In VC++ Express window, open Tools->Options...->Projects and Solutions->VC++ Directories. In the 'Show directories for' combo, select 'Include files' and then add WTL\include path to the list of include directories.
+
+WTL itself depends on Microsoft's library called ATL (Active Template Library). ATL library is a part of Visual Studio SDKs. The latest version at the moment is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows SDK and the latest version (at the moment) of Windows SDK is v6.0. However, Microsoft didn't included ATL into Windows SDK v6.0 to encourage using of commercial Visual Studio having ATL. The dependency on ATL introduces a lot of problems for WTL, so in the future WTL might remove this dependency at all.
+
+Download and install Microsoft Platform SDK for Windows Server 2003, for example from here http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en, since it is the only Platform SDK that supports ATL.
+
+In VC++ Express window, open Tools->Options...->Projects and Solutions->VC++ Directories. In the 'Show directories for' combo, select 'Include files' and then add `[Platform_SDK_Folder]\Include\atl` path to the list of include directories.
+
+That's all. Now you are be able to compile CrashRpt.
 
 == Where do I look for crashrpt documentation? ==
 
