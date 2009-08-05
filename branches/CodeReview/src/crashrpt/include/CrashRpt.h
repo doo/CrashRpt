@@ -976,7 +976,7 @@ crGetLastErrorMsgA(
  *    \endcode
  */
 
-CRASHRPTAPI class CrAutoInstallHelper
+class CrAutoInstallHelper
 {
 public:
 
@@ -1027,7 +1027,7 @@ public:
  *   \endcode
  */
 
-CRASHRPTAPI class CrThreadAutoInstallHelper
+class CrThreadAutoInstallHelper
 {
 public:
 

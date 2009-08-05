@@ -2,16 +2,25 @@
 
 --- Ver. 1.1.1 ---
 
-- Support of Visual Studio Express edition
+- Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
+
+- Improved documentation; New page About Exceptions and Exception Handling
+
+- New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
 
 - MD5 hash for error report is calculated and attached to email 
   when error report is sent over email
 
-- Improved documentation; New page About Exceptions and Exception Handling
+- Error report is removed when sent successfuly
 
 - Refactored error report sending code
 
-- Extended Email message text generation for error reports being sent over email
+- Extended E-mail message text generation for error reports being sent over email
+
+- 'Copy selected lines' and 'copy the whole log' from context menu of error report
+  sending log
+
+- Fixed many VS-version-specific bugs
 
 --- Ver. 1.1 ---
 
