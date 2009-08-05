@@ -9,30 +9,28 @@ We appreciate any user feedback, bug reports and feature requests.
 
 = What's New =
 
-- Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
+  * Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
 
-- Improved documentation; New page About Exceptions and Exception Handling
+  * Improved documentation; New page About Exceptions and Exception Handling
 
-- New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
+  * New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
 
-- MD5 hash for error report is calculated and attached to email 
-  when error report is sent over email
+  * MD5 hash for error report is calculated and attached to email when error report is sent over email
 
-- Error report is removed when sent successfuly
+  * Error report is removed when sent successfuly
 
-- Refactored error report sending code
+  * Refactored error report sending code
 
-- Extended E-mail message text generation for error reports being sent over email
+  * Extended E-mail message text generation for error reports being sent over email
 
-- 'Copy selected lines' and 'copy the whole log' from context menu of error report
-  sending log
+  * 'Copy selected lines' and 'copy the whole log' from context menu of error report sending log
 
-- Fixed many VS-version-specific bugs
+  * Fixed many VS-version-specific bugs
 
 = Requirements = 
 
-  - Windows operating system
-  - Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
+  * Windows operating system
+  * Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
 
 = Installing = 
 
