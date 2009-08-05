@@ -25,15 +25,16 @@ In the Solution Explorer window, right-click your project and choose Properties 
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries.
 
-CrashRpt library provides several API functions and structures that can be used in your 
-project (see \ref CrashRptAPI and \ref CrashRptStructs). 
+CrashRpt library provides several API functions, structures and classes that can be used in your 
+project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). 
 
 \note Older versions of CrashRpt provided different set of API functions that are now 
 declared obsolete. They are still supported for compatibility with older versions of CrashRpt,
 but it is recommended that you use the newer functions instead. Here is the complete list of
 \ref DeprecatedAPI.
 
-All CrashRpt functions have \c cr prefix.
+All CrashRpt functions have \c cr prefix, CrashRpt structures have \c CR prefix 
+and CrashRpt classes have \c Cr prefix.
 
 All CrashRpt functions using character set dependent arguments have two versions of function name 
 (multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crInstall()
@@ -64,6 +65,9 @@ If you have several worker threads, just before the return of a thread procedure
 crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
 crUninstallFromCurrentThread() function in the main executrion thread, because crUninstall() will do that for
 you automatically.
+
+You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
+handlers in your program.
 
 Example:
 

@@ -23,6 +23,7 @@
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
 /*! \defgroup CrashRptStructs CrashRpt Structures */
+/*! \defgroup CrashRptWrappers CrashRpt Wrapper Classes */
 
 /*! \ingroup CrashRptAPI
  *  \brief Client crash callback function prototype
@@ -436,7 +437,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    \endcode
  *
  *  \sa crInstallW(), crInstallA(), crInstall(), CR_INSTALL_INFOW, 
- *      CR_INSTALL_INFOA, CR_INSTALL_INFO, crUninstall()
+ *      CR_INSTALL_INFOA, CR_INSTALL_INFO, crUninstall(), 
+ *      CrAutoInstallHelper
  */
 
 CRASHRPTAPI 
@@ -481,7 +483,8 @@ crInstallA(
  *
  *    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
- *  \sa crInstallW(), crInstallA(), crInstall(), crUninstall()
+ *  \sa crInstallW(), crInstallA(), crInstall(), crUninstall(),
+ *      CrAutoInstallHelper
  */
 
 CRASHRPTAPI 
@@ -540,7 +543,7 @@ crUninstall();
  *
  *   \endcode
  *
- *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread()
+ *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
 CRASHRPTAPI 
@@ -564,7 +567,7 @@ crInstallToCurrentThread();
  *    No need to call this function for the main execution thread. The crUninstall()
  *    will automatically uninstall C++ exception handlers for the main thread.
  *
- *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread()
+ *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread(), CrThreadAutoUninstallHelper
  */
 
 CRASHRPTAPI 
@@ -924,6 +927,119 @@ crGetLastErrorMsgA(
 #else
 #define crGetLastErrorMsg crGetLastErrorMsgA
 #endif //UNICODE
+
+
+//// Helper wrapper classes
+
+/*! \class CrAutoInstallHelper
+ *  \ingroup CrashRptWrappers
+ *  \brief Installs exception handlers in constructor and uninstalls in destructor.
+ *  \remarks
+ *    Use this class to easily install/uninstall exception handlers in you \b main()
+ *    or \b WinMain() function.
+ *
+ *    This wrapper class calls crInstall() in its constructor and calls crUninstall() in
+ *    its destructor.
+ *
+ *    Use CrAutoInstallHelper::m_nInstallStatus member to check the return status of crInstall().
+ *   
+ *    Example:
+ *
+ *    \code
+ *    #include <CrashRpt.h>
+ *
+ *    void main()
+ *    {      
+ *      CR_INSTALL_INFO info;
+ *      memset(&info, 0, sizeof(CR_INSTALL_INFO));
+ *      info.cb = sizeof(CR_INSTALL_INFO);  
+ *      info.pszAppName = _T("My App Name");
+ *      info.pszAppVersion = _T("1.2.3");
+ *      info.pszEmailSubject = "Error Report from My App v.1.2.3";
+ *      // The address to send reports by E-mail
+ *      info.pszEmailTo = _T("myname@hotmail.com");  
+ *      // The URL to send reports via HTTP connection
+ *      info.pszUrl = _T("http://myappname.com/utils/crashrpt.php"); 
+ *      info.pfnCrashCallback = CrashCallback; 
+ *      info.uPriorities[CR_HTTP] = 3; // Try HTTP first
+ *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
+ *      info.uPriorities[CR_SMAPI] = 1; // Try system email program last
+ *
+ *      // Install crash reporting
+ *      CrAutoInstallHelper cr_install_helper(&info);
+ *      // Check that installed OK
+ *      assert(cr_install_helper.m_nInstallStatus==0);
+ *
+ *      // Your code follows here ...
+ *
+ *    }
+ *    \endcode
+ */
+
+CRASHRPTAPI class CrAutoInstallHelper
+{
+public:
+
+  //! Installs exception handlers to the caller process
+  CrAutoInstallHelper(PCR_INSTALL_INFO pInfo)
+  {
+    m_nInstallStatus = crInstall(pInfo);
+  }
+
+  //! Uninstalls exception handlers from the caller process
+  ~CrAutoInstallHelper()
+  {
+    crUninstall();
+  }
+
+  //! Install status
+  int m_nInstallStatus;
+};
+
+/*! \class CrThreadAutoInstallHelper
+ *  \ingroup CrashRptWrappers
+ *  \brief Installs (uninstalls) exception handlers for the caller thread in class' constructor (destructor).
+ *  
+ *  \remarks
+ *
+ *   This wrapper class calls crInstallToCurrentThread() in its constructor and 
+ *   calls crUninstallFromCurrentThread() in its destructor.
+ *
+ *   Use CrThreadAutoInstallHelper::m_nInstallStatus member to check 
+ *   the return status of crInstallToCurrentThread().
+ *
+ *   Example:
+ *
+ *   \code
+ *   DWORD WINAPI ThreadProc(LPVOID lpParam)
+ *   {
+ *     CrThreadAutoInstallHelper cr_thread_install_helper();
+ *     assert(cr_thread_install_helper.m_nInstallStatus==0)
+ *    
+ *     // Your code follows here ...
+ *   }
+ *   \endcode
+ */
+
+CRASHRPTAPI class CrThreadAutoInstallHelper
+{
+public:
+
+  //! Installs exception handlers to the caller thread
+  CrThreadAutoInstallHelper()
+  {
+    m_nInstallStatus = crInstallToCurrentThread();
+  }
+
+  //! Uninstalls exception handlers from the caller process
+  ~CrThreadAutoInstallHelper()
+  {
+    crUninstallFromCurrentThread();
+  }
+
+  //! Install status
+  int m_nInstallStatus;
+};
 
 
 #endif //_CRASHRPT_H_
