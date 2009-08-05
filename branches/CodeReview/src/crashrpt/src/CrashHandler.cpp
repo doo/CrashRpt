@@ -56,8 +56,7 @@ g_CrashHandlers;
 
 
 LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
-{
-  MessageBox(NULL, _T("unh"), _T("ar"), 0);
+{  
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
