@@ -337,6 +337,10 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 See the documentation contained in the CrashRpt release package for more information.
 
+== How do I open a crash descriptor XML file? ==
+
+You can use notepad or other text editor. Or you can use your web browser.
+
 == What is crash GUID? ==
 
 A crash descriptor XML contains `CrashGUID` tag. The crash GUID is an unique identifier that is assigned to an error report. GUIDs are generated using special algorithm that guarantees that there is very low probability of generating the same GUID twice on different user machines. The crash GUID can be used, for example, as a primary key if you plan to store crash reports in a database.
