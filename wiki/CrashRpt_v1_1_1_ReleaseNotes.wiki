@@ -1,0 +1,43 @@
+#summary CrashRpt v.1.1.1 Release Notes.
+#labels Featured,Phase-Deploy
+
+= Introduction =
+
+CrashRpt v1.1.1 contains several improvements over previous version of CrashRpt. Below the list of changes is presented. 
+
+We appreciate any user feedback, bug reports and feature requests.
+
+= What's New =
+
+- Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
+
+- Improved documentation; New page About Exceptions and Exception Handling
+
+- New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
+
+- MD5 hash for error report is calculated and attached to email 
+  when error report is sent over email
+
+- Error report is removed when sent successfuly
+
+- Refactored error report sending code
+
+- Extended E-mail message text generation for error reports being sent over email
+
+- 'Copy selected lines' and 'copy the whole log' from context menu of error report
+  sending log
+
+- Fixed many VS-version-specific bugs
+
+= Requirements = 
+
+  - Windows operating system
+  - Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
+
+= Installing = 
+
+Unzip the CrashRpt archive to any folder, open index.html at the top level directory and follow the instructions in Installation page of documentation.
+
+= Providing Feedback =
+
+If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
