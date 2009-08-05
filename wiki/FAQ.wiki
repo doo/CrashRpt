@@ -62,7 +62,7 @@ Since v1.1b of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++
 
 Since v1.1.1 of CrashRpt you can compile and use CrashRpt in Visual C++ Express Edition (EVC++ 2005 and EVC++ 2008). For additional info on compiling CrashRpt in VC++ Express, see below.
 
-== How do I compile CrashRpt in Visual C++ Express? ==
+== How do I compile crashrpt in Visual C++ Express? ==
 
 First of all, download the latest version of WTL from here http://sourceforge.net/projects/wtl/ WTL is an open source project that is constantly evolves and adapts to new versions of Visual Studio (including VS Express). The latest version at the moment is WTL 8.1.
 
