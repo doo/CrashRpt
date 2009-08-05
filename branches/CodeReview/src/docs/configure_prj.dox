@@ -166,6 +166,7 @@ CrashRpt API Reference:
 - \ref CrashRptAPI
 - \ref CrashRptStructs
 - \ref DeprecatedAPI
+- \ref CrashRptWrappers
 
 
 \section crtdll Use CRT as Multi-Threaded DLL (/MD) in Release Configuration

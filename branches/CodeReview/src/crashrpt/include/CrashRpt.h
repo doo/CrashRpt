@@ -981,9 +981,15 @@ CRASHRPTAPI class CrAutoInstallHelper
 public:
 
   //! Installs exception handlers to the caller process
-  CrAutoInstallHelper(PCR_INSTALL_INFO pInfo)
+  CrAutoInstallHelper(PCR_INSTALL_INFOA pInfo)
   {
-    m_nInstallStatus = crInstall(pInfo);
+    m_nInstallStatus = crInstallA(pInfo);
+  }
+
+  //! Installs exception handlers to the caller process
+  CrAutoInstallHelper(PCR_INSTALL_INFOW pInfo)
+  {
+    m_nInstallStatus = crInstallW(pInfo);
   }
 
   //! Uninstalls exception handlers from the caller process
@@ -1014,7 +1020,7 @@ public:
  *   DWORD WINAPI ThreadProc(LPVOID lpParam)
  *   {
  *     CrThreadAutoInstallHelper cr_thread_install_helper();
- *     assert(cr_thread_install_helper.m_nInstallStatus==0)
+ *     assert(cr_thread_install_helper.m_nInstallStatus==0);
  *    
  *     // Your code follows here ...
  *   }
@@ -1031,7 +1037,7 @@ public:
     m_nInstallStatus = crInstallToCurrentThread();
   }
 
-  //! Uninstalls exception handlers from the caller process
+  //! Uninstalls exception handlers from the caller thread
   ~CrThreadAutoInstallHelper()
   {
     crUninstallFromCurrentThread();
