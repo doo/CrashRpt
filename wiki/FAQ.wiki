@@ -76,7 +76,7 @@ In VC++ Express window, open Tools->Options...->Projects and Solutions->VC++ Dir
 
 That's all. Now you are be able to compile CrashRpt.
 
-For additional info on using VC++ Express, see http://www.codeproject.com/KB/wtl/WTLExpress.aspx
+For additional info on using WTL with VC++ Express, see http://www.codeproject.com/KB/wtl/WTLExpress.aspx
 
 == Where do I look for crashrpt documentation? ==
 
