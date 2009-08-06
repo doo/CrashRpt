@@ -78,12 +78,6 @@ That's all. Now you are be able to compile CrashRpt.
 
 For additional info on using WTL with VC++ Express, see http://www.codeproject.com/KB/wtl/WTLExpress.aspx
 
-== Where do I look for crashrpt documentation? ==
-
-In the newest version of CrashRpt, the documentation is included into the CrashRpt release package. To open the documentation, click the `index.html` in the top level directory of the CrashRpt package.
-
-In an older version of CrashRpt v1.0, the documentation can be found in [CrashRpt_v1_0_Documentation] wiki page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
-
 == How do I properly install crashrpt? ==
 
 * Downloading *
@@ -127,6 +121,11 @@ CrashRpt uses the following libraries:
 || ZLib || Used to create ZIP archives || http://www.zlib.net/ ||
 || zip utils || Makes using ZLib easier || http://www.codeproject.com/KB/files/zip_utils.aspx || 
 
+== Where do I look for crashrpt documentation? ==
+
+In the newest version of CrashRpt, the documentation is included into the CrashRpt release package. To open the documentation, click the `index.html` in the top level directory of the CrashRpt package.
+
+In an older version of CrashRpt v1.0, the documentation can be found in [CrashRpt_v1_0_Documentation] wiki page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
 
 == How do I use crashrpt in my Visual C++ project? ==
 
@@ -134,7 +133,7 @@ Go to the top level directory of CrashRpt package and click the index.html file 
 
 == What .h file should I include in my code and what .lib file should I link my code to? ==
 
-Do not forget to include `CrashRpt.h` header file in the beginning of your code.
+Include `CrashRpt.h` header file in the beginning of your code.
 
 {{{
 // Include CrashRpt header
