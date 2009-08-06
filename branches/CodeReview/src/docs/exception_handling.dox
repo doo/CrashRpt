@@ -581,20 +581,23 @@ For additional info please see these links:
 
 \section crt_version_and_dll Exception Handling and CRT Linkage
 
-Each module (EXE, DLL) in your project is linked to CRT (C++ runtime libraries). 
-You may link CRT as multithreaded 
-static library or as multithreaded dynamic link library. When you set CRT error handlers, such
-as pure call handler or invalid parameter handler, they will work for the CRT the caller module 
-is linked to and won't intercept exceptions in different CRT modules (if exist). 
+Each module (EXE, DLL) in your project is linked to CRT (C run-time libraries). 
+You may link CRT as multithreaded static library or as multithreaded dynamic link library. 
+When you set CRT error handlers, such as pure call handler or invalid parameter handler, 
+they will work for the CRT the caller module is linked to and won't intercept exceptions 
+in different CRT modules (if exist). 
 
-Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. 
-And all exceptions within that CRT DLL can be handled 
+Several project modules may share single CRT DLL. This reduces to minimum the overall size 
+of linked CRT code. And all exceptions within that CRT DLL can be handled 
 at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
 If you plan to use CRT as a static link library (which is not recommended to do), you have to add 
 exception handling functionality in EACH project module in your solution in form of .cpp files. 
 This makes impossible the way when you implement exception handling code inside of a dynamic link library 
 (such way CrashRpt is implemented).  
+
+For additional info about C run-time libraries (CRT), see the <i>C Run-time Libraries (CRT)</i> 
+link in the Reference section below.
 
 See also:
 - \ref crtdll
@@ -619,5 +622,7 @@ See also:
 - <a href="http://msdn.microsoft.com/en-us/library/1deeycx5%28VS.80%29.aspx">/EH (Exception Handling Model)</a>
 - <a href="http://msdn.microsoft.com/en-us/library/e7s85ffb%28VS.80%29.aspx">/fp (Specify Floating-Point Behavior)</a>
 - <a href="http://msdn.microsoft.com/en-us/library/8dbf701c%28VS.80%29.aspx">/GS (Buffer Security Check)</a>
+- <a href="http://msdn.microsoft.com/en-us/library/abx4dbyh%28VS.80%29.aspx">C Run-time Libraries (CRT)</a>
+
 
 */

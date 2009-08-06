@@ -169,7 +169,7 @@ CrashRpt API Reference:
 - \ref CrashRptWrappers
 
 
-\section crtdll Use CRT as Multi-Threaded DLL (/MD) in Release Configuration
+\section crtdll Using CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
 It is important that you configure your project to use C++ runtime libraries (CRT)
 as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
@@ -188,7 +188,7 @@ your default debugger intercepts exceptions instead of CrashRpt in Debug configu
 \image html crtdll.png "Multi-threaded DLL (/MD)"    
 
 
-\section crtver Use the Same Version of CRT for All Application Modules
+\section crtver Using the Same Version of CRT for All Application Modules
 
 Ensure that all modules that exist in your application use the same version of CRT. 
 If some dependent modules were compiled using an older version of CRT, you should recompile them 
@@ -200,7 +200,7 @@ In such situation a C++ exception in the dependent module won't be intercepted b
 intercept exceptions in CRT 8.0 only. 
 
 
-\section prgdb Enable Program Database (/Zi, /DEBUG) in Release Configuration
+\section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration
 
 To get the most out of the crash minidump, the debugger needs your application's debug 
 symbols. By default Release builds don't generate debug symbols. 
@@ -219,7 +219,7 @@ Steps 1 and 2 should be done for all projects in your solution that support prog
 
 \image html linker_debug_settings.png "Enabling Debugging Information in Linker"
 
-\section savefiles What Files Should be Saved Locally Before Software Release
+\section savefiles Saving the Debugging Information Locally Before Software Release
 
 When you are ready for a software release, the following steps must be
 performed to be able to properly read end user error reports later.
@@ -253,7 +253,7 @@ not only take up more
 space on your CD/download/client's machine, but they will also make reverse engineering 
 your code a trivial exercise. 
 
-\section rlsfiles What Files Should be Distributed with Your Software Release Package
+\section rlsfiles Distributing CrashRpt Files with Your Software Release Package
 
 You must always distribute the following files with your software release.
 
