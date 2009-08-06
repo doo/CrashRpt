@@ -1,5 +1,13 @@
 ======= Change History ========
 
+--- Ver. 1.1.2 ---
+
+- Improved documentation; Added info on compiling CrashRpt in VC++ Express
+
+- Fixed some compilation warnings in VC++ Express
+
+- Fixed wrong "unh" message box in unhandled exception handler
+
 --- Ver. 1.1.1 ---
 
 - Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
