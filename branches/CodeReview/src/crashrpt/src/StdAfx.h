@@ -19,8 +19,9 @@
 // Support for VS2005 Express & SDK ATL
 #ifdef _WTL_SUPPORT_SDK_ATL3
   #define _CRT_SECURE_NO_DEPRECATE
+  #define _CRT_NON_CONFORMING_SWPRINTFS
   #pragma conform(forScope, off)
-  #pragma comment(linker, "/NODEFAULTLIB:atlthunk.lib")
+  #pragma comment(linker, "/NODEFAULTLIB:atlthunk.lib")  
 #endif // _WTL_SUPPORT_SDK_ATL3
 
 #include <atlbase.h>
