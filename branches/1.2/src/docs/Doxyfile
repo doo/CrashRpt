@@ -87,7 +87,7 @@ WARN_LOGFILE           = Warnings.txt
 #---------------------------------------------------------------------------
 # configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = ../crashrpt .
+INPUT                  = ../include .
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
                          *.cc \
