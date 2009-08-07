@@ -156,7 +156,7 @@ Each process loads its own copy of 'CrashRpt.dll'. It is difficult to imagine ho
 
 You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
-== Why does CrashRpt consist of two modules: crashrpt.dll and crashsender.exe? ==
+== Why does crashrpt consist of two modules: crashrpt.dll and crashsender.exe? ==
 
 `CrashRpt.dll` contains functionality to intercept exceptions in a client software. `CrashSender.exe` contains functionality to send error reports to the software's support team. We've separated CrashRpt into these modules to be able to close the application which crashes and to continue sending error report through `CrashSender.exe` in background.
 
