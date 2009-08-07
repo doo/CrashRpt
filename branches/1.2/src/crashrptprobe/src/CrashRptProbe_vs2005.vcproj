@@ -141,6 +141,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				ImportLibrary="..\..\lib\CrashRptProbe.lib"
 				TargetMachine="1"
 			/>
 			<Tool
