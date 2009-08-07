@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "dbghelp.h"
 #include <map>
+#include <vector>
 
 struct MdmpModule
 {

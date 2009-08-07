@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptTest", "crashrpttes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashSender", "crashsender\src\CrashSender.vcproj", "{939312D6-690A-4103-92C5-4D89025BF10A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptProbe", "crashrptprobe\src\CrashRptProbe_vs2005.vcproj", "{42B7465D-C7ED-42D3-9DE6-D966721A6F86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,10 @@ Global
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Debug|Win32.Build.0 = Debug|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release|Win32.ActiveCfg = Release|Win32
 		{939312D6-690A-4103-92C5-4D89025BF10A}.Release|Win32.Build.0 = Release|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Debug|Win32.ActiveCfg = Debug|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Debug|Win32.Build.0 = Debug|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release|Win32.ActiveCfg = Release|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MinidumpReader.h"
+#include <assert.h>
 
 MdmpData CMiniDumpReader::m_DumpData;
 HANDLE CMiniDumpReader::m_hFileMiniDump;
@@ -181,6 +182,8 @@ int CMiniDumpReader::ReadExceptionStream()
 
 int CMiniDumpReader::ReadModuleListStream()
 {
+  USES_CONVERSION; 
+
   LPVOID pStreamStart = NULL;
   ULONG uStreamSize = 0;
   MINIDUMP_DIRECTORY* pmd = NULL;
@@ -205,15 +208,16 @@ int CMiniDumpReader::ReadModuleListStream()
         MINIDUMP_MODULE* pModule = 
           (MINIDUMP_MODULE*)((LPBYTE)pModuleStream->Modules+i*sizeof(MINIDUMP_MODULE));
 
-        _module m;
+        MdmpModule m;
         m.m_uBaseAddr = pModule->BaseOfImage;
         m.m_uImageSize = pModule->SizeOfImage;
-        m.m_szModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
+        m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
                
+        LPSTR szModuleName = T2A(CString(m.m_sModuleName).GetBuffer(0));
         SymLoadModuleEx(
           m_DumpData.m_hProcess,
           NULL,
-          CStringA(m.m_szModuleName).GetBuffer(),
+          szModuleName,
           NULL,
           m.m_uBaseAddr,
           (DWORD)m.m_uImageSize,
@@ -237,7 +241,7 @@ int CMiniDumpReader::ReadModuleListStream()
 int CMiniDumpReader::ReadMemoryListStream()
 {
   LPVOID pStreamStart = NULL;
-  ULONG pStreamSize = 0;
+  ULONG uStreamSize = 0;
   MINIDUMP_DIRECTORY* pmd = NULL;
   BOOL bRead = FALSE;
 
@@ -258,7 +262,7 @@ int CMiniDumpReader::ReadMemoryListStream()
       for(i=0; i<uNumberOfMemRanges; i++)
       {
         MINIDUMP_MEMORY_DESCRIPTOR* pMemDesc = (MINIDUMP_MEMORY_DESCRIPTOR*)(&pMemStream->MemoryRanges[i]);
-        _mem_range mr;
+        MdmpMemRange mr;
         mr.m_u64StartOfMemoryRange = pMemDesc->StartOfMemoryRange;
         mr.m_uDataSize = pMemDesc->Memory.DataSize;
         mr.m_pStartPtr = (LPBYTE)m_pMiniDumpStartPtr+pMemDesc->Memory.Rva;
@@ -293,7 +297,7 @@ int CMiniDumpReader::ReadThreadListStream()
   {
     MINIDUMP_THREAD_LIST* pThreadList = (MINIDUMP_THREAD_LIST*)pStreamStart;
     if(pThreadList!=NULL && 
-      stream_size>=sizeof(MINIDUMP_THREAD_LIST))
+      uStreamSize>=sizeof(MINIDUMP_THREAD_LIST))
     {
       ULONG32 uThreadCount = pThreadList->NumberOfThreads;
 
@@ -357,7 +361,7 @@ int CMiniDumpReader::StackWalk()
     sf.AddrFrame.Offset = ((CONTEXT*)m_DumpData.m_pExceptionContext)->Ebp;
     sf.AddrStack.Offset = ((CONTEXT*)m_DumpData.m_pExceptionContext)->Esp;
     break;
-  case PROCESSOR_ARCHITECTURE_IA64:
+  /*case PROCESSOR_ARCHITECTURE_IA64:
     dwMachineType = IMAGE_FILE_MACHINE_IA64;
     sf.AddrPC.Offset = ((CONTEXT_IA64*)m_DumpData.m_pExceptionContext)->Rip;
     sf.AddrFrame.Offset = ((CONTEXT_IA64*)m_DumpData.m_pExceptionContext)->Rsp;
@@ -369,7 +373,7 @@ int CMiniDumpReader::StackWalk()
     sf.AddrFrame.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->IntSp;
     sf.AddrStack.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->IntSp;
     sf.AddrBStore.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->RsBSP;
-    break;
+    break;*/
   default:
     {
       assert(0);
@@ -469,7 +473,7 @@ BOOL CALLBACK CMiniDumpReader::ReadProcessMemoryProc64(
   ULONG i;
   for(i=0; i<m_DumpData.m_MemRanges.size(); i++)
   {
-    _mem_range& mr = m_DumpData.m_MemRanges[i];
+    MdmpMemRange& mr = m_DumpData.m_MemRanges[i];
     if(lpBaseAddress>=mr.m_u64StartOfMemoryRange &&
       lpBaseAddress<mr.m_u64StartOfMemoryRange+mr.m_uDataSize)
     {

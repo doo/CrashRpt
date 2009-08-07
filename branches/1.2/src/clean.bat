@@ -32,3 +32,8 @@ rmdir /S /Q CrashSender\src\Debug
 rmdir /S /Q CrashSender\src\Release
 erase /A H CrashSender\src\*.user
 erase CrashSender\src\*.aps
+
+rmdir /S /Q CrashRptProbe\src\Debug
+rmdir /S /Q CrashRptProbe\src\Release
+erase /A H CrashRptProbe\src\*.user
+erase CrashRptProbe\src\*.aps
