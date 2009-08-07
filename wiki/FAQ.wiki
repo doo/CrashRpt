@@ -158,15 +158,7 @@ You should use CrashRpt API functions to set exception handlers in the beginning
 
 == Why does crashrpt consist of two modules: crashrpt.dll and crashsender.exe? ==
 
-`CrashRpt.dll` contains functionality to intercept exceptions in a client software. `CrashSender.exe` contains functionality to send error reports to the software's support team. We've separated CrashRpt into these modules to be able to close the application which crashes and to continue sending error report through `CrashSender.exe` in background.
-
-== Does crashrpt intercept _exactly_ all exceptions that may occur in my program? == 
-
-CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
-
-Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
-
-For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
+`CrashRpt.dll` contains functionality for intercepting exceptions in a client software. `CrashSender.exe` contains functionality for sending error reports to the software's support team. We've separated CrashRpt into these modules to be able to close the application which crashes and to continue sending error report through `CrashSender.exe` in background.
 
 == Does using crashrpt makes it easier for somebody to reverse engineer my code? ==
 
@@ -223,6 +215,14 @@ This should be done for all projects in your solution that support program datab
 == Shoud I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
 
 This is not necessary, because a minidump file itself contains the list of loaded modules of your application and their actual load addresses. 
+
+== Does crashrpt intercept _exactly_ all exceptions that may occur in my program? == 
+
+CrashRpt intercepts all exceptions that are allowed to intercept by C++ runtime libraries.
+
+Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
+
+For more information, see the link https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337
 
 == How do I test if crashrpt intercepts exceptions in my application? ==
 
