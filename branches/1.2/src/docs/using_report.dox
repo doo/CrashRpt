@@ -140,7 +140,7 @@ various information about the state of the application when the error occurred.
 
 The crash minidump is unusable without the debugging symbols database (program database, PDB).
 Application modules may be loaded at memory addresses different from time to time. This is common
-for Windows Vista and its Address Space Layout Randomization (/DYNAMICBASE:YES compiler flag).  
+for Windows Vista and its Address Space Layout Randomization (/DYNAMICBASE linker flag).  
 You can not uniquely identify the exception by its address. 
 
 To open crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program

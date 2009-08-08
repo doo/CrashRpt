@@ -1,7 +1,7 @@
 /*! \file   CrashRptProbe.h
  *  \brief  Defines the interface for the CrashRptProbe.DLL.
  *  \date   2009
- *  \author zeXspectrum (zexspectrum@gmail.com)
+ *  \author zexspectrum@gmail.com
  */
 
 #ifndef __CRASHRPT_PROBE_H__
@@ -14,7 +14,7 @@
 #endif
 
 
-/*! \defgroup CrashRptProbeAPI */
+/*! \defgroup CrashRptProbeAPI CrashRptProbe Functions*/
 
 
 /*! \ingroup CrashRptProbeAPI
@@ -93,8 +93,8 @@ crpCloseCrashReport(
 #define CRP_PROPS_FILE_ITEM_NAME      256 //! Name of the first file contained in the report (string)
 
 /*! \ingroup CrashRptProbeAPI
- *  \brief
- *
+ *  \brief Retrieves a string property from crash report.
+ *  \return This function returns zero on success, otherwize non-zero.
  */
 
 CRASHRPTPROBE_API int
@@ -106,7 +106,7 @@ crpGetStrPropertyW(
 );
 
 /*! \ingroup CrashRptProbeAPI
- *  \brief
+ *  \copydoc crpGetStrPropertyW
  *
  */
 
@@ -129,8 +129,9 @@ crpGetStrPropertyA(
 #endif //UNICODE
 
 /*! \ingroup CrashRptProbeAPI
- *  \brief
- *
+ *  \brief Retrieves a long property from the crash report.
+ *  \param[in] uHandle Handle to the crash report.
+ *  \param[in] lpszPropName Name of the
  */
 
 CRASHRPTPROBE_API int

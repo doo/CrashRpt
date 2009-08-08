@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = CrashRpt
-PROJECT_NUMBER         = 1.1
+PROJECT_NUMBER         = 1.2
 OUTPUT_DIRECTORY       = 
 CREATE_SUBDIRS         = NO
 OUTPUT_LANGUAGE        = English
@@ -145,7 +145,7 @@ VERBATIM_HEADERS       = NO
 #---------------------------------------------------------------------------
 ALPHABETICAL_INDEX     = NO
 COLS_IN_ALPHA_INDEX    = 5
-IGNORE_PREFIX          = cr CR_
+IGNORE_PREFIX          = cr CR_ Cr crp CRP_ Crp
 #---------------------------------------------------------------------------
 # configuration options related to the HTML output
 #---------------------------------------------------------------------------
@@ -227,7 +227,8 @@ SEARCH_INCLUDES        = YES
 INCLUDE_PATH           = 
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = "CRASHRPTAPI= "\
-                         "CALLBACK= "                       
+                         "CALLBACK= "\
+                         "CRASHRPTPROBE_API= "                       
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
