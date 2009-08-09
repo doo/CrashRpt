@@ -13,6 +13,7 @@
 #define CRASHRPTPROBE_API __declspec(dllimport)
 #endif
 
+typedef int CrpHandle;
 
 /*! \defgroup CrashRptProbeAPI CrashRptProbe Functions*/
 
@@ -22,8 +23,8 @@
  *
  *  \return This function returns zero on success, else non-zero.
  *
- *  \param[in] lpszFileName Zipped report file name.
- *  \param[out] lpuHandle Handle to the opened crash report.
+ *  \param[in] pszFileName Zipped report file name.
+ *  \param[out] pHandle Handle to the opened crash report.
  *
  *  \remarks
  *
@@ -33,8 +34,8 @@
 
 CRASHRPTPROBE_API int
 crpOpenCrashReportW(
-  LPCWSTR lpszFileName,
-  LPUINT lpuHandle
+  LPCWSTR pszFileName,
+  CrpHandle* pHandle
 );
 
 /*! \ingroup CrashRptProbeAPI
@@ -44,8 +45,8 @@ crpOpenCrashReportW(
 
 CRASHRPTPROBE_API int
 crpOpenCrashReportA(
-  LPCSTR lpszFileName,
-  LPUINT lpuHandle
+  LPCSTR pszFileName,
+  CrpHandle* pHandle
 );
 
 /*! \brief Character set-independent mapping of crpOpenCrashReportW() and crpOpenCrashReportA() functions. 
@@ -61,7 +62,7 @@ crpOpenCrashReportA(
 /*! 
  *  \brief Closes the crash report.
  *  \return This function returns zero if successful, else non-zero.
- *  \param[in] uHandle Handle to the crash report.
+ *  \param[in] handle Handle to the crash report.
  *
  *  \remarks
  *
@@ -69,7 +70,7 @@ crpOpenCrashReportA(
 
 CRASHRPTPROBE_API int
 crpCloseCrashReport(
-  UINT uHandle  
+  CrpHandle handle  
 );
 
 /* Property names passed to crpGetStrProperty() and crpGetIntProperty() */
@@ -90,17 +91,23 @@ crpCloseCrashReport(
 #define CRP_PROPS_USER_EMAIL          15 //! Email of the user who sent this report (string)
 #define CRP_PROPS_PROBLEM_DESCRIPTION 16 //! User-provided problem description (string)
 #define CRP_PROPI_FILE_COUNT          17 //! Number of files contained in th error report (long)
-#define CRP_PROPS_FILE_ITEM_NAME      256 //! Name of the first file contained in the report (string)
+#define CRP_PROPS_FILE_ITEM_NAME      18 //! Name of the file contained in the report (string)
+
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief Retrieves a string property from crash report.
  *  \return This function returns zero on success, otherwize non-zero.
- */
+ *  \param[in] uHandle Handle to the open crash report.
+ *  \param[in] uPropId Property ID.
+ *  \param[out] lpszBuffer Output buffer.
+ *  \param[in] uBuffSize Size of output buffer.
+ */ 
 
 CRASHRPTPROBE_API int
 crpGetStrPropertyW(
-  UINT uHandle,
-  LPCWSTR lpszPropName,
+  CrpHandle handle,
+  int nPropId,
+  int nIndex,
   LPWSTR lpszBuffer,
   UINT uBuffSize
 );
@@ -112,10 +119,11 @@ crpGetStrPropertyW(
 
 CRASHRPTPROBE_API int
 crpGetStrPropertyA(
-  UINT uHandle,
-  LPCSTR lpszPropName,
+  CrpHandle handle,
+  int nPropId,
+  int nIndex,
   LPSTR lpszBuffer,
-  UINT uBuffSize
+  unsigned uBuffSize
 );
 
 /*! \brief Character set-independent mapping of crpGetStrPropertyW() and crpGetStrPropertyA() functions. 
@@ -131,37 +139,16 @@ crpGetStrPropertyA(
 /*! \ingroup CrashRptProbeAPI
  *  \brief Retrieves a long property from the crash report.
  *  \param[in] uHandle Handle to the crash report.
- *  \param[in] lpszPropName Name of the
+ *  \param[in] uPropId
  */
 
 CRASHRPTPROBE_API int
-crpGetLongPropertyW(
-  UINT uHandle,
-  LPCWSTR lpszPropName,
-  PLONG lpnPropVal
+crpGetLongProperty(
+  CrpHandle handle,
+  int uPropId,
+  int nIndex,
+  long* plPropVal
 );
-
-/*! \ingroup CrashRptProbeAPI
- *  \brief
- *
- */
-
-CRASHRPTPROBE_API int
-crpGetLongPropertyA(
-  UINT uHandle,
-  LPCSTR lpszPropName,
-  PLONG lpnPropVal
-);
-
-/*! \brief Character set-independent mapping of crpGetLongPropertyW() and crpGetLongPropertyA() functions. 
- *  \ingroup CrashRptProbeAPI
- */
-
-#ifdef UNICODE
-#define crpGetLongProperty crpGetLongPropertyW
-#else
-#define crpGetLongProperty crpGetLongPropertyA
-#endif //UNICODE
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief
@@ -170,7 +157,7 @@ crpGetLongPropertyA(
 
 CRASHRPTPROBE_API int
 crpExtractFileW(
-  UINT uHandle,
+  CrpHandle handle,
   LPCWSTR lpszFileName,
   LPCWSTR lpszFileSaveAs
 );
@@ -181,7 +168,7 @@ crpExtractFileW(
 
 CRASHRPTPROBE_API int
 crpExtractFileA(
-  UINT uHandle,
+  CrpHandle handle,
   LPCSTR lpszFileName,
   LPCSTR lpszFileSaveAs
 );

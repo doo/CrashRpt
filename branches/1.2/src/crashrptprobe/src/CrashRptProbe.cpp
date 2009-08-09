@@ -3,33 +3,48 @@
 
 #include "stdafx.h"
 #include "CrashRptProbe.h"
+#include <map>
+#include "tinyxml.h"
+#include "unzip.h"
 
 WTL::CAppModule _Module;
 
+struct CrpReportData
+{
+  HZIP m_hZip;
+  CDescReader m_descReader;
+  CMinidumpReader m_dmpReader;  
+};
+
+std::map<int, CrpReportData> g_OpenedHandles;
+
 int
 crpOpenCrashReportW(
-  LPCSTR lpszFileName,
-  LPUINT lpuHandle)
+  LPCWSTR pszFileName,
+  CrpHandle* pHandle)
 {
+
+
   return 0;
 }
 
 int
 crpOpenCrashReportA(
-  LPCSTR lpszFileName,
-  LPUINT lpuHandle)
+  LPCSTR pszFileName,
+  CrpHandle* pHandle)
+{
+  USES_CONVERSION;
+  return crpOpenCrashReportW(A2W(pszFileName), pHandle);  
+}
+
+int
+crpCloseCrashReport(
+  CrpHandle handle)
 {
   return 0;
 }
 
 int
-crpCloseCrashReport(
-  UINT uHandle)
-{
-  return 0;
-}
-
-CRASHRPTPROBE_API int
 crpGetStrPropertyW(
   UINT uHandle,
   LPCWSTR lpszPropName,
@@ -40,9 +55,9 @@ crpGetStrPropertyW(
   return 0;
 }
 
-CRASHRPTPROBE_API int
+int
 crpGetStrPropertyA(
-  UINT uHandle,
+  CrpHandle handle,
   LPCSTR lpszPropName,
   LPSTR lpszBuffer,
   UINT uBuffSize
@@ -51,18 +66,18 @@ crpGetStrPropertyA(
   return 0;
 }
 
-CRASHRPTPROBE_API int
+int
 crpGetLongPropertyW(
-  UINT uHandle,
+  CrpHandle handle,
   LPCWSTR lpszPropName,
   PLONG lpnPropVal)
 {
   return 0;
 }
 
-CRASHRPTPROBE_API int
+int
 crpGetLongPropertyA(
-  UINT uHandle,
+  CrpHandle handle,
   LPCSTR lpszPropName,
   PLONG lpnPropVal)
 {
@@ -70,16 +85,16 @@ crpGetLongPropertyA(
 }
 
 
-CRASHRPTPROBE_API int
+int
 crpExtractFileW(
-  UINT uHandle,
+  CrpHandle handle,
   LPCWSTR lpszFileName,
   LPCWSTR lpszFileSaveAs
 );
 
-CRASHRPTPROBE_API int
+int
 crpExtractFileA(
-  UINT uHandle,
+  CrpHandle handle,
   LPCSTR lpszFileName,
   LPCSTR lpszFileSaveAs
 );

@@ -66,6 +66,7 @@
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
+				ImportLibrary="..\..\lib\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -212,6 +213,88 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<Filter
+				Name="tinyxml"
+				>
+				<File
+					RelativePath="..\..\tinyxml\tinystr.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\tinyxml\tinyxml.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\tinyxml\tinyxmlerror.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\tinyxml\tinyxmlparser.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
+			<Filter
+				Name="zip_utils"
+				>
+				<File
+					RelativePath="..\..\zip_utils\unzip.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\zip_utils\zip.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -238,6 +321,30 @@
 				RelativePath=".\stdafx.h"
 				>
 			</File>
+			<Filter
+				Name="tinyxml"
+				>
+				<File
+					RelativePath="..\..\tinyxml\tinystr.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\tinyxml\tinyxml.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="zip_utils"
+				>
+				<File
+					RelativePath="..\..\zip_utils\unzip.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\zip_utils\zip.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
