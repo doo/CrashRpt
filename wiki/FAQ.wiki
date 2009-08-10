@@ -178,7 +178,7 @@ Sometimes it is required to remotely debug some application logics error. Such a
 
 == What is the required way of CRT linkage for crashrpt to work properly? ==
 
-It is important that you configure your project to use C++ runtime libraries (CRT) as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN. And CrashRpt won't work properly if CRT is used in different way.
+It is important that you configure your project to use C++ runtime libraries (CRT) as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN. And current version of CrashRpt won't work properly if CRT is used in different way.
 
 In the Solution Explorer window, right-click your project and open project Properties. Then choose Configuration Properties->C/C++->Code Generation. In the Runtime Library field, choose Multi-threaded DLL (/MD).
 
@@ -192,17 +192,17 @@ For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but so
 
 == What do I do if my project uses CRT as a static library? ==
 
-In such case you can't use CrashRpt in your project, even if you compile it as a static library.
+In such case you can't use current version of CrashRpt in your project, because it uses dynamically linked C runtime libraries (Multi-threaded DLL (/MD) compiler flag). For more information, see below.
 
 Each module (EXE, DLL) in your project is linked to CRT (C++ runtime libraries). You may link CRT as multithreaded static library or as multithreaded dynamic link library. When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
 
 Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
-If you plan to use CRT as a static link library (which is not recommended to do), you have to add exception handling functionality in EACH project module in your solution in form of .cpp files. This makes impossible the way when you implement exception handling code inside of a dynamic link library (such way CrashRpt is implemented).
+If your project uses CRT as a static link library (which is not recommended to do) and want to use some crash reporting functionality, you would have to compile the functionality as static a lib with /NODEFAULTLIB linker option. Then you would have to install CRT error handlers for EACH module that your program loads into its address space. CrashRpt doesn't support this currently. If you need such ability, please create an enhancement request in our issue tracker.
 
 == Can I compile crashrpt as a static library? ==
 
-No, it is not recommended to do. 
+No, currently you can't do this.
 
 == Why should I enable Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag? ==
 
@@ -262,11 +262,13 @@ The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll
 
 == I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
-You should always distribute dbghelp.dll with your software, because the version of dbghelp.dll may be different on end user's machine. 
+It is recommended that you distribute dbghelp.dll with your software, because some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may be different on different user machines. 
 
 == I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
-No, this is impossible, because of many reasons. 
+No, this is impossible.
+
+Although you can compile ZLib as static library, currently you can't compile CrashRpt as static lib. In addition, architecture of CrashRpt requires two modules: CrashRpt.dll and CrashSender.exe. So, you have to distribute all these DLLs.
 
 = Error Reports Creation and Delivery = 
 
