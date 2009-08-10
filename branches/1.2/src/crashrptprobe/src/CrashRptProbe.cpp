@@ -6,14 +6,16 @@
 #include <map>
 #include "tinyxml.h"
 #include "unzip.h"
+#include "CrashDescReader.h"
+#include "MinidumpReader.h"
 
 WTL::CAppModule _Module;
 
 struct CrpReportData
 {
   HZIP m_hZip;
-  CDescReader m_descReader;
-  CMinidumpReader m_dmpReader;  
+  //CCrashDescReader m_descReader;
+  CMiniDumpReader m_dmpReader;  
 };
 
 std::map<int, CrpReportData> g_OpenedHandles;
