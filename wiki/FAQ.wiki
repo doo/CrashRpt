@@ -262,13 +262,15 @@ The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll
 
 == I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
-It is recommended that you distribute dbghelp.dll with your software, because some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may be different on different user machines. 
+It is recommended that you distribute dbghelp.dll with your software, because some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may be different on different user machines.
+
+dbghelp.dll is shipped with Windows XP and later, so most user machines have this library installed. If your target OS is Windows XP and later, you may ignore distribution of dbghelp.dll at your own risk. 
 
 == I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
 No, this is impossible.
 
-Although you can compile ZLib as static library, currently you can't compile CrashRpt as static lib. In addition, architecture of CrashRpt requires two modules: CrashRpt.dll and CrashSender.exe. So, you have to distribute all these DLLs.
+Although you can compile ZLib as static library, currently you can't compile CrashRpt as static lib. You may ignore distribution of dbghelp.dll, but a end user's operating system may not have dbghelp.dll installed. In addition, architecture of CrashRpt requires two modules: `CrashRpt.dll` and `CrashSender.exe`. So, you have to distribute all these binaries.
 
 = Error Reports Creation and Delivery = 
 
