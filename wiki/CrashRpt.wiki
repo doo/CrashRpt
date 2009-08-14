@@ -11,6 +11,6 @@ CrashRpt intercepts an unhandled exception, creates a minidump, builds a crash d
 == Download ==
 
 || *Version* || *Download* || *Documentation* ||
-|| crashrpt 1.1.1 || [http://crashrpt.googlecode.com/files/CrashRpt_v1.1.1_r287.zip CrashRpt_v1.1.1_r287.zip] || [CrashRpt_v1_1_1_ReleaseNotest] Included into download package ||
-|| crashrpt 1.1 beta || [http://crashrpt.googlecode.com/files/http://crashrpt.googlecode.com/files/CrashRpt_v1.1b_r175.zip CrashRpt_v1.1b_r175.zip] || [CrashRpt_v1_1b_ReleaseNotest] Included into download package ||
+|| crashrpt 1.1.1 || [http://crashrpt.googlecode.com/files/CrashRpt_v1.1.1_r287.zip CrashRpt_v1.1.1_r287.zip] || [CrashRpt_v1_1_1_ReleaseNotes] Included into download package ||
+|| crashrpt 1.1 beta || [http://crashrpt.googlecode.com/files/http://crashrpt.googlecode.com/files/CrashRpt_v1.1b_r175.zip CrashRpt_v1.1b_r175.zip] || [CrashRpt_v1_1b_ReleaseNotes] Included into download package ||
 || crashrpt 1.0 || [http://crashrpt.googlecode.com/files/crashrpt_demo.zip crashrpt_demo.zip] [http://crashrpt.googlecode.com/files/crashrpt_source.zip crashrpt_source.zip] || [CrashRpt_v1_0_Documentation] ||
