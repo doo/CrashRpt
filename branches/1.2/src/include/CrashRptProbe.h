@@ -35,6 +35,7 @@ typedef int CrpHandle;
 CRASHRPTPROBE_API int
 crpOpenCrashReportW(
   LPCWSTR pszFileName,
+  LPCWSTR pszMd5Hash,
   CrpHandle* pHandle
 );
 
@@ -46,6 +47,7 @@ crpOpenCrashReportW(
 CRASHRPTPROBE_API int
 crpOpenCrashReportA(
   LPCSTR pszFileName,
+  LPCSTR pszMd5Hash,
   CrpHandle* pHandle
 );
 
