@@ -8,6 +8,7 @@
 #include "CrashDescReader.h"
 #include "MinidumpReader.h"
 #include "md5.h"
+#include "Utility.h"
 
 WTL::CAppModule _Module;
 
@@ -159,7 +160,20 @@ crpOpenCrashReportW(
   if(xml_index>=0)
   {
     zr = GetZipItem(hZip, xml_index, &ze);
-    int result = report_data.m_descReader.Load(ze.name);    
+    if(zr!=ZR_OK)
+    {
+      goto exit; // Can't get ZIP element
+    }
+
+    CString sTempFile = CUtility::getTempFileName();
+    zr = UnzipItem(hZip, xml_index, sTempFile);
+    if(zr!=ZR_OK)
+    {
+      goto exit; // Can't unzip ZIP element
+    }
+
+    int result = report_data.m_descReader.Load(sTempFile);    
+    DeleteFile(sTempFile);
     if(result!=0)
     {
       goto exit; // Corrupted XML
