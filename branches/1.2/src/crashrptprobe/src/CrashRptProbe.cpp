@@ -11,6 +11,10 @@
 #include "Utility.h"
 
 WTL::CAppModule _Module;
+CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
+std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
+
+int crpSetErrorMsg(PTSTR pszErrorMsg);
 
 struct CrpReportData
 {
@@ -45,6 +49,8 @@ CString GetExtension(CString sFileName)
 
 int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 {  
+  crpSetErrorMsg(_T("Unspecified error."));
+
   BYTE buff[512];
   MD5 md5;
   MD5_CTX md5_ctx;
@@ -59,6 +65,7 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 
   if(f==NULL)
   {
+    crpSetErrorMsg(_T("Couldn't open ZIP file."));
     return -1; // Couldn't open ZIP file
   }
 
@@ -84,6 +91,7 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
     sMD5Hash += number;
   } 
  
+  crpSetErrorMsg(_T("Success."));
   return 0;
 }
 
@@ -103,13 +111,19 @@ crpOpenCrashReportW(
   int xml_index = -1;
   int dmp_index = -1;
   CString sCalculatedMD5Hash;
+
+  crpSetErrorMsg(_T("Unspecified error."));
   
   // Check ZIP integrity
   if(pszMd5Hash!=NULL)
   {
     int result = CalcFileMD5Hash(pszFileName, sCalculatedMD5Hash);
-    if(result!=0 || sCalculatedMD5Hash.CompareNoCase(pszMd5Hash)!=0)
-    {
+    if(result!=0)
+      goto exit;
+
+    if(sCalculatedMD5Hash.CompareNoCase(pszMd5Hash)!=0)
+    {  
+      crpSetErrorMsg(_T("File might be corrupted, because MD5 hash is wrong."));
       goto exit; // Invalid hash
     }
   }
@@ -117,7 +131,10 @@ crpOpenCrashReportW(
   // Open ZIP archive
   hZip = OpenZip(pszFileName, 0);
   if(hZip==NULL)
+  {
+    crpSetErrorMsg(_T("Error opening ZIP archive."));
     goto exit;
+  }
 
   // Look for v1.1 crash descriptor XML
   zr = FindZipItem(hZip, _T("crashrpt.xml"), false, &xml_index, &ze);
@@ -153,6 +170,7 @@ crpOpenCrashReportW(
   // Check that both xml and dmp found
   if(xml_index<0 || dmp_index<0)
   {
+    crpSetErrorMsg(_T("File is not a valid crash report (XML or DMP missing)."));
     goto exit; // XML or DMP not found 
   }
 
@@ -162,6 +180,7 @@ crpOpenCrashReportW(
     zr = GetZipItem(hZip, xml_index, &ze);
     if(zr!=ZR_OK)
     {
+      crpSetErrorMsg(_T("Error retrieving ZIP item."));
       goto exit; // Can't get ZIP element
     }
 
@@ -169,6 +188,7 @@ crpOpenCrashReportW(
     zr = UnzipItem(hZip, xml_index, sTempFile);
     if(zr!=ZR_OK)
     {
+      crpSetErrorMsg(_T("Error extracting ZIP item."));
       goto exit; // Can't unzip ZIP element
     }
 
@@ -176,6 +196,7 @@ crpOpenCrashReportW(
     DeleteFile(sTempFile);
     if(result!=0)
     {
+      crpSetErrorMsg(_T("Crash descriptor is not a valid XML file."));
       goto exit; // Corrupted XML
     }
   }  
@@ -186,6 +207,8 @@ crpOpenCrashReportW(
   // Add handle to the list of opened handles
   nNewHandle = (int)g_OpenedHandles.size()+1;
   g_OpenedHandles[nNewHandle] = report_data;
+
+  crpSetErrorMsg(_T("Success."));
 
 exit:
 
@@ -267,6 +290,64 @@ crpExtractFileA(
   LPCSTR lpszFileSaveAs
 );
 
+int crpGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
+{
+  if(pszBuffer==NULL || uBuffSize==0)
+    return -1; // Null pointer to buffer
+
+  USES_CONVERSION;
+
+  g_cs.Lock();
+
+  DWORD dwThreadId = GetCurrentThreadId();
+  std::map<DWORD, CString>::iterator it = g_sErrorMsg.find(dwThreadId);
+
+  if(it==g_sErrorMsg.end())
+  {
+    // No error message for current thread.
+    CString sErrorMsg = _T("No error.");
+	  LPWSTR pwszErrorMsg = T2W(sErrorMsg.GetBuffer(0));
+	  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
+    int size =  sErrorMsg.GetLength();
+    g_cs.Unlock();
+    return size;
+  }
+  
+  LPWSTR pwszErrorMsg = T2W(it->second.GetBuffer(0));
+  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, uBuffSize-1);
+  int size = it->second.GetLength();
+  g_cs.Unlock();
+  return size;
+}
+
+int crpGetLastErrorMsgA(LPSTR pszBuffer, UINT uBuffSize)
+{  
+  if(pszBuffer==NULL)
+    return -1;
+
+  USES_CONVERSION;
+
+  WCHAR* pwszBuffer = new WCHAR[uBuffSize];
+    
+  int res = crpGetLastErrorMsgW(pwszBuffer, uBuffSize);
+  
+  LPSTR paszBuffer = W2A(pwszBuffer);  
+
+  STRCPY_S(pszBuffer, uBuffSize, paszBuffer);
+
+  delete [] pwszBuffer;
+
+  return res;
+}
+
+int crpSetErrorMsg(PTSTR pszErrorMsg)
+{  
+  g_cs.Lock();
+  DWORD dwThreadId = GetCurrentThreadId();
+  g_sErrorMsg[dwThreadId] = pszErrorMsg;
+  g_cs.Unlock();
+  return 0;
+}
 
 // DllMain
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)

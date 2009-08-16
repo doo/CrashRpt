@@ -186,5 +186,22 @@ crpExtractFileA(
 #endif //UNICODE
 
 
+CRASHRPTPROBE_API
+int
+crpGetLastErrorMsgW(
+  LPTSTR pszBuffer, 
+  UINT uBuffSize);
+
+CRASHRPTPROBE_API
+int
+crpGetLastErrorMsgA(
+  LPSTR pszBuffer, 
+  UINT uBuffSize);
+
+#ifdef UNICODE
+#define crpGetLastErrorMsg crpGetLastErrorMsgW
+#else
+#define crpGetLastErrorMsg crpGetLastErrorMsgA
+#endif //UNICODE
 
 #endif __CRASHRPT_PROBE_H__
