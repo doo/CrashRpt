@@ -54,7 +54,7 @@ You can create a topic in crashpt group http://groups.google.com/group/crashrpt 
 
 = Using crashrpt =
 
-== What programming languages I can use crashrpt in? ==
+== What programming languages can I use crashrpt in? ==
 
 You can use CrashRpt in C++ programs created using Visual C++. You can't use it in .net or Visual Basic. 
 
