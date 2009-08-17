@@ -154,6 +154,12 @@ Typically your process (EXE) loads `CrashRpt.dll` into process address space whe
 
 It is enough to set exception handlers in the process once. No need to set handlers in each DLL's `DllMain()` function, because handlers work on per-process basis.
 
+== My software is not an EXE, but DLL. Can I use crashrpt in such case? ==
+
+Well, you can install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
+
+It would be better if the client process take care of exception handling instead of your DLL.
+
 == How do I use crashrpt across process boundaries? == 
 
 Each process loads its own copy of 'CrashRpt.dll'. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently CrashRpt doesn't support such possiblity. 
