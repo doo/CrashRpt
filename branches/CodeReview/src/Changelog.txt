@@ -4,6 +4,8 @@
 
 - Improved documentation; Added info on compiling CrashRpt in VC++ Express
 
+- Add "extern "C"" to API function declarations
+
 - Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.
 
 - Fixed some compilation warnings in VC++ Express
