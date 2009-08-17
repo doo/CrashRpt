@@ -156,7 +156,7 @@ It is enough to set exception handlers in the process once. No need to set handl
 
 == My software is not an EXE, but DLL. Can I use crashrpt in such case? ==
 
-Well, you can install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
+Well, you can install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
 
 It would be better if the client process take care of exception handling instead of your DLL.
 
