@@ -70,7 +70,7 @@ Since v1.1.1 of CrashRpt you can compile and use CrashRpt in Visual C++ Express 
 
 == How do I compile crashrpt in Visual C++ Express? ==
 
-CrashRpt depends on WTL library. First of all, download the latest version of WTL from here http://sourceforge.net/projects/wtl/ WTL is an open source project that is constantly evolves and adapts to new versions of Visual Studio (including VS Express). The latest version at the moment is WTL 8.1.
+CrashRpt depends on WTL library. First of all, download the latest version of WTL from here http://sourceforge.net/projects/wtl/ WTL is an open source project which constantly evolves and adapts to new versions of Visual Studio (including VS Express). The latest version at the moment is WTL 8.1.
 
 Unzip WTL archive to any folder. In VC++ Express window, open Tools->Options...->Projects and Solutions->VC++ Directories. In the 'Show directories for' combo, select 'Include files' and then add WTL\include path to the list of include directories.
 
