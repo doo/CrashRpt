@@ -167,7 +167,6 @@ int CUtility::GenerateGUID(CString& sGUID)
 int CUtility::GetOSFriendlyName(CString& sOSName)
 {
   sOSName.Empty();
-
   CRegKey regKey;
   LONG lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), KEY_READ);
   if(lResult==ERROR_SUCCESS)
@@ -183,19 +182,27 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
 
     buf_size = 1023;
     if(ERROR_SUCCESS == regKey.QueryValue(buf, PRODUCT_NAME, &buf_size))
-      sOSName = CString(buf, buf_size);
+    {
+      sOSName += buf;
+    }
     
     buf_size = 1023;
     if(ERROR_SUCCESS == regKey.QueryValue(buf, CURRENT_BUILD_NUMBER, &buf_size))
-      sOSName += _T(" Build ") + CString(buf, buf_size);
+    {
+      sOSName += _T(" Build ");
+      sOSName += buf;
+    }
 
     buf_size = 1023;
     if(ERROR_SUCCESS == regKey.QueryValue(buf, CSD_VERSION, &buf_size))
-      sOSName += _T(" ") + CString(buf, buf_size);
+    {
+      sOSName += _T(" ");
+      sOSName += buf;
+    }
 
 #pragma warning(default:4996)
 
-    regKey.Close();
+    regKey.Close();    
     return 0;
   }
 

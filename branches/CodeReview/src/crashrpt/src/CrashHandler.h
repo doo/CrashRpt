@@ -105,7 +105,9 @@ public:
       LPCTSTR lpcszTo = NULL,             
       LPCTSTR lpcszSubject = NULL,
       LPCTSTR lpcszUrl = NULL,
-      UINT (*puPriorities)[3] = NULL);
+      UINT (*puPriorities)[3] = NULL,
+      DWORD dwFlags = CR_INST_ALL_HANDLERS,
+      LPCTSTR lpcszPrivacyPolicyURL = NULL);
 
    //-----------------------------------------------------------------------------
    // Destroy
@@ -172,7 +174,7 @@ public:
    // Return value
    //   none
    int 
-   SetProcessCPPExceptionHandlers();
+   SetProcessCPPExceptionHandlers(DWORD dwFlags);
 
    //-----------------------------------------------------------------------------
    // UnSetProcessCPPExceptionHandlers
@@ -199,7 +201,7 @@ public:
    //   none
 
    int 
-   SetThreadCPPExceptionHandlers();
+   SetThreadCPPExceptionHandlers(DWORD dwFlags);
 
    //-----------------------------------------------------------------------------
    // UnSetThreadCPPExceptionHandlers
@@ -266,6 +268,7 @@ protected:
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
+  CString m_sPrivacyPolicyURL;   // Privacy policy URL
 
   BOOL m_bInitialized;
 };

@@ -95,7 +95,9 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pfnCrashCallback = CrashCallback;    
   info.uPriorities[CR_HTTP] = 3;
   info.uPriorities[CR_SMTP] = 2;
-  info.uPriorities[CR_SMAPI] = 1;  
+  info.uPriorities[CR_SMAPI] = 1; 
+  info.dwFlags = CR_INST_ALL_HANDLERS;
+  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt");
     
   int nInstResult = crInstall(&info);
   ATLASSERT(nInstResult==0);

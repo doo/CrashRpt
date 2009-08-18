@@ -248,10 +248,27 @@ GenerateErrorReport(
 
 #endif //_CRASHRPT_REMOVE_DEPRECATED
 
-
+// Array indices for CR_INSTALL_INFO::uPriorities
 #define CR_HTTP 0 //!< Send error report via HTTP connection
 #define CR_SMTP 1 //!< Send error report via SMTP connection
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client)
+
+// Flags for CR_INSTALL_INFO::dwFlags
+#define CR_INST_STRUCTURED_EXCEPTION_HANDLER   1    //!< Install structured exception handler
+#define CR_INST_TERMINATE_HANDLER              2    //!< Install terminate handler
+#define CR_INST_UNEXPECTED_HANDLER             4    //!< Install unexpected handler
+#define CR_INST_PURE_CALL_HANDLER              8    //!< Install pure call handler (VS .NET and later)
+#define CR_INST_NEW_OPERATOR_ERROR_HANDLER     16   //!< Install new operator error handler (VS .NET and later)
+#define CR_INST_SECURITY_ERROR_HANDLER         32   //!< Install security errror handler (VS .NET and later)
+#define CR_INST_INVALID_PARAMETER_HANDLER      64   //!< Install invalid parameter handler (VS 2005 and later)
+#define CR_INST_SIGABRT_HANDLER                128  //!< Install SIGABRT signal handler
+#define CR_INST_SIGFPE_HANDLER                 256  //!< Install SIGFPE signal handler   
+#define CR_INST_SIGILL_HANDLER                 512  //!< Install SIGILL signal handler  
+#define CR_INST_SIGINT_HANDLER                 1024 //!< Install SIGINT signal handler  
+#define CR_INST_SIGSEGV_HANDLER                2048 //!< Install SIGSEGV signal handler
+#define CR_INST_SIGTERM_HANDLER                4096 //!< Install SIGTERM signal handler  
+
+#define CR_INST_ALL_HANDLERS 0x1FFF //!< Install all exception handlers
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -259,40 +276,43 @@ GenerateErrorReport(
  *
  *  \remarks
  *
- *    - \c cb should always contain size of this structure in bytes. 
+ *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
+ *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
  *
- *    - \c pszAppName is a friendly name of client application. The application name is
- *         displayed in Error Report dialog. This parameter can be NULL.
- *         If this parameter is NULL, the name of EXE file that was used to start caller
- *         process becomes the application name.
+ *    \a cb should always contain size of this structure in bytes. 
  *
- *    - \c pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
- *         If it equals to NULL, product version extracted from executable file which started the process and 
- *         the product version is used as application version.
+ *    \a pszAppName is a friendly name of client application. The application name is
+ *       displayed in Error Report dialog. This parameter can be NULL.
+ *       If this parameter is NULL, the name of EXE file that was used to start caller
+ *       process becomes the application name.
+ *
+ *    \a pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
+ *       If it equals to NULL, product version is extracted from the executable file which started 
+ *       the process and this product version is used as application version.
  * 
- *    - \c pszEmailTo is the email address of the recipient of error reports, for example
- *         "name@example.com". 
- *         This parameter can be NULL. If it equals to NULL, the crash report won't be sent using
- *         E-mail client.
+ *    \a pszEmailTo is the email address of the recipient of error reports, for example
+ *       "name@example.com". 
+ *       This parameter can be NULL. If it equals to NULL, the crash report won't be sent using
+ *       E-mail client.
  *
- *    - \c pszEmailSubject is the subject of the email message. If this parameter is NULL,
- *         the default subject of form '<app_name> <app_version> Error Report' is generated.
+ *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
+ *       the default subject of form '<app_name> <app_version> Error Report' is generated.
  *
- *    - \c pszUrl is the URL of a server-side script that would receive crash report data via HTTP
- *         connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
+ *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP
+ *       connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
  *
- *    - \c pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
- *         The crash sender process is responsible for letting end user know about the crash and 
- *         sending the error report.
- *         This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
- *         the same directory as CrashRpt.dll.
+ *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
+ *       The crash sender process is responsible for letting end user know about the crash and 
+ *       sending the error report.
+ *       This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
+ *       the same directory as CrashRpt.dll.
  *
- *    - \c pfnCrashCallback is a pointer to the LPGETLOGFILE() crash callback function. The crash callback function is
+ *    \a pfnCrashCallback is a pointer to the LPGETLOGFILE() crash callback function. The crash callback function is
  *         called by CrashRpt when crash occurs and allows user to add custom files to the 
  *         error report or perform other actions. This parameter can be NULL.
  *         If NULL, crash callback is not called.
  *
- *    - \c uPriorities is an array that defines the preferred ways of sending error reports. 
+ *    \a uPriorities is an array that defines the preferred ways of sending error reports. 
  *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
  *         A priority may be an integer number greater or equal to zero.
  *         The element having index CR_HTML defines priority for using HTML connection.
@@ -302,22 +322,38 @@ GenerateErrorReport(
  *         connection will be tried first, SMTP connection will be tried second and simple MAPI will be tried
  *         last. 
  *
- *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
- *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
+ *    \a dwFlags can be used to select what exception handlers to install. 
+ *    Set this member with CR_INST_ALL_HANDLERS to install all possible exception handlers or
+ *    use a combination of the following values:
+ *       
+ *      - \c CR_INST_STRUCTURED_EXCEPTION_HANDLER   Install structured exception handler
+ *      - \c CR_INST_PURE_CALL_HANDLER              Install pure call handler (VS .NET and later)
+ *      - \c CR_INST_NEW_OPERATOR_ERROR_HANDLER     Install new operator error handler (VS .NET and later)
+ *      - \c CR_INST_SECURITY_ERROR_HANDLER         Install security errror handler (VS .NET and later)
+ *      - \c CR_INST_INVALID_PARAMETER_HANDLER      Install invalid parameter handler (VS 2005 and later)
+ *      - \c CR_INST_SIGABRT_HANDLER                Install SIGABRT signal handler
+ *      - \c CR_INST_SIGINT_HANDLER                 Install SIGINT signal handler  
+ *      - \c CR_INST_SIGTERM_HANDLER                Install SIGTERM signal handler  
+ *
+ *   \a pszPrivacyPolicyURL defines the URL for Data Submission Privacy Policy hyperlink of the 
+ *   Error Report dialog. If this parameter is NULL, the link is not displayed.
+ *   
  *        
  */
 
 typedef struct tagCR_INSTALL_INFOW
 {
-  WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
+  WORD cb;                        //!< Size of this structure in bytes; must be initialized before using!
   LPCWSTR pszAppName;             //!< Name of application.
   LPCWSTR pszAppVersion;          //!< Application version.
   LPCWSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
   LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
   LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
   LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-  LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
-  UINT uPriorities[3];           //!< Array of error sending transport priorities.
+  LPGETLOGFILE pfnCrashCallback;  //!< User crash callback.
+  UINT uPriorities[3];            //!< Array of error sending transport priorities.
+  DWORD dwFlags;                  //!< Flags.
+  LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
 }
 CR_INSTALL_INFOW;
 
@@ -330,7 +366,7 @@ typedef CR_INSTALL_INFOW *PCR_INSTALL_INFOW;
 
 typedef struct tagCR_INSTALL_INFOA
 {
-  WORD cb;                      //!< Size of this structure in bytes; must be initialized before using!
+  WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
   LPCSTR pszAppName;             //!< Name of application.
   LPCSTR pszAppVersion;          //!< Application version.
   LPCSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
@@ -339,6 +375,8 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
+  DWORD dwFlags;                 //!< Flags.
+  LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
 }
 CR_INSTALL_INFOA;
 
@@ -425,6 +463,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      info.uPriorities[CR_HTTP] = 3; // Try HTTP first
  *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
  *      info.uPriorities[CR_SMAPI] = 1; // Try system email program last
+ *      info.dwFlags = CR_INST_ALL_HANDLERS;
+ *      info.sPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
  *
  *      int nInstResult = crInstall(&info);
  *      assert(nInstResult==0);
@@ -493,7 +533,7 @@ crUninstall();
 
 
 /*! \ingroup CrashRptAPI  
- *  \brief Installs C++ exception/error handlers for the current thread.
+ *  \brief Installs exception handlers to the current thread.
  *
  *  \return This function returns zero if succeeded.
  *   
@@ -543,12 +583,59 @@ crUninstall();
  *
  *   \endcode
  *
- *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
+ *   \sa crInstallToCurrentThread(), crInstallToCurrentThread2(),
+ *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
 CRASHRPTAPI 
 int 
 crInstallToCurrentThread();
+
+/*! \ingroup CrashRptAPI
+ *  \brief Installs exception handlers to the caller thread.
+ *  \return This function returns zero if succeeded.
+ *  \param[in] dwFlags Flags.
+ *
+ *  \remarks
+ * 
+ *   This function sets C++ exception handlers for the caller thread. If you have
+ *   several execution threads, you ought to call the function for each thread,
+ *   except the main thread.
+ *   
+ *  This function works the same way as crInstallToCurrentThread(), but provides
+ *  an ability to select which exception handlers to install.
+ *
+ *  \a dwFlags defines what exception handlers to install. 
+ *
+ *  Set this parameter with CR_INST_ALL_HANDLERS to install all possible exception
+ *  handlers or use a combination of the following constants:
+ *
+ *      - \c CR_INST_TERMINATE_HANDLER              Install terminate handler
+ *      - \c CR_INST_UNEXPECTED_HANDLER             Install unexpected handler
+ *      - \c CR_INST_SIGFPE_HANDLER                 Install SIGFPE signal handler   
+ *      - \c CR_INST_SIGILL_HANDLER                 Install SIGILL signal handler  
+ *      - \c CR_INST_SIGSEGV_HANDLER                Install SIGSEGV signal handler 
+ *
+ *   DWORD WINAPI ThreadProc(LPVOID lpParam)
+ *   {
+ *     // Install exception handlers
+ *     crInstallToCurrentThread2(CR_INST_ALL_HANDLERS);
+ *
+ *     // Your code...
+ *
+ *     // Uninstall exception handlers
+ *     crUninstallFromCurrentThread();
+ *    
+ *     return 0;
+ *   }
+ 
+ *  \sa 
+ *    crInstallToCurrentThread()
+ */
+
+CRASHRPTAPI 
+int 
+crInstallToCurrentThread2(DWORD dwFlags);
 
 /*! \ingroup CrashRptAPI  
  *  \brief Uninstalls C++ exception handlers from the current thread.
@@ -567,13 +654,13 @@ crInstallToCurrentThread();
  *    No need to call this function for the main execution thread. The crUninstall()
  *    will automatically uninstall C++ exception handlers for the main thread.
  *
- *   \sa crInstallToCurrentThread(), crUninstallFromCurrentThread(), CrThreadAutoUninstallHelper
+ *   \sa crInstallToCurrentThread(), crInstallToCurrentThread2(),
+ *       crUninstallFromCurrentThread(), CrThreadAutoUninstallHelper
  */
 
 CRASHRPTAPI 
 int 
 crUninstallFromCurrentThread();
-
 
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a file to crash report.
@@ -635,20 +722,10 @@ crAddFileA(
 #define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
-
-#if _MSC_VER>=1300
-#define CR_CPP_PURE_CALL                3    //!< C++ pure virtual function call.
-#define CR_CPP_NEW_OPERATOR_ERROR       4    //!< C++ new operator fault.
-#endif
-
-#if _MSC_VER>=1300 && _MSC_VER<1400
-#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error.
-#endif
-
-#if _MSC_VER>=1400
-#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception.
-#endif
-
+#define CR_CPP_PURE_CALL                3    //!< C++ pure virtual function call (VS .NET and later).
+#define CR_CPP_NEW_OPERATOR_ERROR       4    //!< C++ new operator fault (VS .NET and later).
+#define CR_CPP_SECURITY_ERROR           5    //!< Buffer overrun error (VS .NET only).
+#define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception (VS 2005 and later).
 #define CR_CPP_SIGABRT                  7    //!< C++ SIGABRT signal (abort).
 #define CR_CPP_SIGFPE                   8    //!< C++ SIGFPE signal (flotating point exception).
 #define CR_CPP_SIGILL                   9   //!< C++ SIGILL signal (illegal instruction).
@@ -928,8 +1005,9 @@ crGetLastErrorMsgA(
 #define crGetLastErrorMsg crGetLastErrorMsgA
 #endif //UNICODE
 
-
 //// Helper wrapper classes
+
+#ifndef _CRASHRPT_NO_WRAPPERS
 
 /*! \class CrAutoInstallHelper
  *  \ingroup CrashRptWrappers
@@ -1047,6 +1125,7 @@ public:
   int m_nInstallStatus;
 };
 
+#endif //!_CRASHRPT_NO_WRAPPERS
 
 #endif //_CRASHRPT_H_
 

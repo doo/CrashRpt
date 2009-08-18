@@ -72,9 +72,8 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
 
   // Validate input parameters.
   if(pInfo==NULL || 
-     pInfo->cb!=sizeof(CR_INSTALL_INFOW))
-  {
-    ATLASSERT(pInfo->cb==sizeof(CR_INSTALL_INFO));
+     pInfo->cb!=sizeof(CR_INSTALL_INFOW))     
+  {    
     ATLASSERT(pInfo != NULL);        
     crSetErrorMsg(_T("pInfo is NULL or pInfo->cb member is not valid."));
     return 1; 
@@ -105,6 +104,7 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszEmailTo = strconv.w2t((LPWSTR)pInfo->pszEmailTo);
   LPCTSTR ptszEmailSubject = strconv.w2t((LPWSTR)pInfo->pszEmailSubject);
   LPCTSTR ptszUrl = strconv.w2t((LPWSTR)pInfo->pszUrl);
+  LPCTSTR ptszPrivacyPolicyURL = strconv.w2t((LPWSTR)pInfo->pszPrivacyPolicyURL);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -114,7 +114,9 @@ CRASHRPTAPI int crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszEmailTo,
     ptszEmailSubject,
     ptszUrl,
-    &pInfo->uPriorities);
+    &pInfo->uPriorities,
+    pInfo->dwFlags,
+    ptszPrivacyPolicyURL);
   
   if(nInitResult!=0)
   {
@@ -140,6 +142,7 @@ CRASHRPTAPI int crInstallA(CR_INSTALL_INFOA* pInfo)
   LPCWSTR lpwszEmailSubject = NULL;
   LPCWSTR lpwszEmailTo = NULL;
   LPCWSTR lpwszUrl = NULL;
+  LPCWSTR lpwszPrivacyPolicyURL = NULL;
 
   CR_INSTALL_INFOW ii;
   memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
@@ -184,6 +187,14 @@ CRASHRPTAPI int crInstallA(CR_INSTALL_INFOA* pInfo)
 
   memcpy(&ii.uPriorities, pInfo->uPriorities, 3*sizeof(UINT));
 
+  ii.dwFlags = pInfo->dwFlags;
+
+  if(pInfo->pszPrivacyPolicyURL!=NULL)
+  {
+    lpwszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
+    ii.pszPrivacyPolicyURL = lpwszPrivacyPolicyURL;
+  }
+
   return crInstallW(&ii);
 }
 
@@ -216,7 +227,7 @@ CRASHRPTAPI int crUninstall()
 }
 
 // Sets C++ exception handlers for the calling thread
-CRASHRPTAPI int crInstallToCurrentThread()
+CRASHRPTAPI int crInstallToCurrentThread2(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -230,7 +241,7 @@ CRASHRPTAPI int crInstallToCurrentThread()
     return 1; 
   }
 
-  int nResult = pCrashHandler->SetThreadCPPExceptionHandlers();
+  int nResult = pCrashHandler->SetThreadCPPExceptionHandlers(dwFlags);
   if(nResult!=0)
     return 2; // Error?
 
@@ -259,6 +270,13 @@ CRASHRPTAPI int crUninstallFromCurrentThread()
 
   // OK.
   return 0;
+}
+
+CRASHRPTAPI 
+int 
+crInstallToCurrentThread()
+{
+  return crInstallToCurrentThread2(CR_INST_ALL_HANDLERS);
 }
 
 CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
