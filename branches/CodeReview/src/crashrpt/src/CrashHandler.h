@@ -150,75 +150,18 @@ public:
    // Remarks
    //    Call this function to manually generate a crash report.
    //
-   int 
-   GenerateErrorReport(
-      PCR_EXCEPTION_INFO pExceptionInfo = NULL
-      );
-
-
-   //-----------------------------------------------------------------------------
-   //
-   //
-
-   int GenerateCrashDescriptorXML(
-     LPTSTR pszFileName, 
+   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
+  
+   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
-   //-----------------------------------------------------------------------------
-   // SetProcessCPPExceptionHandlers
-   //   Installs C++ exception handlers for the current process
-   //
-   // Parameters
-   //   none   
-   //
-   // Return value
-   //   none
-   int 
-   SetProcessCPPExceptionHandlers(DWORD dwFlags);
+   int SetProcessExceptionHandlers(DWORD dwFlags);
+   int UnSetProcessExceptionHandlers();
 
-   //-----------------------------------------------------------------------------
-   // UnSetProcessCPPExceptionHandlers
-   //   Uninstalls C++ exception handlers that were previously installed with 
-   //   SetProcessCPPExceptionHandlers() function call.
-   //
-   // Parameters 
-   //   none
-   //
-   // Return value
-   //   none
-   int 
-   UnSetProcessCPPExceptionHandlers();
-
-   //-----------------------------------------------------------------------------
-   // SetThreadCPPExceptionHandlers
-   //  Installs C++ exception handlers that are functioning on per-thread basis.
-   //  This call will install such handlers for the current thread only.
-   //
-   // Parameters 
-   //   none
-   //
-   // Return value
-   //   none
-
-   int 
-   SetThreadCPPExceptionHandlers(DWORD dwFlags);
-
-   //-----------------------------------------------------------------------------
-   // UnSetThreadCPPExceptionHandlers
-   //  Uninstalls C++ exception handlers that were installed for the current
-   //  thread using SetThreadCPPExceptionHandlers() function call.
-   //
-   // Parameters 
-   //   none
-   //
-   // Return value
-   //   none
-
-   int 
-   UnSetThreadCPPExceptionHandlers();
+   int SetThreadExceptionHandlers(DWORD dwFlags);   
+   int UnSetThreadCPPExceptionHandlers();
   
-   static CCrashHandler* 
-   GetCurrentProcessCrashHandler();
+   static CCrashHandler* GetCurrentProcessCrashHandler();
 
 protected:
   

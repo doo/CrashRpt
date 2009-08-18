@@ -10,11 +10,17 @@
 
 #include <windows.h>
 
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
+#define EXTERNC
+#endif
+
 // This is needed for exporting/importing functions from/to CrashRpt.dll
 #ifdef CRASHRPT_EXPORTS
- #define CRASHRPTAPI extern "C" __declspec(dllexport) 
+ #define CRASHRPTAPI EXTERNC __declspec(dllexport) 
 #else 
- #define CRASHRPTAPI extern "C" __declspec(dllimport) 
+ #define CRASHRPTAPI EXTERNC __declspec(dllimport) 
 #endif
 
 //! Current CrashRpt version
@@ -335,6 +341,9 @@ GenerateErrorReport(
  *      - \c CR_INST_SIGINT_HANDLER                 Install SIGINT signal handler  
  *      - \c CR_INST_SIGTERM_HANDLER                Install SIGTERM signal handler  
  *
+ *   If no flags are specified, it is assumed that all possible exception handlers should be installed.
+ *   This is done for compatibility with older versions of CrashRpt.
+ *
  *   \a pszPrivacyPolicyURL defines the URL for Data Submission Privacy Policy hyperlink of the 
  *   Error Report dialog. If this parameter is NULL, the link is not displayed.
  *   
@@ -616,6 +625,12 @@ crInstallToCurrentThread();
  *      - \c CR_INST_SIGILL_HANDLER                 Install SIGILL signal handler  
  *      - \c CR_INST_SIGSEGV_HANDLER                Install SIGSEGV signal handler 
  *
+ *   If no flags are specified, it is assumed that all possible exception handlers should be installed.
+ *   This is done for compatibility with older versions of CrashRpt.
+ * 
+ *  Example:
+ *
+ *   \code
  *   DWORD WINAPI ThreadProc(LPVOID lpParam)
  *   {
  *     // Install exception handlers
@@ -628,7 +643,8 @@ crInstallToCurrentThread();
  *    
  *     return 0;
  *   }
- 
+ *   \endcode
+ * 
  *  \sa 
  *    crInstallToCurrentThread()
  */

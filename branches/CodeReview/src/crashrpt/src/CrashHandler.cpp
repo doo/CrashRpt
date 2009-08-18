@@ -54,7 +54,6 @@ struct _crash_handlers
 }
 g_CrashHandlers;
 
-
 LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
 {  
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
@@ -696,9 +695,14 @@ CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
   return it->second;
 }
 
-int CCrashHandler::SetProcessCPPExceptionHandlers(DWORD dwFlags)
+int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
+
+  // If 0 is specified as dwFlags, assume all handlers should be
+  // installed
+  if(dwFlags==0)
+    dwFlags = CR_INST_ALL_HANDLERS;
 
   if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
   {
@@ -773,7 +777,7 @@ int CCrashHandler::SetProcessCPPExceptionHandlers(DWORD dwFlags)
   return 0;
 }
 
-int CCrashHandler::UnSetProcessCPPExceptionHandlers()
+int CCrashHandler::UnSetProcessExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -811,9 +815,14 @@ int CCrashHandler::UnSetProcessCPPExceptionHandlers()
 }
 
 // Installs C++ exception handlers that function on per-thread basis
-int CCrashHandler::SetThreadCPPExceptionHandlers(DWORD dwFlags)
+int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
+
+  // If 0 is specified as dwFlags, assume all handlers should be
+  // installed
+  if(dwFlags==0)
+    dwFlags = CR_INST_ALL_HANDLERS;
 
   DWORD dwThreadId = GetCurrentThreadId();
 
@@ -879,7 +888,7 @@ int CCrashHandler::SetThreadCPPExceptionHandlers(DWORD dwFlags)
   return 0;
 }
 
-int CCrashHandler::UnSetThreadCPPExceptionHandlers()
+int CCrashHandler::UnSetThreadExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
 
