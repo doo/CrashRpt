@@ -213,7 +213,7 @@ CRASHRPTAPI int crUninstall()
   }
 
   // Uninstall main thread's C++ exception handlers
-  int nUnset = pCrashHandler->UnSetThreadCPPExceptionHandlers();
+  int nUnset = pCrashHandler->UnSetThreadExceptionHandlers();
   if(nUnset!=0)
     return 2;
 
@@ -241,7 +241,7 @@ CRASHRPTAPI int crInstallToCurrentThread2(DWORD dwFlags)
     return 1; 
   }
 
-  int nResult = pCrashHandler->SetThreadCPPExceptionHandlers(dwFlags);
+  int nResult = pCrashHandler->SetThreadExceptionHandlers(dwFlags);
   if(nResult!=0)
     return 2; // Error?
 
@@ -264,7 +264,7 @@ CRASHRPTAPI int crUninstallFromCurrentThread()
     return 1; // Invalid parameter?
   }
 
-  int nResult = pCrashHandler->UnSetThreadCPPExceptionHandlers();
+  int nResult = pCrashHandler->UnSetThreadExceptionHandlers();
   if(nResult!=0)
     return 2; // Error?
 

@@ -598,7 +598,7 @@ int CCrashHandler::Init(
   // Set C++ exception handlers
   InitPrevCPPExceptionHandlerPointers();
    
-  int nSetProcessHandlers = SetProcessCPPExceptionHandlers(dwFlags);   
+  int nSetProcessHandlers = SetProcessExceptionHandlers(dwFlags);   
   if(nSetProcessHandlers!=0)
   {
     ATLASSERT(nSetProcessHandlers==0);
@@ -606,7 +606,7 @@ int CCrashHandler::Init(
     return 1;
   }
 
-  int nSetThreadHandlers = SetThreadCPPExceptionHandlers(dwFlags);
+  int nSetThreadHandlers = SetThreadExceptionHandlers(dwFlags);
   if(nSetThreadHandlers!=0)
   {
     ATLASSERT(nSetThreadHandlers==0);

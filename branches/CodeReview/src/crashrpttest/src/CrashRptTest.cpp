@@ -88,7 +88,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
   info.pszAppName = _T("CrashRpt Tests");
-  info.pszAppVersion = _T("1.0.1");
+  info.pszAppVersion = _T("1.0.2");
   info.pszEmailSubject = _T("Error from CrashRptTests v1.0.1");
   info.pszEmailTo = _T("test@hotmail.com");
   info.pszUrl = _T("http://test.com/test.php");
@@ -97,7 +97,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.uPriorities[CR_SMTP] = 2;
   info.uPriorities[CR_SMAPI] = 1; 
   info.dwFlags = CR_INST_ALL_HANDLERS;
-  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt");
+  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
   int nInstResult = crInstall(&info);
   ATLASSERT(nInstResult==0);

@@ -159,7 +159,7 @@ public:
    int UnSetProcessExceptionHandlers();
 
    int SetThreadExceptionHandlers(DWORD dwFlags);   
-   int UnSetThreadCPPExceptionHandlers();
+   int UnSetThreadExceptionHandlers();
   
    static CCrashHandler* GetCurrentProcessCrashHandler();
 

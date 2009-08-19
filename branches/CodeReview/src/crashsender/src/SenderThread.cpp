@@ -192,8 +192,13 @@ BOOL SendOverSMAPI(SenderThreadContext* pc)
     }
   }
 
-  an.SetProgress(_T("Launching the default email client"), 10);
+  CString msg;
+  CString sMailClientName;
+  mailmsg.DetectMailClient(sMailClientName);
   
+  msg.Format(_T("Launching the default email client (%s)"), sMailClientName);
+  an.SetProgress(msg, 10);
+
   mailmsg.SetFrom(pc->m_sEmailFrom);
   mailmsg.SetTo(pc->m_sEmailTo);
   mailmsg.SetSubject(pc->m_sEmailSubject);
