@@ -264,7 +264,7 @@
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_LIB"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="true"
@@ -280,7 +280,7 @@
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="0"
-				OmitDefaultLibName="true"
+				OmitDefaultLibName="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -295,8 +295,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib shell32.lib Comdlg32.lib"
 				OutputFile="..\..\lib\CrashRptLIB.lib"
-				IgnoreAllDefaultLibraries="true"
+				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames=""
 			/>
 			<Tool

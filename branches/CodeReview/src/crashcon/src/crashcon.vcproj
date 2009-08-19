@@ -236,7 +236,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\crashrpt\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
@@ -262,9 +262,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="CrashRptLIB.lib"
 				OutputFile="..\..\bin\crashcon.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\crashcon.pdb"
 				SubSystem="1"

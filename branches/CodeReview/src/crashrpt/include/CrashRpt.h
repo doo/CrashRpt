@@ -10,6 +10,14 @@
 
 #include <windows.h>
 
+#ifndef CRASHRPT_LIB
+#define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
+#define CRASHRPT_DECLSPEC_IMPORT __declspec(dllimport) 
+#else
+#define CRASHRPT_DECLSPEC_DLLEXPORT 
+#define CRASHRPT_DECLSPEC_IMPORT
+#endif
+
 #ifdef __cplusplus
 #define CRASHRPT_EXTERN_C extern "C"
 #else
@@ -18,9 +26,9 @@
 
 // This is needed for exporting/importing functions from/to CrashRpt.dll
 #ifdef CRASHRPT_EXPORTS
- #define CRASHRPTAPI CRASHRPT_EXTERN_C __declspec(dllexport) 
+ #define CRASHRPTAPI CRASHRPT_EXTERN_C CRASHRPT_DECLSPEC_DLLEXPORT
 #else 
- #define CRASHRPTAPI CRASHRPT_EXTERN_C __declspec(dllimport) 
+ #define CRASHRPTAPI CRASHRPT_EXTERN_C CRASHRPT_DECLSPEC_IMPORT
 #endif
 
 //! Current CrashRpt version

@@ -990,16 +990,14 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      CString sDesc;
-      sDesc.LoadString(IDS_CRASH_DUMP);
+      CString sDesc = CUtility::LoadString(IDS_CRASH_DUMP);
       m_files[sFileName] = sDesc;
     }
     
     /* Create crash report descriptor file in XML format. */
   
     sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, CUtility::getAppName());
-    CString sDesc;
-    sDesc.LoadString(IDS_CRASH_LOG);
+    CString sDesc = CUtility::LoadString(IDS_CRASH_LOG);
     m_files[sFileName] = sDesc;
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
     ATLASSERT(result==0);

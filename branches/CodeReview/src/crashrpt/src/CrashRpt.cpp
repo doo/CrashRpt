@@ -3,7 +3,7 @@
 #include "CrashHandler.h"
 #include "Utility.h"
 
-WTL::CAppModule _Module;
+//WTL::CAppModule _Module;
 
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
@@ -656,11 +656,11 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 // --------------------------------------------------------------
 // DllMain()
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD /*fdwReason*/, LPVOID /*lpvReserved*/)
+BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/, DWORD /*fdwReason*/, LPVOID /*lpvReserved*/)
 {
-  HRESULT hRes = _Module.Init(NULL, hinstDLL);
-  ATLASSERT(SUCCEEDED(hRes));
-  hRes;
+  //HRESULT hRes = _Module.Init(NULL, hinstDLL);
+  //ATLASSERT(SUCCEEDED(hRes));
+  //hRes;
 
   return TRUE;
 }

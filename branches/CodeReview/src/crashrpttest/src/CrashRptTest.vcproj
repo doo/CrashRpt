@@ -238,9 +238,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\crashrpt\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
@@ -261,8 +261,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRpt.lib"
-				OutputFile="..\..\bin\CrashRptTest.exe"
+				AdditionalDependencies="CrashRptLIB.lib"
+				OutputFile="..\..\bin\CrashRptTestLIB.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
