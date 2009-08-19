@@ -492,17 +492,8 @@ int CCrashHandler::Init(
   if(lpcszPrivacyPolicyURL!=NULL)
     m_sPrivacyPolicyURL = lpcszPrivacyPolicyURL;
 
-  // Get crashrpt library name
-  CString sCrashRptName;
-
-#ifdef _DEBUG
-  sCrashRptName = _T("CrashRptd.dll");
-#else
-  sCrashRptName = _T("CrashRpt.dll");
-#endif //_DEBUG
-
   // Get handle to the CrashRpt module that is loaded by current process
-  HMODULE hCrashRptModule = GetModuleHandle(sCrashRptName);
+  HMODULE hCrashRptModule = GetModuleHandle(NULL);
   if(hCrashRptModule==NULL)
   {
     ATLASSERT(hCrashRptModule!=NULL);

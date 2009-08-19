@@ -279,8 +279,8 @@
 				WarnAsError="false"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="0"
-				OmitDefaultLibName="false"
+				DebugInformationFormat="3"
+				OmitDefaultLibName="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -297,7 +297,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zdll.lib version.lib shell32.lib Comdlg32.lib"
 				OutputFile="..\..\lib\CrashRptLIB.lib"
-				IgnoreAllDefaultLibraries="false"
+				IgnoreAllDefaultLibraries="true"
 				IgnoreDefaultLibraryNames=""
 			/>
 			<Tool
