@@ -75,9 +75,9 @@ public:
    // Remarks
    //    none
    //
-   static 
+  /* static 
    CString 
-   getSaveFileName();
+   getSaveFileName();*/
 	
    //-----------------------------------------------------------------------------
    // getTempFileName

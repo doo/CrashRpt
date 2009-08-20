@@ -32,11 +32,6 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
 	SetIcon(hIconSmall, FALSE);
 
-#if (_MSC_VER>1300 )
-  ::EnableWindow(GetDlgItem(IDC_MAIN_SECURITY), 0);
-  ::EnableWindow(GetDlgItem(IDC_THREAD_SECURITY), 0);
-#endif
-
 #if ( _MSC_VER<1400 )
   ::EnableWindow(GetDlgItem(IDC_MAIN_INVPAR), 0);
   ::EnableWindow(GetDlgItem(IDC_THREAD_INVPAR), 0);
