@@ -36,7 +36,6 @@ EXTERNC void * _ReturnAddress(void);
 
 #endif 
 
-
 // This internal structure contains the list of processes 
 // that had called crInstall().
 struct _crash_handlers
@@ -392,7 +391,7 @@ int CCrashHandler::Init(
   LPCTSTR lpcszTo, 
   LPCTSTR lpcszSubject,
   LPCTSTR lpcszUrl,
-  UINT (*puPriorities)[3],
+  UINT (*puPriorities)[5],
   DWORD dwFlags,
   LPCTSTR lpcszPrivacyPolicyURL)
 { 

@@ -105,7 +105,7 @@ public:
       LPCTSTR lpcszTo = NULL,             
       LPCTSTR lpcszSubject = NULL,
       LPCTSTR lpcszUrl = NULL,
-      UINT (*puPriorities)[3] = NULL,
+      UINT (*puPriorities)[5] = NULL,
       DWORD dwFlags = CR_INST_ALL_HANDLERS,
       LPCTSTR lpcszPrivacyPolicyURL = NULL);
 

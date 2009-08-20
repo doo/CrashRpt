@@ -13,6 +13,8 @@ LPVOID g_pCrashRptState = NULL;
 HANDLE g_hWorkingThread = NULL;
 CrashThreadInfo g_CrashThreadInfo;
 
+volatile double d = 0.0f; 
+
 // Helper function that returns path to application directory
 CString GetAppDir()
 {
