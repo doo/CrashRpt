@@ -99,9 +99,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.dwFlags = CR_INST_ALL_HANDLERS;
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
-  int nInstResult = crInstall(&info);
-  ATLASSERT(nInstResult==0);
-  nInstResult;
+  CrAutoInstallHelper cr_install_helper(&info);
+  ATLASSERT(cr_install_helper.m_nInstallStatus==0);  
 
 #endif //TEST_DEPRECATED_FUNCS
 
@@ -133,17 +132,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   // Wait until thread terminates
   WaitForSingleObject(g_hWorkingThread, INFINITE);
 
-  // Uninstall crash reporting
   
 #ifdef TEST_DEPRECATED_FUNCS
-
+  // Uninstall crash reporting
   Uninstall(g_pCrashRptState);
-
-#else
-  
-  int nUninstResult = crUninstall();
-  ATLASSERT(nUninstResult==0);
-  nUninstResult;
 
 #endif //TEST_DEPRECATED_FUNCS
 

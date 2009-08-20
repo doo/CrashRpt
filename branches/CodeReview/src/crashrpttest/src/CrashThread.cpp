@@ -46,8 +46,8 @@ DWORD WINAPI CrashThread(LPVOID pParam)
 {
   CrashThreadInfo* pInfo = (CrashThreadInfo*)pParam;
 
-  // Install per-thread C++ exception handlers
-  crInstallToCurrentThread();
+  // Install per-thread exception handlers
+  CrThreadAutoInstallHelper cr_install_helper(CR_INST_ALL_HANDLERS);
 
   for(;;)
   {
@@ -78,9 +78,6 @@ DWORD WINAPI CrashThread(LPVOID pParam)
     }
   }
 
-  // Uninstall handlers from current thread
-  crUninstallFromCurrentThread();
-  
   // Exit this thread
   return 0;
 }

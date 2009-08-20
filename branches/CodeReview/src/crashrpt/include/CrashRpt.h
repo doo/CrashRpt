@@ -286,12 +286,9 @@ GenerateErrorReport(
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
- *  \brief Crash reporting general info used by crInstall()
+ *  \brief This function defines general information used by crInstall()
  *
  *  \remarks
- *
- *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
- *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
  *
  *    \a cb should always contain size of this structure in bytes. 
  *
@@ -336,8 +333,8 @@ GenerateErrorReport(
  *         connection will be tried first, SMTP connection will be tried second and simple MAPI will be tried
  *         last. 
  *
- *    \a dwFlags can be used to select what exception handlers to install. 
- *    Set this member with CR_INST_ALL_HANDLERS to install all possible exception handlers or
+ *    <b>Since v1.1.2</b> \a dwFlags can be used to select what exception handlers to install. 
+ *    Set this member with \c CR_INST_ALL_HANDLERS to install all possible exception handlers or
  *    use a combination of the following values:
  *       
  *      - \c CR_INST_STRUCTURED_EXCEPTION_HANDLER   Install structured exception handler
@@ -352,9 +349,13 @@ GenerateErrorReport(
  *   If no flags are specified, it is assumed that all possible exception handlers should be installed.
  *   This is done for compatibility with older versions of CrashRpt.
  *
- *   \a pszPrivacyPolicyURL defines the URL for Data Submission Privacy Policy hyperlink of the 
+ *   <b>Since v1.1.2</b> \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
  *   Error Report dialog. If this parameter is NULL, the link is not displayed.
- *   
+ *
+ *  \note
+ *
+ *    CR_INSTALL_INFOW and CR_INSTALL_INFOA structures are wide-character and multi-byte character 
+ *    versions of CR_INSTALL_INFO(). CR_INSTALL_INFO() typedef defines character set independent mapping.
  *        
  */
 
@@ -368,7 +369,7 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
   LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
   LPGETLOGFILE pfnCrashCallback;  //!< User crash callback.
-  UINT uPriorities[3];            //!< Array of error sending transport priorities.
+  UINT uPriorities[5];            //!< Array of error sending transport priorities.
   DWORD dwFlags;                  //!< Flags.
   LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
 }
@@ -430,8 +431,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *     - C++ illegal instruction handler [ \c signal(SIGINT) ]
  *     - C++ termination request [ \c signal(SIGTERM) ]
  *
- *    In a multithreaded program, additionally use crInstallToCurrentThread() function for each execution
- *    thread, except the main thread.
+ *    In a multithreaded program, additionally use crInstallToCurrentThread2() function for each execution
+ *    thread, except the main one.
  * 
  *    The \c pInfo parameter contains all required information needed to install CrashRpt.
  *
@@ -444,7 +445,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    information that may be helpful for crash analysis. These files along with several additional
  *    files added with crAddFile() are packed to a single ZIP file.
  *
- *    When crash information is collected, another process, CrashSender, is launched 
+ *    When crash information is collected, another process, <b>CrashSender.exe</b>, is launched 
  *    and the process where crash had occured is terminated. The CrashSender process is 
  *    responsible for letting the user know about the crash and send the error report.
  * 
@@ -481,7 +482,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
  *      info.uPriorities[CR_SMAPI] = 1; // Try system email program last
  *      info.dwFlags = CR_INST_ALL_HANDLERS;
- *      info.sPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
+ *      info.szPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
  *
  *      int nInstResult = crInstall(&info);
  *      assert(nInstResult==0);
@@ -556,9 +557,9 @@ crUninstall();
  *   
  *  \remarks
  *   
- *   This function sets C++ exception handlers for the caller thread. If you have
+ *   This function sets exception handlers for the caller thread. If you have
  *   several execution threads, you ought to call the function for each thread,
- *   except the main thread.
+ *   except the main one.
  *  
  *   The list of C++ exception\error handlers installed with this function:
  *    - terminate handler [ \c set_terminate() ]
@@ -600,6 +601,9 @@ crUninstall();
  *
  *   \endcode
  *
+ *   The crInstallToCurrentThread2() function gives better control of what exception 
+ *   handlers to install. 
+ *
  *   \sa crInstallToCurrentThread(), crInstallToCurrentThread2(),
  *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
@@ -614,17 +618,18 @@ crInstallToCurrentThread();
  *  \param[in] dwFlags Flags.
  *
  *  \remarks
- * 
- *   This function sets C++ exception handlers for the caller thread. If you have
- *   several execution threads, you ought to call the function for each thread,
- *   except the main thread.
+ *
+ *  This function is available <b>since v.1.1.2</b>.
+ *
+ *  The function sets exception handlers for the caller thread. If you have
+ *  several execution threads, you ought to call the function for each thread,
+ *  except the main one.
  *   
- *  This function works the same way as crInstallToCurrentThread(), but provides
+ *  The function works the same way as crInstallToCurrentThread(), but provides
  *  an ability to select which exception handlers to install.
  *
- *  \a dwFlags defines what exception handlers to install. 
- *
- *  Set this parameter with CR_INST_ALL_HANDLERS to install all possible exception
+ *  \a dwFlags defines what exception handlers to install. Set this parameter 
+ *  with \c CR_INST_ALL_HANDLERS to install all possible exception
  *  handlers or use a combination of the following constants:
  *
  *      - \c CR_INST_TERMINATE_HANDLER              Install terminate handler
@@ -669,17 +674,19 @@ crInstallToCurrentThread2(DWORD dwFlags);
  *
  *    This function unsets C++ exception handlers for the caller thread. If you have
  *    several execution threads, you ought to call the function for each thread.
- *    After calling this function, the C++ exception handlers for current thread are
- *    replaced with the handlers that were before call of crInstallToCurrentThread().
+ *    After calling this function, the exception handlers for current thread are
+ *    replaced with the handlers that were before call of crInstallToCurrentThread() 
+ *    (or crInstallToCurrentThread2()).
  *
- *    This function fails if crInstallToCurrentThread() wasn't called for current thread.
+ *    This function fails if crInstallToCurrentThread() (or crInstallToCurrentThread2())
+ *    wasn't called for current thread.
  *    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
  *    No need to call this function for the main execution thread. The crUninstall()
  *    will automatically uninstall C++ exception handlers for the main thread.
  *
  *   \sa crInstallToCurrentThread(), crInstallToCurrentThread2(),
- *       crUninstallFromCurrentThread(), CrThreadAutoUninstallHelper
+ *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
 CRASHRPTAPI 
@@ -765,12 +772,13 @@ crAddFileA(
  *  This structure contains essential information needed to generate crash minidump file and
  *  provide the developer with other information about the error.
  *
- *  \c cb must contain the size of this structure in bytes.
+ *  \a cb must contain the size of this structure in bytes.
  *
- *  \c pexcptrs should contain the exception pointers. If this parameter is NULL, 
+ *  \a pexcptrs should contain the exception pointers. If this parameter is NULL, 
  *     the current CPU state is used to generate exception pointers.
  *
- *  \c exctype is the type of exception. This parameter may be one of the following:
+ *  \a exctype is the type of exception. This value can be used for crash report classification on developers' side. 
+ *  This parameter may be one of the following:
  *     - \c CR_WIN32_STRUCTURED_EXCEPTION Win32 structured exception
  *     - \c CR_CPP_TERMINATE_CALL        C++ terminate() function call
  *     - \c CR_CPP_UNEXPECTED_CALL       C++ unexpected() function call
@@ -785,15 +793,16 @@ crAddFileA(
  *     - \c CR_CPP_SIGSEGV C++ invalid storage access
  *     - \c CR_CPP_SIGTERM C++ termination request
  * 
- *   The \c exctype can be used for crash report classification on developers' side.
+ *   
  * 
- *   \c code is used if \c exctype is CR_WIN32_STRUCTURED_EXCEPTION and represents the structured exception code. 
- *   If \c pexptrs is NULL, this value is used to initialize \c pexptrs->ExceptionCode member, otherwise it is ignored.
+ *   \a code is used if \a exctype is \c CR_WIN32_STRUCTURED_EXCEPTION and represents the structured exception code. 
+ *   If \a pexptrs is NULL, this value is used when generating exception information for initializing
+ *   \c pexptrs->ExceptionCode member, otherwise it is ignored.
  *
- *   \c fpe_subcode is used if \c exctype is equal to CR_CPP_SIGFPE. It defines the floating point
+ *   \a fpe_subcode is used if \a exctype is equal to \c CR_CPP_SIGFPE. It defines the floating point
  *   exception subcode (see \c signal() function ducumentation in MSDN).
  * 
- *   \c expression, \c function, \c file and \c line are used when \c exctype is CR_CPP_INVALID_PARAMETER.
+ *   \a expression, \a function, \a file and \a line are used when \a exctype is \c CR_CPP_INVALID_PARAMETER.
  *   These members are typically non-zero when using debug version of CRT.
  *
  * 
@@ -1134,9 +1143,9 @@ class CrThreadAutoInstallHelper
 public:
 
   //! Installs exception handlers to the caller thread
-  CrThreadAutoInstallHelper()
+  CrThreadAutoInstallHelper(DWORD dwFlags=CR_INST_ALL_HANDLERS)
   {
-    m_nInstallStatus = crInstallToCurrentThread();
+    m_nInstallStatus = crInstallToCurrentThread2(dwFlags);    
   }
 
   //! Uninstalls exception handlers from the caller thread

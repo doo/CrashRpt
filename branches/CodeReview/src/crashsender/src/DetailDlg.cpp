@@ -61,8 +61,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
 
   // center the dialog on the screen
-	CenterWindow();
-  FlashWindow(TRUE);
+	CenterWindow();  
 
   return TRUE;
 }
