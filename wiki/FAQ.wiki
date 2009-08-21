@@ -33,18 +33,9 @@ The latest version of CrashRpt is v1.1.1.
 
 An older version, CrashRpt v1.0 is declared deprecated and not recommended for download.
 
-== Are there  any analogous software for crash reporting? ==
+== How can I show my appreciation of crashrpt project? ==
 
-Yes, they are listed in the table below:
-
-|| *Name* || *Description* || *Link* ||
-|| google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
-|| Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
-|| Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
-
-== How can I show my appreciation to crashrpt project? ==
-
-If you like this project and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make CrashRpt more significant to other users and support further development.
+If you like this project and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make CrashRpt more significant for other users and support further development.
 
 == How do I report a bug in crashrpt or request a new feature? ==
 
@@ -56,11 +47,22 @@ Note that creating an issue requires you to be signed in using Google account.
 
 You can create a topic in crashpt group http://groups.google.com/group/crashrpt and describe there how you would like to contribute. After that project owner will add your email to the list of project members and you will be able to make changes in source code.
 
+== Are there  any analogous software for crash reporting? ==
+
+Yes, they are listed in the table below:
+
+|| *Name* || *Description* || *Link* ||
+|| google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
+|| Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
+|| Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
+
+
+
 = Using crashrpt =
 
 == What programming languages can I use crashrpt in? ==
 
-You can use CrashRpt in C++ programs created using Visual C++. You can't use it in .net or Visual Basic. 
+You can use CrashRpt in C++ programs created using Visual C++. You can't use it in .NET or Visual Basic. 
 
 CrashRpt is specific to Visual C++. It intercepts structured WIN32 exceptions that are Windows-specific and in theory can be intercepted in other languages, too. But also it intercepts C run-time libraries (CRT) errors. These errors are Visual C++ specific, other languages have different error handling mechanisms.
 
