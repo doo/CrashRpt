@@ -325,8 +325,8 @@ GenerateErrorReport(
  *         The element having index CR_SMTP defines priority for using SMTP connection.
  *         The element having index CR_SMAPI defines priority for using the default mail client.
  *         The ways having greater priority will be tried first. If priorities are equal to each other, HTML
- *         connection will be tried first, SMTP connection will be tried second and simple MAPI will be tried
- *         last. 
+ *         connection will be tried the first, SMTP connection will be tried the second and simple MAPI will be tried
+ *         the last. 
  *
  *    <b>Since v1.1.2</b> \a dwFlags can be used to select what exception handlers to install. 
  *    Set this member with zero to install all possible exception handlers or
@@ -410,7 +410,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *
  *  \remarks
  *    This function installs unhandled exception filter for all threads of caller process.
- *    It also installs various C++ exception/error handlers that function for all threads of the caller process.
+ *    It also installs various CRT exception/error handlers that function for all threads of the caller process.
  *    For more information, see \ref exception_handling
  *
  *    Below is the list of installed handlers:
@@ -473,8 +473,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      info.uPriorities[CR_HTTP] = 3; // Try HTTP first
  *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
  *      info.uPriorities[CR_SMAPI] = 1; // Try system email program last
- *      info.dwFlags = CR_INST_ALL_HANDLERS;
- *      info.szPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
+ *      info.dwFlags = 0; // Install all available exception handlers
+ *      info.pszPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
  *
  *      int nInstResult = crInstall(&info);
  *      assert(nInstResult==0);
@@ -526,7 +526,7 @@ crInstallA(
  *
  *    Call this function on application exit to uninstall exception
  *    handlers previously installed with crInstall(). After function call, the exception handlers
- *    are restored to states that they had before calling crInstall().
+ *    are restored to states they had before calling crInstall().
  *
  *    This function fails if crInstall() wasn't previously called in context of
  *    current process.
@@ -868,7 +868,7 @@ crGenerateErrorReport(
 /*! \ingroup CrashRptAPI 
  *  \brief Can be used as a structured exception filter.
  *
- *  \return This function returns EXCEPTION_EXECUTE_HANDLER if succeeds, else EXCEPTION_CONTINUE_SEARCH.
+ *  \return This function returns \c EXCEPTION_EXECUTE_HANDLER if succeeds, else \c EXCEPTION_CONTINUE_SEARCH.
  *
  *  \param[in] code Exception code.
  *  \param[in] ep   Exception pointers.
@@ -879,14 +879,12 @@ crGenerateErrorReport(
  *     inside of __try __except(Expression) statement. The function generates a error report
  *     and returns control to the exception handler block.
  *
- *     The exception code is usually retrieved with GetExceptionCode() intrinsic function
- *     and the exception pointers are retrieved with GetExceptionInformation() intrinsic 
+ *     The exception code is usually retrieved with \b GetExceptionCode() intrinsic function
+ *     and the exception pointers are retrieved with \b GetExceptionInformation() intrinsic 
  *     function.
  *
- *     If an error occurs, this function returns EXCEPTION_CONTINUE_SEARCH.
+ *     If an error occurs, this function returns \c EXCEPTION_CONTINUE_SEARCH.
  *     Use crGetLastErrorMsg() to retrieve the error message on fail.
- *
- *     
  *
  *     The following example shows how to use crExceptionFilter().
  *    
@@ -917,7 +915,7 @@ crExceptionFilter(
  *  \brief Emulates a predefined crash situation.
  *
  *  \return This function doesn't return if succeded. If failed, returns non-zero value. Call crGetLastErrorMsg()
- *   to get the last error message().
+ *   to get the last error message.
  *
  *  \param[in] ExceptionType Type of crash.
  *
@@ -928,11 +926,11 @@ crExceptionFilter(
  *
  *    This function can be used to test if CrashRpt handles a crash situation correctly.
  *    
- *    CrashRpt will intercept an error or exception if crInstall() and/or crInstallToCurrentThread() 
+ *    CrashRpt will intercept an error or exception if crInstall() and/or crInstallToCurrentThread2() 
  *    were previously called. crInstall() installs exception handlers that function on per-process basis.
- *    crInstallToCurrentThread() installs exception handlers that function on per-thread basis.
+ *    crInstallToCurrentThread2() installs exception handlers that function on per-thread basis.
  *    
- *  \c ExceptionType can be one of the following constants:
+ *  \a ExceptionType can be one of the following constants:
  *    - \c CR_WIN32_STRUCTURED_EXCEPTION  This will generate a null pointer exception.
  *    - \c CR_CPP_TERMINATE_CALL This results in call of terminate() C++ function.
  *    - \c CR_CPP_UNEXPECTED_CALL This results in call of unexpected() C++ function.
@@ -948,16 +946,16 @@ crExceptionFilter(
  *    - \c CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
  *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result is the same as in CR_WIN32_STRUCTURED_EXCEPTION).
  *
- *  The CR_WIN32_STRUCTURED_EXCEPTION uses incorrect code to cause a null pointer write error.
+ *  The \c CR_WIN32_STRUCTURED_EXCEPTION uses incorrect code to cause a null pointer write error.
  *
- *  The CR_CPP_NONCONTINUABLE_EXCEPTION has the same effect as CR_WIN32_STRUCTURED_EXCEPTION, but it uses
+ *  The \c CR_CPP_NONCONTINUABLE_EXCEPTION has the same effect as \c CR_WIN32_STRUCTURED_EXCEPTION, but it uses
  *  \b RaiseException() function call to raise noncontinuable software exception.
  *
  *  The following example shows how to use crEmulateCrash() function.
  *
  *  \code
  *  // emulate null pointer exception (access violation)
- *  crEmulateCrash(CR_WIN32_UNHANDLED_EXCEPTION);
+ *  crEmulateCrash(CR_WIN32_STRUCTURED_EXCEPTION);
  *  \endcode
  *
  */
@@ -985,7 +983,7 @@ crEmulateCrash(
  *    If buffer is too small for the error message, the message is truncated.
  *
  *  crGetLastErrorMsgW() and crGetLastErrorMsgA() are wide-character and multi-byte character versions
- *  of crGetLastError(). The crGetLastErrorMsg() macro defines character set independent mapping.
+ *  of crGetLastErrorMsg(). The crGetLastErrorMsg() macro defines character set independent mapping.
  *
  *  The following example shows how to use crGetLastErrorMsg() function.
  *
@@ -1109,11 +1107,11 @@ public:
  *  
  *  \remarks
  *
- *   This wrapper class calls crInstallToCurrentThread() in its constructor and 
+ *   This wrapper class calls crInstallToCurrentThread2() in its constructor and 
  *   calls crUninstallFromCurrentThread() in its destructor.
  *
  *   Use CrThreadAutoInstallHelper::m_nInstallStatus member to check 
- *   the return status of crInstallToCurrentThread().
+ *   the return status of crInstallToCurrentThread2().
  *
  *   Example:
  *

@@ -13,7 +13,8 @@ This page is organized in the following sections:
 
 \section useapi Using CrashRpt API
 
-Do not forget to include \c CrashRpt.h header file in the beginning of your code. 
+Before you start using CrashRpt functions in your program, do not forget to include 
+\c CrashRpt.h header file in the beginning of your code. 
 
 \code
 // Include CrashRpt header
@@ -44,7 +45,7 @@ expands into crInstallW() if you use wide character set or into crInstallA() if 
 character set.
 
 To enable crash reporting support in your C++ application you use crInstall()
-and crInstallToCurrentThread() functions. There are two functions because of difference in work of
+and crInstallToCurrentThread2() functions. There are two functions because of difference in work of
 exception handlers. Some of them work for entire process and others work for caller thread
 only.
 
@@ -54,12 +55,12 @@ create a crash callback function LPGETLOGFILE() and pass its pointer to crInstal
 The crash callback is called on crash and allows to add custom files to the error report or perform
 another action.
 
-The function crInstallToCurrentThread() installs exception handlers that work on per-thread basis. 
-In a multithread program you call the crInstallToCurrentThread() for all 
+On application exit, you should use the crUninstall() function to unset exception handlers. 
+
+The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
+In a multithread program you call the crInstallToCurrentThread2() for all 
 threads except the main one. Typically you call this function in the beginning of the thread
 procedure.
-
-On application exit, you should use the crUninstall() function to unset exception handlers. 
 
 If you have several worker threads, just before the return of a thread procedure call the
 crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
@@ -111,7 +112,8 @@ void main()
   info.uPriorities[CR_HTTP] = 3;  // try HTTP first
   info.uPriorities[CR_SMTP] = 2;  // try SMTP second
   info.uPriorities[CR_SMAPI] = 1; // try Simple MAPI last  
-
+  info.dwFlags = 0; // Install all available exception handlers
+  info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); // URL for the Privacy Policy link
   
   int nInstResult = crInstall(&info);
   if(nInstResult!=0)
@@ -142,7 +144,7 @@ void main()
 \endcode
 
 Typically an application creates and maintains a log file where operations and errors are
-written. Such log file can be helpful for crash analysis and should be added to an error
+written. Such log file can be helpful for crash analysis and should be added to your application's error
 report. You add application-specific files to the error report using crAddFile() function.
 
 Sometimes it is required to remotely debug some application logics error. Such an error,
@@ -157,7 +159,8 @@ construction to catch a structured exception in a block of code in your program.
 generate an error report when structured exception occurs.
 
 When you install crash reporting support to your program, it is important to test if CrashRpt
-intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation.
+intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation. 
+You may call this function in each thread of your program to ensure all exceptions will be catched.
 
 Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
 text error message of the last called function, use crGetLastErrorMsg().
@@ -171,7 +174,7 @@ CrashRpt API Reference:
 
 \section crtdll Using CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
-It is important that you configure your project to use C++ runtime libraries (CRT)
+It is important that you configure your project to use C runtime libraries (CRT)
 as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
 And CrashRpt won't work properly if CRT is used in different way. See the \ref crt_version_and_dll
 for more information.
@@ -196,8 +199,8 @@ to ensure the single version or CRT DLL is used.
 
 For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
 application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. 
-In such situation a C++ exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will 
-intercept exceptions in CRT 8.0 only. 
+In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because error handler 
+are installed by you program for CRT 8.0 only. 
 
 
 \section prgdb Enabling Program Database (/Zi, /DEBUG) in Release Configuration

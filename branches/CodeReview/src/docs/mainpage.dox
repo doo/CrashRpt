@@ -26,9 +26,9 @@ The documentation is organized in the following topics:
 
 - \subpage installation
 - \subpage demos
+- \subpage error_report
 - \subpage exception_handling
 - \subpage configure_prj
-- \subpage error_report
 - \subpage send_report
 - \subpage using_error_report
 
