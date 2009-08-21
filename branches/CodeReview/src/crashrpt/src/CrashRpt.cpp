@@ -3,8 +3,6 @@
 #include "CrashHandler.h"
 #include "Utility.h"
 
-//WTL::CAppModule _Module;
-
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
@@ -276,7 +274,7 @@ CRASHRPTAPI
 int 
 crInstallToCurrentThread()
 {
-  return crInstallToCurrentThread2(CR_INST_ALL_HANDLERS);
+  return crInstallToCurrentThread2(0);
 }
 
 CRASHRPTAPI int crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
@@ -478,6 +476,8 @@ CBase::~CBase()
 }
 
 #include <float.h>
+#pragma float_control(except, on)
+volatile double x = 0;
 void sigfpe_test()
 { 
   // Code taken from http://www.devx.com/cplus/Article/34993/1954
@@ -531,6 +531,20 @@ int RecurseAlloc()
    return 0;
 }
 
+// Vulnerable function
+#pragma warning(disable : 4996)   // for strcpy use
+void test_buffer_overrun(const char *str) 
+{
+   char* buffer = (char*)_alloca(10);
+   strcpy(buffer, str); // overrun buffer !!!
+
+   // use a secure CRT function to help prevent buffer overruns
+   // truncate string to fit a 10 byte buffer
+   // strncpy_s(buffer, _countof(buffer), str, _TRUNCATE);
+}
+#pragma warning(default : 4996)  
+
+
 CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -556,28 +570,21 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       unexpected();
     }
     break;
-#if _MSC_VER>=1300
   case CR_CPP_PURE_CALL:
     {
       // pure virtual method call
       CDerived derived;
     }
     break;
-#endif
-#if _MSC_VER>=1300 && _MSC_VER<1400
   case CR_CPP_SECURITY_ERROR:
     {
       // Cause buffer overrun (/GS compiler option)
 
-      char large_buffer[] = "This string is longer than 10 characters!!!";
-      // vulnerable code
-      char buffer[10];
-#pragma warning(disable:4996) // avoid C4996 warning
-      strcpy(buffer, large_buffer); // overrun buffer !!!      
+      // declare buffer that is bigger than expected
+      char large_buffer[] = "This string is longer than 10 characters!!";
+      test_buffer_overrun(large_buffer);
     }
     break;
-#endif //_MSC_VER>=1300 && _MSC_VER<1400
-#if _MSC_VER>=1400
   case CR_CPP_INVALID_PARAMETER:
     {      
       char* formatString;
@@ -586,15 +593,12 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
       printf(formatString);
     }
     break;
-#endif
-#if _MSC_VER>=1300
   case CR_CPP_NEW_OPERATOR_ERROR:
     {
       // Cause memory allocation error
       RecurseAlloc();
     }
     break;
-#endif //_MSC_VER>=1300
   case CR_CPP_SIGABRT: 
     {
       // Call abort
@@ -658,10 +662,6 @@ CRASHRPTAPI int crEmulateCrash(unsigned ExceptionType)
 
 BOOL WINAPI DllMain(HINSTANCE /*hinstDLL*/, DWORD /*fdwReason*/, LPVOID /*lpvReserved*/)
 {
-  //HRESULT hRes = _Module.Init(NULL, hinstDLL);
-  //ATLASSERT(SUCCEEDED(hRes));
-  //hRes;
-
   return TRUE;
 }
 

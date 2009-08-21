@@ -98,7 +98,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.uPriorities[CR_HTTP] = 3;
   info.uPriorities[CR_SMTP] = 2;
   info.uPriorities[CR_SMAPI] = 1; 
-  info.dwFlags = CR_INST_ALL_HANDLERS;
+  info.dwFlags = 0;
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
   CrAutoInstallHelper cr_install_helper(&info);

@@ -692,8 +692,8 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   // If 0 is specified as dwFlags, assume all handlers should be
   // installed
   if(dwFlags==0)
-    dwFlags = CR_INST_ALL_HANDLERS;
-
+    dwFlags = 0x1FFF;
+  
   if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
   {
     // Install structured exception handler
@@ -810,9 +810,9 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
   crSetErrorMsg(_T("Unspecified error."));
 
   // If 0 is specified as dwFlags, assume all handlers should be
-  // installed
+  // installed  
   if(dwFlags==0)
-    dwFlags = CR_INST_ALL_HANDLERS;
+    dwFlags = 0x1FFF;
 
   DWORD dwThreadId = GetCurrentThreadId();
 
@@ -869,9 +869,8 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
     handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
   }
 
-  // Insert the structure to the list of handlers
-  std::pair<DWORD, _cpp_thread_exception_handlers> _pair(dwThreadId, handlers);
-  m_ThreadExceptionHandlers.insert(_pair);
+  // Insert the structure to the list of handlers  
+  m_ThreadExceptionHandlers[dwThreadId] = handlers;
 
   // OK.
   crSetErrorMsg(_T("Success."));

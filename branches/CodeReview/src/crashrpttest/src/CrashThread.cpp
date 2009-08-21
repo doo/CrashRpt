@@ -48,7 +48,7 @@ DWORD WINAPI CrashThread(LPVOID pParam)
   CrashThreadInfo* pInfo = (CrashThreadInfo*)pParam;
 
   // Install per-thread exception handlers
-  CrThreadAutoInstallHelper cr_install_helper(CR_INST_ALL_HANDLERS);
+  CrThreadAutoInstallHelper cr_install_helper(0);
 
   for(;;)
   {

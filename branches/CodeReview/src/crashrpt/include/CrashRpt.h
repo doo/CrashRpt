@@ -282,7 +282,6 @@ GenerateErrorReport(
 #define CR_INST_SIGSEGV_HANDLER                2048 //!< Install SIGSEGV signal handler
 #define CR_INST_SIGTERM_HANDLER                4096 //!< Install SIGTERM signal handler  
 
-#define CR_INST_ALL_HANDLERS 0x1FFF //!< Install all exception handlers
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -334,7 +333,7 @@ GenerateErrorReport(
  *         last. 
  *
  *    <b>Since v1.1.2</b> \a dwFlags can be used to select what exception handlers to install. 
- *    Set this member with \c CR_INST_ALL_HANDLERS to install all possible exception handlers or
+ *    Set this member with zero to install all possible exception handlers or
  *    use a combination of the following values:
  *       
  *      - \c CR_INST_STRUCTURED_EXCEPTION_HANDLER   Install structured exception handler
@@ -345,9 +344,6 @@ GenerateErrorReport(
  *      - \c CR_INST_SIGABRT_HANDLER                Install SIGABRT signal handler
  *      - \c CR_INST_SIGINT_HANDLER                 Install SIGINT signal handler  
  *      - \c CR_INST_SIGTERM_HANDLER                Install SIGTERM signal handler  
- *
- *   If no flags are specified, it is assumed that all possible exception handlers should be installed.
- *   This is done for compatibility with older versions of CrashRpt.
  *
  *   <b>Since v1.1.2</b> \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
  *   Error Report dialog. If this parameter is NULL, the link is not displayed.
@@ -629,17 +625,14 @@ crInstallToCurrentThread();
  *  an ability to select which exception handlers to install.
  *
  *  \a dwFlags defines what exception handlers to install. Set this parameter 
- *  with \c CR_INST_ALL_HANDLERS to install all possible exception
- *  handlers or use a combination of the following constants:
+ *  with zero to install all possible exception
+ *  handlers. Or use a combination of the following constants:
  *
  *      - \c CR_INST_TERMINATE_HANDLER              Install terminate handler
  *      - \c CR_INST_UNEXPECTED_HANDLER             Install unexpected handler
  *      - \c CR_INST_SIGFPE_HANDLER                 Install SIGFPE signal handler   
  *      - \c CR_INST_SIGILL_HANDLER                 Install SIGILL signal handler  
  *      - \c CR_INST_SIGSEGV_HANDLER                Install SIGSEGV signal handler 
- *
- *   If no flags are specified, it is assumed that all possible exception handlers should be installed.
- *   This is done for compatibility with older versions of CrashRpt.
  * 
  *  Example:
  *
@@ -647,7 +640,7 @@ crInstallToCurrentThread();
  *   DWORD WINAPI ThreadProc(LPVOID lpParam)
  *   {
  *     // Install exception handlers
- *     crInstallToCurrentThread2(CR_INST_ALL_HANDLERS);
+ *     crInstallToCurrentThread2(0);
  *
  *     // Your code...
  *
@@ -1143,7 +1136,7 @@ class CrThreadAutoInstallHelper
 public:
 
   //! Installs exception handlers to the caller thread
-  CrThreadAutoInstallHelper(DWORD dwFlags=CR_INST_ALL_HANDLERS)
+  CrThreadAutoInstallHelper(DWORD dwFlags=0)
   {
     m_nInstallStatus = crInstallToCurrentThread2(dwFlags);    
   }
