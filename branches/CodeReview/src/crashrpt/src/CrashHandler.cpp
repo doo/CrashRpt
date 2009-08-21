@@ -491,8 +491,20 @@ int CCrashHandler::Init(
   if(lpcszPrivacyPolicyURL!=NULL)
     m_sPrivacyPolicyURL = lpcszPrivacyPolicyURL;
 
+  LPTSTR pszCrashRptModule = NULL;
+
+#ifndef CRASHRPT_LIB
+  #ifdef _DEBUG
+    pszCrashRptModule = _T("CrashRptd.dll");
+  #else
+    pszCrashRptModule = _T("CrashRpt.dll");
+  #endif //_DEBUG
+#else //!CRASHRPT_LIB
+  pszCrashRptModule = NULL;
+#endif
+
   // Get handle to the CrashRpt module that is loaded by current process
-  HMODULE hCrashRptModule = GetModuleHandle(NULL);
+  HMODULE hCrashRptModule = GetModuleHandle(pszCrashRptModule);
   if(hCrashRptModule==NULL)
   {
     ATLASSERT(hCrashRptModule!=NULL);
@@ -986,15 +998,15 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      CString sDesc = CUtility::LoadString(IDS_CRASH_DUMP);
-      m_files[sFileName] = sDesc;
+      //CString sDesc = CUtility::LoadString(IDS_CRASH_DUMP);
+      m_files[sFileName] = _T("Crash Dump");
     }
     
     /* Create crash report descriptor file in XML format. */
   
     sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, CUtility::getAppName());
-    CString sDesc = CUtility::LoadString(IDS_CRASH_LOG);
-    m_files[sFileName] = sDesc;
+    //CString sDesc = CUtility::LoadString(IDS_CRASH_LOG);
+    m_files[sFileName] = _T("Crash Log");
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
     ATLASSERT(result==0);
     result;

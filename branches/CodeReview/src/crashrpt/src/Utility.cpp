@@ -222,11 +222,11 @@ int CUtility::RecycleFile(CString sFilePath, bool bPermanentDelete)
   return SHFileOperation(&fop); // do it!  
 }
 
-CString CUtility::LoadString(UINT uID)
-{
-  CString str;
-	TCHAR buf[1024]=_T("");
-  ::LoadString(GetModuleHandle(NULL), uID, buf, 1024);
-	str = buf;
-	return str;
-}
+//CString CUtility::LoadString(UINT uID)
+//{
+//  CString str;
+//	TCHAR buf[1024]=_T("");
+//  ::LoadString(GetModuleHandle(NULL), uID, buf, 1024);
+//	str = buf;
+//	return str;
+//}

@@ -10,7 +10,7 @@
 
 - Improved documentation; Added info on compiling CrashRpt in VC++ Express
 
-- Add "extern "C"" to API function declarations
+- Using __stdcall in API function declarations instead of __cdecl
 
 - Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.
 
