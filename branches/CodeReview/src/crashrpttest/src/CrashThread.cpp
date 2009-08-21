@@ -29,7 +29,7 @@ void test_generate_report()
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);
   ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
-  ei.code = 1234;
+  ei.code = 0x1234;
   ei.pexcptrs = NULL;
 
   int nResult = crGenerateErrorReport(&ei);

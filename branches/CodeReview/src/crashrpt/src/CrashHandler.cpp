@@ -948,6 +948,13 @@ int CCrashHandler::GenerateErrorReport(
 {  
   crSetErrorMsg(_T("Unspecified error."));
 
+  /* Validate input parameters */
+  if(pExceptionInfo==NULL)
+  {
+    crSetErrorMsg(_T("Exception info is NULL."));
+    return 1;
+  }
+
   /* Let client add application-specific files to report via crash callback. */
 
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
@@ -1111,7 +1118,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   {
     // Write exception code
     CString sSECode;
-    sSECode.Format(_T("%d"), pExceptionInfo->code);    
+    sSECode.Format(_T("0x%X"), pExceptionInfo->pexcptrs->ExceptionRecord->ExceptionCode);    
     TiXmlElement* sehcode = new TiXmlElement("ExceptionCode");
     root->LinkEndChild(sehcode);  
 	  LPCSTR lpszSEHCode = strconv.t2a(sSECode.GetBuffer(0));

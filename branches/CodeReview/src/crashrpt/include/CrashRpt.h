@@ -12,23 +12,17 @@
 
 #ifndef CRASHRPT_LIB
 #define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
-#define CRASHRPT_DECLSPEC_IMPORT __declspec(dllimport) 
+#define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 
 #else
 #define CRASHRPT_DECLSPEC_DLLEXPORT 
-#define CRASHRPT_DECLSPEC_IMPORT
-#endif
-
-#ifdef __cplusplus
-#define CRASHRPT_EXTERN_C extern "C"
-#else
-#define CRASHRPT_EXTERN_C
+#define CRASHRPT_DECLSPEC_DLLIMPORT
 #endif
 
 // This is needed for exporting/importing functions from/to CrashRpt.dll
 #ifdef CRASHRPT_EXPORTS
- #define CRASHRPTAPI CRASHRPT_EXTERN_C CRASHRPT_DECLSPEC_DLLEXPORT
+ #define CRASHRPTAPI CRASHRPT_DECLSPEC_DLLEXPORT WINAPI 
 #else 
- #define CRASHRPTAPI CRASHRPT_EXTERN_C CRASHRPT_DECLSPEC_IMPORT
+ #define CRASHRPTAPI CRASHRPT_DECLSPEC_DLLIMPORT WINAPI
 #endif
 
 //! Current CrashRpt version
@@ -110,8 +104,8 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
  * 
  */
 
-CRASHRPTAPI 
 LPVOID 
+CRASHRPTAPI 
 InstallW(
    LPGETLOGFILE pfnCallback,
    LPCWSTR pszEmailTo,    
@@ -122,8 +116,8 @@ InstallW(
  *  \copydoc InstallW()
  */
 
-CRASHRPTAPI 
 LPVOID 
+CRASHRPTAPI 
 InstallA(
    LPGETLOGFILE pfnCallback,
    LPCSTR pszEmailTo,    
@@ -158,8 +152,8 @@ InstallA(
  *    The \c lpState parameter is unused and can be NULL.
  */
 
-CRASHRPTAPI 
 void 
+CRASHRPTAPI 
 Uninstall(
    IN LPVOID lpState                            
    );
@@ -195,8 +189,8 @@ Uninstall(
  *
  */
 
-CRASHRPTAPI 
 void 
+CRASHRPTAPI 
 AddFileW(
    IN LPVOID lpState,                         
    IN LPCWSTR pszFile,                         
@@ -208,8 +202,8 @@ AddFileW(
  *  \copydoc AddFileW()
  */
 
-CRASHRPTAPI 
 void 
+CRASHRPTAPI 
 AddFileA(
    IN LPVOID lpState,                         
    IN LPCSTR pszFile,                         
@@ -253,8 +247,8 @@ AddFileA(
  *
  */
 
-CRASHRPTAPI 
 void 
+CRASHRPTAPI 
 GenerateErrorReport(
    LPVOID lpState,
    PEXCEPTION_POINTERS pExInfo
@@ -282,6 +276,8 @@ GenerateErrorReport(
 #define CR_INST_SIGSEGV_HANDLER                2048 //!< Install SIGSEGV signal handler
 #define CR_INST_SIGTERM_HANDLER                4096 //!< Install SIGTERM signal handler  
 
+#define CR_INST_ALL_EXCEPTION_HANDLERS 0      //!< Install all possible exception handlers
+#define CR_INST_CRT_EXCEPTION_HANDLERS 0x1FFE //!< Install exception handlers for the linked CRT module
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -495,8 +491,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      CrAutoInstallHelper
  */
 
-CRASHRPTAPI 
 int
+CRASHRPTAPI 
 crInstallW(
   PCR_INSTALL_INFOW pInfo
 );
@@ -505,8 +501,8 @@ crInstallW(
  *  \copydoc crInstallW()
  */
 
-CRASHRPTAPI 
 int
+CRASHRPTAPI 
 crInstallA(
   PCR_INSTALL_INFOA pInfo
 );
@@ -541,8 +537,8 @@ crInstallA(
  *      CrAutoInstallHelper
  */
 
-CRASHRPTAPI 
 int
+CRASHRPTAPI 
 crUninstall();
 
 
@@ -604,8 +600,8 @@ crUninstall();
  *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
-CRASHRPTAPI 
 int 
+CRASHRPTAPI 
 crInstallToCurrentThread();
 
 /*! \ingroup CrashRptAPI
@@ -655,8 +651,8 @@ crInstallToCurrentThread();
  *    crInstallToCurrentThread()
  */
 
-CRASHRPTAPI 
 int 
+CRASHRPTAPI 
 crInstallToCurrentThread2(DWORD dwFlags);
 
 /*! \ingroup CrashRptAPI  
@@ -682,8 +678,8 @@ crInstallToCurrentThread2(DWORD dwFlags);
  *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
-CRASHRPTAPI 
 int 
+CRASHRPTAPI 
 crUninstallFromCurrentThread();
 
 /*! \ingroup CrashRptAPI  
@@ -713,8 +709,8 @@ crUninstallFromCurrentThread();
  *  \sa crAddFileW(), crAddFileA(), crAddFile()
  */
 
-CRASHRPTAPI 
 int
+CRASHRPTAPI 
 crAddFileW(
    LPCWSTR pszFile,
    LPCWSTR pszDesc 
@@ -724,8 +720,9 @@ crAddFileW(
  *  \copydoc crAddFileW()
  */
 
-CRASHRPTAPI 
+
 int
+CRASHRPTAPI 
 crAddFileA(
    LPCSTR pszFile,
    LPCSTR pszDesc 
@@ -790,7 +787,7 @@ crAddFileA(
  * 
  *   \a code is used if \a exctype is \c CR_WIN32_STRUCTURED_EXCEPTION and represents the structured exception code. 
  *   If \a pexptrs is NULL, this value is used when generating exception information for initializing
- *   \c pexptrs->ExceptionCode member, otherwise it is ignored.
+ *   \c pexptrs->ExceptionRecord->ExceptionCode member, otherwise it is ignored.
  *
  *   \a fpe_subcode is used if \a exctype is equal to \c CR_CPP_SIGFPE. It defines the floating point
  *   exception subcode (see \c signal() function ducumentation in MSDN).
@@ -861,8 +858,8 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
  *    \endcode
  */
 
-CRASHRPTAPI 
 int 
+CRASHRPTAPI 
 crGenerateErrorReport(   
    CR_EXCEPTION_INFO* pExceptionInfo
    );
@@ -908,8 +905,8 @@ crGenerateErrorReport(
  *     \endcode 
  */
 
-CRASHRPTAPI
 int 
+CRASHRPTAPI
 crExceptionFilter(
   unsigned int code, 
   struct _EXCEPTION_POINTERS* ep);
@@ -965,8 +962,8 @@ crExceptionFilter(
  *
  */
 
-CRASHRPTAPI
 int
+CRASHRPTAPI
 crEmulateCrash(
   unsigned ExceptionType);
 
@@ -1004,8 +1001,8 @@ crEmulateCrash(
  *  \sa crGetLastErrorMsgA(), crGetLastErrorMsgW(), crGetLastErrorMsg()
  */
 
-CRASHRPTAPI
 int
+CRASHRPTAPI
 crGetLastErrorMsgW(
   LPWSTR pszBuffer, 
   UINT uBuffSize);
@@ -1015,8 +1012,8 @@ crGetLastErrorMsgW(
  *
  */
 
-CRASHRPTAPI
 int
+CRASHRPTAPI
 crGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize);

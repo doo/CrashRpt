@@ -16,21 +16,6 @@
 #include <shellapi.h>
 
 
-//FILETIME CUtility::getLastWriteFileTime(CString sFile)
-//{
-//   FILETIME          ftLocal = {0};
-//   HANDLE            hFind;
-//   WIN32_FIND_DATA   ff32;
-//   hFind = FindFirstFile(sFile, &ff32);
-//   if (INVALID_HANDLE_VALUE != hFind)
-//   {
-//      FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftLocal);
-//      FindClose(hFind);        
-//   }
-//   return ftLocal;
-//}
-
-
 CString CUtility::getAppName()
 {
    TCHAR szFileName[_MAX_PATH];
@@ -77,26 +62,6 @@ CString CUtility::getTempFileName()
    return szTempFile;
 }
 
-
-//CString CUtility::getSaveFileName()
-//{
-//   CString sFilter;// = CUtility::LoadString(IDS_ZIP_FILTER);
-//
-//   CFileDialog fd(
-//      FALSE, 
-//      _T("zip"), 
-//      getAppName(), 
-//      OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, 
-//      sFilter);
-//
-//	if (IDOK == fd.DoModal())
-//   {
-//      DeleteFile(fd.m_szFileName);  // Just in-case it already exist
-//      return fd.m_szFileName;
-//   }
-//
-//   return _T("");
-//}
 
 CString CUtility::GetModulePath(HMODULE hModule)
 {
