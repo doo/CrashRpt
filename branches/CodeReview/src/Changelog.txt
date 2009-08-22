@@ -8,9 +8,15 @@
 
 - New API function crInstallToCurrentThead2().
 
-- Improved documentation; Added info on compiling CrashRpt in VC++ Express
+- Improved documentation; Fixed some mistakes; Added info on compiling CrashRpt in VC++ Express
 
-- Using __stdcall in API function declarations instead of __cdecl
+- Using standard Windows convention __stdcall instead of __cdecl in API function declarations 
+
+- Using undecorated API function names (extern "C")
+
+- New build configuration: Release LIB
+
+- Using static zlib linkage instead of zlib.dll
 
 - Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.
 
@@ -20,6 +26,12 @@
 
 - Fixed bug in CUtility::GetOSFriendlyName() -- Operating system build 
   number and service pack are never retrieved 
+
+- Fixed error with writing 'ExceptionCode' to XMl (always zero)
+
+- Writing exception code to XML in hex format
+
+- Refactored code of crEmulateCrash()
 
 
 --- Ver. 1.1.1 ---
