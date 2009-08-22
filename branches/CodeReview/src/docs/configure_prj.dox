@@ -176,8 +176,6 @@ CrashRpt API Reference:
 
 It is important that you configure your project to use C runtime libraries (CRT)
 as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
-And CrashRpt won't work properly if CRT is used in different way. See the \ref crt_version_and_dll
-for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
@@ -185,10 +183,19 @@ choose <b>Multi-threaded DLL (/MD)</b>.
 
 This should be done for all projects in your solution to share single CRT DLL.
 
-\note In Debug configuration it is not important what CRT linkage you use. Typically  
-your default debugger intercepts exceptions instead of CrashRpt in Debug configuration.
-
 \image html crtdll.png "Multi-threaded DLL (/MD)"    
+
+\note 
+
+<b>Since v.1.1.2</b> you can compile CrashRpt as static LIB. If your application uses static
+linkage to CRT, you have to link CrashRpt LIB to each module of your application to be able to
+install exception handling support to each CRT module you use. 
+See the \ref crt_version_and_dll for more information.
+
+\note 
+
+In Debug configuration it is not important what CRT linkage you use. Typically  
+your default debugger intercepts exceptions instead of CrashRpt in Debug configuration.
 
 
 \section crtver Using the Same Version of CRT for All Application Modules
@@ -199,7 +206,7 @@ to ensure the single version or CRT DLL is used.
 
 For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your 
 application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. 
-In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because error handler 
+In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because error handlers 
 are installed by you program for CRT 8.0 only. 
 
 
@@ -249,8 +256,10 @@ intercepted (use the crEmulateCrash() function),
 that error reports are properly received by your support team and that you can properly read
 received error reports.
 
-\note The files copied to CrashRptSaved directory should be stored locally during the software 
-life time. The saved files should NOT be included in the software release package and should NOT be sent to 
+\note 
+
+Files copied to CrashRptSaved directory should be stored locally during the software 
+life time. These saved files should NOT be included in the software release package and should NOT be sent to 
 end users. You should never ship debug builds or debug symbols (PDB files) as they will 
 not only take up more 
 space on your CD/download/client's machine, but they will also make reverse engineering 
@@ -258,17 +267,21 @@ your code a trivial exercise.
 
 \section rlsfiles Distributing CrashRpt Files with Your Software Release Package
 
-You must always distribute the following files with your software release.
-
-- \b bin\CrashRpt.dll (113 KB in size)
-- \b bin\CrashSender.exe (220 KB in size)
-- \b dbghelp\bin\dbghelp.dll (1056 KB in size)
-- \b zlib\bin\zlib1.dll (59 KB in size)
-
-It is recommended that you place these files to the directory where your application executable
-file is located.
+You must always distribute the following files with your software release. It is recommended 
+that you place these files to the directory where your application executable file is located.
+                                                                              
+- \b bin\CrashRpt.dll 
+- \b bin\CrashSender.exe
+- \b dbghelp\bin\dbghelp.dll
 
 The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
-and \b zlib1.dll (ZLib) are dependent modules.
+is a dependent module.
+
+\note It is recommended that you distribute dbghelp.dll with your software, because 
+some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may 
+be different on different user machines. dbghelp.dll is shipped with Windows XP and later, 
+so most user machines have this library installed. If your target OS is Windows XP and later, 
+you may ignore distribution of dbghelp.dll at your own risk.                  
+
 
 */

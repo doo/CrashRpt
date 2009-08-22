@@ -27,7 +27,7 @@
 - Fixed bug in CUtility::GetOSFriendlyName() -- Operating system build 
   number and service pack are never retrieved 
 
-- Fixed error with writing 'ExceptionCode' to XMl (always zero)
+- Fixed error with writing 'ExceptionCode' to XML (always zero)
 
 - Writing exception code to XML in hex format
 

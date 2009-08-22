@@ -33,13 +33,9 @@ For example, an exception may occur because of the following:
 - a pure virtual method of a C++ class is called
 - memory buffer can't be allocated (out of memory)
 - invalid parameter is passed to a C++ system function
-- C++ run time libraries detect an error and request program termination
+- C run-time libraries detect an error and request program termination
 
-An exception may be raised by CPU or by a software program. These two kinds of
-exceptions are called hardware and software exceptions, respectively. From point of developer's
-view there is no difference between software and hardware exceptions.
-
-However, there are two kinds of exceptions that have different nature: structured 
+There are two kinds of exceptions that have different nature: structured 
 C exceptions and typed C++ exceptions.
 
 Structured exceptions were designed for C language, but they can be used in C++, too. 
