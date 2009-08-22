@@ -32,3 +32,9 @@ rmdir /S /Q CrashSender\src\Debug
 rmdir /S /Q CrashSender\src\Release
 erase /A H CrashSender\src\*.user
 erase CrashSender\src\*.aps
+
+rmdir /S /Q zlib\src\Debug
+rmdir /S /Q zlib\src\Release
+rmdir /S /Q zlib\lib
+erase /A H zlib\src\*.user
+erase zlib\src\*.aps

@@ -10,6 +10,10 @@
 
 #include <windows.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef CRASHRPT_LIB
 #define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
 #define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 
@@ -1025,6 +1029,12 @@ crGetLastErrorMsgA(
 #else
 #define crGetLastErrorMsg crGetLastErrorMsgA
 #endif //UNICODE
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 //// Helper wrapper classes
 
