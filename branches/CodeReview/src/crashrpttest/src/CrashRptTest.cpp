@@ -102,7 +102,15 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
   CrAutoInstallHelper cr_install_helper(&info);
-  ATLASSERT(cr_install_helper.m_nInstallStatus==0);  
+  ATLASSERT(cr_install_helper.m_nInstallStatus==0); 
+
+  if(cr_install_helper.m_nInstallStatus!=0)
+  {
+    TCHAR buff[256];
+    crGetLastErrorMsg(buff, 256);
+    MessageBox(NULL, buff, _T("crInstall error"), MB_OK);
+    return FALSE;
+  }
 
 #endif //TEST_DEPRECATED_FUNCS
 
