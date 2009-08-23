@@ -488,8 +488,6 @@ CBase::~CBase()
 }
 
 #include <float.h>
-#pragma float_control(except, on)
-volatile double x = 0;
 void sigfpe_test()
 { 
   // Code taken from http://www.devx.com/cplus/Article/34993/1954

@@ -46,8 +46,8 @@ extern "C" {
  *  notified about the crash.
  *  In crash callback, you can use crAddFile() to add a custom file to the error report.
  *  
- *  The crash callback function should return TRUE to allow generate error report. It should 
- *  return FALSE to prevent crash report generation.
+ *  The crash callback function should return \c TRUE to allow generate error report. It should 
+ *  return \c FALSE to prevent crash report generation.
  *
  *  The following example shows how to use crash callback function.
  *
@@ -333,7 +333,7 @@ GenerateErrorReport(
  *         the last. 
  *
  *    <b>Since v1.1.2</b> \a dwFlags can be used to select what exception handlers to install. 
- *    Set this member with zero to install all possible exception handlers or
+ *    Use zero value to install all possible exception handlers or
  *    use a combination of the following values:
  *       
  *      - \c CR_INST_STRUCTURED_EXCEPTION_HANDLER   Install structured exception handler
@@ -622,10 +622,10 @@ crInstallToCurrentThread();
  *  except the main one.
  *   
  *  The function works the same way as crInstallToCurrentThread(), but provides
- *  an ability to select which exception handlers to install.
+ *  an ability to select what exception handlers to install.
  *
- *  \a dwFlags defines what exception handlers to install. Set this parameter 
- *  with zero to install all possible exception
+ *  \a dwFlags defines what exception handlers to install. Use zero value
+ *  to install all possible exception
  *  handlers. Or use a combination of the following constants:
  *
  *      - \c CR_INST_TERMINATE_HANDLER              Install terminate handler
@@ -879,7 +879,7 @@ crGenerateErrorReport(
  *
  *  \remarks
  *     
- *     This function can be called instead of C++ structured exception filter
+ *     This function can be called instead of a structured exception filter
  *     inside of __try __except(Expression) statement. The function generates a error report
  *     and returns control to the exception handler block.
  *
