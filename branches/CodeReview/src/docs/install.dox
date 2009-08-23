@@ -85,7 +85,7 @@ CrashRpt package, depending on your version of Visual Studio:
 <b>Notes about compiling in Visual C++ Express</b>
 
 CrashRpt depends on WTL library. WTL is an open source 
-project that is constantly evolves and adapts to new versions of Visual Studio 
+project. It constantly evolves and adapts to new versions of Visual Studio 
 (including VS Express). The latest version at the moment is WTL 8.1.
 
 WTL itself depends on Microsoft's library called ATL (Active Template Library). 

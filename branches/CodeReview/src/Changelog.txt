@@ -14,7 +14,7 @@
 
 - Using undecorated API function names (extern "C")
 
-- Using static zlib linkage instead of zlib.dll
+- Using static zlib linkage instead of zlib DLL
 
 - Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.
 

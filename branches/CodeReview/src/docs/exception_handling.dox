@@ -582,19 +582,19 @@ For additional info please see these links:
 
 \section crt_version_and_dll Exception Handling and CRT Linkage
 
-Each module (EXE, DLL) in your project is linked to CRT (C run-time libraries). 
+Each module (EXE, DLL) in your application is linked to CRT (C run-time libraries). 
 You may link CRT as multithreaded static library or as multithreaded dynamic link library. 
 When you set CRT error handlers, such as terminate handler, unexpected handler, 
 pure call handler, invalid parameter handler, new operator error handler or a signal handler, they will work for 
 the CRT the caller module is linked to and won't intercept exceptions 
-in different CRT modules (if exist). 
+in different CRT modules (if exist), because each CRT module has its own internal state. 
 
 Several project modules may share single CRT DLL. This reduces to minimum the overall size 
 of linked CRT code. And all exceptions within that CRT DLL can be handled 
 at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
 If you plan to use CRT as a static link library (which is not recommended to do) and want to use some crash
-reporting functionality, you have to compile the functionality as a static library with /NODEFAULTLIB linker 
+reporting functionality, you have to build the functionality as a static library with /NODEFAULTLIB linker 
 flag and then link this functionality to each EXE and DLL module of your application. You would also have to 
 install the CRT error handlers for each module of your application, while the structured exception handler 
 would still be installed once.

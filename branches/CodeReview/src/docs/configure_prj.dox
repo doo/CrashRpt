@@ -21,7 +21,7 @@ Before you start using CrashRpt functions in your program, do not forget to incl
 #include "CrashRpt.h"
 \endcode
 
-You also need to add CrashRpt lib file to the list of input libraries for your project.
+You also need to add CrashRpt LIB file to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item in the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries. 
