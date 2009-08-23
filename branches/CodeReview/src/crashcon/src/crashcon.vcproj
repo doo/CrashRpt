@@ -202,7 +202,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy ..\..\zlib\bin\zlib1.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -237,7 +237,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\crashrpt\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Release/crashcon.pch"
@@ -263,7 +263,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptLIB.lib"
-				OutputFile="..\..\bin\crashcon.exe"
+				OutputFile="..\..\bin\crashconLIB.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\lib"
