@@ -33,9 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib zlibd.lib"
 				OutputFile="..\..\bin\CrashRptd.dll"
 				LinkIncremental="0"
+				AdditionalLibraryDirectories="..\..\zlib\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				SubSystem="2"

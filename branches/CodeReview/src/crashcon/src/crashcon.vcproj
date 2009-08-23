@@ -46,6 +46,7 @@
 				AdditionalIncludeDirectories="..\..\crashrpt\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_"
 				RuntimeLibrary="2"
+				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Release/crashcon.pch"

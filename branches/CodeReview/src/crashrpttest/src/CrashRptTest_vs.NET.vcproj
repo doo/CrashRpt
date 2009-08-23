@@ -55,7 +55,6 @@
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
-copy ..\..\zlib\bin\zlib1.dll ..\..\bin
 copy dummy.log ..\..\bin
 copy dummy.ini ..\..\bin
 "/>
@@ -120,7 +119,6 @@ copy dummy.ini ..\..\bin
 			<Tool
 				Name="VCPostBuildEventTool"
 				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
-copy ..\..\zlib\zlib1.dll ..\..\bin
 copy dummy.log ..\..\bin
 copy dummy.ini ..\..\bin
 "/>
