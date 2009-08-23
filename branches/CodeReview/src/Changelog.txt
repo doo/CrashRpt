@@ -14,8 +14,6 @@
 
 - Using undecorated API function names (extern "C")
 
-- New build configuration: Release LIB
-
 - Using static zlib linkage instead of zlib.dll
 
 - Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.

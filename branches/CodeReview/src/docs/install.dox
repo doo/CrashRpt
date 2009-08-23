@@ -81,8 +81,6 @@ CrashRpt package, depending on your version of Visual Studio:
  - <b>CrashRpt_vs2005.sln</b>
  - <b>CrashRpt_vs2008.sln</b>
 -# Choose the Release build configuration and press F7 to build the solution.
-<b>Since v.1.1.2</b> you also can compile CrashRpt as static LIB using Release LIB
-build configuration.
 
 <b>Notes about compiling in Visual C++ Express</b>
 

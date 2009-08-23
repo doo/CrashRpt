@@ -3,7 +3,7 @@
 \page exception_handling About Exceptions and Exception Handling
 
 Reading this page is not necessary for using CrashRpt. You may skip this page 
-and proceed with \ref configure_prj. However, read this page if you need extended 
+and proceed to \ref configure_prj. However, read this page if you need extended 
 knowledge of exception handling.
 
 This page describes techniques of handling exceptions in Visual C++ programs under Windows. 

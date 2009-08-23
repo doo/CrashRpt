@@ -14,17 +14,17 @@ This page is organized in the following sections:
 \section useapi Using CrashRpt API
 
 Before you start using CrashRpt functions in your program, do not forget to include 
-\c CrashRpt.h header file in the beginning of your code. 
+\c CrashRpt.h header file in the beginning of your code: 
 
 \code
 // Include CrashRpt header
 #include "CrashRpt.h"
 \endcode
 
-You also need to add \b CrashRpt.lib to the list of input libraries for your project.
+You also need to add CrashRpt lib file to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item in the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
-and then add \b CrashRpt.lib to the list of libraries.
+and then add \b CrashRpt.lib to the list of libraries. 
 
 CrashRpt library provides several API functions, structures and classes that can be used in your 
 project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). 
@@ -176,6 +176,7 @@ CrashRpt API Reference:
 
 It is important that you configure your project to use C runtime libraries (CRT)
 as Multi-threaded DLL (/MD) for Release configuration. This is the way recommended in MSDN.
+See the \ref crt_version_and_dll for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
@@ -183,20 +184,12 @@ choose <b>Multi-threaded DLL (/MD)</b>.
 
 This should be done for all projects in your solution to share single CRT DLL.
 
-\image html crtdll.png "Multi-threaded DLL (/MD)"    
-
-\note 
-
-<b>Since v.1.1.2</b> you can compile CrashRpt as static LIB. If your application uses static
-linkage to CRT, you have to link CrashRpt LIB to each module of your application to be able to
-install exception handling support to each CRT module you use. 
-See the \ref crt_version_and_dll for more information.
-
 \note 
 
 In Debug configuration it is not important what CRT linkage you use. Typically  
 your default debugger intercepts exceptions instead of CrashRpt in Debug configuration.
 
+\image html crtdll.png "Multi-threaded DLL (/MD)"    
 
 \section crtver Using the Same Version of CRT for All Application Modules
 
