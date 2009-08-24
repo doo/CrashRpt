@@ -10,16 +10,16 @@ We appreciate any user feedback, bug reports and feature requests.
 = What's New =
 
   * crInstall: Ability to select what exception handlers to install
-  * Extended CR_INSTALL_INFO with new members: pszPrivacyPolicyURL and dwFlags.
-  * New API function crInstallToCurrentThead2().
+  * Extended CR_INSTALL_INFO with new members: `pszPrivacyPolicyURL` and `dwFlags`.
+  * New API function `crInstallToCurrentThead2()`.
   * Improved documentation; Fixed some mistakes; Added info on compiling CrashRpt in VC++ Express
-  * Using standard Windows convention __stdcall instead of __cdecl in API function declarations 
+  * Using standard Windows convention `__stdcall` instead of `__cdecl` in API function declarations 
   * Using undecorated API function names (extern "C")
   * Using static zlib linkage instead of zlib DLL
   * Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.
   * Fixed some compilation warnings in VC++ Express
   * Fixed wrong "unh" message box in unhandled exception handler
-  * Fixed bug in CUtility::GetOSFriendlyName() -- Operating system build number and service pack are never retrieved 
+  * Fixed bug in `CUtility::GetOSFriendlyName()` -- Operating system build number and service pack are never retrieved 
   * Fixed error with writing 'ExceptionCode' to XML (always zero)
   * Writing exception code to XML in hex format
   * Refactored code of crEmulateCrash()
