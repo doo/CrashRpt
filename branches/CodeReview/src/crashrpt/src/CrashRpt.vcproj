@@ -89,8 +89,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\Bin\CrashRpt.pdb"
 				OptimizeReferences="2"
-				OptimizeForWindows98="1"
-				BaseAddress="0x2000000"
+				OptimizeForWindows98="0"
 				ImportLibrary="..\..\lib\CrashRpt.lib"
 				TargetMachine="1"
 			/>

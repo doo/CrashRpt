@@ -10,6 +10,8 @@ erase bin\*.ilk
 erase bin\*d.exe
 erase bin\*d.dll
 
+erase docs\Warnings.txt
+
 erase lib\*d.lib
 erase lib\*.exp
 
