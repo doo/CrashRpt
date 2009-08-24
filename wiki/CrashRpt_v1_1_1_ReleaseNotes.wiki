@@ -1,5 +1,5 @@
 #summary CrashRpt v.1.1.1 Release Notes.
-#labels Featured,Phase-Deploy
+#labels Phase-Deploy
 
 = Introduction =
 
