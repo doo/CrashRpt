@@ -7,10 +7,14 @@
 #ifndef __CRASHRPT_PROBE_H__
 #define __CRASHRPT_PROBE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef CRASHRPTPROBE_EXPORTS
-#define CRASHRPTPROBE_API __declspec(dllexport)
+#define CRASHRPTPROBE_API __declspec(dllexport) WINAPI
 #else
-#define CRASHRPTPROBE_API __declspec(dllimport)
+#define CRASHRPTPROBE_API __declspec(dllimport) WINAPI
 #endif
 
 typedef int CrpHandle;
@@ -32,7 +36,8 @@ typedef int CrpHandle;
  *  character versions of crpOpenCrashReport(). 
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API
 crpOpenCrashReportW(
   LPCWSTR pszFileName,
   LPCWSTR pszMd5Hash,
@@ -44,7 +49,8 @@ crpOpenCrashReportW(
  *
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API
 crpOpenCrashReportA(
   LPCSTR pszFileName,
   LPCSTR pszMd5Hash,
@@ -70,7 +76,8 @@ crpOpenCrashReportA(
  *
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API 
 crpCloseCrashReport(
   CrpHandle handle  
 );
@@ -105,7 +112,8 @@ crpCloseCrashReport(
  *  \param[in] uBuffSize Size of output buffer.
  */ 
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API 
 crpGetStrPropertyW(
   CrpHandle handle,
   int nPropId,
@@ -119,7 +127,8 @@ crpGetStrPropertyW(
  *
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API 
 crpGetStrPropertyA(
   CrpHandle handle,
   int nPropId,
@@ -144,7 +153,8 @@ crpGetStrPropertyA(
  *  \param[in] uPropId
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API 
 crpGetLongProperty(
   CrpHandle handle,
   int uPropId,
@@ -157,7 +167,8 @@ crpGetLongProperty(
  *
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API 
 crpExtractFileW(
   CrpHandle handle,
   LPCWSTR lpszFileName,
@@ -168,7 +179,8 @@ crpExtractFileW(
  *  \copydoc crpExtractFileW 
  */
 
-CRASHRPTPROBE_API int
+int
+CRASHRPTPROBE_API 
 crpExtractFileA(
   CrpHandle handle,
   LPCSTR lpszFileName,
@@ -186,14 +198,14 @@ crpExtractFileA(
 #endif //UNICODE
 
 
-CRASHRPTPROBE_API
 int
+CRASHRPTPROBE_API
 crpGetLastErrorMsgW(
   LPTSTR pszBuffer, 
   UINT uBuffSize);
 
-CRASHRPTPROBE_API
 int
+CRASHRPTPROBE_API
 crpGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize);
@@ -203,5 +215,9 @@ crpGetLastErrorMsgA(
 #else
 #define crpGetLastErrorMsg crpGetLastErrorMsgA
 #endif //UNICODE
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif __CRASHRPT_PROBE_H__

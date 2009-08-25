@@ -10,7 +10,6 @@
 #include "md5.h"
 #include "Utility.h"
 
-WTL::CAppModule _Module;
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
@@ -25,7 +24,7 @@ struct CrpReportData
 
 std::map<int, CrpReportData> g_OpenedHandles;
 
-CString GetBaseName(CString sFileName)
+CString GetBaseFileName(CString sFileName)
 {
   CString sBase;
   int pos = sFileName.ReverseFind('.');
@@ -36,7 +35,7 @@ CString GetBaseName(CString sFileName)
   return sBase;
 }
 
-CString GetExtension(CString sFileName)
+CString GetFileExtension(CString sFileName)
 {
   CString sExt;
   int pos = sFileName.ReverseFind('.');
@@ -96,6 +95,7 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 }
 
 int
+CRASHRPTPROBE_API
 crpOpenCrashReportW(
   LPCWSTR pszFileName,
   LPCWSTR pszMd5Hash,
@@ -153,7 +153,7 @@ crpOpenCrashReportW(
       if(zr!=ZR_OK)
         break;
 
-      CString sExt = GetExtension(ze.name);
+      CString sExt = GetFileExtension(ze.name);
       if(sExt.CompareNoCase(_T("dmp")))
       {
         // DMP found
@@ -163,7 +163,7 @@ crpOpenCrashReportW(
     }
 
     // Assume the name of XML is the same as DMP
-    CString sXmlName = GetBaseName(ze.name) + _T(".xml");
+    CString sXmlName = GetBaseFileName(ze.name) + _T(".xml");
     zr = FindZipItem(hZip, sXmlName, false, &xml_index, &ze);
   }
 
@@ -219,23 +219,41 @@ exit:
 }
 
 int
+CRASHRPTPROBE_API
 crpOpenCrashReportA(
   LPCSTR pszFileName,
   LPCSTR pszMd5Hash,
   CrpHandle* pHandle)
 {
-  USES_CONVERSION;
-  return crpOpenCrashReportW(A2W(pszFileName), A2W(pszMd5Hash), pHandle);  
+  strconv_t strconv;
+  return crpOpenCrashReportW(strconv.a2w(pszFileName), strconv.a2w(pszMd5Hash), pHandle);  
 }
 
 int
+CRASHRPTPROBE_API
 crpCloseCrashReport(
   CrpHandle handle)
 {
+  crpSetErrorMsg(_T("Unspecified error."));
+
+  // Look for such handle
+  std::map<int, CrpReportData>::iterator it = g_OpenedHandles.find(handle);
+  if(it==g_OpenedHandles.end())
+  {
+    crpSetErrorMsg(_T("Invalid handle specified."));
+    return 1;
+  }
+
+  // Remove from the list of opened handles
+  g_OpenedHandles.erase(it);
+
+  // OK.
+  crpSetErrorMsg(_T("Success."));
   return 0;
 }
 
 int
+CRASHRPTPROBE_API
 crpGetStrPropertyW(
   UINT uHandle,
   LPCWSTR lpszPropName,
@@ -247,6 +265,7 @@ crpGetStrPropertyW(
 }
 
 int
+CRASHRPTPROBE_API
 crpGetStrPropertyA(
   CrpHandle handle,
   LPCSTR lpszPropName,
@@ -258,6 +277,7 @@ crpGetStrPropertyA(
 }
 
 int
+CRASHRPTPROBE_API
 crpGetLongPropertyW(
   CrpHandle handle,
   LPCWSTR lpszPropName,
@@ -267,6 +287,7 @@ crpGetLongPropertyW(
 }
 
 int
+CRASHRPTPROBE_API
 crpGetLongPropertyA(
   CrpHandle handle,
   LPCSTR lpszPropName,
@@ -277,6 +298,7 @@ crpGetLongPropertyA(
 
 
 int
+CRASHRPTPROBE_API
 crpExtractFileW(
   CrpHandle handle,
   LPCWSTR lpszFileName,
@@ -284,18 +306,23 @@ crpExtractFileW(
 );
 
 int
+CRASHRPTPROBE_API
 crpExtractFileA(
   CrpHandle handle,
   LPCSTR lpszFileName,
   LPCSTR lpszFileSaveAs
 );
 
-int crpGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
+int 
+CRASHRPTPROBE_API
+crpGetLastErrorMsgW(
+  LPWSTR pszBuffer, 
+  UINT uBuffSize)
 {
   if(pszBuffer==NULL || uBuffSize==0)
     return -1; // Null pointer to buffer
 
-  USES_CONVERSION;
+  strconv_t strconv;
 
   g_cs.Lock();
 
@@ -306,7 +333,7 @@ int crpGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
   {
     // No error message for current thread.
     CString sErrorMsg = _T("No error.");
-	  LPWSTR pwszErrorMsg = T2W(sErrorMsg.GetBuffer(0));
+    LPCWSTR pwszErrorMsg = strconv.t2w(sErrorMsg.GetBuffer(0));
 	  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
     int size =  sErrorMsg.GetLength();
     g_cs.Unlock();
@@ -320,18 +347,22 @@ int crpGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
   return size;
 }
 
-int crpGetLastErrorMsgA(LPSTR pszBuffer, UINT uBuffSize)
+int 
+CRASHRPTPROBE_API
+crpGetLastErrorMsgA(
+  LPSTR pszBuffer, 
+  UINT uBuffSize)
 {  
   if(pszBuffer==NULL)
     return -1;
 
-  USES_CONVERSION;
+  strconv_t strconv;
 
   WCHAR* pwszBuffer = new WCHAR[uBuffSize];
     
   int res = crpGetLastErrorMsgW(pwszBuffer, uBuffSize);
   
-  LPSTR paszBuffer = W2A(pwszBuffer);  
+  LPCSTR paszBuffer = strconv.w2a(pwszBuffer);  
 
   STRCPY_S(pszBuffer, uBuffSize, paszBuffer);
 
@@ -349,13 +380,4 @@ int crpSetErrorMsg(PTSTR pszErrorMsg)
   return 0;
 }
 
-// DllMain
-BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
-{
-  HRESULT hRes = _Module.Init(NULL, hModule);
-  ATLASSERT(SUCCEEDED(hRes));
-  hRes;
-
-  return TRUE;
-}
 
