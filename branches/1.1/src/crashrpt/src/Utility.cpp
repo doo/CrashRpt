@@ -230,3 +230,31 @@ int CUtility::RecycleFile(CString sFilePath, bool bPermanentDelete)
 //	str = buf;
 //	return str;
 //}
+
+CString CUtility::GetINIString(LPCTSTR pszSection, LPCTSTR pszName)
+{
+  static CString sINIFileName = _T("");
+
+  if(sINIFileName.IsEmpty())
+  {
+    LPTSTR pszCrashRptModule = NULL;
+
+#ifndef CRASHRPT_LIB
+  #ifdef _DEBUG
+      pszCrashRptModule = _T("CrashRptd.dll");
+  #else
+      pszCrashRptModule = _T("CrashRpt.dll");
+  #endif //_DEBUG
+#else //!CRASHRPT_LIB
+    pszCrashRptModule = NULL;
+#endif
+
+    sINIFileName = GetModulePath(GetModuleHandle(pszCrashRptModule)) + _T("\\crashrpt_lang.ini");
+  }
+  
+  TCHAR szBuffer[1024] = _T("");  
+  GetPrivateProfileString(pszSection, pszName, _T(""), szBuffer, 1024, sINIFileName);
+
+  return CString(szBuffer);
+}
+

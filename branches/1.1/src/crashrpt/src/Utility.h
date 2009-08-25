@@ -128,6 +128,8 @@ public:
    static int RecycleFile(CString sFilePath, bool bPermanentDelete);
 
    /*static CString LoadString(UINT uID);*/
+
+   static CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
 };
 
 #include <vector>
