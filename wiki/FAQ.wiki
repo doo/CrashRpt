@@ -66,11 +66,9 @@ Yes, they are listed in the table below:
 
 = Using crashrpt =
 
-== What Visual C++ versions I can use crashrpt in? ==
+== What Visual C++ versions can I use crashrpt in? ==
 
-Visual C++ 6.0 is not supported anymore.
-
-Since v1.1b of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. 
+Since v1.1b of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
 
 Since v1.1.1 of CrashRpt you can compile and use CrashRpt in Visual C++ Express Edition (EVC++ 2005 and EVC++ 2008). For additional info on compiling CrashRpt in VC++ Express, see below.
 
@@ -311,6 +309,12 @@ CrashRpt saves an error report as a ZIP archive to `LOCAL_APP_DATA\CrashRpt\Unse
 In CrashRpt v1.1b, crash report files are not removed, even if they had been sent to the recipient successfuly.
 
 Since CrashRpt v1.1.1, crash report files are removed after they had been sent to the recipient successfuly.
+
+== What is the Privacy Policy. Where can I find a template for the Privacy Policy? ==
+
+Since v.1.1.2 you can use a privacy policy which describes what user information your software collects on crash. You provide an URL of your privacy policy HTML document published on your web site or distributed with your software. By reading
+
+If you need a template you may use this one: PrivacyPolicyTemplate.
 
 == How does crashrpt deliver me error reports from end users? ==
 
