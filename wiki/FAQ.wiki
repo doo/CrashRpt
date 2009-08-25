@@ -310,9 +310,9 @@ In CrashRpt v1.1b, crash report files are not removed, even if they had been sen
 
 Since CrashRpt v1.1.1, crash report files are removed after they had been sent to the recipient successfuly.
 
-== What is the Privacy Policy. Where can I find a template for the Privacy Policy? ==
+== What is the Privacy Policy? Where can I find a template for the Privacy Policy? ==
 
-Since v.1.1.2 you can use a privacy policy which describes what user information your software collects on crash. You provide an URL of your privacy policy HTML document published on your web site or distributed with your software. By reading
+Since v.1.1.2 you can use a privacy policy which describes what user information your software collects on crash. You provide an URL of your privacy policy HTML document published on your web site or distributed with your software. 
 
 If you need a template you may use this one: PrivacyPolicyTemplate.
 
