@@ -49,12 +49,16 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
 
+  m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
+  m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
+
   m_statEmail = GetDlgItem(IDC_STATMAIL);
   m_editEmail = GetDlgItem(IDC_EMAIL);
   m_statDesc = GetDlgItem(IDC_DESCRIBE);
   m_editDesc = GetDlgItem(IDC_DESCRIPTION);
   m_statCrashRpt = GetDlgItem(IDC_CRASHRPT);
   m_statHorzLine = GetDlgItem(IDC_HORZLINE);
+  m_statBySending = GetDlgItem(IDC_BYSENDING);
   m_btnOk = GetDlgItem(IDOK);
   m_btnCancel = GetDlgItem(IDCANCEL);
 
@@ -94,7 +98,11 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   m_editEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-  
+
+  BOOL bShowPrivacyPolicy = !m_sPrivacyPolicyURL.IsEmpty();
+  m_statBySending.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
+  m_linkPrivacyPolicy.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
+
   int k = bShow?-1:1;
 
   m_statHorzLine.GetWindowRect(&rc1);
@@ -106,6 +114,16 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   ScreenToClient(&rc1);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_statCrashRpt.MoveWindow(&rc1);
+
+  m_statBySending.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_statBySending.MoveWindow(&rc1);
+
+  m_linkPrivacyPolicy.GetWindowRect(&rc1);
+  ScreenToClient(&rc1);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_linkPrivacyPolicy.MoveWindow(&rc1);
 
   m_btnOk.GetWindowRect(&rc1);
   ScreenToClient(&rc1);
@@ -191,6 +209,7 @@ LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 {  
   CDetailDlg dlg;
   dlg.m_pUDFiles = m_pUDFiles;
+  dlg.m_sPrivacyPolicyURL = m_sPrivacyPolicyURL;
   dlg.DoModal();
   return 0;
 }
@@ -275,7 +294,7 @@ LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, B
 
 void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
-  USES_CONVERSION;
+  strconv_t strconv;
 
   HZIP hz = CreateZip(m_sZipName, NULL);
   
@@ -302,7 +321,7 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* email = new TiXmlElement("UserEmail");
       root->LinkEndChild(email);
 
-      LPSTR lpszEmail = T2A(sEmail.GetBuffer(0));
+      LPCSTR lpszEmail = strconv.t2a(sEmail.GetBuffer(0));
       TiXmlText* email_text = new TiXmlText(lpszEmail);
       email->LinkEndChild(email_text);              
 
@@ -311,17 +330,17 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
       TiXmlElement* desc = new TiXmlElement("ProblemDescription");
       root->LinkEndChild(desc);
 
-      LPSTR lpszDesc = T2A(sDesc.GetBuffer(0));
+      LPCSTR lpszDesc = strconv.t2a(sDesc.GetBuffer(0));
       TiXmlText* desc_text = new TiXmlText(lpszDesc);
       desc->LinkEndChild(desc_text);              
 
       doc.SaveFile();      
     }
 
-	LPTSTR lptszFilePath = A2T((char*)cur->first.c_str());
+	  LPCTSTR lptszFilePath = strconv.a2t((char*)cur->first.c_str());
     ZRESULT zr = ZipAdd(hz, sFileName, lptszFilePath);
     ATLASSERT(zr==ZR_OK); 
-	zr;
+	  zr;
   }  
 
   CloseZip(hz);
@@ -333,7 +352,6 @@ LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
     return 0;
 
   HDC hDC = (HDC)wParam;
-  //::SelectObject(hDC, GetStockObject(NULL_BRUSH));
   SetBkColor(hDC, RGB(0, 255, 255));
   SetTextColor(hDC, RGB(0, 255, 255));
   return (LRESULT)TRUE;
