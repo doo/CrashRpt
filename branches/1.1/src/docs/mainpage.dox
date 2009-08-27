@@ -16,11 +16,11 @@ occurred in your user-mode application. CrashRpt DLL works like
 <a href="http://en.wikipedia.org/wiki/Dr._Watson_%28debugger%29">Dr. Watson</a> 
 utility that ships with Windows XP, or like <a href="http://en.wikipedia.org/wiki/Windows_Error_Reporting">
 Windows Error Reporting</a> in Windows Vista. 
-CrashRpt intercepts an unhandled exception, creates a minidump, builds a crash descriptor in XML format, 
-presents an interface to allow user to review 
-the crash report, and finally it compresses and sends the crash report to the
-software support team.
 
+CrashRpt intercepts an unhandled exception, creates a minidump, builds a crash descriptor in XML format, 
+presents an interface to allow user to review the crash report, and finally it compresses and 
+sends the crash report to the software support team. CrashRpt can be configured to display its UI using 
+different languages, which makes it more suitable for multi-lingual applications.
 
 The documentation is organized in the following topics:
 
