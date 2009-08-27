@@ -1,10 +1,17 @@
 #include "stdafx.h"
 #include "ProgressDlg.h"
+#include "Utility.h"
 
 
 LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{ 
-  DlgResize_Init();
+{   
+  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  if(sRTL.CompareNoCase(_T("1"))==0)
+  {
+    Utility::SetLayoutRTL(m_hWnd);
+  }
+
+  SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")));
 
   HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
   SetIcon(hIcon, FALSE);
@@ -17,6 +24,11 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   m_listView.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
   m_listView.InsertColumn(0, _T("Status"), LVCFMT_LEFT, 2048);
   
+  CStatic statCancel = GetDlgItem(IDCANCEL);
+  statCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
+
+  DlgResize_Init();
+
   return TRUE;
 }
 
@@ -96,24 +108,24 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       { 
         m_bFinished = TRUE;
         KillTimer(1);
-        statText.SetWindowText(_T("Completed with errors. Press Close to close this window."));
+        statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompletedWithErrors")));
         
         CButton btnCancel = GetDlgItem(IDCANCEL);
         btnCancel.EnableWindow(1);
-        btnCancel.SetWindowText(_T("Close"));
+        btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
         ShowWindow(SW_SHOW);
       }
 
       if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
       { 
-        statText.SetWindowText(_T("Cancelling..."));
+        statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancelling")));
       }
 
       if(messages[i].CompareNoCase(_T("[sending_attempt]"))==0)
       {
         attempt ++;      
         CString str;
-        str.Format(_T("The error report is now being sent (attempt %d of 3)..."), attempt);
+        str.Format(Utility::GetINIString(_T("ProgressDlg"), _T("StatusText")), attempt);
         statText.SetWindowText(str);
       }
       
@@ -122,14 +134,20 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         KillTimer(1);        
         ShowWindow(SW_SHOW);
 
-        CString sMailClientName;
-        
+        DWORD dwFlags = 0;
+        CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+        if(sRTL.CompareNoCase(_T("1"))==0)
+          dwFlags = MB_RTLREADING;
+
+        CString sMailClientName;        
         CMailMsg::DetectMailClient(sMailClientName);
         CString msg;
-        msg.Format(_T("Error report can be sent using your default E-mail program (%s).\nPress OK to run the E-mail program or press Cancel to cancel."), sMailClientName);
+        msg.Format(Utility::GetINIString(_T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
 
         INT_PTR result = MessageBox(msg, 
-          _T("Send Error Report"), MB_OKCANCEL|MB_ICONQUESTION);
+          Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")),
+          MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
+
         FeedbackReady(result==IDOK?0:1);       
         ShowWindow(SW_HIDE);
       }
@@ -163,9 +181,25 @@ LRESULT CProgressDlg::OnListRClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
   CMenu submenu = popup_menu.GetSubMenu(0);  
 
   if(lpnmitem->iItem<0)
-  {
+  {    
     submenu.EnableMenuItem(ID_MENU1_COPYSEL, MF_BYCOMMAND|MF_GRAYED);
   }
+
+  CString sCopySelLines = Utility::GetINIString(_T("ProgressDlg"), _T("CopySelectedLines"));
+  CString sCopyWholeLog = Utility::GetINIString(_T("ProgressDlg"), _T("CopyTheWholeLog"));
+
+  MENUITEMINFO mii;
+  memset(&mii, 0, sizeof(MENUITEMINFO));
+  mii.cbSize = sizeof(MENUITEMINFO);
+  mii.fMask = MIIM_STRING;
+
+  mii.dwTypeData = sCopySelLines.GetBuffer(0);
+  mii.cch = sCopySelLines.GetLength();
+  submenu.SetMenuItemInfo(ID_MENU1_COPYSEL, FALSE, &mii);
+
+  mii.dwTypeData = sCopyWholeLog.GetBuffer(0);
+  mii.cch = sCopyWholeLog.GetLength();
+  submenu.SetMenuItemInfo(ID_MENU1_COPYLOG, FALSE, &mii);
 
   submenu.TrackPopupMenu(TPM_LEFTALIGN, pt.x, pt.y, m_hWnd); 
   return 0;

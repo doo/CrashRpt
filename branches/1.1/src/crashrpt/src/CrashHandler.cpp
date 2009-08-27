@@ -428,7 +428,7 @@ int CCrashHandler::Init(
 
   // If no app name provided, use the default (EXE name)
   if(m_sAppName.IsEmpty())
-    m_sAppName = CUtility::getAppName();
+    m_sAppName = Utility::getAppName();
 
   // Save app version
   m_sAppVersion = lpcszAppVersion;
@@ -465,7 +465,7 @@ int CCrashHandler::Init(
 
   if(m_sTo.IsEmpty() && m_sUrl.IsEmpty())
   {
-    crSetErrorMsg(_T("Error reports recipient's address is not defined."));
+    crSetErrorMsg(_T("Error report recipient's address is not defined."));
     ATLASSERT(!m_sTo.IsEmpty() || !m_sUrl.IsEmpty());
     return 1;
   }
@@ -515,10 +515,25 @@ int CCrashHandler::Init(
   if(lpcszCrashSenderPath==NULL)
   {
     // By default assume that CrashSender.exe is located in the same dir as CrashRpt.dll
-    m_sPathToCrashSender = CUtility::GetModulePath(hCrashRptModule);   
+    m_sPathToCrashSender = Utility::GetModulePath(hCrashRptModule);   
   }
   else
     m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
+
+  if(m_sPathToCrashSender.Right(1)!='\\')
+      m_sPathToCrashSender+="\\";
+
+  // Look for crashrpt_lang.ini in the same folder as CrashSender.exe
+  CString sININame = m_sPathToCrashSender + _T("crashrpt_lang.ini");
+  CString sLangFileVer = Utility::GetINIString(sININame, _T("Settings"), _T("CrashRptVersion"));
+  int lang_file_ver = _ttoi(sLangFileVer);
+  if(lang_file_ver!=CRASHRPT_VER)
+  {
+    ATLASSERT(lang_file_ver==CRASHRPT_VER);
+    crSetErrorMsg(_T("Missing language INI file or wrong file version."));
+    return 1; // Language INI file has wrong version!
+  }
+
 
   // Get CrashSender EXE name
   CString sCrashSenderName;
@@ -529,8 +544,6 @@ int CCrashHandler::Init(
   sCrashSenderName = _T("CrashSender.exe");
 #endif //_DEBUG
 
-  if(m_sPathToCrashSender.Right(1)!='\\')
-      m_sPathToCrashSender+="\\";
   m_sPathToCrashSender+=sCrashSenderName;   
 
   HANDLE hFile = CreateFile(m_sPathToCrashSender, FILE_GENERIC_READ, 
@@ -544,9 +557,9 @@ int CCrashHandler::Init(
   }
 
   CloseHandle(hFile);
-
+  
   // Generate unique GUID for this crash report.
-  if(0!=CUtility::GenerateGUID(m_sCrashGUID))
+  if(0!=Utility::GenerateGUID(m_sCrashGUID))
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't generate crash GUID."));
@@ -554,7 +567,7 @@ int CCrashHandler::Init(
   }
 
   // Get operating system friendly name.
-  if(0!=CUtility::GetOSFriendlyName(m_sOSName))
+  if(0!=Utility::GetOSFriendlyName(m_sOSName))
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't get operating system's friendly name."));
@@ -566,7 +579,7 @@ int CCrashHandler::Init(
 
   DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
 
-  CUtility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
+  Utility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
   if(sLocalAppDataFolder.Right(1)!='\\')
     sLocalAppDataFolder += _T("\\");
   
@@ -587,7 +600,7 @@ int CCrashHandler::Init(
   }
 
   CString str = sUnsentCrashReportsFolder+_T("\\")+m_sAppName+_T("_")+m_sAppVersion;
-  CString sUnsentCrashReportsFolderAppName = CUtility::ReplaceInvalidCharsInFileName(str);
+  CString sUnsentCrashReportsFolderAppName = Utility::ReplaceInvalidCharsInFileName(str);
   if(FALSE==CreateDirectory(sUnsentCrashReportsFolderAppName, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
   {
     ATLASSERT(0);
@@ -983,7 +996,7 @@ int CCrashHandler::GenerateErrorReport(
   
   /* Create crash minidump and crash log. */
 
-  CString sTempDir = CUtility::getTempFileName();
+  CString sTempDir = Utility::getTempFileName();
   DeleteFile(sTempDir);
 
   BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
@@ -998,14 +1011,14 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      //CString sDesc = CUtility::LoadString(IDS_CRASH_DUMP);
+      //CString sDesc = Utility::LoadString(IDS_CRASH_DUMP);
       m_files[sFileName] = _T("Crash Dump");
     }
     
     /* Create crash report descriptor file in XML format. */
   
-    sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, CUtility::getAppName());
-    //CString sDesc = CUtility::LoadString(IDS_CRASH_LOG);
+    sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, Utility::getAppName());
+    //CString sDesc = Utility::LoadString(IDS_CRASH_LOG);
     m_files[sFileName] = _T("Crash Log");
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
     ATLASSERT(result==0);
@@ -1022,7 +1035,7 @@ int CCrashHandler::GenerateErrorReport(
     // Failed to create zip.
     // Try notify user about crash using message box.
     CString szCaption;
-    szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
+    szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
     CString szMessage;
     szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to create the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
@@ -1041,7 +1054,7 @@ int CCrashHandler::GenerateErrorReport(
     // Failed to launch crash sender process.
     // Try notify user about crash using message box.
     CString szCaption;
-    szCaption.Format(_T("%s has stopped working"), CUtility::getAppName());
+    szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
     CString szMessage;
     szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to run CrashSender.exe and send the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
@@ -1110,7 +1123,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   
   // Write system time in UTC format
   CString sSystemTime;
-  CUtility::GetSystemTimeUTC(sSystemTime);
+  Utility::GetSystemTimeUTC(sSystemTime);
   TiXmlElement* sys_time = new TiXmlElement("SystemTimeUTC");
   root->LinkEndChild(sys_time);
   LPCSTR lpszSystemTime = strconv.t2a(sSystemTime.GetBuffer(0));
@@ -1294,7 +1307,7 @@ int CCrashHandler::CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExIn
 
 int CCrashHandler::ZipErrorReport(CString sFileName)
 {
-  CString sTempFileName = CUtility::getTempFileName();
+  CString sTempFileName = Utility::getTempFileName();
 
   HZIP hz = CreateZip(sFileName, NULL);
   if (hz==NULL)

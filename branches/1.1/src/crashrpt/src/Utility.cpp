@@ -16,7 +16,7 @@
 #include <shellapi.h>
 
 
-CString CUtility::getAppName()
+CString Utility::getAppName()
 {
    TCHAR szFileName[_MAX_PATH];
    GetModuleFileName(NULL, szFileName, _MAX_FNAME);
@@ -29,7 +29,7 @@ CString CUtility::getAppName()
    return sAppName;
 }
 
-int CUtility::getTempDirectory(CString& strTemp)
+int Utility::getTempDirectory(CString& strTemp)
 {
   TCHAR* pszTempVar = NULL;
   
@@ -51,7 +51,7 @@ int CUtility::getTempDirectory(CString& strTemp)
   return 0;
 }
 
-CString CUtility::getTempFileName()
+CString Utility::getTempFileName()
 {
    TCHAR szTempDir[MAX_PATH - 14]   = _T("");
    TCHAR szTempFile[MAX_PATH]       = _T("");
@@ -63,7 +63,7 @@ CString CUtility::getTempFileName()
 }
 
 
-CString CUtility::GetModulePath(HMODULE hModule)
+CString Utility::GetModulePath(HMODULE hModule)
 {
 	CString string;
 	LPTSTR buf = string.GetBuffer(_MAX_PATH);
@@ -73,7 +73,7 @@ CString CUtility::GetModulePath(HMODULE hModule)
 	return string;
 }
 
-int CUtility::GetSystemTimeUTC(CString& sTime)
+int Utility::GetSystemTimeUTC(CString& sTime)
 {
   sTime.Empty();
 
@@ -97,7 +97,7 @@ int CUtility::GetSystemTimeUTC(CString& sTime)
   return 0;
 }
 
-int CUtility::GenerateGUID(CString& sGUID)
+int Utility::GenerateGUID(CString& sGUID)
 {
   int status = 1;
   sGUID.Empty();
@@ -129,7 +129,7 @@ int CUtility::GenerateGUID(CString& sGUID)
   return status;
 }
 
-int CUtility::GetOSFriendlyName(CString& sOSName)
+int Utility::GetOSFriendlyName(CString& sOSName)
 {
   sOSName.Empty();
   CRegKey regKey;
@@ -174,7 +174,7 @@ int CUtility::GetOSFriendlyName(CString& sOSName)
   return 1;
 }
 
-int CUtility::GetSpecialFolder(int csidl, CString& sFolderPath)
+int Utility::GetSpecialFolder(int csidl, CString& sFolderPath)
 {
   sFolderPath.Empty();
 
@@ -188,7 +188,7 @@ int CUtility::GetSpecialFolder(int csidl, CString& sFolderPath)
   return 0;
 }
 
-CString CUtility::ReplaceInvalidCharsInFileName(CString sFileName)
+CString Utility::ReplaceInvalidCharsInFileName(CString sFileName)
 {
 	sFileName.Replace(_T("*"),_T("_"));
 	sFileName.Replace(_T("|"),_T("_"));
@@ -199,7 +199,7 @@ CString CUtility::ReplaceInvalidCharsInFileName(CString sFileName)
 	return sFileName;
 }
 
-int CUtility::RecycleFile(CString sFilePath, bool bPermanentDelete)
+int Utility::RecycleFile(CString sFilePath, bool bPermanentDelete)
 {
   SHFILEOPSTRUCT fop;
   memset(&fop, 0, sizeof(SHFILEOPSTRUCT));
@@ -222,39 +222,52 @@ int CUtility::RecycleFile(CString sFilePath, bool bPermanentDelete)
   return SHFileOperation(&fop); // do it!  
 }
 
-//CString CUtility::LoadString(UINT uID)
-//{
-//  CString str;
-//	TCHAR buf[1024]=_T("");
-//  ::LoadString(GetModuleHandle(NULL), uID, buf, 1024);
-//	str = buf;
-//	return str;
-//}
-
-CString CUtility::GetINIString(LPCTSTR pszSection, LPCTSTR pszName)
+CString Utility::GetINIString(LPCTSTR pszSection, LPCTSTR pszName)
 {
   static CString sINIFileName = _T("");
 
   if(sINIFileName.IsEmpty())
   {
-    LPTSTR pszCrashRptModule = NULL;
-
-#ifndef CRASHRPT_LIB
-  #ifdef _DEBUG
-      pszCrashRptModule = _T("CrashRptd.dll");
-  #else
-      pszCrashRptModule = _T("CrashRpt.dll");
-  #endif //_DEBUG
-#else //!CRASHRPT_LIB
-    pszCrashRptModule = NULL;
-#endif
-
-    sINIFileName = GetModulePath(GetModuleHandle(pszCrashRptModule)) + _T("\\crashrpt_lang.ini");
+    sINIFileName = GetModulePath(GetModuleHandle(NULL)) + _T("\\crashrpt_lang.ini");
   }
   
-  TCHAR szBuffer[1024] = _T("");  
-  GetPrivateProfileString(pszSection, pszName, _T(""), szBuffer, 1024, sINIFileName);
-
-  return CString(szBuffer);
+  return GetINIString(sINIFileName, pszSection, pszName);
 }
 
+CString Utility::GetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszName)
+{  
+  TCHAR szBuffer[1024] = _T("");  
+  GetPrivateProfileString(pszSection, pszName, _T(""), szBuffer, 1024, pszFile);
+
+  CString sResult = szBuffer;
+  sResult.Replace(_T("\\n"), _T("\n"));
+
+  return sResult;
+}
+
+void Utility::SetLayoutRTL(HWND hWnd)
+{
+  DWORD dwExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+  dwExStyle |= WS_EX_LAYOUTRTL;
+  SetWindowLong(hWnd, GWL_EXSTYLE, dwExStyle);
+
+  SetLayout(GetDC(hWnd), LAYOUT_RTL);
+
+  CRect rcWnd;
+  ::GetClientRect(hWnd, &rcWnd);
+
+  HWND hWndChild = GetWindow(hWnd, GW_CHILD);
+  while(hWndChild!=NULL)
+  {    
+    SetLayoutRTL(hWndChild);
+
+    CRect rc;
+    ::GetWindowRect(hWndChild, &rc);    
+    ::MapWindowPoints(0, hWnd, (LPPOINT)&rc, 2);
+    ::MoveWindow(hWndChild, rcWnd.Width()-rc.right, rc.top, rc.Width(), rc.Height(), TRUE);
+
+    SetLayout(GetDC(hWndChild), LAYOUT_RTL);
+
+    hWndChild = GetWindow(hWndChild, GW_HWNDNEXT);
+  }  
+}

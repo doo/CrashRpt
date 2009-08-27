@@ -44,7 +44,7 @@ public:
   CButton m_btnCancel;
   CStatic m_statHorzLine;
   CStatic m_statCrashRpt; 
-  CStatic m_statBySending; 
+  //CStatic m_statBySending; 
   CHyperLink  m_linkPrivacyPolicy;           
   int m_nDeltaY;
   CFont m_HeadingFont;

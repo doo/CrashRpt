@@ -44,6 +44,9 @@
 #define IDC_RADIO1                      1031
 #define IDC_PRIVACYPOLICY               1032
 #define IDC_BYSENDING                   1033
+#define IDC_SUBHEADER                   1034
+#define IDC_HEADERTEXT                  1035
+#define IDC_PREVIEWTEXT                 1036
 #define ID_MENU1_COPYTHISLINE           32772
 #define ID_MENU1_COPYTHEWHOLELOG        32773
 #define ID_MENU1_COPYSEL                32774
@@ -64,7 +67,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        215
 #define _APS_NEXT_COMMAND_VALUE         32776
-#define _APS_NEXT_CONTROL_VALUE         1034
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

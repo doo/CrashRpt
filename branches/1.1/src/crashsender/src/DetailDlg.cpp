@@ -1,23 +1,36 @@
 #include "stdafx.h"
 #include "DetailDlg.h"
+#include "Utility.h"
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  if(sRTL.CompareNoCase(_T("1"))==0)
+  {
+    Utility::SetLayoutRTL(m_hWnd);
+  }
+
+  SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DlgCaption")));
+
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("DetailDlg"), _T("PrivacyPolicy")));
 
   if(!m_sPrivacyPolicyURL.IsEmpty())
     m_linkPrivacyPolicy.ShowWindow(SW_SHOW);
   else
     m_linkPrivacyPolicy.ShowWindow(SW_HIDE);
 
+  CStatic statHeader = GetDlgItem(IDC_HEADERTEXT);
+  statHeader.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DoubleClickAnItem")));  
+
   m_list = GetDlgItem(IDC_FILE_LIST);
   m_list.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
 
-  m_list.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 120);
-  m_list.InsertColumn(1, _T("Description"), LVCFMT_LEFT, 80);
-  m_list.InsertColumn(2, _T("Type"), LVCFMT_LEFT, 80);
-  m_list.InsertColumn(3, _T("Size"), LVCFMT_RIGHT, 80);
+  m_list.InsertColumn(0, Utility::GetINIString(_T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 120);
+  m_list.InsertColumn(1, Utility::GetINIString(_T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 80);
+  m_list.InsertColumn(2, Utility::GetINIString(_T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 80);
+  m_list.InsertColumn(3, Utility::GetINIString(_T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 80);
 
   m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
   m_list.SetImageList(m_iconList, LVSIL_SMALL);
@@ -59,6 +72,9 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   }
 
   m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
+
+  CStatic statPreview = GetDlgItem(IDC_PREVIEWTEXT);
+  statPreview.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Preview")));  
 
   // center the dialog on the screen
 	CenterWindow();  
