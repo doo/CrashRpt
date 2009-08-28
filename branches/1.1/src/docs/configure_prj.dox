@@ -4,6 +4,7 @@
 
 This page is organized in the following sections:
 - \ref useapi
+- \ref internationalization_support
 - \ref crtdll
 - \ref crtver
 - \ref prgdb
@@ -171,6 +172,17 @@ CrashRpt API Reference:
 - \ref DeprecatedAPI
 - \ref CrashRptWrappers
 
+\section internationalization_support Internationalization Support
+
+<b>Since v.1.1.3</b> CrashRpt supports multi-lingual user interfaces. You should place a valid
+language file named \b crashrpt_lang.ini to the directory where \b CrashSender.exe file is located in order to make 
+CrashRpt work properly. A language file is a text document in UNICODE format and having INI extension.
+
+You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
+If there is no language file for your favourite language, you can contribute one. 
+
+You can distribute several INI files with your software. On install, rename an appropriate 
+file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
 
 \section crtdll Using CRT as Multi-Threaded DLL (/MD) in Release Configuration
 
@@ -277,8 +289,7 @@ so most user machines have this library installed. If your target OS is Windows 
 you may ignore distribution of dbghelp.dll at your own risk.                  
 
 <b>Since v.1.1.3</b> it is also required that you copy a language INI file \b crashrpt_lang.ini to the folder 
-where \b CrashSender.exe is located. You can get available language files from 
-http://crashrpt.googlecode.com/svn/lang_files/1.1.3/ 
+where \b CrashSender.exe is located. 
 
 You can distribute several INI files with your software. On install, rename an appropriate 
 file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.

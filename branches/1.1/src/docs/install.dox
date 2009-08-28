@@ -11,7 +11,6 @@ The following topics are covered in this page:
 - \ref compilation
 - \ref link
 - \ref builddox
-- \ref langpacks
 - \ref faq
 - \ref bugrpt
 
@@ -144,19 +143,6 @@ doxygen doxyfile
 \endcode
 
 When doxygen finishes, go to the top level directory and open \c index.html.
-
-\section langpacks Internationalization Support
-
-<b>Since v.1.1.3</b> CrashRpt supports multi-lingual user interfaces. You should place a valid
-language file named \b crashrpt_lang.ini to the directory where \b CrashSender.exe file is located in order to make 
-CrashRpt work properly. A language file is a text document in UNICODE format and having INI extension.
-
-You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
-If there is no language file for your favourite language, you can contribute one. 
-We appreciate your help.
-
-You can distribute several INI files with your software. On install, rename an appropriate 
-file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
 
 \section faq Frequently Asked Questions
 
