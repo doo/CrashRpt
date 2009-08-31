@@ -52,7 +52,8 @@ A typical crash descriptor is presented below.
 
 \code
 
-<CrashRpt version="1100">
+<?xml version="1.0" encoding="utf-8" ?> 
+<CrashRpt version="1103">
     <CrashGUID>5822d7e1-61ba-4fb0-bedf-672369fa9d36</CrashGUID>
     <AppName>CrashRpt Tests</AppName>
     <AppVersion>1.0.0</AppVersion>
@@ -73,8 +74,8 @@ A typical crash descriptor is presented below.
 \endcode
 
 The root element is <CrashRpt>. It has attribute named 'version' which represents
-the version of CrashRpt library that generated the error report. The value of '1100'
-means version 1.1.0.
+the version of CrashRpt library that generated the error report. The value of '1103'
+means version 1.1.3.
 
 The element  <CrashGUID> is a unique ID of the error report. It can be used, for example,
 as a primary key if you plan to store crash reports in a database.

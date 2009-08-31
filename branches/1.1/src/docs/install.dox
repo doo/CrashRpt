@@ -11,7 +11,6 @@ The following topics are covered in this page:
 - \ref compilation
 - \ref link
 - \ref builddox
-- \ref faq
 - \ref bugrpt
 
 \section license License
@@ -143,11 +142,6 @@ doxygen doxyfile
 \endcode
 
 When doxygen finishes, go to the top level directory and open \c index.html.
-
-\section faq Frequently Asked Questions
-
-You can find a lot of information about CrashRpt in 
-<a href="http://code.google.com/p/crashrpt/wiki/FAQ">online FAQ</a>
 
 \section bugrpt Report a Bug
 

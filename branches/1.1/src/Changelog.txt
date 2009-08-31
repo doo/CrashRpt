@@ -4,6 +4,9 @@
 
 - Support of globalization and RTL languages
 
+- Added <?xml version="1.0" encoding="utf-8" ?> element in the 
+  beginning of crash descriptor XML
+
 --- Ver. 1.1.2 ---
 
 - crInstall: Ability to select what exception handlers to install

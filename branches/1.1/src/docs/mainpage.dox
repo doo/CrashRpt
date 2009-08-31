@@ -32,5 +32,7 @@ The documentation is organized in the following topics:
 - \subpage send_report
 - \subpage using_error_report
 
+You can find a lot of information about CrashRpt in 
+<a href="http://code.google.com/p/crashrpt/wiki/FAQ">online FAQ</a>
 
 */

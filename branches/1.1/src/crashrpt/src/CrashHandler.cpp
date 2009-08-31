@@ -1079,7 +1079,11 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   // Add root element
   TiXmlElement* root = new TiXmlElement("CrashRpt");
   doc.LinkEndChild(root);
-
+  
+  // Add <?xml version="1.0" encoding="utf-8" ?> element
+  TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "utf-8", "" );
+  doc.InsertBeforeChild(root, *decl);
+  
   // Write CrashRpt version
   CString sCrashRptVer;
   sCrashRptVer.Format(_T("%d"), CRASHRPT_VER);
