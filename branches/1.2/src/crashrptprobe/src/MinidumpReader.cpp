@@ -9,6 +9,7 @@ LPVOID CMiniDumpReader::m_pMiniDumpStartPtr;
 
 CMiniDumpReader::CMiniDumpReader()
 {
+  m_bLoaded = false;
   m_hFileMiniDump = INVALID_HANDLE_VALUE;
   m_hFileMapping = NULL;
   m_pMiniDumpStartPtr = NULL;
@@ -23,6 +24,11 @@ CMiniDumpReader::~CMiniDumpReader()
 
 int CMiniDumpReader::Open(CString sFileName)
 {  
+  if(m_bLoaded)
+  {
+    return 1;
+  }
+
   m_hFileMiniDump = CreateFile(
     sFileName, 
     FILE_ALL_ACCESS, 
@@ -86,6 +92,7 @@ int CMiniDumpReader::Open(CString sFileName)
   ReadMemoryListStream();
   StackWalk();
   
+  m_bLoaded = true;
   return 0;
 }
 

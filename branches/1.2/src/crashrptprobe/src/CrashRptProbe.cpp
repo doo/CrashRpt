@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "CrashRptProbe.h"
+#include "CrashRpt.h"
 #include <map>
 #include "unzip.h"
 #include "CrashDescReader.h"
@@ -18,8 +19,9 @@ int crpSetErrorMsg(PTSTR pszErrorMsg);
 struct CrpReportData
 {
   HZIP m_hZip;
-  CCrashDescReader m_descReader;
-  CMiniDumpReader m_dmpReader;  
+  CCrashDescReader* m_pDescReader;
+  CMiniDumpReader* m_pDmpReader;  
+  CString m_sMiniDumpTempName;
 };
 
 std::map<int, CrpReportData> g_OpenedHandles;
@@ -96,9 +98,10 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 
 int
 CRASHRPTPROBE_API
-crpOpenCrashReportW(
+crpOpenErrorReportW(
   LPCWSTR pszFileName,
   LPCWSTR pszMd5Hash,
+  DWORD dwFlags,
   CrpHandle* pHandle)
 { 
   int status = -1;
@@ -113,7 +116,11 @@ crpOpenCrashReportW(
   CString sCalculatedMD5Hash;
 
   crpSetErrorMsg(_T("Unspecified error."));
+  *pHandle = 0;
   
+  report_data.m_pDescReader = new CCrashDescReader();
+  report_data.m_pDmpReader = new CMiniDumpReader();
+
   // Check ZIP integrity
   if(pszMd5Hash!=NULL)
   {
@@ -192,7 +199,7 @@ crpOpenCrashReportW(
       goto exit; // Can't unzip ZIP element
     }
 
-    int result = report_data.m_descReader.Load(sTempFile);    
+    int result = report_data.m_pDescReader->Load(sTempFile);    
     DeleteFile(sTempFile);
     if(result!=0)
     {
@@ -201,16 +208,37 @@ crpOpenCrashReportW(
     }
   }  
 
-  // Check integrity of minidump
+  // Extract minidump file
+  if(dmp_index>=0)
+  {
+    CString sTempFile = CUtility::getTempFileName();
+    zr = UnzipItem(hZip, dmp_index, sTempFile);
+    if(zr!=ZR_OK)
+    {
+      crpSetErrorMsg(_T("Error extracting ZIP item."));
+      goto exit; // Can't unzip ZIP element
+    }
 
+    report_data.m_sMiniDumpTempName = sTempFile;
+  }
+
+  // Check integrity of minidump
 
   // Add handle to the list of opened handles
   nNewHandle = (int)g_OpenedHandles.size()+1;
   g_OpenedHandles[nNewHandle] = report_data;
-
+  *pHandle = nNewHandle;
+  
   crpSetErrorMsg(_T("Success."));
+  status = 0;
 
 exit:
+
+  if(status!=0)
+  {
+    delete report_data.m_pDescReader;
+    delete report_data.m_pDmpReader;
+  }
 
   if(hZip!=0) 
     CloseZip(hZip);
@@ -220,18 +248,19 @@ exit:
 
 int
 CRASHRPTPROBE_API
-crpOpenCrashReportA(
+crpOpenErrorReportA(
   LPCSTR pszFileName,
   LPCSTR pszMd5Hash,
+  DWORD dwFlags,
   CrpHandle* pHandle)
 {
   strconv_t strconv;
-  return crpOpenCrashReportW(strconv.a2w(pszFileName), strconv.a2w(pszMd5Hash), pHandle);  
+  return crpOpenErrorReportW(strconv.a2w(pszFileName), strconv.a2w(pszMd5Hash), dwFlags, pHandle);  
 }
 
 int
 CRASHRPTPROBE_API
-crpCloseCrashReport(
+crpCloseErrorReport(
   CrpHandle handle)
 {
   crpSetErrorMsg(_T("Unspecified error."));
@@ -245,6 +274,8 @@ crpCloseCrashReport(
   }
 
   // Remove from the list of opened handles
+  delete it->second.m_pDescReader;
+  delete it->second.m_pDmpReader;
   g_OpenedHandles.erase(it);
 
   // OK.
@@ -254,48 +285,260 @@ crpCloseCrashReport(
 
 int
 CRASHRPTPROBE_API
-crpGetStrPropertyW(
-  UINT uHandle,
-  LPCWSTR lpszPropName,
+crpGetPropertyW(
+  CrpHandle hReport,
+  INT nPropId, 
+  INT nIndex,
   LPWSTR lpszBuffer,
-  UINT uBuffSize
-)
+  ULONG cchBuffSize,
+  PULONG pcchCount)
 {
+  crpSetErrorMsg(_T("Unspecified error."));
+
+  LPCWSTR pszPropVal = NULL;
+  const int BUFF_SIZE = 1024;
+  TCHAR szBuff[BUFF_SIZE];
+  strconv_t strconv;
+  
+  std::map<int, CrpReportData>::iterator it = g_OpenedHandles.find(hReport);
+  if(it==g_OpenedHandles.end())
+  {
+    crpSetErrorMsg(_T("Invalid handle specified."));
+    return -1;
+  }
+
+  CCrashDescReader* pDescReader = it->second.m_pDescReader;
+  CMiniDumpReader* pDmpReader = it->second.m_pDmpReader;
+
+  if(nPropId>=CRP_PROP_STACK_FRAME_COUNT)
+  {
+    int result = pDmpReader->Open(it->second.m_sMiniDumpTempName);
+  }
+
+  if(nPropId==CRP_PROP_CRASH_GUID)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
+  }
+  else if(nPropId==CRP_PROP_APP_NAME)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sAppName);    
+  }
+  else if(nPropId==CRP_PROP_APP_VERSION)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sAppVersion);    
+  }
+  else if(nPropId==CRP_PROP_IMAGE_NAME)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sImageName);    
+  }
+  else if(nPropId==CRP_PROP_OPERATING_SYSTEM)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sOperatingSystem);    
+  }
+  else if(nPropId==CRP_PROP_SYSTEM_TIME_UTC)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sSystemTimeUTC);    
+  }
+  else if(nPropId==CRP_PROP_INVPARAM_EXPRESSION)
+  {
+    if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+    {
+      crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
+      return -3;
+    }
+    pszPropVal = strconv.t2w(pDescReader->m_sInvParamExpression);    
+  }
+  else if(nPropId==CRP_PROP_INVPARAM_FILE)
+  {
+    if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+    {
+      crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
+      return -3;
+    }
+    pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
+  }
+  else if(nPropId==CRP_PROP_USER_EMAIL)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
+  }
+  else if(nPropId==CRP_PROP_PROBLEM_DESCRIPTION)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
+  }
+  else if(nPropId==CRP_PROP_FILE_ITEM_NAME || 
+    nPropId==CRP_PROP_FILE_ITEM_DESCRIPTION)
+  {
+    if(nIndex<0 || nIndex>=(int)pDescReader->m_aFileItems.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    
+    std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
+    int i;
+    for(i=0; i<nIndex; i++) it++;
+
+    if(nPropId==CRP_PROP_FILE_ITEM_NAME)
+      pszPropVal = strconv.t2w(it->first);    
+    else
+      pszPropVal = strconv.t2w(it->second);    
+  }
+  else if(nPropId==CRP_PROP_STACK_MODULE_NAME)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sModuleName);    
+  }
+  else if(nPropId==CRP_PROP_STACK_SYMBOL_NAME)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSymbolName);    
+  }
+  else if(nPropId==CRP_PROP_STACK_SOURCE_FILE)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSrcFileName);    
+  }
+  else if(nPropId==CRP_PROP_CRASHRPT_VERSION)
+  {    
+    _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;
+  }
+  else if(nPropId==CRP_PROP_FILE_COUNT)
+  {   
+    _ltot_s((long)pDescReader->m_aFileItems.size(), szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;    
+  }
+  else if(nPropId==CRP_PROP_EXCEPTION_TYPE)
+  {   
+    _ultot_s(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;
+    
+  }
+  else if(nPropId==CRP_PROP_EXCEPTION_CODE)
+  {  
+    if(pDescReader->m_dwExceptionType!=CR_WIN32_STRUCTURED_EXCEPTION)
+    {
+      crpSetErrorMsg(_T("This property is valid for strucutred exceptions only."));
+      return -3;
+    }
+
+    _ultot_s(pDescReader->m_dwExceptionCode, szBuff, BUFF_SIZE, 16);
+    pszPropVal = szBuff;    
+  }
+  else if(nPropId==CRP_PROP_FPE_SUBCODE)
+  { 
+    if(pDescReader->m_dwExceptionType!=CR_CPP_SIGFPE)
+    {
+      crpSetErrorMsg(_T("This property is valid for floating point exceptions only."));
+      return -3;
+    }
+    _ultot_s(pDescReader->m_dwFPESubcode, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_INVPARAM_LINE)
+  { 
+    if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+    {
+      crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
+      return -3;
+    }
+    _ultot_s(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;            
+  }
+  else if(nPropId==CRP_PROP_STACK_FRAME_COUNT)
+  {     
+    _ultot_s((LONG)pDmpReader->m_DumpData.m_StackTrace.size(), szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;            
+  }
+  else if(nPropId==CRP_PROP_STACK_OFFSET_IN_SYMBOL)
+  {     
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    _ui64tot_s(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_dw64OffsInSymbol, szBuff, BUFF_SIZE, 16);
+    pszPropVal = szBuff;            
+    
+  }
+  else if(nPropId==CRP_PROP_STACK_SOURCE_LINE)
+  {     
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;                
+  }
+  else
+  {
+    crpSetErrorMsg(_T("Invalid property ID."));
+    return -2;
+  }
+
+  if(cchBuffSize==0)
+  {
+    if(pcchCount!=NULL)
+    {
+      *pcchCount = (ULONG)wcslen(pszPropVal);
+    }
+  }
+  else
+  {
+    ULONG uRequiredLen = (ULONG)wcslen(pszPropVal);
+    if(uRequiredLen>(cchBuffSize))
+    {
+      crpSetErrorMsg(_T("Buffer is too small."));
+      return uRequiredLen;
+    }
+
+    wcscpy_s(lpszBuffer, cchBuffSize, pszPropVal);
+
+    if(pcchCount!=NULL)
+    {
+      *pcchCount = uRequiredLen;
+    }
+  }
+
+  crpSetErrorMsg(_T("Successs."));
   return 0;
 }
 
 int
 CRASHRPTPROBE_API
-crpGetStrPropertyA(
-  CrpHandle handle,
-  LPCSTR lpszPropName,
+crpGetPropertyA(
+  CrpHandle hReport,
+  INT nPropId,
+  INT nIndex,
   LPSTR lpszBuffer,
-  UINT uBuffSize
-)
+  ULONG cchBuffSize,
+  PULONG pcchCount)
 {
-  return 0;
-}
+  crpSetErrorMsg(_T("Unspecified error."));
 
-int
-CRASHRPTPROBE_API
-crpGetLongPropertyW(
-  CrpHandle handle,
-  LPCWSTR lpszPropName,
-  PLONG lpnPropVal)
-{
-  return 0;
-}
+  WCHAR* szBuffer = new WCHAR[cchBuffSize];
+  strconv_t strconv;
 
-int
-CRASHRPTPROBE_API
-crpGetLongPropertyA(
-  CrpHandle handle,
-  LPCSTR lpszPropName,
-  PLONG lpnPropVal)
-{
-  return 0;
-}
+  int result = crpGetPropertyW(hReport, nPropId, nIndex, szBuffer, cchBuffSize, pcchCount);
 
+  LPCSTR aszResult = strconv.w2a(szBuffer);
+  delete [] szBuffer;
+  strcpy_s(lpszBuffer, cchBuffSize, aszResult);
+  return result;
+}
 
 int
 CRASHRPTPROBE_API
@@ -303,7 +546,10 @@ crpExtractFileW(
   CrpHandle handle,
   LPCWSTR lpszFileName,
   LPCWSTR lpszFileSaveAs
-);
+)
+{
+  return 0;
+}
 
 int
 CRASHRPTPROBE_API
@@ -311,7 +557,10 @@ crpExtractFileA(
   CrpHandle handle,
   LPCSTR lpszFileName,
   LPCSTR lpszFileSaveAs
-);
+)
+{
+  return 0;
+}
 
 int 
 CRASHRPTPROBE_API

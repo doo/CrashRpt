@@ -11,8 +11,6 @@ public:
 
   int Load(CString sFileName);
 
-private:
-
   bool m_bLoaded;
 
   DWORD m_dwGeneratorVersion;
@@ -24,19 +22,19 @@ private:
   CString m_sOperatingSystem;
   CString m_sSystemTimeUTC;
   
-  CString m_sExceptionType;
-  CString m_sExceptionCode;
+  DWORD m_dwExceptionType;
+  DWORD m_dwExceptionCode;
   
-  CString m_sFPESubcode;
+  DWORD m_dwFPESubcode;
   
   CString m_sInvParamExpression;
   CString m_sInvParamFunction;
   CString m_sInvParamFile;
-  CString m_sInvParamLine;
+  DWORD m_dwInvParamLine;
 
   CString m_sUserEmail;
   CString m_sProblemDescription;
 
-  std::map<CString, CString> m_sFileItems;
+  std::map<CString, CString> m_aFileItems;
 };
 

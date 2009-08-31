@@ -2,6 +2,7 @@
 #include "CrashRpt.h"
 #include "CrashDescReader.h"
 #include "tinyxml.h"
+#include "Utility.h"
 
 CCrashDescReader::CCrashDescReader()
 {
@@ -14,9 +15,12 @@ CCrashDescReader::~CCrashDescReader()
 
 int CCrashDescReader::Load(CString sFileName)
 {
-  USES_CONVERSION;
   TiXmlDocument doc;
   FILE* f = NULL;
+  strconv_t strconv;
+
+  if(m_bLoaded)
+    return 1; // already loaded
 
   // Check that the file exists
 #if _MSC_VER<1400
@@ -31,7 +35,7 @@ int CCrashDescReader::Load(CString sFileName)
   fclose(f);
 
   // Open XML document
-  LPCSTR szFileName = T2A(sFileName.GetBuffer(0));
+  LPCSTR szFileName = strconv.t2a(sFileName.GetBuffer(0));
   bool bLoaded = doc.LoadFile(szFileName);
   if(!bLoaded)
   {
@@ -42,7 +46,17 @@ int CCrashDescReader::Load(CString sFileName)
   
   TiXmlHandle hRoot = hDoc.FirstChild("CrashRpt").ToElement();
   if(hRoot.ToElement()==NULL)
+  {
     return -3; // Invalid XML structure
+  }
+
+  // Get generator version
+
+  const char* szCrashRptVersion = hRoot.ToElement()->Attribute("version");
+  if(szCrashRptVersion!=NULL)
+  {
+    m_dwGeneratorVersion = atoi(szCrashRptVersion);
+  }
 
   // Get CrashGUID
   TiXmlHandle hCrashGUID = hRoot.ToElement()->FirstChild("CrashGUID");
@@ -50,7 +64,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hCrashGUID.FirstChild().Text()->Value();     
     if(text)
-      m_sCrashGUID = A2T(text);    
+      m_sCrashGUID = strconv.a2t(text);    
   }
 
   // Get AppName
@@ -59,7 +73,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hAppName.FirstChild().Text()->Value();     
     if(text)
-      m_sAppName = A2T(text);    
+      m_sAppName = strconv.a2t(text);    
   }
 
   // Get AppVersion
@@ -68,7 +82,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hAppVersion.FirstChild().Text()->Value();     
     if(text)
-      m_sAppVersion = A2T(text);    
+      m_sAppVersion = strconv.a2t(text);    
   }
 
   // Get ImageName
@@ -77,7 +91,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hImageName.FirstChild().Text()->Value();     
     if(text)
-      m_sImageName = A2T(text);    
+      m_sImageName = strconv.a2t(text);    
   }
 
   // Get OperatingSystem
@@ -86,7 +100,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hOperatingSystem.FirstChild().Text()->Value();     
     if(text)
-      m_sOperatingSystem = A2T(text);    
+      m_sOperatingSystem = strconv.a2t(text);    
   }
 
   // Get SystemTimeUTC
@@ -95,7 +109,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hSystemTimeUTC.FirstChild().Text()->Value();     
     if(text)
-      m_sSystemTimeUTC = A2T(text);    
+      m_sSystemTimeUTC = strconv.a2t(text);    
   }
 
   // Get ExceptionType
@@ -104,10 +118,8 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hExceptionType.FirstChild().Text()->Value();     
     if(text)
-      m_sExceptionType = A2T(text);    
+      m_dwExceptionType = atoi(text);    
   }
-
-  DWORD dwExceptionType = _ttol(m_sExceptionType);
 
   // Get UserEmail
   TiXmlHandle hUserEmail = hRoot.ToElement()->FirstChild("UserEmail");
@@ -115,7 +127,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hUserEmail.FirstChild().Text()->Value();     
     if(text)
-      m_sUserEmail = A2T(text);    
+      m_sUserEmail = strconv.a2t(text);    
   }
 
   // Get ProblemDecription
@@ -124,43 +136,43 @@ int CCrashDescReader::Load(CString sFileName)
   {
     const char* text = hProblemDescription.FirstChild().Text()->Value();     
     if(text)
-      m_sProblemDescription = A2T(text);    
+      m_sProblemDescription = strconv.a2t(text);    
   }
 
   // Get ExceptionCode (for structured exceptions only)
-  if(dwExceptionType==CR_WIN32_STRUCTURED_EXCEPTION)
+  if(m_dwExceptionType==CR_WIN32_STRUCTURED_EXCEPTION)
   {    
     TiXmlHandle hExceptionCode = hRoot.ToElement()->FirstChild("ExceptionCode");
     if(hExceptionCode.ToElement())
     {
       const char* text = hExceptionCode.FirstChild().Text()->Value();     
       if(text)
-        m_sExceptionCode = A2T(text);    
+        m_dwExceptionCode = atoi(text);    
     }
   }
 
   // Get FPESubcode (for FPE exceptions only)
-  if(dwExceptionType==CR_CPP_SIGFPE)
+  if(m_dwExceptionType==CR_CPP_SIGFPE)
   {    
     TiXmlHandle hFPESubcode = hRoot.ToElement()->FirstChild("FPESubcode");
     if(hFPESubcode.ToElement())
     {
       const char* text = hFPESubcode.FirstChild().Text()->Value();     
       if(text)
-        m_sFPESubcode = A2T(text);    
+        m_dwFPESubcode = atoi(text);    
     }
   }
 
   // Get InvParamExpression, InvParamFunction, InvParamFile, InvParamLine 
   // (for invalid parameter exceptions only)
-  if(dwExceptionType==CR_CPP_INVALID_PARAMETER)
+  if(m_dwExceptionType==CR_CPP_INVALID_PARAMETER)
   {    
     TiXmlHandle hInvParamExpression = hRoot.ToElement()->FirstChild("InvParamExpression");
     if(hInvParamExpression.ToElement())
     {
       const char* text = hInvParamExpression.FirstChild().Text()->Value();     
       if(text)
-        m_sInvParamExpression = A2T(text);    
+        m_sInvParamExpression = strconv.a2t(text);    
     }
 
     TiXmlHandle hInvParamFunction = hRoot.ToElement()->FirstChild("InvParamFunction");
@@ -168,7 +180,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = hInvParamFunction.FirstChild().Text()->Value();     
       if(text)
-        m_sInvParamFunction = A2T(text);    
+        m_sInvParamFunction = strconv.a2t(text);    
     }
 
     TiXmlHandle hInvParamFile = hRoot.ToElement()->FirstChild("InvParamFile");
@@ -176,7 +188,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = hInvParamFile.FirstChild().Text()->Value();     
       if(text)
-        m_sInvParamFile = A2T(text);    
+        m_sInvParamFile = strconv.a2t(text);    
     }
 
     TiXmlHandle hInvParamLine = hRoot.ToElement()->FirstChild("InvParamLine");
@@ -184,10 +196,33 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = hInvParamLine.FirstChild().Text()->Value();     
       if(text)
-        m_sInvParamLine = A2T(text);    
+        m_dwInvParamLine = atoi(text);    
     }
 
   }
+
+  // Get file items list
+  TiXmlHandle hFileList = hRoot.ToElement()->FirstChild("FileList");
+  if(hFileList.ToElement())
+  {
+    TiXmlHandle hFileItem = hFileList.ToElement()->FirstChild("FileItem");
+    while(hFileItem.ToElement())
+    {
+      const char* szFileName = hFileItem.ToElement()->Attribute("name");
+      const char* szFileDescription = hFileItem.ToElement()->Attribute("description");
+      
+      CString sFileName, sFileDescription;
+      if(szFileName!=NULL)
+        sFileName = strconv.a2t(szFileName);    
+      if(szFileName!=NULL)
+        sFileDescription = strconv.a2t(szFileDescription);    
+        
+      m_aFileItems[sFileName]=sFileDescription;
+
+      hFileItem = hFileItem.ToElement()->NextSibling();
+    }
+  }
+
 
   // OK
   m_bLoaded = true;

@@ -498,7 +498,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
 int
 CRASHRPTAPI 
 crInstallW(
-  PCR_INSTALL_INFOW pInfo
+  __in PCR_INSTALL_INFOW pInfo
 );
 
 /*! \ingroup CrashRptAPI
@@ -508,7 +508,7 @@ crInstallW(
 int
 CRASHRPTAPI 
 crInstallA(
-  PCR_INSTALL_INFOA pInfo
+  __in PCR_INSTALL_INFOA pInfo
 );
 
 /*! \brief Character set-independent mapping of crInstallW() and crInstallA() functions. 
@@ -865,7 +865,7 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
 int 
 CRASHRPTAPI 
 crGenerateErrorReport(   
-   CR_EXCEPTION_INFO* pExceptionInfo
+   __in_opt CR_EXCEPTION_INFO* pExceptionInfo
    );
 
 
@@ -911,7 +911,7 @@ int
 CRASHRPTAPI
 crExceptionFilter(
   unsigned int code, 
-  struct _EXCEPTION_POINTERS* ep);
+  __in_opt struct _EXCEPTION_POINTERS* ep);
 
 #define CR_NONCONTINUABLE_EXCEPTION  32   
 
@@ -1006,7 +1006,7 @@ crEmulateCrash(
 int
 CRASHRPTAPI
 crGetLastErrorMsgW(
-  LPWSTR pszBuffer, 
+  __out_ecount_z(uBuffSize) LPWSTR pszBuffer, 
   UINT uBuffSize);
 
 /*! \ingroup CrashRptAPI
@@ -1017,7 +1017,7 @@ crGetLastErrorMsgW(
 int
 CRASHRPTAPI
 crGetLastErrorMsgA(
-  LPSTR pszBuffer, 
+  __out_ecount_z(uBuffSize) LPSTR pszBuffer, 
   UINT uBuffSize);
 
 /*! \brief Defines character set-independent mapping for crGetLastErrorMsgW() and crGetLastErrorMsgA().

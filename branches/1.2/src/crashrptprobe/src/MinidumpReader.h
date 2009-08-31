@@ -69,6 +69,9 @@ public:
 
 private:
   
+  bool m_bLoaded;
+  bool m_bErrors;
+
   static HANDLE m_hFileMiniDump; // Handle to open .DMP file
   static HANDLE m_hFileMapping;  // Handle to memory mapping
   static LPVOID m_pMiniDumpStartPtr; // Pointer to the biginning of memory-mapped minidump

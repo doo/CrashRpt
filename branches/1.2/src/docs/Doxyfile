@@ -228,7 +228,12 @@ INCLUDE_PATH           =
 INCLUDE_FILE_PATTERNS  = 
 PREDEFINED             = "CRASHRPTAPI= "\
                          "CALLBACK= "\
-                         "CRASHRPTPROBE_API= "                       
+                         "CRASHRPTPROBE_API= "\                       
+                         "__out_ecount_z(x)= "\
+                         "__out= "\
+                         "__in= "\
+                         "__inout= "\
+                         "__reserved= "
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
