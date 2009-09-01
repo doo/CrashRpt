@@ -103,7 +103,7 @@ crpOpenErrorReportW(
   LPCWSTR pszMd5Hash,
   DWORD dwFlags,
   CrpHandle* pHandle)
-{ 
+{   
   int status = -1;
   int nNewHandle = 0;
   CrpReportData report_data;
@@ -118,8 +118,8 @@ crpOpenErrorReportW(
   crpSetErrorMsg(_T("Unspecified error."));
   *pHandle = 0;
   
-  report_data.m_pDescReader = new CCrashDescReader();
-  report_data.m_pDmpReader = new CMiniDumpReader();
+  report_data.m_pDescReader = new CCrashDescReader;
+  report_data.m_pDmpReader = new CMiniDumpReader;
 
   // Check ZIP integrity
   if(pszMd5Hash!=NULL)
@@ -315,7 +315,12 @@ crpGetPropertyW(
     int result = pDmpReader->Open(it->second.m_sMiniDumpTempName);
   }
 
-  if(nPropId==CRP_PROP_CRASH_GUID)
+  if(nPropId==CRP_PROP_CRASHRPT_VERSION)
+  {    
+    _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;
+  }  
+  else if(nPropId==CRP_PROP_CRASH_GUID)
   {
     pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
   }
@@ -356,64 +361,6 @@ crpGetPropertyW(
       return -3;
     }
     pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
-  }
-  else if(nPropId==CRP_PROP_USER_EMAIL)
-  {
-    pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
-  }
-  else if(nPropId==CRP_PROP_PROBLEM_DESCRIPTION)
-  {
-    pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
-  }
-  else if(nPropId==CRP_PROP_FILE_ITEM_NAME || 
-    nPropId==CRP_PROP_FILE_ITEM_DESCRIPTION)
-  {
-    if(nIndex<0 || nIndex>=(int)pDescReader->m_aFileItems.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    
-    std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
-    int i;
-    for(i=0; i<nIndex; i++) it++;
-
-    if(nPropId==CRP_PROP_FILE_ITEM_NAME)
-      pszPropVal = strconv.t2w(it->first);    
-    else
-      pszPropVal = strconv.t2w(it->second);    
-  }
-  else if(nPropId==CRP_PROP_STACK_MODULE_NAME)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sModuleName);    
-  }
-  else if(nPropId==CRP_PROP_STACK_SYMBOL_NAME)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSymbolName);    
-  }
-  else if(nPropId==CRP_PROP_STACK_SOURCE_FILE)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSrcFileName);    
-  }
-  else if(nPropId==CRP_PROP_CRASHRPT_VERSION)
-  {    
-    _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;
   }
   else if(nPropId==CRP_PROP_FILE_COUNT)
   {   
@@ -457,6 +404,32 @@ crpGetPropertyW(
     _ultot_s(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;            
   }
+  else if(nPropId==CRP_PROP_USER_EMAIL)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
+  }
+  else if(nPropId==CRP_PROP_PROBLEM_DESCRIPTION)
+  {
+    pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
+  }
+  else if(nPropId==CRP_PROP_FILE_ITEM_NAME || 
+    nPropId==CRP_PROP_FILE_ITEM_DESCRIPTION)
+  {
+    if(nIndex<0 || nIndex>=(int)pDescReader->m_aFileItems.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    
+    std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
+    int i;
+    for(i=0; i<nIndex; i++) it++;
+
+    if(nPropId==CRP_PROP_FILE_ITEM_NAME)
+      pszPropVal = strconv.t2w(it->first);    
+    else
+      pszPropVal = strconv.t2w(it->second);    
+  }
   else if(nPropId==CRP_PROP_STACK_FRAME_COUNT)
   {     
     _ultot_s((LONG)pDmpReader->m_DumpData.m_StackTrace.size(), szBuff, BUFF_SIZE, 10);
@@ -482,6 +455,67 @@ crpGetPropertyW(
     }
     _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;                
+  }  
+  else if(nPropId==CRP_PROP_STACK_MODULE_NAME)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sModuleName);    
+  }
+  else if(nPropId==CRP_PROP_STACK_SYMBOL_NAME)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSymbolName);    
+  }
+  else if(nPropId==CRP_PROP_STACK_SOURCE_FILE)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSrcFileName);    
+  }  
+  else if(nPropId==CRP_PROP_CPU_ARCHITECTURE)
+  {
+    _ultot_s(pDmpReader->m_DumpData.m_uProcessorArchitecture, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_CPU_COUNT)
+  {
+    _ultot_s(pDmpReader->m_DumpData.m_uchNumberOfProcessors, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_SYSTEM_TYPE)
+  {
+    _ultot_s(pDmpReader->m_DumpData.m_uchProductType, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_OS_VER_MAJOR)
+  {
+    _ultot_s(pDmpReader->m_DumpData.m_ulVerMajor, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_OS_VER_MINOR)
+  {
+    _ultot_s(pDmpReader->m_DumpData.m_ulVerMinor, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_OS_VER_BUILD)
+  {
+    _ultot_s(pDmpReader->m_DumpData.m_ulVerBuild, szBuff, BUFF_SIZE, 10);
+    pszPropVal = szBuff;        
+  }
+  else if(nPropId==CRP_PROP_OS_VER_CSD)
+  {
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
   }
   else
   {

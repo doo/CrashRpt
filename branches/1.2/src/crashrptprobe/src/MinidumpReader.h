@@ -36,10 +36,17 @@ struct MdmpStackFrame
 };
 
 struct MdmpData
-{
+{   
   HANDLE m_hProcess;
+    
   USHORT m_uProcessorArchitecture;
-
+  UCHAR  m_uchNumberOfProcessors;
+  UCHAR  m_uchProductType;
+  ULONG  m_ulVerMajor;
+  ULONG  m_ulVerMinor;
+  ULONG  m_ulVerBuild;
+  CString m_sCSDVer;
+    
   ULONG32 m_uExceptionCode;
   ULONG64 m_uExceptionAddress;  
 
@@ -50,7 +57,7 @@ struct MdmpData
   
   std::vector<MdmpModule> m_Modules;
   std::vector<MdmpMemRange> m_MemRanges;  
-  std::vector<MdmpStackFrame> m_StackTrace;
+  std::vector<MdmpStackFrame> m_StackTrace;  
 };
 
 
@@ -62,41 +69,25 @@ public:
   ~CMiniDumpReader();
 
   int Open(CString sFileName);
+  void Close();
 
-  static void Close();
-
-  static MdmpData m_DumpData; // Internally used data
+  MdmpData m_DumpData; // Internally used data
 
 private:
   
-  bool m_bLoaded;
-  bool m_bErrors;
+  bool m_bLoaded;  
 
-  static HANDLE m_hFileMiniDump; // Handle to open .DMP file
-  static HANDLE m_hFileMapping;  // Handle to memory mapping
-  static LPVOID m_pMiniDumpStartPtr; // Pointer to the biginning of memory-mapped minidump
+  HANDLE m_hFileMiniDump; // Handle to open .DMP file
+  HANDLE m_hFileMapping;  // Handle to memory mapping
+  LPVOID m_pMiniDumpStartPtr; // Pointer to the biginning of memory-mapped minidump
   
-  static CString GetMinidumpString(LPVOID start_addr, RVA rva);
+  CString GetMinidumpString(LPVOID pStartAddr, RVA rva);
 
-  static int ReadSysInfoStream();
-  static int ReadExceptionStream();
-  static int ReadModuleListStream();
-  static int ReadMemoryListStream();
-  static int ReadThreadListStream();
-  static int StackWalk();
-
-  static BOOL CALLBACK ReadProcessMemoryProc64(
-    HANDLE hProcess,
-    DWORD64 lpBaseAddress,
-    PVOID lpBuffer,
-    DWORD nSize,
-    LPDWORD lpNumberOfBytesRead);
-
-  static PVOID CALLBACK FunctionTableAccessProc64(
-    HANDLE hProcess,
-    DWORD64 AddrBase);
-
-  static DWORD64 CALLBACK GetModuleBaseProc64(
-    HANDLE hProcess,
-    DWORD64 Address);
+  int ReadSysInfoStream();
+  int ReadExceptionStream();
+  int ReadModuleListStream();
+  int ReadMemoryListStream();
+  int ReadThreadListStream();
+  int StackWalk();  
 };
+

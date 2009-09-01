@@ -2,10 +2,22 @@
 #include "MinidumpReader.h"
 #include <assert.h>
 
-MdmpData CMiniDumpReader::m_DumpData;
-HANDLE CMiniDumpReader::m_hFileMiniDump;
-HANDLE CMiniDumpReader::m_hFileMapping;
-LPVOID CMiniDumpReader::m_pMiniDumpStartPtr;
+CMiniDumpReader* g_pMiniDumpReader = NULL;
+
+BOOL CALLBACK ReadProcessMemoryProc64(
+  HANDLE hProcess,
+  DWORD64 lpBaseAddress,
+  PVOID lpBuffer,
+  DWORD nSize,
+  LPDWORD lpNumberOfBytesRead);
+
+PVOID CALLBACK FunctionTableAccessProc64(
+  HANDLE hProcess,
+  DWORD64 AddrBase);
+
+DWORD64 CALLBACK GetModuleBaseProc64(
+  HANDLE hProcess,
+  DWORD64 Address);
 
 CMiniDumpReader::CMiniDumpReader()
 {
@@ -13,8 +25,7 @@ CMiniDumpReader::CMiniDumpReader()
   m_hFileMiniDump = INVALID_HANDLE_VALUE;
   m_hFileMapping = NULL;
   m_pMiniDumpStartPtr = NULL;
-
-  memset(&m_DumpData, 0, sizeof(MdmpData));
+  
 }
 
 CMiniDumpReader::~CMiniDumpReader()
@@ -139,6 +150,12 @@ int CMiniDumpReader::ReadSysInfoStream()
     MINIDUMP_SYSTEM_INFO* pSysInfo = (MINIDUMP_SYSTEM_INFO*)pStreamStart;
     
     m_DumpData.m_uProcessorArchitecture = pSysInfo->ProcessorArchitecture;
+    m_DumpData.m_uchNumberOfProcessors = pSysInfo->NumberOfProcessors;
+    m_DumpData.m_uchProductType = pSysInfo->ProductType;
+    m_DumpData.m_ulVerMajor = pSysInfo->MajorVersion;
+    m_DumpData.m_ulVerMinor = pSysInfo->MinorVersion;
+    m_DumpData.m_ulVerBuild = pSysInfo->BuildNumber;
+    m_DumpData.m_sCSDVer = GetMinidumpString(m_pMiniDumpStartPtr, pSysInfo->CSDVersionRva);
 
     // Clean up
     pStreamStart = NULL;
@@ -218,7 +235,7 @@ int CMiniDumpReader::ReadModuleListStream()
         MdmpModule m;
         m.m_uBaseAddr = pModule->BaseOfImage;
         m.m_uImageSize = pModule->SizeOfImage;
-        m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
+        //m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
                
         LPSTR szModuleName = T2A(CString(m.m_sModuleName).GetBuffer(0));
         SymLoadModuleEx(
@@ -337,6 +354,8 @@ int CMiniDumpReader::StackWalk()
 {  
   if(m_DumpData.m_pExceptionContext==NULL)
     return 1;
+
+  g_pMiniDumpReader = this;
 
   // Init stack frame with correct initial values
   // See this:
@@ -458,7 +477,7 @@ int CMiniDumpReader::StackWalk()
 }
 
 
-BOOL CALLBACK CMiniDumpReader::ReadProcessMemoryProc64(
+BOOL CALLBACK ReadProcessMemoryProc64(
   HANDLE hProcess,
   DWORD64 lpBaseAddress,
   PVOID lpBuffer,
@@ -468,7 +487,7 @@ BOOL CALLBACK CMiniDumpReader::ReadProcessMemoryProc64(
   *lpNumberOfBytesRead = 0;
 
   // Validate input parameters
-  if(hProcess!=m_DumpData.m_hProcess ||
+  if(hProcess!=g_pMiniDumpReader->m_DumpData.m_hProcess ||
      lpBaseAddress==NULL ||
      lpBuffer==NULL ||
      nSize==0)
@@ -478,9 +497,9 @@ BOOL CALLBACK CMiniDumpReader::ReadProcessMemoryProc64(
   }
 
   ULONG i;
-  for(i=0; i<m_DumpData.m_MemRanges.size(); i++)
+  for(i=0; i<g_pMiniDumpReader->m_DumpData.m_MemRanges.size(); i++)
   {
-    MdmpMemRange& mr = m_DumpData.m_MemRanges[i];
+    MdmpMemRange& mr = g_pMiniDumpReader->m_DumpData.m_MemRanges[i];
     if(lpBaseAddress>=mr.m_u64StartOfMemoryRange &&
       lpBaseAddress<mr.m_u64StartOfMemoryRange+mr.m_uDataSize)
     {
@@ -508,14 +527,14 @@ BOOL CALLBACK CMiniDumpReader::ReadProcessMemoryProc64(
   return FALSE;
 }
 
-PVOID CALLBACK CMiniDumpReader::FunctionTableAccessProc64(
+PVOID CALLBACK FunctionTableAccessProc64(
   HANDLE hProcess,
   DWORD64 AddrBase)
 {   
   return SymFunctionTableAccess64(hProcess, AddrBase);
 }
 
-DWORD64 CALLBACK CMiniDumpReader::GetModuleBaseProc64(
+DWORD64 CALLBACK GetModuleBaseProc64(
   HANDLE hProcess,
   DWORD64 Address)
 {  

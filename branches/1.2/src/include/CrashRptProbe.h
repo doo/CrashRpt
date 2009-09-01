@@ -137,7 +137,7 @@ crpCloseErrorReport(
 #define CRP_PROP_STACK_SOURCE_LINE      105 //!< Stack trace: source file line number (long)
 
 #define CRP_PROP_CPU_ARCHITECTURE    106 //!<
-#define CRP_PROP_CPU_NUMBER          107 //!<
+#define CRP_PROP_CPU_COUNT           107 //!<
 #define CRP_PROP_SYSTEM_TYPE         108 //!<
 #define CRP_PROP_OS_VER_MAJOR        109 //!<
 #define CRP_PROP_OS_VER_MINOR        110 //!<
