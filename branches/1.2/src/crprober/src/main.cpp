@@ -77,7 +77,7 @@ public:
     else if(m_nOutFormat==OUT_HTML)
     {
       _ftprintf(m_fOut, _T("<h3>%s</h3>\n"), pszFriendlyName);
-      _ftprintf(m_fOut, _T("<table id= \"%s\" border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n"));
+      _ftprintf(m_fOut, _T("<table border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n"));
     }
     else if(m_nOutFormat==OUT_XML)
     {
@@ -427,11 +427,11 @@ exit:
   return result;
 }
 
-int get_prop(CrpHandle handle, int propid, tstring& str)
+int get_prop(CrpHandle handle, int propid, tstring& str, int index=0)
 {
   const int BUFF_SIZE = 1024;
   TCHAR buffer[BUFF_SIZE];  
-  int result = crpGetProperty(handle, propid, 0, buffer, BUFF_SIZE, NULL);
+  int result = crpGetProperty(handle, propid, index, buffer, BUFF_SIZE, NULL);
   str = buffer;
   return result;
 }
@@ -603,68 +603,77 @@ int output_document(CrpHandle handle, FILE* f, int out_format)
 
   doc.EndTable(_T("GeneralInfo"));
   
+  doc.BeginTable(_T("FileList"), _T("File list"));
   
+  // Print file list  
+  tstring sFileCount;
+  result = get_prop(handle, CRP_PROP_FILE_COUNT, sFileCount);
+  if(result==0)
+  {
+    int nItemCount = _ttoi(sFileCount.c_str());
+    int i;
+    for(i=0; i<nItemCount; i++)
+    {       
+      doc.BeginRow();
 
-  //// Print file list  
-  //result = crpGetProperty(handle, CRP_PROP_FILE_COUNT, 0, buffer, BUFF_SIZE, NULL);
-  //if(result==0)
-  //{
-  //  int nItemCount = _ttoi(buffer);
-  //  int i;
-  //  for(i=0; i<nItemCount; i++)
-  //  {       
-  //    int result2 = crpGetProperty(handle, CRP_PROP_FILE_ITEM_NAME, i, buffer, BUFF_SIZE, NULL);
-  //    if(result2==0)
-  //    {
-  //      _ftprintf(f, _T("%d. %16s"), i+1, buffer);
-  //      
-  //      int result3 = crpGetProperty(handle, CRP_PROP_FILE_ITEM_DESCRIPTION, i, buffer, BUFF_SIZE, NULL);
-  //      if(result3==0)
-  //        _ftprintf(f, _T("  %s\n"), buffer);
-  //      else
-  //        _ftprintf(f, _T("\n"));
-  //    }
-  //    else
-  //    {
-  //      _ftprintf(f, _T("Failed to retieve file item #%d.\n"), i+1);
-  //    }
-  //  }
-  //}
-  //else
-  //{
-  //  _ftprintf(f, _T("Failed to retieve file item count.\n"));
-  //}
+      tstring sFileName;
+      int result2 = get_prop(handle, CRP_PROP_FILE_ITEM_NAME, sFileName, i);
+      if(result2==0)
+      {
+        doc.PutRecord(sFileName.c_str());
+        
+        tstring sDesc;
+        int result3 = get_prop(handle, CRP_PROP_FILE_ITEM_DESCRIPTION, sDesc, i);
+        
+        doc.PutRecord(sDesc.c_str());
+      }
+      else
+      {
+        _ftprintf(f, _T("Failed to retieve file item #%d.\n"), i+1);
+      }
 
-  //result = crpGetProperty(handle, CRP_PROP_STACK_FRAME_COUNT, 0, buffer, BUFF_SIZE, NULL);
-  //if(result==0)
-  //{
-  //  int nItemCount = _ttoi(buffer);
-  //  int i;
-  //  for(i=0; i<nItemCount; i++)
-  //  {       
-  //    result = crpGetProperty(handle, CRP_PROP_STACK_MODULE_NAME, i, buffer, BUFF_SIZE, NULL);
-  //    if(result==0)
-  //      _ftprintf(f, _T("%s!"), buffer);
-  //    
-  //    result = crpGetProperty(handle, CRP_PROP_STACK_SYMBOL_NAME, i, buffer, BUFF_SIZE, NULL);
-  //    if(result==0)
-  //      _ftprintf(f, _T("%s"), buffer);
+      doc.EndRow();
+    }
+  }
+  
+  doc.EndTable(_T("FileList"));
 
-  //    result = crpGetProperty(handle, CRP_PROP_STACK_OFFSET_IN_SYMBOL, i, buffer, BUFF_SIZE, NULL);
-  //    if(result==0)
-  //      _ftprintf(f, _T("+%s"), buffer);
-  //      
-  //    result = crpGetProperty(handle, CRP_PROP_STACK_SOURCE_FILE, i, buffer, BUFF_SIZE, NULL);
-  //    if(result==0)
-  //      _ftprintf(f, _T(" %s"), buffer);
+  doc.BeginTable(_T("StackTrace"), _T("Stack Trace"));
 
-  //    result = crpGetProperty(handle, CRP_PROP_STACK_SOURCE_LINE, i, buffer, BUFF_SIZE, NULL);
-  //    if(result==0)
-  //      _ftprintf(f, _T(":%s"), buffer);
+  tstring sStackFrameCount;
+  result = get_prop(handle, CRP_PROP_STACK_FRAME_COUNT, sStackFrameCount);
+  if(result==0)
+  {    
+    int nItemCount = _ttoi(sStackFrameCount.c_str());
+    int i;
+    for(i=0; i<nItemCount; i++)
+    {
+      doc. BeginRow();
 
-  //    _ftprintf(f, _T("\n"), buffer);    
-  //  }
-  //}
+      tstring str;
+
+      tstring sModuleName;
+      result = get_prop(handle, CRP_PROP_STACK_MODULE_NAME, sModuleName, i);
+      str += sModuleName + _T("!");
+            
+      tstring sSymName;
+      result = get_prop(handle, CRP_PROP_STACK_SYMBOL_NAME, sSymName, i);
+      str += sSymName+ _T("+");
+              
+      tstring sOffsInSym;
+      result = get_prop(handle, CRP_PROP_STACK_OFFSET_IN_SYMBOL, sOffsInSym, i);
+      str += sOffsInSym + _T(" ");
+       
+      tstring sSrcFile;
+      result = get_prop(handle, CRP_PROP_STACK_SOURCE_FILE, sSrcFile, i);
+      
+      tstring sSrcLine;
+      result = get_prop(handle, CRP_PROP_STACK_SOURCE_LINE, sSrcLine, i);
+      
+      doc.PutRecord(str.c_str());
+      doc.EndRow();
+    }
+  }
 
   //result = crpGetProperty(handle, CRP_PROP_MODULE_COUNT, 0, buffer, BUFF_SIZE, NULL);
   //if(result==0)
