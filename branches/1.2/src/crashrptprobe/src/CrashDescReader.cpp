@@ -47,6 +47,11 @@ int CCrashDescReader::Load(CString sFileName)
   TiXmlHandle hRoot = hDoc.FirstChild("CrashRpt").ToElement();
   if(hRoot.ToElement()==NULL)
   {
+    if(LoadXmlv10(hDoc)==0)
+    {
+      return 0;
+    }  
+
     return -3; // Invalid XML structure
   }
 
@@ -229,3 +234,32 @@ int CCrashDescReader::Load(CString sFileName)
   return 0;
 }
 
+int CCrashDescReader::LoadXmlv10(TiXmlHandle hDoc)
+{
+  TiXmlHandle hRoot = hDoc.FirstChild("Exception").ToElement();
+  if(hRoot.ToElement()==NULL)
+  {
+    return -3; // Invalid XML structure
+  }
+
+  // Set CrashRpt version to 1000
+
+  m_dwGeneratorVersion = 1000;
+
+  // Get ExceptionRecord element
+
+  TiXmlHandle hExceptionRecord = hRoot.FirstChild("ExceptionRecord").ToElement();
+
+  if(hExceptionRecord.ToElement()!=NULL)
+  {
+    const char* szImageName = hRoot.ToElement()->Attribute("ModuleName");
+    if(szImageName!=NULL)
+    {
+      m_sImageName = szImageName;
+    }
+  }  
+
+  // OK
+  m_bLoaded = true;
+  return 0;
+}

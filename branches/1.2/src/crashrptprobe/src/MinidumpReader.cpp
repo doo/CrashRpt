@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MinidumpReader.h"
 #include <assert.h>
+#include "Utility.h"
 
 CMiniDumpReader* g_pMiniDumpReader = NULL;
 
@@ -33,8 +34,10 @@ CMiniDumpReader::~CMiniDumpReader()
   Close();
 }
 
-int CMiniDumpReader::Open(CString sFileName)
+int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
 {  
+  static DWORD dwProcessID = 0;
+
   if(m_bLoaded)
   {
     return 1;
@@ -82,11 +85,12 @@ int CMiniDumpReader::Open(CString sFileName)
     return 3;
   }
   
-  m_DumpData.m_hProcess = (HANDLE)0x12345;
+  m_DumpData.m_hProcess = (HANDLE)(++dwProcessID);  
   
+  strconv_t strconv;
   BOOL bSymInit = SymInitialize(
-    m_DumpData.m_hProcess, 
-    NULL, 
+    m_DumpData.m_hProcess,
+    strconv.t2a(sSymSearchPath), 
     FALSE);
 
   if(!bSymInit)
@@ -96,12 +100,21 @@ int CMiniDumpReader::Open(CString sFileName)
     return 4;
   }
   
-  ReadSysInfoStream();
-  ReadExceptionStream();
-  ReadModuleListStream();
-  ReadThreadListStream();
-  ReadMemoryListStream();
-  StackWalk();
+  DWORD dwOptions = SymGetOptions();
+  dwOptions |= ( 
+    SYMOPT_DEFERRED_LOADS | // Symbols are not loaded until a reference is made requiring the symbols be loaded.
+    SYMOPT_EXACT_SYMBOLS  | // Do not load an unmatched .pdb file. 
+    SYMOPT_FAIL_CRITICAL_ERRORS | // Do not display system dialog boxes when there is a media failure such as no media in a drive.
+    SYMOPT_UNDNAME // All symbols are presented in undecorated form. 
+    );
+  SymSetOptions(dwOptions);
+
+  m_bReadSysInfoStream = !ReadSysInfoStream();
+  m_bReadExceptionStream = !ReadExceptionStream();
+  m_bReadModuleListStream = !ReadModuleListStream();
+  m_bReadThreadListStream = !ReadThreadListStream();
+  m_bReadMemoryListStream = !ReadMemoryListStream();
+  m_bStackWalk = !StackWalk();
   
   m_bLoaded = true;
   return 0;
@@ -206,12 +219,11 @@ int CMiniDumpReader::ReadExceptionStream()
 
 int CMiniDumpReader::ReadModuleListStream()
 {
-  USES_CONVERSION; 
-
   LPVOID pStreamStart = NULL;
   ULONG uStreamSize = 0;
   MINIDUMP_DIRECTORY* pmd = NULL;
   BOOL bRead = FALSE;
+  strconv_t strconv;
 
   bRead = MiniDumpReadDumpStream(
     m_pMiniDumpStartPtr, 
@@ -235,10 +247,10 @@ int CMiniDumpReader::ReadModuleListStream()
         MdmpModule m;
         m.m_uBaseAddr = pModule->BaseOfImage;
         m.m_uImageSize = pModule->SizeOfImage;
-        //m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
+        m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
                
-        LPSTR szModuleName = T2A(CString(m.m_sModuleName).GetBuffer(0));
-        SymLoadModuleEx(
+        LPCSTR szModuleName = strconv.t2a(m.m_sModuleName);
+        int nLoadResult = SymLoadModuleEx(
           m_DumpData.m_hProcess,
           NULL,
           szModuleName,
@@ -247,8 +259,8 @@ int CMiniDumpReader::ReadModuleListStream()
           (DWORD)m.m_uImageSize,
           NULL,
           0);
-        DWORD dwLastError = GetLastError();
-        m.m_bSymbolsLoaded = (dwLastError==0)?TRUE:FALSE;
+        
+        m.m_bSymbolsLoaded = (nLoadResult!=0?TRUE:FALSE);
 
         m_DumpData.m_Modules.push_back(m);
       }
@@ -430,9 +442,8 @@ int CMiniDumpReader::StackWalk()
     IMAGEHLP_MODULE64 mi;
     memset(&mi, 0, sizeof(IMAGEHLP_MODULE64));
     mi.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
-    SymGetModuleInfo64(m_DumpData.m_hProcess, sf.AddrPC.Offset, &mi); 
-    DWORD dwLastError = GetLastError();
-    if(dwLastError==0)
+    BOOL bGetModuleInfo = SymGetModuleInfo64(m_DumpData.m_hProcess, sf.AddrPC.Offset, &mi);     
+    if(bGetModuleInfo)
     {
       stack_frame.m_sModuleName = mi.ModuleName;
     }

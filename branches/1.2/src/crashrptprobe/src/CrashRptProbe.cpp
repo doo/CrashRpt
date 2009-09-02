@@ -22,6 +22,7 @@ struct CrpReportData
   CCrashDescReader* m_pDescReader;
   CMiniDumpReader* m_pDmpReader;  
   CString m_sMiniDumpTempName;
+  CString m_sSymSearchPath;
 };
 
 std::map<int, CrpReportData> g_OpenedHandles;
@@ -101,15 +102,16 @@ CRASHRPTPROBE_API
 crpOpenErrorReportW(
   LPCWSTR pszFileName,
   LPCWSTR pszMd5Hash,
+  LPCWSTR pszSymSearchPath,
   DWORD dwFlags,
   CrpHandle* pHandle)
 {   
+  dwFlags;
   int status = -1;
   int nNewHandle = 0;
   CrpReportData report_data;
   HZIP hZip = 0;
-  ZRESULT zr = -1;
-  int index = -1;
+  ZRESULT zr = 0;
   ZIPENTRY ze;
   int xml_index = -1;
   int dmp_index = -1;
@@ -118,6 +120,7 @@ crpOpenErrorReportW(
   crpSetErrorMsg(_T("Unspecified error."));
   *pHandle = 0;
   
+  report_data.m_sSymSearchPath = pszSymSearchPath;
   report_data.m_pDescReader = new CCrashDescReader;
   report_data.m_pDmpReader = new CMiniDumpReader;
 
@@ -156,15 +159,15 @@ crpOpenErrorReportW(
     int i=0;
     for(i=0;;i++)
     {
-      zr = GetZipItem(hZip, index, &ze);
+      zr = GetZipItem(hZip, i, &ze);
       if(zr!=ZR_OK)
         break;
 
       CString sExt = GetFileExtension(ze.name);
-      if(sExt.CompareNoCase(_T("dmp")))
+      if(sExt.CompareNoCase(_T("dmp"))==0)
       {
         // DMP found
-        dmp_index = index;
+        dmp_index = i;
         break;
       }
     }
@@ -172,6 +175,10 @@ crpOpenErrorReportW(
     // Assume the name of XML is the same as DMP
     CString sXmlName = GetBaseFileName(ze.name) + _T(".xml");
     zr = FindZipItem(hZip, sXmlName, false, &xml_index, &ze);
+    if(zr!=ZR_OK)
+    {
+      xml_index = -1;
+    }
   }
 
   // Check that both xml and dmp found
@@ -251,11 +258,17 @@ CRASHRPTPROBE_API
 crpOpenErrorReportA(
   LPCSTR pszFileName,
   LPCSTR pszMd5Hash,
+  LPCSTR pszSymSearchPath,
   DWORD dwFlags,
   CrpHandle* pHandle)
 {
   strconv_t strconv;
-  return crpOpenErrorReportW(strconv.a2w(pszFileName), strconv.a2w(pszMd5Hash), dwFlags, pHandle);  
+  return crpOpenErrorReportW(
+    strconv.a2w(pszFileName), 
+    strconv.a2w(pszMd5Hash), 
+    strconv.a2w(pszSymSearchPath), 
+    dwFlags, 
+    pHandle);  
 }
 
 int
@@ -312,7 +325,7 @@ crpGetPropertyW(
 
   if(nPropId>=CRP_PROP_STACK_FRAME_COUNT)
   {
-    int result = pDmpReader->Open(it->second.m_sMiniDumpTempName);
+    pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
   }
 
   if(nPropId==CRP_PROP_CRASHRPT_VERSION)
@@ -517,6 +530,60 @@ crpGetPropertyW(
   {
     pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
   }
+  else if(nPropId==CRP_PROP_EXCPTRS_EXCEPTION_CODE)
+  {
+    _stprintf_s(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_uExceptionCode); 
+    pszPropVal = szBuff;
+  }
+  else if(nPropId==CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS)
+  {
+    _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_uExceptionAddress); 
+    pszPropVal = szBuff;
+  }
+  else if(nPropId==CRP_PROP_MODULE_COUNT)
+  {    
+    _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->m_DumpData.m_Modules.size()); 
+    pszPropVal = szBuff;
+  }
+  else if(nPropId==CRP_PROP_MODULE_NAME)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nIndex].m_sModuleName);    
+  }
+  else if(nPropId==CRP_PROP_MODULE_BASE_ADDRESS)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Modules[nIndex].m_uBaseAddr); 
+    pszPropVal = szBuff;
+  }
+  else if(nPropId==CRP_PROP_MODULE_SIZE)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    _stprintf_s(szBuff, BUFF_SIZE, _T("%I64u"), pDmpReader->m_DumpData.m_Modules[nIndex].m_uImageSize); 
+    pszPropVal = szBuff;
+  }
+  else if(nPropId==CRP_PROP_MODULE_SYMBOLS_LOADED)
+  {
+    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+    _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->m_DumpData.m_Modules[nIndex].m_bSymbolsLoaded?1:0); 
+    pszPropVal = szBuff;
+  }
   else
   {
     crpSetErrorMsg(_T("Invalid property ID."));
@@ -577,22 +644,29 @@ crpGetPropertyA(
 int
 CRASHRPTPROBE_API
 crpExtractFileW(
-  CrpHandle handle,
+  CrpHandle hReport,
   LPCWSTR lpszFileName,
   LPCWSTR lpszFileSaveAs
 )
 {
+  hReport;
+  lpszFileSaveAs;
+  lpszFileName;
+
   return 0;
 }
 
 int
 CRASHRPTPROBE_API
 crpExtractFileA(
-  CrpHandle handle,
+  CrpHandle hReport,
   LPCSTR lpszFileName,
   LPCSTR lpszFileSaveAs
 )
 {
+  hReport;
+  lpszFileName;
+  lpszFileSaveAs;
   return 0;
 }
 
@@ -623,7 +697,7 @@ crpGetLastErrorMsgW(
     return size;
   }
   
-  LPWSTR pwszErrorMsg = T2W(it->second.GetBuffer(0));
+  LPCWSTR pwszErrorMsg = strconv.t2w(it->second.GetBuffer(0));
   WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, uBuffSize-1);
   int size = it->second.GetLength();
   g_cs.Unlock();

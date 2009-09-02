@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include <map>
+#include "tinyxml.h"
 
 class CCrashDescReader
 {
@@ -10,7 +11,7 @@ public:
   ~CCrashDescReader();
 
   int Load(CString sFileName);
-
+  
   bool m_bLoaded;
 
   DWORD m_dwGeneratorVersion;
@@ -36,5 +37,9 @@ public:
   CString m_sProblemDescription;
 
   std::map<CString, CString> m_aFileItems;
+
+private:
+
+  int LoadXmlv10(TiXmlHandle hDoc);
 };
 

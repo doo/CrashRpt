@@ -50,7 +50,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
+				AdditionalIncludeDirectories="..\..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"

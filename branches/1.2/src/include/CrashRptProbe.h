@@ -60,8 +60,9 @@ typedef int CrpHandle;
 int
 CRASHRPTPROBE_API
 crpOpenErrorReportW(
-  LPCWSTR pszFileName,
-  LPCWSTR pszMd5Hash,
+  __in LPCWSTR pszFileName,
+  __in_opt LPCWSTR pszMd5Hash,
+  __in_opt LPCWSTR pszSymSearchPath,
   __reserved DWORD dwFlags,
   __out CrpHandle* phReport
 );
@@ -74,8 +75,9 @@ crpOpenErrorReportW(
 int
 CRASHRPTPROBE_API
 crpOpenErrorReportA(
-  LPCSTR pszFileName,
-  LPCSTR pszMd5Hash,
+  __in LPCSTR pszFileName,
+  __in_opt LPCSTR pszMd5Hash,
+  __in_opt LPCSTR pszSymSearchPath,  
   __reserved DWORD dwFlags,
   __out CrpHandle* phReport
 );
@@ -136,21 +138,22 @@ crpCloseErrorReport(
 #define CRP_PROP_STACK_SOURCE_FILE      104 //!< Stack trace: source file name (string)
 #define CRP_PROP_STACK_SOURCE_LINE      105 //!< Stack trace: source file line number (long)
 
-#define CRP_PROP_CPU_ARCHITECTURE    106 //!<
-#define CRP_PROP_CPU_COUNT           107 //!<
-#define CRP_PROP_SYSTEM_TYPE         108 //!<
-#define CRP_PROP_OS_VER_MAJOR        109 //!<
-#define CRP_PROP_OS_VER_MINOR        110 //!<
-#define CRP_PROP_OS_VER_BUILD        111 //!<
+#define CRP_PROP_CPU_ARCHITECTURE    106 //!< Processor architecture
+#define CRP_PROP_CPU_COUNT           107 //!< Number of processors
+#define CRP_PROP_SYSTEM_TYPE         108 //!< Type of system (server or workstation)
+#define CRP_PROP_OS_VER_MAJOR        109 //!< OS major version
+#define CRP_PROP_OS_VER_MINOR        110 //!< OS minor version
+#define CRP_PROP_OS_VER_BUILD        111 //!< OS build number
 #define CRP_PROP_OS_VER_CSD          112 //!< The latest service pack installed
 
-#define CRP_PROP_EXCPTRS_EXCEPTION_CODE      113
-#define CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS   114
+#define CRP_PROP_EXCPTRS_EXCEPTION_CODE      113 //!< Code of the structured exception
+#define CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS   114 //!< Exception address
 
-#define CRP_PROP_MODULE_NAME           115
-#define CRP_PROP_MODULE_BASE_ADDRESS   116
-#define CRP_PROP_MODULE_SIZE           117
-#define CRP_PROP_MODULE_SYMBOLS_LOADED 118
+#define CRP_PROP_MODULE_COUNT          115  //!< Count of modules
+#define CRP_PROP_MODULE_NAME           116  //!< Module name
+#define CRP_PROP_MODULE_BASE_ADDRESS   117  //!< Module base load address
+#define CRP_PROP_MODULE_SIZE           118  //!< Module size
+#define CRP_PROP_MODULE_SYMBOLS_LOADED 119  //!< Were symbols loaded for the module
 
 
 /*! \ingroup CrashRptProbeAPI
