@@ -152,7 +152,7 @@ Include `CrashRpt.h` header file in the beginning of your code.
 
 You also need to add `CrashRpt.lib` to the list of input libraries for your project. In the Solution Explorer window, right-click your project and choose Properties item in the context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies and then add `CrashRpt.lib` to the list of libraries.
 
-== How crashrpt.dll is loaded and how it is shared between other modules loaded into process address space? ==
+== How is crashrpt.dll loaded and how is it shared between other modules loaded into process address space? ==
 
 Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the process' address space.
 
