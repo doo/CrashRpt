@@ -154,6 +154,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/analyze"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"

@@ -9,6 +9,7 @@ This page is organized in the following sections:
 - \ref crashlog
 - \ref minidump
 - \ref windbg
+- \subpage automating_crash_report_processing
 
 \section about About Analysing Error Reports
 
