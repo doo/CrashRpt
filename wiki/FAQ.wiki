@@ -425,6 +425,6 @@ Sometimes you can't determine the location of the crash and the error message is
 
   * Debugger may not locate the correct PDB and binary files. Try to open Tools->Options->Debugging->Symbols and enter the path to the directory where your PDB files are located. Then reopen the minidump.
 
-  * You have wrong or missing PDB files. Open the Modules window and check the symbol status for modules of your program. If the status is 'Module not loaded' than you have missing PDB. Or maybe correct PDB files weren't saved locally before software release. In such case you won't be able to properly read any of received crash reports.
+  * You have wrong or missing PDB files. Open the Modules window and check the symbol status for modules of your program. If the status is 'Not loaded' than you have missing PDB. Or maybe correct PDB files weren't saved locally before software release. In such case you won't be able to properly read any of received crash reports.
 
   * If symbols for some modules of your program are loaded, and you have the error, than there were no debugging symbols generated for the module where crash had occured. Check that you set Program Database (/Zi) compiler flag for all modules of your application.
