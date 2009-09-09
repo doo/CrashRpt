@@ -14,12 +14,12 @@ CrashRpt intercepts an unhandled exception, creates a minidump, builds a crash d
 
 The latest stable version:
 
-*CrashRpt v1.1.2* [CrashRpt_v1_1_2_ReleaseNotes (what's new?)]
+*crashrpt v1.1.2* [CrashRpt_v1_1_2_ReleaseNotes (what's new?)]
 
 [http://crashrpt.googlecode.com/files/CrashRpt_v1.1.2_r373.zip http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download.png] 
 
 
-Previous versions:
+All downloads:
 
 || *Version* || *Download* || *Documentation* ||
 || crashrpt 1.1.2 [CrashRpt_v1_1_2_ReleaseNotes (what's new?)] || [http://crashrpt.googlecode.com/files/CrashRpt_v1.1.2_r373.zip CrashRpt_v1.1.2_r373.zip] || Included into download package ||
