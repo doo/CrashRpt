@@ -413,7 +413,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *  \param[in] pInfo General information.
  *
  *  \remarks
- *    This function installs unhandled exception filter for all threads of caller process.
+ *    This function installs unhandled exception filter for all threads of the caller process.
  *    It also installs various CRT exception/error handlers that function for all threads of the caller process.
  *    For more information, see \ref exception_handling
  *
@@ -449,6 +449,11 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    function as CR_INSTALL_INFO() structure members. Another way of sending error report is an HTTP 
  *    request using \c pszUrl member of CR_INSTALL_INFO(). If both the E-mail address and
  *    URL are not specified, this function fails.
+ *
+ *    This function may fail if an appropriate language file (\c crashrpt_lang.ini) is not found 
+ *    in the directory where the \c CrashSender.exe file is located.
+ *
+ *    If this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
  *    crInstallW() and crInstallA() are wide-character and multi-byte character versions of crInstall()
  *    function. The crInstall() macro defines character set independent mapping for these functions.

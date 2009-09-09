@@ -2,26 +2,32 @@
 
 \page error_report About an Error Report
 
-When an error occurs, CrashRpt notifies a user and allows  
-to review the report contents. First the main dialog shown above is displayed. 
+\section maindlg Error Report Dialog
+
+When an error occurs, CrashRpt notifies the user and allows  
+to review the report contents. First the <b>Error Report</b> dialog shown above is displayed. 
 
 \image html maindlg.png "Main Dialog"
 
-The user optionally can provide his/her E-mail address and provide a short problem 
+User can optionally provide his/her E-mail address and a short problem 
 description. The E-mail address may be later used by software support staff to
 contact the user and ask for additional information about the problem.
 
-The 'What does this report contan?' link opens the details dialog, where 
-files contained in the report are presented. Double clicking on the 
-filename will open the file using its associated program, if an association exists 
-for the file type.
+The 'What does this report contan?' link opens the details dialog.
+
+\section detaildlg Error Report Details Dialog
+
+The <b>Error Report Details</b> dialog contains files that are presented in the report. 
+Double clicking on the filename opens the file using its associated program, 
+if an association exists for the file type.
 
 \image html detaildlg.png "Crash Details Dialog"
 
-Once the user is satisfied, he may close the details dialog and click the 'Send report' 
-button on the main dialog. If the user doesn't want to send the report, he clicks the 
-'Close the program' button.
-
+<b>Since v.1.1.2</b> you can use a privacy policy describing what user 
+information your software collects on crash. You provide an URL of your privacy 
+policy HTML document published on your web site or distributed with your software.
+If you need a template you may use this one: 
+<a href="http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate">PrivacyPolicyTemplate</a>. 
 
 The error report refers to a collection of files intended to help the developer 
 diagnose the cause of a crash. 
@@ -36,5 +42,22 @@ information that might be useful for crash analysis.
 
 Custom files, for example, application log files, can be included into crash report via the 
 crash callback.
+
+Once the user is satisfied, he/she may close the details dialog and click the 'Send report' 
+button on the main dialog. If the user doesn't want to send the report, the user clicks the 
+'Close the program' button.
+
+\section progressdlg Sending Error Report Dialog
+
+The <b>Sending Error Report</b> dialog shows the progress of sending the error report. There are
+maximum three attempts to send the report: using HTTP, using SMTP, and using Simple MAPI.
+
+There is the status log area below the progress bar. It contains the details of report
+sending process. You can copy some selected lines or the whole log to the clipboard. To do this,
+select several lines of the log, right-click the selection and choose an item in the context menu. 
+The log may be useful when troubleshooting an error report sending problem.
+
+\image html progressdlg.png "Sending Error Report Dialog"
+
 
 */

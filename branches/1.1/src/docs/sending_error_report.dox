@@ -1,6 +1,6 @@
 /*!
 
-\page send_report Sending Error Reports
+\page sending_error_reports Sending Error Reports
 
 When crash occurs, CrashRpt builds and saves an error report and then runs another process named CrashSender.exe. 
 The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
@@ -9,7 +9,7 @@ The parent process is then terminated. If you generate error report manually, th
 CrashRpt moves the crash report file to the Recycle Bin after it was sent to the recipient successfuly. If an error occurs
 during error report sending procedure, CrashRpt doesn't remove the report.          
 
-The CrashSender.exe displays GUI and when user confirms error report submission, 
+The CrashSender.exe displays GUI as described in \ref error_report and when user confirms error report submission, 
 it attempts to send the error report to the software support team
 using one of the following ways: 
  - via HTTP request to a server-side script
@@ -17,6 +17,13 @@ using one of the following ways:
  - via Simple MAPI programming interface (the user's default E-mail client application)
 
 If one of these ways fails, CrashRpt tries others in turn. 
+
+<b>Are there any crash report size limitations?</b>
+
+Yes, they are. A crash report should be as small as possible. This is because of limitations 
+of size of email attachments and HTTP request size. If the error report is larger than the 
+limit (which may be different for different systems), it is possible that the error report 
+won't be delivered to the software support team. 
 
 \section httpsend Sending Crash Report Using HTTP Connection
 

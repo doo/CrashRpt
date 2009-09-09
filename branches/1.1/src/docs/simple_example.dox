@@ -1,0 +1,84 @@
+/*!
+
+\page simple_example An Example of Using API
+
+The following example shows how to use crInstall() and
+crUninstall() functions to enable crash reporting support 
+in your application. This example assumes you already configured
+your project as described in \ref configuring_project
+
+\code
+
+#include "CrashRpt.h"
+#include <assert.h> // Using assert()
+#include <string> // Using std::string
+
+// Define character set independent strings
+typedef std::basic_string<TCHAR> tstring; 
+
+// .. Define the crash callback
+
+BOOL WINAPI CrashCallback(LPVOID lpvState)
+{
+  // Here GetAppDir() should be your function that returns path to
+  // the application directory
+  
+  tstring sLogFile = GetAppDir() + _T("\\dummy.log");
+  tstring sIniFile = GetAppDir() + _T("\\dummy.ini");
+
+  // Add two files to the error report
+
+  crAddFile(sLogFile.c_str(), _T("Dummy Log File"));  
+  crAddFile(sIniFile.c_str(), _T("Dummy INI File"));
+ 
+  return TRUE;
+}
+
+void main()
+{
+  // Install CrashRpt support
+ 
+  CR_INSTALL_INFO info;
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));
+  info.cb = sizeof(CR_INSTALL_INFO);  
+  info.pszAppName = _T("My Application");
+  info.pszAppVersion = _T("1.3.5");
+  info.pszEmailSubject = _T("Error Report from My Application 1.3.5");
+  info.pszEmailTo = _T("myapp_support@hotmail.com");  
+  info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");
+  info.pfnCrashCallback = CrashCallback; 
+  info.uPriorities[CR_HTTP] = 3;  // try HTTP first
+  info.uPriorities[CR_SMTP] = 2;  // try SMTP second
+  info.uPriorities[CR_SMAPI] = 1; // try Simple MAPI last  
+  info.dwFlags = 0; // Install all available exception handlers
+  info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); // URL for the Privacy Policy link
+  
+  int nInstResult = crInstall(&info);
+  if(nInstResult!=0)
+  {
+    // Something goes wrong!
+    TCHAR szErrorMsg[512];
+    szErrorMsg[0]=0;
+
+    crGetLastErrorMsg(szErrorMsg);
+    _tprintf(_T("%s\n"), szErrorMsg);
+
+    assert(nInstResult==0);
+  }
+
+
+  //
+  // .. your code follows here ..
+  //
+
+
+  // Unset crash handlers
+  int nUninstResult = crUninstall();
+  assert(nUninstResult==0);
+
+  return;
+}
+
+\endcode
+
+*/
