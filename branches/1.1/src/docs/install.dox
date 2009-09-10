@@ -16,7 +16,7 @@ occurred in your user-mode application. CrashRpt DLL works like
 <a href="http://en.wikipedia.org/wiki/Windows_Error_Reporting">
 Windows Error Reporting</a> (also known as Dr.Watson) in Windows Vista or like 
 <a href="http://code.google.com/p/google-breakpad/">Google Breakpad</a> 
-used in popular browsers Mozilla and Chrome. 
+used in popular browsers Mozilla Firefox and Google Chrome. 
 
 CrashRpt intercepts an exception, creates the crash minidump file, builds the crash descriptor 
 file in XML format, 

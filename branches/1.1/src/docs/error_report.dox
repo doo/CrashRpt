@@ -10,10 +10,10 @@ to review the report contents. First the <b>Error Report</b> dialog shown above 
 \image html maindlg.png "Main Dialog"
 
 User can optionally provide his/her E-mail address and a short problem 
-description. The E-mail address may be later used by software support staff to
+description. The E-mail address may be used later by software support staff to
 contact the user and ask for additional information about the problem.
 
-The 'What does this report contan?' link opens the details dialog.
+The <i>What does this report contain?</i> link opens the details dialog.
 
 \section detaildlg Error Report Details Dialog
 
@@ -24,13 +24,13 @@ if an association exists for the file type.
 \image html detaildlg.png "Crash Details Dialog"
 
 <b>Since v.1.1.2</b> you can use a privacy policy describing what user 
-information your software collects on crash. You provide an URL of your privacy 
+information your software collects on crash. You provide the URL of your privacy 
 policy HTML document published on your web site or distributed with your software.
 If you need a template you may use this one: 
 <a href="http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate">PrivacyPolicyTemplate</a>. 
 
 The error report refers to a collection of files intended to help the developer 
-diagnose the cause of a crash. 
+diagnose the cause of the crash. 
 
 The error report contains crash minidump file (crashdump.dmp), which has operating system 
 version, processor type, CPU registers state and local variables and stack trace for each 
