@@ -10,14 +10,14 @@
 
 #include <windows.h>
 
-#ifdef __cplusplus
+#ifdef __cplusplus // Use undecorated names
 extern "C" {
 #endif
 
-#ifndef CRASHRPT_LIB
+#ifndef CRASHRPT_LIB // If CrashRpt is used as DLL
 #define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
 #define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 
-#else
+#else // If CrashRpt is used as static library
 #define CRASHRPT_DECLSPEC_DLLEXPORT 
 #define CRASHRPT_DECLSPEC_DLLIMPORT
 #endif
@@ -953,9 +953,10 @@ crExceptionFilter(
  *    - \c CR_CPP_SIGINT This raises SIGINT signal.
  *    - \c CR_CPP_SIGSEGV This raises SIGSEGV signal.
  *    - \c CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
- *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result is the same as in CR_WIN32_STRUCTURED_EXCEPTION).
+ *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
+ *         is the same as in \c CR_WIN32_STRUCTURED_EXCEPTION).
  *
- *  The \c CR_WIN32_STRUCTURED_EXCEPTION uses incorrect code to cause a null pointer write error.
+ *  The \c CR_WIN32_STRUCTURED_EXCEPTION uses null pointer write operation to cause the access violation.
  *
  *  The \c CR_CPP_NONCONTINUABLE_EXCEPTION has the same effect as \c CR_WIN32_STRUCTURED_EXCEPTION, but it uses
  *  \b RaiseException() function call to raise noncontinuable software exception.
