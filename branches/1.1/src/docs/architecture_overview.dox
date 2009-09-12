@@ -43,4 +43,35 @@ Each process loads its own copy of \c CrashRpt.dll. It is difficult to imagine
 how you can share single loaded instance of CrashRpt.dll between several processes. 
 Currently CrashRpt doesn't support such possiblity.  
 
+<b>What third-party libraries does crashrpt use internally?</b>
+
+CrashRpt uses the following libraries:
+
+<table>
+<tr>
+<td> \b Name
+<td> \b Description
+<td>\b Link
+<tr>
+<td>WTL
+<td>Used for GUI management
+<td>http://sourceforge.net/projects/wtl/
+<tr>
+<td>Microsoft Debug Help Library 	
+<td>Used to create crash minidumps
+<td>http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
+<tr>
+<td>TinyXml
+<td>Used to create and edit XML files
+<td>http://www.grinninglizard.com/tinyxml/
+<tr>
+<td>ZLib 	
+<td>Used to create ZIP archives
+<td>http://www.zlib.net/
+<tr>
+<td>zip utils 	
+<td>Makes using ZLib easier 	
+<td>http://www.codeproject.com/KB/files/zip_utils.aspx
+</table>
+
 */
