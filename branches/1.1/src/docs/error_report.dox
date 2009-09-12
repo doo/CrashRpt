@@ -61,5 +61,9 @@ The log may be useful when troubleshooting some error report sending problem.
 
 \image html progressdlg.png "Sending Error Report Dialog"
 
+\note The dialog becomes hidden in three seconds after start. Then it is displayed as icon in system tray.
+Double-click the icon to restore the dialog. The dialog is restored automatically when some user
+interaction is required.
+
 
 */

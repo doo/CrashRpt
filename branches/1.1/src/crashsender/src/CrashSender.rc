@@ -83,7 +83,7 @@ BEGIN
     LTEXT           "Please send us this error report to help fix the problem and improve this software.",IDC_SUBHEADER,12,47,296,16
     LTEXT           "Your E-mail:",IDC_STATMAIL,16,101,65,8
     LTEXT           "Describe in few words what did you do when the error occurred:",IDC_DESCRIBE,16,118,291,8
-    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,16,147,143,8
+    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,16,147,165,8
 END
 
 IDD_PROGRESSDLG DIALOGEX 0, 0, 266, 112

@@ -37,34 +37,34 @@ extern "C" {
 /*! \defgroup CrashRptStructs CrashRpt Structures */
 /*! \defgroup CrashRptWrappers CrashRpt Wrapper Classes */
 
-/*! \ingroup CrashRptAPI
- *  \brief Client crash callback function prototype
- *  \param[in] lpvState Not used, always equals to NULL.
- *
- *  \remarks
- *  The crash callback function is called when crash occurs. This way client application is
- *  notified about the crash.
- *  In crash callback, you can use crAddFile() to add a custom file to the error report.
- *  
- *  The crash callback function should return \c TRUE to allow generate error report. It should 
- *  return \c FALSE to prevent crash report generation.
- *
- *  The following example shows how to use crash callback function.
- *
- *  \code
- *  // define the crash callback
- *  BOOL CALLBACK CrashCallback(LPVOID /*lpvState*/)
- *  {
- *    // add custom log file to crash report
- *    crAddFile(
- *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
- *       _T("My custom log file"));
- *
- *    return TRUE;
- *  }
- *
- *  \endcode
- */
+//! \ingroup CrashRptAPI
+//  \brief Client crash callback function prototype
+//  \param[in] lpvState Not used, always equals to NULL.
+//
+//  \remarks
+//  The crash callback function is called when crash occurs. This way client application is
+//  notified about the crash.
+//  In crash callback, you can use crAddFile() to add a custom file to the error report.
+//  
+//  The crash callback function should return \c TRUE to allow generate error report. It should 
+//  return \c FALSE to prevent crash report generation.
+//
+//  The following example shows how to use crash callback function.
+//
+//  \code
+//  // define the crash callback
+//  BOOL CALLBACK CrashCallback(LPVOID /*lpvState*/)
+//  {    
+//    // add custom log file to crash report
+// *    crAddFile(
+// *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
+// *       _T("My custom log file"));
+// *
+// *    return TRUE;
+// *  }
+// *
+// *  \endcode
+// */
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
 #ifndef _CRASHRPT_REMOVE_DEPRECATED
