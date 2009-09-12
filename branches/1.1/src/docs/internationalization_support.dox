@@ -92,7 +92,8 @@ Some strings contain formatting symbols, for example <b>%%s</b> (string placehol
 <b>%%d</b> (integer plaseholder) or <b>\\n</b> (new line). These
 special symbols should be left as they are, do not remove them! 
 
-When you are finished the translation, save your changes. Ensure your file has the .INI extension. In the <b>Save as type</b> field, select <b>Text documents (*.txt)</b>. 
+When you are finished the translation, save your changes as a file named \b crashrpt_lang_XX.ini. Replace XX with an appropriate
+language abbreviation (EN and so on). Ensure your file has the .INI extension. In the <b>Save as type</b> field, select <b>Text documents (*.txt)</b>. 
 In the <b>Encoding</b> field, select <b>Unicode</b>.
 
 Then test your changes by substituting the language file. Rename your file into

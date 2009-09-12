@@ -33,37 +33,37 @@ A typical crash descriptor is presented below.
 
 \endcode
 
-The root element is <CrashRpt>. It has attribute named 'version' which represents
+The root element is \c CrashRpt. It has attribute named \c version representing
 the version of CrashRpt library that generated the error report. The value of '1103'
 means version 1.1.3.
 
-The element  <CrashGUID> is a unique ID of the error report. It can be used, for example,
+The element  \c CrashGUID is a unique ID of the error report. It can be used, for example,
 as a primary key if you plan to store crash reports in a database.
 
-The element  <AppName> is the name of your application that was passed to \b crInstall() 
+The element  \c AppName is the name of your application that was passed to \b crInstall() 
 as \b pszAppName member of \b CR_INSTALL_INFO structure.
 
-The element  <AppVersion> is the version of your application that was passed to \b crInstall() 
+The element  \c AppVersion is the version of your application that was passed to \b crInstall() 
 as \b pszAppVersion member of \b CR_INSTALL_INFO structure. You are typically interested
 in analysing error reports from the latest version of your software and ignore reports from 
 older versions.
 
-The element  <ImageName> is path to the executable image of your software.
+The element  \c ImageName is path to the executable image of your software.
 
-<OperatingSystem> is the friendly name of end user's operating system, including name, build number
+\c OperatingSystem is the friendly name of end user's operating system, including name, build number
 and service pack. It is useful information because many errors are OS-specific.
 
-<SystemTimeUTC> is the time in UTC format when crash had occured. This value can be used to
+\c SystemTimeUTC is the time in UTC format when crash had occured. This value can be used to
 order crash reports by creation time.
 
-<UserEmail> is the E-mail address of error report sender. If specified, it can be used
+\c UserEmail is the E-mail address of error report sender. If specified, it can be used
 to contact user and request additional info about error.
 
-<ProblemDescription> is the user-provided problem description. 
+\c ProblemDescription is the user-provided problem description. 
 
-<FileList> contains the list of files that are contained in the error report. 
+\c FileList contains the list of files that are contained in the error report. 
 
-<ExceptionType> is an integer that means the type of error:
+\c ExceptionType is an integer that means the type of error:
 
 - 0 Win32 structured exception.
 - 1 C++ terminate() call.
@@ -81,14 +81,14 @@ to contact user and request additional info about error.
 
 The exception type can be used to divide error reports into some categories.
 
-There are additional elements that appear sometimes, depending on ExceptionType.
+There are additional elements that appear sometimes, depending on \c ExceptionType.
 
-\b <ExceptionCode> is the structured exception code. It presents when ExceptionType is 0.
+\c ExceptionCode is the structured exception code. It presents when \c ExceptionType is 0.
 
-\b <FPESubcode> is the floating point exception subcode. It presents when ExceptionType is 8.
+\c FPESubcode is the floating point exception subcode. It presents when \c ExceptionType is 8.
 
-<InvParamFunction>, <InvParamExpression>, <InvParamFile> and <InvParamLine> are present when 
-ExceptionType is 6. These elements are typically empty. They may be non-empty if debug version
+\c InvParamFunction, \c InvParamExpression, \c InvParamFile and \c InvParamLine are present when 
+\c ExceptionType is 6. These elements are typically empty. They may be non-empty if debug version
 of CRT is used in your application.
 
 

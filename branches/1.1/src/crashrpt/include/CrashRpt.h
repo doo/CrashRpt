@@ -306,7 +306,7 @@ GenerateErrorReport(
  *       E-mail client.
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
- *       the default subject of form '<app_name> <app_version> Error Report' is generated.
+ *       the default subject of form '[app_name] [app_version] Error Report' is generated.
  *
  *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP
  *       connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
@@ -562,7 +562,7 @@ crUninstall();
  *   several execution threads, you ought to call the function for each thread,
  *   except the main one.
  *  
- *   The list of C++ exception\error handlers installed with this function:
+ *   The list of C++ exception/error handlers installed with this function:
  *    - terminate handler [ \c set_terminate() ]
  *    - unexpected handler [ \c set_unexpected() ]
  *    - floating point error handler [ \c signal(SIGFPE) ]
