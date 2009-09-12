@@ -93,7 +93,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppVersion = _T("1.0.2");
   info.pszEmailSubject = _T("Error from CrashRptTests v1.0.1");
   info.pszEmailTo = _T("test@hotmail.com");
-  info.pszUrl = _T("http://test.com/test.php");
+  info.pszUrl = _T("http://myappcom.com/crashrpt.php");
   info.pfnCrashCallback = CrashCallback;    
   info.uPriorities[CR_HTTP] = 3;
   info.uPriorities[CR_SMTP] = 2;
