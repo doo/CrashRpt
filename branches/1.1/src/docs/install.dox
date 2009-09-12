@@ -28,6 +28,11 @@ You can use CrashRpt in C++ programs created using Visual C++. However you can't
 or Visual Basic. Languages other than Visual C++ have different error handling mechanisms 
 and CrashRpt can't intercept errors in other programming languages. 
 
+\section chlog What's New in Current Version
+
+The change log is available
+<a href="..\..\changelog.txt">here</a>
+
 \section license License
 
 This library is distributed under the <b>New BSD license</b>. You can find the 
@@ -37,11 +42,6 @@ license text <a href="..\..\license.txt">here</a>.
 
 The latest stable version of CrashRpt is available on
 <a href="http://code.google.com/p/crashrpt">CrashRpt project page</a>
-
-\section chlog What's New in Current Version
-
-The change log is available
-<a href="..\..\changelog.txt">here</a>
 
 \section faq Frequently Asked Questions
 

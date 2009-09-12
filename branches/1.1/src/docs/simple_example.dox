@@ -10,31 +10,38 @@ your project as described in \ref configuring_project
 \code
 
 #include "CrashRpt.h"
+#include <tchar.h>
 #include <assert.h> // Using assert()
-#include <string> // Using std::string
+#include <string>   // Using std::string
 
 // Define character set independent strings
 typedef std::basic_string<TCHAR> tstring; 
 
-// .. Define the crash callback
-
-BOOL WINAPI CrashCallback(LPVOID lpvState)
+tstring GetAppDataDir()
 {
-  // Here GetAppDir() should be your function that returns path to
-  // the application directory
-  
-  tstring sLogFile = GetAppDir() + _T("\\dummy.log");
-  tstring sIniFile = GetAppDir() + _T("\\dummy.ini");
+  // Here GetAppDataDir() is a placeholder for your function that returns path to
+  // the directory where application data are stored
 
-  // Add two files to the error report
+}
 
+// Define the crash callback
+BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
+{
+  // dummy.log is an example of a file containing application log
+  tstring sLogFile = GetAppDataDir() + _T("\\dummy.log");
+
+  // dummy.ini is an example of a file containing application settings  
+  tstring sIniFile = GetAppDataDir() + _T("\\dummy.ini");
+
+  // Now add these two files to the error report
   crAddFile(sLogFile.c_str(), _T("Dummy Log File"));  
   crAddFile(sIniFile.c_str(), _T("Dummy INI File"));
- 
+
+  // Return TRUE to allow crash report generation
   return TRUE;
 }
 
-void main()
+void install_crashrpt()
 {
   // Install CrashRpt support
  
@@ -47,9 +54,9 @@ void main()
   info.pszEmailTo = _T("myapp_support@hotmail.com");  
   info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");
   info.pfnCrashCallback = CrashCallback; 
-  info.uPriorities[CR_HTTP] = 3;  // try HTTP first
-  info.uPriorities[CR_SMTP] = 2;  // try SMTP second
-  info.uPriorities[CR_SMAPI] = 1; // try Simple MAPI last  
+  info.uPriorities[CR_HTTP] = 3;  // Try HTTP the first
+  info.uPriorities[CR_SMTP] = 2;  // Try SMTP the second
+  info.uPriorities[CR_SMAPI] = 1; // Try Simple MAPI the last  
   info.dwFlags = 0; // Install all available exception handlers
   info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); // URL for the Privacy Policy link
   
@@ -60,21 +67,30 @@ void main()
     TCHAR szErrorMsg[512];
     szErrorMsg[0]=0;
 
-    crGetLastErrorMsg(szErrorMsg);
+    crGetLastErrorMsg(szErrorMsg, 512);
     _tprintf(_T("%s\n"), szErrorMsg);
 
     assert(nInstResult==0);
   }
+}
 
+void uninstall_crashrpt()
+{
+  // Unset crash handlers
+  int nUninstResult = crUninstall();
+  assert(nUninstResult==0);
+}
+
+void main()
+{
+  install_crashrpt();
 
   //
   // .. your code follows here ..
   //
 
 
-  // Unset crash handlers
-  int nUninstResult = crUninstall();
-  assert(nUninstResult==0);
+  uninstall_crashrpt();
 
   return;
 }

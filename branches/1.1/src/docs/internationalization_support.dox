@@ -13,9 +13,19 @@ file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender
 
 You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
 
-\note Each language file has the CrashRptVersion field that stores the version of CrashRpt you
+Each language file has the CrashRptVersion field that stores the version of CrashRpt you
 can use this language file in. If you try to use a language file with a wrong version, the crInstall()
 will return an error.
+
+For example, assume you want to download the English language file for CrashRpt v1.1.3. Browse for
+lang_files->1.1.3->crashrpt_lang_EN.ini (shown below).
+
+\code
+- lang_files
+   - 1.1.3
+       crashrpt_lang_EN.ini
+       crashrpt_lang_RU.ini
+\endcode
 
 If there is no language file for your favourite language, you can contribute one. Also, if you see
 that there are some mistakes in an existing language file, you may want to improve it and then
@@ -25,8 +35,9 @@ contribute your changes.
 
 If you want to translate a language file to your native language, you may do the following. 
 
-Download a language file for the language you know well. It would be easier for you to translate
-from such language.
+First of all, decide what CrashRpt version you want to prepare the language file for. Download an 
+appropriate language file for the CrashRpt version you decided and for the language you know well. 
+It would be easier for you to translate from such language.
 
 Open the language file using <b>notepad</b>. It is strongly recommended that you use notepad for
 editing to avoid unexpected problems with encoding.
@@ -35,7 +46,7 @@ You can see that the language file is a regular text file. The file has several 
 with [] symbols, e.g. [Settings], [MainDlg] and so on. Each section contains a group of named strings.
 Strings are stored as <b>StringName=String value</b> pairs.
 
-Below there is a fragment from the beginning of the English language file:
+Below there is a fragment from the beginning of the English language file for CrashRpt v1.1.3:
 
 \code
 [Settings]
@@ -71,9 +82,8 @@ and 1 for right-to-left ones (for example, Hebrew). This parameter is required. 
 window content is mirrored.
 
 - The \b CrashRptVersion string must contain the CrashRpt version this language file can be used in. For example,
-if the file should be used in CrashRpt v.1.1.3, set this parameter to 1103.
-This is the required and very important parameter. Be careful when setting it, because wrong version may
-result in unpredicted behavior.
+if the file should be used in CrashRpt v.1.1.3, this parameter must be equal to 1103. You typically do not change
+the value of this parameter when translating from another language.
 
 All other sections, such as [MainDlg] and [DetailDlg] contain strings that are used in CrashRpt dialogs.
 Translate the right part of the string; the left part should not be modified.

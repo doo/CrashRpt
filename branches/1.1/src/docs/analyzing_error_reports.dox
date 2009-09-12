@@ -6,7 +6,7 @@ When a software release is made and CrashRpt support is enabled in your software
 start receiving crash reports. 
 
 Count of received crash reports may depend on robustness of your software to various 
-exceptional situations and on how much your software popular. So it's nothing unusual
+exceptional situations and on popularity of your software. So it's nothing unusual
 if you receive hundreeds of error reports a day. If there are many incoming error reports,
 you can monitor and analyse them for the first few days after release, and prepare a hot fix 
 release. 

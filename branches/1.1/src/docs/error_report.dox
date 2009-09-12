@@ -50,12 +50,14 @@ button on the main dialog. If the user doesn't want to send the report, the user
 \section progressdlg Sending Error Report Dialog
 
 The <b>Sending Error Report</b> dialog shows the progress of sending the error report. There are
-maximum three attempts to send the report: using HTTP, using SMTP, and using Simple MAPI.
+maximum three attempts to send the report: using HTTP, using SMTP, and using Simple MAPI. The client
+application may specify the order of attempts. By default HTTP connection is tried the first, SMTP
+connection is tried the second, and Simple MAPI is tried the last.
 
 There is the status log area below the progress bar. It contains the details of report
 sending process. You can copy some selected lines or the whole log to the clipboard. To do this,
 select several lines of the log, right-click the selection and choose an item in the context menu. 
-The log may be useful when troubleshooting an error report sending problem.
+The log may be useful when troubleshooting some error report sending problem.
 
 \image html progressdlg.png "Sending Error Report Dialog"
 

@@ -5,11 +5,12 @@
 CrashRpt library is a light-weight open source error handling & reporting framework 
 for applications created in Microsoft Visual C++ and running under Windows. 
 
-
 The documentation is divided into the following sections:
 
 - \subpage introduction_to_crashrpt
 - \subpage using_crashrpt
 - \subpage using_error_reports
+
+<b>Tip:</b> Using the left pane allows to navigate the documentation hierarchy easier.
 
 */

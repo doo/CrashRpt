@@ -53,7 +53,7 @@ extern "C" {
  *
  *  \code
  *  // define the crash callback
- *  BOOL CALLBACK CrashCallback(LPVOID lpvState)
+ *  BOOL CALLBACK CrashCallback(LPVOID /*lpvState*/)
  *  {
  *    // add custom log file to crash report
  *    crAddFile(
