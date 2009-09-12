@@ -11,7 +11,7 @@ allows to choose what type of exception to generate.
 To run CrashRptTest demo, open \c bin directory and run \b CrashRptTest.exe.
 You can also compile the demo yourself.
 
-CrashRptTest application is designed to test the most probable crash situations.
+CrashRptTest application (see the figure below) is designed to test the most probable crash situations.
 There are two columns of buttons to test if exceptions are handled properly in the 
 main execution thread and in another, worker, thread.
 Each button allows to generate some kind of exception to cause crash. There are
@@ -22,7 +22,7 @@ two buttons at the bottom that allow to generate the error report manually witho
 
 \section crashcon About Crashcon Demo
 
-\b crashcon demo is a console application. It generates a Win32 structured 
+\b crashcon demo is a console application (presented below). It generates a Win32 structured 
 exception and shows how CrashRpt intercepts the exception and sends the error
 report to software support team.
 

@@ -20,7 +20,7 @@ open it using an associated program (for example, Visual Studio). When minidump 
 in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see
 the place in your source code where exception occurred.
 
-The most interesting for you is the call stack. Open the Call Stack window to see the stack trace.
+The most interesting for you is the call stack (see the figure below). Open the Call Stack window to see the stack trace.
 Each line of stack trace contains the name of module where crash occured, the name of symbol (function or class),
 offset from beginning of symbol code, source file and line number. This should be enough to
 locate the error, assume the most probable reason and try to fix.
@@ -36,11 +36,11 @@ Sometimes you can't determine the location of the crash and the error message is
 'No symbols loaded for any stack frame'. This may be because of the following reasons.
 
 - Debugger may not locate the correct PDB and binary files. Try to open Tools->Options->Debugging->Symbols
-  and enter the path to the directory where your PDB files are located. Then reopen the minidump.
+  and enter the path to the directory where your PDB files are located (see the figure below for example). Then reopen the minidump.
 
 \image html symbols_load_paths.png "Where to load symbols from"
 
-- You may have wrong or missing PDB files. Open the Modules window and check the symbol status
+- You may have wrong or missing PDB files. Open the Modules window (presented below) and check the symbol status
   for modules of your program. If the status is 'No symbols loaded.' than you have missing PDB. 
   Or maybe correct PDB files weren't saved locally before software release.
   In such case you won't be able to properly read any of received crash reports.

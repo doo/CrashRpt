@@ -2,10 +2,13 @@
 
 \page error_report About an Error Report
 
+When an error occurs, CrashRpt notifies the user and allows to review the report contents. 
+<b>Since v1.1.3</b> CrashRpt can be configured to use multiple languages with its user
+interface, as described in \ref internationalization_support.
+
 \section maindlg Error Report Dialog
 
-When an error occurs, CrashRpt notifies the user and allows  
-to review the report contents. First the <b>Error Report</b> dialog shown above is displayed. 
+First the <b>Error Report</b> dialog is displayed (see the figure below). 
 
 \image html maindlg.png "Error Report Dialog"
 
@@ -17,9 +20,9 @@ The <i>What does this report contain?</i> link opens the details dialog.
 
 \section detaildlg Error Report Details Dialog
 
-The <b>Error Report Details</b> dialog contains files that are presented in the report. 
+The <b>Error Report Details</b> dialog (see below) contains files that are presented in the report. 
 Double clicking a filename opens the file using its associated program, 
-if an association exists for the file type.
+if an association exists for the file type. 
 
 \image html detaildlg.png "Error Report Details Dialog"
 
@@ -49,7 +52,7 @@ button on the main dialog. If the user doesn't want to send the report, the user
 
 \section progressdlg Sending Error Report Dialog
 
-The <b>Sending Error Report</b> dialog shows the progress of sending the error report. There are
+The <b>Sending Error Report</b> dialog (presented below) shows the progress of sending the error report. There are
 maximum three attempts to send the report: using HTTP, using SMTP, and using Simple MAPI. The client
 application may specify the order of attempts. By default HTTP connection is tried the first, SMTP
 connection is tried the second, and Simple MAPI is tried the last.

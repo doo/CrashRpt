@@ -43,7 +43,7 @@ See the \ref crt_version_and_dll for more information.
 
 In the Solution Explorer window, right-click your project and open project Properties. 
 Then choose Configuration Properties->C/C++->Code Generation. In the <b>Runtime Library</b> field,
-choose <b>Multi-threaded DLL (/MD)</b>.
+choose <b>Multi-threaded DLL (/MD)</b>. See the figure below for example.
 
 This should be done for all projects in your solution to share single CRT DLL.
 
@@ -84,6 +84,8 @@ enter the name for your PDB file, for example <b>\$(TargetDir)\$(TargetName).pdb
 
 Steps 1 and 2 should be done for all projects in your solution that support program database 
 (EXE, DLL).
+
+The steps 1 and 2 are presented on the figures below.
 
 \image html program_database.png "Program Database (/Zi)"
 
