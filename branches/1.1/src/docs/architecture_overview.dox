@@ -58,15 +58,15 @@ CrashRpt uses the following libraries:
 <td>http://sourceforge.net/projects/wtl/
 <tr>
 <td>Microsoft Debug Help Library 	
-<td>Used to create crash minidumps
+<td>Used for creating crash minidumps
 <td>http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
 <tr>
 <td>TinyXml
-<td>Used to create and edit XML files
+<td>Used for creating and editing XML files
 <td>http://www.grinninglizard.com/tinyxml/
 <tr>
 <td>ZLib 	
-<td>Used to create ZIP archives
+<td>Used for creating ZIP archives
 <td>http://www.zlib.net/
 <tr>
 <td>zip utils 	
