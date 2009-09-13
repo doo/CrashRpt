@@ -137,6 +137,30 @@ In the newest version of CrashRpt, the documentation is included into the CrashR
 
 In an older version of CrashRpt v1.0, the documentation can be found in [CrashRpt_v1_0_Documentation] wiki page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
 
+== How does crashrpt support multi-lingual user interface? ==
+
+Since v.1.1.3, CrashRpt supports multi-lingual user interfaces. You should place a valid
+language file named `crashrpt_lang.ini` to the directory where `CrashSender.exe` file is located in order to make CrashRpt work properly. The language file is a text document in UNICODE format and having INI extension. The language file contains localized strings used by CrashRpt dialogs.
+
+If your software supports several languages, you can distribute several language files with your software. On install, rename an appropriate file to `crashrpt_lang.ini` and copy it to the folder where your \b CrashSender.exe is located.
+
+You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
+
+For example, assume you want to download the English language file for CrashRpt v1.1.3. Browse for `lang_files->1.1.3->crashrpt_lang_EN.ini` (shown below).
+
+{{{
+- lang_files
+   - 1.1.3
+       crashrpt_lang_EN.ini
+       crashrpt_lang_RU.ini
+}}}
+
+== How do I contribute a language file? ==
+
+If there is no language file for your favourite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
+
+For instructions, see ContributingLanguageFile.
+
 == How do I use crashrpt in my Visual C++ project? ==
 
 Go to the top level directory of CrashRpt package and click the index.html file to open project documentation. Then follow the directions in Using CrashRpt in Your Visual C++ Project page of the documentation.
