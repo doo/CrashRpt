@@ -159,7 +159,7 @@ For example, assume you want to download the English language file for CrashRpt 
 
 If there is no language file for your favourite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
 
-For instructions, see ContributingLanguageFile.
+For instructions, see ContributingLanguageFiles.
 
 == How do I use crashrpt in my Visual C++ project? ==
 
