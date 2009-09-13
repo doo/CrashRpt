@@ -11,11 +11,9 @@ We appreciate any user feedback, bug reports and feature requests.
 
   * Support of globalization and RTL languages.
 
-  * Reorganized and improved documentation; New pages Architecture Overview and
-  Internationalization Support.
+  * Reorganized and improved documentation; New pages Architecture Overview and Internationalization Support.
 
-  * Added <?xml version="1.0" encoding="utf-8" ?> element in the 
-  beginning of crash descriptor XML.
+  * Added <?xml version="1.0" encoding="utf-8" ?> element in the beginning of crash descriptor XML.
 
 = Requirements = 
 
