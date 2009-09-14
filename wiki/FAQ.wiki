@@ -152,7 +152,6 @@ For example, assume you want to download the English language file for CrashRpt 
 - lang_files
    - 1.1.3
        crashrpt_lang_EN.ini
-       crashrpt_lang_RU.ini
 }}}
 
 == How do I contribute a language file? ==
