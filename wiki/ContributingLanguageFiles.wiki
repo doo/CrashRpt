@@ -72,11 +72,11 @@ All other sections, such as `MainDlg` and `DetailDlg` contain strings that are u
 
 Translate the right part of the string; the left part should not be modified.
 
-Some strings contain formatting symbols, for example *%s* (string placeholder), *%%* (integer plaseholder) or *\n* (new line). These special symbols should be left as they are, do not remove them! 
+Some strings contain formatting symbols, for example *%s* (string placeholder), *%d* (integer plaseholder) or *\n* (new line). These special symbols should be left as they are, do not remove them! 
 
 When you are finished the translation, save your changes as a file named *crashrpt_lang_XX.ini*. Replace XX with an appropriate language abbreviation (EN and so on). Ensure your file has the .INI extension. In the *Save as type* field, select *Text documents (.txt)*. In the *Encoding* field, select *Unicode*.
 
 Then test your changes by substituting the language file. Rename your file into
-*crashrpt_lang.ini* and copy it to the directory where *CrashSender.exe* is located (the `bin` directory under the CrashRpt top-level directory) and run `CrashRptTest.exe`.
+*crashrpt_lang.ini* and copy it to the directory where `CrashSender.exe` is located (the `bin` directory under the CrashRpt top-level directory) and run `CrashRptTest.exe`.
 
 To contribute your changes, please leave us a message in our <a href="http://groups.google.com/group/crashrpt">Discussions</a> group. We will let you know how your changes can be uploaded. 
