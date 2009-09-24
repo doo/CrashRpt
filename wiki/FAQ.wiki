@@ -61,6 +61,7 @@ Yes, they are listed in the table below:
 || google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
+|| BugCollect.com || Web-based crash reporting system || http://bugcollect.com ||
 
 
 
