@@ -134,7 +134,7 @@ CrashRpt uses the following libraries:
 
 == Where do I look for crashrpt documentation? ==
 
-In the newest version of CrashRpt, the documentation is included into the CrashRpt release package. To open the documentation, click the `index.html` in the top level directory of the CrashRpt package.
+In the newest version of CrashRpt, the documentation is included into the CrashRpt release package. To open the documentation, click the `index.html` in the top level directory of the CrashRpt package. Online documentation for the latest version is available here: [http://crashrpt.sourceforge.net/ Online Documentation].
 
 In an older version of CrashRpt v1.0, the documentation can be found in [CrashRpt_v1_0_Documentation] wiki page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
 
