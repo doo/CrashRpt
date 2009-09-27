@@ -8,7 +8,8 @@
     * PrivacyPolicyTemplate
     * [CrashRpt_v1_0_Documentation]
   * Release History
-    * [CrashRpt_v1_1b_ReleaseNotes]
-    * [CrashRpt_v1_1_1_ReleaseNotes]
-    * [CrashRpt_v1_1_2_ReleaseNotes]
     * [CrashRpt_v1_1_3_ReleaseNotes]
+    * [CrashRpt_v1_1_2_ReleaseNotes]
+    * [CrashRpt_v1_1_1_ReleaseNotes]
+    * [CrashRpt_v1_1b_ReleaseNotes]
+
