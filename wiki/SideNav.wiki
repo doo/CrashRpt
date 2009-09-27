@@ -1,9 +1,8 @@
 #labels Deprecated
-
   * Quick Start
-    * CrashRpt
-    * FAQ
-    * WhoUsesCrashRpt
+    * [CrashRpt About CrashRpt]
+    * [FAQ Frequently Asked Questions]
+    * [WhoUsesCrashRpt Who Uses CrashRpt?]
   * Documentation
     * ContributingLanguageFiles
     * PrivacyPolicyTemplate
