@@ -90,7 +90,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   strconv_t strconv;
   BOOL bSymInit = SymInitialize(
     m_DumpData.m_hProcess,
-    strconv.t2a(sSymSearchPath), 
+    (PSTR)strconv.t2a(sSymSearchPath), 
     FALSE);
 
   if(!bSymInit)
@@ -253,7 +253,7 @@ int CMiniDumpReader::ReadModuleListStream()
         int nLoadResult = SymLoadModuleEx(
           m_DumpData.m_hProcess,
           NULL,
-          szModuleName,
+          (PSTR)szModuleName,
           NULL,
           m.m_uBaseAddr,
           (DWORD)m.m_uImageSize,

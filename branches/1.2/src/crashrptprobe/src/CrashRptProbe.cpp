@@ -18,6 +18,13 @@ int crpSetErrorMsg(PTSTR pszErrorMsg);
 
 struct CrpReportData
 {
+  CrpReportData()
+  {
+    m_hZip = 0;
+    m_pDescReader = NULL;
+    m_pDmpReader = NULL;
+  }
+
   HZIP m_hZip;
   CCrashDescReader* m_pDescReader;
   CMiniDumpReader* m_pDmpReader;  
@@ -110,7 +117,7 @@ crpOpenErrorReportW(
   int status = -1;
   int nNewHandle = 0;
   CrpReportData report_data;
-  HZIP hZip = 0;
+  //HZIP hZip = 0;
   ZRESULT zr = 0;
   ZIPENTRY ze;
   int xml_index = -1;
@@ -139,18 +146,18 @@ crpOpenErrorReportW(
   }
 
   // Open ZIP archive
-  hZip = OpenZip(pszFileName, 0);
-  if(hZip==NULL)
+  report_data.m_hZip = OpenZip(pszFileName, 0);
+  if(report_data.m_hZip==NULL)
   {
     crpSetErrorMsg(_T("Error opening ZIP archive."));
     goto exit;
   }
 
   // Look for v1.1 crash descriptor XML
-  zr = FindZipItem(hZip, _T("crashrpt.xml"), false, &xml_index, &ze);
+  zr = FindZipItem(report_data.m_hZip, _T("crashrpt.xml"), false, &xml_index, &ze);
   
   // Look for v1.1 crash dump 
-  zr = FindZipItem(hZip, _T("crashdump.dmp"), false, &dmp_index, &ze);
+  zr = FindZipItem(report_data.m_hZip, _T("crashdump.dmp"), false, &dmp_index, &ze);
   
   // If xml and dmp still not found, assume it is v1.0
   if(xml_index==-1 && dmp_index==-1)  
@@ -159,7 +166,7 @@ crpOpenErrorReportW(
     int i=0;
     for(i=0;;i++)
     {
-      zr = GetZipItem(hZip, i, &ze);
+      zr = GetZipItem(report_data.m_hZip, i, &ze);
       if(zr!=ZR_OK)
         break;
 
@@ -174,7 +181,7 @@ crpOpenErrorReportW(
 
     // Assume the name of XML is the same as DMP
     CString sXmlName = GetBaseFileName(ze.name) + _T(".xml");
-    zr = FindZipItem(hZip, sXmlName, false, &xml_index, &ze);
+    zr = FindZipItem(report_data.m_hZip, sXmlName, false, &xml_index, &ze);
     if(zr!=ZR_OK)
     {
       xml_index = -1;
@@ -191,7 +198,7 @@ crpOpenErrorReportW(
   // Load crash descriptor data
   if(xml_index>=0)
   {
-    zr = GetZipItem(hZip, xml_index, &ze);
+    zr = GetZipItem(report_data.m_hZip, xml_index, &ze);
     if(zr!=ZR_OK)
     {
       crpSetErrorMsg(_T("Error retrieving ZIP item."));
@@ -199,7 +206,7 @@ crpOpenErrorReportW(
     }
 
     CString sTempFile = CUtility::getTempFileName();
-    zr = UnzipItem(hZip, xml_index, sTempFile);
+    zr = UnzipItem(report_data.m_hZip, xml_index, sTempFile);
     if(zr!=ZR_OK)
     {
       crpSetErrorMsg(_T("Error extracting ZIP item."));
@@ -219,7 +226,7 @@ crpOpenErrorReportW(
   if(dmp_index>=0)
   {
     CString sTempFile = CUtility::getTempFileName();
-    zr = UnzipItem(hZip, dmp_index, sTempFile);
+    zr = UnzipItem(report_data.m_hZip, dmp_index, sTempFile);
     if(zr!=ZR_OK)
     {
       crpSetErrorMsg(_T("Error extracting ZIP item."));
@@ -245,11 +252,12 @@ exit:
   {
     delete report_data.m_pDescReader;
     delete report_data.m_pDmpReader;
+
+    if(report_data.m_hZip!=0) 
+      CloseZip(report_data.m_hZip);
   }
 
-  if(hZip!=0) 
-    CloseZip(hZip);
-
+  
   return status;
 }
 
@@ -286,9 +294,13 @@ crpCloseErrorReport(
     return 1;
   }
 
-  // Remove from the list of opened handles
   delete it->second.m_pDescReader;
   delete it->second.m_pDmpReader;
+
+  if(it->second.m_hZip)
+    CloseZip(it->second.m_hZip);
+
+  // Remove from the list of opened handles
   g_OpenedHandles.erase(it);
 
   // OK.
@@ -649,10 +661,38 @@ crpExtractFileW(
   LPCWSTR lpszFileSaveAs
 )
 {
-  hReport;
-  lpszFileSaveAs;
-  lpszFileName;
+  crpSetErrorMsg(_T("Unspecified error."));
+  
+  strconv_t strconv;
+  ZRESULT zr;
+  ZIPENTRY ze;
+  int index = -1;
+  HZIP hZip = 0;
+  
+  std::map<int, CrpReportData>::iterator it = g_OpenedHandles.find(hReport);
+  if(it==g_OpenedHandles.end())
+  {
+    crpSetErrorMsg(_T("Invalid handle specified."));
+    return -1;
+  }
+  
+  hZip = it->second.m_hZip;
 
+  zr = FindZipItem(hZip, strconv.w2t(lpszFileName), true, &index, &ze);
+  if(zr!=ZR_OK)
+  {
+    crpSetErrorMsg(_T("Couldn't find the specified zip item."));
+    return -2;
+  }
+
+  zr = UnzipItem(hZip, index, strconv.w2t(lpszFileSaveAs));
+  if(zr!=ZR_OK)
+  {
+    crpSetErrorMsg(_T("Error extracting the specified zip item."));
+    return -3;
+  }  
+
+  crpSetErrorMsg(_T("Success."));
   return 0;
 }
 
@@ -664,10 +704,11 @@ crpExtractFileA(
   LPCSTR lpszFileSaveAs
 )
 {
-  hReport;
-  lpszFileName;
-  lpszFileSaveAs;
-  return 0;
+  strconv_t strconv;
+  LPCWSTR pwszFileName = strconv.a2w(lpszFileName);
+  LPCWSTR pwszFileSaveAs = strconv.a2w(lpszFileSaveAs);
+
+  return crpExtractFileW(hReport, pwszFileName, pwszFileSaveAs);
 }
 
 int 
