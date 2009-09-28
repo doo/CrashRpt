@@ -31,12 +31,12 @@ and CrashRpt can't intercept errors in other programming languages.
 \section chlog What's New in Current Version
 
 The change log is available
-<a href="..\..\changelog.txt">here</a>
+<a href="../../changelog.txt">here</a>
 
 \section license License
 
 This library is distributed under the <b>New BSD license</b>. You can find the 
-license text <a href="..\..\license.txt">here</a>.
+license text <a href="../../license.txt">here</a>.
 
 \section download Download
 
