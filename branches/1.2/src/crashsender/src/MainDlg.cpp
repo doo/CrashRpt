@@ -22,7 +22,15 @@ BOOL CMainDlg::OnIdle()
 }
 
 LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
+{ 
+  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  if(sRTL.CompareNoCase(_T("1"))==0)
+  {
+    Utility::SetLayoutRTL(m_hWnd);
+  }
+
+  SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DlgCaption")));
+
 	// center the dialog on the screen
 	CenterWindow();
 	
@@ -42,25 +50,39 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   {
     m_HeadingIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
   }  
+
+  CStatic statSubHeader = GetDlgItem(IDC_SUBHEADER);
+  statSubHeader.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SubHeaderText")));
  
   m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
   m_link.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
-
+  m_link.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("WhatDoesReportContain")));
+  
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
-
+  m_linkMoreInfo.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("ProvideAdditionalInfo")));
+  
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
-
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("PrivacyPolicy")));
+  
   m_statEmail = GetDlgItem(IDC_STATMAIL);
+  m_statEmail.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("YourEmail")));
+
   m_editEmail = GetDlgItem(IDC_EMAIL);
+  
   m_statDesc = GetDlgItem(IDC_DESCRIBE);
+  m_statDesc.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DescribeProblem")));
+
   m_editDesc = GetDlgItem(IDC_DESCRIPTION);
   m_statCrashRpt = GetDlgItem(IDC_CRASHRPT);
-  m_statHorzLine = GetDlgItem(IDC_HORZLINE);
-  m_statBySending = GetDlgItem(IDC_BYSENDING);
+  m_statHorzLine = GetDlgItem(IDC_HORZLINE);  
+  
   m_btnOk = GetDlgItem(IDOK);
+  m_btnOk.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SendReport")));
+
   m_btnCancel = GetDlgItem(IDCANCEL);
+  m_btnCancel.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("CloseTheProgram")));
 
   CRect rc1, rc2;
   m_linkMoreInfo.GetWindowRect(&rc1);
@@ -99,39 +121,33 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
 
-  BOOL bShowPrivacyPolicy = !m_sPrivacyPolicyURL.IsEmpty();
-  m_statBySending.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
+  BOOL bShowPrivacyPolicy = !m_sPrivacyPolicyURL.IsEmpty();  
   m_linkPrivacyPolicy.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
 
   int k = bShow?-1:1;
 
   m_statHorzLine.GetWindowRect(&rc1);
-  ScreenToClient(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_statHorzLine.MoveWindow(&rc1);
 
   m_statCrashRpt.GetWindowRect(&rc1);
-  ScreenToClient(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_statCrashRpt.MoveWindow(&rc1);
-
-  m_statBySending.GetWindowRect(&rc1);
-  ScreenToClient(&rc1);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_statBySending.MoveWindow(&rc1);
-
+  
   m_linkPrivacyPolicy.GetWindowRect(&rc1);
-  ScreenToClient(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_linkPrivacyPolicy.MoveWindow(&rc1);
 
   m_btnOk.GetWindowRect(&rc1);
-  ScreenToClient(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_btnOk.MoveWindow(&rc1);
 
   m_btnCancel.GetWindowRect(&rc1);
-  ScreenToClient(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_btnCancel.MoveWindow(&rc1);
 
@@ -171,7 +187,7 @@ LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
   rcHeading.right -= 10;
 
   CString sHeading;
-  sHeading.Format(_T("%s has stopped working"), m_sAppName);
+  sHeading.Format(Utility::GetINIString(_T("MainDlg"), _T("HeaderText")), m_sAppName);
   dc.SelectFont(m_HeadingFont);
   dc.DrawTextEx(sHeading.GetBuffer(0), sHeading.GetLength(), &rcHeading, 
     DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
@@ -245,10 +261,16 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
       (m_sEmailFrom.Find(_T('@')) < 0 ||
        m_sEmailFrom.ReverseFind(_T('.')) < m_sEmailFrom.Find(_T('@'))))
   {
-     // alert user
-     TCHAR szBuf[256];
-     ::LoadString(_Module.GetResourceInstance(), IDS_INVALID_EMAIL, szBuf, 255);
-     MessageBox(szBuf, _T("Invalid E-mail address"), MB_OK);
+    DWORD dwFlags = 0;
+    CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+    if(sRTL.CompareNoCase(_T("1"))==0)
+      dwFlags = MB_RTLREADING;
+  
+     // alert user     
+     MessageBox(
+       Utility::GetINIString(_T("MainDlg"), _T("InvalidEmailText")), 
+       Utility::GetINIString(_T("MainDlg"), _T("InvalidEmailCaption")), 
+       MB_OK|dwFlags);
      
      // select email
      ::SetFocus(hWndEmail);

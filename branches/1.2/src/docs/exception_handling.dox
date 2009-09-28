@@ -2,8 +2,7 @@
 
 \page exception_handling About Exceptions and Exception Handling
 
-Reading this page is not necessary for using CrashRpt. You may skip this page 
-and proceed to \ref configure_prj. However, read this page if you need extended 
+Reading this page is not necessary for using CrashRpt. However read this page if you need extended 
 knowledge of exception handling.
 
 This page describes techniques of handling exceptions in Visual C++ programs under Windows. 
@@ -66,14 +65,14 @@ int main () {
 
 \section structured_exc Structured Exceptions 
 
-When a structured exception occurs, you typically see a popup window (DrWatson) that 
+When a structured exception occurs, you typically see a popup window (Dr.Watson) that 
 offers to send error report to Microsoft. 
 
 You can generate a structured exception yourself using \b RaiseException() function.
 
 You can catch a structured exception in your code using __try{}__except(Expression){} construction.
 The \b main() function of your program is guarded with such construction, so by default all unhandled
-structured exceptions are cougth and DrWatson is invoked.
+structured exceptions are cought and Dr.Watson is invoked.
 
 Example:
 
@@ -94,7 +93,7 @@ Example:
   }
 \endcode 
 
-Each structured exception has an exception code. You can extract the exception code inside of __except statement 
+Each structured exception has an associated exception code. You can extract the exception code inside of __except statement 
 using \b GetExceptionCode() intrinsic function. You can extract exception information inside of __except 
 statement using \b GetExceptionInformation() intrinsic function. To use these intrinsic functions you usually
 create your custom exception filter as shown in the example below.
@@ -115,7 +114,7 @@ void main()
 {
   __try
   {
-    // .. some unsafe code here
+    // .. some buggy code here
   }
   __except(seh_filter(GetExceptionCode(), GetExceptionInformation()))
   {    
@@ -126,7 +125,7 @@ void main()
 
 \endcode
 
-The __try{}__except(){} construction is mostly C oriented. However, you can redirect a structured exceptions to a C++
+The __try{}__except(){} construction is mostly C oriented. However, you can redirect a structured exception to a C++
 typed exception and handle it as you do with C++ typed exceptions. This can be done using the \b _set_se_translator() 
 function provided by C++ runtime libraries (CRT).
 
@@ -186,7 +185,7 @@ void trans_func( unsigned int u, EXCEPTION_POINTERS* pExp )
 \endcode
 
 
-The disadvantage of the __try-__catch construction is that you may forget to guard a potentially buggy or unsafe 
+The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially buggy 
 code that may cause an exception that won't be handled by your program. However, such an unhandled structured exception
 can be catched using the unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
 

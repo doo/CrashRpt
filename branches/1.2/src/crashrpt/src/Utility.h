@@ -19,115 +19,43 @@
 ////////////////////////////// Class Definitions /////////////////////////////
 
 // ===========================================================================
-// CUtility
+// Utility
 // 
 // See the module comment at top of file.
 //
-class CUtility  
+namespace Utility  
 {
-public:
+   CString getAppName();   
 
-   //-----------------------------------------------------------------------------
-   // getLastWriteFileTime
-   //    Returns the time the file was last modified in a FILETIME structure.
-   //
-   // Parameters
-   //    sFile       Fully qualified file name
-   //
-   // Return Values
-   //    FILETIME structure
-   //
-   // Remarks
-   //
-   static 
-   FILETIME 
-   getLastWriteFileTime(
-      CString sFile
-      );
-   
-   //-----------------------------------------------------------------------------
-   // getAppName
-   //    Returns the application module's file name
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    File name of the executable
-   //
-   // Remarks
-   //    none
-   //
-   static 
-   CString 
-   getAppName();
+   CString getTempFileName();
 
-   //-----------------------------------------------------------------------------
-   // getSaveFileName
-   //    Presents the user with a save as dialog and returns the name selected.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    Name of the file to save to, or "" if the user cancels.
-   //
-   // Remarks
-   //    none
-   //
-  /* static 
-   CString 
-   getSaveFileName();*/
-	
-   //-----------------------------------------------------------------------------
-   // getTempFileName
-   //    Returns a generated temporary file name
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    Temporary file name
-   //
-   // Remarks
-   //
-   static 
-   CString 
-   getTempFileName();
-
-   //-----------------------------------------------------------------------------
-   // getTempDirectory
-   //  Returns value of TEMP environment variable
-   //
-   //  Return value
-   //   0 if successful
-   //
-   static
-   int 
-   getTempDirectory(CString& strTemp);
+   int getTempDirectory(CString& strTemp);
 
    // Returns path to directory where EXE or DLL module is located.
-   static CString GetModulePath(HMODULE hModule);
+   CString GetModulePath(HMODULE hModule);
 
    // Generates unique identifier (GUID)
-   static int GenerateGUID(CString& sGUID);  
+   int GenerateGUID(CString& sGUID);  
 
    // Returns current system time as string (uses UTC time format).
-   static int GetSystemTimeUTC(CString& sTime);  
+   int GetSystemTimeUTC(CString& sTime);  
 
    // Returns friendly name of operating system (name, version, service pack)
-   static int GetOSFriendlyName(CString& sOSName);  
+   int GetOSFriendlyName(CString& sOSName);  
 
    // Returns path to a special folder (for example %LOCAL_APP_DATA%)
-   static int GetSpecialFolder(int csidl, CString& sFolderPath);
+   int GetSpecialFolder(int csidl, CString& sFolderPath);
 
    // Replaces restricted characters in file name
-   static CString ReplaceInvalidCharsInFileName(CString sFileName);
+   CString ReplaceInvalidCharsInFileName(CString sFileName);
 
    // Moves a file to the Recycle Bin or removes the file permanently
-   static int RecycleFile(CString sFilePath, bool bPermanentDelete);
+   int RecycleFile(CString sFilePath, bool bPermanentDelete);
 
-   /*static CString LoadString(UINT uID);*/
+   CString GetINIString(LPCTSTR pszFileName, LPCTSTR pszSection, LPCTSTR pszName);
+   CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
+
+   void SetLayoutRTL(HWND hWnd);
 };
 
 #include <vector>
@@ -219,6 +147,7 @@ LPCTSTR w2t(LPCWSTR lpsz)
 private:
   std::vector<void*> m_ConvertedStrings;  
 };
+
 
 
 #endif	// #ifndef _UTILITY_H_

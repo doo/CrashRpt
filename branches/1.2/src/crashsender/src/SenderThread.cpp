@@ -144,7 +144,7 @@ BOOL SendOverSMTP(SenderThreadContext* pc)
     sFileTitle = sFileTitle.Mid(pos+1);
   sFileTitle += _T(".md5");
   CString sTempDir;
-  CUtility::getTempDirectory(sTempDir);
+  Utility::getTempDirectory(sTempDir);
   CString sTmpFileName = sTempDir +_T("\\")+ sFileTitle;
   FILE* f = NULL;
   _TFOPEN_S(f, sTmpFileName, _T("wt"));
@@ -215,7 +215,7 @@ BOOL SendOverSMAPI(SenderThreadContext* pc)
   CalcFileMD5Hash(pc->m_sZipName, sErrorRptHash);
   sFileTitle += _T(".md5");
   CString sTempDir;
-  CUtility::getTempDirectory(sTempDir);
+  Utility::getTempDirectory(sTempDir);
   CString sTmpFileName = sTempDir +_T("\\")+ sFileTitle;
   FILE* f = NULL;
   _TFOPEN_S(f, sTmpFileName, _T("wt"));
@@ -293,7 +293,7 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
   {
     an.SetProgress(_T("[status_success]"), 0);
     // Move the ZIP to Recycle Bin
-    CUtility::RecycleFile(pc->m_sZipName, false);
+    Utility::RecycleFile(pc->m_sZipName, false);
   }
   else
   {

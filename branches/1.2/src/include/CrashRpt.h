@@ -10,14 +10,14 @@
 
 #include <windows.h>
 
-#ifdef __cplusplus
+#ifdef __cplusplus // Use undecorated names
 extern "C" {
 #endif
 
-#ifndef CRASHRPT_LIB
+#ifndef CRASHRPT_LIB // If CrashRpt is used as DLL
 #define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
 #define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 
-#else
+#else // If CrashRpt is used as static library
 #define CRASHRPT_DECLSPEC_DLLEXPORT 
 #define CRASHRPT_DECLSPEC_DLLIMPORT
 #endif
@@ -30,41 +30,41 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1102
+#define CRASHRPT_VER 1103
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
 /*! \defgroup CrashRptStructs CrashRpt Structures */
 /*! \defgroup CrashRptWrappers CrashRpt Wrapper Classes */
 
-/*! \ingroup CrashRptAPI
- *  \brief Client crash callback function prototype
- *  \param[in] lpvState Not used, always equals to NULL.
- *
- *  \remarks
- *  The crash callback function is called when crash occurs. This way client application is
- *  notified about the crash.
- *  In crash callback, you can use crAddFile() to add a custom file to the error report.
- *  
- *  The crash callback function should return \c TRUE to allow generate error report. It should 
- *  return \c FALSE to prevent crash report generation.
- *
- *  The following example shows how to use crash callback function.
- *
- *  \code
- *  // define the crash callback
- *  BOOL CALLBACK CrashCallback(LPVOID lpvState)
- *  {
- *    // add custom log file to crash report
- *    crAddFile(
- *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
- *       _T("My custom log file"));
- *
- *    return TRUE;
- *  }
- *
- *  \endcode
- */
+//! \ingroup CrashRptAPI
+//  \brief Client crash callback function prototype
+//  \param[in] lpvState Not used, always equals to NULL.
+//
+//  \remarks
+//  The crash callback function is called when crash occurs. This way client application is
+//  notified about the crash.
+//  In crash callback, you can use crAddFile() to add a custom file to the error report.
+//  
+//  The crash callback function should return \c TRUE to allow generate error report. It should 
+//  return \c FALSE to prevent crash report generation.
+//
+//  The following example shows how to use crash callback function.
+//
+//  \code
+//  // define the crash callback
+//  BOOL CALLBACK CrashCallback(LPVOID /*lpvState*/)
+//  {    
+//    // add custom log file to crash report
+// *    crAddFile(
+// *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
+// *       _T("My custom log file"));
+// *
+// *    return TRUE;
+// *  }
+// *
+// *  \endcode
+// */
 typedef BOOL (CALLBACK *LPGETLOGFILE) (LPVOID lpvState);
 
 #ifndef _CRASHRPT_REMOVE_DEPRECATED
@@ -306,7 +306,7 @@ GenerateErrorReport(
  *       E-mail client.
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
- *       the default subject of form '<app_name> <app_version> Error Report' is generated.
+ *       the default subject of form '[app_name] [app_version] Error Report' is generated.
  *
  *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP
  *       connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
@@ -413,7 +413,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *  \param[in] pInfo General information.
  *
  *  \remarks
- *    This function installs unhandled exception filter for all threads of caller process.
+ *    This function installs unhandled exception filter for all threads of the caller process.
  *    It also installs various CRT exception/error handlers that function for all threads of the caller process.
  *    For more information, see \ref exception_handling
  *
@@ -449,6 +449,11 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    function as CR_INSTALL_INFO() structure members. Another way of sending error report is an HTTP 
  *    request using \c pszUrl member of CR_INSTALL_INFO(). If both the E-mail address and
  *    URL are not specified, this function fails.
+ *
+ *    This function may fail if an appropriate language file (\c crashrpt_lang.ini) is not found 
+ *    in the directory where the \c CrashSender.exe file is located.
+ *
+ *    If this function fails, use crGetLastErrorMsg() to retrieve the error message.
  *
  *    crInstallW() and crInstallA() are wide-character and multi-byte character versions of crInstall()
  *    function. The crInstall() macro defines character set independent mapping for these functions.
@@ -557,7 +562,7 @@ crUninstall();
  *   several execution threads, you ought to call the function for each thread,
  *   except the main one.
  *  
- *   The list of C++ exception\error handlers installed with this function:
+ *   The list of C++ exception/error handlers installed with this function:
  *    - terminate handler [ \c set_terminate() ]
  *    - unexpected handler [ \c set_unexpected() ]
  *    - floating point error handler [ \c signal(SIGFPE) ]
@@ -948,9 +953,10 @@ crExceptionFilter(
  *    - \c CR_CPP_SIGINT This raises SIGINT signal.
  *    - \c CR_CPP_SIGSEGV This raises SIGSEGV signal.
  *    - \c CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
- *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result is the same as in CR_WIN32_STRUCTURED_EXCEPTION).
+ *    - \c CR_CPP_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
+ *         is the same as in \c CR_WIN32_STRUCTURED_EXCEPTION).
  *
- *  The \c CR_WIN32_STRUCTURED_EXCEPTION uses incorrect code to cause a null pointer write error.
+ *  The \c CR_WIN32_STRUCTURED_EXCEPTION uses null pointer write operation to cause the access violation.
  *
  *  The \c CR_CPP_NONCONTINUABLE_EXCEPTION has the same effect as \c CR_WIN32_STRUCTURED_EXCEPTION, but it uses
  *  \b RaiseException() function call to raise noncontinuable software exception.

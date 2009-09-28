@@ -719,5 +719,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="CrashSender.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

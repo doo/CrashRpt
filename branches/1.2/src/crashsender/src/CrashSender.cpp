@@ -107,7 +107,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
     return 2;
   }
 
-  CString sTempFileName = CUtility::getTempFileName();
+  CString sTempFileName = Utility::getTempFileName();
   zr = UnzipItem(hz, index, sTempFileName);
   if(zr!=ZR_OK)
   {
@@ -115,7 +115,7 @@ GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
     return 2;
   }
 
-  CString sTempDir = CUtility::getTempFileName();
+  CString sTempDir = Utility::getTempFileName();
   DeleteFile(sTempDir);
 
   BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
@@ -271,11 +271,17 @@ GetCrashInfoThroughPipe(
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
-	CMessageLoop theLoop;
+  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  if(sRTL.CompareNoCase(_T("1"))==0)
+  {
+	SetProcessDefaultLayout(LAYOUT_RTL);  
+  }  
+
+  CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
   CMainDlg dlgMain;
-
+  
   if(GetCrashInfoThroughPipe(
     dlgMain.m_sAppName,
     dlgMain.m_sAppVersion,
@@ -288,7 +294,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     dlgMain.m_sPrivacyPolicyURL,
     dlgMain.m_pUDFiles)!=0)
     return 1; 
-  
+    
 	if(dlgMain.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));
