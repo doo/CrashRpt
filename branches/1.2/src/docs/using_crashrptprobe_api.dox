@@ -1,0 +1,77 @@
+/*!
+
+\page using_crashrptprobe_api Using CrashRptProbe API
+
+\b crprober.exe provides basic crash report processing services. Hovewer, some users may need
+to have more complex error report processing functionality. For example, they may want
+to store error reports in a database, process some custom information stored in error reports,
+such as log files, and provide some kind of bug tracking services. Such users may use application 
+programming interface provided by the \b CrashrptProbe.dll dynamic library. This API is used internally 
+by the \b crprober.exe tool.
+
+Note that CrashRptProbe.dll should be used on developer's side only. Do not distribute this library
+to the end users (they just won't be able to use it).
+
+The CrashRptProbe provides several functions and one enumeration (see \ref CrashRptProbeAPI
+and \ref CrashRptProbeEnums). All CrashRptProbe functions have \c crp prefix in function name, and 
+the enumeration has \c CRP prefix.
+
+All CrashRptProbe functions using character set dependent arguments have two versions of function name 
+(multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crpGetProperty()
+function has two versions of function name: crpGetPropertyA() and crpGetPropertyW(). Typically you use a
+character set independent mapping of function name in your program, for example use crpGetProperty() that 
+expands into crpGetPropertyW() if you use wide character set or into crpGetPropertyA() if you use multibyte 
+character set.
+
+\section crprobe_include_and_lib_files Include and Lib Files
+
+First of all, configure your project directories as described in \ref link section. This will make
+sure your compiler and linker will find the include and lib files.
+
+Include the \ref CrashRptProbe.h header file in the beginning of your code in order to use
+CrashRptProbe API in your report processing program.
+
+\code
+//Include CrashRptProbe header in the beginning of your code
+#include <CrashRptProbe.h>
+\endcode
+
+You also need to add CrashRptProbe.lib file to the list of input libraries for your project.
+In the Solution Explorer window, right-click your project and choose Properties item in the
+context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
+and then add \b CrashRptProbe.lib to the list of libraries. 
+
+\section opening_and_closing_error_reports Opening and Closing Error Reports
+
+Error report files are normal ZIP archives containing several files as described in \ref error_report.
+To open an error report file, you use the crpOpenErrorReport() function. The function returns the
+handle to the opened report as \b CrpHandle type, which is an integer number identifying the opened report. 
+You pass the handle to other functions.
+
+When you have retreived all data you needed, close the report. To close previously 
+opened error report, you use crpCloseErrorReport() function.
+
+\section retrieving_report_properties Retreiving Error Report Properties
+
+You can think of the error report as of set of properties. Each property is a text string having unique ID.
+The list of available properties is defined by the \ref CRP_ErrorReportProperty enumeration.
+
+To retrieve a property from the report, you use the crpGetProperty() function.
+
+Some data, such as list of files contained in the report, the stack trace or the list of loaded modules 
+are tables having multiple rows and columns and can't be represented as a single string. Hovewer, you
+still can retrieve a cell of such table by its index using crpGetProperty().
+
+For code example, see \ref crashrptapi_example                                                     
+
+\section handling_crprobe_errors Handling Errors
+
+Typically a CrashRptProbe API function returns zero value if succeeded and non-zero if failed. To get
+text error message of the last called function, use crpGetLastErrorMsg().
+
+\section crashrptprobe_api_reference CrashRptProbe API Reference
+
+- \ref CrashRptProbeAPI
+- \ref CrashRptProbeEnums
+
+*/

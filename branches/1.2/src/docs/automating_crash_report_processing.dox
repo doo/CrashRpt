@@ -18,7 +18,7 @@ as text or HTML.
 
 This section is devided into the following topics:
 
-- \ref crprober_tool
-- \ref using_crashrptprobe_api
+- \subpage crprober_tool
+- \subpage using_crashrptprobe_api
     
 */
