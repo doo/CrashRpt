@@ -205,7 +205,7 @@ crpOpenErrorReportW(
       goto exit; // Can't get ZIP element
     }
 
-    CString sTempFile = CUtility::getTempFileName();
+    CString sTempFile = Utility::getTempFileName();
     zr = UnzipItem(report_data.m_hZip, xml_index, sTempFile);
     if(zr!=ZR_OK)
     {
@@ -225,7 +225,7 @@ crpOpenErrorReportW(
   // Extract minidump file
   if(dmp_index>=0)
   {
-    CString sTempFile = CUtility::getTempFileName();
+    CString sTempFile = Utility::getTempFileName();
     zr = UnzipItem(report_data.m_hZip, dmp_index, sTempFile);
     if(zr!=ZR_OK)
     {
@@ -312,7 +312,7 @@ int
 CRASHRPTPROBE_API
 crpGetPropertyW(
   CrpHandle hReport,
-  INT nPropId, 
+  CRP_ErrorReportProperty nPropId, 
   INT nIndex,
   LPWSTR lpszBuffer,
   ULONG cchBuffSize,
@@ -634,7 +634,7 @@ int
 CRASHRPTPROBE_API
 crpGetPropertyA(
   CrpHandle hReport,
-  INT nPropId,
+  CRP_ErrorReportProperty nPropId,
   INT nIndex,
   LPSTR lpszBuffer,
   ULONG cchBuffSize,

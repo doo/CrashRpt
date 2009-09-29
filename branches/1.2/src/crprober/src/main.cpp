@@ -427,7 +427,7 @@ exit:
   return result;
 }
 
-int get_prop(CrpHandle handle, int propid, tstring& str, int index=0)
+int get_prop(CrpHandle handle, CRP_ErrorReportProperty propid, tstring& str, int index=0)
 {
   const int BUFF_SIZE = 1024;
   TCHAR buffer[BUFF_SIZE];  

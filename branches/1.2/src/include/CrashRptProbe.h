@@ -336,7 +336,7 @@ int
 CRASHRPTPROBE_API 
 crpGetPropertyW(
   CrpHandle hReport,
-  CR_ErrorReportPropery nPropId,
+  CRP_ErrorReportProperty nPropId,
   INT nIndex,
   __out_ecount_z(pcchBuffSize) LPWSTR lpszBuffer,
   ULONG cchBuffSize,
@@ -352,7 +352,7 @@ int
 CRASHRPTPROBE_API 
 crpGetPropertyA(
   CrpHandle hReport,
-  CR_ErrorReportProperty nPropId,
+  CRP_ErrorReportProperty nPropId,
   INT nIndex,
   __out_ecount_z(pcchBuffSize) LPSTR lpszBuffer,
   ULONG pcchBuffSize,
