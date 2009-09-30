@@ -2,8 +2,6 @@
 
 \page automating_crash_report_processing Automating Crash Report Processing
 
-\section about_automating About 
-
 Automating the error report processing becomes the critical task when you receive a 
 lot of error reports after software release. Among hundreeds of reports there may be 
 only several different problems, while others just duplicate the information about 
