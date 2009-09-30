@@ -1,0 +1,30 @@
+/*!
+
+\page crprober_tool Using crprober.exe Tool
+
+<b>Since v1.2.0</b>, CrashRpt provides a tool named <b>crprober.exe</b> that
+can be used for automating crash report processing. To run the tool, go to 
+\c bin directory and type <b>crprober.exe</b> in the command line.
+
+The \b crprober.exe is a console tool. It accepts several command line arguments. The
+arguments are shown below:
+
+\code 
+crprober /? Prints this usage help
+crprober <option> [option ...]
+  where the option may be any of the following:
+   /f <in_file_pattern>     Input ZIP file or search pattern. Required.
+   /fmd5 <md5_file>         Name of .md5 file containing MD5 hash for ZIP archive.
+   /o <out_file_or_dir>     Output file name or directory. If this parameter is 
+ommitted, output is written to the terminal.
+   /of <text | html | xml>  Output format (text, html or xml). If ommitted, text 
+format is used.
+   /sym <sym_search_dirs>   Symbol file search directory or list of directories 
+separated with semicolon. If this parameter is ommitted, symbols files are searched 
+in current directory.
+
+Example:
+   crprober /f *.zip /o "D:\Error Reports" /of text
+\endcode
+
+*/
