@@ -5,154 +5,69 @@
 #include <string>
 #include "CrashRptProbe.h"
 
+// Character set independent string type
 typedef std::basic_string<TCHAR> tstring;
 
+// The following macros are used for parsing the command line
 #define args_left() (argc-cur_arg)
 #define arg_exists() (cur_arg<argc && argv[cur_arg]!=NULL)
 #define get_arg() ( arg_exists() ? argv[cur_arg]:NULL )
 #define skip_arg() cur_arg++
 #define cmp_arg(val) (arg_exists() && (0==_tcscmp(argv[cur_arg], val)))
 
+// Function prototypes
 int process_command(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
-  int nOutputFormat, LPTSTR szSymSearchPath);
+  LPTSTR szSymSearchPath);
 
-int output_document(CrpHandle handle, FILE* f, int nOutputFormat);
+int output_document(CrpHandle handle, FILE* f);
 
+// COutputter
+// This class is used for generating the content of the resulting file.
+// Currently text format is supported.
 class COutputter
 {
 public:
 
-  void Init(FILE* f, int out_format)
+  void Init(FILE* f)
   {
-    m_fOut = f;
-    m_nOutFormat = out_format;
+    m_fOut = f;    
   }
 
-  void BeginDocument(LPCTSTR pszRootName, LPCTSTR pszTitle)
+  void BeginDocument(LPCTSTR pszTitle)
   {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      _ftprintf(m_fOut, _T("= %s = \n\n"), pszTitle);
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {
-      _ftprintf(m_fOut, _T("<html>\n"));
-      _ftprintf(m_fOut, _T("<head><title>%s</title></head>\n"), pszTitle);
-      _ftprintf(m_fOut, _T("<body>\n"));
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      _ftprintf(m_fOut, _T("<?xml version=\"1.0\" encoding=\"utf-8\">\n"));
-      _ftprintf(m_fOut, _T("<%s>\n"), pszRootName);
-    }
+    _ftprintf(m_fOut, _T("= %s = \n\n"), pszTitle);    
   }
 
-  void EndDocument(LPCTSTR pszRootName)
-  {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {
-      _ftprintf(m_fOut, _T("</body>\n"));
-      _ftprintf(m_fOut, _T("</html>\n"));
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      _ftprintf(m_fOut, _T("</%s>\n"), pszRootName);
-    }
+  void EndDocument()
+  {    
+    _ftprintf(m_fOut, _T("\n== END ==\n"));
   }
 
-  void BeginTable(LPCTSTR pszName, LPCTSTR pszFriendlyName)
+  void BeginSection(LPCTSTR pszTitle)
   {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      _ftprintf(m_fOut, pszFriendlyName);
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {
-      _ftprintf(m_fOut, _T("<h3>%s</h3>\n"), pszFriendlyName);
-      _ftprintf(m_fOut, _T("<table border=\"1\" cellpadding=\"2\" cellspacing=\"2\">\n"));
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      _ftprintf(m_fOut, _T("<%s>"), pszName);
-    }
+    _ftprintf(m_fOut, _T("== %s ==\n\n"), pszTitle);
   }
 
-  void EndTable(LPCTSTR pszName)
+  void EndSection()
   {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      _ftprintf(m_fOut, _T("\n\n"));
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {
-      _ftprintf(m_fOut, _T("</table>\n"));
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      _ftprintf(m_fOut, _T("<%s>\n"), pszName);
-    }
+    _ftprintf(m_fOut, _T("\n\n"));
   }
 
-  void BeginRow(/*LPCTSTR pszName, LPCTSTR pszHeading*/)
+  void PutRecord(LPCTSTR pszName, LPCTSTR pszValue)
   {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {
-      _ftprintf(m_fOut, _T("<tr>\n"));
-      /*if(pszHeading)
-      {
-        _ftprintf(m_fOut, _T("<td><b>%s</b></td>\n"), pszHeading);
-      }*/
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      
-    }
+    _ftprintf(m_fOut, _T("%s = %s\n"), pszName, pszValue);
   }
 
-  void EndRow()
+  void PutTableCell(LPCTSTR pszValue, int width, bool bLastInRow)
   {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      _ftprintf(m_fOut, _T("\n"));
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {
-      _ftprintf(m_fOut, _T("</tr>\n"));
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      
-    }
-  }
-
-  void PutRecord(/*LPCTSTR pszName, */LPCTSTR pszValue)
-  {
-    if(m_nOutFormat==OUT_TEXT)
-    {
-      _ftprintf(m_fOut, _T("\n\n"));
-    }
-    else if(m_nOutFormat==OUT_HTML)
-    {        
-      _ftprintf(m_fOut, _T("<td>%s</td>\n"), pszValue);
-    }
-    else if(m_nOutFormat==OUT_XML)
-    {
-      
-    }  
+    TCHAR szFormat[32];
+    _stprintf_s(szFormat, 32, _T("%%-%ds%s"), width, bLastInRow?_T("\n"):_T(" "));
+    _ftprintf(m_fOut, szFormat, pszValue);
   }
   
 private:
 
   FILE* m_fOut;
-  int m_nOutFormat;
 };
 
 // Prints usage
@@ -236,8 +151,7 @@ int _tmain(int argc, TCHAR** argv)
   }
 
   // Do the processing work
-  result = process_command(szInput, szInputMD5, szOutput, 
-    out_format, szSymSearchPath); 
+  result = process_command(szInput, szInputMD5, szOutput, szSymSearchPath); 
 
 exit:
 
@@ -254,19 +168,19 @@ exit:
 int process_command(
   LPTSTR szInput, 
   LPTSTR szInputMD5,
-  LPTSTR szOutput, 
-  int nOutputFormat, 
+  LPTSTR szOutput,   
   LPTSTR szSymSearchPath)
 {
   int result = 2;       // Status
-  CrpHandle handle = 0; // Handle to the error report
+  CrpHandle hReport = 0; // Handle to the error report
   WIN32_FIND_DATA fd;   // Used to enumerate files in directory
   HANDLE hFind = INVALID_HANDLE_VALUE; 
+  TCHAR szFullPath[_MAX_PATH];
   BOOL bNext = TRUE;    
-  tstring sDirName = szInput; 
+  tstring sDirName;
   tstring sFileName;
   BOOL bOutputToDir = FALSE; // Do we save resulting files to directory or save single resulting file?
-  FILE* f = NULL; // Handle to the resulting file
+  //FILE* f = NULL; // Handle to the resulting file
 
   // Validate input parameters
 
@@ -290,17 +204,17 @@ int process_command(
     _tprintf(_T("No files found matching the search pattern: %s\n"), szInput);
     goto exit;
   }
- 
-  // Append the back slash to dir name
+   
+  sDirName = szInput;
   int pos = sDirName.rfind('\\');
-  if(pos>=0)
+  if(pos<0) // There is no back slash in path
+    sDirName = _T(""); 
+  else if(pos!=(int)sDirName.length()-1) // Append the back slash to dir name
     sDirName = sDirName.substr(0, pos+1);
-  else
-    sDirName += _T("\\");
-
+  
   // Enumerate files in the search directory
   while(bNext)
-  {    
+  {     
     tstring str = fd.cFileName;
     str += _T(".md5");
     TCHAR szMD5Buffer[64];
@@ -323,8 +237,8 @@ int process_command(
     }
         
     // Open the error report file
-    sFileName = sDirName + fd.cAlternateFileName;
-    int res = crpOpenErrorReport(sFileName.c_str(), szMD5Hash, szSymSearchPath, 0, &handle);
+    sFileName = sDirName + fd.cFileName;
+    int res = crpOpenErrorReport(sFileName.c_str(), szMD5Hash, szSymSearchPath, 0, &hReport);
     if(res!=0)
     {
       TCHAR buf[1024];
@@ -349,31 +263,38 @@ int process_command(
           // Write output to single file
           sOutFileName = tstring(fd.cFileName) + _T(".txt");
         }              
+
+        // Open resulting file
+        _tfopen_s(&f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
+        if(f==NULL)
+        {
+          _tprintf(_T("Error: couldn't open output file '%s' while processing file '%s'\n"), 
+            sOutFileName.c_str(), fd.cFileName);      
+          goto exit;
+        }
       }
       else
       {
         f=stdout; // Write output to terminal
       }
 
-      // Open resulting file
-      _tfopen_s(&f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
       if(f==NULL)
       {
-        _tprintf(_T("Error: couldn't open output file '%s' while processing file '%s'\n"), 
-          sOutFileName.c_str(), fd.cFileName);      
+        _tprintf(_T("Error: couldn't open output file (unexpected error).\n")); 
         goto exit;
       }
 
       // Write error report properties to the resulting file
-      output_document(handle, f);
+      output_document(hReport, f);
       
-      fclose(f);
+      if(f!=stdout)
+        fclose(f);
     }
 
     // Clean up
-    if(handle!=NULL)
+    if(hReport!=NULL)
     {
-      crpCloseErrorReport(handle);
+      crpCloseErrorReport(hReport);
     }
     
     // Go to the next file
@@ -387,8 +308,8 @@ exit:
   if(hFind!=INVALID_HANDLE_VALUE)
     FindClose(hFind);
 
-  if(handle!=0)
-    crpCloseErrorReport(handle);
+  if(hReport!=0)
+    crpCloseErrorReport(hReport);
 
   return result;
 }
@@ -404,101 +325,66 @@ int get_prop(CrpHandle handle, CRP_ErrorReportProperty propid, tstring& str, int
 }
 
 // Writes all error report properties to the file
-int output_document(CrpHandle handle, FILE* f)
+int output_document(CrpHandle hReport, FILE* f)
 {  
   int result = -1;
   COutputter doc;
 
   doc.Init(f);
-  doc.BeginDocument(_T("ErrorReport"), _T("Error Report"));
+  doc.BeginDocument(_T("Error Report"));
 
-  doc.BeginTable(_T("GeneralInfo"), _T("General Information"));
+  doc.BeginSection(_T("Summary"));
   
   // Print CrashRpt version
   tstring sCrashRptVer;
-  result = get_prop(handle, CRP_PROP_CRASHRPT_VERSION, sCrashRptVer);
+  result = get_prop(hReport, CRP_PROP_CRASHRPT_VERSION, sCrashRptVer);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Generator version"));
-    doc.PutRecord(sCrashRptVer.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("Generator version"), sCrashRptVer.c_str());
   
   // Print CrashGUID  
   tstring sCrashGUID;
-  result = get_prop(handle, CRP_PROP_CRASH_GUID, sCrashGUID);
+  result = get_prop(hReport, CRP_PROP_CRASH_GUID, sCrashGUID);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Crash GUID"));
-    doc.PutRecord(sCrashGUID.c_str());
-    doc.EndRow();
-  }
-
+    doc.PutRecord(_T("Crash GUID"), sCrashGUID.c_str());
+    
   // Print SystemTimeUTC
   tstring sSystemTimeUTC;
-  result = get_prop(handle, CRP_PROP_SYSTEM_TIME_UTC, sSystemTimeUTC);
+  result = get_prop(hReport, CRP_PROP_SYSTEM_TIME_UTC, sSystemTimeUTC);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Date created (UTC)"));
-    doc.PutRecord(sSystemTimeUTC.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("Date created (UTC)"), sSystemTimeUTC.c_str());
 
   // Print AppName
   tstring sAppName;
-  result = get_prop(handle, CRP_PROP_APP_NAME, sAppName);
+  result = get_prop(hReport, CRP_PROP_APP_NAME, sAppName);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Application name"));
-    doc.PutRecord(sAppName.c_str());
-    doc.EndRow();
-  }
-
+    doc.PutRecord(_T("Application name"), sAppName.c_str());
+   
   // Print AppVersion
   tstring sAppVersion;
-  result = get_prop(handle, CRP_PROP_APP_VERSION, sAppVersion);
+  result = get_prop(hReport, CRP_PROP_APP_VERSION, sAppVersion);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Application version"));
-    doc.PutRecord(sAppVersion.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("Application version"), sAppVersion.c_str());
 
   // Print ImageName
   tstring sImageName;
-  result = get_prop(handle, CRP_PROP_IMAGE_NAME, sImageName);
+  result = get_prop(hReport, CRP_PROP_IMAGE_NAME, sImageName);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Executable image"));
-    doc.PutRecord(sImageName.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("Executable image"), sImageName.c_str());
 
   // Print OperatingSystem
   tstring sOperatingSystem;
-  result = get_prop(handle, CRP_PROP_OPERATING_SYSTEM, sOperatingSystem);
+  result = get_prop(hReport, CRP_PROP_OPERATING_SYSTEM, sOperatingSystem);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("OS name (user's registry)"));
-    doc.PutRecord(sOperatingSystem.c_str());
-    doc.EndRow();
-  }
-
+    doc.PutRecord(_T("OS name (from user's registry)"), sOperatingSystem.c_str());
+    
   tstring sOsVerMajor;
-  result = get_prop(handle, CRP_PROP_OS_VER_MAJOR, sOsVerMajor);
+  result = get_prop(hReport, CRP_PROP_OS_VER_MAJOR, sOsVerMajor);
   tstring sOsVerMinor;
-  result = get_prop(handle, CRP_PROP_OS_VER_MINOR, sOsVerMinor);
+  result = get_prop(hReport, CRP_PROP_OS_VER_MINOR, sOsVerMinor);
   tstring sOsVerBuild;
-  result = get_prop(handle, CRP_PROP_OS_VER_BUILD, sOsVerBuild);
+  result = get_prop(hReport, CRP_PROP_OS_VER_BUILD, sOsVerBuild);
   tstring sOsVerCSD;
-  result = get_prop(handle, CRP_PROP_OS_VER_CSD, sOsVerCSD);
+  result = get_prop(hReport, CRP_PROP_OS_VER_CSD, sOsVerCSD);
 
   tstring sOsVer;
   sOsVer += sOsVerMajor;
@@ -508,167 +394,138 @@ int output_document(CrpHandle handle, FILE* f)
   sOsVer += sOsVerBuild;
   sOsVer += _T(" ");
   sOsVer += sOsVerCSD; 
-
-  doc.BeginRow();
-  doc.PutRecord(_T("OS version (minidump)"));
-  doc.PutRecord(sOsVer.c_str());
-  doc.EndRow();
-
+  
+  doc.PutRecord(_T("OS version (from minidump)"), sOsVer.c_str());
+  
   // Print SystemType
   tstring sSystemType;
-  result = get_prop(handle, CRP_PROP_SYSTEM_TYPE, sSystemType);
+  result = get_prop(hReport, CRP_PROP_SYSTEM_TYPE, sSystemType);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Product type"));
-    doc.PutRecord(sSystemType.c_str());
-    doc.EndRow();
-  }
-
+    doc.PutRecord(_T("Product type"), sSystemType.c_str());
+  
   // Print UserEmail
   tstring sUserEmail;
-  result = get_prop(handle, CRP_PROP_USER_EMAIL, sUserEmail);
+  result = get_prop(hReport, CRP_PROP_USER_EMAIL, sUserEmail);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("User email"));
-    doc.PutRecord(sUserEmail.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("User email"), sUserEmail.c_str());
 
   // Print ProblemDescription
   tstring sProblemDescription;
-  result = get_prop(handle, CRP_PROP_PROBLEM_DESCRIPTION, sProblemDescription);
+  result = get_prop(hReport, CRP_PROP_PROBLEM_DESCRIPTION, sProblemDescription);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("Problem description"));
-    doc.PutRecord(sProblemDescription.c_str());
-    doc.EndRow();
-  }
-
+    doc.PutRecord(_T("Problem description"), sProblemDescription.c_str());
+    
   // Print ProcessorArchitecture
   tstring sProcessorArchitecture;
-  result = get_prop(handle, CRP_PROP_CPU_ARCHITECTURE, sProcessorArchitecture);
+  result = get_prop(hReport, CRP_PROP_CPU_ARCHITECTURE, sProcessorArchitecture);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("CPU architecture"));
-    doc.PutRecord(sProcessorArchitecture.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("CPU architecture"), sProcessorArchitecture.c_str());
 
   // Print NumberOfProcessors
   tstring sCPUCount;
-  result = get_prop(handle, CRP_PROP_CPU_COUNT, sCPUCount);
+  result = get_prop(hReport, CRP_PROP_CPU_COUNT, sCPUCount);
   if(result==0)
-  {    
-    doc.BeginRow();
-    doc.PutRecord(_T("CPU count"));
-    doc.PutRecord(sCPUCount.c_str());
-    doc.EndRow();
-  }
+    doc.PutRecord(_T("CPU count"), sCPUCount.c_str());
 
-  doc.EndTable(_T("GeneralInfo"));
+  doc.EndSection();
   
-  doc.BeginTable(_T("FileList"), _T("File list"));
+  doc.BeginSection(_T("File list"));
   
   // Print file list  
+  doc.PutTableCell(_T("#"), 2, false);
+  doc.PutTableCell(_T("Name"), 16, false);
+  doc.PutTableCell(_T("Description"), 32, true);
+
   tstring sFileCount;
-  result = get_prop(handle, CRP_PROP_FILE_COUNT, sFileCount);
+  result = get_prop(hReport, CRP_PROP_FILE_COUNT, sFileCount);
   if(result==0)
   {
     int nItemCount = _ttoi(sFileCount.c_str());
     int i;
     for(i=0; i<nItemCount; i++)
-    {       
-      doc.BeginRow();
-
+    { 
+      TCHAR szBuffer[10];
+      _stprintf_s(szBuffer, 10, _T("%d"), i+1);
+      doc.PutTableCell(szBuffer, 2, false);
       tstring sFileName;
-      int result2 = get_prop(handle, CRP_PROP_FILE_ITEM_NAME, sFileName, i);
-      if(result2==0)
-      {
-        doc.PutRecord(sFileName.c_str());
-        
-        tstring sDesc;
-        int result3 = get_prop(handle, CRP_PROP_FILE_ITEM_DESCRIPTION, sDesc, i);
-        
-        doc.PutRecord(sDesc.c_str());
-      }
-      else
-      {
-        _ftprintf(f, _T("Failed to retieve file item #%d.\n"), i+1);
-      }
-
-      doc.EndRow();
+      get_prop(hReport, CRP_PROP_FILE_ITEM_NAME, sFileName, i);
+      doc.PutTableCell(sFileName.c_str(), 16, false);
+      tstring sDesc;
+      get_prop(hReport, CRP_PROP_FILE_ITEM_DESCRIPTION, sDesc, i);
+      doc.PutTableCell(sDesc.c_str(), 32, true);      
     }
   }
   
-  doc.EndTable(_T("FileList"));
+  doc.EndSection();
 
-  doc.BeginTable(_T("StackTrace"), _T("Stack Trace"));
+  doc.BeginSection(_T("Stack Trace"));
 
+  doc.PutTableCell(_T("#"), 2, false);
+  doc.PutTableCell(_T("Frame"), 32, true);
+  
   tstring sStackFrameCount;
-  result = get_prop(handle, CRP_PROP_STACK_FRAME_COUNT, sStackFrameCount);
+  result = get_prop(hReport, CRP_PROP_STACK_FRAME_COUNT, sStackFrameCount);
   if(result==0)
   {    
     int nItemCount = _ttoi(sStackFrameCount.c_str());
     int i;
     for(i=0; i<nItemCount; i++)
-    {
-      doc. BeginRow();
+    { 
+      TCHAR szBuffer[10];
+      _stprintf_s(szBuffer, 10, _T("%d"), i+1);
+      doc.PutTableCell(szBuffer, 2, false);
 
       tstring str;
 
       tstring sModuleName;
-      result = get_prop(handle, CRP_PROP_STACK_MODULE_NAME, sModuleName, i);
+      result = get_prop(hReport, CRP_PROP_STACK_MODULE_NAME, sModuleName, i);
       str += sModuleName + _T("!");
             
       tstring sSymName;
-      result = get_prop(handle, CRP_PROP_STACK_SYMBOL_NAME, sSymName, i);
+      result = get_prop(hReport, CRP_PROP_STACK_SYMBOL_NAME, sSymName, i);
       str += sSymName+ _T("+");
               
       tstring sOffsInSym;
-      result = get_prop(handle, CRP_PROP_STACK_OFFSET_IN_SYMBOL, sOffsInSym, i);
+      result = get_prop(hReport, CRP_PROP_STACK_OFFSET_IN_SYMBOL, sOffsInSym, i);
       str += sOffsInSym + _T(" ");
        
       tstring sSrcFile;
-      result = get_prop(handle, CRP_PROP_STACK_SOURCE_FILE, sSrcFile, i);
+      result = get_prop(hReport, CRP_PROP_STACK_SOURCE_FILE, sSrcFile, i);
       
       tstring sSrcLine;
-      result = get_prop(handle, CRP_PROP_STACK_SOURCE_LINE, sSrcLine, i);
+      result = get_prop(hReport, CRP_PROP_STACK_SOURCE_LINE, sSrcLine, i);
       
-      doc.PutRecord(str.c_str());
-      doc.EndRow();
+      doc.PutTableCell(str.c_str(), 32, true);      
     }
   }
 
-  //result = crpGetProperty(handle, CRP_PROP_MODULE_COUNT, 0, buffer, BUFF_SIZE, NULL);
-  //if(result==0)
-  //{
-  //  int nItemCount = _ttoi(buffer);
-  //  int i;
-  //  for(i=0; i<nItemCount; i++)
-  //  {
-  //    result = crpGetProperty(handle, CRP_PROP_MODULE_NAME, i, buffer, BUFF_SIZE, NULL);
-  //    if(result!=0)
-  //      continue;
+  // Print module list
+  doc.BeginSection(_T("Module List"));
 
-  //    _ftprintf(f, _T("%s"), buffer);
+  doc.PutTableCell(_T("#"), 2, false);
+  doc.PutTableCell(_T("Name"), 32, true);
+  
+  tstring sModuleCount;
+  result = get_prop(hReport, CRP_PROP_MODULE_COUNT, sModuleCount);  
+  if(result==0)
+  {
+    int nItemCount = _ttoi(sModuleCount.c_str());
+    int i;
+    for(i=0; i<nItemCount; i++)
+    {
+      TCHAR szBuffer[10];
+      _stprintf_s(szBuffer, 10, _T("%d"), i+1);
+      doc.PutTableCell(szBuffer, 2, false);
 
-  //    result = crpGetProperty(handle, CRP_PROP_MODULE_SYMBOLS_LOADED, i, buffer, BUFF_SIZE, NULL);
-  //    if(result==0)
-  //      _ftprintf(f, _T(" %s\n"), buffer);
-  //  }
-  //}
+      tstring sModuleName;
+      result = get_prop(hReport, CRP_PROP_MODULE_NAME, sModuleName);  
+      doc.PutTableCell(sModuleName.c_str(), 32, true);      
+    }
+  }
 
-  doc.EndDocument(_T("ErrorReport"));
+  doc.EndDocument();
   
   return 0;
 }
 
-int output_html()
-{
-  return 0;
-}
 
