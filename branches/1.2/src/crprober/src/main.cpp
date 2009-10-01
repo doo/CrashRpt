@@ -13,10 +13,6 @@ typedef std::basic_string<TCHAR> tstring;
 #define skip_arg() cur_arg++
 #define cmp_arg(val) (arg_exists() && (0==_tcscmp(argv[cur_arg], val)))
 
-#define OUT_TEXT 0
-#define OUT_HTML 1
-#define OUT_XML  2
-
 int process_command(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
   int nOutputFormat, LPTSTR szSymSearchPath);
 
@@ -170,7 +166,6 @@ void print_usage()
   _tprintf(_T("   /fmd5 <md5_file>         Name of .md5 file containing MD5 hash for ZIP archive.\n"));
   _tprintf(_T("   /o <out_file_or_dir>     Output file name or directory. If this parameter \
 is ommitted, output is written to the terminal.\n"));
-  _tprintf(_T("   /of <text | html | xml>  Output format (text, html or xml). If ommitted, text format is used.\n"));
   _tprintf(_T("   /sym <sym_search_dirs>   Symbol file search directory or list of directories \
 separated with semicolon. If this parameter is ommitted, symbols files are searched in current directory.\n"));  
   _tprintf(_T("\nExample: \n"));
@@ -180,26 +175,26 @@ separated with semicolon. If this parameter is ommitted, symbols files are searc
 // Program entry point
 int _tmain(int argc, TCHAR** argv)
 {
-  int result = 1;
-  int cur_arg = 1;
+  int result = 1; // Return code
+  int cur_arg = 1; // Current processed cmdline argument
 
-  TCHAR* szInput = NULL;
+  TCHAR* szInput = NULL;       
   TCHAR* szInputMD5 = NULL;
-  TCHAR* szOutput = NULL;
-  TCHAR* szOutputFormat = NULL;
-  TCHAR* szSymSearchPath = NULL;  
-  int out_format = OUT_TEXT;
+  TCHAR* szOutput = NULL;  
+  TCHAR* szSymSearchPath = NULL;    
 
   if(args_left()==0)
-    goto exit;
+    goto exit; // There are no arguments?
 
+  // Parse command line arguments
   while(arg_exists())
   {
-    if(cmp_arg(_T("/?")))
-    {      
+    if(cmp_arg(_T("/?"))) // help
+    {
+      // Print usage text
       goto exit;
     }
-    else if(cmp_arg(_T("/f")))
+    else if(cmp_arg(_T("/f"))) // input file name or directory
     {
       skip_arg();    
       szInput = get_arg();
@@ -210,7 +205,7 @@ int _tmain(int argc, TCHAR** argv)
         goto exit;
       }
     }
-    else if(cmp_arg(_T("/fmd5")))
+    else if(cmp_arg(_T("/fmd5"))) // md5 file or directory
     {
       skip_arg();    
       szInputMD5 = get_arg();
@@ -221,45 +216,26 @@ int _tmain(int argc, TCHAR** argv)
         goto exit;
       }
     }
-    else if(cmp_arg(_T("/o")))
+    else if(cmp_arg(_T("/o"))) // output file or directory
     {
       skip_arg();    
       szOutput = get_arg();
       skip_arg();          
-    }
-    else if(cmp_arg(_T("/of")))
-    {
-      skip_arg();    
-      szOutputFormat = get_arg();
-      skip_arg();   
-      if(szOutputFormat!=NULL)
-      {
-        if(_tcscmp(szOutputFormat, _T("text"))==0)
-          out_format = OUT_TEXT;
-        else if(_tcscmp(szOutputFormat, _T("html"))==0)
-          out_format = OUT_HTML;
-        else if(_tcscmp(szOutputFormat, _T("xml"))==0)
-          out_format = OUT_XML;
-        else
-        {
-          _tprintf(_T("Invalid output format in /of parameter: %s\n"), szOutputFormat);
-          goto exit;
-        }        
-      }
-    }
-    else if(cmp_arg(_T("/sym")))
+    }    
+    else if(cmp_arg(_T("/sym"))) // symbol search dir
     {
       skip_arg();    
       szSymSearchPath = get_arg();
       skip_arg();
     }
-    else
+    else // unknown arg
     {
       _tprintf(_T("Unexpected parameter: %s\n"), get_arg());
       goto exit;
     }    
   }
 
+  // Do the processing work
   result = process_command(szInput, szInputMD5, szOutput, 
     out_format, szSymSearchPath); 
 
@@ -274,7 +250,7 @@ exit:
 }
 
 
-// Processes file processing command
+// Processes crash report file or group of files
 int process_command(
   LPTSTR szInput, 
   LPTSTR szInputMD5,
@@ -282,15 +258,15 @@ int process_command(
   int nOutputFormat, 
   LPTSTR szSymSearchPath)
 {
-  int result = 2;
-  CrpHandle handle = 0;
-  WIN32_FIND_DATA fd;
-  HANDLE hFind = INVALID_HANDLE_VALUE;
-  BOOL bNext = TRUE;
-  tstring sDirName = szInput;
+  int result = 2;       // Status
+  CrpHandle handle = 0; // Handle to the error report
+  WIN32_FIND_DATA fd;   // Used to enumerate files in directory
+  HANDLE hFind = INVALID_HANDLE_VALUE; 
+  BOOL bNext = TRUE;    
+  tstring sDirName = szInput; 
   tstring sFileName;
-  BOOL bOutputToDir = FALSE;
-  FILE* f = NULL;
+  BOOL bOutputToDir = FALSE; // Do we save resulting files to directory or save single resulting file?
+  FILE* f = NULL; // Handle to the resulting file
 
   // Validate input parameters
 
@@ -299,37 +275,30 @@ int process_command(
     _tprintf(_T("Input file name or pattern is missing.\n"));
     goto exit;
   }
-
-  if(nOutputFormat!=OUT_TEXT &&
-    nOutputFormat!=OUT_HTML &&
-    nOutputFormat!=OUT_XML)
-  {
-    _tprintf(_T("Invalid output format specified.\n"));
-    goto exit;
-  }
-
-  // 
-
+  
+  // Determine if user wants us to save resulting files in directory using their respective 
+  // file names or if he specifies the file name for the single saved file
   DWORD dwFileAttrs = GetFileAttributes(szOutput);
   if(dwFileAttrs!=INVALID_FILE_ATTRIBUTES && 
      (dwFileAttrs&FILE_ATTRIBUTE_DIRECTORY))
     bOutputToDir = TRUE;  
 
   // Search input files 
-
   hFind = FindFirstFile(szInput, &fd);
   if(hFind==INVALID_HANDLE_VALUE)
   {
     _tprintf(_T("No files found matching the search pattern: %s\n"), szInput);
     goto exit;
   }
-    
+ 
+  // Append the back slash to dir name
   int pos = sDirName.rfind('\\');
   if(pos>=0)
     sDirName = sDirName.substr(0, pos+1);
   else
     sDirName += _T("\\");
 
+  // Enumerate files in the search directory
   while(bNext)
   {    
     tstring str = fd.cFileName;
@@ -353,6 +322,7 @@ int process_command(
       _tprintf(_T("The MD5 file is not detected; no integrity check will be performed.\n"));
     }
         
+    // Open the error report file
     sFileName = sDirName + fd.cAlternateFileName;
     int res = crpOpenErrorReport(sFileName.c_str(), szMD5Hash, szSymSearchPath, 0, &handle);
     if(res!=0)
@@ -363,27 +333,21 @@ int process_command(
     }
     else
     {
-      // Output
-
+      // Output results
       if(szOutput!=NULL)
       {        
         if(bOutputToDir)
         {
+          // Write output to directory
           sOutFileName = tstring(szOutput);
           if( sOutFileName[sOutFileName.length()-1]!='\\' )
             sOutFileName += _T("\\"); 
-
-          if(nOutputFormat==OUT_TEXT)
-            sOutFileName += tstring(fd.cFileName) + _T(".txt");
-          else if(nOutputFormat==OUT_HTML)
-            sOutFileName += tstring(fd.cFileName) + _T(".html");
-          else if(nOutputFormat==OUT_XML)
-            sOutFileName += tstring(fd.cFileName) + _T(".xml");
+          sOutFileName += tstring(fd.cFileName) + _T(".txt");
         }
         else
         {
-          if(nOutputFormat==OUT_TEXT)
-            sOutFileName = tstring(fd.cFileName) + _T(".txt");
+          // Write output to single file
+          sOutFileName = tstring(fd.cFileName) + _T(".txt");
         }              
       }
       else
@@ -391,8 +355,8 @@ int process_command(
         f=stdout; // Write output to terminal
       }
 
+      // Open resulting file
       _tfopen_s(&f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
-
       if(f==NULL)
       {
         _tprintf(_T("Error: couldn't open output file '%s' while processing file '%s'\n"), 
@@ -400,7 +364,8 @@ int process_command(
         goto exit;
       }
 
-      output_document(handle, f, nOutputFormat);
+      // Write error report properties to the resulting file
+      output_document(handle, f);
       
       fclose(f);
     }
@@ -411,6 +376,7 @@ int process_command(
       crpCloseErrorReport(handle);
     }
     
+    // Go to the next file
     bNext = FindNextFile(hFind, &fd);
   }
   
@@ -427,6 +393,7 @@ exit:
   return result;
 }
 
+// Helper function thatr etrieves an error report property
 int get_prop(CrpHandle handle, CRP_ErrorReportProperty propid, tstring& str, int index=0)
 {
   const int BUFF_SIZE = 1024;
@@ -436,12 +403,13 @@ int get_prop(CrpHandle handle, CRP_ErrorReportProperty propid, tstring& str, int
   return result;
 }
 
-int output_document(CrpHandle handle, FILE* f, int out_format)
+// Writes all error report properties to the file
+int output_document(CrpHandle handle, FILE* f)
 {  
   int result = -1;
   COutputter doc;
 
-  doc.Init(f, out_format);
+  doc.Init(f);
   doc.BeginDocument(_T("ErrorReport"), _T("Error Report"));
 
   doc.BeginTable(_T("GeneralInfo"), _T("General Information"));

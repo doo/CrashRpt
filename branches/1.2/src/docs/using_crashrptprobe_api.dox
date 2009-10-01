@@ -64,6 +64,16 @@ still can retrieve a cell of such table by its index using crpGetProperty().
 
 For code example, see \ref crashrptapi_example                                                     
 
+\section retrieving_report_files Retrieving Files Contained in Report
+
+An error report is a ZIP archive containing several files. The files are: crash minidump file (.dmp),
+crash report descriptor file (.xml) and optional application-defined files, such as application log file.
+
+To enumerate files contained in report, you use \ref CRP_PROP_FILE_COUNT, \ref CRP_PROP_FILE_ITEM_NAME and
+\ref CRP_PROP_FILE_ITEM_DESCRIPTION properties.
+
+To extract a file from the ZIP archive by file name, you use crpExtractFile() function.
+
 \section handling_crprobe_errors Handling Errors
 
 Typically a CrashRptProbe API function returns zero value if succeeded and non-zero if failed. To get
