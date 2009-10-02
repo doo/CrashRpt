@@ -18,5 +18,6 @@ This section is devided into the following topics:
 
 - \subpage crprober_tool
 - \subpage using_crashrptprobe_api
+- \subpage crashrptprobe_api_examples
     
 */

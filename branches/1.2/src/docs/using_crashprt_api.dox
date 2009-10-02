@@ -46,7 +46,9 @@ crUninstallFromCurrentThread() function in the main executrion thread, because c
 you automatically.
 
 You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
-handlers in your program.
+handlers in your program. Use CrAutoInstallHelper wrapper class to install excetpion handlers in your
+\b main() function. In a multithreaded program, use CrThreadAutoInstallHelper wrapper class to 
+install exception handlers in each worker thread.
 
 \section adding_a_custom_file Adding a Custom File
 

@@ -1,0 +1,62 @@
+/*!
+
+\page crashrptprobe_api_examples Examples of Using CrashRptProbe API
+
+The following example shows how to retrieve a simple property:
+
+\code
+  const int BUFF_SIZE = 1024;
+  TCHAR szBuffer[BUFF_SIZE];
+
+  // Get the CrashRpt version that generated the error report
+  int result = crpGetProperty(CRP_CRASHRPT_VERSION, 0, szBuffer, BUFF_SIZE, NULL);
+  _tprintf(_T("CrashRpt ver: %s\n"), szBuffer);
+  
+  // Get application name
+  result = crpGetProperty(CRP_APP_NAME, 0, szBuffer, BUFF_SIZE, NULL);
+  _tprintf(_T("Application name: %s\n"), szBuffer);
+
+\endcode
+
+The following example shows how to retrieve the stack trace from the error report:
+
+\code
+  CrpHandle hReport; // Handle to the opened error report (should be opened previously).
+
+  // Retrieve the stack trace. This will help to see where exception occurred.
+  const int BUFF_SIZE = 1024;
+  TCHAR szBuffer[BUFF_SIZE];
+  
+  // Get count of stack frames
+  int result = crpGetProperty(hReport, CRP_PROP_STACK_FRAME_COUNT, 0, szBuffer, BUFF_SIZE, NULL);
+  _tprintf(_T("Count of frames in the error report: %s\n"), szBuffer);
+  
+  // Cast to long
+  long nStackFramesCount = atol(szBuffer);
+
+  int i;
+  for(i=0; i<nStackFrameCount; i++)
+  {
+    // Get module name
+    int result = crpGetProperty(hReport, CRP_APP_NAME, 0, szBuffer, BUFF_SIZE, NULL);
+    _tprintf(_T("%d. %s!\n"), i+1, szBuffer);
+
+    // Get symbol name
+    int result = crpGetProperty(hReport, CRP_PROP_STACK_MODULE_NAME, 0, szBuffer, BUFF_SIZE, NULL);
+    _tprintf(_T("%s+"), szBuffer);
+
+    // Get offset in symbol
+    int result = crpGetProperty(hReport, CRP_PROP_STACK_OFFSET_IN_SYMBOL, 0, szBuffer, BUFF_SIZE, NULL);
+    _tprintf(_T("%s\n"), szBuffer);
+  }
+\endcode
+
+Example output:
+\code
+   1. ntdll.dll!RtlCopyMemory+0x42
+   2. CrashRptTest.exe!EmulateCrash+0xa4
+   3. ....
+\endcode
+
+
+*/

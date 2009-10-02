@@ -658,8 +658,8 @@ CRASHRPTPROBE_API
 crpExtractFileW(
   CrpHandle hReport,
   LPCWSTR lpszFileName,
-  LPCWSTR lpszFileSaveAs
-)
+  LPCWSTR lpszFileSaveAs,
+  BOOL bOverwriteExisting)
 {
   crpSetErrorMsg(_T("Unspecified error."));
   
@@ -685,11 +685,23 @@ crpExtractFileW(
     return -2;
   }
 
+  if(!bOverwriteExisting)
+  {
+    // Check if such file already exists
+    DWORD dwFileAttrs = GetFileAttributes(lpszFileSaveAs);
+    if(dwFileAttrs!=INVALID_FILE_ATTRIBUTES && // such object exists
+       dwFileAttrs!=FILE_ATTRIBUTE_DIRECTORY)  // and it is not a directory
+    {
+      crpSetErrorMsg(_T("Such file already exists."));
+      return -3;
+    }
+  }
+
   zr = UnzipItem(hZip, index, strconv.w2t(lpszFileSaveAs));
   if(zr!=ZR_OK)
   {
     crpSetErrorMsg(_T("Error extracting the specified zip item."));
-    return -3;
+    return -4;
   }  
 
   crpSetErrorMsg(_T("Success."));
@@ -701,8 +713,8 @@ CRASHRPTPROBE_API
 crpExtractFileA(
   CrpHandle hReport,
   LPCSTR lpszFileName,
-  LPCSTR lpszFileSaveAs
-)
+  LPCSTR lpszFileSaveAs,
+  BOOL bOverwriteExisting)
 {
   strconv_t strconv;
   LPCWSTR pwszFileName = strconv.a2w(lpszFileName);

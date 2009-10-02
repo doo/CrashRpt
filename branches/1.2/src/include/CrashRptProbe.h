@@ -165,55 +165,42 @@ crpCloseErrorReport(
  *
  *  \remarks
  *
- *  An error report can be presented as a set of string properties. 
+ *  An error report can be presented as a set of string properties. Some properties 
+ *  are groupped into tables and can be accessed by their index.
  *
- *  Some properties are simple (scalar values), while others are complex (vector values).
- *  Vector properties can be represented as sequences of simple properties.
- *  
- *  For example, the \c CRP_PROP_CRASHRPT_VERSION property is simple, because its value
- *  looks like "1103" (a number). The \c CRP_PROP_CRASH_GUID is also simple. Its value
- *  looks like "0b3b0c1b-3450-4c39-9459-42221ae66460" (a string).
- *
- *  You can think of vector properties as of tables containing rows of simple properties. 
- *  For example, \c CRP_PROP_STACK_MODULE_NAME represent the module name loaded by your application. 
- *  Since your application has many modules, the names of modules can be stored in a table. Each cell
- *  of the table can be accessed by its zero-based index.
- *
- *  Properties retrieveing the list of files contained in error report, the stack trace and the 
- *  list of modules are vectored, others are simple.
- *
- *  For code example, see crpGetPropertyW() function.
+ *  The list of available properties along with their brief description is presented below.
+ *  For the detailed description of available properties and code examples, see \ref crprobe_properties section.
  */
 
 enum CRP_ErrorReportProperty
 {
-  CRP_PROP_CRASHRPT_VERSION        = 1,  //!< Version of CrashRpt library that generated the report (e.g., "1103").
-  CRP_PROP_CRASH_GUID              = 2,  //!< Globally unique identifier (GUID) of the error report (e.g., "0b3b0c1b-3450-4c39-9459-42221ae66460").
-  CRP_PROP_APP_NAME                = 3,  //!< Application name (e.g., "MyApp").
-  CRP_PROP_APP_VERSION             = 4,  //!< Application version (e.g., "1.3.5").
-  CRP_PROP_IMAGE_NAME              = 5,  //!< Path to the executable file (e.g., "C:\\Program Files\\MyApp\\myapp.exe").
-  CRP_PROP_OPERATING_SYSTEM        = 6,  //!< Opration system name, including build number and service pack (e.g., "Windows XP Build 2600 Service Pack 3").
-  CRP_PROP_SYSTEM_TIME_UTC         = 7,  //!< Time (UTC) when the crash had occured (e.g., "").
-  CRP_PROP_EXCEPTION_TYPE          = 8,  //!< Code of exception handler that cought the exception (e.g., "0").
-  CRP_PROP_EXCEPTION_CODE          = 9,  //!< Exception code; for the structured exceptions only, hexadecimal (e.g., "0xC000005").
-  CRP_PROP_INVPARAM_FUNCTION       = 10, //!< Function name; for invalid parameter errors only (e.g., "strcpy_s").
-  CRP_PROP_INVPARAM_EXPRESSION     = 11, //!< Expression; for invalid parameter errors only (e.g., "size!=0").
-  CRP_PROP_INVPARAM_FILE           = 12, //!< Source file name; for invalid parameter errors only (e.g., "memory.c").
-  CRP_PROP_INVPARAM_LINE           = 13, //!< Source line; for invalid parameter errors only (e.g., "320").
-  CRP_PROP_FPE_SUBCODE             = 14, //!< Subcode of floating point exception; for FPE exceptions only (e.g., "237").
-  CRP_PROP_USER_EMAIL              = 15, //!< Email of the user who sent this report (e.g., "example@hotmail.com").
-  CRP_PROP_PROBLEM_DESCRIPTION     = 16, //!< User-provided problem description (e.g., "I did something").
+  CRP_PROP_CRASHRPT_VERSION        = 1,  //!< Version of CrashRpt library that generated the report.
+  CRP_PROP_CRASH_GUID              = 2,  //!< Globally unique identifier (GUID) of the error report.
+  CRP_PROP_APP_NAME                = 3,  //!< Application name.
+  CRP_PROP_APP_VERSION             = 4,  //!< Application version.
+  CRP_PROP_IMAGE_NAME              = 5,  //!< Path to the executable file.
+  CRP_PROP_OPERATING_SYSTEM        = 6,  //!< Opration system name, including build number and service pack.
+  CRP_PROP_SYSTEM_TIME_UTC         = 7,  //!< Time (UTC) when the crash occured.
+  CRP_PROP_EXCEPTION_TYPE          = 8,  //!< Code of exception handler that cought the exception.
+  CRP_PROP_EXCEPTION_CODE          = 9,  //!< Exception code; for the structured exceptions only, hexadecimal number.
+  CRP_PROP_INVPARAM_FUNCTION       = 10, //!< Function name; for invalid parameter errors only.
+  CRP_PROP_INVPARAM_EXPRESSION     = 11, //!< Expression; for invalid parameter errors only.
+  CRP_PROP_INVPARAM_FILE           = 12, //!< Source file name; for invalid parameter errors only.
+  CRP_PROP_INVPARAM_LINE           = 13, //!< Source line; for invalid parameter errors only.
+  CRP_PROP_FPE_SUBCODE             = 14, //!< Subcode of floating point exception; for FPE exceptions only.
+  CRP_PROP_USER_EMAIL              = 15, //!< Email of the user who sent this report.
+  CRP_PROP_PROBLEM_DESCRIPTION     = 16, //!< User-provided problem description.
   
-  CRP_PROP_FILE_COUNT              = 17, //!< Number of files contained in th error report (e.g., "2").
-  CRP_PROP_FILE_ITEM_NAME          = 18, //!< File list: Name of the file contained in the report, vectored (e.g., "crasdhump.dmp").
-  CRP_PROP_FILE_ITEM_DESCRIPTION   = 19, //!< File list: Description of the file contained in the report (e.g., "Crash Dump").
+  CRP_PROP_FILE_COUNT              = 17, //!< Number of files contained in th error report.
+  CRP_PROP_FILE_ITEM_NAME          = 18, //!< File list: Name of the file contained in the report, vectored.
+  CRP_PROP_FILE_ITEM_DESCRIPTION   = 19, //!< File list: Description of the file contained in the report.
 
-  CRP_PROP_STACK_FRAME_COUNT       = 100, //!< Count of frames in the stack trace (e.g., "10").
-  CRP_PROP_STACK_MODULE_NAME       = 101, //!< Stack trace: module name (e.g., "ntdll.dll").
-  CRP_PROP_STACK_SYMBOL_NAME       = 102, //!< Stack trace: symbol name (e.g., "RtlCopyMemory").
-  CRP_PROP_STACK_OFFSET_IN_SYMBOL  = 103, //!< Stack trace: offset in symbol, hexadecimal (e.g., "0x23e").
-  CRP_PROP_STACK_SOURCE_FILE       = 104, //!< Stack trace: source file name (e.g., "CrashRpt.cpp").
-  CRP_PROP_STACK_SOURCE_LINE       = 105, //!< Stack trace: source file line number (e.g., "509").
+  CRP_PROP_STACK_FRAME_COUNT       = 100, //!< Count of frames in the stack trace.
+  CRP_PROP_STACK_MODULE_NAME       = 101, //!< Stack trace: module name.
+  CRP_PROP_STACK_SYMBOL_NAME       = 102, //!< Stack trace: symbol name.
+  CRP_PROP_STACK_OFFSET_IN_SYMBOL  = 103, //!< Stack trace: offset in symbol, hexadecimal.
+  CRP_PROP_STACK_SOURCE_FILE       = 104, //!< Stack trace: source file name.
+  CRP_PROP_STACK_SOURCE_LINE       = 105, //!< Stack trace: source file line number.
 
   CRP_PROP_CPU_ARCHITECTURE        = 201, //!< Processor architecture.
   CRP_PROP_CPU_COUNT               = 202, //!< Number of processors.
@@ -242,12 +229,12 @@ enum CRP_ErrorReportProperty
  *  \param[in]  nPropId Property ID.
  *  \param[in]  nIndex Index of the property in the table.
  *  \param[out] lpszBuffer Output buffer.
- *  \param[in]  cchBuffSize Size of output buffer.
+ *  \param[in]  cchBuffSize Size of the output buffer in characters.
  *  \param[out] pcchCount Count of characters written to the buffer.
  *
  *  \remarks
  *
- *  Use this function to retrieve data from the crash report previously opened with the
+ *  Use this function to retrieve data from the crash report that was previously opened with the
  *  crpOpenErrorReport() function.
  *
  *  \a hReport should be the handle to the opened error report.
@@ -255,74 +242,20 @@ enum CRP_ErrorReportProperty
  *  \a nPropId represents the ID of the property to retrieve. For the list of available 
  *  properties, see CRP_ErrorReportProperty() enumeration.
  *
- *  \a nIndex defines the zero-based index of the table row to retrieve (for vectored properties).
+ *  \a nIndex defines the zero-based index of the property (used for some properties that are groupped in tables).
  *  
  *  \a lpszBuffer defines the buffer where retrieved property value will be placed. If this parameter
- *  is NULL, it is ignored and \pcchCount is set with the required size of the buffer (count of bytes).
+ *  is NULL, it is ignored and \c pcchCount is set with the required size in characters of the buffer.
  *
- *  \a cchBuffSize defines the buffer size. To calculate required buffer size, set \a lpszBuffer with NULL, 
- *  the function will set \pcchCount with the number of bytes required.
+ *  \a cchBuffSize defines the buffer size in characters. To calculate required buffer size, set \a lpszBuffer with NULL, 
+ *  the function will set \pcchCount with the number of characters required.
  *
- *  \a pcchCount is set with the actual count of bytes copied to the \a lpszBuffer. If this parameter is NULL,
+ *  \a pcchCount is set with the actual count of characters copied to the \a lpszBuffer. If this parameter is NULL,
  *  it is ignored.
  *
  *  If this function fails, use crpGetLastErrorMsg() function to get the error message.
  *
- *  The following example shows how to retrieve a simple property:
- *
- *  \code
- *  const int BUFF_SIZE = 1024;
- *  TCHAR szBuffer[BUFF_SIZE];
- *
- *  // Get the CrashRpt version that generated the error report
- *  int result = crpGetProperty(CRP_CRASHRPT_VERSION, 0, szBuffer, BUFF_SIZE, NULL);
- *  _tprintf(_T("CrashRpt ver: %s\n"), szBuffer);
- *  
- *  // Get application name
- *  result = crpGetProperty(CRP_APP_NAME, 0, szBuffer, BUFF_SIZE, NULL);
- *  _tprintf(_T("Application name: %s\n"), szBuffer);
- *
- *  \endcode
- *
- *  The following example shows how to retrieve the stack trace from the error report:
- *
- *  \code
- *  CrpHandle hReport; // Handle to the opened error report (should be opened previously).
- *
- *  // Retrieve the stack trace. This will help to see where exception occurred.
- *  const int BUFF_SIZE = 1024;
- *  TCHAR szBuffer[BUFF_SIZE];
- *  
- *  // Get count of stack frames
- *  int result = crpGetProperty(hReport, CRP_PROP_STACK_FRAME_COUNT, 0, szBuffer, BUFF_SIZE, NULL);
- *  _tprintf(_T("Count of frames in the error report: %s\n"), szBuffer);
- *  
- *  // Cast to long
- *  long nStackFramesCount = atol(szBuffer);
- *
- *  int i;
- *  for(i=0; i<nStackFrameCount; i++)
- *  {
- *    // Get module name
- *    int result = crpGetProperty(hReport, CRP_APP_NAME, 0, szBuffer, BUFF_SIZE, NULL);
- *    _tprintf(_T("%d. %s!\n"), i+1, szBuffer);
- *
- *    // Get symbol name
- *    int result = crpGetProperty(hReport, CRP_PROP_STACK_MODULE_NAME, 0, szBuffer, BUFF_SIZE, NULL);
- *    _tprintf(_T("%s+"), szBuffer);
- *
- *    // Get offset in symbol
- *    int result = crpGetProperty(hReport, CRP_PROP_STACK_OFFSET_IN_SYMBOL, 0, szBuffer, BUFF_SIZE, NULL);
- *    _tprintf(_T("%s\n"), szBuffer);
- *  }
- *  \endcode
- *
- *  Example output:
- *  \code
- *  1. ntdll.dll!RtlCopyMemory+0x42
- *  2. CrashRptTest.exe!EmulateCrash+0xa4
- *  3. ....
- *  \endcode
+ *  For code examples of using this function, see \ref crashrptprobe_api_examples.
  *
  *  \note
  *  The crpGetPropertyW() and crpGetPropertyA() are wide character and multibyte 
@@ -376,10 +309,19 @@ crpGetPropertyA(
  *  \param[in] hReport Handle to the opened error report.
  *  \param[in] lpszFileName The name of the file to extract.
  *  \param[in] lpszFileSaveAs The resulting name of the extracted file.
+ *  \param[in] bOverwriteExisting Overwrite the destination file if it already exists?
  *
  *  \remarks
  *
- *  Use this function to extract a contained file from the error report (ZIP) file.
+ *  Use this function to extract a compressed file from the error report (ZIP) file.
+ *
+ *  \a lpszFileName parameter should be the name of the file to extract. For more information
+ *  about enumerating file names, see \ref example_enum_file_items.
+ *
+ *  \a lpszFileSaveAs defines the name of the file to extract to. 
+ *
+ *  \a bOverwriteExisting flag defines the behavior when the destination file is already exists.
+ *  If this parameter is TRUE, the file is overwritten, otherwise the function fails.
  *
  *  If this function fails, use crpGetLastErrorMsg() to retrieve the error message.
  *
@@ -396,7 +338,8 @@ CRASHRPTPROBE_API
 crpExtractFileW(
   CrpHandle hReport,
   LPCWSTR lpszFileName,
-  LPCWSTR lpszFileSaveAs
+  LPCWSTR lpszFileSaveAs,
+  BOOL bOverwriteExisting
 );
 
 /*! \ingroup CrashRptProbeAPI
@@ -408,7 +351,8 @@ CRASHRPTPROBE_API
 crpExtractFileA(
   CrpHandle hReport,
   LPCSTR lpszFileName,
-  LPCSTR lpszFileSaveAs
+  LPCSTR lpszFileSaveAs,
+  BOOL bOverwriteExisting
 );
 
 /*! \brief Character set-independent mapping of crpExtractFileW() and crpExtractFileA() functions. 
@@ -438,7 +382,7 @@ crpExtractFileA(
  *
  *  \note 
  *    crpGetLastErrorMsgW() and crpGetLastErrorMsgA() are wide-character and multi-byte character versions
- *    of crpGetLastErrorMsg(). The crGetLastErrorMsg() macro defines character set independent mapping.
+ *    of crpGetLastErrorMsg(). The crpGetLastErrorMsg() macro defines character set independent mapping.
  *
  *  The following example shows how to use crpGetLastErrorMsg() function.
  *

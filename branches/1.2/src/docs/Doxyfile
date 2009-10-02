@@ -230,6 +230,7 @@ PREDEFINED             = "CRASHRPTAPI= "\
                          "CALLBACK= "\
                          "CRASHRPTPROBE_API= "\                       
                          "__out_ecount_z(x)= "\
+                         "__out_ecount(x)= "\
                          "__out= "\
                          "__in= "\
                          "__in_opt= "\
