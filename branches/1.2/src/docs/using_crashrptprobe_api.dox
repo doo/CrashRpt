@@ -9,8 +9,9 @@ such as log files, and provide some kind of bug tracking services. Such users ma
 programming interface provided by the \b CrashrptProbe.dll dynamic library. This API is used internally 
 by the \b crprober.exe tool.
 
-Note that CrashRptProbe.dll should be used on developer's side only. Do not distribute this library
-to the end users (they just won't be able to use it).
+Internally CrashRptProbe uses the functions provided by \b dbghelp.dll (Microsoft Debug Help Library) 
+for loading the minidump file contained in the report. The functions used are \b MinidumpReadDumpStream()
+and \b StackWalk64().
 
 The CrashRptProbe provides several functions and one enumeration (see \ref CrashRptProbeAPI
 and \ref CrashRptProbeEnums). All CrashRptProbe functions have \c crp prefix in function name, and 
@@ -74,7 +75,7 @@ Below the complete list of available properties is presented:
 <td> <b>Description</b>
 
 <tr>
-<td colspan="3"> <i>Properties, retrieved from crash descriptor XML </i>
+<td colspan="3" align="center"> Properties being retrieved from crash descriptor XML 
 
 <tr>
 <td> \ref CRP_PROP_CRASHRPT_VERSION
@@ -114,71 +115,172 @@ Below the complete list of available properties is presented:
 
 <tr>
 <td> \ref CRP_PROP_SYSTEM_TIME_UTC
-<td>
+<td> ""
 <td> Time (UTC) when the crash had occured.
 
 <tr>
 <td> \ref CRP_PROP_EXCEPTION_TYPE
-<td>
+<td> ""
 <td> Code of exception handler that cought the exception.
 
 <tr>
 <td> \ref CRP_PROP_EXCEPTION_CODE
-<td> 
+<td> ""
 <td> Exception code; for the structured exceptions only, hexadecimal number.
 
 <tr>
 <td> \ref CRP_PROP_INVPARAM_FUNCTION
-<td>
+<td> ""
 <td> Function name; for invalid parameter errors only.
 
 <tr>
 <td> \ref CRP_PROP_INVPARAM_EXPRESSION
-<td>
+<td> ""
 <td> Expression; for invalid parameter errors only.
 
 <tr>
 <td> \ref CRP_PROP_INVPARAM_FILE
-<td>
+<td> ""
 <td> Source file name; for invalid parameter errors only.
 
 <tr>
 <td> \ref CRP_PROP_INVPARAM_LINE
-<td>
+<td> ""
 <td> Source line; for invalid parameter errors only.
 
 <tr>
 <td> \ref CRP_PROP_FPE_SUBCODE
-<td>
+<td> ""
 <td> Subcode of floating point exception; for FPE exceptions only.
 
 <tr>
 <td> \ref CRP_PROP_USER_EMAIL
-<td>
+<td> ""
 <td> Email of the user who sent this report.
 
 <tr>
 <td> \ref CRP_PROP_PROBLEM_DESCRIPTION
-<td>
+<td> ""
 <td> User-provided problem description.
 
 <tr>
 <td> \ref CRP_PROP_FILE_COUNT
-<td>
+<td> ""
 <td> Number of files contained in th error report.
 
 <tr>
 <td> \ref CRP_PROP_FILE_ITEM_NAME
-<td>
+<td> ""
 <td> File list: Name of the file contained in the report.
 
 <tr>
 <td> \ref CRP_PROP_FILE_ITEM_DESCRIPTION
-<td>
+<td> ""
 <td> File list: Description of the file contained in the report.
 
 
+<tr>
+<td colspan = "3" align="center">Properties being retrieved from minidump file
 
+<tr>
+<td> \ref CRP_PROP_STACK_FRAME_COUNT
+<td> ""
+<td> Count of frames in the stack trace.
+
+<tr>
+<td> \ref CRP_PROP_STACK_MODULE_NAME
+<td> ""
+<td> Stack trace: module name.
+
+<tr>
+<td> \ref CRP_PROP_STACK_SYMBOL_NAME
+<td> ""
+<td> Stack trace: symbol name.
+
+<tr>
+<td> \ref CRP_PROP_STACK_OFFSET_IN_SYMBOL
+<td> ""
+<td> Stack trace: offset in symbol, hexadecimal.
+
+<tr>
+<td> \ref CRP_PROP_STACK_SOURCE_FILE
+<td> ""
+<td> Stack trace: source file name.
+
+<tr>
+<td> \ref CRP_PROP_STACK_SOURCE_LINE
+<td> ""
+<td> Stack trace: source file line number.
+
+<tr>
+<td> \ref CRP_PROP_CPU_ARCHITECTURE
+<td> ""
+<td> Processor architecture.
+
+<tr>
+<td> \ref CRP_PROP_CPU_COUNT
+<td> ""
+<td> Number of processors.
+
+<tr> 
+<td> \ref CRP_PROP_SYSTEM_TYPE
+<td> ""
+<td> Type of system (server or workstation).
+
+<tr>
+<td> \ref CRP_PROP_OS_VER_MAJOR
+<td> ""
+<td> OS major version.
+
+<tr>
+<td> \ref CRP_PROP_OS_VER_MINOR
+<td> ""
+<td> OS minor version.
+
+<tr>
+<td> \ref CRP_PROP_OS_VER_BUILD
+<td> ""
+<td> OS build number.
+
+<tr>
+<td> \ref CRP_PROP_OS_VER_CSD
+<td> ""
+<td> The latest service pack installed.
+
+<tr>
+<td> \ref CRP_PROP_EXCPTRS_EXCEPTION_CODE
+<td> ""
+<td> Code of the structured exception.
+
+<tr>
+<td> \ref CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS
+<td> ""
+<td> Exception address.
+
+<tr>
+<td> \ref CRP_PROP_MODULE_COUNT
+<td> ""
+<td> Count of modules.
+
+<tr>
+<td> \ref CRP_PROP_MODULE_NAME
+<td> ""
+<td> Module name.
+
+<tr>
+<td> \ref CRP_PROP_MODULE_BASE_ADDRESS
+<td> ""
+<td> Module base load address.
+
+<tr>
+<td> \ref CRP_PROP_MODULE_SIZE
+<td> ""
+<td> Module size.
+
+<tr>
+<td> \ref CRP_PROP_MODULE_SYMBOLS_LOADED
+<td> "1" if symbols were loaded, or "0" if not.
+<td> Were symbols loaded for the module or not?
 
 </table>
 

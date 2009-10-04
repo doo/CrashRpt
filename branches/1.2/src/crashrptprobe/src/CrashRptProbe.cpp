@@ -14,8 +14,11 @@
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
+// Funtion prototype
 int crpSetErrorMsg(PTSTR pszErrorMsg);
 
+// CrpReportData
+// This structure is used internally for storing report data
 struct CrpReportData
 {
   CrpReportData()
@@ -25,15 +28,18 @@ struct CrpReportData
     m_pDmpReader = NULL;
   }
 
-  HZIP m_hZip;
-  CCrashDescReader* m_pDescReader;
-  CMiniDumpReader* m_pDmpReader;  
-  CString m_sMiniDumpTempName;
-  CString m_sSymSearchPath;
+  HZIP m_hZip; // Handle to the ZIP archive
+  CCrashDescReader* m_pDescReader; // Pointer to the crash descriptor reader object
+  CMiniDumpReader* m_pDmpReader;   // Pointer to the minidump reader object
+  CString m_sMiniDumpTempName;     // The name of the tmp file to store extracted minidump in
+  CString m_sSymSearchPath;        // Symbol files search path
 };
 
+// The list of opened handles
 std::map<int, CrpReportData> g_OpenedHandles;
 
+// GetBaseFileName
+// This helper function returns file name without extension
 CString GetBaseFileName(CString sFileName)
 {
   CString sBase;
@@ -45,6 +51,8 @@ CString GetBaseFileName(CString sFileName)
   return sBase;
 }
 
+// GetFileExtension
+// This helper function returns file extension by file name
 CString GetFileExtension(CString sFileName)
 {
   CString sExt;
@@ -56,6 +64,8 @@ CString GetFileExtension(CString sFileName)
   return sExt;
 }
 
+// CalcFileMD5Hash
+// Calculates the MD5 hash for the given file
 int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 {  
   crpSetErrorMsg(_T("Unspecified error."));
@@ -113,11 +123,11 @@ crpOpenErrorReportW(
   DWORD dwFlags,
   CrpHandle* pHandle)
 {   
-  dwFlags;
+  UNREFERENCED_PARAMETER(dwFlags);
+
   int status = -1;
   int nNewHandle = 0;
-  CrpReportData report_data;
-  //HZIP hZip = 0;
+  CrpReportData report_data;  
   ZRESULT zr = 0;
   ZIPENTRY ze;
   int xml_index = -1;
@@ -234,9 +244,7 @@ crpOpenErrorReportW(
     }
 
     report_data.m_sMiniDumpTempName = sTempFile;
-  }
-
-  // Check integrity of minidump
+  } 
 
   // Add handle to the list of opened handles
   nNewHandle = (int)g_OpenedHandles.size()+1;
@@ -321,10 +329,20 @@ crpGetPropertyW(
   crpSetErrorMsg(_T("Unspecified error."));
 
   LPCWSTR pszPropVal = NULL;
-  const int BUFF_SIZE = 1024;
-  TCHAR szBuff[BUFF_SIZE];
-  strconv_t strconv;
+  const int BUFF_SIZE = 4096; 
+  TCHAR szBuff[BUFF_SIZE]; // Internal buffer to store property value
+  strconv_t strconv; // String convertor object
   
+  // Validate input parameters
+  if(nIndex<0 || // Check we have non-negative property index
+     (lpszBuffer==NULL && cchBuffSize!=0) || // Check that we have a valid buffer
+     (lpszBuffer!=NULL && cchBuffSzie==0)
+    )
+  {
+    crpSetErrorMsg(_T("Invalid argument."));
+    return -1;
+  }
+
   std::map<int, CrpReportData>::iterator it = g_OpenedHandles.find(hReport);
   if(it==g_OpenedHandles.end())
   {
@@ -335,42 +353,92 @@ crpGetPropertyW(
   CCrashDescReader* pDescReader = it->second.m_pDescReader;
   CMiniDumpReader* pDmpReader = it->second.m_pDmpReader;
 
+  // Check if we need to load minidump file to be able to get the property
   if(nPropId>=CRP_PROP_STACK_FRAME_COUNT)
   {
+    // Load the minidump
     pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
   }
 
   if(nPropId==CRP_PROP_CRASHRPT_VERSION)
   {    
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;
   }  
   else if(nPropId==CRP_PROP_CRASH_GUID)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
   }
   else if(nPropId==CRP_PROP_APP_NAME)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sAppName);    
   }
   else if(nPropId==CRP_PROP_APP_VERSION)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sAppVersion);    
   }
   else if(nPropId==CRP_PROP_IMAGE_NAME)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sImageName);    
   }
   else if(nPropId==CRP_PROP_OPERATING_SYSTEM)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sOperatingSystem);    
   }
   else if(nPropId==CRP_PROP_SYSTEM_TIME_UTC)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sSystemTimeUTC);    
   }
   else if(nPropId==CRP_PROP_INVPARAM_EXPRESSION)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
     {
       crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
@@ -380,6 +448,12 @@ crpGetPropertyW(
   }
   else if(nPropId==CRP_PROP_INVPARAM_FILE)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
     {
       crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
@@ -388,18 +462,36 @@ crpGetPropertyW(
     pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
   }
   else if(nPropId==CRP_PROP_FILE_COUNT)
-  {   
+  { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ltot_s((long)pDescReader->m_aFileItems.size(), szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;    
   }
   else if(nPropId==CRP_PROP_EXCEPTION_TYPE)
-  {   
+  { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;
     
   }
   else if(nPropId==CRP_PROP_EXCEPTION_CODE)
-  {  
+  { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     if(pDescReader->m_dwExceptionType!=CR_WIN32_STRUCTURED_EXCEPTION)
     {
       crpSetErrorMsg(_T("This property is valid for strucutred exceptions only."));
@@ -411,6 +503,12 @@ crpGetPropertyW(
   }
   else if(nPropId==CRP_PROP_FPE_SUBCODE)
   { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     if(pDescReader->m_dwExceptionType!=CR_CPP_SIGFPE)
     {
       crpSetErrorMsg(_T("This property is valid for floating point exceptions only."));
@@ -421,6 +519,12 @@ crpGetPropertyW(
   }
   else if(nPropId==CRP_PROP_INVPARAM_LINE)
   { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
     {
       crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
@@ -431,10 +535,22 @@ crpGetPropertyW(
   }
   else if(nPropId==CRP_PROP_USER_EMAIL)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
   }
   else if(nPropId==CRP_PROP_PROBLEM_DESCRIPTION)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
   }
   else if(nPropId==CRP_PROP_FILE_ITEM_NAME || 
@@ -456,7 +572,13 @@ crpGetPropertyW(
       pszPropVal = strconv.t2w(it->second);    
   }
   else if(nPropId==CRP_PROP_STACK_FRAME_COUNT)
-  {     
+  { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s((LONG)pDmpReader->m_DumpData.m_StackTrace.size(), szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;            
   }
@@ -510,50 +632,110 @@ crpGetPropertyW(
   }  
   else if(nPropId==CRP_PROP_CPU_ARCHITECTURE)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDmpReader->m_DumpData.m_uProcessorArchitecture, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;        
   }
   else if(nPropId==CRP_PROP_CPU_COUNT)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDmpReader->m_DumpData.m_uchNumberOfProcessors, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;        
   }
   else if(nPropId==CRP_PROP_SYSTEM_TYPE)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDmpReader->m_DumpData.m_uchProductType, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;        
   }
   else if(nPropId==CRP_PROP_OS_VER_MAJOR)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDmpReader->m_DumpData.m_ulVerMajor, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;        
   }
   else if(nPropId==CRP_PROP_OS_VER_MINOR)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDmpReader->m_DumpData.m_ulVerMinor, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;        
   }
   else if(nPropId==CRP_PROP_OS_VER_BUILD)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _ultot_s(pDmpReader->m_DumpData.m_ulVerBuild, szBuff, BUFF_SIZE, 10);
     pszPropVal = szBuff;        
   }
   else if(nPropId==CRP_PROP_OS_VER_CSD)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
   }
   else if(nPropId==CRP_PROP_EXCPTRS_EXCEPTION_CODE)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _stprintf_s(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_uExceptionCode); 
     pszPropVal = szBuff;
   }
   else if(nPropId==CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS)
   {
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_uExceptionAddress); 
     pszPropVal = szBuff;
   }
   else if(nPropId==CRP_PROP_MODULE_COUNT)
-  {    
+  { 
+    if(nIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid index specified."));
+      return -4;    
+    }
+
     _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->m_DumpData.m_Modules.size()); 
     pszPropVal = szBuff;
   }
@@ -602,8 +784,10 @@ crpGetPropertyW(
     return -2;
   }
 
-  if(cchBuffSize==0)
+  // Check the provided buffer size
+  if(lpszBuffer==NULL || cchBuffSize==0)
   {
+    // User wants us to get the required length of the buffer
     if(pcchCount!=NULL)
     {
       *pcchCount = (ULONG)wcslen(pszPropVal);
@@ -611,6 +795,7 @@ crpGetPropertyW(
   }
   else
   {
+    // User wants us to return the property value 
     ULONG uRequiredLen = (ULONG)wcslen(pszPropVal);
     if(uRequiredLen>(cchBuffSize))
     {
@@ -618,6 +803,7 @@ crpGetPropertyW(
       return uRequiredLen;
     }
 
+    // Copy the property to the buffer
     wcscpy_s(lpszBuffer, cchBuffSize, pszPropVal);
 
     if(pcchCount!=NULL)
@@ -626,7 +812,8 @@ crpGetPropertyW(
     }
   }
 
-  crpSetErrorMsg(_T("Successs."));
+  // Done.
+  crpSetErrorMsg(_T("Success."));
   return 0;
 }
 
