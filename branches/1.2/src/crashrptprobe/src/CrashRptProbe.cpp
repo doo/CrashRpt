@@ -336,7 +336,7 @@ crpGetPropertyW(
   // Validate input parameters
   if(nIndex<0 || // Check we have non-negative property index
      (lpszBuffer==NULL && cchBuffSize!=0) || // Check that we have a valid buffer
-     (lpszBuffer!=NULL && cchBuffSzie==0)
+     (lpszBuffer!=NULL && cchBuffSize==0)
     )
   {
     crpSetErrorMsg(_T("Invalid argument."));
@@ -907,7 +907,7 @@ crpExtractFileA(
   LPCWSTR pwszFileName = strconv.a2w(lpszFileName);
   LPCWSTR pwszFileSaveAs = strconv.a2w(lpszFileSaveAs);
 
-  return crpExtractFileW(hReport, pwszFileName, pwszFileSaveAs);
+  return crpExtractFileW(hReport, pwszFileName, pwszFileSaveAs, bOverwriteExisting);
 }
 
 int 

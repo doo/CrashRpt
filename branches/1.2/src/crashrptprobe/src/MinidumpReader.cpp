@@ -250,7 +250,7 @@ int CMiniDumpReader::ReadModuleListStream()
         m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
                
         LPCSTR szModuleName = strconv.t2a(m.m_sModuleName);
-        int nLoadResult = SymLoadModuleEx(
+        DWORD64 dwLoadResult = SymLoadModuleEx(
           m_DumpData.m_hProcess,
           NULL,
           (PSTR)szModuleName,
@@ -260,7 +260,7 @@ int CMiniDumpReader::ReadModuleListStream()
           NULL,
           0);
         
-        m.m_bSymbolsLoaded = (nLoadResult!=0?TRUE:FALSE);
+        m.m_bSymbolsLoaded = (dwLoadResult!=0?TRUE:FALSE);
 
         m_DumpData.m_Modules.push_back(m);
       }

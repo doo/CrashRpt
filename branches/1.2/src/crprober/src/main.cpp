@@ -174,13 +174,11 @@ int process_command(
   int result = 2;       // Status
   CrpHandle hReport = 0; // Handle to the error report
   WIN32_FIND_DATA fd;   // Used to enumerate files in directory
-  HANDLE hFind = INVALID_HANDLE_VALUE; 
-  TCHAR szFullPath[_MAX_PATH];
+  HANDLE hFind = INVALID_HANDLE_VALUE;   
   BOOL bNext = TRUE;    
   tstring sDirName;
   tstring sFileName;
-  BOOL bOutputToDir = FALSE; // Do we save resulting files to directory or save single resulting file?
-  //FILE* f = NULL; // Handle to the resulting file
+  BOOL bOutputToDir = FALSE; // Do we save resulting files to directory or save single resulting file?  
 
   // Validate input parameters
 
@@ -498,6 +496,8 @@ int output_document(CrpHandle hReport, FILE* f)
       doc.PutTableCell(str.c_str(), 32, true);      
     }
   }
+
+  doc.EndSection();
 
   // Print module list
   doc.BeginSection(_T("Module List"));
