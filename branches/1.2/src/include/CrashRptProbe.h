@@ -223,9 +223,10 @@ enum CRP_ErrorReportProperty
 
   CRP_PROP_MODULE_COUNT            = 401, //!< Count of modules.
   CRP_PROP_MODULE_NAME             = 402, //!< Module name.
-  CRP_PROP_MODULE_BASE_ADDRESS     = 403, //!< Module base load address.
-  CRP_PROP_MODULE_SIZE             = 404, //!< Module size.
-  CRP_PROP_MODULE_SYMBOLS_LOADED   = 405  //!< Were symbols loaded for the module or not?
+  CRP_PROP_MODULE_IMAGE_NAME       = 403, //!< Image name containing full path.  
+  CRP_PROP_MODULE_BASE_ADDRESS     = 404, //!< Module base load address.
+  CRP_PROP_MODULE_SIZE             = 405, //!< Module size.
+  CRP_PROP_MODULE_LOADED_PDB_NAME  = 406  //!< The full path and file name of the .pdb file. 
 };
 
 

@@ -446,6 +446,7 @@ int CMiniDumpReader::StackWalk()
     if(bGetModuleInfo)
     {
       stack_frame.m_sModuleName = mi.ModuleName;
+      stack_frame.m_sImageName = mi.ImageName;
     }
 
     // Get symbol info
