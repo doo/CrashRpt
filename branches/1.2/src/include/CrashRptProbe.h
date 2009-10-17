@@ -169,64 +169,84 @@ crpCloseErrorReport(
 );
 
 /*! \ingroup CrashRptProbeEnums
- *  \brief Property names passed to crpGetProperty() function. 
+ *  \brief Table names passed to crpGetProperty() function. 
  *
  *  \remarks
  *
- *  An error report can be presented as a set of string properties. Some properties 
- *  are groupped into tables and can be accessed by their index.
- *
- *  The list of available properties along with their brief description is presented below.
- *  For the detailed description of available properties and code examples, see \ref crprobe_properties section.
+ *  An error report can be presented as a set of properties. These properties
+ *  are groupped into tables and can be accessed by the table id, column id and row index.
+ *  
+ *  For the detailed description of available tables and code examples, see \ref crprobe_properties section.
  */
 
-enum CRP_ErrorReportProperty
-{
-  CRP_PROP_CRASHRPT_VERSION        = 1,  //!< Version of CrashRpt library that generated the report.
-  CRP_PROP_CRASH_GUID              = 2,  //!< Globally unique identifier (GUID) of the error report.
-  CRP_PROP_APP_NAME                = 3,  //!< Application name.
-  CRP_PROP_APP_VERSION             = 4,  //!< Application version.
-  CRP_PROP_IMAGE_NAME              = 5,  //!< Path to the executable file.
-  CRP_PROP_OPERATING_SYSTEM        = 6,  //!< Opration system name, including build number and service pack.
-  CRP_PROP_SYSTEM_TIME_UTC         = 7,  //!< Time (UTC) when the crash occured.
-  CRP_PROP_EXCEPTION_TYPE          = 8,  //!< Code of exception handler that cought the exception.
-  CRP_PROP_EXCEPTION_CODE          = 9,  //!< Exception code; for the structured exceptions only, hexadecimal number.
-  CRP_PROP_INVPARAM_FUNCTION       = 10, //!< Function name; for invalid parameter errors only.
-  CRP_PROP_INVPARAM_EXPRESSION     = 11, //!< Expression; for invalid parameter errors only.
-  CRP_PROP_INVPARAM_FILE           = 12, //!< Source file name; for invalid parameter errors only.
-  CRP_PROP_INVPARAM_LINE           = 13, //!< Source line; for invalid parameter errors only.
-  CRP_PROP_FPE_SUBCODE             = 14, //!< Subcode of floating point exception; for FPE exceptions only.
-  CRP_PROP_USER_EMAIL              = 15, //!< Email of the user who sent this report.
-  CRP_PROP_PROBLEM_DESCRIPTION     = 16, //!< User-provided problem description.
+enum CRP_TableId
+{ 
+  CRP_TBL_META                         = 0,    //!< Table: Contains information about all ather tables.
+  CRP_TBL_XMLDESC_MISC                 = 1,    //!< Table: Miscellaneous info contained in crash descriptor XML file. 
+  CRP_TBL_XMLDESC_FILE_ITEMS           = 2,    //!< Table: The list of file items contained in error report.
+  CRP_TBL_MDMP_MISC                    = 3,    //!< Table: Miscellaneous info contained in crash minidump file.
+  CRP_TBL_MDMP_STACK_TRACE             = 4,    //!< Table: Stack trace.
+  CRP_TBL_MDMP_MODULES                 = 5,    //!< Table: The list of loaded modules.
+  CRP_TBL_MDMP_THREADS                 = 6,    //!< Table: The list of threads.
+};
+
+/*! \ingroup CrashRptProbeEnums
+ *  \brief Column names passed to crpGetProperty() function. 
+ *
+ *  \remarks
+ *
+ *  An error report can be presented as a set of properties. These properties
+ *  are groupped into tables and can be accessed by the table id, column id and row index.
+ *  
+ *  For the detailed description of available column names and code examples, see \ref crprobe_properties section.
+ */
+
+enum CRP_ColumnId
+{   
+  CRP_COL_ROW_COUNT               = 0,    //!< Column: Count of rows in a table.
   
-  CRP_PROP_FILE_COUNT              = 17, //!< Number of files contained in th error report.
-  CRP_PROP_FILE_ITEM_NAME          = 18, //!< File list: Name of the file contained in the report, vectored.
-  CRP_PROP_FILE_ITEM_DESCRIPTION   = 19, //!< File list: Description of the file contained in the report.
+  CRP_COL_CRASHRPT_VERSION        = 100,  //!< Column: Version of CrashRpt library that generated the report.
+  CRP_COL_CRASH_GUID              = 101,  //!< Column: Globally unique identifier (GUID) of the error report.
+  CRP_COL_APP_NAME                = 102,  //!< Column: Application name.
+  CRP_COL_APP_VERSION             = 103,  //!< Column: Application version.
+  CRP_COL_IMAGE_NAME              = 104,  //!< Column: Path to the executable file.
+  CRP_COL_OPERATING_SYSTEM        = 105,  //!< Column: Opration system name, including build number and service pack.
+  CRP_COL_SYSTEM_TIME_UTC         = 106,  //!< Column: Time (UTC) when the crash occured.
+  CRP_COL_EXCEPTION_TYPE          = 107,  //!< Column: Code of exception handler that cought the exception.
+  CRP_COL_EXCEPTION_CODE          = 108,  //!< Column: Exception code; for the structured exceptions only, hexadecimal number.
+  CRP_COL_INVPARAM_FUNCTION       = 109, //!< Column: Function name; for invalid parameter errors only.
+  CRP_COL_INVPARAM_EXPRESSION     = 110, //!< Column: Expression; for invalid parameter errors only.
+  CRP_COL_INVPARAM_FILE           = 111, //!< Column: Source file name; for invalid parameter errors only.
+  CRP_COL_INVPARAM_LINE           = 112, //!< Column: Source line; for invalid parameter errors only.
+  CRP_COL_FPE_SUBCODE             = 113, //!< Column: Subcode of floating point exception; for FPE exceptions only.
+  CRP_COL_USER_EMAIL              = 114, //!< Column: Email of the user who sent this report.
+  CRP_COL_PROBLEM_DESCRIPTION     = 115, //!< Column: User-provided problem description.
+  
+  CRP_COL_FILE_ITEM_NAME          = 200, //!< Column: File list: Name of the file contained in the report, vectored.
+  CRP_COL_FILE_ITEM_DESCRIPTION   = 201, //!< Column: File list: Description of the file contained in the report.
 
-  CRP_PROP_STACK_FRAME_COUNT       = 100, //!< Count of frames in the stack trace.
-  CRP_PROP_STACK_MODULE_NAME       = 101, //!< Stack trace: module name.
-  CRP_PROP_STACK_SYMBOL_NAME       = 102, //!< Stack trace: symbol name.
-  CRP_PROP_STACK_OFFSET_IN_SYMBOL  = 103, //!< Stack trace: offset in symbol, hexadecimal.
-  CRP_PROP_STACK_SOURCE_FILE       = 104, //!< Stack trace: source file name.
-  CRP_PROP_STACK_SOURCE_LINE       = 105, //!< Stack trace: source file line number.
+  CRP_COL_STACK_MODULE_NAME       = 300, //!< Column: Stack trace: module name.
+  CRP_COL_STACK_SYMBOL_NAME       = 301, //!< Column: Stack trace: symbol name.
+  CRP_COL_STACK_OFFSET_IN_SYMBOL  = 302, //!< Column: Stack trace: offset in symbol, hexadecimal.
+  CRP_COL_STACK_SOURCE_FILE       = 303, //!< Column: Stack trace: source file name.
+  CRP_COL_STACK_SOURCE_LINE       = 304, //!< Column: Stack trace: source file line number.
 
-  CRP_PROP_CPU_ARCHITECTURE        = 201, //!< Processor architecture.
-  CRP_PROP_CPU_COUNT               = 202, //!< Number of processors.
-  CRP_PROP_SYSTEM_TYPE             = 203, //!< Type of system (server or workstation).
-  CRP_PROP_OS_VER_MAJOR            = 204, //!< OS major version.
-  CRP_PROP_OS_VER_MINOR            = 205, //!< OS minor version.
-  CRP_PROP_OS_VER_BUILD            = 206, //!< OS build number.
-  CRP_PROP_OS_VER_CSD              = 207, //!< The latest service pack installed.
+  CRP_COL_CPU_ARCHITECTURE        = 400, //!< Column: Processor architecture.
+  CRP_COL_CPU_COUNT               = 401, //!< Column: Number of processors.
+  CRP_COL_SYSTEM_TYPE             = 402, //!< Column: Type of system (server or workstation).
+  CRP_COL_OS_VER_MAJOR            = 403, //!< Column: OS major version.
+  CRP_COL_OS_VER_MINOR            = 404, //!< Column: OS minor version.
+  CRP_COL_OS_VER_BUILD            = 405, //!< Column: OS build number.
+  CRP_COL_OS_VER_CSD              = 406, //!< Column: The latest service pack installed.
 
-  CRP_PROP_EXCPTRS_EXCEPTION_CODE    = 300, //!< Code of the structured exception.
-  CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS = 301, //!< Exception address.
+  CRP_COL_EXCPTRS_EXCEPTION_CODE    = 500, //!< Column: Code of the structured exception.
+  CRP_COL_EXCPTRS_EXCEPTION_ADDRESS = 501, //!< Column: Exception address.
 
-  CRP_PROP_MODULE_COUNT            = 401, //!< Count of modules.
-  CRP_PROP_MODULE_NAME             = 402, //!< Module name.
-  CRP_PROP_MODULE_IMAGE_NAME       = 403, //!< Image name containing full path.  
-  CRP_PROP_MODULE_BASE_ADDRESS     = 404, //!< Module base load address.
-  CRP_PROP_MODULE_SIZE             = 405, //!< Module size.
-  CRP_PROP_MODULE_LOADED_PDB_NAME  = 406  //!< The full path and file name of the .pdb file. 
+  CRP_COL_MODULE_NAME             = 600, //!< Column: Module name.
+  CRP_COL_MODULE_IMAGE_NAME       = 601, //!< Column: Image name containing full path.  
+  CRP_COL_MODULE_BASE_ADDRESS     = 602, //!< Column: Module base load address.
+  CRP_COL_MODULE_SIZE             = 603, //!< Column: Module size.
+  CRP_COL_MODULE_LOADED_PDB_NAME  = 604  //!< Column: The full path and file name of the .pdb file. 
 };
 
 
@@ -281,8 +301,9 @@ int
 CRASHRPTPROBE_API 
 crpGetPropertyW(
   CrpHandle hReport,
-  CRP_ErrorReportProperty nPropId,
-  INT nIndex,
+  CRP_TableId TableId,
+  CRP_ColumnId ColumnId,
+  INT nRowIndex,
   __out_ecount_z(pcchBuffSize) LPWSTR lpszBuffer,
   ULONG cchBuffSize,
   __out PULONG pcchCount
@@ -297,8 +318,9 @@ int
 CRASHRPTPROBE_API 
 crpGetPropertyA(
   CrpHandle hReport,
-  CRP_ErrorReportProperty nPropId,
-  INT nIndex,
+  CRP_TableId TableId,
+  CRP_ColumnId ColumnId,
+  INT nRowIndex,
   __out_ecount_z(pcchBuffSize) LPSTR lpszBuffer,
   ULONG pcchBuffSize,
   __out PULONG pcchCount

@@ -10,7 +10,7 @@ struct MdmpModule
 {
   ULONG64 m_uBaseAddr;   // Base address
   ULONG64 m_uImageSize;  // Size of module
-  CString m_sModuleName; // Module name
+  CString m_sModuleName; // Module name  
   BOOL m_bSymbolsLoaded; // Were symbols loaded for this module?
 };
 

@@ -320,8 +320,9 @@ int
 CRASHRPTPROBE_API
 crpGetPropertyW(
   CrpHandle hReport,
-  CRP_ErrorReportProperty nPropId, 
-  INT nIndex,
+  CRP_TableId TableId, 
+  CRP_ColumnId ColumnId,
+  INT nRowIndex,
   LPWSTR lpszBuffer,
   ULONG cchBuffSize,
   PULONG pcchCount)
@@ -334,12 +335,12 @@ crpGetPropertyW(
   strconv_t strconv; // String convertor object
   
   // Validate input parameters
-  if(nIndex<0 || // Check we have non-negative property index
+  if(nRowIndex<0 || // Check we have non-negative row index
      (lpszBuffer==NULL && cchBuffSize!=0) || // Check that we have a valid buffer
      (lpszBuffer!=NULL && cchBuffSize==0)
     )
   {
-    crpSetErrorMsg(_T("Invalid argument."));
+    crpSetErrorMsg(_T("Invalid argument specified."));
     return -1;
   }
 
@@ -354,434 +355,277 @@ crpGetPropertyW(
   CMiniDumpReader* pDmpReader = it->second.m_pDmpReader;
 
   // Check if we need to load minidump file to be able to get the property
-  if(nPropId>=CRP_PROP_STACK_FRAME_COUNT)
+  if(TableId>=CRP_TBL_MDMP_MISC)
   {
     // Load the minidump
     pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
   }
 
-  if(nPropId==CRP_PROP_CRASHRPT_VERSION)
-  {    
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;
-  }  
-  else if(nPropId==CRP_PROP_CRASH_GUID)
+  if(TableId==CRP_TBL_META)
   {
-    if(nIndex!=0)
+    if(nRowIndex>CRP_TBL_MDMP_THREADS)
     {
-      crpSetErrorMsg(_T("Invalid index specified."));
+      crpSetErrorMsg(_T("Invalid row index specified."));
       return -4;    
     }
 
-    pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
-  }
-  else if(nPropId==CRP_PROP_APP_NAME)
-  {
-    if(nIndex!=0)
+    if(ColumnId==CRP_COL_ROW_COUNT)
     {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
+      int nRowCount = -1;
+      if(nRowIndex==CRP_TBL_META)
+        nRowCount = CRP_TBL_MDMP_THREADS+1;
+      else if(nRowIndex==CRP_TBL_XMLDESC_MISC)
+        nRowCount = 1;
+      else if(nRowIndex==CRP_TBL_XMLDESC_FILE_ITEMS)
+        nRowCount = pDescReader->m_aFileItems.size();
+      else if(nRowIndex==CRP_TBL_XMLDESC_FILE_ITEMS)
+        nRowCount = pDescReader->m_aFileItems.size();
+      else if(nRowIndex==CRP_TBL_MDMP_MISC)
+        nRowCount = 1;
+      else if(nRowIndex==CRP_TBL_MDMP_STACK_TRACE)
+        nRowCount = pDmpReader->m_DumpData.m_StackTrace.size();
+      else if(nRowIndex==CRP_TBL_MDMP_MODULES)
+        nRowCount = pDmpReader->m_DumpData.m_Modules.size();
+      else if(nRowIndex==CRP_TBL_MDMP_THREADS)
+        nRowCount = -1;
 
-    pszPropVal = strconv.t2w(pDescReader->m_sAppName);    
-  }
-  else if(nPropId==CRP_PROP_APP_VERSION)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDescReader->m_sAppVersion);    
-  }
-  else if(nPropId==CRP_PROP_IMAGE_NAME)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDescReader->m_sImageName);    
-  }
-  else if(nPropId==CRP_PROP_OPERATING_SYSTEM)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDescReader->m_sOperatingSystem);    
-  }
-  else if(nPropId==CRP_PROP_SYSTEM_TIME_UTC)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDescReader->m_sSystemTimeUTC);    
-  }
-  else if(nPropId==CRP_PROP_INVPARAM_EXPRESSION)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
-    {
-      crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
-      return -3;
-    }
-    pszPropVal = strconv.t2w(pDescReader->m_sInvParamExpression);    
-  }
-  else if(nPropId==CRP_PROP_INVPARAM_FILE)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
-    {
-      crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
-      return -3;
-    }
-    pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
-  }
-  else if(nPropId==CRP_PROP_FILE_COUNT)
-  { 
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _ltot_s((long)pDescReader->m_aFileItems.size(), szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;    
-  }
-  else if(nPropId==CRP_PROP_EXCEPTION_TYPE)
-  { 
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _ultot_s(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;
-    
-  }
-  else if(nPropId==CRP_PROP_EXCEPTION_CODE)
-  { 
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    if(pDescReader->m_dwExceptionType!=CR_WIN32_STRUCTURED_EXCEPTION)
-    {
-      crpSetErrorMsg(_T("This property is valid for strucutred exceptions only."));
-      return -3;
-    }
-
-    _ultot_s(pDescReader->m_dwExceptionCode, szBuff, BUFF_SIZE, 16);
-    pszPropVal = szBuff;    
-  }
-  else if(nPropId==CRP_PROP_FPE_SUBCODE)
-  { 
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    if(pDescReader->m_dwExceptionType!=CR_CPP_SIGFPE)
-    {
-      crpSetErrorMsg(_T("This property is valid for floating point exceptions only."));
-      return -3;
-    }
-    _ultot_s(pDescReader->m_dwFPESubcode, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
-  }
-  else if(nPropId==CRP_PROP_INVPARAM_LINE)
-  { 
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
-    {
-      crpSetErrorMsg(_T("This property is valid for invalid parameter exceptions only."));
-      return -3;
-    }
-    _ultot_s(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;            
-  }
-  else if(nPropId==CRP_PROP_USER_EMAIL)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
-  }
-  else if(nPropId==CRP_PROP_PROBLEM_DESCRIPTION)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
-  }
-  else if(nPropId==CRP_PROP_FILE_ITEM_NAME || 
-    nPropId==CRP_PROP_FILE_ITEM_DESCRIPTION)
-  {
-    if(nIndex<0 || nIndex>=(int)pDescReader->m_aFileItems.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    
-    std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
-    int i;
-    for(i=0; i<nIndex; i++) it++;
-
-    if(nPropId==CRP_PROP_FILE_ITEM_NAME)
-      pszPropVal = strconv.t2w(it->first);    
+      _ultot_s(nRowCount, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;
+    }   
     else
-      pszPropVal = strconv.t2w(it->second);    
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
   }
-  else if(nPropId==CRP_PROP_STACK_FRAME_COUNT)
-  { 
-    if(nIndex!=0)
+  else if(TableId==CRP_TBL_XMLDESC_MISC)
+  {
+    // This table contains single row.
+    if(nRowIndex!=0)
+    {
+      crpSetErrorMsg(_T("Invalid row index specified."));
+      return -4;    
+    }
+
+    if(ColumnId==CRP_COL_CRASHRPT_VERSION)
+    {    
+      _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;
+    }  
+    else if(ColumnId==CRP_COL_CRASH_GUID)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
+    }
+    else if(ColumnId==CRP_COL_APP_NAME)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sAppName);    
+    }
+    else if(ColumnId==CRP_COL_APP_VERSION)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sAppVersion);    
+    }
+    else if(ColumnId==CRP_COL_IMAGE_NAME)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sImageName);    
+    }
+    else if(ColumnId==CRP_COL_OPERATING_SYSTEM)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sOperatingSystem);    
+    }
+    else if(ColumnId==CRP_COL_SYSTEM_TIME_UTC)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sSystemTimeUTC);    
+    }
+    else if(ColumnId==CRP_COL_INVPARAM_EXPRESSION)
+    {     
+      pszPropVal = strconv.t2w(pDescReader->m_sInvParamExpression);    
+    }
+    else if(ColumnId==CRP_COL_INVPARAM_FILE)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
+    }
+    else if(ColumnId==CRP_COL_EXCEPTION_TYPE)
+    { 
+      _ultot_s(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;      
+    }
+    else if(ColumnId==CRP_COL_EXCEPTION_CODE)
+    {  
+      _ultot_s(pDescReader->m_dwExceptionCode, szBuff, BUFF_SIZE, 16);
+      pszPropVal = szBuff;    
+    }
+    else if(ColumnId==CRP_COL_FPE_SUBCODE)
+    { 
+      _ultot_s(pDescReader->m_dwFPESubcode, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_INVPARAM_LINE)
+    {       
+      _ultot_s(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;            
+    }
+    else if(ColumnId==CRP_COL_USER_EMAIL)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
+    }
+    else if(ColumnId==CRP_COL_PROBLEM_DESCRIPTION)
+    {
+      pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
+    }
+    else
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
+  }
+  else if(TableId==CRP_TBL_XMLDESC_FILE_ITEMS)
+  {
+    if(nRowIndex>=(int)pDescReader->m_aFileItems.size())
+    {
+      crpSetErrorMsg(_T("Invalid row index specified."));
+      return -4;    
+    }
+  
+    if(ColumnId==CRP_COL_FILE_ITEM_NAME || 
+       ColumnId==CRP_COL_FILE_ITEM_DESCRIPTION)
+    {      
+      std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
+      int i;
+      for(i=0; i<nRowIndex; i++) it++;
+
+      if(ColumnId==CRP_COL_FILE_ITEM_NAME)
+        pszPropVal = strconv.t2w(it->first);    
+      else
+        pszPropVal = strconv.t2w(it->second);    
+    }
+    else
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
+  }
+  else if(TableId==CRP_TBL_MDMP_STACK_TRACE)
+  {
+    if(nRowIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
     {
       crpSetErrorMsg(_T("Invalid index specified."));
       return -4;    
     }
 
-    _ultot_s((LONG)pDmpReader->m_DumpData.m_StackTrace.size(), szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;            
+    if(ColumnId==CRP_COL_STACK_OFFSET_IN_SYMBOL)
+    {      
+      _ui64tot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_dw64OffsInSymbol, szBuff, BUFF_SIZE, 16);
+      pszPropVal = szBuff;                  
+    }
+    else if(ColumnId==CRP_COL_STACK_SOURCE_LINE)
+    {       
+      _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;                
+    }  
+    else if(ColumnId==CRP_COL_STACK_MODULE_NAME)
+    {     
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sModuleName);    
+    }
+    else if(ColumnId==CRP_COL_STACK_SYMBOL_NAME)
+    {      
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sSymbolName);    
+    }
+    else if(ColumnId==CRP_COL_STACK_SOURCE_FILE)
+    {      
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sSrcFileName);    
+    }
+    else
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
+
   }
-  else if(nPropId==CRP_PROP_STACK_OFFSET_IN_SYMBOL)
-  {     
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    _ui64tot_s(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_dw64OffsInSymbol, szBuff, BUFF_SIZE, 16);
-    pszPropVal = szBuff;            
-    
-  }
-  else if(nPropId==CRP_PROP_STACK_SOURCE_LINE)
-  {     
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;                
-  }  
-  else if(nPropId==CRP_PROP_STACK_MODULE_NAME)
+  else if(TableId==CRP_TBL_MDMP_MISC)
   {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sModuleName);    
-  }
-  else if(nPropId==CRP_PROP_STACK_SYMBOL_NAME)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSymbolName);    
-  }
-  else if(nPropId==CRP_PROP_STACK_SOURCE_FILE)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nIndex].m_sSrcFileName);    
-  }  
-  else if(nPropId==CRP_PROP_CPU_ARCHITECTURE)
-  {
-    if(nIndex!=0)
+    if(nRowIndex!=0)
     {
       crpSetErrorMsg(_T("Invalid index specified."));
       return -4;    
     }
 
-    _ultot_s(pDmpReader->m_DumpData.m_uProcessorArchitecture, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
+    if(ColumnId==CRP_COL_CPU_ARCHITECTURE)
+    {
+      _ultot_s(pDmpReader->m_DumpData.m_uProcessorArchitecture, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_CPU_COUNT)
+    {
+      _ultot_s(pDmpReader->m_DumpData.m_uchNumberOfProcessors, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_SYSTEM_TYPE)
+    {
+      _ultot_s(pDmpReader->m_DumpData.m_uchProductType, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_OS_VER_MAJOR)
+    {      
+      _ultot_s(pDmpReader->m_DumpData.m_ulVerMajor, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_OS_VER_MINOR)
+    {
+      _ultot_s(pDmpReader->m_DumpData.m_ulVerMinor, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_OS_VER_BUILD)
+    {
+      _ultot_s(pDmpReader->m_DumpData.m_ulVerBuild, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;        
+    }
+    else if(ColumnId==CRP_COL_OS_VER_CSD)
+    {      
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
+    }
+    else if(ColumnId==CRP_COL_EXCPTRS_EXCEPTION_CODE)
+    {      
+      _stprintf_s(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_uExceptionCode); 
+      pszPropVal = szBuff;
+    }
+    else if(ColumnId==CRP_COL_EXCPTRS_EXCEPTION_ADDRESS)
+    {      
+      _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_uExceptionAddress); 
+      pszPropVal = szBuff;
+    }
+    else
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
   }
-  else if(nPropId==CRP_PROP_CPU_COUNT)
-  {
-    if(nIndex!=0)
+  else if(TableId==CRP_TBL_MDMP_MODULES)
+  {  
+    if(nRowIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
     {
       crpSetErrorMsg(_T("Invalid index specified."));
       return -4;    
     }
 
-    _ultot_s(pDmpReader->m_DumpData.m_uchNumberOfProcessors, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
-  }
-  else if(nPropId==CRP_PROP_SYSTEM_TYPE)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
+    if(ColumnId==CRP_COL_MODULE_NAME)
+    {      
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sModuleName);    
     }
-
-    _ultot_s(pDmpReader->m_DumpData.m_uchProductType, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
-  }
-  else if(nPropId==CRP_PROP_OS_VER_MAJOR)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
+    else if(ColumnId==CRP_COL_MODULE_BASE_ADDRESS)
+    {      
+      _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Modules[nRowIndex].m_uBaseAddr); 
+      pszPropVal = szBuff;
     }
-
-    _ultot_s(pDmpReader->m_DumpData.m_ulVerMajor, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
-  }
-  else if(nPropId==CRP_PROP_OS_VER_MINOR)
-  {
-    if(nIndex!=0)
+    else if(ColumnId==CRP_COL_MODULE_SIZE)
     {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _ultot_s(pDmpReader->m_DumpData.m_ulVerMinor, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
-  }
-  else if(nPropId==CRP_PROP_OS_VER_BUILD)
-  {
-    if(nIndex!=0)
+      _stprintf_s(szBuff, BUFF_SIZE, _T("%I64u"), pDmpReader->m_DumpData.m_Modules[nRowIndex].m_uImageSize); 
+      pszPropVal = szBuff;
+    }    
+    else
     {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
     }
-
-    _ultot_s(pDmpReader->m_DumpData.m_ulVerBuild, szBuff, BUFF_SIZE, 10);
-    pszPropVal = szBuff;        
-  }
-  else if(nPropId==CRP_PROP_OS_VER_CSD)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
-  }
-  else if(nPropId==CRP_PROP_EXCPTRS_EXCEPTION_CODE)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _stprintf_s(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_uExceptionCode); 
-    pszPropVal = szBuff;
-  }
-  else if(nPropId==CRP_PROP_EXCPTRS_EXCEPTION_ADDRESS)
-  {
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_uExceptionAddress); 
-    pszPropVal = szBuff;
-  }
-  else if(nPropId==CRP_PROP_MODULE_COUNT)
-  { 
-    if(nIndex!=0)
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-
-    _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->m_DumpData.m_Modules.size()); 
-    pszPropVal = szBuff;
-  }
-  else if(nPropId==CRP_PROP_MODULE_NAME)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nIndex].m_sModuleName);    
-  }
-  else if(nPropId==CRP_PROP_MODULE_BASE_ADDRESS)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Modules[nIndex].m_uBaseAddr); 
-    pszPropVal = szBuff;
-  }
-  else if(nPropId==CRP_PROP_MODULE_SIZE)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    _stprintf_s(szBuff, BUFF_SIZE, _T("%I64u"), pDmpReader->m_DumpData.m_Modules[nIndex].m_uImageSize); 
-    pszPropVal = szBuff;
-  }
-  else if(nPropId==CRP_PROP_MODULE_SYMBOLS_LOADED)
-  {
-    if(nIndex<0 || nIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
-    _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->m_DumpData.m_Modules[nIndex].m_bSymbolsLoaded?1:0); 
-    pszPropVal = szBuff;
-  }
-  else
-  {
-    crpSetErrorMsg(_T("Invalid property ID."));
-    return -2;
   }
 
   // Check the provided buffer size
@@ -821,8 +665,9 @@ int
 CRASHRPTPROBE_API
 crpGetPropertyA(
   CrpHandle hReport,
-  CRP_ErrorReportProperty nPropId,
-  INT nIndex,
+  CRP_TableId TableId,
+  CRP_ColumnId ColumnId,
+  INT nRowIndex,
   LPSTR lpszBuffer,
   ULONG cchBuffSize,
   PULONG pcchCount)
@@ -832,7 +677,8 @@ crpGetPropertyA(
   WCHAR* szBuffer = new WCHAR[cchBuffSize];
   strconv_t strconv;
 
-  int result = crpGetPropertyW(hReport, nPropId, nIndex, szBuffer, cchBuffSize, pcchCount);
+  int result = crpGetPropertyW(hReport, TableId, ColumnId, 
+    nRowIndex, szBuffer, cchBuffSize, pcchCount);
 
   LPCSTR aszResult = strconv.w2a(szBuffer);
   delete [] szBuffer;
