@@ -25,8 +25,7 @@ CMiniDumpReader::CMiniDumpReader()
   m_bLoaded = false;
   m_hFileMiniDump = INVALID_HANDLE_VALUE;
   m_hFileMapping = NULL;
-  m_pMiniDumpStartPtr = NULL;
-  
+  m_pMiniDumpStartPtr = NULL;  
 }
 
 CMiniDumpReader::~CMiniDumpReader()
@@ -114,7 +113,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   m_bReadModuleListStream = !ReadModuleListStream();
   m_bReadThreadListStream = !ReadThreadListStream();
   m_bReadMemoryListStream = !ReadMemoryListStream();
-  m_bStackWalk = !StackWalk();
+  //m_bStackWalk = !StackWalk();
   
   m_bLoaded = true;
   return 0;
@@ -142,6 +141,7 @@ void CMiniDumpReader::Close()
   }
 }
 
+// Extracts a UNICODE string stored in minidump file by its relative address
 CString CMiniDumpReader::GetMinidumpString(LPVOID start_addr, RVA rva)
 {
   MINIDUMP_STRING* pms = (MINIDUMP_STRING*)((LPBYTE)start_addr+rva);
@@ -206,7 +206,8 @@ int CMiniDumpReader::ReadExceptionStream()
       m_DumpData.m_uExceptionThreadId = pExceptionStream->ThreadId;
       m_DumpData.m_uExceptionCode = pExceptionStream->ExceptionRecord.ExceptionCode;
       m_DumpData.m_uExceptionAddress = pExceptionStream->ExceptionRecord.ExceptionAddress;    
-      m_DumpData.m_pExceptionContext = (CONTEXT*)((LPBYTE)m_pMiniDumpStartPtr+pExceptionStream->ThreadContext.Rva);
+      /*m_DumpData.m_pExceptionContext = 
+        (CONTEXT*)((LPBYTE)m_pMiniDumpStartPtr+pExceptionStream->ThreadContext.Rva);*/
     }    
   }
   else
@@ -244,25 +245,39 @@ int CMiniDumpReader::ReadModuleListStream()
         MINIDUMP_MODULE* pModule = 
           (MINIDUMP_MODULE*)((LPBYTE)pModuleStream->Modules+i*sizeof(MINIDUMP_MODULE));
 
-        MdmpModule m;
-        m.m_uBaseAddr = pModule->BaseOfImage;
-        m.m_uImageSize = pModule->SizeOfImage;
-        m.m_sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);
-               
-        LPCSTR szModuleName = strconv.t2a(m.m_sModuleName);
-        DWORD64 dwLoadResult = SymLoadModuleEx(
+        CString sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);               
+        LPCSTR szModuleName = strconv.t2a(sModuleName);
+        DWORD64 dwBaseAddr = pModule->BaseOfImage;
+        DWORD64 dwImageSize = pModule->SizeOfImage;
+
+        /*DWORD64 dwLoadResult = */SymLoadModuleEx(
           m_DumpData.m_hProcess,
           NULL,
           (PSTR)szModuleName,
           NULL,
-          m.m_uBaseAddr,
-          (DWORD)m.m_uImageSize,
+          dwBaseAddr,
+          (DWORD)dwImageSize,
           NULL,
           0);
         
-        m.m_bSymbolsLoaded = (dwLoadResult!=0?TRUE:FALSE);
+        IMAGEHLP_MODULE64 modinfo;
+        memset(&modinfo, 0, sizeof(IMAGEHLP_MODULE64));
+        modinfo.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
+        BOOL bModuleInfo = SymGetModuleInfo64(m_DumpData.m_hProcess,
+          dwBaseAddr, 
+          &modinfo);
+        if(bModuleInfo)
+        {
+          MdmpModule m;
+          m.m_uBaseAddr = modinfo.BaseOfImage;
+          m.m_uImageSize = modinfo.ImageSize;        
+          m.m_sModuleName = modinfo.ModuleName;
+          m.m_sImageName = modinfo.ImageName;
+          m.m_sLoadedImageName = modinfo.LoadedImageName;
+          m.m_sLoadedPdbName = modinfo.LoadedPdbName;
 
-        m_DumpData.m_Modules.push_back(m);
+          m_DumpData.m_Modules[modinfo.BaseOfImage] = m;
+        }        
       }
     }
   }
@@ -272,6 +287,18 @@ int CMiniDumpReader::ReadModuleListStream()
   }
 
   return 0;
+}
+
+int CMiniDumpReader::GetModuleRowIdByBaseAddr(DWORD64 dwBaseAddr)
+{
+  UINT i;
+  for(i=0; i<m_DumpData.m_Modules.size(); i++)
+  {
+    if(m_DumpData.m_Modules[i].m_uBaseAddr==dwBaseAddr)
+      return i;
+  }
+
+  return -1;
 }
 
 int CMiniDumpReader::ReadMemoryListStream()
@@ -342,15 +369,12 @@ int CMiniDumpReader::ReadThreadListStream()
       {
         MINIDUMP_THREAD* pThread = (MINIDUMP_THREAD*)(&pThreadList->Threads[i]);
 
-        // Read thread info
-        if(pThread->ThreadId==m_DumpData.m_uExceptionThreadId)
-        {
-          m_DumpData.m_uExceptionThreadStackAddress = 
-            pThread->Stack.StartOfMemoryRange;
-          
-          m_DumpData.m_pThreadContext = 
-            (CONTEXT*)(((LPBYTE)m_pMiniDumpStartPtr)+pThread->ThreadContext.Rva);
-        }        
+        MdmpThread mt;
+        mt.m_dwThreadId = pThread->ThreadId;
+        mt.m_pThreadContext = (CONTEXT*)(((LPBYTE)m_pMiniDumpStartPtr)+pThread->ThreadContext.Rva);
+        
+        /*m_DumpData.m_uExceptionThreadStackAddress = 
+            pThread->Stack.StartOfMemoryRange;*/
       }
     }  
   }
@@ -362,9 +386,13 @@ int CMiniDumpReader::ReadThreadListStream()
   return 0;
 }
 
-int CMiniDumpReader::StackWalk()
-{  
-  if(m_DumpData.m_pExceptionContext==NULL)
+int CMiniDumpReader::StackWalk(DWORD dwThreadId)
+{ 
+  if(m_DumpData.m_Threads[dwThreadId].m_bStackWalk == TRUE)
+    return 0; // Already done
+  
+  CONTEXT* pThreadContext = m_DumpData.m_Threads[dwThreadId].m_pThreadContext;
+  if(pThreadContext==NULL)
     return 1;
 
   g_pMiniDumpReader = this;
@@ -395,23 +423,10 @@ int CMiniDumpReader::StackWalk()
   {
   case PROCESSOR_ARCHITECTURE_INTEL: 
     dwMachineType = IMAGE_FILE_MACHINE_I386;
-    sf.AddrPC.Offset = ((CONTEXT*)m_DumpData.m_pExceptionContext)->Eip;
-    sf.AddrFrame.Offset = ((CONTEXT*)m_DumpData.m_pExceptionContext)->Ebp;
-    sf.AddrStack.Offset = ((CONTEXT*)m_DumpData.m_pExceptionContext)->Esp;
+    sf.AddrPC.Offset = ((CONTEXT*)pThreadContext)->Eip;
+    sf.AddrFrame.Offset = ((CONTEXT*)pThreadContext)->Ebp;
+    sf.AddrStack.Offset = ((CONTEXT*)pThreadContext)->Esp;
     break;
-  /*case PROCESSOR_ARCHITECTURE_IA64:
-    dwMachineType = IMAGE_FILE_MACHINE_IA64;
-    sf.AddrPC.Offset = ((CONTEXT_IA64*)m_DumpData.m_pExceptionContext)->Rip;
-    sf.AddrFrame.Offset = ((CONTEXT_IA64*)m_DumpData.m_pExceptionContext)->Rsp;
-    sf.AddrStack.Offset = ((CONTEXT_IA64*)m_DumpData.m_pExceptionContext)->Rsp;
-    break;
-  case PROCESSOR_ARCHITECTURE_AMD64:
-    dwMachineType = IMAGE_FILE_MACHINE_AMD64;
-    sf.AddrPC.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->StIIP;
-    sf.AddrFrame.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->IntSp;
-    sf.AddrStack.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->IntSp;
-    sf.AddrBStore.Offset = ((CONTEXT_AMD64*)m_DumpData.m_pExceptionContext)->RsBSP;
-    break;*/
   default:
     {
       assert(0);
@@ -424,9 +439,9 @@ int CMiniDumpReader::StackWalk()
     BOOL bWalk = StackWalk64(
       dwMachineType,               // machine type
       m_DumpData.m_hProcess,       // our process handle
-      (HANDLE)m_DumpData.m_uExceptionThreadId, // this even can be NULL
+      (HANDLE)dwThreadId,          // thread ID
       &sf,                         // stack frame
-      dwMachineType==IMAGE_FILE_MACHINE_I386?NULL:m_DumpData.m_pExceptionContext, // used for non-I386 machines 
+      dwMachineType==IMAGE_FILE_MACHINE_I386?NULL:pThreadContext, // used for non-I386 machines 
       ReadProcessMemoryProc64,     // our routine
       FunctionTableAccessProc64,   // our routine
       GetModuleBaseProc64,         // our routine
@@ -445,8 +460,7 @@ int CMiniDumpReader::StackWalk()
     BOOL bGetModuleInfo = SymGetModuleInfo64(m_DumpData.m_hProcess, sf.AddrPC.Offset, &mi);     
     if(bGetModuleInfo)
     {
-      stack_frame.m_sModuleName = mi.ModuleName;
-      stack_frame.m_sImageName = mi.ImageName;
+      stack_frame.m_nModuleRowID = GetModuleRowIdByBaseAddr(mi.BaseOfImage);      
     }
 
     // Get symbol info
@@ -482,13 +496,16 @@ int CMiniDumpReader::StackWalk()
       stack_frame.m_nSrcLineNumber = line.LineNumber;
     }
 
-    m_DumpData.m_StackTrace.push_back(stack_frame);
+    m_DumpData.m_Threads[dwThreadId].m_StackTrace.push_back(stack_frame);
   }
+
+  m_DumpData.m_Threads[dwThreadId].m_bStackWalk = TRUE;
 
   return 0;
 }
 
-
+// This callback function is used by StackWalk64. It provides access to 
+// ranges of memory stored in minidump file
 BOOL CALLBACK ReadProcessMemoryProc64(
   HANDLE hProcess,
   DWORD64 lpBaseAddress,
@@ -539,6 +556,8 @@ BOOL CALLBACK ReadProcessMemoryProc64(
   return FALSE;
 }
 
+// This callback function is used by StackWalk64. It provides access to 
+// function table stored in minidump file
 PVOID CALLBACK FunctionTableAccessProc64(
   HANDLE hProcess,
   DWORD64 AddrBase)
@@ -546,6 +565,8 @@ PVOID CALLBACK FunctionTableAccessProc64(
   return SymFunctionTableAccess64(hProcess, AddrBase);
 }
 
+// This callback function is used by StackWalk64. It provides access to 
+// module list stored in minidump file
 DWORD64 CALLBACK GetModuleBaseProc64(
   HANDLE hProcess,
   DWORD64 Address)

@@ -184,10 +184,9 @@ enum CRP_TableId
   CRP_TBL_META                         = 0,    //!< Table: Contains information about all ather tables.
   CRP_TBL_XMLDESC_MISC                 = 1,    //!< Table: Miscellaneous info contained in crash descriptor XML file. 
   CRP_TBL_XMLDESC_FILE_ITEMS           = 2,    //!< Table: The list of file items contained in error report.
-  CRP_TBL_MDMP_MISC                    = 3,    //!< Table: Miscellaneous info contained in crash minidump file.
-  CRP_TBL_MDMP_STACK_TRACE             = 4,    //!< Table: Stack trace.
-  CRP_TBL_MDMP_MODULES                 = 5,    //!< Table: The list of loaded modules.
-  CRP_TBL_MDMP_THREADS                 = 6,    //!< Table: The list of threads.
+  CRP_TBL_MDMP_MISC                    = 3,    //!< Table: Miscellaneous info contained in crash minidump file.  
+  CRP_TBL_MDMP_MODULES                 = 4,    //!< Table: The list of loaded modules.
+  CRP_TBL_MDMP_THREADS                 = 5,    //!< Table: The list of threads.
 };
 
 /*! \ingroup CrashRptProbeEnums
@@ -225,28 +224,32 @@ enum CRP_ColumnId
   CRP_COL_FILE_ITEM_NAME          = 200, //!< Column: File list: Name of the file contained in the report, vectored.
   CRP_COL_FILE_ITEM_DESCRIPTION   = 201, //!< Column: File list: Description of the file contained in the report.
 
-  CRP_COL_STACK_MODULE_NAME       = 300, //!< Column: Stack trace: module name.
-  CRP_COL_STACK_SYMBOL_NAME       = 301, //!< Column: Stack trace: symbol name.
-  CRP_COL_STACK_OFFSET_IN_SYMBOL  = 302, //!< Column: Stack trace: offset in symbol, hexadecimal.
-  CRP_COL_STACK_SOURCE_FILE       = 303, //!< Column: Stack trace: source file name.
-  CRP_COL_STACK_SOURCE_LINE       = 304, //!< Column: Stack trace: source file line number.
+  CRP_COL_CPU_ARCHITECTURE        = 300, //!< Column: Processor architecture.
+  CRP_COL_CPU_COUNT               = 301, //!< Column: Number of processors.
+  CRP_COL_SYSTEM_TYPE             = 302, //!< Column: Type of system (server or workstation).
+  CRP_COL_OS_VER_MAJOR            = 303, //!< Column: OS major version.
+  CRP_COL_OS_VER_MINOR            = 304, //!< Column: OS minor version.
+  CRP_COL_OS_VER_BUILD            = 305, //!< Column: OS build number.
+  CRP_COL_OS_VER_CSD              = 306, //!< Column: The latest service pack installed.
 
-  CRP_COL_CPU_ARCHITECTURE        = 400, //!< Column: Processor architecture.
-  CRP_COL_CPU_COUNT               = 401, //!< Column: Number of processors.
-  CRP_COL_SYSTEM_TYPE             = 402, //!< Column: Type of system (server or workstation).
-  CRP_COL_OS_VER_MAJOR            = 403, //!< Column: OS major version.
-  CRP_COL_OS_VER_MINOR            = 404, //!< Column: OS minor version.
-  CRP_COL_OS_VER_BUILD            = 405, //!< Column: OS build number.
-  CRP_COL_OS_VER_CSD              = 406, //!< Column: The latest service pack installed.
+  CRP_COL_EXCPTRS_EXCEPTION_CODE    = 400, //!< Column: Code of the structured exception.
+  CRP_COL_EXCPTRS_EXCEPTION_ADDRESS = 401, //!< Column: Exception address.
+  CRP_COL_EXCPTRS_EXCEPTION_THREAD_ROWID = 403, //!< Column: ROWID in CRP_TBL_THREADS of the thread in which exception occurred. 
 
-  CRP_COL_EXCPTRS_EXCEPTION_CODE    = 500, //!< Column: Code of the structured exception.
-  CRP_COL_EXCPTRS_EXCEPTION_ADDRESS = 501, //!< Column: Exception address.
+  CRP_COL_MODULE_NAME             = 500, //!< Column: Module name.
+  CRP_COL_MODULE_IMAGE_NAME       = 501, //!< Column: Image name containing full path.  
+  CRP_COL_MODULE_BASE_ADDRESS     = 502, //!< Column: Module base load address.
+  CRP_COL_MODULE_SIZE             = 503, //!< Column: Module size.
+  CRP_COL_MODULE_LOADED_PDB_NAME  = 504,  //!< Column: The full path and file name of the .pdb file. 
 
-  CRP_COL_MODULE_NAME             = 600, //!< Column: Module name.
-  CRP_COL_MODULE_IMAGE_NAME       = 601, //!< Column: Image name containing full path.  
-  CRP_COL_MODULE_BASE_ADDRESS     = 602, //!< Column: Module base load address.
-  CRP_COL_MODULE_SIZE             = 603, //!< Column: Module size.
-  CRP_COL_MODULE_LOADED_PDB_NAME  = 604  //!< Column: The full path and file name of the .pdb file. 
+  CRP_COL_THREAD_ID               = 601, //!< Column: Thread ID.
+  CRP_COL_THREAD_STACK_TABLEID    = 602, //!< Column: The TABLEID of the table containing stack trace for this thread.
+
+  CRP_COL_STACK_MODULE_ROWID      = 700, //!< Column: Stack trace: ROWID of the module in the CRP_TBL_MODULES table.
+  CRP_COL_STACK_SYMBOL_NAME       = 701, //!< Column: Stack trace: symbol name.
+  CRP_COL_STACK_OFFSET_IN_SYMBOL  = 702, //!< Column: Stack trace: offset in symbol, hexadecimal.
+  CRP_COL_STACK_SOURCE_FILE       = 703, //!< Column: Stack trace: source file name.
+  CRP_COL_STACK_SOURCE_LINE       = 704, //!< Column: Stack trace: source file line number.
 };
 
 

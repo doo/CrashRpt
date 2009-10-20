@@ -382,8 +382,8 @@ crpGetPropertyW(
         nRowCount = pDescReader->m_aFileItems.size();
       else if(nRowIndex==CRP_TBL_MDMP_MISC)
         nRowCount = 1;
-      else if(nRowIndex==CRP_TBL_MDMP_STACK_TRACE)
-        nRowCount = pDmpReader->m_DumpData.m_StackTrace.size();
+      /*else if(nRowIndex==CRP_TBL_MDMP_STACK_TRACE)
+        nRowCount = pDmpReader->m_DumpData.m_StackTrace.size();*/
       else if(nRowIndex==CRP_TBL_MDMP_MODULES)
         nRowCount = pDmpReader->m_DumpData.m_Modules.size();
       else if(nRowIndex==CRP_TBL_MDMP_THREADS)
@@ -504,43 +504,44 @@ crpGetPropertyW(
       return -2;
     }
   }
-  else if(TableId==CRP_TBL_MDMP_STACK_TRACE)
-  {
-    if(nRowIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
-    {
-      crpSetErrorMsg(_T("Invalid index specified."));
-      return -4;    
-    }
+  //else if(TableId==CRP_TBL_MDMP_STACK_TRACE)
+  //{
+  //  if(nRowIndex>=(int)pDmpReader->m_DumpData.m_StackTrace.size())
+  //  {
+  //    crpSetErrorMsg(_T("Invalid index specified."));
+  //    return -4;    
+  //  }
 
-    if(ColumnId==CRP_COL_STACK_OFFSET_IN_SYMBOL)
-    {      
-      _ui64tot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_dw64OffsInSymbol, szBuff, BUFF_SIZE, 16);
-      pszPropVal = szBuff;                  
-    }
-    else if(ColumnId==CRP_COL_STACK_SOURCE_LINE)
-    {       
-      _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
-      pszPropVal = szBuff;                
-    }  
-    else if(ColumnId==CRP_COL_STACK_MODULE_NAME)
-    {     
-      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sModuleName);    
-    }
-    else if(ColumnId==CRP_COL_STACK_SYMBOL_NAME)
-    {      
-      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sSymbolName);    
-    }
-    else if(ColumnId==CRP_COL_STACK_SOURCE_FILE)
-    {      
-      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sSrcFileName);    
-    }
-    else
-    {
-      crpSetErrorMsg(_T("Invalid column ID specified."));
-      return -2;
-    }
+  //  if(ColumnId==CRP_COL_STACK_OFFSET_IN_SYMBOL)
+  //  {      
+  //    _ui64tot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_dw64OffsInSymbol, szBuff, BUFF_SIZE, 16);
+  //    pszPropVal = szBuff;                  
+  //  }
+  //  else if(ColumnId==CRP_COL_STACK_SOURCE_LINE)
+  //  {       
+  //    _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
+  //    pszPropVal = szBuff;                
+  //  }  
+  //  else if(ColumnId==CRP_COL_STACK_MODULE_ROWID)
+  //  {     
+  //    _ultot_s(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_nModuleRowID, szBuff, BUFF_SIZE, 10);
+  //    pszPropVal = szBuff;       
+  //  }
+  //  else if(ColumnId==CRP_COL_STACK_SYMBOL_NAME)
+  //  {      
+  //    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sSymbolName);    
+  //  }
+  //  else if(ColumnId==CRP_COL_STACK_SOURCE_FILE)
+  //  {      
+  //    pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_StackTrace[nRowIndex].m_sSrcFileName);    
+  //  }
+  //  else
+  //  {
+  //    crpSetErrorMsg(_T("Invalid column ID specified."));
+  //    return -2;
+  //  }
 
-  }
+  //}
   else if(TableId==CRP_TBL_MDMP_MISC)
   {
     if(nRowIndex!=0)
