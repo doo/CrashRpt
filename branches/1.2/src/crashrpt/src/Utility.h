@@ -55,7 +55,11 @@ namespace Utility
    CString GetINIString(LPCTSTR pszFileName, LPCTSTR pszSection, LPCTSTR pszName);
    CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
 
+   // Mirrors the content of a window.
    void SetLayoutRTL(HWND hWnd);
+
+   // Formats the error message.
+   CString FormatErrorMsg(DWORD dwErrorCode);
 };
 
 #include <vector>

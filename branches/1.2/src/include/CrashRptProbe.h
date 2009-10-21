@@ -202,17 +202,17 @@ enum CRP_TableId
 
 enum CRP_ColumnId
 {   
-  CRP_COL_ROW_COUNT               = 0,    //!< Column: Count of rows in a table.
+  CRP_COL_ROW_COUNT               = 0,   //!< Column: Count of rows in a table.
   
-  CRP_COL_CRASHRPT_VERSION        = 100,  //!< Column: Version of CrashRpt library that generated the report.
-  CRP_COL_CRASH_GUID              = 101,  //!< Column: Globally unique identifier (GUID) of the error report.
-  CRP_COL_APP_NAME                = 102,  //!< Column: Application name.
-  CRP_COL_APP_VERSION             = 103,  //!< Column: Application version.
-  CRP_COL_IMAGE_NAME              = 104,  //!< Column: Path to the executable file.
-  CRP_COL_OPERATING_SYSTEM        = 105,  //!< Column: Opration system name, including build number and service pack.
-  CRP_COL_SYSTEM_TIME_UTC         = 106,  //!< Column: Time (UTC) when the crash occured.
-  CRP_COL_EXCEPTION_TYPE          = 107,  //!< Column: Code of exception handler that cought the exception.
-  CRP_COL_EXCEPTION_CODE          = 108,  //!< Column: Exception code; for the structured exceptions only, hexadecimal number.
+  CRP_COL_CRASHRPT_VERSION        = 100, //!< Column: Version of CrashRpt library that generated the report.
+  CRP_COL_CRASH_GUID              = 101, //!< Column: Globally unique identifier (GUID) of the error report.
+  CRP_COL_APP_NAME                = 102, //!< Column: Application name.
+  CRP_COL_APP_VERSION             = 103, //!< Column: Application version.
+  CRP_COL_IMAGE_NAME              = 104, //!< Column: Path to the executable file.
+  CRP_COL_OPERATING_SYSTEM        = 105, //!< Column: Opration system name, including build number and service pack.
+  CRP_COL_SYSTEM_TIME_UTC         = 106, //!< Column: Time (UTC) when the crash occured.
+  CRP_COL_EXCEPTION_TYPE          = 107, //!< Column: Code of exception handler that cought the exception.
+  CRP_COL_EXCEPTION_CODE          = 108, //!< Column: Exception code; for the structured exceptions only, hexadecimal number.
   CRP_COL_INVPARAM_FUNCTION       = 109, //!< Column: Function name; for invalid parameter errors only.
   CRP_COL_INVPARAM_EXPRESSION     = 110, //!< Column: Expression; for invalid parameter errors only.
   CRP_COL_INVPARAM_FILE           = 111, //!< Column: Source file name; for invalid parameter errors only.
@@ -231,25 +231,26 @@ enum CRP_ColumnId
   CRP_COL_OS_VER_MINOR            = 304, //!< Column: OS minor version.
   CRP_COL_OS_VER_BUILD            = 305, //!< Column: OS build number.
   CRP_COL_OS_VER_CSD              = 306, //!< Column: The latest service pack installed.
+  CRP_COL_EXCPTRS_EXCEPTION_CODE  = 307, //!< Column: Code of the structured exception.
+  CRP_COL_EXCEPTION_ADDRESS = 308, //!< Column: Exception address.
+  CRP_COL_EXCEPTION_THREAD_ROWID = 309, //!< Column: ROWID in CRP_TBL_THREADS of the thread in which exception occurred. 
+  CRP_COL_EXCEPTION_MODULE_ROWID  = 310, //!< Column: ROWID in the CRP_TBL_MODULES of the module in which exception occurred.
 
-  CRP_COL_EXCPTRS_EXCEPTION_CODE    = 400, //!< Column: Code of the structured exception.
-  CRP_COL_EXCPTRS_EXCEPTION_ADDRESS = 401, //!< Column: Exception address.
-  CRP_COL_EXCPTRS_EXCEPTION_THREAD_ROWID = 403, //!< Column: ROWID in CRP_TBL_THREADS of the thread in which exception occurred. 
+  CRP_COL_MODULE_NAME             = 400, //!< Column: Module name.
+  CRP_COL_MODULE_IMAGE_NAME       = 401, //!< Column: Image name containing full path.  
+  CRP_COL_MODULE_BASE_ADDRESS     = 402, //!< Column: Module base load address.
+  CRP_COL_MODULE_SIZE             = 403, //!< Column: Module size.
+  CRP_COL_MODULE_LOADED_PDB_NAME  = 404, //!< Column: The full path and file name of the .pdb file. 
 
-  CRP_COL_MODULE_NAME             = 500, //!< Column: Module name.
-  CRP_COL_MODULE_IMAGE_NAME       = 501, //!< Column: Image name containing full path.  
-  CRP_COL_MODULE_BASE_ADDRESS     = 502, //!< Column: Module base load address.
-  CRP_COL_MODULE_SIZE             = 503, //!< Column: Module size.
-  CRP_COL_MODULE_LOADED_PDB_NAME  = 504,  //!< Column: The full path and file name of the .pdb file. 
-
-  CRP_COL_THREAD_ID               = 601, //!< Column: Thread ID.
-  CRP_COL_THREAD_STACK_TABLEID    = 602, //!< Column: The TABLEID of the table containing stack trace for this thread.
-
-  CRP_COL_STACK_MODULE_ROWID      = 700, //!< Column: Stack trace: ROWID of the module in the CRP_TBL_MODULES table.
-  CRP_COL_STACK_SYMBOL_NAME       = 701, //!< Column: Stack trace: symbol name.
-  CRP_COL_STACK_OFFSET_IN_SYMBOL  = 702, //!< Column: Stack trace: offset in symbol, hexadecimal.
-  CRP_COL_STACK_SOURCE_FILE       = 703, //!< Column: Stack trace: source file name.
-  CRP_COL_STACK_SOURCE_LINE       = 704, //!< Column: Stack trace: source file line number.
+  CRP_COL_THREAD_ID               = 501, //!< Column: Thread ID.
+  CRP_COL_THREAD_STACK_TABLEID    = 502, //!< Column: The TABLEID of the table containing stack trace for this thread.
+  
+  CRP_COL_STACK_MODULE_ROWID      = 600, //!< Column: Stack trace: ROWID of the module in the CRP_TBL_MODULES table.
+  CRP_COL_STACK_SYMBOL_NAME       = 601, //!< Column: Stack trace: symbol name.
+  CRP_COL_STACK_OFFSET_IN_SYMBOL  = 602, //!< Column: Stack trace: offset in symbol, hexadecimal.
+  CRP_COL_STACK_SOURCE_FILE       = 603, //!< Column: Stack trace: source file name.
+  CRP_COL_STACK_SOURCE_LINE       = 604, //!< Column: Stack trace: source file line number.
+  CRP_COL_STACK_ADDR_PC_OFFSET    = 605 //!< Column: Stack trace: AddrPC offset.
 };
 
 

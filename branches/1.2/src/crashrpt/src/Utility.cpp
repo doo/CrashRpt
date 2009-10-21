@@ -271,3 +271,14 @@ void Utility::SetLayoutRTL(HWND hWnd)
     hWndChild = GetWindow(hWndChild, GW_HWNDNEXT);
   }  
 }
+
+CString Utility::FormatErrorMsg(DWORD dwErrorCode)
+{
+	LPTSTR msg = 0;
+	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
+		NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&msg, 0, NULL);
+	CString str = msg;
+	GlobalFree(msg);
+	return str;
+}

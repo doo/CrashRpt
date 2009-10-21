@@ -231,7 +231,7 @@ int process_command(
     }    
     else
     {
-      _tprintf(_T("The MD5 file is not detected; no integrity check will be performed.\n"));
+      _tprintf(_T("MD5 file not detected; no integrity check will be performed.\n"));
     }
         
     // Open the error report file
@@ -313,11 +313,11 @@ exit:
 }
 
 // Helper function thatr etrieves an error report property
-int get_prop(CrpHandle handle, CRP_ErrorReportProperty propid, tstring& str, int index=0)
+int get_prop(CrpHandle handle, CRP_TableId table_id, CRP_ColumnId column_id, tstring& str, int row_id=0)
 {
   const int BUFF_SIZE = 1024;
   TCHAR buffer[BUFF_SIZE];  
-  int result = crpGetProperty(handle, propid, index, buffer, BUFF_SIZE, NULL);
+  int result = crpGetProperty(handle, table_id, column_id, row_id, buffer, BUFF_SIZE, NULL);
   str = buffer;
   return result;
 }
@@ -335,54 +335,54 @@ int output_document(CrpHandle hReport, FILE* f)
   
   // Print CrashRpt version
   tstring sCrashRptVer;
-  result = get_prop(hReport, CRP_PROP_CRASHRPT_VERSION, sCrashRptVer);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_CRASHRPT_VERSION, sCrashRptVer);
   if(result==0)
     doc.PutRecord(_T("Generator version"), sCrashRptVer.c_str());
   
   // Print CrashGUID  
   tstring sCrashGUID;
-  result = get_prop(hReport, CRP_PROP_CRASH_GUID, sCrashGUID);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_CRASH_GUID, sCrashGUID);
   if(result==0)
     doc.PutRecord(_T("Crash GUID"), sCrashGUID.c_str());
     
   // Print SystemTimeUTC
   tstring sSystemTimeUTC;
-  result = get_prop(hReport, CRP_PROP_SYSTEM_TIME_UTC, sSystemTimeUTC);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_SYSTEM_TIME_UTC, sSystemTimeUTC);
   if(result==0)
     doc.PutRecord(_T("Date created (UTC)"), sSystemTimeUTC.c_str());
 
   // Print AppName
   tstring sAppName;
-  result = get_prop(hReport, CRP_PROP_APP_NAME, sAppName);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_NAME, sAppName);
   if(result==0)
     doc.PutRecord(_T("Application name"), sAppName.c_str());
    
   // Print AppVersion
   tstring sAppVersion;
-  result = get_prop(hReport, CRP_PROP_APP_VERSION, sAppVersion);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_VERSION, sAppVersion);
   if(result==0)
     doc.PutRecord(_T("Application version"), sAppVersion.c_str());
 
   // Print ImageName
   tstring sImageName;
-  result = get_prop(hReport, CRP_PROP_IMAGE_NAME, sImageName);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_IMAGE_NAME, sImageName);
   if(result==0)
     doc.PutRecord(_T("Executable image"), sImageName.c_str());
 
   // Print OperatingSystem
   tstring sOperatingSystem;
-  result = get_prop(hReport, CRP_PROP_OPERATING_SYSTEM, sOperatingSystem);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_OPERATING_SYSTEM, sOperatingSystem);
   if(result==0)
     doc.PutRecord(_T("OS name (from user's registry)"), sOperatingSystem.c_str());
     
   tstring sOsVerMajor;
-  result = get_prop(hReport, CRP_PROP_OS_VER_MAJOR, sOsVerMajor);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_OS_VER_MAJOR, sOsVerMajor);
   tstring sOsVerMinor;
-  result = get_prop(hReport, CRP_PROP_OS_VER_MINOR, sOsVerMinor);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_OS_VER_MINOR, sOsVerMinor);
   tstring sOsVerBuild;
-  result = get_prop(hReport, CRP_PROP_OS_VER_BUILD, sOsVerBuild);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_OS_VER_BUILD, sOsVerBuild);
   tstring sOsVerCSD;
-  result = get_prop(hReport, CRP_PROP_OS_VER_CSD, sOsVerCSD);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_OS_VER_CSD, sOsVerCSD);
 
   tstring sOsVer;
   sOsVer += sOsVerMajor;
@@ -397,33 +397,70 @@ int output_document(CrpHandle hReport, FILE* f)
   
   // Print SystemType
   tstring sSystemType;
-  result = get_prop(hReport, CRP_PROP_SYSTEM_TYPE, sSystemType);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_SYSTEM_TYPE, sSystemType);
   if(result==0)
-    doc.PutRecord(_T("Product type"), sSystemType.c_str());
+    doc.PutRecord(_T("System type"), sSystemType.c_str());
   
   // Print UserEmail
   tstring sUserEmail;
-  result = get_prop(hReport, CRP_PROP_USER_EMAIL, sUserEmail);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_USER_EMAIL, sUserEmail);
   if(result==0)
     doc.PutRecord(_T("User email"), sUserEmail.c_str());
 
   // Print ProblemDescription
   tstring sProblemDescription;
-  result = get_prop(hReport, CRP_PROP_PROBLEM_DESCRIPTION, sProblemDescription);
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_PROBLEM_DESCRIPTION, sProblemDescription);
   if(result==0)
     doc.PutRecord(_T("Problem description"), sProblemDescription.c_str());
     
   // Print ProcessorArchitecture
   tstring sProcessorArchitecture;
-  result = get_prop(hReport, CRP_PROP_CPU_ARCHITECTURE, sProcessorArchitecture);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_CPU_ARCHITECTURE, sProcessorArchitecture);
   if(result==0)
     doc.PutRecord(_T("CPU architecture"), sProcessorArchitecture.c_str());
 
   // Print NumberOfProcessors
   tstring sCPUCount;
-  result = get_prop(hReport, CRP_PROP_CPU_COUNT, sCPUCount);
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_CPU_COUNT, sCPUCount);
   if(result==0)
     doc.PutRecord(_T("CPU count"), sCPUCount.c_str());
+
+  tstring sExceptionType;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_EXCEPTION_TYPE, sExceptionType);
+  if(result==0)
+    doc.PutRecord(_T("Exception type"), sExceptionType.c_str());
+
+  tstring sExceptionAddress;
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_ADDRESS, sExceptionAddress);
+  if(result==0)
+    doc.PutRecord(_T("Exception address"), sExceptionAddress.c_str());
+
+  tstring sExceptionCode;
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCPTRS_EXCEPTION_CODE, sExceptionCode);
+  if(result==0)
+    doc.PutRecord(_T("Structured exception code"), sExceptionCode.c_str());
+
+  tstring sExceptionThreadRowID;  
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_THREAD_ROWID, sExceptionThreadRowID);
+  int uExceptionThreadRowID = _ttoi(sExceptionThreadRowID.c_str());
+  if(result==0)
+  {
+    tstring sExceptionThreadId;
+    result = get_prop(hReport, CRP_TBL_MDMP_THREADS, CRP_COL_THREAD_ID, sExceptionThreadId, uExceptionThreadRowID);
+    if(result==0)
+      doc.PutRecord(_T("Exception thread ID"), sExceptionThreadId.c_str());
+  }
+
+  tstring sExceptionModuleRowID;  
+  result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_MODULE_ROWID, sExceptionModuleRowID);
+  int uExceptionModuleRowID = _ttoi(sExceptionModuleRowID.c_str());
+  if(result==0)
+  {
+    tstring sExceptionModuleName;
+    result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_NAME, sExceptionModuleName, uExceptionModuleRowID);
+    if(result==0)
+      doc.PutRecord(_T("Exception module name"), sExceptionModuleName.c_str());
+  }
 
   doc.EndSection();
   
@@ -435,7 +472,7 @@ int output_document(CrpHandle hReport, FILE* f)
   doc.PutTableCell(_T("Description"), 32, true);
 
   tstring sFileCount;
-  result = get_prop(hReport, CRP_PROP_FILE_COUNT, sFileCount);
+  result = get_prop(hReport, CRP_TBL_META, CRP_COL_ROW_COUNT, sFileCount, CRP_TBL_XMLDESC_FILE_ITEMS);
   if(result==0)
   {
     int nItemCount = _ttoi(sFileCount.c_str());
@@ -446,58 +483,91 @@ int output_document(CrpHandle hReport, FILE* f)
       _stprintf_s(szBuffer, 10, _T("%d"), i+1);
       doc.PutTableCell(szBuffer, 2, false);
       tstring sFileName;
-      get_prop(hReport, CRP_PROP_FILE_ITEM_NAME, sFileName, i);
+      get_prop(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_COL_FILE_ITEM_NAME, sFileName, i);
       doc.PutTableCell(sFileName.c_str(), 16, false);
       tstring sDesc;
-      get_prop(hReport, CRP_PROP_FILE_ITEM_DESCRIPTION, sDesc, i);
+      get_prop(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_COL_FILE_ITEM_DESCRIPTION, sDesc, i);
       doc.PutTableCell(sDesc.c_str(), 32, true);      
     }
   }
   
   doc.EndSection();
 
-  doc.BeginSection(_T("Stack Trace"));
-
-  doc.PutTableCell(_T("#"), 2, false);
-  doc.PutTableCell(_T("Frame"), 32, true);
-  
-  tstring sStackFrameCount;
-  result = get_prop(hReport, CRP_PROP_STACK_FRAME_COUNT, sStackFrameCount);
+  tstring sThreadCount;
+  result = get_prop(hReport, CRP_TBL_META, CRP_COL_ROW_COUNT, sThreadCount, CRP_TBL_MDMP_THREADS);
   if(result==0)
-  {    
-    int nItemCount = _ttoi(sStackFrameCount.c_str());
+  {
+    int nThreadCount = _ttoi(sThreadCount.c_str());
     int i;
-    for(i=0; i<nItemCount; i++)
+    for(i=0; i<nThreadCount; i++)
     { 
-      TCHAR szBuffer[10];
-      _stprintf_s(szBuffer, 10, _T("%d"), i+1);
-      doc.PutTableCell(szBuffer, 2, false);
+      tstring sThreadId;
+      result = get_prop(hReport, CRP_TBL_MDMP_THREADS, CRP_COL_THREAD_ID, sThreadId, i);
+      if(result==0)
+      {
+        tstring str = _T("Stack trace for thread ");
+        str += sThreadId;
+        doc.BeginSection(str.c_str());
 
-      tstring str;
+        doc.PutTableCell(_T("#"), 2, false);
+        doc.PutTableCell(_T("Frame"), 32, true);
 
-      tstring sModuleName;
-      result = get_prop(hReport, CRP_PROP_STACK_MODULE_NAME, sModuleName, i);
-      str += sModuleName + _T("!");
+        tstring sStackTableId;
+        result = get_prop(hReport, CRP_TBL_MDMP_THREADS, CRP_COL_THREAD_STACK_TABLEID, sStackTableId, i);
+        if(result==0)
+        {
+          int nStackTableId = _ttoi(sStackTableId.c_str());
+
+          tstring sFrameCount;
+          result = get_prop(hReport, CRP_TBL_META, CRP_COL_ROW_COUNT, sFrameCount, nStackTableId);
+          int nFrameCount = _ttoi(sFrameCount.c_str());
+          int j;
+          for(j=0; j<nFrameCount; j++)
+          {
+            TCHAR szBuffer[32];
+            _stprintf_s(szBuffer, 32, _T("%d"), j+1);
+            doc.PutTableCell(szBuffer, 2, false);
+
+            tstring sModuleName;
+            tstring sAddrPCOffset;
+            tstring sSymbolName;            
+            tstring sOffsInSymbol;
+
+            tstring sModuleRowId;
+            result = get_prop(hReport, (CRP_TableId)nStackTableId, CRP_COL_STACK_MODULE_ROWID, sModuleRowId, j);
+            if(result==0)
+            {
+              int nModuleRowId = _ttoi(sModuleRowId.c_str());              
+              get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_NAME, sModuleName, nModuleRowId);              
+            }      
             
-      tstring sSymName;
-      result = get_prop(hReport, CRP_PROP_STACK_SYMBOL_NAME, sSymName, i);
-      str += sSymName+ _T("+");
-              
-      tstring sOffsInSym;
-      result = get_prop(hReport, CRP_PROP_STACK_OFFSET_IN_SYMBOL, sOffsInSym, i);
-      str += sOffsInSym + _T(" ");
-       
-      tstring sSrcFile;
-      result = get_prop(hReport, CRP_PROP_STACK_SOURCE_FILE, sSrcFile, i);
-      
-      tstring sSrcLine;
-      result = get_prop(hReport, CRP_PROP_STACK_SOURCE_LINE, sSrcLine, i);
-      
-      doc.PutTableCell(str.c_str(), 32, true);      
+            get_prop(hReport, (CRP_TableId)nStackTableId, CRP_COL_STACK_ADDR_PC_OFFSET, sAddrPCOffset, j);
+            
+            get_prop(hReport, (CRP_TableId)nStackTableId, CRP_COL_STACK_SYMBOL_NAME, sSymbolName, j);
+            
+            get_prop(hReport, (CRP_TableId)nStackTableId, CRP_COL_STACK_OFFSET_IN_SYMBOL, sOffsInSymbol, j);              
+            
+            tstring str;
+            str = sModuleName;
+            str += _T("!");
+
+            if(sSymbolName.empty())
+              str += sAddrPCOffset;  
+            else
+            {
+              str += sSymbolName;
+              str += _T("+");
+              str += sOffsInSymbol;
+            }
+
+            doc.PutTableCell(str.c_str(), 32, true);            
+          }
+        }       
+
+        doc.EndSection();
+      }
     }
   }
-
-  doc.EndSection();
 
   // Print module list
   doc.BeginSection(_T("Module List"));
@@ -505,8 +575,9 @@ int output_document(CrpHandle hReport, FILE* f)
   doc.PutTableCell(_T("#"), 2, false);
   doc.PutTableCell(_T("Name"), 32, true);
   
+  // Get module count
   tstring sModuleCount;
-  result = get_prop(hReport, CRP_PROP_MODULE_COUNT, sModuleCount);  
+  result = get_prop(hReport, CRP_TBL_META, CRP_COL_ROW_COUNT, sModuleCount, CRP_TBL_MDMP_MODULES);  
   if(result==0)
   {
     int nItemCount = _ttoi(sModuleCount.c_str());
@@ -518,7 +589,7 @@ int output_document(CrpHandle hReport, FILE* f)
       doc.PutTableCell(szBuffer, 2, false);
 
       tstring sModuleName;
-      result = get_prop(hReport, CRP_PROP_MODULE_NAME, sModuleName);  
+      result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_NAME, sModuleName, i);  
       doc.PutTableCell(sModuleName.c_str(), 32, true);      
     }
   }

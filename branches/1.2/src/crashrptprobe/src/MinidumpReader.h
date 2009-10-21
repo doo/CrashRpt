@@ -13,7 +13,7 @@ struct MdmpModule
   CString m_sModuleName; // Module name  
   CString m_sImageName;  // The image name. The name may or may not contain a full path. 
   CString m_sLoadedImageName; // The full path and file name of the file from which symbols were loaded. 
-  CString m_sLoadedPdbName;   // The full path and file name of the .pdb file.   
+  CString m_sLoadedPdbName;   // The full path and file name of the .pdb file.     
 };
 
 // Describes a stack frame
@@ -26,6 +26,7 @@ struct MdmpStackFrame
     m_nSrcLineNumber = -1;
   }
   
+  DWORD64 m_dwAddrPCOffset; 
   int m_nModuleRowID;         // ROWID of the record in CPR_MDMP_MODULES table.
   CString m_sSymbolName;      // Name of symbol
   DWORD64 m_dw64OffsInSymbol; // Offset in symbol
@@ -77,14 +78,15 @@ struct MdmpData
   CString m_sCSDVer;               // The latest service pack installed
     
   ULONG32 m_uExceptionCode;        // Structured exception's code
-  ULONG64 m_uExceptionAddress;     // Exception's address
-
-  ULONG32  m_uExceptionThreadId;   // Exceptions's thread ID
-  //CONTEXT* m_pExceptionContext;    // 
+  ULONG64 m_uExceptionAddress;     // Exception address
+  ULONG32 m_uExceptionThreadId;    // Exceptions thread ID 
+  CONTEXT* m_pExceptionThreadContext; // Thread context
   
-  std::map<DWORD, MdmpThread> m_Threads;   // The list of threads.
-  std::map<DWORD64, MdmpModule> m_Modules; // The list of loaded modules.
-  std::vector<MdmpMemRange> m_MemRanges; // The list of memory ranges.  
+  std::vector<MdmpThread> m_Threads;       // The list of threads.
+  std::map<DWORD, size_t> m_ThreadIndex;   // <thread_id, thread_entry_index> pairs
+  std::vector<MdmpModule> m_Modules;       // The list of loaded modules.
+  std::map<DWORD64, size_t> m_ModuleIndex; // <base_addr, module_entry_index> pairs
+  std::vector<MdmpMemRange> m_MemRanges;   // The list of memory ranges.  
 };
 
 // Class for opening minidumps
@@ -93,7 +95,6 @@ class CMiniDumpReader
 public:
   
   /* Construction/destruction */
-
   CMiniDumpReader();
   ~CMiniDumpReader();
 
@@ -102,8 +103,15 @@ public:
   // Opens a minidump (DMP) file
   int Open(CString sFileName, CString sSymSearchPath);
 
+  // Retreives stack trace for specified thread ID
+  int StackWalk(DWORD dwThreadId);  
+
   // Closes the opened minidump file
   void Close();
+
+  int GetModuleRowIdByBaseAddr(DWORD64 dwBaseAddr);
+  int GetModuleRowIdByAddress(DWORD64 dwAddress);
+  int GetThreadRowIdByThreadId(DWORD dwThreadId);
 
   MdmpData m_DumpData; // Minidump data
 
@@ -113,9 +121,7 @@ private:
   
   // Helper function which extracts a UNICODE string from the minidump
   CString GetMinidumpString(LPVOID pStartAddr, RVA rva);
-
-  int GetModuleRowIdByBaseAddr(DWORD64 dwBaseAddr);
-
+  
   // Reads MINIDUMP_SYSTEM_INFO stream
   int ReadSysInfoStream();
 
@@ -130,9 +136,6 @@ private:
 
   // Reads MINIDUMP_THREAD_LIST stream
   int ReadThreadListStream();
-
-  // Retreives stack trace
-  int StackWalk(DWORD dwThreadId);  
 
   /* Member variables */
   

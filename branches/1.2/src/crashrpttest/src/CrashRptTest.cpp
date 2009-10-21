@@ -90,7 +90,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
   info.pszAppName = _T("CrashRpt Tests");
-  info.pszAppVersion = _T("1.0.2");
+  info.pszAppVersion = _T("1.2.0");
   info.pszEmailSubject = _T("Error from CrashRptTests v1.0.1");
   info.pszEmailTo = _T("test@hotmail.com");
   info.pszUrl = _T("http://myappcom.com/crashrpt.php");
