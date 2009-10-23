@@ -17,8 +17,6 @@ std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling th
 // Funtion prototype
 int crpSetErrorMsg(PTSTR pszErrorMsg);
 
-#define STACK_TRACE_TBL_IDS 32768 // Dynamic table ids for stack traces are starting from this number
-
 TCHAR* exctypes[13] =
 {
   _T("structured exception"),
@@ -335,12 +333,24 @@ crpCloseErrorReport(
   return 0;
 }
 
+int ParseDynTableId(CString sTableId, int& index)
+{
+  if(sTableId.Left(5)=="STACK")
+  {
+    CString sIndex = sTableId.Mid(6);
+    index = _ttoi(sIndex.GetBuffer(0));
+    return 0;
+  }
+
+  return -1;
+}
+
 int
 CRASHRPTPROBE_API
 crpGetPropertyW(
   CrpHandle hReport,
-  CRP_TableId TableId, 
-  CRP_ColumnId ColumnId,
+  LPCWSTR lpszTableId, 
+  LPCWSTR lpszColumnId,
   INT nRowIndex,
   LPWSTR lpszBuffer,
   ULONG cchBuffSize,
@@ -354,7 +364,9 @@ crpGetPropertyW(
   strconv_t strconv; // String convertor object
   
   // Validate input parameters
-  if(nRowIndex<0 || // Check we have non-negative row index
+  if( lpszTableId==NULL ||
+      lpszColumnId==NULL ||
+      nRowIndex<0 || // Check we have non-negative row index
      (lpszBuffer==NULL && cchBuffSize!=0) || // Check that we have a valid buffer
      (lpszBuffer!=NULL && cchBuffSize==0)
     )
@@ -373,63 +385,29 @@ crpGetPropertyW(
   CCrashDescReader* pDescReader = it->second.m_pDescReader;
   CMiniDumpReader* pDmpReader = it->second.m_pDmpReader;
 
+  CString sTableId = lpszTableId;
+  CString sColumnId = lpszColumnId;
+  int nDynTableIndex = -1;
+  // nDynTable will be equal to 0 if a stack trace table is queired
+  int nDynTable = ParseDynTableId(sTableId, nDynTableIndex);
+
   // Check if we need to load minidump file to be able to get the property
-  if( (TableId==CRP_TBL_META && nRowIndex>=CRP_TBL_MDMP_MODULES) || 
-    TableId>=CRP_TBL_MDMP_MISC)
-  {
+  if(sTableId.Compare(CRP_TBL_MDMP_MISC)==0 ||
+     sTableId.Compare(CRP_TBL_MDMP_MODULES)==0 ||
+     sTableId.Compare(CRP_TBL_MDMP_THREADS)==0 ||
+     nDynTable==0)
+  {     
     // Load the minidump
     pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
    
     // Walk the stack if this is needed to get the property
-    if(TableId>=STACK_TRACE_TBL_IDS && TableId<(int)(STACK_TRACE_TBL_IDS+pDmpReader->m_DumpData.m_Threads.size()))
+    if(nDynTable==0)
     {
-      pDmpReader->StackWalk(pDmpReader->m_DumpData.m_Threads[TableId-STACK_TRACE_TBL_IDS].m_dwThreadId);
-    }
-
-    if(TableId==CRP_TBL_META && 
-      nRowIndex>=STACK_TRACE_TBL_IDS && nRowIndex<(int)(STACK_TRACE_TBL_IDS+pDmpReader->m_DumpData.m_Threads.size()))
-    {
-      pDmpReader->StackWalk(pDmpReader->m_DumpData.m_Threads[nRowIndex-STACK_TRACE_TBL_IDS].m_dwThreadId);
-    }
+      pDmpReader->StackWalk(pDmpReader->m_DumpData.m_Threads[nDynTableIndex].m_dwThreadId);
+    }   
   }  
 
-  if(TableId==CRP_TBL_META)
-  {
-    if(ColumnId==CRP_COL_ROW_COUNT)
-    {
-      int nRowCount = -1;
-      if(nRowIndex==CRP_TBL_META)
-        nRowCount = CRP_TBL_MDMP_THREADS+1;
-      else if(nRowIndex==CRP_TBL_XMLDESC_MISC)
-        nRowCount = 1;
-      else if(nRowIndex==CRP_TBL_XMLDESC_FILE_ITEMS)
-        nRowCount = pDescReader->m_aFileItems.size();
-      else if(nRowIndex==CRP_TBL_XMLDESC_FILE_ITEMS)
-        nRowCount = pDescReader->m_aFileItems.size();
-      else if(nRowIndex==CRP_TBL_MDMP_MISC)
-        nRowCount = 1;
-      else if(nRowIndex==CRP_TBL_MDMP_MODULES)
-        nRowCount = pDmpReader->m_DumpData.m_Modules.size();
-      else if(nRowIndex==CRP_TBL_MDMP_THREADS)
-        nRowCount = pDmpReader->m_DumpData.m_Threads.size();
-      else if(nRowIndex>=STACK_TRACE_TBL_IDS && nRowIndex<(int)(STACK_TRACE_TBL_IDS+pDmpReader->m_DumpData.m_Threads.size()))
-        nRowCount = pDmpReader->m_DumpData.m_Threads[nRowIndex-STACK_TRACE_TBL_IDS].m_StackTrace.size();
-      else
-      {
-        crpSetErrorMsg(_T("Invalid row index specified."));
-        return -4;    
-      }   
-
-      _ultot_s(nRowCount, szBuff, BUFF_SIZE, 10);
-      pszPropVal = szBuff;
-    }   
-    else
-    {
-      crpSetErrorMsg(_T("Invalid column ID specified."));
-      return -2;
-    }
-  }
-  else if(TableId==CRP_TBL_XMLDESC_MISC)
+  if(sTableId.Compare(CRP_TBL_XMLDESC_MISC)==0)
   {
     // This table contains single row.
     if(nRowIndex!=0)
@@ -438,51 +416,55 @@ crpGetPropertyW(
       return -4;    
     }
 
-    if(ColumnId==CRP_COL_CRASHRPT_VERSION)
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {    
+      return 1; // return row count in this table
+    }  
+    else if(sColumnId.Compare(CRP_COL_CRASHRPT_VERSION)==0)
     {    
       _ultot_s(pDescReader->m_dwGeneratorVersion, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;
     }  
-    else if(ColumnId==CRP_COL_CRASH_GUID)
+    else if(sColumnId.Compare(CRP_COL_CRASH_GUID)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
     }
-    else if(ColumnId==CRP_COL_APP_NAME)
+    else if(sColumnId.Compare(CRP_COL_APP_NAME)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sAppName);    
     }
-    else if(ColumnId==CRP_COL_APP_VERSION)
+    else if(sColumnId.Compare(CRP_COL_APP_VERSION)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sAppVersion);    
     }
-    else if(ColumnId==CRP_COL_IMAGE_NAME)
+    else if(sColumnId.Compare(CRP_COL_IMAGE_NAME)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sImageName);    
     }
-    else if(ColumnId==CRP_COL_OPERATING_SYSTEM)
+    else if(sColumnId.Compare(CRP_COL_OPERATING_SYSTEM)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sOperatingSystem);    
     }
-    else if(ColumnId==CRP_COL_SYSTEM_TIME_UTC)
+    else if(sColumnId.Compare(CRP_COL_SYSTEM_TIME_UTC)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sSystemTimeUTC);    
     }
-    else if(ColumnId==CRP_COL_INVPARAM_EXPRESSION)
+    else if(sColumnId.Compare(CRP_COL_INVPARAM_EXPRESSION)==0)
     {     
       pszPropVal = strconv.t2w(pDescReader->m_sInvParamExpression);    
     }
-    else if(ColumnId==CRP_COL_INVPARAM_FILE)
+    else if(sColumnId.Compare(CRP_COL_INVPARAM_FILE)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
     }
-    else if(ColumnId==CRP_COL_EXCEPTION_TYPE)
+    else if(sColumnId.Compare(CRP_COL_EXCEPTION_TYPE)==0)
     { 
       _ultot_s(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
       _tcscat_s(szBuff, BUFF_SIZE, _T(" "));
       _tcscat_s(szBuff, BUFF_SIZE, exctypes[pDescReader->m_dwExceptionType]);
       pszPropVal = szBuff;      
     }
-    else if(ColumnId==CRP_COL_EXCEPTION_CODE)
+    else if(sColumnId.Compare(CRP_COL_EXCEPTION_CODE)==0)
     {  
       _ultot_s(pDescReader->m_dwExceptionCode, szBuff, BUFF_SIZE, 16);
       _tcscat_s(szBuff, BUFF_SIZE, _T(" "));
@@ -490,21 +472,21 @@ crpGetPropertyW(
       _tcscat_s(szBuff, BUFF_SIZE, msg);
       pszPropVal = szBuff;    
     }
-    else if(ColumnId==CRP_COL_FPE_SUBCODE)
+    else if(sColumnId.Compare(CRP_COL_FPE_SUBCODE)==0)
     { 
       _ultot_s(pDescReader->m_dwFPESubcode, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_INVPARAM_LINE)
+    else if(sColumnId.Compare(CRP_COL_INVPARAM_LINE)==0)
     {       
       _ultot_s(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;            
     }
-    else if(ColumnId==CRP_COL_USER_EMAIL)
+    else if(sColumnId.Compare(CRP_COL_USER_EMAIL)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
     }
-    else if(ColumnId==CRP_COL_PROBLEM_DESCRIPTION)
+    else if(sColumnId.Compare(CRP_COL_PROBLEM_DESCRIPTION)==0)
     {
       pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
     }
@@ -514,7 +496,7 @@ crpGetPropertyW(
       return -2;
     }
   }
-  else if(TableId==CRP_TBL_XMLDESC_FILE_ITEMS)
+  else if(sTableId.Compare(CRP_TBL_XMLDESC_FILE_ITEMS)==0)
   {
     if(nRowIndex>=(int)pDescReader->m_aFileItems.size())
     {
@@ -522,14 +504,18 @@ crpGetPropertyW(
       return -4;    
     }
   
-    if(ColumnId==CRP_COL_FILE_ITEM_NAME || 
-       ColumnId==CRP_COL_FILE_ITEM_DESCRIPTION)
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return pDescReader->m_aFileItems.size();
+    }
+    else if( sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0 || 
+        sColumnId.Compare(CRP_COL_FILE_ITEM_DESCRIPTION)==0 )
     {      
       std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
       int i;
       for(i=0; i<nRowIndex; i++) it++;
 
-      if(ColumnId==CRP_COL_FILE_ITEM_NAME)
+      if(sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0)
         pszPropVal = strconv.t2w(it->first);    
       else
         pszPropVal = strconv.t2w(it->second);    
@@ -540,7 +526,7 @@ crpGetPropertyW(
       return -2;
     }
   }  
-  else if(TableId==CRP_TBL_MDMP_MISC)
+  else if(sTableId.Compare(CRP_TBL_MDMP_MISC)==0)
   {
     if(nRowIndex!=0)
     {
@@ -548,7 +534,11 @@ crpGetPropertyW(
       return -4;    
     }
 
-    if(ColumnId==CRP_COL_CPU_ARCHITECTURE)
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return 1; // there is 1 row in this table
+    }
+    else if(sColumnId.Compare(CRP_COL_CPU_ARCHITECTURE)==0)
     {
       _ultot_s(pDmpReader->m_DumpData.m_uProcessorArchitecture, szBuff, BUFF_SIZE, 10);
       _tcscat_s(szBuff, BUFF_SIZE, _T(" "));
@@ -567,12 +557,12 @@ crpGetPropertyW(
 
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_CPU_COUNT)
+    else if(sColumnId.Compare(CRP_COL_CPU_COUNT)==0)
     {
       _ultot_s(pDmpReader->m_DumpData.m_uchNumberOfProcessors, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_SYSTEM_TYPE)
+    else if(sColumnId.Compare(CRP_COL_PRODUCT_TYPE)==0)
     {
       _ultot_s(pDmpReader->m_DumpData.m_uchProductType, szBuff, BUFF_SIZE, 10);
       _tcscat_s(szBuff, BUFF_SIZE, _T(" "));
@@ -590,26 +580,26 @@ crpGetPropertyW(
 
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_OS_VER_MAJOR)
+    else if(sColumnId.Compare(CRP_COL_OS_VER_MAJOR)==0)
     {      
       _ultot_s(pDmpReader->m_DumpData.m_ulVerMajor, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_OS_VER_MINOR)
+    else if(sColumnId.Compare(CRP_COL_OS_VER_MINOR)==0)
     {
       _ultot_s(pDmpReader->m_DumpData.m_ulVerMinor, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_OS_VER_BUILD)
+    else if(sColumnId.Compare(CRP_COL_OS_VER_BUILD)==0)
     {
       _ultot_s(pDmpReader->m_DumpData.m_ulVerBuild, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;        
     }
-    else if(ColumnId==CRP_COL_OS_VER_CSD)
+    else if(sColumnId.Compare(CRP_COL_OS_VER_CSD)==0)
     {      
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
     }
-    else if(ColumnId==CRP_COL_EXCPTRS_EXCEPTION_CODE)
+    else if(sColumnId.Compare(CRP_COL_EXCPTRS_EXCEPTION_CODE)==0)
     {      
       _stprintf_s(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_uExceptionCode); 
       _tcscat_s(szBuff, BUFF_SIZE, _T(" "));
@@ -617,17 +607,17 @@ crpGetPropertyW(
       _tcscat_s(szBuff, BUFF_SIZE, msg);
       pszPropVal = szBuff;
     }
-    else if(ColumnId==CRP_COL_EXCEPTION_ADDRESS)
+    else if(sColumnId.Compare(CRP_COL_EXCEPTION_ADDRESS)==0)
     {      
       _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_uExceptionAddress); 
       pszPropVal = szBuff;
     }
-    else if(ColumnId==CRP_COL_EXCEPTION_THREAD_ROWID)
+    else if(sColumnId.Compare(CRP_COL_EXCEPTION_THREAD_ROWID)==0)
     {      
       _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->GetThreadRowIdByThreadId(pDmpReader->m_DumpData.m_uExceptionThreadId)); 
       pszPropVal = szBuff;
     }
-    else if(ColumnId==CRP_COL_EXCEPTION_MODULE_ROWID)
+    else if(sColumnId.Compare(CRP_COL_EXCEPTION_MODULE_ROWID)==0)
     {      
       _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->GetModuleRowIdByAddress(pDmpReader->m_DumpData.m_uExceptionAddress)); 
       pszPropVal = szBuff;
@@ -638,7 +628,7 @@ crpGetPropertyW(
       return -2;
     }
   }
-  else if(TableId==CRP_TBL_MDMP_MODULES)
+  else if(sTableId.Compare(CRP_TBL_MDMP_MODULES)==0)
   {  
     if(nRowIndex>=(int)pDmpReader->m_DumpData.m_Modules.size())
     {
@@ -646,16 +636,20 @@ crpGetPropertyW(
       return -4;    
     }
 
-    if(ColumnId==CRP_COL_MODULE_NAME)
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return pDmpReader->m_DumpData.m_Modules.size();
+    }
+    else if(sColumnId.Compare(CRP_COL_MODULE_NAME)==0)
     {      
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sModuleName);    
     }
-    else if(ColumnId==CRP_COL_MODULE_BASE_ADDRESS)
+    else if(sColumnId.Compare(CRP_COL_MODULE_BASE_ADDRESS)==0)
     {      
       _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Modules[nRowIndex].m_uBaseAddr); 
       pszPropVal = szBuff;
     }
-    else if(ColumnId==CRP_COL_MODULE_SIZE)
+    else if(sColumnId.Compare(CRP_COL_MODULE_SIZE)==0)
     {
       _stprintf_s(szBuff, BUFF_SIZE, _T("%I64u"), pDmpReader->m_DumpData.m_Modules[nRowIndex].m_uImageSize); 
       pszPropVal = szBuff;
@@ -666,7 +660,7 @@ crpGetPropertyW(
       return -2;
     }
   }
-  else if(TableId==CRP_TBL_MDMP_THREADS)
+  else if(sTableId.Compare(CRP_TBL_MDMP_THREADS)==0)
   {  
     if(nRowIndex>=(int)pDmpReader->m_DumpData.m_Threads.size())
     {
@@ -674,14 +668,18 @@ crpGetPropertyW(
       return -4;    
     }
 
-    if(ColumnId==CRP_COL_THREAD_ID)
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return pDmpReader->m_DumpData.m_Threads.size();
+    }
+    else if(sColumnId.Compare(CRP_COL_THREAD_ID)==0)
     {
       _stprintf_s(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_Threads[nRowIndex].m_dwThreadId); 
       pszPropVal = szBuff;
     }
-    else if(ColumnId==CRP_COL_THREAD_STACK_TABLEID)
+    else if(sColumnId.Compare(CRP_COL_THREAD_STACK_TABLEID)==0)
     {
-      _stprintf_s(szBuff, BUFF_SIZE, _T("%d"), STACK_TRACE_TBL_IDS+nRowIndex); 
+      _stprintf_s(szBuff, BUFF_SIZE, _T("STACK%d"), nRowIndex); 
       pszPropVal = szBuff;
     }    
     else
@@ -691,9 +689,12 @@ crpGetPropertyW(
     }
 
   }  
-  else if(TableId>=STACK_TRACE_TBL_IDS && TableId<(int)(STACK_TRACE_TBL_IDS+pDmpReader->m_DumpData.m_Threads.size()))
+  else if(nDynTable==0)
   {
-    int nEntryIndex = TableId - STACK_TRACE_TBL_IDS;
+    int nEntryIndex = nDynTableIndex;
+
+    // Ensure we walked the stack for this thread
+    assert(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_bStackWalk);
     
     if(nRowIndex>=(int)pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace.size())
     {
@@ -701,31 +702,35 @@ crpGetPropertyW(
       return -4;    
     }
 
-    if(ColumnId==CRP_COL_STACK_OFFSET_IN_SYMBOL)
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace.size();
+    }
+    else if(sColumnId.Compare(CRP_COL_STACK_OFFSET_IN_SYMBOL)==0)
     {      
       _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_dw64OffsInSymbol);      
       pszPropVal = szBuff;                  
     }
-    else if(ColumnId==CRP_COL_STACK_ADDR_PC_OFFSET)
+    else if(sColumnId.Compare(CRP_COL_STACK_ADDR_PC_OFFSET)==0)
     {       
       _stprintf_s(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_dwAddrPCOffset);
       pszPropVal = szBuff;                
     }
-    else if(ColumnId==CRP_COL_STACK_SOURCE_LINE)
+    else if(sColumnId.Compare(CRP_COL_STACK_SOURCE_LINE)==0)
     {       
       _ultot_s(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_nSrcLineNumber, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;                
     }  
-    else if(ColumnId==CRP_COL_STACK_MODULE_ROWID)
+    else if(sColumnId.Compare(CRP_COL_STACK_MODULE_ROWID)==0)
     {     
       _ultot_s(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_nModuleRowID, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;       
     }
-    else if(ColumnId==CRP_COL_STACK_SYMBOL_NAME)
+    else if(sColumnId.Compare(CRP_COL_STACK_SYMBOL_NAME)==0)
     {      
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_sSymbolName);    
     }
-    else if(ColumnId==CRP_COL_STACK_SOURCE_FILE)
+    else if(sColumnId.Compare(CRP_COL_STACK_SOURCE_FILE)==0)
     {      
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_sSrcFileName);    
     }
@@ -779,8 +784,8 @@ int
 CRASHRPTPROBE_API
 crpGetPropertyA(
   CrpHandle hReport,
-  CRP_TableId TableId,
-  CRP_ColumnId ColumnId,
+  LPCSTR lpszTableId,
+  LPCSTR lpszColumnId,
   INT nRowIndex,
   LPSTR lpszBuffer,
   ULONG cchBuffSize,
@@ -791,8 +796,14 @@ crpGetPropertyA(
   WCHAR* szBuffer = new WCHAR[cchBuffSize];
   strconv_t strconv;
 
-  int result = crpGetPropertyW(hReport, TableId, ColumnId, 
-    nRowIndex, szBuffer, cchBuffSize, pcchCount);
+  int result = crpGetPropertyW(
+    hReport, 
+    strconv.a2w(lpszTableId), 
+    strconv.a2w(lpszColumnId), 
+    nRowIndex, 
+    szBuffer, 
+    cchBuffSize, 
+    pcchCount);
 
   LPCSTR aszResult = strconv.w2a(szBuffer);
   delete [] szBuffer;

@@ -21,6 +21,8 @@ typedef int CrpHandle;
 
 /*! \defgroup CrashRptProbeAPI CrashRptProbe Functions*/
 /*! \defgroup CrashRptProbeEnums CrashRptProbe Enumerations*/
+/*! \defgroup CrashRptProbeTableIDs CrashRptProbe Table IDs*/
+/*! \defgroup CrashRptProbeColumnIDs CrashRptProbe Column IDs*/
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief Opens a zipped crash report file.
@@ -168,91 +170,71 @@ crpCloseErrorReport(
   CrpHandle hReport  
 );
 
-/*! \ingroup CrashRptProbeEnums
- *  \brief Table names passed to crpGetProperty() function. 
- *
- *  \remarks
- *
- *  An error report can be presented as a set of properties. These properties
- *  are groupped into tables and can be accessed by the table id, column id and row index.
- *  
- *  For the detailed description of available tables and code examples, see \ref crprobe_properties section.
- */
+/* Table names passed to crpGetProperty() function. */
 
-enum CRP_TableId
-{ 
-  CRP_TBL_META                         = 0,    //!< Table: Contains information about all ather tables.
-  CRP_TBL_XMLDESC_MISC                 = 1,    //!< Table: Miscellaneous info contained in crash descriptor XML file. 
-  CRP_TBL_XMLDESC_FILE_ITEMS           = 2,    //!< Table: The list of file items contained in error report.
-  CRP_TBL_MDMP_MISC                    = 3,    //!< Table: Miscellaneous info contained in crash minidump file.  
-  CRP_TBL_MDMP_MODULES                 = 4,    //!< Table: The list of loaded modules.
-  CRP_TBL_MDMP_THREADS                 = 5,    //!< Table: The list of threads.
-};
+#define CRP_TBL_XMLDESC_MISC _T("XmlDescMisc") //!< Table: Miscellaneous info contained in crash descriptor XML file. 
+#define CRP_TBL_XMLDESC_FILE_ITEMS _T("XmlDescFileItems") //!< Table: The list of file items contained in error report.
+#define CRP_TBL_MDMP_MISC    _T("MdmpMisc")    //!< Table: Miscellaneous info contained in crash minidump file.  
+#define CRP_TBL_MDMP_MODULES _T("MdmpModules") //!< Table: The list of loaded modules.
+#define CRP_TBL_MDMP_THREADS _T("MdmpThreads") //!< Table: The list of threads.
 
-/*! \ingroup CrashRptProbeEnums
- *  \brief Column names passed to crpGetProperty() function. 
- *
- *  \remarks
- *
- *  An error report can be presented as a set of properties. These properties
- *  are groupped into tables and can be accessed by the table id, column id and row index.
- *  
- *  For the detailed description of available column names and code examples, see \ref crprobe_properties section.
- */
+#define CRP_META_ROW_COUNT _T("RowCount")  
 
-enum CRP_ColumnId
-{   
-  CRP_COL_ROW_COUNT               = 0,   //!< Column: Count of rows in a table.
+/* Column names passed to crpGetProperty() function. */
+
+// Columns IDs of the CRP_XMLDESC_MISC table
+#define CRP_COL_CRASHRPT_VERSION _T("CrashRptVersion") //!< Column: Version of CrashRpt library that generated the report.
+#define CRP_COL_CRASH_GUID       _T("CrashGUID")       //!< Column: Globally unique identifier (GUID) of the error report.
+#define CRP_COL_APP_NAME         _T("AppName")         //!< Column: Application name.
+#define CRP_COL_APP_VERSION      _T("AppVersion")      //!< Column: Application version.
+#define CRP_COL_IMAGE_NAME       _T("ImageName")       //!< Column: Path to the executable file.
+#define CRP_COL_OPERATING_SYSTEM _T("OperatingSystem") //!< Column: Opration system name, including build number and service pack.
+#define CRP_COL_SYSTEM_TIME_UTC  _T("SystemTimeUTC")   //!< Column: Time (UTC) when the crash occured.
+#define CRP_COL_EXCEPTION_TYPE   _T("ExceptionType")   //!< Column: Code of exception handler that cought the exception.
+#define CRP_COL_EXCEPTION_CODE   _T("ExceptionCode")   //!< Column: Exception code; for the structured exceptions only, hexadecimal number.
+#define CRP_COL_INVPARAM_FUNCTION _T("InvParamFunction") //!< Column: Function name; for invalid parameter errors only.
+#define CRP_COL_INVPARAM_EXPRESSION _T("InvParamExpression") //!< Column: Expression; for invalid parameter errors only.
+#define CRP_COL_INVPARAM_FILE    _T("InvParamFile")    //!< Column: Source file name; for invalid parameter errors only.
+#define CRP_COL_INVPARAM_LINE    _T("InvParamLine")    //!< Column: Source line; for invalid parameter errors only.
+#define CRP_COL_FPE_SUBCODE      _T("FPESubcode")      //!< Column: Subcode of floating point exception; for FPE exceptions only.
+#define CRP_COL_USER_EMAIL       _T("UserEmail")       //!< Column: Email of the user who sent this report.
+#define CRP_COL_PROBLEM_DESCRIPTION _T("ProblemDescription") //!< Column: User-provided problem description.
+
+// Column IDs of the CRP_XMLDESC_FILE_ITEMS table
+#define CRP_COL_FILE_ITEM_NAME   _T("FileItemName")    //!< Column: File list: Name of the file contained in the report, vectored.
+#define CRP_COL_FILE_ITEM_DESCRIPTION _T("FileItemDescription") //!< Column: File list: Description of the file contained in the report.
+
+// Column IDs of the CRP_MDMP_MISC table
+#define CRP_COL_CPU_ARCHITECTURE _T("CPUArchitecture") //!< Column: Processor architecture.
+#define CRP_COL_CPU_COUNT        _T("CPUCount")        //!< Column: Number of processors.
+#define CRP_COL_PRODUCT_TYPE     _T("ProductType")     //!< Column: Type of system (server or workstation).
+#define CRP_COL_OS_VER_MAJOR     _T("OSVerMajor")      //!< Column: OS major version.
+#define CRP_COL_OS_VER_MINOR     _T("OSVerMinor")      //!< Column: OS minor version.
+#define CRP_COL_OS_VER_BUILD     _T("OSVerBuild")      //!< Column: OS build number.
+#define CRP_COL_OS_VER_CSD       _T("OSVerCSD")        //!< Column: The latest service pack installed.
+#define CRP_COL_EXCPTRS_EXCEPTION_CODE _T("ExptrsExceptionCode") //!< Column: Code of the structured exception.
+#define CRP_COL_EXCEPTION_ADDRESS _T("ExceptionAddress") //!< Column: Exception address.
+#define CRP_COL_EXCEPTION_THREAD_ROWID _T("ExceptionThreadROWID") //!< Column: ROWID in CRP_TBL_THREADS of the thread in which exception occurred. 
+#define CRP_COL_EXCEPTION_MODULE_ROWID _T("ExceptionModuleROWID") //!< Column: ROWID in the CRP_TBL_MODULES of the module in which exception occurred.
+
+// Column IDs of the CRP_MDMP_MODULES table
+#define CRP_COL_MODULE_NAME      _T("ModuleName")       //!< Column: Module name.
+#define CRP_COL_MODULE_IMAGE_NAME _T("ModuleImageName") //!< Column: Image name containing full path.  
+#define CRP_COL_MODULE_BASE_ADDRESS _T("ModuleBaseAddress") //!< Column: Module base load address.
+#define CRP_COL_MODULE_SIZE      _T("ModuleSize")       //!< Column: Module size.
+#define CRP_COL_MODULE_LOADED_PDB_NAME _T("LoadedPDBName") //!< Column: The full path and file name of the .pdb file. 
+
+// Column IDs of the CRP_MDMP_THREADS table
+#define CRP_COL_THREAD_ID            _T("ThdeadID")           //!< Column: Thread ID.
+#define CRP_COL_THREAD_STACK_TABLEID _T("ThreadStackTABLEID") //!< Column: The TABLEID of the table containing stack trace for this thread.
   
-  CRP_COL_CRASHRPT_VERSION        = 100, //!< Column: Version of CrashRpt library that generated the report.
-  CRP_COL_CRASH_GUID              = 101, //!< Column: Globally unique identifier (GUID) of the error report.
-  CRP_COL_APP_NAME                = 102, //!< Column: Application name.
-  CRP_COL_APP_VERSION             = 103, //!< Column: Application version.
-  CRP_COL_IMAGE_NAME              = 104, //!< Column: Path to the executable file.
-  CRP_COL_OPERATING_SYSTEM        = 105, //!< Column: Opration system name, including build number and service pack.
-  CRP_COL_SYSTEM_TIME_UTC         = 106, //!< Column: Time (UTC) when the crash occured.
-  CRP_COL_EXCEPTION_TYPE          = 107, //!< Column: Code of exception handler that cought the exception.
-  CRP_COL_EXCEPTION_CODE          = 108, //!< Column: Exception code; for the structured exceptions only, hexadecimal number.
-  CRP_COL_INVPARAM_FUNCTION       = 109, //!< Column: Function name; for invalid parameter errors only.
-  CRP_COL_INVPARAM_EXPRESSION     = 110, //!< Column: Expression; for invalid parameter errors only.
-  CRP_COL_INVPARAM_FILE           = 111, //!< Column: Source file name; for invalid parameter errors only.
-  CRP_COL_INVPARAM_LINE           = 112, //!< Column: Source line; for invalid parameter errors only.
-  CRP_COL_FPE_SUBCODE             = 113, //!< Column: Subcode of floating point exception; for FPE exceptions only.
-  CRP_COL_USER_EMAIL              = 114, //!< Column: Email of the user who sent this report.
-  CRP_COL_PROBLEM_DESCRIPTION     = 115, //!< Column: User-provided problem description.
-  
-  CRP_COL_FILE_ITEM_NAME          = 200, //!< Column: File list: Name of the file contained in the report, vectored.
-  CRP_COL_FILE_ITEM_DESCRIPTION   = 201, //!< Column: File list: Description of the file contained in the report.
-
-  CRP_COL_CPU_ARCHITECTURE        = 300, //!< Column: Processor architecture.
-  CRP_COL_CPU_COUNT               = 301, //!< Column: Number of processors.
-  CRP_COL_SYSTEM_TYPE             = 302, //!< Column: Type of system (server or workstation).
-  CRP_COL_OS_VER_MAJOR            = 303, //!< Column: OS major version.
-  CRP_COL_OS_VER_MINOR            = 304, //!< Column: OS minor version.
-  CRP_COL_OS_VER_BUILD            = 305, //!< Column: OS build number.
-  CRP_COL_OS_VER_CSD              = 306, //!< Column: The latest service pack installed.
-  CRP_COL_EXCPTRS_EXCEPTION_CODE  = 307, //!< Column: Code of the structured exception.
-  CRP_COL_EXCEPTION_ADDRESS = 308, //!< Column: Exception address.
-  CRP_COL_EXCEPTION_THREAD_ROWID = 309, //!< Column: ROWID in CRP_TBL_THREADS of the thread in which exception occurred. 
-  CRP_COL_EXCEPTION_MODULE_ROWID  = 310, //!< Column: ROWID in the CRP_TBL_MODULES of the module in which exception occurred.
-
-  CRP_COL_MODULE_NAME             = 400, //!< Column: Module name.
-  CRP_COL_MODULE_IMAGE_NAME       = 401, //!< Column: Image name containing full path.  
-  CRP_COL_MODULE_BASE_ADDRESS     = 402, //!< Column: Module base load address.
-  CRP_COL_MODULE_SIZE             = 403, //!< Column: Module size.
-  CRP_COL_MODULE_LOADED_PDB_NAME  = 404, //!< Column: The full path and file name of the .pdb file. 
-
-  CRP_COL_THREAD_ID               = 501, //!< Column: Thread ID.
-  CRP_COL_THREAD_STACK_TABLEID    = 502, //!< Column: The TABLEID of the table containing stack trace for this thread.
-  
-  CRP_COL_STACK_MODULE_ROWID      = 600, //!< Column: Stack trace: ROWID of the module in the CRP_TBL_MODULES table.
-  CRP_COL_STACK_SYMBOL_NAME       = 601, //!< Column: Stack trace: symbol name.
-  CRP_COL_STACK_OFFSET_IN_SYMBOL  = 602, //!< Column: Stack trace: offset in symbol, hexadecimal.
-  CRP_COL_STACK_SOURCE_FILE       = 603, //!< Column: Stack trace: source file name.
-  CRP_COL_STACK_SOURCE_LINE       = 604, //!< Column: Stack trace: source file line number.
-  CRP_COL_STACK_ADDR_PC_OFFSET    = 605 //!< Column: Stack trace: AddrPC offset.
-};
-
+// Column IDs of a stack trace table
+#define CRP_COL_STACK_MODULE_ROWID     _T("StackModuleROWID")    //!< Column: Stack trace: ROWID of the module in the CRP_TBL_MODULES table.
+#define CRP_COL_STACK_SYMBOL_NAME      _T("StackSymbolName")     //!< Column: Stack trace: symbol name.
+#define CRP_COL_STACK_OFFSET_IN_SYMBOL _T("StackOffsetInSymbol") //!< Column: Stack trace: offset in symbol, hexadecimal.
+#define CRP_COL_STACK_SOURCE_FILE      _T("StackSourceFile")     //!< Column: Stack trace: source file name.
+#define CRP_COL_STACK_SOURCE_LINE      _T("StackSourceLine")     //!< Column: Stack trace: source file line number.
+#define CRP_COL_STACK_ADDR_PC_OFFSET   _T("StackAddrPCOffset")   //!< Column: Stack trace: AddrPC offset.
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief Retrieves a string property from crash report.
@@ -305,8 +287,8 @@ int
 CRASHRPTPROBE_API 
 crpGetPropertyW(
   CrpHandle hReport,
-  CRP_TableId TableId,
-  CRP_ColumnId ColumnId,
+  LPCWSTR lpszTableId,
+  LPCWSTR lpszColumnId,
   INT nRowIndex,
   __out_ecount_z(pcchBuffSize) LPWSTR lpszBuffer,
   ULONG cchBuffSize,
@@ -322,8 +304,8 @@ int
 CRASHRPTPROBE_API 
 crpGetPropertyA(
   CrpHandle hReport,
-  CRP_TableId TableId,
-  CRP_ColumnId ColumnId,
+  LPCSTR lpszTableId,
+  LPCSTR lpszColumnId,
   INT nRowIndex,
   __out_ecount_z(pcchBuffSize) LPSTR lpszBuffer,
   ULONG pcchBuffSize,
