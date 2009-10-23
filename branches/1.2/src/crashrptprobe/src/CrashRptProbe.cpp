@@ -426,7 +426,7 @@ crpGetPropertyW(
       pszPropVal = szBuff;
     }  
     else if(sColumnId.Compare(CRP_COL_CRASH_GUID)==0)
-    {
+    {      
       pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
     }
     else if(sColumnId.Compare(CRP_COL_APP_NAME)==0)
@@ -458,11 +458,11 @@ crpGetPropertyW(
       pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_TYPE)==0)
-    { 
+    {
       _ultot_s(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
       _tcscat_s(szBuff, BUFF_SIZE, _T(" "));
       _tcscat_s(szBuff, BUFF_SIZE, exctypes[pDescReader->m_dwExceptionType]);
-      pszPropVal = szBuff;      
+      pszPropVal = szBuff;            
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_CODE)==0)
     {  

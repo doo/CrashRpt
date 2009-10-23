@@ -7,6 +7,10 @@
 CCrashDescReader::CCrashDescReader()
 {
   m_bLoaded = false;
+  m_dwExceptionType = 0;
+  m_dwFPESubcode = 0;
+  m_dwExceptionCode = 0;
+  m_dwInvParamLine = 0;
 }
 
 CCrashDescReader::~CCrashDescReader()
