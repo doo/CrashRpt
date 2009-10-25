@@ -44,7 +44,7 @@ and then add \b CrashRptProbe.lib to the list of libraries.
 
 Error report files are normal ZIP archives containing several files as described in \ref error_report.
 To open an error report file, you use the crpOpenErrorReport() function. The function returns the
-handle to the opened report as \b CrpHandle type, which is an integer number identifying the opened report. 
+handle to the opened report as \ref CrpHandle type, which is an integer number identifying the opened report. 
 You pass the handle to other CrashRptProbe functions.
 
 When you have retreived all the data you need, close the report. To close previously 
@@ -53,8 +53,13 @@ opened error report, you use crpCloseErrorReport() function.
 \section retrieving_report_properties Retreiving Error Report Properties
 
 You can think of the error report as a set of properties. All properties are organized into tables
-consisting of rows and columns. Each property is a text string. To retrieve a property from the 
-report, you use the crpGetProperty() function. You pass table ID, column ID and row ID identifying the
+consisting of rows and columns. 
+
+Each property is a text string. But sometimes you might need to convert text properties to some other
+types for further processing. 
+
+To retrieve a property from the report, you use the crpGetProperty() function. 
+You pass table ID, column ID and row ID identifying the
 property to this function, and receive the value to the text buffer.
 
 The list of table IDs you can use is presented below. 
@@ -104,16 +109,32 @@ number of rows in the table by passing special constant \ref CRP_META_ROW_COUNT 
 crpGetProperty() function, as shown in the example below:
 
 \code
-// The following helper function can retrieve the number of row count in the table.
+// The following helper function can retrieve the number of rows in the table.
 // The return value is non-negative on success.
-int get_table_row_count(CrpHandle hReport, LPCTSTR table_id)
+int get_table_row_count(CrpHandle hReport, LPCTSTR lpszTableId)
 {
-  return crpGetProperty(hReport, table_id, CRP_META_ROW_COUNT, 0, NULL, 0, NULL);
+  return crpGetProperty(hReport, lpszTableId, CRP_META_ROW_COUNT, 0, NULL, 0, NULL);
 }
 \endcode
 
-Each table have several columns. The number of columns is not fixed, it depends on what version
-of CrashRpt generated the report. Below the list of available column IDs for each table is presented:
+Each table has several columns. The number of columns is not fixed, it depends on what version
+of CrashRpt generated the report. 
+
+To retrieve a property from a table, you specify the table ID, column ID and row index 
+(see the following example):
+
+\code
+
+// It is assumed the handle to the opened error report is stored in hReport variable.
+const int BUFF_SIZE = 1024;
+TCHAR szBuffer[BUFF_SIZE];  
+
+// Get the count of processors on user's machine.
+int nResult = crpGetProperty(hReport, CRP_TBL_MDMP_MISC, CRP_COL_CPU_COUNT, 0, szBuffer, BUFF_SIZE, NULL);
+
+\endcode
+
+Below the list of available column IDs for each table is presented:
 
 <b>Column IDs of the \ref CRP_TBL_XMLDESC_MISC table.</b>
 
@@ -357,7 +378,7 @@ Exception address. Hexadecimal value.
 <td>  Example: "0" 
 
 Row ID of the thread in which exception occurred. Decimal value. 
-Cast this value to \c int and use as row ID to retrieve the thread information from
+Convert this text value to \c int and use as row ID to retrieve the thread information from
 \ref CRP_TBL_MDMP_THREADS table.
 
 
@@ -367,13 +388,13 @@ Cast this value to \c int and use as row ID to retrieve the thread information f
 Example: "12"
 
 Row ID of the module in which exception occurred. Decimal value. 
-Cast this value to \c int and use as row ID to retrieve the module information from
+Convert this text value to \c int and use as row ID to retrieve the module information from
 \ref CRP_TBL_MDMP_MODULES table.
 
 
 </table>
 
-<b>Column IDs for \ref CRP_TBL_MODULES table.</b>
+<b>Column IDs for \ref CRP_TBL_MDMP_MODULES table.</b>
 
 <table>
 
@@ -420,15 +441,14 @@ Cast this value to \c int and use as row ID to retrieve the module information f
 
 </table>
 
-\section retrieving_report_files Retrieving Files Contained in Report
+\section retrieving_report_files Retrieving Files Contained in the Error Report
 
 An error report is a ZIP archive containing several files. The files are: crash minidump file (.dmp),
 crash report descriptor file (.xml) and optional application-defined files, such as application log file.
 
-To enumerate files contained in report, you use \ref CRP_PROP_FILE_COUNT, \ref CRP_PROP_FILE_ITEM_NAME and
-\ref CRP_PROP_FILE_ITEM_DESCRIPTION properties.
+To enumerate files contained in report, you use \ref CRP_TBL_XMLDESC_FILE_ITEMS table.
 
-To extract a file from the ZIP archive by file name, you use crpExtractFile() function.
+To extract a file from the ZIP archive by its file name, you use crpExtractFile() function.
 
 \section handling_crprobe_errors Handling Errors
 
@@ -438,6 +458,5 @@ text error message of the last called function, use crpGetLastErrorMsg().
 \section crashrptprobe_api_reference CrashRptProbe API Reference
 
 - \ref CrashRptProbeAPI
-- \ref CrashRptProbeEnums
 
 */

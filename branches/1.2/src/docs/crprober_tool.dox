@@ -38,16 +38,16 @@ arguments are listed in the table below:
 <td> \b Name
 <td> \b Description
 <tr>
-<td>/f <in_file_pattern>     
+<td>/f \<in_file_pattern\>     
 <td>Input ZIP file or search pattern. Required.
 <tr>
-<td>/fmd5 <md5_file>         
+<td>/fmd5 \<md5_file\>         
 <td>Name of .md5 file containing MD5 hash for ZIP archive.
 <tr>
-<td>/o <out_file_or_dir>     
+<td>/o \<out_file_or_dir\>     
 <td>Output file name or directory. If this parameter is ommitted, output is written to the terminal.
 <tr>
-<td>/sym <sym_search_dirs>   
+<td>/sym \<sym_search_dirs\>   
 <td>Symbol file search directory or list of directories separated with semicolon. If this parameter 
 is ommitted, symbols files are searched using the deafult search sequence.
 </table>

@@ -37,12 +37,10 @@ extern "C" {
 #define CRASHRPTPROBE_API __declspec(dllimport) WINAPI
 #endif
 
+//! Handle to an opened error report.
 typedef int CrpHandle;
 
 /*! \defgroup CrashRptProbeAPI CrashRptProbe Functions*/
-/*! \defgroup CrashRptProbeEnums CrashRptProbe Enumerations*/
-/*! \defgroup CrashRptProbeTableIDs CrashRptProbe Table IDs*/
-/*! \defgroup CrashRptProbeColumnIDs CrashRptProbe Column IDs*/
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief Opens a zipped crash report file.
@@ -53,32 +51,36 @@ typedef int CrpHandle;
  *  \param[in] pszMd5Hash String containing MD5 hash for the ZIP file data.
  *  \param[in] pszSymSearchPath Symbol files (PDB) search path.
  *  \param[in] dwFlags Flags, reserved for future use.
- *  \param[out] pHandle Handle to the opened crash report.
+ *  \param[out] phReport Handle to the opened crash report.
  *
  *  \remarks
  *
  *  Use this function to open a ZIP archive containing an error report. The error report typically contains
- *  several compressed files, such as XML crash descriptor, crash minidump file, and optionally 
+ *  several compressed files, such as XML crash descriptor, crash minidump file, and (optionally) 
  *  application-defined files.
  *
- *  \a pszFileName should be the name of the error report (ZIP file) to open. This parameter is required.
+ *  \a pszFileName should be the name of the error report (ZIP file) to open. Absolute or relative path accepted.
+ *  This parameter is required.
  *
  *  \a pszMd5Hash is a string containing the MD5 hash calculated for \a pszFileName. The MD5
- *  hash is used for integrity checks. If this parameter is NULL, integrity check is not performed.
+ *  hash is a sequence of 16 characters being used for integrity checks. 
+ *  If this parameter is NULL, integrity check is not performed.
  *
  *  If the error report is delivered by HTTP, the MD5 hash can be extracted by server-side script from the
  *  'md5' parameter. When the error report is delivered by email, the MD5 hash is attached to the mail message.
  *  The integrity check can be performed to ensure the error report was not corrupted during delivery.
- *  For more information, see \ref sending_error_report.
+ *  For more information, see \ref sending_error_reports.
  *
- *  \a pszSymSearchPath parameter defines where to look for symbols files (PDB). You can specify the list of 
- *  semicolom-separated directories to search in. If this parameter is NULL, the default search path is used.
+ *  \a pszSymSearchPath parameter defines where to look for symbols files (*.PDB). You can specify the list of 
+ *  semicolon-separated directories to search in. If this parameter is NULL, the default search sequence is used.
+ *  For the default search sequence, see the documentation for \b SymInitialize() function in MSDN.
  *
  *  Symbol files are required for crash report processing. They contain various information used by the debugger.
+ *  For more information about saving symbol files, see \ref preparing_to_software_release.
  *
  *  \a dwFlags is currently not used, should be zero.
  *
- *  \a pHandle parameter receives the handle to the opened crash report. If the function fails,
+ *  \a phReport parameter receives the handle to the opened crash report. If the function fails,
  *  this parameter becomes zero. 
  *
  *  This function does the following when opening report file:
@@ -121,7 +123,7 @@ typedef int CrpHandle;
  *    return;
  *  }
  *
- *  // Do something with it...
+ *  // Read the properties, extract files...
  *
  *  // Finally, close the report
  *  crpCloseErrorReport(hReport);
@@ -168,7 +170,7 @@ crpOpenErrorReportA(
 
 /*! 
  *  \brief Closes the crash report.
- *  \return This function returns zero if successful, else non-zero.
+ *  \return This function returns zero on success.
  *  \param[in] hReport Handle to the opened error report.
  *
  *  \remarks
@@ -177,8 +179,6 @@ crpOpenErrorReportA(
  *  function.
  *
  *  If this function fails, use crpGetLastErrorMsg() function to get the error message.
- *
- *  See crpOpenErrorReportW() for code example. 
  *
  *  \sa
  *    crpOpenErrorReport(), crpOpenErrorReportW(), crpOpenErrorReportA(), crpGetLastErrorMsg()
@@ -213,7 +213,7 @@ crpCloseErrorReport(
 #define CRP_COL_OPERATING_SYSTEM _T("OperatingSystem") //!< Column: Opration system name, including build number and service pack.
 #define CRP_COL_SYSTEM_TIME_UTC  _T("SystemTimeUTC")   //!< Column: Time (UTC) when the crash occured.
 #define CRP_COL_EXCEPTION_TYPE   _T("ExceptionType")   //!< Column: Code of exception handler that cought the exception.
-#define CRP_COL_EXCEPTION_CODE   _T("ExceptionCode")   //!< Column: Exception code; for the structured exceptions only, hexadecimal number.
+#define CRP_COL_EXCEPTION_CODE   _T("ExceptionCode")   //!< Column: Exception code; for the structured exceptions only.
 #define CRP_COL_INVPARAM_FUNCTION _T("InvParamFunction") //!< Column: Function name; for invalid parameter errors only.
 #define CRP_COL_INVPARAM_EXPRESSION _T("InvParamExpression") //!< Column: Expression; for invalid parameter errors only.
 #define CRP_COL_INVPARAM_FILE    _T("InvParamFile")    //!< Column: Source file name; for invalid parameter errors only.
@@ -223,7 +223,7 @@ crpCloseErrorReport(
 #define CRP_COL_PROBLEM_DESCRIPTION _T("ProblemDescription") //!< Column: User-provided problem description.
 
 // Column IDs of the CRP_XMLDESC_FILE_ITEMS table
-#define CRP_COL_FILE_ITEM_NAME   _T("FileItemName")    //!< Column: File list: Name of the file contained in the report, vectored.
+#define CRP_COL_FILE_ITEM_NAME   _T("FileItemName")    //!< Column: File list: Name of the file contained in the report.
 #define CRP_COL_FILE_ITEM_DESCRIPTION _T("FileItemDescription") //!< Column: File list: Description of the file contained in the report.
 
 // Column IDs of the CRP_MDMP_MISC table
@@ -234,21 +234,21 @@ crpCloseErrorReport(
 #define CRP_COL_OS_VER_MINOR     _T("OSVerMinor")      //!< Column: OS minor version.
 #define CRP_COL_OS_VER_BUILD     _T("OSVerBuild")      //!< Column: OS build number.
 #define CRP_COL_OS_VER_CSD       _T("OSVerCSD")        //!< Column: The latest service pack installed.
-#define CRP_COL_EXCPTRS_EXCEPTION_CODE _T("ExptrsExceptionCode") //!< Column: Code of the structured exception.
-#define CRP_COL_EXCEPTION_ADDRESS _T("ExceptionAddress") //!< Column: Exception address.
-#define CRP_COL_EXCEPTION_THREAD_ROWID _T("ExceptionThreadROWID") //!< Column: ROWID in CRP_TBL_THREADS of the thread in which exception occurred. 
-#define CRP_COL_EXCEPTION_MODULE_ROWID _T("ExceptionModuleROWID") //!< Column: ROWID in the CRP_TBL_MODULES of the module in which exception occurred.
+#define CRP_COL_EXCPTRS_EXCEPTION_CODE _T("ExptrsExceptionCode")  //!< Column: Code of the structured exception.
+#define CRP_COL_EXCEPTION_ADDRESS _T("ExceptionAddress")          //!< Column: Exception address.
+#define CRP_COL_EXCEPTION_THREAD_ROWID _T("ExceptionThreadROWID") //!< Column: ROWID in \ref CRP_TBL_MDMP_THREADS of the thread in which exception occurred. 
+#define CRP_COL_EXCEPTION_MODULE_ROWID _T("ExceptionModuleROWID") //!< Column: ROWID in \ref CRP_TBL_MDMP_MODULES of the module in which exception occurred.
 
 // Column IDs of the CRP_MDMP_MODULES table
-#define CRP_COL_MODULE_NAME      _T("ModuleName")       //!< Column: Module name.
-#define CRP_COL_MODULE_IMAGE_NAME _T("ModuleImageName") //!< Column: Image name containing full path.  
+#define CRP_COL_MODULE_NAME      _T("ModuleName")           //!< Column: Module name.
+#define CRP_COL_MODULE_IMAGE_NAME _T("ModuleImageName")     //!< Column: Image name containing full path.  
 #define CRP_COL_MODULE_BASE_ADDRESS _T("ModuleBaseAddress") //!< Column: Module base load address.
-#define CRP_COL_MODULE_SIZE      _T("ModuleSize")       //!< Column: Module size.
-#define CRP_COL_MODULE_LOADED_PDB_NAME _T("LoadedPDBName") //!< Column: The full path and file name of the .pdb file. 
+#define CRP_COL_MODULE_SIZE      _T("ModuleSize")           //!< Column: Module size.
+#define CRP_COL_MODULE_LOADED_PDB_NAME _T("LoadedPDBName")  //!< Column: The full path and file name of the .pdb file. 
 
 // Column IDs of the CRP_MDMP_THREADS table
 #define CRP_COL_THREAD_ID            _T("ThdeadID")           //!< Column: Thread ID.
-#define CRP_COL_THREAD_STACK_TABLEID _T("ThreadStackTABLEID") //!< Column: The TABLEID of the table containing stack trace for this thread.
+#define CRP_COL_THREAD_STACK_TABLEID _T("ThreadStackTABLEID") //!< Column: The table ID of the table containing stack trace for this thread.
   
 // Column IDs of a stack trace table
 #define CRP_COL_STACK_MODULE_ROWID     _T("StackModuleROWID")    //!< Column: Stack trace: ROWID of the module in the CRP_TBL_MODULES table.
@@ -263,8 +263,9 @@ crpCloseErrorReport(
  *  \return This function returns zero on success.
  *
  *  \param[in]  hReport Handle to the previously opened crash report.
- *  \param[in]  nPropId Property ID.
- *  \param[in]  nIndex Index of the property in the table.
+ *  \param[in]  lpszTableId Table ID.
+ *  \param[in]  lpszColumnId Column ID.
+ *  \param[in]  nRowIndex Index of the row in the table.
  *  \param[out] lpszBuffer Output buffer.
  *  \param[in]  cchBuffSize Size of the output buffer in characters.
  *  \param[out] pcchCount Count of characters written to the buffer.
@@ -274,21 +275,25 @@ crpCloseErrorReport(
  *  Use this function to retrieve data from the crash report that was previously opened with the
  *  crpOpenErrorReport() function.
  *
+ *  Properties are organized into tables having rows and columns. For the list of available tables,
+ *  see \ref using_crashrptprobe_api.
+ *
  *  Some properties are loaded from crash descriptor XML file, while others are loaded from crash minidump file.
- *  The minidump is loaded once and only when you retrive a property from it. This reduces the overall processing time.
+ *  The minidump is loaded once when you retrive a property from it. This reduces the overall processing time.
  *
  *  \a hReport should be the handle to the opened error report.
  *
- *  \a nPropId represents the ID of the property to retrieve. For the list of available 
- *  properties, see CRP_ErrorReportProperty() enumeration.
+ *  \a lpszTableId represente the ID of the table.
  *
- *  \a nIndex defines the zero-based index of the property (used for some properties that are groupped in tables).
+ *  \a lpszColumnId represents the ID of the column in the table. 
+ *
+ *  \a nRowIndex defines the zero-based index of the row in the table.
  *  
  *  \a lpszBuffer defines the buffer where retrieved property value will be placed. If this parameter
- *  is NULL, it is ignored and \c pcchCount is set with the required size in characters of the buffer.
+ *  is NULL, it is ignored and \a pcchCount is set with the required size in characters of the buffer.
  *
  *  \a cchBuffSize defines the buffer size in characters. To calculate required buffer size, set \a lpszBuffer with NULL, 
- *  the function will set \pcchCount with the number of characters required.
+ *  the function will set \a pcchCount with the number of characters required.
  *
  *  \a pcchCount is set with the actual count of characters copied to the \a lpszBuffer. If this parameter is NULL,
  *  it is ignored.
@@ -330,7 +335,7 @@ crpGetPropertyA(
   LPCSTR lpszColumnId,
   INT nRowIndex,
   __out_ecount_z(pcchBuffSize) LPSTR lpszBuffer,
-  ULONG pcchBuffSize,
+  ULONG cchBuffSize,
   __out PULONG pcchCount
 );
 
@@ -358,7 +363,7 @@ crpGetPropertyA(
  *  Use this function to extract a compressed file from the error report (ZIP) file.
  *
  *  \a lpszFileName parameter should be the name of the file to extract. For more information
- *  about enumerating file names, see \ref example_enum_file_items.
+ *  about enumerating file names, see \ref crashrptprobe_api_examples.
  *
  *  \a lpszFileSaveAs defines the name of the file to extract to. 
  *
@@ -413,7 +418,7 @@ crpExtractFileA(
  *  \return This function returns length of error message in characters.
  *
  *  \param[out] pszBuffer Pointer to the buffer.
- *  \param[in]  uBuffSize Size of buffer in characters.
+ *  \param[in]  cchBuffSize Size of buffer in characters.
  *
  *  \remarks
  *
