@@ -11,6 +11,26 @@
 extern "C" {
 #endif
 
+// Define SAL macros to be empty if some old Visual Studio used
+#ifndef __reserved
+  #define __reserved
+#endif
+#ifndef __in
+  #define __in
+#endif
+#ifndef __in_opt
+  #define __in_opt
+#endif
+#ifndef __out
+  #define __out
+#endif
+#ifndef __out_ecount
+  #define __out_ecount(x)
+#endif
+#ifndef __out_ecount_z
+  #define __out_ecount_z(x)
+#endif
+
 #ifdef CRASHRPTPROBE_EXPORTS
 #define CRASHRPTPROBE_API __declspec(dllexport) WINAPI
 #else
@@ -178,7 +198,9 @@ crpCloseErrorReport(
 #define CRP_TBL_MDMP_MODULES _T("MdmpModules") //!< Table: The list of loaded modules.
 #define CRP_TBL_MDMP_THREADS _T("MdmpThreads") //!< Table: The list of threads.
 
-#define CRP_META_ROW_COUNT _T("RowCount")  
+/* Meta information */
+
+#define CRP_META_ROW_COUNT _T("RowCount") //!< Row count in the table.  
 
 /* Column names passed to crpGetProperty() function. */
 

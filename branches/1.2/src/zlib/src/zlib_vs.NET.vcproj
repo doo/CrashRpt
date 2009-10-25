@@ -153,6 +153,9 @@
 				RelativePath=".\deflate.c">
 			</File>
 			<File
+				RelativePath=".\gzio.c">
+			</File>
+			<File
 				RelativePath=".\infback.c">
 			</File>
 			<File

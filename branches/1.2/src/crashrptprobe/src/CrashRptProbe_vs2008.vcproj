@@ -2,10 +2,10 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="CrashSender"
-	ProjectGUID="{939312D6-690A-4103-92C5-4D89025BF10A}"
-	RootNamespace="CrashSender"
-	TargetFrameworkVersion="131072"
+	Name="CrashRptProbe"
+	ProjectGUID="{42B7465D-C7ED-42D3-9DE6-D966721A6F86}"
+	RootNamespace="CrashRptProbe"
+	Keyword="Win32Proj"
 	>
 	<Platforms>
 		<Platform
@@ -17,10 +17,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="Debug"
-			IntermediateDirectory="Debug"
-			ConfigurationType="1"
-			ATLMinimizesCRunTimeLibraryUsage="false"
+			OutputDirectory="$(SolutionDir)Bin"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -37,26 +36,18 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="false"
-				TargetEnvironment="1"
-				GenerateStublessProxies="true"
-				TypeLibraryName="$(IntDir)/CrashSender.tlb"
-				HeaderFileName="CrashSender.h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="CrashSender_i.c"
-				ProxyFileName="CrashSender_p.c"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
+				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\zip_utils"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
-				WarningLevel="3"
+				WarningLevel="4"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -64,24 +55,18 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
-				OutputFile="..\..\bin\CrashSenderd.exe"
-				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib"
+				OutputFile="$(OutDir)\$(ProjectName)d.dll"
+				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSenderd.pdb"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
+				ImportLibrary="..\..\lib\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -103,16 +88,19 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
-			ConfigurationType="1"
-			ATLMinimizesCRunTimeLibraryUsage="false"
+			OutputDirectory="$(SolutionDir)Bin"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
 			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -128,25 +116,14 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="false"
-				TargetEnvironment="1"
-				GenerateStublessProxies="true"
-				TypeLibraryName="$(IntDir)/CrashSender.tlb"
-				HeaderFileName="CrashSender.h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="CrashSender_i.c"
-				ProxyFileName="CrashSender_p.c"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
-				ExceptionHandling="1"
+				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\zip_utils"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -154,22 +131,20 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
-				OutputFile="..\..\bin\CrashSender.exe"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib"
+				OutputFile="..\..\bin\CrashRptProbe.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				GenerateDebugInformation="true"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				ImportLibrary="..\..\lib\CrashRptProbe.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -189,6 +164,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -200,10 +178,19 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\base64.cpp"
+				RelativePath=".\CrashDescReader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CrashRptProbe.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\crashsender\src\md5.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -223,55 +210,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\CrashSender.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\DetailDlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\httpsend.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MailMsg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MainDlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\md5.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\ProgressDlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SenderThread.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\smtpclient.cpp"
+				RelativePath=".\MinidumpReader.cpp"
 				>
 			</File>
 			<File
@@ -297,6 +236,14 @@
 			<File
 				RelativePath="..\..\crashrpt\src\Utility.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<Filter
 				Name="tinyxml"
@@ -393,8 +340,8 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -402,8 +349,8 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
 				</File>
@@ -415,8 +362,8 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
+							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
 					<FileConfiguration
@@ -424,9 +371,8 @@
 						>
 						<Tool
 							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311"
+							DisableSpecificWarnings="4996"
 						/>
 					</FileConfiguration>
 				</File>
@@ -434,34 +380,23 @@
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\base64.h"
+				RelativePath=".\CrashDescReader.h"
 				>
 			</File>
 			<File
-				RelativePath=".\DetailDlg.h"
+				RelativePath="..\..\include\CrashRptProbe.h"
 				>
 			</File>
 			<File
-				RelativePath=".\httpsend.h"
+				RelativePath="..\..\crashsender\src\md5.h"
 				>
 			</File>
 			<File
-				RelativePath=".\MailMsg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MainDlg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\md5.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ProgressDlg.h"
+				RelativePath=".\MinidumpReader.h"
 				>
 			</File>
 			<File
@@ -469,19 +404,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SenderThread.h"
-				>
-			</File>
-			<File
-				RelativePath=".\smtpclient.h"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\crashrpt\src\Utility.h"
 				>
 			</File>
 			<Filter
@@ -511,14 +434,11 @@
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\res\CrashSender.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\CrashSender.rc"
+				RelativePath=".\CrashRptProbe.rc"
 				>
 			</File>
 		</Filter>

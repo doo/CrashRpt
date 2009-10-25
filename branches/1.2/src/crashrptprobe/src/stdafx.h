@@ -66,15 +66,21 @@ extern CAppModule _Module;
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
 
-
 #if _MSC_VER<1400
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy(strDest, strSource, count)
+#define WCSCPY_S(strDestination, numberOfElements, strSource) wcscpy(strDestination, strSource)
 #define STRCPY_S(strDestination, numberOfElements, strSource) strcpy(strDestination, strSource)
+#define _ULTOT_S(value, str, sizeOfStr, radix) _ultot(value, str, radix)
+#define _TCSCAT_S(strDestination, size, strSource) _tcscat(strDestination, strSource)
 #else
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy_s(strDest, sizeInBytes, strSource, count)
+#define WCSCPY_S(strDestination, numberOfElements, strSource) wcscpy_s(strDestination, numberOfElements, strSource)
 #define STRCPY_S(strDestination, numberOfElements, strSource) strcpy_s(strDestination, numberOfElements, strSource)
+#define _ULTOT_S(value, str, sizeOfStr, radix) _ultot_s(value, str, sizeOfStr, radix)
+#define _TCSCAT_S(strDestination, size, strSource) _tcscat_s(strDestination, size, strSource)
 #endif
 
+int _STPRINTF_S(TCHAR* buffer, size_t sizeOfBuffer, const TCHAR* format, ... );
 
 
 

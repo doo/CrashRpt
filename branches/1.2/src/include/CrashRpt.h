@@ -14,6 +14,21 @@
 extern "C" {
 #endif
 
+// Define SAL macros to be empty if some old Visual Studio used
+#ifndef __reserved
+  #define __reserved
+#endif
+#ifndef __in
+  #define __in
+#endif
+#ifndef __in_opt
+  #define __in_opt
+#endif
+#ifndef __out_ecount_z
+  #define __out_ecount_z(x)
+#endif
+
+
 #ifndef CRASHRPT_LIB // If CrashRpt is used as DLL
 #define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
 #define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 

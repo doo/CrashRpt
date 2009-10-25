@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\CrashRpt\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -83,7 +83,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\CrashRpt\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"

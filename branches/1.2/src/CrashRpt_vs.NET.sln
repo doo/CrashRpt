@@ -25,6 +25,15 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\src\zlib_vs.NE
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptProbe", "crashrptprobe\src\CrashRptProbe_vs2003.vcproj", "{42B7465D-C7ED-42D3-9DE6-D966721A6F86}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crprober", "crprober\src\crprober_vs2003.vcproj", "{485ADA7C-BF7C-4EDC-AA56-212BF0160351}"
+	ProjectSection(ProjectDependencies) = postProject
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86} = {42B7465D-C7ED-42D3-9DE6-D966721A6F86}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -51,6 +60,14 @@ Global
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Debug.Build.0 = Debug|Win32
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release.ActiveCfg = Release|Win32
 		{00929DA3-31A1-4853-ABCE-145385A4AC63}.Release.Build.0 = Release|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Debug.ActiveCfg = Debug|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Debug.Build.0 = Debug|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release.ActiveCfg = Release|Win32
+		{42B7465D-C7ED-42D3-9DE6-D966721A6F86}.Release.Build.0 = Release|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Debug.ActiveCfg = Debug|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Debug.Build.0 = Debug|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release.ActiveCfg = Release|Win32
+		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

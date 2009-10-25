@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include <assert.h>
 #include "CrashRptProbe.h"
 
 // Character set independent string type
@@ -16,10 +17,32 @@ typedef std::basic_string<TCHAR> tstring;
 #define cmp_arg(val) (arg_exists() && (0==_tcscmp(argv[cur_arg], val)))
 
 // Function prototypes
-int process_command(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
+int process_reports(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
   LPTSTR szSymSearchPath);
 
 int output_document(CrpHandle handle, FILE* f);
+
+// We want to use secure version of _stprintf function when possible
+int _STPRINTF_S(TCHAR* buffer, size_t sizeOfBuffer, const TCHAR* format, ... )
+{
+  va_list args; 
+	va_start(args, format);
+  
+#if _MSC_VER<1400
+  UNREFERENCED_PARAMETER(sizeOfBuffer);
+  return _vstprintf(buffer, format, args);
+#else
+  return _vstprintf_s(buffer, sizeOfBuffer, format, args);
+#endif
+}
+
+// We want to use secure version of _tfopen when possible
+#if _MSC_VER<1400
+#define _TFOPEN_S(_File, _Filename, _Mode) _File = _tfopen(_Filename, _Mode);
+#else
+#define _TFOPEN_S(_File, _Filename, _Mode) _tfopen_s(&(_File), _Filename, _Mode);
+#endif
+
 
 // COutputter
 // This class is used for generating the content of the resulting file.
@@ -30,6 +53,7 @@ public:
 
   void Init(FILE* f)
   {
+    assert(f!=NULL);
     m_fOut = f;    
   }
 
@@ -61,7 +85,7 @@ public:
   void PutTableCell(LPCTSTR pszValue, int width, bool bLastInRow)
   {
     TCHAR szFormat[32];
-    _stprintf_s(szFormat, 32, _T("%%-%ds%s"), width, bLastInRow?_T("\n"):_T(" "));
+    _STPRINTF_S(szFormat, 32, _T("%%-%ds%s"), width, bLastInRow?_T("\n"):_T(" "));
     _ftprintf(m_fOut, szFormat, pszValue);
   }
   
@@ -78,7 +102,8 @@ void print_usage()
   _tprintf(_T("crprober <option> [option ...]\n"));
   _tprintf(_T("  where the option may be any of the following:\n"));
   _tprintf(_T("   /f <in_file_pattern>     Input ZIP file or search pattern. Required.\n"));
-  _tprintf(_T("   /fmd5 <md5_file>         Name of .md5 file containing MD5 hash for ZIP archive.\n"));
+  _tprintf(_T("   /fmd5 <md5_file_or_dir>  Name of .md5 file containing MD5 hash for ZIP archive \
+or directory name where to search for .md5 files.\n"));
   _tprintf(_T("   /o <out_file_or_dir>     Output file name or directory. If this parameter \
 is ommitted, output is written to the terminal.\n"));
   _tprintf(_T("   /sym <sym_search_dirs>   Symbol file search directory or list of directories \
@@ -99,7 +124,7 @@ int _tmain(int argc, TCHAR** argv)
   TCHAR* szSymSearchPath = NULL;    
 
   if(args_left()==0)
-    goto exit; // There are no arguments?
+    goto exit; // There are no arguments.
 
   // Parse command line arguments
   while(arg_exists())
@@ -151,7 +176,7 @@ int _tmain(int argc, TCHAR** argv)
   }
 
   // Do the processing work
-  result = process_command(szInput, szInputMD5, szOutput, szSymSearchPath); 
+  result = process_reports(szInput, szInputMD5, szOutput, szSymSearchPath); 
 
 exit:
 
@@ -165,32 +190,55 @@ exit:
 
 
 // Processes crash report file or group of files
-int process_command(
+int process_reports(
   LPTSTR szInput, 
   LPTSTR szInputMD5,
   LPTSTR szOutput,   
   LPTSTR szSymSearchPath)
 {
-  int result = 2;       // Status
+  int result = 2;        // Status
   CrpHandle hReport = 0; // Handle to the error report
-  WIN32_FIND_DATA fd;   // Used to enumerate files in directory
+  WIN32_FIND_DATA fd;    // Used to enumerate files in directory
   HANDLE hFind = INVALID_HANDLE_VALUE;   
   BOOL bNext = TRUE;    
   tstring sDirName;
   tstring sFileName;
+  BOOL bInputMD5FromDir = FALSE; // Did user specified file name for .MD5 file or directory name for search?
   BOOL bOutputToDir = FALSE; // Do we save resulting files to directory or save single resulting file?  
+  DWORD dwFileAttrs = 0;
+  tstring sMD5DirName;
 
   // Validate input parameters
-
   if(szInput==NULL)
   {
     _tprintf(_T("Input file name or pattern is missing.\n"));
     goto exit;
   }
   
+  if(szInputMD5!=NULL)
+  {
+    // Determine if user wants us to search for .MD5 files in a directory
+    // or if he specifies the .MD5 file name.  
+    dwFileAttrs = GetFileAttributes(szInputMD5);
+    if(dwFileAttrs!=INVALID_FILE_ATTRIBUTES && 
+       (dwFileAttrs&FILE_ATTRIBUTE_DIRECTORY))
+      bInputMD5FromDir = TRUE;  
+
+    // Append the last back slash to the MD5 dir name if needed
+    if(bInputMD5FromDir)
+    {
+      sMD5DirName = szInputMD5;
+      int pos = sMD5DirName.rfind('\\');
+      if(pos<0) // There is no back slash in path
+        sMD5DirName = _T(""); 
+      else if(pos!=(int)sMD5DirName.length()-1) // Append the back slash to dir name
+        sMD5DirName = sMD5DirName.substr(0, pos+1);
+    }
+  }
+
   // Determine if user wants us to save resulting files in directory using their respective 
   // file names or if he specifies the file name for the single saved file
-  DWORD dwFileAttrs = GetFileAttributes(szOutput);
+  dwFileAttrs = GetFileAttributes(szOutput);
   if(dwFileAttrs!=INVALID_FILE_ATTRIBUTES && 
      (dwFileAttrs&FILE_ATTRIBUTE_DIRECTORY))
     bOutputToDir = TRUE;  
@@ -203,6 +251,7 @@ int process_command(
     goto exit;
   }
    
+  // Append '\' to the directory name if needed
   sDirName = szInput;
   int pos = sDirName.rfind('\\');
   if(pos<0) // There is no back slash in path
@@ -212,26 +261,47 @@ int process_command(
   
   // Enumerate files in the search directory
   while(bNext)
-  {     
-    tstring str = fd.cFileName;
-    str += _T(".md5");
+  { 
+    tstring sFileName = fd.cFileName;
+    _tprintf(_T("Processing file: %s\n"), sFileName.c_str());
+
+    // Decide MD5 file name
+    tstring sMD5FileName;    
+    if(szInputMD5==NULL)
+    {
+      // If /md5 cmdline argument is ommitted, search for md5 files in the same dir
+      sMD5FileName = sDirName+sFileName;
+      sMD5FileName += _T(".md5");
+    }
+    else
+    {
+      if(bInputMD5FromDir)
+      {  
+        // Look for .md5 files in the special directory
+        sMD5FileName = sMD5DirName+sFileName;
+        sMD5FileName += _T(".md5");        
+      }
+      else
+      {
+        // Look for MF5 hash in the specified file
+        sMD5FileName = szInputMD5;
+      }
+    }
+    
+    // Get MD5 hash from .md5 file
     TCHAR szMD5Buffer[64];
     TCHAR* szMD5Hash = NULL;
-    FILE* f = NULL;
-    tstring sOutFileName;
-   
-    _tprintf(_T("Processing file: %s\n"), fd.cFileName);
-     
-    _tfopen_s(&f, str.c_str(), _T("rt"));
+    FILE* f = NULL;      
+    _TFOPEN_S(f, sMD5FileName.c_str(), _T("rt"));
     if(f!=NULL)
     {
       szMD5Hash = _fgetts(szMD5Buffer, 64, f);   
       fclose(f);
-      _tprintf(_T("Found MD5 file %s; MD5=%s\n"), fd.cFileName, szMD5Hash);
+      _tprintf(_T("Found MD5 file %s; MD5=%s\n"), sMD5FileName.c_str(), szMD5Hash);
     }    
     else
     {
-      _tprintf(_T("MD5 file not detected; no integrity check will be performed.\n"));
+      _tprintf(_T("MD5 file not detected; integrity check not performed.\n"));
     }
         
     // Open the error report file
@@ -246,6 +316,7 @@ int process_command(
     else
     {
       // Output results
+      tstring sOutFileName;
       if(szOutput!=NULL)
       {        
         if(bOutputToDir)
@@ -263,7 +334,7 @@ int process_command(
         }              
 
         // Open resulting file
-        _tfopen_s(&f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
+        _TFOPEN_S(f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
         if(f==NULL)
         {
           _tprintf(_T("Error: couldn't open output file '%s' while processing file '%s'\n"), 
@@ -481,7 +552,7 @@ int output_document(CrpHandle hReport, FILE* f)
   for(i=0; i<nItemCount; i++)
   { 
     TCHAR szBuffer[10];
-    _stprintf_s(szBuffer, 10, _T("%d"), i+1);
+    _STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
     doc.PutTableCell(szBuffer, 2, false);
     tstring sFileName;
     get_prop(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_COL_FILE_ITEM_NAME, sFileName, i);
@@ -515,7 +586,7 @@ int output_document(CrpHandle hReport, FILE* f)
       for(j=0; j<nFrameCount; j++)
       {
         TCHAR szBuffer[32];
-        _stprintf_s(szBuffer, 32, _T("%d"), j+1);
+        _STPRINTF_S(szBuffer, 32, _T("%d"), j+1);
         doc.PutTableCell(szBuffer, 2, false);
 
         tstring sModuleName;
@@ -568,7 +639,7 @@ int output_document(CrpHandle hReport, FILE* f)
   for(i=0; i<nItemCount; i++)
   {
     TCHAR szBuffer[10];
-    _stprintf_s(szBuffer, 10, _T("%d"), i+1);
+    _STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
     doc.PutTableCell(szBuffer, 2, false);
 
     tstring sModuleName;

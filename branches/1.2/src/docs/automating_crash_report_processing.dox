@@ -5,14 +5,13 @@
 Automating the error report processing becomes the critical task when you receive a 
 lot of error reports after software release. Among hundreeds of reports there may be 
 only several different problems, while others just duplicate the information about 
-these problems. Opening so many reports and analyzing their content may 
-become boring and take a lot of time.
+these problems. Opening so many reports manually with Visual Studio or WinDbg and 
+analyzing their content may become boring and take a lot of time.
 
-<b>Since v1.2.0</b> CrashRpt provides a covnenient way for automating the report processing.
+<b>Since v1.2.0</b>, CrashRpt provides a way for automating the report processing.
 The error report processing means opening a crash report, reading crash descriptor XML, opening
 crash minidump file, retrieving important information about the exception, and 
-finally presenting the information to the developer in some convenient form, such
-as text or HTML.
+finally presenting the information to the developer in text form.
 
 This section is devided into the following topics:
 
