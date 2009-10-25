@@ -8,8 +8,7 @@ the previous section.
 
 The error report processing functionality is encapsulated inside of CrashRptProbe.dll. 
 Internally CrashRptProbe uses the functions provided by \b dbghelp.dll (Microsoft Debug Help Library) 
-for loading the minidump file contained in the report. The functions used are \b MinidumpReadDumpStream()
-and \b StackWalk64().
+for loading the minidump file contained in the report. 
 
 The CrashRptProbe provides several functions you can use in your own error report processing tool 
 (see \ref CrashRptProbeAPI). All CrashRptProbe functions have \c crp prefix in function name, 
@@ -24,18 +23,27 @@ character set.
 
 \section crprobe_include_and_lib_files Include and Lib Files
 
-First of all, configure your project directories as described in \ref link section. This will make
-sure your compiler and linker will find the include and lib files.
+Configure your Visual Studio directories as described in below:
+
+In Visual Studio window, open Tools->
+Options->Projects and Solutions->VC++ Directories.
+- In the 'Show directories for' combo box, select 'Include files', then add 
+  the path to <i>[CRASHRPT_HOME]\\include</i> directory to the list.
+- In the 'Show directories for' combo box, select 'Library files', then add 
+  the path to <i>[CRASHRPT_HOME]\\lib</i> directory to the list.
+
+Here <i>[CRASHRPT_HOME]</i> should be replaced with the actual path of the 
+directory you unzipped CrashRpt package to.
 
 Include the \ref CrashRptProbe.h header file in the beginning of your code in order to use
-CrashRptProbe API in your report processing program.
+CrashRptProbe API in your crash report processing program.
 
 \code
 //Include CrashRptProbe header in the beginning of your code
 #include <CrashRptProbe.h>
 \endcode
 
-You also need to add CrashRptProbe.lib file to the list of input libraries for your project.
+You also need to add \b CrashRptProbe.lib file to the list of input libraries for your project.
 In the Solution Explorer window, right-click your project and choose Properties item in the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRptProbe.lib to the list of libraries. 
@@ -53,14 +61,8 @@ opened error report, you use crpCloseErrorReport() function.
 \section retrieving_report_properties Retreiving Error Report Properties
 
 You can think of the error report as a set of properties. All properties are organized into tables
-consisting of rows and columns. 
-
-Each property is a text string. But sometimes you might need to convert text properties to some other
-types for further processing. 
-
-To retrieve a property from the report, you use the crpGetProperty() function. 
-You pass table ID, column ID and row ID identifying the
-property to this function, and receive the value to the text buffer.
+consisting of rows and columns. Each property is a text string. But sometimes you might need to 
+convert text properties to some other types for further processing. 
 
 The list of table IDs you can use is presented below. 
 
@@ -99,8 +101,9 @@ The list of table IDs you can use is presented below.
 </table>
 
 The list of table IDs is not fixed. There may be additional tables in the report, and you 
-can determine their IDs at run time only. For example, each exectuion thread
-has the stack trace. You can retrieve table IDs for stack trace of each thread from 
+can determine their IDs at run time only. For example, each execution thread
+has the stack trace. The stack trace is the table conaining a collection of stack frames. 
+You can retrieve table IDs of the stack trace of each thread from 
 \ref CRP_TBL_MDMP_THREADS table.
 
 Each table may have several rows. The \ref CRP_TBL_XMLDESC_MISC and \ref CRP_TBL_MDMP_MISC
@@ -120,8 +123,15 @@ int get_table_row_count(CrpHandle hReport, LPCTSTR lpszTableId)
 Each table has several columns. The number of columns is not fixed, it depends on what version
 of CrashRpt generated the report. 
 
-To retrieve a property from a table, you specify the table ID, column ID and row index 
-(see the following example):
+To retrieve a property from the report, you use the crpGetProperty() function. 
+You pass table ID, column ID and row ID identifying the
+property to this function, and receive the value to the text buffer (see the following example).
+
+If there is no such table or there is no such column in the table, 
+or row index is invalid, the crpGetProperty() function fails. Check the returned value to
+ensure the property is retrieved successfuly.
+
+The following code example shows how to retrieve a property from error report:
 
 \code
 
@@ -305,6 +315,10 @@ Description of a file contained in the report.
 <table>
 
 <tr>
+<td> <b>Column ID</b>
+<td> <b>Description</b>
+
+<tr>
 <td> \ref CRP_COL_CPU_ARCHITECTURE
 <td> 
 Example: "0 x86"
@@ -399,45 +413,114 @@ Convert this text value to \c int and use as row ID to retrieve the module infor
 <table>
 
 <tr>
+<td> <b>Column ID</b>
+<td> <b>Description</b>
+
+<tr>
 <td> \ref CRP_COL_MODULE_NAME
-<td> Module name.
+<td> 
+Short module name (filename+extension).
+
+Example: "ntdll.dll"
+
+<tr>
+<td> \ref CRP_COL_MODULE_IMAGE_NAME
+<td> 
+Path to module image file.
+
+Example: "C:\Program Files\MyApp\msvcr80.dll"
 
 <tr>
 <td> \ref CRP_COL_MODULE_BASE_ADDRESS
-<td> Module base load address.
+<td> Module base load address. Hexadecimal value.
+
+Example: "0x80000000"
 
 <tr>
 <td> \ref CRP_COL_MODULE_SIZE
-<td> Module size.
+<td> Module size in bytes. Decimal.
+
+Example: "560008"
+
+<tr>
+<td> \ref CRP_COL_MODULE_LOADED_PDB_NAME
+<td> Path to the PDB file loaded for this module or empty string if symbols not loaded. 
+
+Example: "D:\CrashRptSaved\MyApp_v1.3.5\Sym\myapp.pdb"
 
 </table>
+
+<b>Column IDs for \ref CRP_TBL_MDMP_THREADS table.</b>
 
 <table>
 
 <tr>
+<td> <b>Column ID</b>
+<td> <b>Description</b>
+
+<tr>
+<td> \ref CRP_COL_THREAD_ID
+<td> Thread identifier. Hexadecimal value. Thread ID is assigned 
+on thread creation by \b CreateThread() WinAPI function. 
+
+Example: "0x1ff"
+
+<tr>
+<td> \ref CRP_COL_THREAD_STACK_TABLEID
+<td> Table ID of the stack frace table for this thread. Decimal. 
+Pass this string to crpGetProperty() as table ID.
+
+Example values are implementation specific.
+
+</table>
+
+<b>Column IDs for a stack trace table.</b>
+
+<table>
+
+<tr>
+<td> <b>Column ID</b>
+<td> <b>Description</b>
+
+<tr>
 <td> \ref CRP_COL_STACK_MODULE_ROWID
-<td> ""
-<td> Stack trace: module name.
+<td> Row index of a module in \ref CRP_TBL_MDMP_MODULES table. 
+Use this value to get module information for this stack frame. 
+Convert this value to \c int
+and pass to crpGetProperty() function as row index. 
+
+Possible values are integer numbers starting from zero.
 
 <tr>
 <td> \ref CRP_COL_STACK_SYMBOL_NAME
-<td> ""
-<td> Stack trace: symbol name.
+<td> Symbol name for this stack frame. Symbol name may be the name of 
+function or class method.
+
+Example: "CBaseClass::SomeMethod", "memcpy"
 
 <tr>
 <td> \ref CRP_COL_STACK_OFFSET_IN_SYMBOL
-<td> ""
-<td> Stack trace: offset in symbol, hexadecimal.
+<td> Offset in symbol, hexadecimal value.
+
+Example: "0x1f"
 
 <tr>
 <td> \ref CRP_COL_STACK_SOURCE_FILE
-<td> ""
-<td> Stack trace: source file name.
+<td> Path to source file.
+
+Example: "D:\MyProject\src\memfuncs.cpp"
 
 <tr>
 <td> \ref CRP_COL_STACK_SOURCE_LINE
-<td> ""
-<td> Stack trace: source file line number.
+<td> Source file line number. Decimal.
+
+Example: "100"
+
+<tr>
+<td> \ref CRP_COL_STACK_ADDR_PC_OFFSET
+<td> Program counter CPU register's value for this stack frame. Hexadecimal.
+
+Example: "0x800000435"
 
 </table>
 

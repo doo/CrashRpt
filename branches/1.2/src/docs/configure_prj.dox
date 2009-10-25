@@ -13,13 +13,11 @@ location of CrashRpt include and lib files, do the following.
 In Visual Studio window, open Tools->
 Options->Projects and Solutions->VC++ Directories.
 - In the 'Show directories for' combo box, select 'Include files', then add 
-  the path to [CRASHRPT_HOME]\\CrashRpt\\include directory to the list.
+  the path to <i>[CRASHRPT_HOME]\\include</i> directory to the list.
 - In the 'Show directories for' combo box, select 'Library files', then add 
-  the path to [CRASHRPT_HOME]\\lib directory to the list.
-- In the 'Show directories for' combo box, select 'Executable files', then add 
-  the path to [CRASHRPT_HOME]\\bin directory to the list.
+  the path to <i>[CRASHRPT_HOME]\\lib</i> directory to the list.
 
-Here [CRASHRPT_HOME] should be replaced with the actual path of the 
+Here <i>[CRASHRPT_HOME]</i> should be replaced with the actual path of the 
 directory you unzipped CrashRpt package to.
 
 Before you start using CrashRpt API functions in your program, do not forget to include 

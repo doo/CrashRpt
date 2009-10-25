@@ -426,7 +426,13 @@ crpGetPropertyW(
       pszPropVal = szBuff;
     }  
     else if(sColumnId.Compare(CRP_COL_CRASH_GUID)==0)
-    {      
+    { 
+      // We do not support crash GUIDs for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sCrashGUID);    
     }
     else if(sColumnId.Compare(CRP_COL_APP_NAME)==0)
@@ -443,29 +449,82 @@ crpGetPropertyW(
     }
     else if(sColumnId.Compare(CRP_COL_OPERATING_SYSTEM)==0)
     {
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sOperatingSystem);    
     }
     else if(sColumnId.Compare(CRP_COL_SYSTEM_TIME_UTC)==0)
     {
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sSystemTimeUTC);    
     }
+    else if(sColumnId.Compare(CRP_COL_INVPARAM_FUNCTION)==0)
+    {  
+      if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+      {
+        crpSetErrorMsg(_T("This property is supported for invalid parameter errors only."));
+        return -3;
+      }
+      pszPropVal = strconv.t2w(pDescReader->m_sInvParamFunction);    
+    }
     else if(sColumnId.Compare(CRP_COL_INVPARAM_EXPRESSION)==0)
-    {     
+    {  
+      if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+      {
+        crpSetErrorMsg(_T("This property is supported for invalid parameter errors only."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sInvParamExpression);    
     }
     else if(sColumnId.Compare(CRP_COL_INVPARAM_FILE)==0)
-    {
+    {      
+      if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+      {
+        crpSetErrorMsg(_T("This property is supported for invalid parameter errors only."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sInvParamFile);    
+    }
+    else if(sColumnId.Compare(CRP_COL_INVPARAM_LINE)==0)
+    {
+      if(pDescReader->m_dwExceptionType!=CR_CPP_INVALID_PARAMETER)
+      {
+        crpSetErrorMsg(_T("This property is supported for invalid parameter errors only."));
+        return -3;
+      }
+      _ULTOT_S(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
+      pszPropVal = szBuff;            
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_TYPE)==0)
     {
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       _ULTOT_S(pDescReader->m_dwExceptionType, szBuff, BUFF_SIZE, 10);
       _TCSCAT_S(szBuff, BUFF_SIZE, _T(" "));
       _TCSCAT_S(szBuff, BUFF_SIZE, exctypes[pDescReader->m_dwExceptionType]);
       pszPropVal = szBuff;            
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_CODE)==0)
-    {  
+    { 
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       _ULTOT_S(pDescReader->m_dwExceptionCode, szBuff, BUFF_SIZE, 16);
       _TCSCAT_S(szBuff, BUFF_SIZE, _T(" "));
       CString msg = Utility::FormatErrorMsg(pDescReader->m_dwExceptionCode);
@@ -474,20 +533,33 @@ crpGetPropertyW(
     }
     else if(sColumnId.Compare(CRP_COL_FPE_SUBCODE)==0)
     { 
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       _ULTOT_S(pDescReader->m_dwFPESubcode, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;        
-    }
-    else if(sColumnId.Compare(CRP_COL_INVPARAM_LINE)==0)
-    {       
-      _ULTOT_S(pDescReader->m_dwInvParamLine, szBuff, BUFF_SIZE, 10);
-      pszPropVal = szBuff;            
-    }
+    }    
     else if(sColumnId.Compare(CRP_COL_USER_EMAIL)==0)
     {
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sUserEmail);    
     }
     else if(sColumnId.Compare(CRP_COL_PROBLEM_DESCRIPTION)==0)
     {
+      // We do not support this property for older version of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
       pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
     }
     else
@@ -576,7 +648,6 @@ crpGetPropertyW(
         szDescription = _T("workstation");
       
       _TCSCAT_S(szBuff, BUFF_SIZE, szDescription);
-
 
       pszPropVal = szBuff;        
     }

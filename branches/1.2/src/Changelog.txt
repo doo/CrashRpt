@@ -2,6 +2,8 @@
 
 --- Ver. 1.2.0 ---
 
+- Reorgranized the include files; moved from 'CrashRpt\include' to 'include'.
+
 - Support of error report batch processing (crprober.exe tool).
 
 - New application programming interface for error report processing (CrashRptProbe.dll).

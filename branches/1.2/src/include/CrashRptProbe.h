@@ -260,7 +260,7 @@ crpCloseErrorReport(
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief Retrieves a string property from crash report.
- *  \return This function returns zero on success.
+ *  \return This function returns zero on success, with one exception (see Remarks for more information).
  *
  *  \param[in]  hReport Handle to the previously opened crash report.
  *  \param[in]  lpszTableId Table ID.
@@ -277,6 +277,11 @@ crpCloseErrorReport(
  *
  *  Properties are organized into tables having rows and columns. For the list of available tables,
  *  see \ref using_crashrptprobe_api.
+ *
+ *  To get the number of rows in a table, pass the constant \ref CRP_META_ROW_COUNT as column ID. In this case the
+ *  function returns number of rows as its return value, or negative value on failure. 
+ *
+ *  In all other cases the function returns zero on success.
  *
  *  Some properties are loaded from crash descriptor XML file, while others are loaded from crash minidump file.
  *  The minidump is loaded once when you retrive a property from it. This reduces the overall processing time.
