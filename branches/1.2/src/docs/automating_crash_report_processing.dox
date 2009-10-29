@@ -13,6 +13,8 @@ The error report processing means opening a crash report, reading crash descript
 crash minidump file, retrieving important information about the exception, and 
 finally presenting the information to the developer in text form.
 
+\image html reports_path.png
+
 This section is devided into the following topics:
 
 - \subpage crprober_tool
