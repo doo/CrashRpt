@@ -99,35 +99,7 @@ typedef int CrpHandle;
  *
  *  The crpOpenErrorReportW() and crpOpenErrorReportA() are wide character and multibyte 
  *  character versions of crpOpenErrorReport(). 
- *
- *  The following example shows how to open an error report file:
- *
- * \code
- *   #include <CrashRptProbe.h>
- *   #include <stdio.h>
- *   ...
- *   
- *   CrpHandle hReport = 0;
- *   int result = crpOpenErrorReport(
- *                 _T("0b3b0c1b-3450-4c39-9459-42221ae66460.zip"), // Zip archive name
- *                 _T("2e4345603454a345064371ab34195316"), // MD5 hash for the file
- *                 _T("D:\\MyApp\\1.3.4\\Sym; D:\\MyApp\\1.3.5\\Sym"), // Where to look for symbols
- *                 0, // Reserved
- *                 &hReport
- *                 );
- *
- *  if(result!=0)
- *  {
- *    TCHAR szErrorMsg[256];
- *    crpGetLastErrorMsg(szErrorMsg, 256);
- *    return;
- *  }
- *
- *  // Read the properties, extract files...
- *
- *  // Finally, close the report
- *  crpCloseErrorReport(hReport);
- * \endcode
+ * 
  *
  *  \sa 
  *    crpCloseErrorReport()
