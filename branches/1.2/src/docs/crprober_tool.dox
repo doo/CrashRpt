@@ -48,7 +48,7 @@ arguments are listed in the table below:
 
 <tr>
 <td>/fmd5 \<md5_file_or_dir\>         
-<td>Optional. Path to .md5 file containing MD5 hash for the <input_file> or directory name where to 
+<td>Optional. Path to .md5 file containing MD5 hash for the \<input_file\> or directory name where to 
 search for the .md5 file. If this parameter is ommitted, the .md5 file is searched in the directory 
 where \<input_file\> is located.
 
@@ -63,10 +63,15 @@ If this parameter is ommitted, output is not generated.
 If this parameter is ommitted, symbol files are searched using the default search sequence.
 
 <tr>
-<td> /ext <extract_dir>
+<td> /ext \<extract_dir\>
 <td> Optional. Specifies the directory where to extract all files contained in error report. 
 If this parameter is ommitted, files are not extracted.
 
+<tr>
+<td> /get \<table_id\> \<column_id\> \<row_id\>
+<td> Optional. Specifies the table ID, column ID and row index of the property to retrieve. If 
+this parameter specified, the property is written to the output file or to terminal, as defined by /o parameter.
+For the list of properties you can retrieve, see \ref using_crashrptprobe_api.
 </table>
 
 The crprober tool can return one of the following return codes:
@@ -99,7 +104,7 @@ The crprober tool can return one of the following return codes:
 
 </table>
 
-\section crprober_examples Examples
+\section crprober_examples Examples of Use
 
 The following example processes the 'error_report.zip' file and writes output to the terminal. Symbol files are
 assumed to be located in 'D:\\Symbol Files' directory.
@@ -113,6 +118,17 @@ Symbol files are assumed to be located in 'D:\\Symbol Files' or in 'D:\\MyApp\\s
 \code
 crprober.exe /f error_report.zip /md5 error_report.zip.md5 /o error_report.zip.txt /sym "D:\Symbol Files;D:\MyApp\sym"
 \endcode
+
+The following example retrieves the application name from the error report and writes it to terminal:
+\code
+crprober.exe /f error_report.zip /o "" /sym "D:\Symbol Files;D:\MyApp\sym" /get XmlDescMisc AppName 0
+\endcode
+
+The following example retrieves the count of rows in the MdmpModules table and writes it to terminal:
+\code
+crprober.exe /f error_report.zip /o "" /sym "D:\Symbol Files;D:\MyApp\sym" /get MdmpModules RowCount 0
+\endcode
+
 
 \section crprober_reallife_scenario Real-Life Usage Scenario
 

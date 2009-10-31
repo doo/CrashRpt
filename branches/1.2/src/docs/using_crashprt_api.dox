@@ -68,8 +68,9 @@ report manually.
 \section handling_structured_exceptions Handling Structured Exceptions
 
 Visual C++ provides structured exception handling mechanism. You may use __try{}__except(Expression){}
-construction to catch a structured exception in a block of code in your program. Use crExceptionFilter() function to
-generate an error report when structured exception occurs.
+construction to catch a structured exception in a block of code in your program, however this requires some
+work to write custom exception filter function. To simplify this, use crExceptionFilter() function instead to
+generate an error report when structured exception occurs. 
 
 \section testing_if_intercepted Testing If Exceptions are Intercepted
 

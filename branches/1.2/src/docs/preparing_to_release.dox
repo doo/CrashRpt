@@ -46,7 +46,7 @@ that you place these files to the directory where your application executable fi
                                                                               
 - \b bin\CrashRpt.dll 
 - \b bin\CrashSender.exe
-- \b dbghelp\bin\dbghelp.dll
+- \b bin\dbghelp.dll
 
 The \b CrashRpt.dll and \b CrashSender.exe are core CrashRpt modules. \b dbghelp.dll (Microsoft Debug Help Library) 
 is a dependent module.

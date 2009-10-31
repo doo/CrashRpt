@@ -2,7 +2,8 @@
 
 \page using_crash_descriptor Using Crash Descriptor XML (crashrpt.xml)
 
-The crash descriptor is an XML file that contains the basic information about the crash.
+The crash descriptor is an XML file that contains basic information about the crash.
+It complements the information contained in mindump file. 
 
 \note The structure of XML file has changed since the version 1.0 of CrashRpt. The old structure
 provided mostly unusable information taken from crash minidump (exception address, 
@@ -86,6 +87,8 @@ There are additional elements that appear sometimes, depending on \c ExceptionTy
 \c ExceptionCode is the structured exception code. It presents when \c ExceptionType is 0.
 
 \c FPESubcode is the floating point exception subcode. It presents when \c ExceptionType is 8.
+For information on floating point exception subcodes, see documentation of \b signal() function
+in MSDN and \<float.h\> header file
 
 \c InvParamFunction, \c InvParamExpression, \c InvParamFile and \c InvParamLine are present when 
 \c ExceptionType is 6. These elements are typically empty. They may be non-empty if debug version

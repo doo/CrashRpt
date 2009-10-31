@@ -64,7 +64,8 @@ You can think of the error report as a set of properties. All properties are org
 consisting of rows and columns. Each property is a text string. But sometimes you might need to 
 convert text properties to some other types for further processing. 
 
-The list of table IDs you can use is presented below. 
+The list of table IDs you can use is presented below. Table IDs are actually strings, but
+we use aliases for convenience. For example, \ref CRP_TBL_XMLDESC_MISC expands into "XmlDescMisc" string.
 
 <table>
 
@@ -112,12 +113,9 @@ number of rows in the table by passing special constant \ref CRP_META_ROW_COUNT 
 crpGetProperty() function, as shown in the example below:
 
 \code
-// The following helper function can retrieve the number of rows in the table.
+// Get row count in the Modules table.
 // The return value is non-negative on success.
-int get_table_row_count(CrpHandle hReport, LPCTSTR lpszTableId)
-{
-  return crpGetProperty(hReport, lpszTableId, CRP_META_ROW_COUNT, 0, NULL, 0, NULL);
-}
+int nRowCount = crpGetProperty(hReport, CRP_TBL_MDMP_MODULES, CRP_META_ROW_COUNT, 0, NULL, 0, NULL);
 \endcode
 
 Each table has several columns. The number of columns is not fixed, it depends on what version
@@ -144,7 +142,8 @@ int nResult = crpGetProperty(hReport, CRP_TBL_MDMP_MISC, CRP_COL_CPU_COUNT, 0, s
 
 \endcode
 
-Below the list of available column IDs for each table is presented:
+Below the list of available column IDs for each table is presented. Column IDs are actually strings, but
+we use aliases for convenience. For example, \ref CRP_COL_APP_NAME expands into "AppName" string.
 
 <b>Column IDs of the \ref CRP_TBL_XMLDESC_MISC table.</b>
 
@@ -216,6 +215,7 @@ end user's registry.
 Example: "2009-06-28T04:47:32Z"
 
 Time (UTC) when the crash had occured, including year, month, day, hour, min and sec.
+     <br><b>CrashRpt v1.1b and later</b>
 
 <tr>
 <td> \ref CRP_COL_EXCEPTION_TYPE
@@ -224,7 +224,7 @@ Examples: "0 structured exception", "1 terminate call".
 
 Code of exception handler that cought the exception followed by short description. For the 
 list of possible exception types, see \ref using_crash_descriptor.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_EXCEPTION_CODE
 <td> 
@@ -232,40 +232,40 @@ Example: "0xc0000005 Access violation reading location."
 
 Exception code; for the structured exceptions only. Hexadecimal number followed by the 
 textual description.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_INVPARAM_FUNCTION
 <td> 
 Example: "_stprintf_s".
 
 Function name; for invalid parameter errors only.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_INVPARAM_EXPRESSION
 <td> 
 Example: "sizeOfBuffer!=0"
 
 Expression; for invalid parameter errors only.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_INVPARAM_FILE
 <td>
 Example: "invarg.c"
 
 Source file name; for invalid parameter errors only.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_INVPARAM_LINE
 <td> 
 Example: "25"
 
 Source line number; decimal number; for invalid parameter errors only.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_FPE_SUBCODE
 <td> 
 Example: "0x81"
-
+     <br><b>CrashRpt v1.1b and later</b>
 Subcode of floating point exception, hexadecimal number. For FPE exceptions only.
 For the list of possible FPE subcodes, see the documentation of \b signal function in MSDN
 or \c FPE_-prefixed constants in <float.h> header.
@@ -276,14 +276,14 @@ or \c FPE_-prefixed constants in <float.h> header.
 Example: "example@hotmail.com"
 
 Email of the user who sent this report.
-
+     <br><b>CrashRpt v1.1b and later</b>
 <tr>
 <td> \ref CRP_COL_PROBLEM_DESCRIPTION
 <td> 
 Example: "I don't know"
 
 User-provided problem description.
-
+     <br><b>CrashRpt v1.1b and later</b>
 </table>
 
 <b>Column IDs of the \ref CRP_TBL_XMLDESC_FILE_ITEMS table.</b>

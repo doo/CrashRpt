@@ -30,6 +30,8 @@ A crash report is a small ZIP file (usually less than 100 KB in size) containing
 For more information about using crash descriptor XML and crash minidump, 
 see \ref using_crash_descriptor and \ref using_minidump.
 
+For information on how to automate error report processing, see \ref automating_crash_report_processing.
+
 <b>How do I check integrity of a received error report?</b>
 
 You may calculate MD5 hash for your error report and compare it with the MD5 hash 

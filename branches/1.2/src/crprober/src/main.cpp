@@ -28,8 +28,8 @@ enum ReturnCode
 
 // Function prototypes
 int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
-  LPTSTR szSymSearchPath, LPTSTR szExtractPath);
-
+  LPTSTR szSymSearchPath, LPTSTR szExtractPath, LPTSTR szTableId, LPTSTR szColumnId, LPTSTR szRowId);
+int get_prop(CrpHandle hReport, LPCTSTR table_id, LPCTSTR column_id, tstring& str, int row_id=0);
 int output_document(CrpHandle hReport, FILE* f);
 int extract_files(CrpHandle hReport, LPCTSTR pszExtractPath);
 
@@ -71,6 +71,8 @@ to direct output to terminal. If this parameter is ommitted, output is not gener
 separated with semicolon. If this parameter is ommitted, symbol files are searched using the default search sequence.\n"));  
   _tprintf(_T("   /ext <extract_dir>       Optional. Specifies the directory where to extract all files contained in error report. \
 If this parameter is ommitted, files are not extracted.\n"));    
+  _tprintf(_T("   /get <table_id> <column_id> <row_id> Optional. Specifies the table ID, column ID and row index of the property to retrieve. \
+If this parameter specified, the property is written to the output file or to terminal, as defined by /o parameter.\n"));    
 }
 
 // COutputter
@@ -135,6 +137,10 @@ int _tmain(int argc, TCHAR** argv)
   TCHAR* szOutput = NULL;   // Output file 
   TCHAR* szSymSearchPath = NULL; // Symbol search path   
   TCHAR* szExtractPath = NULL;   // File extraction path
+
+  TCHAR* szTableId = NULL;
+  TCHAR* szColumnId = NULL;
+  TCHAR* szRowId = NULL;
 
   if(args_left()==0)
   {
@@ -211,6 +217,23 @@ int _tmain(int argc, TCHAR** argv)
       }
       skip_arg();
     }
+    else if(cmp_arg(_T("/get"))) // get property
+    {
+      skip_arg();    
+      szTableId = get_arg();
+      skip_arg();
+      szColumnId = get_arg();
+      skip_arg();
+      szRowId = get_arg();
+      skip_arg();
+
+      if(szTableId==NULL || szColumnId==NULL || szRowId==NULL)
+      {
+        result = INVALIDARG;
+        _tprintf(_T("Missing table ID or column ID or row ID in /get parameter.\n"));
+        goto done;
+      }      
+    }
     else // unknown arg
     {
       _tprintf(_T("Unexpected parameter: %s\n"), get_arg());
@@ -219,7 +242,8 @@ int _tmain(int argc, TCHAR** argv)
   }
 
   // Do the processing work
-  result = process_report(szInput, szInputMD5, szOutput, szSymSearchPath, szExtractPath); 
+  result = process_report(szInput, szInputMD5, szOutput, szSymSearchPath, 
+    szExtractPath, szTableId, szColumnId, szRowId); 
 
 done:
 
@@ -234,7 +258,8 @@ done:
 
 // Processes a crash report file.
 int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
-                   LPTSTR szSymSearchPath, LPTSTR szExtractPath)
+                   LPTSTR szSymSearchPath, LPTSTR szExtractPath, LPTSTR szTableId,
+                   LPTSTR szColumnId, LPTSTR szRowId)
 {
   int result = UNEXPECTED; // Status
   CrpHandle hReport = 0; // Handle to the error report
@@ -258,8 +283,8 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
     _tprintf(_T("Input file name is missing.\n"));
     goto done;
   }
-
-  if(szOutput==NULL)
+ 
+  if(szTableId==NULL && szOutput==NULL)
   {
     result = INVALIDARG;
     _tprintf(_T("Output file name or directory name is missing.\n"));
@@ -329,7 +354,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
       bOutputToDir = TRUE;  
   }  
   
-  _tprintf(_T("Processing file: %s\n"), sInFileName.c_str());
+  //_tprintf(_T("Processing file: %s\n"), sInFileName.c_str());
 
   // Decide MD5 file name  
   if(szInputMD5==NULL)
@@ -352,8 +377,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
       sMD5FileName = szInputMD5;
     }
   }
-    
-  
+      
   // Get MD5 hash from .md5 file
   _TFOPEN_S(f, sMD5FileName.c_str(), _T("rt"));
   if(f!=NULL)
@@ -362,7 +386,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
     fclose(f);
     _tprintf(_T("Found MD5 file %s; MD5=%s\n"), sMD5FileName.c_str(), szMD5Hash);
   }    
-  else
+  else if(szTableId==NULL)
   {
     _tprintf(_T("MD5 file not detected; integrity check not performed.\n"));
   }
@@ -377,52 +401,89 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
   }
   else 
   {
-    // Output results
-    tstring sOutFileName;
-    if(szOutput!=NULL && _tcscmp(szOutput, _T(""))!=0)
-    {        
-      if(bOutputToDir)
+    if(szTableId!=NULL)
+    {
+      // Get single property
+      tstring sProp;
+      int get = get_prop(hReport, szTableId, szColumnId, sProp, _ttoi(szRowId));
+      if(_tcscmp(szColumnId, CRP_META_ROW_COUNT)==0)
       {
-        // Write output to directory
-        sOutFileName = tstring(szOutput);
-        if( sOutFileName[sOutFileName.length()-1]!='\\' )
-          sOutFileName += _T("\\"); 
-        sOutFileName += sInFileName + _T(".txt");
+        if(get<0)
+        {
+          result = UNEXPECTED;
+          TCHAR szErr[1024];
+          crpGetLastErrorMsg(szErr, 1024);        
+          _tprintf(_T("%s\n"), szErr);
+          goto done;
+        }
+        else
+        {
+          // Print row count in the specified table
+          _tprintf(_T("%d\n"), get);
+        }
+      }
+      else if(get!=0)
+      {
+        result = UNEXPECTED;
+        TCHAR szErr[1024];
+        crpGetLastErrorMsg(szErr, 1024);        
+        _tprintf(_T("%s\n"), szErr);
+        goto done;
       }
       else
       {
-        // Write output to single file
-        sOutFileName = szOutput;
-      }              
-
-      // Open resulting file
-      _TFOPEN_S(f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
-      if(f==NULL)
-      {
-        result = UNEXPECTED;
-        _tprintf(_T("Error: couldn't open output file '%s'.\n"), 
-          sOutFileName.c_str());      
-        goto done;
+        _tprintf(_T("%s\n"), sProp.c_str());
       }
     }
-    else if(szOutput!=NULL && _tcscmp(szOutput, _T(""))==0)
+    else
     {
-      f=stdout; // Write output to terminal
-    }
-    
-    if(szOutput!=NULL && f==NULL)
-    {
-      result = UNEXPECTED;
-      _tprintf(_T("Error: couldn't open output file.\n")); 
-      goto done;
-    }
-    
-    if(f!=NULL)
-    {
-      // Write error report properties to the resulting file
-      result = output_document(hReport, f);
-      if(result!=0)
-        goto done;      
+      // Output results
+      tstring sOutFileName;
+      if(szOutput!=NULL && _tcscmp(szOutput, _T(""))!=0)
+      {        
+        if(bOutputToDir)
+        {
+          // Write output to directory
+          sOutFileName = tstring(szOutput);
+          if( sOutFileName[sOutFileName.length()-1]!='\\' )
+            sOutFileName += _T("\\"); 
+          sOutFileName += sInFileName + _T(".txt");
+        }
+        else
+        {
+          // Write output to single file
+          sOutFileName = szOutput;
+        }              
+
+        // Open resulting file
+        _TFOPEN_S(f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
+        if(f==NULL)
+        {
+          result = UNEXPECTED;
+          _tprintf(_T("Error: couldn't open output file '%s'.\n"), 
+            sOutFileName.c_str());      
+          goto done;
+        }
+      }
+      else if(szOutput!=NULL && _tcscmp(szOutput, _T(""))==0)
+      {
+        f=stdout; // Write output to terminal
+      }
+      
+      if(szOutput!=NULL && f==NULL)
+      {
+        result = UNEXPECTED;
+        _tprintf(_T("Error: couldn't open output file.\n")); 
+        goto done;
+      }
+      
+      if(f!=NULL)
+      {
+        // Write error report properties to the resulting file
+        result = output_document(hReport, f);
+        if(result!=0)
+          goto done;      
+      }
     }
         
     if(szExtractPath!=NULL)
@@ -449,7 +510,7 @@ done:
 }
 
 // Helper function thatr etrieves an error report property
-int get_prop(CrpHandle hReport, LPCTSTR table_id, LPCTSTR column_id, tstring& str, int row_id=0)
+int get_prop(CrpHandle hReport, LPCTSTR table_id, LPCTSTR column_id, tstring& str, int row_id)
 {
   const int BUFF_SIZE = 1024;
   TCHAR buffer[BUFF_SIZE];  
