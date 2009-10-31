@@ -2,6 +2,11 @@
 
 \page demos Running Demo Applications (CrashRptTest.exe and crashcon.exe)
 
+\note If you run the demos from \c bin folder and do not compile them yourself, you might
+expirience some problems. There may be error messages like 'The application configuration is incorrect' and so on.
+This is because the demos depend on Visual C++ Redistributable 2005. If you do not have such redistributable
+on your machine and do not want to install it, please recompile the demos yourself to avoid these problems.
+
 \section crashrpttest About CrashRptTest Demo
 
 \b CrashRptTest demo application shows how CrashRpt intercepts exceptions and
