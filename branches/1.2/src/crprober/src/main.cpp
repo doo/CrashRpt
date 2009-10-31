@@ -16,11 +16,22 @@ typedef std::basic_string<TCHAR> tstring;
 #define skip_arg() cur_arg++
 #define cmp_arg(val) (arg_exists() && (0==_tcscmp(argv[cur_arg], val)))
 
-// Function prototypes
-int process_reports(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
-  LPTSTR szSymSearchPath);
+// Return codes
+enum ReturnCode 
+{
+   SUCCESS     = 0, // OK
+   UNEXPECTED  = 1,  // Unexpected error
+   INVALIDARG  = 2, // Invalid argument
+   INVALIDMD5  = 3, // Integrity check failed
+   EXTRACTERR  = 4  // File extraction error   
+};
 
-int output_document(CrpHandle handle, FILE* f);
+// Function prototypes
+int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
+  LPTSTR szSymSearchPath, LPTSTR szExtractPath);
+
+int output_document(CrpHandle hReport, FILE* f);
+int extract_files(CrpHandle hReport, LPCTSTR pszExtractPath);
 
 // We want to use secure version of _stprintf function when possible
 int _STPRINTF_S(TCHAR* buffer, size_t sizeOfBuffer, const TCHAR* format, ... )
@@ -43,6 +54,24 @@ int _STPRINTF_S(TCHAR* buffer, size_t sizeOfBuffer, const TCHAR* format, ... )
 #define _TFOPEN_S(_File, _Filename, _Mode) _tfopen_s(&(_File), _Filename, _Mode);
 #endif
 
+// Prints usage
+void print_usage()
+{
+  _tprintf(_T("Usage:\n"));
+  _tprintf(_T("crprober /? Prints this usage help\n"));
+  _tprintf(_T("crprober <arg> [arg ...]\n"));
+  _tprintf(_T("  where the argument may be any of the following:\n"));
+  _tprintf(_T("   /f <input_file>          Required. Absolute or relative path to input ZIP file name.\n"));
+  _tprintf(_T("   /fmd5 <md5_file_or_dir>  Optional. Path to .md5 file containing MD5 hash for the <input_file> \
+or directory name where to search for the .md5 file. If this parameter is ommitted, the .md5 file is searched \
+in the directory where <input_file> is located.\n"));
+  _tprintf(_T("   /o <out_file_or_dir>     Optional. Output file name or directory name. Or use empty name \"\" \
+to direct output to terminal. If this parameter is ommitted, output is not generated.\n"));
+  _tprintf(_T("   /sym <sym_search_dirs>   Optional. Symbol files search directory or list of directories \
+separated with semicolon. If this parameter is ommitted, symbol files are searched using the default search sequence.\n"));  
+  _tprintf(_T("   /ext <extract_dir>       Optional. Specifies the directory where to extract all files contained in error report. \
+If this parameter is ommitted, files are not extracted.\n"));    
+}
 
 // COutputter
 // This class is used for generating the content of the resulting file.
@@ -94,37 +123,24 @@ private:
   FILE* m_fOut;
 };
 
-// Prints usage
-void print_usage()
-{
-  _tprintf(_T("Usage:\n"));
-  _tprintf(_T("crprober /? Prints this usage help\n"));
-  _tprintf(_T("crprober <option> [option ...]\n"));
-  _tprintf(_T("  where the option may be any of the following:\n"));
-  _tprintf(_T("   /f <in_file_pattern>     Input ZIP file or search pattern. Required.\n"));
-  _tprintf(_T("   /fmd5 <md5_file_or_dir>  Name of .md5 file containing MD5 hash for ZIP archive \
-or directory name where to search for .md5 files.\n"));
-  _tprintf(_T("   /o <out_file_or_dir>     Output file name or directory. If this parameter \
-is ommitted, output is written to the terminal.\n"));
-  _tprintf(_T("   /sym <sym_search_dirs>   Symbol file search directory or list of directories \
-separated with semicolon. If this parameter is ommitted, symbols files are searched in current directory.\n"));  
-  _tprintf(_T("\nExample: \n"));
-  _tprintf(_T("   crprober /f *.zip /o \"D:\\Error Reports\" /of text \n"));
-}
 
 // Program entry point
 int _tmain(int argc, TCHAR** argv)
 {
-  int result = 1; // Return code
-  int cur_arg = 1; // Current processed cmdline argument
+  int result = INVALIDARG; // Return code
+  int cur_arg = 1; // Current cmdline argument being processed
 
-  TCHAR* szInput = NULL;       
-  TCHAR* szInputMD5 = NULL;
-  TCHAR* szOutput = NULL;  
-  TCHAR* szSymSearchPath = NULL;    
+  TCHAR* szInput = NULL; // Input file       
+  TCHAR* szInputMD5 = NULL; // Input MD5 file or dir
+  TCHAR* szOutput = NULL;   // Output file 
+  TCHAR* szSymSearchPath = NULL; // Symbol search path   
+  TCHAR* szExtractPath = NULL;   // File extraction path
 
   if(args_left()==0)
-    goto exit; // There are no arguments.
+  {
+    result = INVALIDARG;
+    goto done; // There are no arguments.
+  }
 
   // Parse command line arguments
   while(arg_exists())
@@ -132,17 +148,19 @@ int _tmain(int argc, TCHAR** argv)
     if(cmp_arg(_T("/?"))) // help
     {
       // Print usage text
-      goto exit;
+      result = INVALIDARG;
+      goto done;
     }
-    else if(cmp_arg(_T("/f"))) // input file name or directory
+    else if(cmp_arg(_T("/f"))) // input file name
     {
       skip_arg();    
       szInput = get_arg();
       skip_arg();    
       if(szInput==NULL)
       {
-        _tprintf(_T("Input file name is missing in /f parameter.\n"));
-        goto exit;
+        result = INVALIDARG;
+        _tprintf(_T("Input file name is missing in /f parameter.\n"));        
+        goto done;
       }
     }
     else if(cmp_arg(_T("/fmd5"))) // md5 file or directory
@@ -152,35 +170,60 @@ int _tmain(int argc, TCHAR** argv)
       skip_arg();    
       if(szInputMD5==NULL)
       {
+        result = INVALIDARG;
         _tprintf(_T("Input MD5 file name is missing in /fmd5 parameter.\n"));
-        goto exit;
+        goto done;
       }
     }
-    else if(cmp_arg(_T("/o"))) // output file or directory
+    else if(cmp_arg(_T("/o"))) // output file or directory or "" (terminal)
     {
       skip_arg();    
       szOutput = get_arg();
       skip_arg();          
+      if(szOutput==NULL)
+      {
+        result = INVALIDARG;
+        _tprintf(_T("Missing output file name in /o parameter.\n"));
+        goto done;
+      }
     }    
-    else if(cmp_arg(_T("/sym"))) // symbol search dir
+    else if(cmp_arg(_T("/sym"))) // symbol search dirs
     {
       skip_arg();    
       szSymSearchPath = get_arg();
+      skip_arg();
+      if(szSymSearchPath==NULL)
+      {
+        result = INVALIDARG;
+        _tprintf(_T("Missing symbol search path in /sym parameter.\n"));
+        goto done;
+      }
+    }
+    else if(cmp_arg(_T("/ext"))) // extract dir
+    {
+      skip_arg();    
+      szExtractPath = get_arg();
+      if(szExtractPath==NULL)
+      {
+        result = INVALIDARG;
+        _tprintf(_T("Missing file extraction path in /ext parameter.\n"));
+        goto done;
+      }
       skip_arg();
     }
     else // unknown arg
     {
       _tprintf(_T("Unexpected parameter: %s\n"), get_arg());
-      goto exit;
+      goto done;
     }    
   }
 
   // Do the processing work
-  result = process_reports(szInput, szInputMD5, szOutput, szSymSearchPath); 
+  result = process_report(szInput, szInputMD5, szOutput, szSymSearchPath, szExtractPath); 
 
-exit:
+done:
 
-  if(result==1)
+  if(result==INVALIDARG)
   {
     print_usage();
   }
@@ -189,32 +232,67 @@ exit:
 }
 
 
-// Processes crash report file or group of files
-int process_reports(
-  LPTSTR szInput, 
-  LPTSTR szInputMD5,
-  LPTSTR szOutput,   
-  LPTSTR szSymSearchPath)
+// Processes a crash report file.
+int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput, 
+                   LPTSTR szSymSearchPath, LPTSTR szExtractPath)
 {
-  int result = 2;        // Status
+  int result = UNEXPECTED; // Status
   CrpHandle hReport = 0; // Handle to the error report
-  WIN32_FIND_DATA fd;    // Used to enumerate files in directory
-  HANDLE hFind = INVALID_HANDLE_VALUE;   
-  BOOL bNext = TRUE;    
-  tstring sDirName;
-  tstring sFileName;
+  tstring sInDirName;
+  tstring sInFileName;
+  tstring sOutDirName;
+  tstring sMD5DirName;
+  tstring sMD5FileName;    
+  tstring sExtactDirName;  
   BOOL bInputMD5FromDir = FALSE; // Did user specified file name for .MD5 file or directory name for search?
   BOOL bOutputToDir = FALSE; // Do we save resulting files to directory or save single resulting file?  
   DWORD dwFileAttrs = 0;
-  tstring sMD5DirName;
-
+  TCHAR szMD5Buffer[64]=_T("");
+  TCHAR* szMD5Hash = NULL;
+  FILE* f = NULL;      
+    
   // Validate input parameters
   if(szInput==NULL)
   {
-    _tprintf(_T("Input file name or pattern is missing.\n"));
-    goto exit;
+    result = INVALIDARG;
+    _tprintf(_T("Input file name is missing.\n"));
+    goto done;
+  }
+
+  if(szOutput==NULL)
+  {
+    result = INVALIDARG;
+    _tprintf(_T("Output file name or directory name is missing.\n"));
+    goto done;
   }
   
+  // Decide input dir and file name
+  sInDirName = szInput;
+  int pos = sInDirName.rfind('\\');
+  if(pos<0) // There is no back slash in path
+  {
+    sInDirName = _T(""); 
+    sInFileName = szInput;
+  }
+  else
+  {
+    sInDirName = sInDirName.substr(0, pos);
+    sInFileName = sInDirName.substr(pos+1);
+  }
+  
+  if(szExtractPath!=NULL)
+  {
+    // Determine if user has specified a valid dir name for file extraction
+    dwFileAttrs = GetFileAttributes(szExtractPath);
+    if(dwFileAttrs==INVALID_FILE_ATTRIBUTES ||
+      !(dwFileAttrs&FILE_ATTRIBUTE_DIRECTORY))
+    {
+      result = INVALIDARG;
+      _tprintf(_T("Invalid directory name for file extraction.\n"));
+      goto done;
+    }
+  }  
+
   if(szInputMD5!=NULL)
   {
     // Determine if user wants us to search for .MD5 files in a directory
@@ -235,147 +313,134 @@ int process_reports(
         sMD5DirName = sMD5DirName.substr(0, pos+1);
     }
   }
-
-  // Determine if user wants us to save resulting files in directory using their respective 
-  // file names or if he specifies the file name for the single saved file
-  dwFileAttrs = GetFileAttributes(szOutput);
-  if(dwFileAttrs!=INVALID_FILE_ATTRIBUTES && 
-     (dwFileAttrs&FILE_ATTRIBUTE_DIRECTORY))
-    bOutputToDir = TRUE;  
-
-  // Search input files 
-  hFind = FindFirstFile(szInput, &fd);
-  if(hFind==INVALID_HANDLE_VALUE)
+  else
   {
-    _tprintf(_T("No files found matching the search pattern: %s\n"), szInput);
-    goto exit;
+    // Assume .md5 files are in the same dir as input file
+    sMD5DirName = sInDirName;
   }
-   
-  // Append '\' to the directory name if needed
-  sDirName = szInput;
-  int pos = sDirName.rfind('\\');
-  if(pos<0) // There is no back slash in path
-    sDirName = _T(""); 
-  else if(pos!=(int)sDirName.length()-1) // Append the back slash to dir name
-    sDirName = sDirName.substr(0, pos+1);
+
+  if(szOutput!=NULL && _tcscmp(szOutput, _T(""))!=0) // If empty, direct output to terminal
+  {
+    // Determine if user wants us to save resulting file in directory using its respective 
+    // file name or if he specifies the file name for the saved file
+    dwFileAttrs = GetFileAttributes(szOutput);
+    if(dwFileAttrs!=INVALID_FILE_ATTRIBUTES && 
+      (dwFileAttrs&FILE_ATTRIBUTE_DIRECTORY))
+      bOutputToDir = TRUE;  
+  }  
   
-  // Enumerate files in the search directory
-  while(bNext)
-  { 
-    tstring sFileName = fd.cFileName;
-    _tprintf(_T("Processing file: %s\n"), sFileName.c_str());
+  _tprintf(_T("Processing file: %s\n"), sInFileName.c_str());
 
-    // Decide MD5 file name
-    tstring sMD5FileName;    
-    if(szInputMD5==NULL)
-    {
-      // If /md5 cmdline argument is ommitted, search for md5 files in the same dir
-      sMD5FileName = sDirName+sFileName;
-      sMD5FileName += _T(".md5");
+  // Decide MD5 file name  
+  if(szInputMD5==NULL)
+  {
+    // If /md5 cmdline argument is ommitted, search for md5 files in the same dir
+    sMD5FileName = szInput;
+    sMD5FileName += _T(".md5");
+  }
+  else
+  {
+    if(bInputMD5FromDir)
+    {  
+      // Look for .md5 files in the special directory
+      sMD5FileName = sMD5DirName+sInFileName;
+      sMD5FileName += _T(".md5");        
     }
     else
     {
-      if(bInputMD5FromDir)
-      {  
-        // Look for .md5 files in the special directory
-        sMD5FileName = sMD5DirName+sFileName;
-        sMD5FileName += _T(".md5");        
-      }
-      else
-      {
-        // Look for MF5 hash in the specified file
-        sMD5FileName = szInputMD5;
-      }
+      // Look for MF5 hash in the specified file
+      sMD5FileName = szInputMD5;
     }
+  }
     
-    // Get MD5 hash from .md5 file
-    TCHAR szMD5Buffer[64];
-    TCHAR* szMD5Hash = NULL;
-    FILE* f = NULL;      
-    _TFOPEN_S(f, sMD5FileName.c_str(), _T("rt"));
-    if(f!=NULL)
-    {
-      szMD5Hash = _fgetts(szMD5Buffer, 64, f);   
-      fclose(f);
-      _tprintf(_T("Found MD5 file %s; MD5=%s\n"), sMD5FileName.c_str(), szMD5Hash);
-    }    
-    else
-    {
-      _tprintf(_T("MD5 file not detected; integrity check not performed.\n"));
-    }
-        
-    // Open the error report file
-    sFileName = sDirName + fd.cFileName;
-    int res = crpOpenErrorReport(sFileName.c_str(), szMD5Hash, szSymSearchPath, 0, &hReport);
-    if(res!=0)
-    {
-      TCHAR buf[1024];
-      crpGetLastErrorMsg(buf, 1024);
-      _tprintf(_T("Error '%s' while processing file '%s'\n"), buf , fd.cFileName);      
-    }
-    else
-    {
-      // Output results
-      tstring sOutFileName;
-      if(szOutput!=NULL)
-      {        
-        if(bOutputToDir)
-        {
-          // Write output to directory
-          sOutFileName = tstring(szOutput);
-          if( sOutFileName[sOutFileName.length()-1]!='\\' )
-            sOutFileName += _T("\\"); 
-          sOutFileName += tstring(fd.cFileName) + _T(".txt");
-        }
-        else
-        {
-          // Write output to single file
-          sOutFileName = tstring(fd.cFileName) + _T(".txt");
-        }              
-
-        // Open resulting file
-        _TFOPEN_S(f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
-        if(f==NULL)
-        {
-          _tprintf(_T("Error: couldn't open output file '%s' while processing file '%s'\n"), 
-            sOutFileName.c_str(), fd.cFileName);      
-          goto exit;
-        }
+  
+  // Get MD5 hash from .md5 file
+  _TFOPEN_S(f, sMD5FileName.c_str(), _T("rt"));
+  if(f!=NULL)
+  {
+    szMD5Hash = _fgetts(szMD5Buffer, 64, f);   
+    fclose(f);
+    _tprintf(_T("Found MD5 file %s; MD5=%s\n"), sMD5FileName.c_str(), szMD5Hash);
+  }    
+  else
+  {
+    _tprintf(_T("MD5 file not detected; integrity check not performed.\n"));
+  }
+      
+  // Open the error report file  
+  int res = crpOpenErrorReport(szInput, szMD5Hash, szSymSearchPath, 0, &hReport);
+  if(res!=0)
+  {
+    TCHAR buff[1024];
+    crpGetLastErrorMsg(buff, 1024);
+    _tprintf(_T("Error '%s' while processing file '%s'\n"), buff, sInFileName.c_str());      
+  }
+  else 
+  {
+    // Output results
+    tstring sOutFileName;
+    if(szOutput!=NULL && _tcscmp(szOutput, _T(""))!=0)
+    {        
+      if(bOutputToDir)
+      {
+        // Write output to directory
+        sOutFileName = tstring(szOutput);
+        if( sOutFileName[sOutFileName.length()-1]!='\\' )
+          sOutFileName += _T("\\"); 
+        sOutFileName += sInFileName + _T(".txt");
       }
       else
       {
-        f=stdout; // Write output to terminal
-      }
+        // Write output to single file
+        sOutFileName = szOutput;
+      }              
 
+      // Open resulting file
+      _TFOPEN_S(f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
       if(f==NULL)
       {
-        _tprintf(_T("Error: couldn't open output file (unexpected error).\n")); 
-        goto exit;
+        result = UNEXPECTED;
+        _tprintf(_T("Error: couldn't open output file '%s'.\n"), 
+          sOutFileName.c_str());      
+        goto done;
       }
-
-      // Write error report properties to the resulting file
-      output_document(hReport, f);
-      
-      if(f!=stdout)
-        fclose(f);
     }
-
-    // Clean up
-    if(hReport!=NULL)
+    else if(szOutput!=NULL && _tcscmp(szOutput, _T(""))==0)
     {
-      crpCloseErrorReport(hReport);
+      f=stdout; // Write output to terminal
     }
     
-    // Go to the next file
-    bNext = FindNextFile(hFind, &fd);
+    if(szOutput!=NULL && f==NULL)
+    {
+      result = UNEXPECTED;
+      _tprintf(_T("Error: couldn't open output file.\n")); 
+      goto done;
+    }
+    
+    if(f!=NULL)
+    {
+      // Write error report properties to the resulting file
+      result = output_document(hReport, f);
+      if(result!=0)
+        goto done;      
+    }
+        
+    if(szExtractPath!=NULL)
+    {
+      // Extract files from error report
+      result = extract_files(hReport, szExtractPath);
+      if(result!=0)
+        goto done;
+    }
   }
+
+  // Success.
+  result = SUCCESS;
+
+done:
   
-  result = 0;
-
-exit:
-
-  if(hFind!=INVALID_HANDLE_VALUE)
-    FindClose(hFind);
+  if(f!=NULL && f!=stdout)
+      fclose(f);
 
   if(hReport!=0)
     crpCloseErrorReport(hReport);
@@ -401,7 +466,7 @@ int get_table_row_count(CrpHandle hReport, LPCTSTR table_id)
 // Writes all error report properties to the file
 int output_document(CrpHandle hReport, FILE* f)
 {  
-  int result = -1;
+  int result = UNEXPECTED;
   COutputter doc;
 
   doc.Init(f);
@@ -420,30 +485,30 @@ int output_document(CrpHandle hReport, FILE* f)
   result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_CRASH_GUID, sCrashGUID);
   if(result==0)
     doc.PutRecord(_T("Crash GUID"), sCrashGUID.c_str());
-    
-  // Print SystemTimeUTC
-  tstring sSystemTimeUTC;
-  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_SYSTEM_TIME_UTC, sSystemTimeUTC);
-  if(result==0)
-    doc.PutRecord(_T("Date created (UTC)"), sSystemTimeUTC.c_str());
 
   // Print AppName
   tstring sAppName;
   result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_NAME, sAppName);
   if(result==0)
     doc.PutRecord(_T("Application name"), sAppName.c_str());
-   
-  // Print AppVersion
-  tstring sAppVersion;
-  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_VERSION, sAppVersion);
-  if(result==0)
-    doc.PutRecord(_T("Application version"), sAppVersion.c_str());
 
   // Print ImageName
   tstring sImageName;
   result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_IMAGE_NAME, sImageName);
   if(result==0)
     doc.PutRecord(_T("Executable image"), sImageName.c_str());
+
+  // Print AppVersion
+  tstring sAppVersion;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_VERSION, sAppVersion);
+  if(result==0)
+    doc.PutRecord(_T("Application version"), sAppVersion.c_str());
+
+  // Print SystemTimeUTC
+  tstring sSystemTimeUTC;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_SYSTEM_TIME_UTC, sSystemTimeUTC);
+  if(result==0)
+    doc.PutRecord(_T("Date created (UTC)"), sSystemTimeUTC.c_str());
 
   // Print OperatingSystem
   tstring sOperatingSystem;
@@ -476,18 +541,6 @@ int output_document(CrpHandle hReport, FILE* f)
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_PRODUCT_TYPE, sSystemType);
   if(result==0)
     doc.PutRecord(_T("Product type"), sSystemType.c_str());
-  
-  // Print UserEmail
-  tstring sUserEmail;
-  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_USER_EMAIL, sUserEmail);
-  if(result==0)
-    doc.PutRecord(_T("User email"), sUserEmail.c_str());
-
-  // Print ProblemDescription
-  tstring sProblemDescription;
-  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_PROBLEM_DESCRIPTION, sProblemDescription);
-  if(result==0)
-    doc.PutRecord(_T("Problem description"), sProblemDescription.c_str());
     
   // Print ProcessorArchitecture
   tstring sProcessorArchitecture;
@@ -537,6 +590,18 @@ int output_document(CrpHandle hReport, FILE* f)
     if(result==0)
       doc.PutRecord(_T("Exception module name"), sExceptionModuleName.c_str());
   }
+
+  // Print UserEmail
+  tstring sUserEmail;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_USER_EMAIL, sUserEmail);
+  if(result==0)
+    doc.PutRecord(_T("User email"), sUserEmail.c_str());
+
+  // Print ProblemDescription
+  tstring sProblemDescription;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_PROBLEM_DESCRIPTION, sProblemDescription);
+  if(result==0)
+    doc.PutRecord(_T("Problem description"), sProblemDescription.c_str());
 
   doc.EndSection();
   
@@ -626,15 +691,14 @@ int output_document(CrpHandle hReport, FILE* f)
     }
   }
 
-
   // Print module list
   doc.BeginSection(_T("Module List"));
 
   doc.PutTableCell(_T("#"), 2, false);
-  doc.PutTableCell(_T("Name"), 32, true);
+  doc.PutTableCell(_T("Name"), 32, false);
+  doc.PutTableCell(_T("LoadedPDBName"), 32, true);
   
   // Get module count
-  
   nItemCount = get_table_row_count(hReport, CRP_TBL_MDMP_MODULES);
   for(i=0; i<nItemCount; i++)
   {
@@ -644,12 +708,47 @@ int output_document(CrpHandle hReport, FILE* f)
 
     tstring sModuleName;
     result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_NAME, sModuleName, i);  
-    doc.PutTableCell(sModuleName.c_str(), 32, true);      
+    doc.PutTableCell(sModuleName.c_str(), 32, false);      
+
+    tstring sLoadedPDBName;
+    result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_LOADED_PDB_NAME, sLoadedPDBName, i);  
+    doc.PutTableCell(sLoadedPDBName.c_str(), 32, true);      
   }  
 
   doc.EndDocument();
   
-  return 0;
+  return SUCCESS;
 }
 
+int extract_files(CrpHandle hReport, LPCTSTR pszExtractPath)
+{
+  // Get count of files to extract.
+  int nFileCount = get_table_row_count(hReport, CRP_TBL_XMLDESC_MISC);
+  if(nFileCount<0)
+  {
+    return UNEXPECTED; // Error getting file count.
+  }
+
+  int i;
+  for(i=0; i<nFileCount; i++)
+  {
+    tstring sFileName;
+    int nResult = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_FILE_ITEM_NAME, sFileName, i);
+    if(nResult!=0)
+    {
+      return UNEXPECTED; // Error getting file name
+    }
+
+    tstring sFileSaveAs = pszExtractPath;
+    sFileSaveAs+=sFileName;
+    nResult = crpExtractFile(hReport, sFileName.c_str(), sFileSaveAs.c_str(), TRUE);
+    if(nResult!=0)
+    {
+      return EXTRACTERR; // Error extracting file
+    }
+  }
+
+  // Success.
+  return SUCCESS;
+}
 

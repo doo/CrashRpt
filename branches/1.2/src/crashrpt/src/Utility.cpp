@@ -279,7 +279,7 @@ CString Utility::FormatErrorMsg(DWORD dwErrorCode)
 		NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)&msg, 0, NULL);
 	CString str = msg;
-  str.Replace(_T("\n"), _T(""));
+  str.Replace(_T("\r\n"), _T(""));
 	GlobalFree(msg);
 	return str;
 }

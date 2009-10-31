@@ -7,18 +7,18 @@ XML, opening crash minidump file, retrieving important information about the
 exception, and finally presenting the information to the developer in text form.
 
 Automating the error report processing becomes the critical task when you receive a 
-lot of error reports after software release. Among hundreeds of reports there may be 
+lot of error reports after software release. Among hundreds of reports there may be 
 only several different problems, while others just duplicate the information about 
-these problems. Opening so many reports manually with Visual Studio or WinDbg and 
+these problems. Opening so many reports manually in Visual Studio or in WinDbg and 
 analyzing their content may become boring and take a lot of time.
 
-<b>Since v1.2.0</b>, CrashRpt provides a way for automating the report processing.
-A command line tool named \b crprober.exe is introduced for processing a single error report
-or a group of reports at once and output results to a text file(s) or to terminal.
-A CrashRptProbe API is introduced to provide base crash report processing services to
-custom error report processing applications.
+\image html reports_path.png 
 
-\image html reports_path.png
+<b>Since v1.2.0</b>, CrashRpt provides a way for automating the report processing.
+A command line tool named \b crprober.exe is introduced for processing error report 
+files and output results to a text file(s) or to terminal.
+A <b>CrashRptProbe API</b> is introduced to provide base crash report processing services to
+your custom error report processing applications.
 
 This section is devided into the following topics:
 

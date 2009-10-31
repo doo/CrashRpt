@@ -337,7 +337,7 @@ int ParseDynTableId(CString sTableId, int& index)
 {
   if(sTableId.Left(5)=="STACK")
   {
-    CString sIndex = sTableId.Mid(6);
+    CString sIndex = sTableId.Mid(5);
     index = _ttoi(sIndex.GetBuffer(0));
     return 0;
   }
@@ -715,6 +715,10 @@ crpGetPropertyW(
     {      
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sModuleName);    
     }
+    else if(sColumnId.Compare(CRP_COL_MODULE_IMAGE_NAME)==0)
+    {      
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sImageName);    
+    }
     else if(sColumnId.Compare(CRP_COL_MODULE_BASE_ADDRESS)==0)
     {      
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_Modules[nRowIndex].m_uBaseAddr); 
@@ -724,7 +728,11 @@ crpGetPropertyW(
     {
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("%I64u"), pDmpReader->m_DumpData.m_Modules[nRowIndex].m_uImageSize); 
       pszPropVal = szBuff;
-    }    
+    }
+    else if(sColumnId.Compare(CRP_COL_MODULE_LOADED_PDB_NAME)==0)
+    {
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sLoadedPdbName);          
+    }
     else
     {
       crpSetErrorMsg(_T("Invalid column ID specified."));
