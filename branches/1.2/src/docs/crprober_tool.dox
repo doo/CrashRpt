@@ -32,24 +32,71 @@ For more information, see \ref preparing_to_software_release.
 
 The \b crprober.exe is a console tool. It accepts several command line arguments. The
 arguments are listed in the table below:
-
 <table>
+
 <tr>
 <td> \b Name
 <td> \b Description
+
 <tr>
-<td>/f \<in_file_pattern\>     
-<td>Input ZIP file or search pattern. Required.
+<td> /?
+<td> Prints the usage help.
+
 <tr>
-<td>/fmd5 \<md5_file\>         
-<td>Name of .md5 file containing MD5 hash for ZIP archive.
+<td>/f \<input_file\>     
+<td> Required. Absolute or relative path to input ZIP file name.
+
+<tr>
+<td>/fmd5 \<md5_file_or_dir\>         
+<td>Optional. Path to .md5 file containing MD5 hash for the <input_file> or directory name where to 
+search for the .md5 file. If this parameter is ommitted, the .md5 file is searched in the directory 
+where \<input_file\> is located.
+
 <tr>
 <td>/o \<out_file_or_dir\>     
-<td>Output file name or directory. If this parameter is ommitted, output is written to the terminal.
+<td>Optional. Output file name or directory name. Or use empty name "" to direct output to terminal. 
+If this parameter is ommitted, output is not generated.
+
 <tr>
 <td>/sym \<sym_search_dirs\>   
-<td>Symbol file search directory or list of directories separated with semicolon. If this parameter 
-is ommitted, symbols files are searched using the deafult search sequence.
+<td> Optional. Symbol files search directory or list of directories separated with semicolon. 
+If this parameter is ommitted, symbol files are searched using the default search sequence.
+
+<tr>
+<td> /ext <extract_dir>
+<td> Optional. Specifies the directory where to extract all files contained in error report. 
+If this parameter is ommitted, files are not extracted.
+
+</table>
+
+The crprober tool can return one of the following return codes:
+
+<table>
+
+<tr>
+<td> <b> Return Code</b>
+<td> \b Meaning
+
+<tr>
+<td> 0
+<td> OK.
+
+<tr>
+<td> 1
+<td> Unexpected error.
+
+<tr>
+<td> 2
+<td> Invalid command line argument. Ensure you pass correct parameters.
+
+<tr>
+<td> 3
+<td> Integrity check failed (MD5 hash mismatch)
+
+<tr>
+<td> 4
+<td> Error extracting file. Ensure the extraction path is correct.
+
 </table>
 
 \section crprober_examples Examples
@@ -57,22 +104,31 @@ is ommitted, symbols files are searched using the deafult search sequence.
 The following example processes the 'error_report.zip' file and writes output to the terminal. Symbol files are
 assumed to be located in 'D:\\Symbol Files' directory.
 \code
-crprober.exe /f error_report.zip /sym "D:\Symbol Files"
+crprober.exe /f error_report.zip /o "" /sym "D:\Symbol Files"
 \endcode
 
 The following example opens 'error_report.zip' file located in the current directory, 
 performs integrity check using 'error_report.zip.md5' file and writes output to the 'error_report.zip.txt' file.
 Symbol files are assumed to be located in 'D:\\Symbol Files' or in 'D:\\MyApp\\sym' directory.
 \code
-crprober.exe /f error_report.zip /md5 'error_report.zip.md5' /o error_report.zip.txt /sym "D:\Symbol Files;D:\MyApp\sym"
+crprober.exe /f error_report.zip /md5 error_report.zip.md5 /o error_report.zip.txt /sym "D:\Symbol Files;D:\MyApp\sym"
 \endcode
 
+\section crprober_reallife_scenario Real-Life Usage Scenario
 
-The following example opens all ZIP archives in the specified directory, processes them and creates
-the resulting text files in the 'D:\\Error Reports' directory:
+Let's assume you receive error reports over E-mail. To automate error reports extraction from E-mail attachments,
+you may use some extension of your mail program. For example, if you use Mozilla Thunderbird, you can use 
+Attachment Extractor extension. You can configure the extension to determine the error report messages on the fly and 
+extract email attachments (ZIP and MD5 files) to some folder.
+
+When you have files stored in the directory, you may want to process them all at once. 
+You can automate this task using a simple batch (BAT) script:
+
 \code
-crprober.exe /f *.zip /o "D:\Error Reports"
-\endcode
+@echo off
+rem Process a group of ZIP error report files
 
+for %%f in ( *.zip ) do crprober.exe /f %%f /o "D:\Results" /sym "D:\Sym"
+\endcode
 
 */

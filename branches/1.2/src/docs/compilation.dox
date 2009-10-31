@@ -47,6 +47,9 @@ There are several projects in CrashRpt solution.
 
 - \b zlib project contains file compression functionality.
 
+- \b CrashRptProbe project contains functionality for processing error reports.
+
+- \b crprober.exe is a console tool for error reports processing.
 
 To build solution, choose the Release build configuration and press 
 F7 to start building process.
