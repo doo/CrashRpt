@@ -2,6 +2,10 @@
 
 \page using_minidump Using Crash Minidump (crashdump.dmp)
 
+You can open minidump files in Visual Studio, in WinDbg or in another debugger tool. 
+
+\note Visual C++ Express Edition seems to be unable to open minidump files.
+
 The crash dump file is a collection of memory ranges, CPU register states, the call stack and 
 local variables for each excecution thread, the list of loaded and unloaded modules
 and system information. The minidump is created with the help of the DbgHelp DLL's 
