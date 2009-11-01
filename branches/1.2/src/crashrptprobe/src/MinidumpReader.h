@@ -14,6 +14,7 @@ struct MdmpModule
   CString m_sImageName;  // The image name. The name may or may not contain a full path. 
   CString m_sLoadedImageName; // The full path and file name of the file from which symbols were loaded. 
   CString m_sLoadedPdbName;   // The full path and file name of the .pdb file.     
+  VS_FIXEDFILEINFO* m_pVersionInfo; // Version info for module.
 };
 
 // Describes a stack frame
@@ -115,6 +116,13 @@ public:
 
   MdmpData m_DumpData; // Minidump data
 
+  BOOL m_bLoaded;               // Is minidump loaded?
+  BOOL m_bReadSysInfoStream;    // Was system info stream read?
+  BOOL m_bReadExceptionStream;  // Was exception stream read?
+  BOOL m_bReadModuleListStream; // Was module list stream read?
+  BOOL m_bReadMemoryListStream; // Was memory list stream read?
+  BOOL m_bReadThreadListStream; // Was thread list stream read?  
+
 private:
 
   /* Internally used member functions */
@@ -143,11 +151,5 @@ private:
   HANDLE m_hFileMapping;  // Handle to memory mapping object
   LPVOID m_pMiniDumpStartPtr; // Pointer to the biginning of memory-mapped minidump  
 
-  BOOL m_bLoaded;               // Is minidump loaded?
-  BOOL m_bReadSysInfoStream;    // Was system info stream read?
-  BOOL m_bReadExceptionStream;  // Was exception stream read?
-  BOOL m_bReadModuleListStream; // Was module list stream read?
-  BOOL m_bReadMemoryListStream; // Was memory list stream read?
-  BOOL m_bReadThreadListStream; // Was thread list stream read?  
 };
 

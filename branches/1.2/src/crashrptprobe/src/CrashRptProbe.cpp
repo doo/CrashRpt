@@ -50,36 +50,12 @@ struct CrpReportData
   CMiniDumpReader* m_pDmpReader;   // Pointer to the minidump reader object
   CString m_sMiniDumpTempName;     // The name of the tmp file to store extracted minidump in
   CString m_sSymSearchPath;        // Symbol files search path
+  std::vector<CString> m_ContainedFiles;
 };
 
 // The list of opened handles
 std::map<int, CrpReportData> g_OpenedHandles;
 
-// GetBaseFileName
-// This helper function returns file name without extension
-CString GetBaseFileName(CString sFileName)
-{
-  CString sBase;
-  int pos = sFileName.ReverseFind('.');
-  if(pos>=0)
-  {
-    sBase = sFileName.Mid(0, pos);
-  }
-  return sBase;
-}
-
-// GetFileExtension
-// This helper function returns file extension by file name
-CString GetFileExtension(CString sFileName)
-{
-  CString sExt;
-  int pos = sFileName.ReverseFind('.');
-  if(pos>=0)
-  {
-    sExt = sFileName.Mid(pos+1);
-  }
-  return sExt;
-}
 
 // CalcFileMD5Hash
 // Calculates the MD5 hash for the given file
@@ -197,7 +173,7 @@ crpOpenErrorReportW(
       if(zr!=ZR_OK)
         break;
 
-      CString sExt = GetFileExtension(ze.name);
+      CString sExt = Utility::GetFileExtension(ze.name);
       if(sExt.CompareNoCase(_T("dmp"))==0)
       {
         // DMP found
@@ -207,7 +183,7 @@ crpOpenErrorReportW(
     }
 
     // Assume the name of XML is the same as DMP
-    CString sXmlName = GetBaseFileName(ze.name) + _T(".xml");
+    CString sXmlName = Utility::GetBaseFileName(ze.name) + _T(".xml");
     zr = FindZipItem(report_data.m_hZip, sXmlName, false, &xml_index, &ze);
     if(zr!=ZR_OK)
     {
@@ -262,6 +238,18 @@ crpOpenErrorReportW(
 
     report_data.m_sMiniDumpTempName = sTempFile;
   } 
+
+  // Enumerate contained files
+  int i=0;
+  for(i=0;;i++)
+  {
+    zr = GetZipItem(report_data.m_hZip, i, &ze);
+    if(zr!=ZR_OK)
+      break;
+
+    CString sFile = ze.name;
+    report_data.m_ContainedFiles.push_back(sFile);
+  }
 
   // Add handle to the list of opened handles
   nNewHandle = (int)g_OpenedHandles.size()+1;
@@ -395,7 +383,8 @@ crpGetPropertyW(
   if(sTableId.Compare(CRP_TBL_MDMP_MISC)==0 ||
      sTableId.Compare(CRP_TBL_MDMP_MODULES)==0 ||
      sTableId.Compare(CRP_TBL_MDMP_THREADS)==0 ||
-     nDynTable==0)
+     nDynTable==0 ||
+     (pDescReader->m_dwGeneratorVersion==1000 && sTableId.Compare(CRP_TBL_XMLDESC_MISC)==0) )
   {     
     // Load the minidump
     pDmpReader->Open(it->second.m_sMiniDumpTempName, it->second.m_sSymSearchPath);
@@ -440,7 +429,7 @@ crpGetPropertyW(
       pszPropVal = strconv.t2w(pDescReader->m_sAppName);    
     }
     else if(sColumnId.Compare(CRP_COL_APP_VERSION)==0)
-    {
+    {      
       pszPropVal = strconv.t2w(pDescReader->m_sAppVersion);    
     }
     else if(sColumnId.Compare(CRP_COL_IMAGE_NAME)==0)
@@ -570,27 +559,50 @@ crpGetPropertyW(
   }
   else if(sTableId.Compare(CRP_TBL_XMLDESC_FILE_ITEMS)==0)
   {
-    if(nRowIndex>=(int)pDescReader->m_aFileItems.size())
+    if(pDescReader->m_dwGeneratorVersion==1000)
     {
-      crpSetErrorMsg(_T("Invalid row index specified."));
-      return -4;    
+      if(nRowIndex>=(int)it->second.m_ContainedFiles.size())
+      {
+        crpSetErrorMsg(_T("Invalid row index specified."));
+        return -4;    
+      }
+    }
+    else
+    {
+      if(nRowIndex>=(int)pDescReader->m_aFileItems.size())
+      {
+        crpSetErrorMsg(_T("Invalid row index specified."));
+        return -4;    
+      }
     }
   
     if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
     {
+      if(pDescReader->m_dwGeneratorVersion==1000)
+        return it->second.m_ContainedFiles.size();
       return pDescReader->m_aFileItems.size();
     }
     else if( sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0 || 
         sColumnId.Compare(CRP_COL_FILE_ITEM_DESCRIPTION)==0 )
-    {      
-      std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
-      int i;
-      for(i=0; i<nRowIndex; i++) it++;
-
-      if(sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0)
-        pszPropVal = strconv.t2w(it->first);    
+    { 
+      if(pDescReader->m_dwGeneratorVersion==1000)
+      {
+        if(sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0)
+          pszPropVal = strconv.t2w(it->second.m_ContainedFiles[nRowIndex]);            
+        else
+          pszPropVal = _T("");
+      }
       else
-        pszPropVal = strconv.t2w(it->second);    
+      {
+        std::map<CString, CString>::iterator it = pDescReader->m_aFileItems.begin();
+        int i;
+        for(i=0; i<nRowIndex; i++) it++;
+
+        if(sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0)
+          pszPropVal = strconv.t2w(it->first);    
+        else
+          pszPropVal = strconv.t2w(it->second);    
+      }
     }
     else
     {
@@ -671,7 +683,12 @@ crpGetPropertyW(
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_sCSDVer);    
     }
     else if(sColumnId.Compare(CRP_COL_EXCPTRS_EXCEPTION_CODE)==0)
-    {      
+    { 
+      if(!pDmpReader->m_bReadExceptionStream)
+      {
+        crpSetErrorMsg(_T("There is no exception information in minidump file."));
+        return -3;
+      }
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("0x%x"), pDmpReader->m_DumpData.m_uExceptionCode); 
       _TCSCAT_S(szBuff, BUFF_SIZE, _T(" "));
       CString msg = Utility::FormatErrorMsg(pDmpReader->m_DumpData.m_uExceptionCode);
@@ -679,17 +696,32 @@ crpGetPropertyW(
       pszPropVal = szBuff;
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_ADDRESS)==0)
-    {      
+    {  
+      if(!pDmpReader->m_bReadExceptionStream)
+      {
+        crpSetErrorMsg(_T("There is no exception information in minidump file."));
+        return -3;
+      }
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("0x%I64x"), pDmpReader->m_DumpData.m_uExceptionAddress); 
       pszPropVal = szBuff;
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_THREAD_ROWID)==0)
-    {      
+    {  
+      if(!pDmpReader->m_bReadExceptionStream)
+      {
+        crpSetErrorMsg(_T("There is no exception information in minidump file."));
+        return -3;
+      }
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->GetThreadRowIdByThreadId(pDmpReader->m_DumpData.m_uExceptionThreadId)); 
       pszPropVal = szBuff;
     }
     else if(sColumnId.Compare(CRP_COL_EXCEPTION_MODULE_ROWID)==0)
-    {      
+    {  
+      if(!pDmpReader->m_bReadExceptionStream)
+      {
+        crpSetErrorMsg(_T("There is no exception information in minidump file."));
+        return -3;
+      }
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->GetModuleRowIdByAddress(pDmpReader->m_DumpData.m_uExceptionAddress)); 
       pszPropVal = szBuff;
     }
@@ -801,8 +833,8 @@ crpGetPropertyW(
       pszPropVal = szBuff;                
     }  
     else if(sColumnId.Compare(CRP_COL_STACK_MODULE_ROWID)==0)
-    {     
-      _ULTOT_S(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_nModuleRowID, szBuff, BUFF_SIZE, 10);
+    {  
+      _LTOT_S(pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace[nRowIndex].m_nModuleRowID, szBuff, BUFF_SIZE, 10);
       pszPropVal = szBuff;       
     }
     else if(sColumnId.Compare(CRP_COL_STACK_SYMBOL_NAME)==0)

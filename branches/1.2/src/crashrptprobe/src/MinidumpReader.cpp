@@ -282,6 +282,7 @@ int CMiniDumpReader::ReadModuleListStream()
           m.m_sImageName = modinfo.ImageName;
           m.m_sLoadedImageName = modinfo.LoadedImageName;
           m.m_sLoadedPdbName = modinfo.LoadedPdbName;
+          m.m_pVersionInfo = &pModule->VersionInfo;
 
           m_DumpData.m_Modules.push_back(m);
           m_DumpData.m_ModuleIndex[m.m_uBaseAddr] = m_DumpData.m_Modules.size()-1;

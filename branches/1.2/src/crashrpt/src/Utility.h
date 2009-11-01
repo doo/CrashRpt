@@ -60,6 +60,10 @@ namespace Utility
 
    // Formats the error message.
    CString FormatErrorMsg(DWORD dwErrorCode);
+
+   CString GetBaseFileName(CString sFileName);
+
+   CString GetFileExtension(CString sFileName);
 };
 
 #include <vector>

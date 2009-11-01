@@ -283,3 +283,33 @@ CString Utility::FormatErrorMsg(DWORD dwErrorCode)
 	GlobalFree(msg);
 	return str;
 }
+
+// GetBaseFileName
+// This helper function returns file name without extension
+CString Utility::GetBaseFileName(CString sFileName)
+{
+  CString sBase = sFileName;
+  int pos1 = sFileName.ReverseFind('\\');
+  if(pos1>=0)
+    sBase = sBase.Mid(pos1+1);
+
+  int pos2 = sBase.ReverseFind('.');
+  if(pos2>=0)
+  {
+    sBase = sFileName.Mid(0, pos2);
+  }
+  return sBase;
+}
+
+// GetFileExtension
+// This helper function returns file extension by file name
+CString Utility::GetFileExtension(CString sFileName)
+{
+  CString sExt;
+  int pos = sFileName.ReverseFind('.');
+  if(pos>=0)
+  {
+    sExt = sFileName.Mid(pos+1);
+  }
+  return sExt;
+}

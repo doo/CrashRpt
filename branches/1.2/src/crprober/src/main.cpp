@@ -515,7 +515,8 @@ int get_prop(CrpHandle hReport, LPCTSTR table_id, LPCTSTR column_id, tstring& st
   const int BUFF_SIZE = 1024;
   TCHAR buffer[BUFF_SIZE];  
   int result = crpGetProperty(hReport, table_id, column_id, row_id, buffer, BUFF_SIZE, NULL);
-  str = buffer;
+  if(result==0)
+    str = buffer;
   return result;
 }
 
@@ -701,20 +702,16 @@ int output_document(CrpHandle hReport, FILE* f)
       str += sThreadId;
       doc.BeginSection(str.c_str());
 
-      doc.PutTableCell(_T("#"), 2, false);
       doc.PutTableCell(_T("Frame"), 32, true);
 
       tstring sStackTableId;
       get_prop(hReport, CRP_TBL_MDMP_THREADS, CRP_COL_THREAD_STACK_TABLEID, sStackTableId, i);
       
+      BOOL bMissingFrames=FALSE;
       int nFrameCount = get_table_row_count(hReport, sStackTableId.c_str());
       int j;
       for(j=0; j<nFrameCount; j++)
-      {
-        TCHAR szBuffer[32];
-        _STPRINTF_S(szBuffer, 32, _T("%d"), j+1);
-        doc.PutTableCell(szBuffer, 2, false);
-
+      {        
         tstring sModuleName;
         tstring sAddrPCOffset;
         tstring sSymbolName;            
@@ -725,6 +722,12 @@ int output_document(CrpHandle hReport, FILE* f)
         if(result==0)
         {
           int nModuleRowId = _ttoi(sModuleRowId.c_str());              
+          if(nModuleRowId==-1)
+          {            
+            if(!bMissingFrames)
+            doc.PutTableCell(_T("[Frames below may be incorrect and/or missing]"), 32, true);                                
+            bMissingFrames = TRUE;
+          }
           get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_NAME, sModuleName, nModuleRowId);              
         }      
         
@@ -734,7 +737,8 @@ int output_document(CrpHandle hReport, FILE* f)
         
         tstring str;
         str = sModuleName;
-        str += _T("!");
+        if(!str.empty())
+          str += _T("!");
 
         if(sSymbolName.empty())
           str += sAddrPCOffset;  

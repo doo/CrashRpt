@@ -319,6 +319,8 @@ int CCrashDescReader::LoadXmlv10(TiXmlHandle hDoc)
     if(szImageName!=NULL)
     {
       m_sImageName = szImageName;
+
+      m_sAppName = Utility::GetBaseFileName(szImageName);
     }
   }  
 
