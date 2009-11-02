@@ -57,7 +57,7 @@ F7 to start building process.
 \section notes_about_evc Notes About Compiling in Visual C++ Express
 
 To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
-Windows Server 2003, since it is the only Platform SDK that supports ATL. For more information, see below.
+Windows Server 2003, because this Platform SDK contains ATL source code. 
 Download and install Microsoft Platform SDK for Windows Server 2003, for example
 <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en">
 from here</a>.
@@ -67,7 +67,7 @@ VC++ Directories. In the 'Show directories for' combo, select 'Include files'
 and then add <i>[Platform_SDK_Folder]\\Include\\atl</i> path to the list of include 
 directories.
 
-CrashRpt depends on WTL. WTL itself depends on Microsoft's library called ATL (Active Template Library). 
+<b>For more information.</b> CrashRpt depends on WTL. WTL itself depends on Microsoft's library called ATL (Active Template Library). 
 ATL library is a part of Visual Studio SDKs. The latest version at the moment 
 is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform 
 SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows 
