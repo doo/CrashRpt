@@ -144,7 +144,35 @@ You can automate this task using a simple batch (BAT) script:
 @echo off
 rem Process a group of ZIP error report files
 
-for %%f in ( *.zip ) do crprober.exe /f %%f /o "D:\Results" /sym "D:\Sym"
-\endcode
+set INPUT_FILE_PATTERN="*.zip"
+set APPNAMES_TO_PROCESS="CrashRpt Tests"
+set APPVERSIONS_TO_PROCESS="1.2.0"
 
+for %%f in ( %INPUT_FILE_PATTERN% ) do call :process_report "%%f"
+
+rem The following subroutine processes a crash report file
+:process_report
+
+  rem Get application name from the crash report file and write it to "temp.txt"
+  crproberd.exe /f %1 /o "temp.txt" /get XmlDescMisc AppName 0
+  if not errorlevel 0 goto failed
+ 
+  set /p app_name=<temp.txt
+  if not "%app_name%" in ( %APPNAMES_TO_PROCESS% ) goto failed
+
+
+:ok
+
+  goto done
+
+:failed
+  
+  goto done
+
+:done
+  
+rem Return from subroutine
+goto :eof
+
+\endcode
 */

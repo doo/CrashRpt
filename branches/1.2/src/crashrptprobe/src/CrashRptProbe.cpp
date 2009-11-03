@@ -166,8 +166,10 @@ crpOpenErrorReportW(
   if(xml_index==-1 && dmp_index==-1)  
   {    
     // Look for .dmp file
+    zr = GetZipItem(report_data.m_hZip, -1, &ze);
+    int nItemCount = ze.index;
     int i=0;
-    for(i=0;;i++)
+    for(i=0;nItemCount;i++)
     {
       zr = GetZipItem(report_data.m_hZip, i, &ze);
       if(zr!=ZR_OK)

@@ -401,6 +401,46 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
   }
   else 
   {
+    // Output results
+    tstring sOutFileName;
+    if(szOutput!=NULL && _tcscmp(szOutput, _T(""))!=0)
+    {        
+      if(bOutputToDir)
+      {
+        // Write output to directory
+        sOutFileName = tstring(szOutput);
+        if( sOutFileName[sOutFileName.length()-1]!='\\' )
+          sOutFileName += _T("\\"); 
+        sOutFileName += sInFileName + _T(".txt");
+      }
+      else
+      {
+        // Write output to single file
+        sOutFileName = szOutput;
+      }              
+
+      // Open resulting file
+      _TFOPEN_S(f, sOutFileName.c_str(), _T("wt"));
+      if(f==NULL)
+      {
+        result = UNEXPECTED;
+        _tprintf(_T("Error: couldn't open output file '%s'.\n"), 
+          sOutFileName.c_str());      
+        goto done;
+      }
+    }
+    else if(szOutput!=NULL && _tcscmp(szOutput, _T(""))==0)
+    {
+      f=stdout; // Write output to terminal
+    }
+    
+    if(szOutput!=NULL && f==NULL)
+    {
+      result = UNEXPECTED;
+      _tprintf(_T("Error: couldn't open output file.\n")); 
+      goto done;
+    }
+
     if(szTableId!=NULL)
     {
       // Get single property
@@ -419,7 +459,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
         else
         {
           // Print row count in the specified table
-          _tprintf(_T("%d\n"), get);
+          _ftprintf(f, _T("%d\n"), get);
         }
       }
       else if(get!=0)
@@ -432,58 +472,15 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
       }
       else
       {
-        _tprintf(_T("%s\n"), sProp.c_str());
+        _ftprintf(f, _T("%s\n"), sProp.c_str());
       }
     }
     else
-    {
-      // Output results
-      tstring sOutFileName;
-      if(szOutput!=NULL && _tcscmp(szOutput, _T(""))!=0)
-      {        
-        if(bOutputToDir)
-        {
-          // Write output to directory
-          sOutFileName = tstring(szOutput);
-          if( sOutFileName[sOutFileName.length()-1]!='\\' )
-            sOutFileName += _T("\\"); 
-          sOutFileName += sInFileName + _T(".txt");
-        }
-        else
-        {
-          // Write output to single file
-          sOutFileName = szOutput;
-        }              
-
-        // Open resulting file
-        _TFOPEN_S(f, sOutFileName.c_str(), _T("wt, ccs=UTF-8"));
-        if(f==NULL)
-        {
-          result = UNEXPECTED;
-          _tprintf(_T("Error: couldn't open output file '%s'.\n"), 
-            sOutFileName.c_str());      
-          goto done;
-        }
-      }
-      else if(szOutput!=NULL && _tcscmp(szOutput, _T(""))==0)
-      {
-        f=stdout; // Write output to terminal
-      }
-      
-      if(szOutput!=NULL && f==NULL)
-      {
-        result = UNEXPECTED;
-        _tprintf(_T("Error: couldn't open output file.\n")); 
-        goto done;
-      }
-      
-      if(f!=NULL)
-      {
-        // Write error report properties to the resulting file
-        result = output_document(hReport, f);
-        if(result!=0)
-          goto done;      
-      }
+    {      
+      // Write error report properties to the resulting file
+      result = output_document(hReport, f);
+      if(result!=0)
+        goto done;      
     }
         
     if(szExtractPath!=NULL)

@@ -3815,7 +3815,11 @@ ZRESULT TUnzip::Get(int index,ZIPENTRY *ze)
     return ZR_OK;
   }
   if (index<(int)uf->num_file) unzGoToFirstFile(uf);
-  while ((int)uf->num_file<index) unzGoToNextFile(uf);
+  while ((int)uf->num_file<index) 
+  {
+    ZRESULT zr = unzGoToNextFile(uf);
+    if(zr!=ZR_OK) return zr;
+  }
   unz_file_info ufi; char fn[MAX_PATH];
   unzGetCurrentFileInfo(uf,&ufi,fn,MAX_PATH,NULL,0,NULL,0);
   // now get the extra header. We do this ourselves, instead of
