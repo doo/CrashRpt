@@ -284,7 +284,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
     goto done;
   }
  
-  if(szTableId==NULL && szOutput==NULL)
+  if(szTableId==NULL && szOutput==NULL && szExtractPath==NULL)
   {
     result = INVALIDARG;
     _tprintf(_T("Output file name or directory name is missing.\n"));
@@ -388,16 +388,18 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
   }    
   else if(szTableId==NULL)
   {
-    _tprintf(_T("MD5 file not detected; integrity check not performed.\n"));
+    _tprintf(_T("Warning: 'MD5 file not detected; integrity check not performed.' while processing file '%s'\n"), sInFileName.c_str());
   }
       
   // Open the error report file  
   int res = crpOpenErrorReport(szInput, szMD5Hash, szSymSearchPath, 0, &hReport);
   if(res!=0)
   {
+    result = UNEXPECTED;
     TCHAR buff[1024];
     crpGetLastErrorMsg(buff, 1024);
     _tprintf(_T("Error '%s' while processing file '%s'\n"), buff, sInFileName.c_str());      
+    goto done;
   }
   else 
   {
@@ -434,7 +436,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
       f=stdout; // Write output to terminal
     }
     
-    if(szOutput!=NULL && f==NULL)
+    if(szExtractPath!=NULL && szOutput!=NULL && f==NULL)
     {
       result = UNEXPECTED;
       _tprintf(_T("Error: couldn't open output file.\n")); 
@@ -475,7 +477,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
         _ftprintf(f, _T("%s\n"), sProp.c_str());
       }
     }
-    else
+    else if(szOutput!=NULL)
     {      
       // Write error report properties to the resulting file
       result = output_document(hReport, f);
@@ -613,10 +615,14 @@ int output_document(CrpHandle hReport, FILE* f)
   if(result==0)
     doc.PutRecord(_T("CPU count"), sCPUCount.c_str());
 
+  int nExceptionType = 0;
   tstring sExceptionType;
   result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_EXCEPTION_TYPE, sExceptionType);
   if(result==0)
+  {
+    nExceptionType = _ttoi(sExceptionType.c_str());
     doc.PutRecord(_T("Exception type"), sExceptionType.c_str());
+  }
 
   tstring sExceptionAddress;
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_ADDRESS, sExceptionAddress);
@@ -626,7 +632,7 @@ int output_document(CrpHandle hReport, FILE* f)
   tstring sExceptionCode;
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCPTRS_EXCEPTION_CODE, sExceptionCode);
   if(result==0)
-    doc.PutRecord(_T("Structured exception code"), sExceptionCode.c_str());
+    doc.PutRecord(_T("Structured exception code (from minidump)"), sExceptionCode.c_str());
 
   tstring sExceptionThreadRowID;  
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_THREAD_ROWID, sExceptionThreadRowID);
@@ -713,6 +719,8 @@ int output_document(CrpHandle hReport, FILE* f)
         tstring sAddrPCOffset;
         tstring sSymbolName;            
         tstring sOffsInSymbol;
+        tstring sSourceFile;
+        tstring sSourceLine;
 
         tstring sModuleRowId;
         result = get_prop(hReport, sStackTableId.c_str(), CRP_COL_STACK_MODULE_ROWID, sModuleRowId, j);
@@ -731,7 +739,9 @@ int output_document(CrpHandle hReport, FILE* f)
         get_prop(hReport, sStackTableId.c_str(), CRP_COL_STACK_ADDR_PC_OFFSET, sAddrPCOffset, j);        
         get_prop(hReport, sStackTableId.c_str(), CRP_COL_STACK_SYMBOL_NAME, sSymbolName, j);        
         get_prop(hReport, sStackTableId.c_str(), CRP_COL_STACK_OFFSET_IN_SYMBOL, sOffsInSymbol, j);              
-        
+        get_prop(hReport, sStackTableId.c_str(), CRP_COL_STACK_SOURCE_FILE, sSourceFile, j);              
+        get_prop(hReport, sStackTableId.c_str(), CRP_COL_STACK_SOURCE_LINE, sSourceLine, j);              
+
         tstring str;
         str = sModuleName;
         if(!str.empty())
@@ -745,6 +755,18 @@ int output_document(CrpHandle hReport, FILE* f)
           str += _T("+");
           str += sOffsInSymbol;
         }
+
+        if(!sSourceFile.empty())
+        {
+          int pos = sSourceFile.rfind('\\');
+          if(pos>=0)
+            sSourceFile = sSourceFile.substr(pos+1);
+          str += _T(" [ ");
+          str += sSourceFile;
+          str += _T(": ");
+          str += sSourceLine;
+          str += _T(" ] ");
+        } 
 
         doc.PutTableCell(str.c_str(), 32, true);                    
       }       
@@ -784,8 +806,12 @@ int output_document(CrpHandle hReport, FILE* f)
 
 int extract_files(CrpHandle hReport, LPCTSTR pszExtractPath)
 {
+  tstring sExtractPath = pszExtractPath;
+  if(sExtractPath.at(sExtractPath.length()-1)!='\\')
+    sExtractPath += _T("\\"); // Add the last slash if needed
+
   // Get count of files to extract.
-  int nFileCount = get_table_row_count(hReport, CRP_TBL_XMLDESC_MISC);
+  int nFileCount = get_table_row_count(hReport, CRP_TBL_XMLDESC_FILE_ITEMS);
   if(nFileCount<0)
   {
     return UNEXPECTED; // Error getting file count.
@@ -795,14 +821,13 @@ int extract_files(CrpHandle hReport, LPCTSTR pszExtractPath)
   for(i=0; i<nFileCount; i++)
   {
     tstring sFileName;
-    int nResult = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_FILE_ITEM_NAME, sFileName, i);
+    int nResult = get_prop(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_COL_FILE_ITEM_NAME, sFileName, i);
     if(nResult!=0)
     {
       return UNEXPECTED; // Error getting file name
     }
 
-    tstring sFileSaveAs = pszExtractPath;
-    sFileSaveAs+=sFileName;
+    tstring sFileSaveAs = sExtractPath+sFileName;    
     nResult = crpExtractFile(hReport, sFileName.c_str(), sFileSaveAs.c_str(), TRUE);
     if(nResult!=0)
     {

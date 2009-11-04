@@ -138,38 +138,67 @@ Attachment Extractor extension. You can configure the extension to determine the
 extract email attachments (ZIP and MD5 files) to some folder.
 
 When you have files stored in the directory, you may want to process them all at once. 
-You can automate this task using a simple batch (BAT) script:
+You can automate this task using a batch (BAT) script. 
+
+Below an example batch script is presented. 
+- The script processes the files matching the pattern defined by \a INPUT_FILE_PATTERN variable. For example,
+"*.zip" pattern means to process all ZIP files in the current directory.
 
 \code
+
 @echo off
 rem Process a group of ZIP error report files
 
 set INPUT_FILE_PATTERN="*.zip"
-set APPNAMES_TO_PROCESS="CrashRpt Tests"
-set APPVERSIONS_TO_PROCESS="1.2.0"
+set ACCEPTABLE_APPNAMES=""
+set ACCEPTABLE_APPVERSIONS=""
+set SYM_SEARCH_DIRS=""
+set SAVE_RESULTS_TO_DIR="valid_reports/"
+
+mkdir %SAVE_RESULTS_TO_DIR%
 
 for %%f in ( %INPUT_FILE_PATTERN% ) do call :process_report "%%f"
+exit 
 
-rem The following subroutine processes a crash report file
 :process_report
 
+  if "%ACCEPTABLE_FILENAMES%"=="" goto appname_ok
   rem Get application name from the crash report file and write it to "temp.txt"
-  crproberd.exe /f %1 /o "temp.txt" /get XmlDescMisc AppName 0
-  if not errorlevel 0 goto failed
+  crprober.exe /f %1 /o "temp.txt" /get XmlDescMisc AppName 0
+  if not %errorlevel%==0 goto failed
  
   set /p app_name=<temp.txt
-  if not "%app_name%" in ( %APPNAMES_TO_PROCESS% ) goto failed
+  for %%a in ( %ACCEPTABLE_APPNAMES% ) do if "%app_name%"==%%a goto appname_ok
 
+:appname_ok
+
+  if "%ACCEPTABLE_APPVERSIONS%"=="" goto appversion_ok
+  rem Get application version from the crash report file and write it to "temp.txt"
+  crprober.exe /f %1 /o "temp.txt" /get XmlDescMisc AppVersion 0
+  if not %errorlevel%==0 goto failed
+ 
+  set /p app_version=<temp.txt
+  for %%a in ( %ACCEPTABLE_APPVERSIONS% ) do if "%app_version%"==%%a goto appversion_ok
+
+  goto done
+
+:appversion_ok
+
+  rem Process report and write results to text file
+  crprober.exe /f %1 /o %1.txt /sym %SYM_SEARCH_DIRS% 
+  echo Return code=%errorlevel%
+  if not %errorlevel%==0 goto failed
 
 :ok
-
+  move %1 %SAVE_RESULTS_TO_DIR%
+  move %1.txt %SAVE_RESULTS_TO_DIR%
   goto done
 
 :failed
-  
-  goto done
+
 
 :done
+ erase temp.txt
   
 rem Return from subroutine
 goto :eof

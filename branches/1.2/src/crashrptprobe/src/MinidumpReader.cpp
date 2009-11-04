@@ -103,7 +103,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   
   DWORD dwOptions = SymGetOptions();
   dwOptions |= ( 
-    SYMOPT_DEFERRED_LOADS | // Symbols are not loaded until a reference is made requiring the symbols be loaded.
+    //SYMOPT_DEFERRED_LOADS | // Symbols are not loaded until a reference is made requiring the symbols be loaded.
     SYMOPT_EXACT_SYMBOLS  | // Do not load an unmatched .pdb file. 
     SYMOPT_FAIL_CRITICAL_ERRORS | // Do not display system dialog boxes when there is a media failure such as no media in a drive.
     SYMOPT_UNDNAME // All symbols are presented in undecorated form. 
