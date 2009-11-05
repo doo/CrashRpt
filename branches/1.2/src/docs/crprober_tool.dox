@@ -137,12 +137,21 @@ you may use some extension of your mail program. For example, if you use Mozilla
 Attachment Extractor extension. You can configure the extension to determine the error report messages on the fly and 
 extract email attachments (ZIP and MD5 files) to some folder.
 
-When you have files stored in the directory, you may want to process them all at once. 
+When you have ZIP and MD5 files stored in the directory, you may want to process them all at once. You may want to
+process reports from the latest version of your application, ignoring all others. You also may want to copy
+processed reports to some other directory, leaving not processed reports where they are.
 You can automate this task using a batch (BAT) script. 
 
 Below an example batch script is presented. 
 - The script processes the files matching the pattern defined by \a INPUT_FILE_PATTERN variable. For example,
 "*.zip" pattern means to process all ZIP files in the current directory.
+- The script accepts only the reports having application name as defined by \a ACCEPTABLE_APPNAME variable. 
+Keep this empty to accept all appnames.
+- The script accepts only the reports having application version as defined by \a ACCEPTABLE_APPVERSION variable. 
+Keep this empty to accept all app versions.
+- The script searches for symbol files in \a SYM_SEARCH_DIRS. This may be semicolon-separated list of directories.
+- The script saves processed reports and output text files to \a SAVE_RESULTS_TO_DIR directory.
+
 
 \code
 
@@ -150,9 +159,9 @@ Below an example batch script is presented.
 rem Process a group of ZIP error report files
 
 set INPUT_FILE_PATTERN="*.zip"
-set ACCEPTABLE_APPNAMES=""
-set ACCEPTABLE_APPVERSIONS=""
-set SYM_SEARCH_DIRS=""
+set ACCEPTABLE_APPNAME="CrashRpt Tests"
+set ACCEPTABLE_APPVERSION="1.2.0"
+set SYM_SEARCH_DIRS="D:\Projects\CrashRpt\CrashRptSaved\1.2.0"
 set SAVE_RESULTS_TO_DIR="valid_reports/"
 
 mkdir %SAVE_RESULTS_TO_DIR%
@@ -162,23 +171,24 @@ exit
 
 :process_report
 
-  if "%ACCEPTABLE_FILENAMES%"=="" goto appname_ok
+  if %ACCEPTABLE_APPNAME%=="" goto appname_ok
   rem Get application name from the crash report file and write it to "temp.txt"
   crprober.exe /f %1 /o "temp.txt" /get XmlDescMisc AppName 0
   if not %errorlevel%==0 goto failed
  
   set /p app_name=<temp.txt
-  for %%a in ( %ACCEPTABLE_APPNAMES% ) do if "%app_name%"==%%a goto appname_ok
+  if "%app_name%"==%ACCEPTABLE_APPNAME% goto appname_ok
+  goto done
 
 :appname_ok
 
-  if "%ACCEPTABLE_APPVERSIONS%"=="" goto appversion_ok
+  if %ACCEPTABLE_APPVERSION%=="" goto appversion_ok
   rem Get application version from the crash report file and write it to "temp.txt"
   crprober.exe /f %1 /o "temp.txt" /get XmlDescMisc AppVersion 0
   if not %errorlevel%==0 goto failed
  
   set /p app_version=<temp.txt
-  for %%a in ( %ACCEPTABLE_APPVERSIONS% ) do if "%app_version%"==%%a goto appversion_ok
+  if "%app_version%"==%ACCEPTABLE_APPVERSION% goto appversion_ok
 
   goto done
 

@@ -126,6 +126,7 @@ crpOpenErrorReportW(
   int xml_index = -1;
   int dmp_index = -1;
   CString sCalculatedMD5Hash;
+  CString sAppName;
 
   crpSetErrorMsg(_T("Unspecified error."));
   *pHandle = 0;
@@ -179,6 +180,7 @@ crpOpenErrorReportW(
       if(sExt.CompareNoCase(_T("dmp"))==0)
       {
         // DMP found
+        sAppName = Utility::GetBaseFileName(ze.name);
         dmp_index = i;
         break;
       }
@@ -199,7 +201,7 @@ crpOpenErrorReportW(
     crpSetErrorMsg(_T("File is not a valid crash report (XML or DMP missing)."));
     goto exit; // XML or DMP not found 
   }
-
+  
   // Load crash descriptor data
   if(xml_index>=0)
   {
@@ -224,7 +226,8 @@ crpOpenErrorReportW(
     {
       crpSetErrorMsg(_T("Crash descriptor is not a valid XML file."));
       goto exit; // Corrupted XML
-    }
+    }    
+
   }  
 
   // Extract minidump file
@@ -240,6 +243,67 @@ crpOpenErrorReportW(
 
     report_data.m_sMiniDumpTempName = sTempFile;
   } 
+
+  if(report_data.m_pDescReader->m_dwGeneratorVersion==1000)
+  {
+    // Check if appname is empty (this may be true for v1.0 reports)
+    if(report_data.m_pDescReader->m_sAppName.IsEmpty())
+      report_data.m_pDescReader->m_sAppName = sAppName;
+
+    // Check if app version is empty (this may be true for v1.0 reports)
+    if(report_data.m_pDescReader->m_sAppVersion.IsEmpty() ||
+      report_data.m_pDescReader->m_sImageName.IsEmpty())
+    {
+      // Load minidump right now
+      int nLoad = report_data.m_pDmpReader->Open(report_data.m_sMiniDumpTempName, 
+        report_data.m_sSymSearchPath);
+      if(nLoad!=0)
+      {
+        crpSetErrorMsg(_T("Error opening minidump file."));
+        goto exit; 
+      }
+
+      // Find the candidate for application's executable module
+      CMiniDumpReader* pDmpReader = report_data.m_pDmpReader;
+      int nExeModuleIndx = -1;
+      UINT i;
+      for(i=0; i<pDmpReader->m_DumpData.m_Modules.size(); i++)
+      {
+        CString sModuleName = pDmpReader->m_DumpData.m_Modules[i].m_sModuleName;
+        CString sBaseName = Utility::GetBaseFileName(sModuleName);
+        CString sExt = Utility::GetFileExtension(sModuleName);
+        if(sBaseName.CompareNoCase(report_data.m_pDescReader->m_sAppName)==0 &&
+          sExt.CompareNoCase(_T("exe"))==0)
+        {
+          nExeModuleIndx = i;
+          break;
+        }
+      }
+      if(nExeModuleIndx>=0)
+      {
+        if(report_data.m_pDescReader->m_sImageName.IsEmpty())
+        {
+          report_data.m_pDescReader->m_sImageName =
+            pDmpReader->m_DumpData.m_Modules[i].m_sImageName;
+        }
+
+        if(report_data.m_pDescReader->m_sAppVersion.IsEmpty())
+        {
+          VS_FIXEDFILEINFO* fi = pDmpReader->m_DumpData.m_Modules[i].m_pVersionInfo;
+          if(fi!=NULL)
+          {
+            WORD dwVerMajor = (WORD)(fi->dwProductVersionMS>>16);
+            WORD dwVerMinor = (WORD)(fi->dwProductVersionMS&0xFF);
+            WORD dwPatchLevel = (WORD)(fi->dwProductVersionLS>>16);
+            WORD dwVerBuild = (WORD)(fi->dwProductVersionLS&0xFF);
+
+            report_data.m_pDescReader->m_sAppVersion.Format(_T("%u.%u.%u.%u"), 
+              dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);            
+          }
+        }
+      }
+    }
+  }
 
   // Enumerate contained files
   int i=0;
