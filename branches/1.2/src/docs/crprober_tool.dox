@@ -167,6 +167,7 @@ set SAVE_RESULTS_TO_DIR="valid_reports/"
 mkdir %SAVE_RESULTS_TO_DIR%
 
 for %%f in ( %INPUT_FILE_PATTERN% ) do call :process_report "%%f"
+erase temp.txt
 exit 
 
 :process_report
@@ -208,7 +209,6 @@ exit
 
 
 :done
- erase temp.txt
   
 rem Return from subroutine
 goto :eof
