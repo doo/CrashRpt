@@ -46,3 +46,8 @@ rmdir /S /Q CrashRptProbe\src\Debug
 rmdir /S /Q CrashRptProbe\src\Release
 erase /A H CrashRptProbe\src\*.user
 erase CrashRptProbe\src\*.aps
+
+rmdir /S /Q crprober\src\Debug
+rmdir /S /Q crprober\src\Release
+erase /A H crprober\src\*.user
+erase crprober\src\*.aps
