@@ -412,6 +412,12 @@ crpGetPropertyW(
 {
   crpSetErrorMsg(_T("Unspecified error."));
 
+  // Set default output values
+  if(lpszBuffer!=NULL && cchBuffSize>=1)
+    lpszBuffer[0] = 0; // Empty buffer
+  if(pcchCount!=NULL)
+    *pcchCount = 0;  
+
   LPCWSTR pszPropVal = NULL;
   const int BUFF_SIZE = 4096; 
   TCHAR szBuff[BUFF_SIZE]; // Internal buffer to store property value
@@ -970,8 +976,11 @@ crpGetPropertyA(
 {
   crpSetErrorMsg(_T("Unspecified error."));
 
-  WCHAR* szBuffer = new WCHAR[cchBuffSize];
+  WCHAR* szBuffer = NULL;  
   strconv_t strconv;
+
+  if(lpszBuffer!=NULL && cchBuffSize>0) 
+    szBuffer = new WCHAR[cchBuffSize];
 
   int result = crpGetPropertyW(
     hReport, 
@@ -982,9 +991,13 @@ crpGetPropertyA(
     cchBuffSize, 
     pcchCount);
 
-  LPCSTR aszResult = strconv.w2a(szBuffer);
-  delete [] szBuffer;
-  STRCPY_S(lpszBuffer, cchBuffSize, aszResult);
+  if(szBuffer!=NULL)
+  {
+    LPCSTR aszResult = strconv.w2a(szBuffer);
+    delete [] szBuffer;
+    STRCPY_S(lpszBuffer, cchBuffSize, aszResult);
+  }
+
   return result;
 }
 

@@ -82,6 +82,9 @@ public:
 
   LPCWSTR a2w(LPCSTR lpsz)
   {
+    if(lpsz==NULL)
+      return NULL;
+
     int count = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, NULL, 0);
     if(count==0)
       return NULL;
@@ -99,7 +102,10 @@ public:
   }
 
   LPCSTR w2a(LPCWSTR lpsz)
-  {    
+  { 
+    if(lpsz==NULL)
+      return NULL;
+
     int count = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, NULL, 0, NULL, NULL);
     if(count==0)
       return NULL;

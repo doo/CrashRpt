@@ -36,11 +36,11 @@ another action.
 On application exit, you should use the crUninstall() function to unset exception handlers. 
 
 The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
-In a multithread program you call the crInstallToCurrentThread2() for all 
+In a multithreaded program you call the crInstallToCurrentThread2() for all 
 threads except the main one. Typically you call this function in the beginning of the thread
 procedure.
 
-Just before the return of a thread procedure call the
+Just before the return from the thread procedure, call the
 crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
 crUninstallFromCurrentThread() function in the main executrion thread, because crUninstall() will do that for
 you automatically.

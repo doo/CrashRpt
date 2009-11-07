@@ -344,7 +344,7 @@ crpGetPropertyA(
  *
  *  \a lpszFileSaveAs defines the name of the file to extract to. 
  *
- *  \a bOverwriteExisting flag defines the behavior when the destination file is already exists.
+ *  \a bOverwriteExisting flag defines the behavior when the destination file already exists.
  *  If this parameter is TRUE, the file is overwritten, otherwise the function fails.
  *
  *  If this function fails, use crpGetLastErrorMsg() to retrieve the error message.

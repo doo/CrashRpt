@@ -15,9 +15,9 @@ analyzing their content may become boring and take a lot of time.
 \image html reports_path.png 
 
 <b>Since v1.2.0</b>, CrashRpt provides a way for automating the report processing.
-A command line tool named \b crprober.exe is introduced for processing error report 
-files and output results to a text file(s) or to terminal.
-A <b>CrashRptProbe API</b> is introduced to provide base crash report processing services to
+The command line tool named \b crprober.exe is introduced for processing error report 
+files and outputting the results to a text file or to terminal.
+The <b>CrashRptProbe API</b> is introduced to provide base crash report processing services to
 your custom error report processing applications.
 
 This section is devided into the following topics:

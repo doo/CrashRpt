@@ -64,7 +64,7 @@ to contact user and request additional info about error.
 
 \c FileList contains the list of files that are contained in the error report. 
 
-\c ExceptionType is an integer that means the type of error:
+\c ExceptionType is an integer that means the type of error (see \ref CR_EXCEPTION_INFO structure documentation):
 
 - 0 Win32 structured exception.
 - 1 C++ terminate() call.

@@ -6,6 +6,13 @@
 can be used for automating crash report processing. To run the tool, go to 
 \c bin directory and type <b>crprober.exe</b> in the command line.
 
+\note If you run the precompiled tool from \c bin folder and do not compile it yourself, you might
+expirience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 
+There may be error messages like 'The application configuration is incorrect' and so on.
+If you do not have Visual C++ 2005 Redistributable on your machine and do not want to install it, 
+please compile the solution yourself as described in \ref compiling_crashrpt.
+
+
 Note that crprober.exe shouldn't be distributed to end users. They just won't be able
 to use it without symbol files.
 
@@ -134,8 +141,9 @@ crprober.exe /f error_report.zip /o "" /sym "D:\Symbol Files;D:\MyApp\sym" /get 
 
 Let's assume you receive error reports over E-mail. To automate error reports extraction from E-mail attachments,
 you may use some extension of your mail program. For example, if you use Mozilla Thunderbird, you can use 
-Attachment Extractor extension. You can configure the extension to determine the error report messages on the fly and 
-extract email attachments (ZIP and MD5 files) to some folder.
+<a href="http://www.eviljeff.com/?page=moz-extensions">Attachment Extractor extension</a>. You can configure 
+the extension to determine the error report messages on the fly and extract email attachments (ZIP and 
+MD5 files) to some folder.
 
 When you have ZIP and MD5 files stored in the directory, you may want to process them all at once. You may want to
 process reports from the latest version of your application, ignoring all others. You also may want to copy

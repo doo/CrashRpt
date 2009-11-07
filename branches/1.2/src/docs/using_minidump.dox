@@ -24,10 +24,12 @@ open it using an associated program (for example, Visual Studio). When minidump 
 in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see
 the place in your source code where exception occurred.
 
-The most interesting for you is the call stack (see the figure below). Open the Call Stack window to see the stack trace.
-Each line of stack trace contains the name of module where crash occured, the name of symbol (function or class),
-offset from beginning of symbol code, source file and line number. This should be enough to
-locate the error, assume the most probable reason and try to fix.
+The most interesting for you is the call stack (see the figure below). Open the <i>Call Stack</i> tab to see 
+the stack trace for
+a selected thread. Each line of stack trace contains the name of module where crash occured, the name of symbol 
+(function or class), offset from beginning of symbol code, source file and line number. This should be enough to
+locate the error, assume the most probable reason and try to fix. You can switch between threads using the 
+<i>Threads</i> tab and browse the stack for each thread.
 
 \image html call_stack.png "Fragment of code where exception occurred and the call stack"
 
