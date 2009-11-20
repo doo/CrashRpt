@@ -651,8 +651,8 @@ crpGetPropertyW(
     if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
     {
       if(pDescReader->m_dwGeneratorVersion==1000)
-        return it->second.m_ContainedFiles.size();
-      return pDescReader->m_aFileItems.size();
+        return (int)it->second.m_ContainedFiles.size();
+      return (int)pDescReader->m_aFileItems.size();
     }
     else if( sColumnId.Compare(CRP_COL_FILE_ITEM_NAME)==0 || 
         sColumnId.Compare(CRP_COL_FILE_ITEM_DESCRIPTION)==0 )
@@ -813,7 +813,7 @@ crpGetPropertyW(
 
     if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
     {
-      return pDmpReader->m_DumpData.m_Modules.size();
+      return (int)pDmpReader->m_DumpData.m_Modules.size();
     }
     else if(sColumnId.Compare(CRP_COL_MODULE_NAME)==0)
     {      
@@ -853,7 +853,7 @@ crpGetPropertyW(
 
     if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
     {
-      return pDmpReader->m_DumpData.m_Threads.size();
+      return (int)pDmpReader->m_DumpData.m_Threads.size();
     }
     else if(sColumnId.Compare(CRP_COL_THREAD_ID)==0)
     {
@@ -887,7 +887,7 @@ crpGetPropertyW(
 
     if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
     {
-      return pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace.size();
+      return (int)pDmpReader->m_DumpData.m_Threads[nEntryIndex].m_StackTrace.size();
     }
     else if(sColumnId.Compare(CRP_COL_STACK_OFFSET_IN_SYMBOL)==0)
     {      

@@ -302,7 +302,7 @@ int CMiniDumpReader::GetModuleRowIdByBaseAddr(DWORD64 dwBaseAddr)
 {
   std::map<DWORD64, size_t>::iterator it = m_DumpData.m_ModuleIndex.find(dwBaseAddr);
   if(it!=m_DumpData.m_ModuleIndex.end())
-    return it->second;
+    return (int)it->second;
   return -1;
 }
 
@@ -323,7 +323,7 @@ int CMiniDumpReader::GetThreadRowIdByThreadId(DWORD dwThreadId)
 {
   std::map<DWORD, size_t>::iterator it = m_DumpData.m_ThreadIndex.find(dwThreadId);
   if(it!=m_DumpData.m_ThreadIndex.end())
-    return it->second;
+    return (int)it->second;
   return -1;
 }
 
@@ -454,12 +454,18 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
   DWORD dwMachineType = 0;
   switch(m_DumpData.m_uProcessorArchitecture)
   {
+#ifdef _X86_
   case PROCESSOR_ARCHITECTURE_INTEL: 
     dwMachineType = IMAGE_FILE_MACHINE_I386;
     sf.AddrPC.Offset = ((CONTEXT*)pThreadContext)->Eip;
     sf.AddrFrame.Offset = ((CONTEXT*)pThreadContext)->Ebp;
     sf.AddrStack.Offset = ((CONTEXT*)pThreadContext)->Esp;
     break;
+#endif //_X86_
+#ifdef _AMD64_
+  case PROCESSOR_ARCHITECTURE_AMD64:
+    break;
+#endif //_AMD64_
   default:
     {
       assert(0);
@@ -469,7 +475,7 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
 
   for(;;)
   {    
-    BOOL bWalk = StackWalk64(
+    BOOL bWalk = ::StackWalk64(
       dwMachineType,               // machine type
       m_DumpData.m_hProcess,       // our process handle
       (HANDLE)dwThreadId,          // thread ID
