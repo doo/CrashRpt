@@ -428,6 +428,10 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
   if(pThreadContext==NULL)
     return 1;
 
+  // Make modifiable context
+  CONTEXT Context;
+  memcpy(&Context, pThreadContext, sizeof(CONTEXT));
+
   g_pMiniDumpReader = this;
 
   // Init stack frame with correct initial values
@@ -457,19 +461,32 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
 #ifdef _X86_
   case PROCESSOR_ARCHITECTURE_INTEL: 
     dwMachineType = IMAGE_FILE_MACHINE_I386;
-    sf.AddrPC.Offset = ((CONTEXT*)pThreadContext)->Eip;
-    sf.AddrFrame.Offset = ((CONTEXT*)pThreadContext)->Ebp;
-    sf.AddrStack.Offset = ((CONTEXT*)pThreadContext)->Esp;
+    sf.AddrPC.Offset = pThreadContext->Eip;    
+    sf.AddrStack.Offset = pThreadContext->Esp;
+    sf.AddrFrame.Offset = pThreadContext->Ebp;
     break;
-#endif //_X86_
+#endif 
 #ifdef _AMD64_
   case PROCESSOR_ARCHITECTURE_AMD64:
+    dwMachineType = IMAGE_FILE_MACHINE_AMD64;
+    sf.AddrPC.Offset = pThreadContext->Rip;    
+    sf.AddrStack.Offset = pThreadContext->Rsp;
+    sf.AddrFrame.Offset = pThreadContext->Rbp;
     break;
-#endif //_AMD64_
+#endif 
+#ifdef _IA64_
+  case PROCESSOR_ARCHITECTURE_AMD64:
+    dwMachineType = IMAGE_FILE_MACHINE_IA64;
+    sf.AddrPC.Offset = pThreadContext->StIIP;
+    sf.AddrStack.Offset = pThreadContext->IntSp;
+    sf.AddrFrame.Offset = pThreadContext->RsBSP;    
+    sf.AddrBStore.Offset = pThreadContext->RsBSP;
+    break;
+#endif 
   default:
     {
       assert(0);
-      return 1; // Unknown machine type
+      return 1; // Unsupported architecture
     }
   }
 
@@ -480,7 +497,7 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
       m_DumpData.m_hProcess,       // our process handle
       (HANDLE)dwThreadId,          // thread ID
       &sf,                         // stack frame
-      dwMachineType==IMAGE_FILE_MACHINE_I386?NULL:pThreadContext, // used for non-I386 machines 
+      dwMachineType==IMAGE_FILE_MACHINE_I386?NULL:(&Context), // used for non-I386 machines 
       ReadProcessMemoryProc64,     // our routine
       FunctionTableAccessProc64,   // our routine
       GetModuleBaseProc64,         // our routine
@@ -574,21 +591,19 @@ BOOL CALLBACK ReadProcessMemoryProc64(
     {
       DWORD64 dwOffs = lpBaseAddress-mr.m_u64StartOfMemoryRange;
       
-      DWORD dwBytesRead = 0;
+      LONG64 lBytesRead = 0;
       
       if(mr.m_uDataSize-dwOffs>nSize)
-        dwBytesRead = nSize;
+        lBytesRead = nSize;
       else
-        dwBytesRead = (DWORD)(mr.m_uDataSize-dwOffs);
+        lBytesRead = mr.m_uDataSize-dwOffs;
 
-      *lpNumberOfBytesRead = dwBytesRead;
+      if(lBytesRead<=0 || nSize<lBytesRead)
+        return FALSE;
 
-      if(dwBytesRead>0)
-      {
-        assert(nSize>=dwBytesRead);
-        memcpy(lpBuffer, (LPBYTE)mr.m_pStartPtr+dwOffs, dwBytesRead);
-      }
-
+      *lpNumberOfBytesRead = (DWORD)lBytesRead;
+      memcpy(lpBuffer, (LPBYTE)mr.m_pStartPtr+dwOffs, lBytesRead);
+     
       return TRUE;
     }
   }
