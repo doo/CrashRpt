@@ -64,7 +64,7 @@ Yes, they are listed in the table below:
 || Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
 || Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
 || BugCollect.com || Web-based crash reporting system || http://bugcollect.com ||
-
+|| BugTrap || Crash reporting system for C++ and .NET || http://www.codeproject.com/KB/applications/BugTrap.aspx ||
 
 
 = Using crashrpt =
