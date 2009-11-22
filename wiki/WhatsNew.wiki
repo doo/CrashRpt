@@ -1,7 +1,7 @@
 #summary Release History.
 #labels Featured,Phase-Deploy
 
-= CrashRpt v1.2.0 =
+= crashrpt v1.2.0 =
 
 CrashRpt v1.2.0 introduces crash report processing tool (crporber.exe), crash report processing application programming interface (CrashRptProbe API), extends documentation and fixes some minor bugs. Below the list of changes is presented. 
 
@@ -26,7 +26,7 @@ CrashRpt v1.2.0 introduces crash report processing tool (crporber.exe), crash re
   * Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
 
 
-= CrashRpt v1.1.3 =
+= crashrpt v1.1.3 =
 
 CrashRpt v1.1.3 introduces support of multi-lingual UI, improves and reorganizes project documentation. Below the list of changes is presented. 
 
@@ -48,6 +48,149 @@ We appreciate any user feedback, bug reports and feature requests.
 == Installing == 
 
 Unzip the CrashRpt archive to any folder, open index.html at the top level directory and follow the instructions.
+
+== Providing Feedback ==
+
+If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
+
+= crashrpt 1.1.2 =
+
+CrashRpt v1.1.2 introduces an ablity to define the Privacy Policy for error reports, extends API, improves documentation and fixes some minor bugs. Below the list of changes is presented. 
+
+We appreciate any user feedback, bug reports and feature requests.
+
+== What's New ==
+
+  * crInstall: Ability to select what exception handlers to install
+
+  * Extended CR_INSTALL_INFO with new members: `pszPrivacyPolicyURL` and `dwFlags`.
+
+  * New API function `crInstallToCurrentThead2()`.
+
+  * Improved documentation; Fixed some mistakes; Added info on compiling CrashRpt in VC++ Express
+
+  * Using standard Windows convention `__stdcall` instead of `__cdecl` in API function declarations 
+
+  * Using undecorated API function names (extern "C")
+
+  * Using static zlib linkage instead of zlib DLL
+
+  * Replaced obsolete ATL 3.0 string conversion macros with self-written class `strconv_t`.
+
+  * Fixed some compilation warnings in VC++ Express
+
+  * Fixed wrong "unh" message box in unhandled exception handler
+
+  * Fixed bug in `CUtility::GetOSFriendlyName()` -- Operating system build number and service pack are never retrieved 
+
+  * Fixed error with writing 'ExceptionCode' to XML (always zero)
+
+  * Writing exception code to XML in hex format
+
+  * Refactored code of `crEmulateCrash()`
+
+== Requirements ==
+
+  * Windows operating system
+  * Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
+
+== Installing == 
+
+Unzip the CrashRpt archive to any folder, open index.html at the top level directory and follow the instructions in Installation page of documentation.
+
+== Providing Feedback ==
+
+If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
+
+= crashrpt v1.1.1 =
+
+CrashRpt v1.1.1 contains several improvements over previous version of CrashRpt. Below the list of changes is presented. 
+
+We appreciate any user feedback, bug reports and feature requests.
+
+== What's New ==
+
+  * Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
+
+  * Improved documentation; New page About Exceptions and Exception Handling
+
+  * New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
+
+  * MD5 hash for error report is calculated and attached to email when error report is sent over email
+
+  * Error report is removed when sent successfuly
+
+  * Refactored error report sending code
+
+  * Extended E-mail message text generation for error reports being sent over email
+
+  * 'Copy selected lines' and 'copy the whole log' from context menu of error report sending log
+
+  * Fixed many VS-version-specific bugs
+
+== Requirements == 
+
+  * Windows operating system
+  * Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
+
+== Installing == 
+
+Unzip the CrashRpt archive to any folder, open index.html at the top level directory and follow the instructions in Installation page of documentation.
+
+== Providing Feedback ==
+
+If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
+
+= crashrpt 1.1 beta =
+
+CrashRpt v1.1b contains a lot of improvements over previous version of CrashRpt. Below the list of changes is presented. 
+
+This release has status 'beta' and is made available for public beta testing. We appreciate any user feedback, bug reports and feature requests.
+
+== What's New ==
+
+Major Features:
+
+- Removed support of Visual Studio 6.0 and added support of VS.NET 2003, VS 2005 and VS 2008
+
+- New API functions (crInstall(); crUninstall(); crInstallToCurrentThread(); crUninstallFromCurrentThread(); crGenerateErrorReport(); crExceptionFilter();
+  crEmulateCrash(); crGetLastErrorMsg())
+
+- Character set specific functions have A and W suffixes. Introduced macros for defining character set indepandent function names mapping
+
+- Support of various C++ exception handlers (Visual Studio-specific)
+
+- Crash report generation and crash sending functionality are separeted into different modules (CrashRpt.dll and CrashSender.exe)
+
+- New ways of sending error reports: using HTTP connection, using SMTP embed client or (as in 1.0) using Simple MAPI.
+
+- Each error report is now assigned a unique CrashGUID
+
+- Doxygen-based documentation system
+
+- Revamped GUI of Send Error Report dialog
+
+- New Error Report Sending Progress dialog
+
+- Improved crash descriptor XML format
+
+
+Minor features:
+
+- Using TinyXml framework instead of MSXML
+
+- Using the latest version (at the moment) of dbghelp 
+
+- Using the latest version (at the moment) of zlib
+
+== Requirements == 
+
+- Windows operating system
+- Microsoft Visual C++ .NET 2003, 2005, 2008
+
+== Installing ==
+
+Unzip the CrashRpt v1.1b archive to any folder, open index.html at the top level directory and follow the instructions in Installation page of documentation.
 
 == Providing Feedback ==
 
