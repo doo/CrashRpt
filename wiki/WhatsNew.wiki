@@ -1,6 +1,8 @@
 #summary Release History.
 #labels Featured,Phase-Deploy
 
+<wiki:toc max_depth="1" />
+
 = crashrpt v1.2.0 =
 
 CrashRpt v1.2.0 introduces crash report processing tool (crporber.exe), crash report processing application programming interface (CrashRptProbe API), extends documentation and fixes some minor bugs. Below the list of changes is presented. 
