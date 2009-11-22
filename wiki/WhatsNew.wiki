@@ -55,7 +55,7 @@ Unzip the CrashRpt archive to any folder, open index.html at the top level direc
 
 If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
 
-= crashrpt 1.1.2 =
+= crashrpt v1.1.2 =
 
 CrashRpt v1.1.2 introduces an ablity to define the Privacy Policy for error reports, extends API, improves documentation and fixes some minor bugs. Below the list of changes is presented. 
 
@@ -143,7 +143,7 @@ Unzip the CrashRpt archive to any folder, open index.html at the top level direc
 
 If you detect a bug or would like to request or feature, feel free to contact us at http://code.google.com/p/crashrpt/issues/list
 
-= crashrpt 1.1 beta =
+= crashrpt v1.1 beta =
 
 CrashRpt v1.1b contains a lot of improvements over previous version of CrashRpt. Below the list of changes is presented. 
 
