@@ -465,7 +465,7 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
     sf.AddrStack.Offset = pThreadContext->Esp;
     sf.AddrFrame.Offset = pThreadContext->Ebp;
     break;
-#endif 
+#endif
 #ifdef _AMD64_
   case PROCESSOR_ARCHITECTURE_AMD64:
     dwMachineType = IMAGE_FILE_MACHINE_AMD64;
@@ -473,7 +473,7 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
     sf.AddrStack.Offset = pThreadContext->Rsp;
     sf.AddrFrame.Offset = pThreadContext->Rbp;
     break;
-#endif 
+#endif
 #ifdef _IA64_
   case PROCESSOR_ARCHITECTURE_AMD64:
     dwMachineType = IMAGE_FILE_MACHINE_IA64;

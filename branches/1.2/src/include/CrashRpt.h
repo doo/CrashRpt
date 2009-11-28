@@ -761,6 +761,39 @@ crAddFileA(
 #define crAddFile crAddFileA
 #endif //UNICODE
 
+// Flags for crAddScreenshot function.
+#define CR_SCREENSHOT_ENTIRE_DESKTOP  0 //!< Take a screenshot of entire desktop.
+#define CR_SCREENSHOT_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
+
+/*! \ingroup CrashRptAPI  
+ *  \brief Adds a screenshot to crash report.
+ * 
+ *  \return This function returns zero if succeeded.
+ *
+ *  \param[in] dwFlags Flags.
+ *  
+ *  \remarks 
+ *
+ *  This functions can be used to make a screenshot at the moment of crash and to add
+ *  the screenshot to the error report. Call this function inside of \ref LPGETLOGFILE crash callback.
+ * 
+ *  \a dwFlags can be one of the following:
+ *    - \ref CR_SCREENSHOT_ENTIRE_DESKTOP Use this to take a screenshot of entire desktop.
+ *    - \ref CR_SCREENSHOT_MAIN_WINDOW Use this to take a screenshot of the application's main window.
+ *  
+ *  Screenshots are added in form of PNG files. When capturing entire desktop consisting of several monitors, 
+ *  one screenshot file is added per each monitor.
+ *
+ *  \sa
+ *   crAddFile()
+ */
+
+int
+CRASHRPTAPI 
+crAddScreenshot(
+   DWORD dwFlags
+   );
+
 
 
 // Exception types

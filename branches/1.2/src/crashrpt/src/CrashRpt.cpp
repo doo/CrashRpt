@@ -2,6 +2,7 @@
 #include "CrashRpt.h"
 #include "CrashHandler.h"
 #include "Utility.h"
+#include "ScreenCap.h"
 
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
@@ -332,6 +333,27 @@ crAddFileA(PCSTR pszFile, PCSTR pszDesc)
   }
 
   return crAddFileW(pwszFile, pwszDesc);
+}
+
+int
+CRASHRPTAPI 
+crAddScreenshot(
+   DWORD dwFlags
+   )
+{
+  CScreenCapture sc;
+
+  if(dwFlags==CR_SCREENSHOT_ENTIRE_DESKTOP)
+  {
+    CRect rcScreen;
+    sc.GetScreenRect(&rcScreen);
+    sc.CaptureScreenRect(rcScreen);
+  }
+  else if(dwFlags==CR_SCREENSHOT_MAIN_WINDOW)
+  {
+  }
+
+  return 0;
 }
 
 int 

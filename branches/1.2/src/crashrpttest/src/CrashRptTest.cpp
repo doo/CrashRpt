@@ -42,6 +42,9 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
 
   nAddFile = crAddFile(sIniFile, _T("Dummy INI File"));
   ATLASSERT(nAddFile==0);
+
+  int nAddScreenshot = crAddScreenshot(CR_SCREENSHOT_ENTIRE_DESKTOP);
+  ATLASSERT(nAddScreenshot==0);
 #endif
 
   return TRUE;
@@ -75,7 +78,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 // make the EXE free threaded. This means that calls come in on a random RPC thread.
 //	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
-
+  
   // Install crash reporting
 #ifdef TEST_DEPRECATED_FUNCS
 
