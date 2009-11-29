@@ -945,7 +945,7 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
 }
 
 
-int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDesc)
+int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc)
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -961,7 +961,22 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDesc)
   }
 
   // Add file to file list.
-  m_files[pszFile] = pszDesc;
+  FileItem fi;
+  fi.m_sDescription = pszDesc;
+  fi.m_sFileName = pszFile;
+  if(pszDestFile!=NULL)
+    m_files[pszDestFile] = fi;
+  else
+  {
+    CString sDestFile = pszFile;
+    int pos = -1;
+    sDestFile.Replace('/', '\\');
+    pos = sDestFile.ReverseFind('\\');
+    if(pos!=-1)
+      sDestFile = sDestFile.Mid(pos+1);
+
+    m_files[sDestFile] = fi;
+  }
 
   // OK.
   crSetErrorMsg(_T("Success."));
@@ -1011,16 +1026,14 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      //CString sDesc = Utility::LoadString(IDS_CRASH_DUMP);
-      m_files[sFileName] = _T("Crash Dump");
+      crAddFile2(sFileName, NULL, _T("Crash Dump"));      
     }
     
     /* Create crash report descriptor file in XML format. */
   
-    sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir, Utility::getAppName());
-    //CString sDesc = Utility::LoadString(IDS_CRASH_LOG);
-    m_files[sFileName] = _T("Crash Log");
+    sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir);
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
+    crAddFile2(sFileName, NULL, _T("Crash Log"));    
     ATLASSERT(result==0);
     result;
   }
@@ -1216,27 +1229,27 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   TiXmlElement* file_list = new TiXmlElement("FileList");
   root->LinkEndChild(file_list);      
 
-  TStrStrMap::iterator cur = m_files.begin();
+  std::map<CString, FileItem>::iterator cur = m_files.begin();
   unsigned i;
   for (i = 0; i < m_files.size(); i++, cur++)
   {    
-    CString sFilePath = (*cur).first;
+    CString sDestFile = (*cur).first;
 
     int pos = -1;
-    sFilePath.Replace('/', '\\');
-    pos = sFilePath.ReverseFind('\\');
+    sDestFile.Replace('/', '\\');
+    pos = sDestFile.ReverseFind('\\');
     if(pos!=-1)
-      sFilePath = sFilePath.Mid(pos+1);
+      sDestFile = sDestFile.Mid(pos+1);
 
-    CString sFileDesc = (*cur).second;
+    FileItem& fi = (*cur).second;
 
     TiXmlElement* file_item = new TiXmlElement("FileItem");
     file_list->LinkEndChild(file_item);      
 
-	  LPCSTR lpszFilePath = strconv.t2a(sFilePath.GetBuffer(0));
-	  LPCSTR lpszFileDesc = strconv.t2a(sFileDesc.GetBuffer(0));
+	  LPCSTR lpszDestFile = strconv.t2a(sDestFile.GetBuffer(0));
+    LPCSTR lpszFileDesc = strconv.t2a(fi.m_sDescription.GetBuffer(0));
 
-    file_item->SetAttribute("name", lpszFilePath);    
+    file_item->SetAttribute("name", lpszDestFile);    
     file_item->SetAttribute("description", lpszFileDesc);    
   }
 
@@ -1321,19 +1334,13 @@ int CCrashHandler::ZipErrorReport(CString sFileName)
   }
 
   // add report files to zip
-  TStrStrMap::iterator cur = m_files.begin();
+  std::map<CString, FileItem>::iterator cur = m_files.begin();
   unsigned i;
   for (i = 0; i < m_files.size(); i++, cur++)
   {    
-    CString szFilePath = (*cur).first;
-    int pos = szFilePath.ReverseFind('\\');
-    CString szFileName; 
-    if(pos>=0) 
-      szFileName = szFilePath.Mid(pos+1);
-    else
-      szFileName = szFilePath;
+    CString szDestFile = (*cur).first;
         
-    ZRESULT zr = ZipAdd(hz, szFileName, szFilePath);
+    ZRESULT zr = ZipAdd(hz, szDestFile, cur->second.m_sFileName);
     if(zr!=ZR_OK)
     {
       crSetErrorMsg(_T("Couldn't add file to zip archive."));

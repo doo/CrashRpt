@@ -43,7 +43,7 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
   nAddFile = crAddFile(sIniFile, _T("Dummy INI File"));
   ATLASSERT(nAddFile==0);
 
-  int nAddScreenshot = crAddScreenshot(CR_SCREENSHOT_ENTIRE_DESKTOP);
+  int nAddScreenshot = crAddScreenshot(CR_SCREENSHOT_VIRTUAL_SCREEN);
   ATLASSERT(nAddScreenshot==0);
 #endif
 

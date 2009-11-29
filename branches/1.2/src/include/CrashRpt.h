@@ -566,7 +566,7 @@ CRASHRPTAPI
 crUninstall();
 
 
-/*! \ingroup CrashRptAPI  
+/*! \ingroup DeprecatedAPI  
  *  \brief Installs exception handlers to the current thread.
  *
  *  \return This function returns zero if succeeded.
@@ -688,8 +688,8 @@ crInstallToCurrentThread2(DWORD dwFlags);
  *    This function unsets C++ exception handlers for the caller thread. If you have
  *    several execution threads, you ought to call the function for each thread.
  *    After calling this function, the exception handlers for current thread are
- *    replaced with the handlers that were before call of crInstallToCurrentThread() 
- *    (or crInstallToCurrentThread2()).
+ *    replaced with the handlers that were before call of crInstallToCurrentThread2() 
+ *    (or crInstallToCurrentThread()).
  *
  *    This function fails if crInstallToCurrentThread() (or crInstallToCurrentThread2())
  *    wasn't called for current thread.
@@ -706,13 +706,16 @@ int
 CRASHRPTAPI 
 crUninstallFromCurrentThread();
 
-/*! \ingroup CrashRptAPI  
+/*! \ingroup DeprecatedAPI  
  *  \brief Adds a file to crash report.
  * 
  *  \return This function returns zero if succeeded.
  *
  *  \param[in] pszFile Absolute path to the file to add.
  *  \param[in] pszDesc File description (used in Error Report Details dialog).
+ *
+ *  \note
+ *    This function is deprecated. It is recommended to use crAddFile2() function instead.
  *
  *    This function can be called anytime after crInstall() to add one or more
  *    files to the generated crash report. However, the recommended way is to 
@@ -740,7 +743,7 @@ crAddFileW(
    LPCWSTR pszDesc 
    );
 
-/*! \ingroup CrashRptAPI
+/*! \ingroup DeprecatedAPI
  *  \copydoc crAddFileW()
  */
 
@@ -761,8 +764,74 @@ crAddFileA(
 #define crAddFile crAddFileA
 #endif //UNICODE
 
+/*! \ingroup CrashRptAPI  
+ *  \brief Adds a file to crash report.
+ * 
+ *  \return This function returns zero if succeeded.
+ *
+ *  \param[in] pszFile Absolute path to the file to add.
+ *  \param[in] pszDestFile Destination file name.
+ *  \param[in] pszDesc File description (used in Error Report Details dialog).
+ *
+ *    This function superceeds the crAddFile() function.
+ *
+ *    This function can be called anytime after crInstall() to add one or more
+ *    files to the generated crash report. However, the recommended way is to 
+ *    call this function inside of \ref LPGETLOGFILE crash callback.
+ *  
+ *    \a pszFile should be a valid absolute path of a file to add to crash report. It
+ *    is recommended to add small files (several KB in size). If a large file is added,
+ *    the crash report sending procedure may fail.
+ *
+ *    \a pszDestFile should be the name of destination file. This parameter can be used
+ *    to specify different file name for the file in ZIP archive. If this parameter is NULL, the pszFile
+ *    file name is used as destination file name.
+ *
+ *    \a pszDesc is a description of a file. It can be NULL.
+ *
+ *    Function fails if \a pszFile doesn't exist at the moment of function call. 
+ * 
+ *    The crAddFile2W() and crAddFile2A() are wide-character and multibyte-character
+ *    versions of crAddFile2() function. The crAddFile2() macro defines character set
+ *    independent mapping.
+ *
+ *    This function is available <b>since v.1.2.1</b>.
+ *
+ *  \sa crAddFile2W(), crAddFile2A(), crAddFile2()
+ */
+
+int
+CRASHRPTAPI 
+crAddFile2W(
+   LPCWSTR pszFile,
+   LPCWSTR pszDestFile,
+   LPCWSTR pszDesc 
+   );
+
+/*! \ingroup CrashRptAPI
+ *  \copydoc crAddFileW()
+ */
+
+int
+CRASHRPTAPI 
+crAddFile2A(
+   LPCSTR pszFile,
+   LPCSTR pszDestFile,
+   LPCSTR pszDesc 
+   );
+
+/*! \brief Character set-independent mapping of crAddFileW() and crAddFileA() functions. 
+ *  \ingroup CrashRptAPI
+ */
+#ifdef UNICODE
+#define crAddFile2 crAddFile2W
+#else
+#define crAddFile2 crAddFile2A
+#endif //UNICODE
+
+
 // Flags for crAddScreenshot function.
-#define CR_SCREENSHOT_ENTIRE_DESKTOP  0 //!< Take a screenshot of entire desktop.
+#define CR_SCREENSHOT_VIRTUAL_SCREEN  0 //!< Take a screenshot of the virtual screen.
 #define CR_SCREENSHOT_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
 
 /*! \ingroup CrashRptAPI  
@@ -778,7 +847,7 @@ crAddFileA(
  *  the screenshot to the error report. Call this function inside of \ref LPGETLOGFILE crash callback.
  * 
  *  \a dwFlags can be one of the following:
- *    - \ref CR_SCREENSHOT_ENTIRE_DESKTOP Use this to take a screenshot of entire desktop.
+ *    - \ref CR_SCREENSHOT_VIRTUAL_SCREEN Use this to take a screenshot of the desktop (virtual screen).
  *    - \ref CR_SCREENSHOT_MAIN_WINDOW Use this to take a screenshot of the application's main window.
  *  
  *  Screenshots are added in form of PNG files. When capturing entire desktop consisting of several monitors, 

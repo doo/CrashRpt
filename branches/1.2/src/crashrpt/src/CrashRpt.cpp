@@ -283,6 +283,20 @@ int
 CRASHRPTAPI 
 crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 {
+  return crAddFile2W(pszFile, NULL, pszDesc);
+}
+
+int
+CRASHRPTAPI 
+crAddFileA(PCSTR pszFile, PCSTR pszDesc)
+{
+  return crAddFile2A(pszFile, NULL, pszDesc);
+}
+
+int 
+CRASHRPTAPI 
+crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc)
+{
   crSetErrorMsg(_T("Success."));
 
   strconv_t strconv;
@@ -298,9 +312,10 @@ crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
   }
   
   LPCTSTR lptszFile = strconv.w2t((LPWSTR)pszFile);
+  LPCTSTR lptszDestFile = strconv.w2t((LPWSTR)pszDestFile);
   LPCTSTR lptszDesc = strconv.w2t((LPWSTR)pszDesc);
 
-  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDesc);
+  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDestFile, lptszDesc);
   if(nAddResult!=0)
   {
     ATLASSERT(nAddResult==0);
@@ -313,26 +328,26 @@ crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 
 int
 CRASHRPTAPI 
-crAddFileA(PCSTR pszFile, PCSTR pszDesc)
+crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc)
 {
   // Convert parameters to wide char
 
   strconv_t strconv;
 
   LPCWSTR pwszFile = NULL;
+  LPCWSTR pwszDestFile = NULL;
   LPCWSTR pwszDesc = NULL;
   
   if(pszFile)
-  {
     pwszFile = strconv.a2w(pszFile);
-  }
-
+  
+  if(pszDestFile)
+    pwszDestFile = strconv.a2w(pszDestFile);
+  
   if(pszDesc)
-  {
     pwszDesc = strconv.a2w(pszDesc);    
-  }
-
-  return crAddFileW(pwszFile, pwszDesc);
+  
+  return crAddFile2W(pwszFile, pwszDestFile, pwszDesc);
 }
 
 int
@@ -341,18 +356,59 @@ crAddScreenshot(
    DWORD dwFlags
    )
 {
+  crSetErrorMsg(_T("Unspecified error."));
   CScreenCapture sc;
+  std::vector<CString> screenshot_names;
 
-  if(dwFlags==CR_SCREENSHOT_ENTIRE_DESKTOP)
+  if(dwFlags==CR_SCREENSHOT_VIRTUAL_SCREEN)
   {
     CRect rcScreen;
     sc.GetScreenRect(&rcScreen);
-    sc.CaptureScreenRect(rcScreen);
+    
+    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, screenshot_names);
+    if(bMakeScreenshot==FALSE)
+    {
+      crSetErrorMsg(_T("Couldn't take a screenshot."));
+      return -3;
+    }
   }
   else if(dwFlags==CR_SCREENSHOT_MAIN_WINDOW)
+  {    
+    HWND hMainWnd = Utility::FindAppWindow();
+    if(hMainWnd==NULL)
+    {
+      crSetErrorMsg(_T("Couldn't find main application window."));
+      return -2;
+    }
+
+    CRect rcWindow; 
+    GetWindowRect(hMainWnd, &rcWindow);
+    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, screenshot_names);
+    if(bMakeScreenshot==FALSE)
+    {
+      crSetErrorMsg(_T("Couldn't take a screenshot."));
+      return -3;
+    }
+  }
+  else
   {
+    crSetErrorMsg(_T("Invalid flag specified."));
+    return -1;
   }
 
+  size_t i;
+  for(i=0; i<screenshot_names.size(); i++)
+  {
+    CString sDestFile;
+    sDestFile.Format(_T("Screenshot_%d.png"), i); 
+    int nAdd = crAddFile2(screenshot_names[i], sDestFile, _T("Screenshot"));
+    if(nAdd!=0)
+    {
+      return -4;
+    }
+  }
+
+  crSetErrorMsg(_T("Success."));
   return 0;
 }
 

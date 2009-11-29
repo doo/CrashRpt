@@ -49,7 +49,11 @@ struct _cpp_thread_exception_handlers
 
 int crSetErrorMsg(PTSTR pszErrorMsg);
 
-////////////////////////////// Class Definitions /////////////////////////////
+struct FileItem
+{
+  CString m_sFileName;
+  CString m_sDescription;
+};
 
 // ===========================================================================
 // CCrashHandler
@@ -133,7 +137,8 @@ public:
    //
    int 
    AddFile(
-      LPCTSTR lpFile,                     // File nae
+      LPCTSTR lpFile,                     // File name
+      LPCTSTR lpDestFile,                 // Destination file name
       LPCTSTR lpDesc                      // File description
       );
 
@@ -199,7 +204,7 @@ protected:
 
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   int m_pid;                     // Process id.
-  TStrStrMap m_files;            // Custom files to add.
+  std::map<CString, FileItem> m_files;            // Custom files to add.
   CString m_sTo;                 // Email:To.
   CString m_sSubject;            // Email:Subject.
   CString m_sUrl;                // URL for sending reports via HTTP.

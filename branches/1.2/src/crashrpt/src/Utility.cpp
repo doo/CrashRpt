@@ -313,3 +313,38 @@ CString Utility::GetFileExtension(CString sFileName)
   }
   return sExt;
 }
+
+BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
+{
+  HWND* phWnd = (HWND*)lParam;
+
+  DWORD dwMyProcessId = GetCurrentProcessId();
+
+  if(IsWindowVisible(hWnd))
+  {
+    DWORD dwProcessId = 0;
+    GetWindowThreadProcessId(hWnd, &dwProcessId);
+    if(dwProcessId == dwMyProcessId)
+    {      
+      DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
+      DWORD dwExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+      HWND hWndParent = GetParent(hWnd);
+      if(hWndParent==NULL && 
+        (dwExStyle&WS_EX_APPWINDOW || (dwStyle&WS_CAPTION && dwStyle&WS_SYSMENU)) )
+      {      
+        *phWnd = hWnd; // Found
+        return FALSE;
+      }
+    }
+  }
+   
+  return TRUE;
+}
+
+
+HWND Utility::FindAppWindow()
+{
+  HWND hWnd = NULL;
+  EnumWindows(EnumWndProc, (LPARAM)&hWnd);
+  return hWnd;
+}

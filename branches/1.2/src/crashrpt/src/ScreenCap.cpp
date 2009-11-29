@@ -9,16 +9,19 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   CScreenCapture* psc = (CScreenCapture*)dwData;
 
 	MONITORINFOEX mi;
-	mi.cbSize = sizeof(MONITORINFOEX);
-	GetMonitorInfo(hMonitor, &mi);
-  HDC hDC = NULL;  
+	HDC hDC = NULL;  
   HBITMAP hBitmap = NULL;
   BITMAPINFO bmi;    
   int nWidth = 0;
   int nHeight = 0;
   int nRowWidth = 0;
   LPBYTE pRowBits = NULL;
+  CString sFileName;
 
+  // Get monitor info
+  mi.cbSize = sizeof(MONITORINFOEX);
+	GetMonitorInfo(hMonitor, &mi);
+  
 	// Get the device context for this monitor
 	hDC = CreateDC(_T("DISPLAY"), mi.szDevice, NULL, NULL); 
 	if(hDC==NULL)
@@ -33,7 +36,8 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 	nHeight = lprcMonitor->bottom - lprcMonitor->top;
 	
   // Init PNG writer
-  BOOL bInit = psc->PngInit(nWidth, nHeight, CString(_T("screenshot.png")));
+  sFileName = Utility::getTempFileName();
+  BOOL bInit = psc->PngInit(nWidth, nHeight, sFileName);
   if(!bInit)
     goto cleanup;
 
@@ -60,12 +64,11 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
     BOOL bWrite = psc->PngWriteRow(pRowBits);
     if(!bWrite)
-      goto cleanup;
-   
+      goto cleanup;   
   }
   
   psc->PngFinalize();
-
+  
 cleanup:
 
   // Clean up
@@ -80,10 +83,11 @@ cleanup:
 }
 
 
-int CScreenCapture::CaptureScreenRect(RECT rcCapture)
+BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, std::vector<CString>& out_file_list)
 {		
 	EnumDisplayMonitors(NULL, &rcCapture, EnumMonitorsProc, (LPARAM)this);	
-	return 0;
+  out_file_list = m_out_file_list;
+	return TRUE;
 }
 
 void CScreenCapture::GetScreenRect(LPRECT rcScreen)
@@ -102,6 +106,8 @@ BOOL CScreenCapture::PngInit(int nWidth, int nHeight, CString sFileName)
   m_fp = NULL;
   m_png_ptr = NULL;
   m_info_ptr = NULL;
+
+  m_out_file_list.push_back(sFileName);
 
 #if _MSC_VER>=1400
   _tfopen_s(&m_fp, sFileName.GetBuffer(0), _T("wb"));
@@ -179,7 +185,10 @@ BOOL CScreenCapture::PngFinalize()
 
   /* clean up */
   png_destroy_write_struct(&m_png_ptr, (png_infopp)&m_info_ptr);
-    
+  
+  if(m_fp)
+    fclose(m_fp);
+
   return TRUE;
 }
 
