@@ -9,6 +9,7 @@
 #define _CRASHRPT_H_
 
 #include <windows.h>
+#include <dbghelp.h>
 
 #ifdef __cplusplus // Use undecorated names
 extern "C" {
@@ -379,6 +380,8 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
   LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
   LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL - optional
+  MINIDUMP_TYPE uMiniDumpType;    //!< Mini dump type - Note, value of 0 == MiniDumpNormal
   LPGETLOGFILE pfnCrashCallback;  //!< User crash callback.
   UINT uPriorities[5];            //!< Array of error sending transport priorities.
   DWORD dwFlags;                  //!< Flags.
@@ -402,6 +405,8 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
   LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
   LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL - optional
+  MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type - Note, value of 0 == MiniDumpNormal
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
   DWORD dwFlags;                 //!< Flags.
@@ -777,6 +782,28 @@ crAddFileA(
 #define CR_CPP_SIGINT                   10   //!< C++ SIGINT signal (CTRL+C).
 #define CR_CPP_SIGSEGV                  11   //!< C++ SIGSEGV signal (invalid storage access).
 #define CR_CPP_SIGTERM                  12   //!< C++ SIGTERM signal (termination request).
+
+
+//Pre-defined MINIDUMP_TYPE types - inspired from http://www.debuginfo.com - 'effective minidumps'
+#define MINIDUMP_TYPE_TINY              MiniDumpNormal 
+
+#define MINIDUMP_TYPE_SMALL             MiniDumpWithIndirectlyReferencedMemory  | \
+                                        MiniDumpWithDataSegs                    | \
+                                        MiniDumpWithThreadInfo
+
+#define MINIDUMP_TYPE_MEDIUM            MiniDumpWithIndirectlyReferencedMemory  | \
+                                        MiniDumpWithPrivateReadWriteMemory      | \
+                                        MiniDumpWithDataSegs                    | \
+                                        MiniDumpWithHandleData                  | \
+                                        MiniDumpWithFullMemoryInfo              | \
+                                        MiniDumpWithThreadInfo                  | \
+                                        MiniDumpWithUnloadedModules
+
+#define MINIDUMPE_TYPE_LARGE            MiniDumpWithFullMemory                  | \
+                                        MiniDumpWithFullMemoryInfo              | \
+                                        MiniDumpWithHandleData                  | \
+                                        MiniDumpWithThreadInfo                  | \
+                                        MiniDumpWithUnloadedModules
 
 /*! \ingroup CrashRptStructs
  *  \brief Extended exception info used by crGenerateErrorReport().

@@ -107,7 +107,9 @@ public:
       LPCTSTR lpcszUrl = NULL,
       UINT (*puPriorities)[5] = NULL,
       DWORD dwFlags = 0,
-      LPCTSTR lpcszPrivacyPolicyURL = NULL);
+      LPCTSTR lpcszPrivacyPolicyURL = NULL,
+      LPCTSTR lpcszDebugHelpDLLPath = NULL,
+      MINIDUMP_TYPE miniDumpType = MiniDumpNormal);
 
    //-----------------------------------------------------------------------------
    // Destroy
@@ -197,21 +199,24 @@ protected:
   // List of exception handlers installed for threads of current process
   std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
 
-  LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
-  int m_pid;                     // Process id.
-  TStrStrMap m_files;            // Custom files to add.
-  CString m_sTo;                 // Email:To.
-  CString m_sSubject;            // Email:Subject.
-  CString m_sUrl;                // URL for sending reports via HTTP.
-  UINT m_uPriorities[3];         // Which way to prefer when sending crash report?
-  CString m_sAppName;            // Application name.
-  CString m_sAppVersion;         // Application version.
-  CString m_sImageName;          // Path to client executable file.
-  CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
-  CString m_sCrashGUID;          // Unique ID of the crash report.
-  CString m_sOSName;             // Operating system name.
+  LPGETLOGFILE m_lpfnCallback;         // Client crash callback.
+  int m_pid;                           // Process id.
+  TStrStrMap m_files;                  // Custom files to add.
+  CString m_sTo;                       // Email:To.
+  CString m_sSubject;                  // Email:Subject.
+  CString m_sUrl;                      // URL for sending reports via HTTP.
+  UINT m_uPriorities[3];               // Which way to prefer when sending crash report?
+  CString m_sAppName;                  // Application name.
+  CString m_sAppVersion;               // Application version.
+  CString m_sImageName;                // Path to client executable file.
+  CString m_sPathToCrashSender;        // Path to crash sender exectuable file.  
+  CString m_sCrashGUID;                // Unique ID of the crash report.
+  CString m_sOSName;                   // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
-  CString m_sPrivacyPolicyURL;   // Privacy policy URL
+  CString m_sPrivacyPolicyURL;         // Privacy policy URL
+  HMODULE m_hDbgHelpDll;               // HANDLE to debug help DLL
+  CString m_sPathToDebugHelpDll;       // Path to dbghelp DLL
+  MINIDUMP_TYPE m_MiniDumpType;        // Mini dump type - 0 == small, 1 == medium, 2 == full
 
   BOOL m_bInitialized;
 };
