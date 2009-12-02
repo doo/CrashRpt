@@ -16,6 +16,7 @@
 #include "resource.h"
 #include <sys/stat.h>
 #include "tinyxml.h"
+#include <psapi.h>
 
 #if _MSC_VER>=1300
 #include <rtcapi.h>
@@ -1224,6 +1225,53 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   }
 #endif 
 
+  // Write the number of GUI resources in use
+  HANDLE hCurProcess = GetCurrentProcess();
+  DWORD dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
+  if(GetLastError()==NOERROR)
+  {
+    CString sGuiResources;
+    sGuiResources.Format(_T("%lu"), dwGuiResources);
+    TiXmlElement* gui_resources = new TiXmlElement("GuiResourceCount");
+    root->LinkEndChild(gui_resources);
+    LPCSTR lpszGuiResources = strconv.t2a(sGuiResources.GetBuffer(0));
+    TiXmlText* gui_resources_text = new TiXmlText(lpszGuiResources);
+    gui_resources->LinkEndChild(gui_resources_text);
+  }
+
+  // Write count of open handles that belong to current process
+  DWORD dwHandleCount = 0;
+  BOOL bGetHandleCount = GetProcessHandleCount(hCurProcess, &dwHandleCount);
+  if(bGetHandleCount)
+  {
+    CString sHandleCount;
+    sHandleCount.Format(_T("%lu"), dwHandleCount);
+    TiXmlElement* handle_count = new TiXmlElement("OpenHandleCount");
+    root->LinkEndChild(handle_count);
+    LPCSTR lpszHandleCount = strconv.t2a(sHandleCount.GetBuffer(0));
+    TiXmlText* handle_count_text = new TiXmlText(lpszHandleCount);
+    handle_count->LinkEndChild(handle_count_text);
+  }
+
+  // Write memory usage info
+  PROCESS_MEMORY_COUNTERS meminfo;
+  BOOL bGetMemInfo = GetProcessMemoryInfo(hCurProcess, &meminfo, 
+    sizeof(PROCESS_MEMORY_COUNTERS));
+  if(bGetMemInfo)
+  {    
+    CString sMemUsage;
+#ifdef _WIN64
+    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize);
+#else
+    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize);
+#endif 
+    TiXmlElement* mem_usage = new TiXmlElement("MemoryUsageInBytes");
+    root->LinkEndChild(mem_usage);
+    LPCSTR lpszMemUsage = strconv.t2a(sMemUsage.GetBuffer(0));
+    TiXmlText* mem_usage_text = new TiXmlText(lpszMemUsage);
+    mem_usage->LinkEndChild(mem_usage_text);
+  }
+  
   // Write list of files that present in this crash report
 
   TiXmlElement* file_list = new TiXmlElement("FileList");

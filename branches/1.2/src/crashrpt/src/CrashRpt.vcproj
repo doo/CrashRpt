@@ -295,7 +295,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlibd.lib version.lib shell32.lib Comdlg32.lib gdi32.lib libpngd.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlibd.lib version.lib shell32.lib Comdlg32.lib gdi32.lib libpngd.lib psapi.lib"
 				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"

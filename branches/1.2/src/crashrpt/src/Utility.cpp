@@ -341,10 +341,11 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
   return TRUE;
 }
 
-
 HWND Utility::FindAppWindow()
 {
   HWND hWnd = NULL;
   EnumWindows(EnumWndProc, (LPARAM)&hWnd);
   return hWnd;
 }
+
+

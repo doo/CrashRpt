@@ -66,6 +66,7 @@ namespace Utility
    CString GetFileExtension(CString sFileName);
 
    HWND FindAppWindow();
+  
 };
 
 #include <vector>
