@@ -3,11 +3,15 @@
 
 = Introduction =
 
-We are interested in knowing how many software products use CrashRpt to handle errors and collect error reports. Support CrashRpt project by adding your project name and logo to the list! 
+We are interested to know how many software products use CrashRpt.
 
-Add a comment to this wiki page and provide your project's name and a hyperlink to your project's logo small image. We will be happy to include it to the list. 
+Add a comment to this wiki page and provide any of the following: 
+  # your project's name 
+  # a hyperlink to your project's logo small image
+  # a hyperlink to your project's site
 
+We will be happy to include it to the list. 
 
 = Software Products that Use CrashRpt =
 
-You have a chance to be the first!
+  # Connect-Radio and NBOX-Radio
