@@ -66,7 +66,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     if (INVALID_HANDLE_VALUE != hFind)
     {
       FindClose(hFind);
-      sSize.Format(TEXT("%d KB"), findFileData.nFileSizeLow);
+      sSize.Format(TEXT("%d KB"), findFileData.nFileSizeLow/1024);
       m_list.SetItemText(nItem, 3, sSize);
     }    
   }

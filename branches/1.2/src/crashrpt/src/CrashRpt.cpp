@@ -412,6 +412,52 @@ crAddScreenshot(
   return 0;
 }
 
+int
+CRASHRPTAPI
+crAddPropertyW(
+   LPCWSTR pszPropName,
+   LPCWSTR pszPropValue
+   )
+{
+  crSetErrorMsg(_T("Unspecified error."));
+
+  strconv_t strconv;
+  LPCTSTR pszPropNameT = strconv.w2t(pszPropName);
+  LPCTSTR pszPropValueT = strconv.w2t(pszPropValue);
+
+  CCrashHandler *pCrashHandler = 
+    CCrashHandler::GetCurrentProcessCrashHandler();
+
+  if(pCrashHandler==NULL)
+  {
+    ATLASSERT(pCrashHandler!=NULL);
+    crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+    return 1; // No handler installed for current process?
+  }
+
+  int nResult = pCrashHandler->AddProperty(CString(pszPropNameT), CString(pszPropValueT));
+  if(nResult!=0)
+  {    
+    crSetErrorMsg(_T("Invalid property name specified."));
+    return 2; // Failed to add the property
+  }
+  
+  crSetErrorMsg(_T("Success."));
+  return 0;
+}
+
+int
+CRASHRPTAPI
+crAddPropertyA(
+   LPCSTR pszPropName,
+   LPCSTR pszPropValue
+   )
+{
+  // This is just a wrapper for wide-char function version
+  strconv_t strconv;
+  return crAddPropertyW(strconv.a2w(pszPropName), strconv.a2w(pszPropValue));
+}
+
 int 
 CRASHRPTAPI crGenerateErrorReport(
   CR_EXCEPTION_INFO* pExceptionInfo)

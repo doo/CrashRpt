@@ -45,6 +45,9 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
 
   int nAddScreenshot = crAddScreenshot(CR_SCREENSHOT_VIRTUAL_SCREEN);
   ATLASSERT(nAddScreenshot==0);
+
+  int nAddProperty = crAddProperty(_T("MyCustomStatus"),_T("May be better..."));
+  ATLASSERT(nAddProperty==0);
 #endif
 
   return TRUE;

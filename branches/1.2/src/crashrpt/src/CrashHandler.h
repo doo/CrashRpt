@@ -166,6 +166,8 @@ public:
    int SetThreadExceptionHandlers(DWORD dwFlags);   
    int UnSetThreadExceptionHandlers();
   
+   int AddProperty(CString sPropName, CString sPropValue);
+
    static CCrashHandler* GetCurrentProcessCrashHandler();
 
 protected:
@@ -204,7 +206,8 @@ protected:
 
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   int m_pid;                     // Process id.
-  std::map<CString, FileItem> m_files;            // Custom files to add.
+  std::map<CString, FileItem> m_files;  // Files to add.
+  std::map<CString, CString> m_props;   // User-defined properties
   CString m_sTo;                 // Email:To.
   CString m_sSubject;            // Email:Subject.
   CString m_sUrl;                // URL for sending reports via HTTP.

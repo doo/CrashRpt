@@ -863,6 +863,49 @@ crAddScreenshot(
    DWORD dwFlags
    );
 
+/*! \ingroup CrashRptAPI  
+ *  \brief Adds a string property to crash report.
+ * 
+ *  \return This function returns zero if succeeded.
+ *
+ *  \param[in] pszPropName   Name of the property.
+ *  \param[in] pszPropValue  Value of the property.
+ *  
+ *  \remarks 
+ *
+ *  Use this function to add a string property to the crash descriptor XML file.
+ *  User-added properties are listed under \<CustomProperties\> tag.
+ *
+ *  \sa
+ *   crAddFile(), crAddScreenshot()
+ */
+
+int
+CRASHRPTAPI
+crAddPropertyW(
+   LPCWSTR pszPropName,
+   LPCWSTR pszPropValue
+   );
+
+/*! \ingroup CrashRptAPI
+ *  \copydoc crAddPropertyW()
+ */
+
+int
+CRASHRPTAPI
+crAddPropertyA(
+   LPCSTR pszPropName,
+   LPCSTR pszPropValue
+   );
+
+/*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
+ *  \ingroup CrashRptAPI
+ */
+#ifdef UNICODE
+#define crAddProperty crAddPropertyW
+#else
+#define crAddProperty crAddPropertyA
+#endif //UNICODE
 
 
 // Exception types

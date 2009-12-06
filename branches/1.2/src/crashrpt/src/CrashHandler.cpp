@@ -1082,6 +1082,15 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
+int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
+{
+  if(sPropName.IsEmpty())
+    return 1;
+
+  m_props[sPropName] = sPropValue;
+  return 0;
+}
+
 int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,          
      PCR_EXCEPTION_INFO pExceptionInfo)
 {
@@ -1271,6 +1280,28 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     TiXmlText* mem_usage_text = new TiXmlText(lpszMemUsage);
     mem_usage->LinkEndChild(mem_usage_text);
   }
+
+  // Write list of custom user-added properties
+
+  TiXmlElement* prop_list = new TiXmlElement("CustomProps");
+  root->LinkEndChild(prop_list);      
+
+  std::map<CString, CString>::iterator pit = m_props.begin();
+  unsigned i;
+  for (i = 0; i < m_props.size(); i++, pit++)
+  {    
+    CString sPropName = pit->first;
+    CString sPropValue = pit->second;
+
+    TiXmlElement* prop_item = new TiXmlElement("Prop");
+    prop_list->LinkEndChild(prop_item);      
+
+	  LPCSTR szPropNameA = strconv.t2a(sPropName.GetBuffer(0));
+    LPCSTR szPropValueA = strconv.t2a(sPropValue.GetBuffer(0));
+
+    prop_item->SetAttribute("name", szPropNameA);    
+    prop_item->SetAttribute("value", szPropValueA);    
+  }
   
   // Write list of files that present in this crash report
 
@@ -1278,7 +1309,6 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   root->LinkEndChild(file_list);      
 
   std::map<CString, FileItem>::iterator cur = m_files.begin();
-  unsigned i;
   for (i = 0; i < m_files.size(); i++, cur++)
   {    
     CString sDestFile = (*cur).first;
