@@ -1027,16 +1027,16 @@ int CCrashHandler::GenerateErrorReport(
 
     if(result==0)
     {
-      crAddFile2(sFileName, NULL, _T("Crash Dump"));      
+      AddFile(sFileName, NULL, _T("Crash Dump"));      
     }
     
     /* Create crash report descriptor file in XML format. */
   
     sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir);
     result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
-    crAddFile2(sFileName, NULL, _T("Crash Log"));    
     ATLASSERT(result==0);
-    result;
+    
+    AddFile(sFileName, NULL, _T("Crash Log"));        
   }
     
   // Save error report as ZIP archive.
