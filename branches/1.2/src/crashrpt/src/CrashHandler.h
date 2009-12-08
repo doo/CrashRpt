@@ -64,43 +64,12 @@ class CCrashHandler
 {
 public:
 	
-  // Default constructor.
-  CCrashHandler();
+   // Default constructor.
+   CCrashHandler();
 
-  //-----------------------------------------------------------------------------
-   // ~CCrashHandler
-   //    Uninitializes the crashrpt library.
-   //
-   // Parameters
-   //    none
-   //
-   // Return Values
-   //    none
-   //
-   // Remarks
-   //    none
-   //
    virtual 
    ~CCrashHandler();
 
-   //-----------------------------------------------------------------------------
-   // Init
-   //    Initializes the library and optionally set the client crash callback and
-   //    sets up the email details.
-   //
-   // Parameters
-   //    lpcszAppName Application name 
-   //    lpfn        Client crash callback
-   //    lpcszTo     Email address to send crash report
-   //    lpcszSubject Subject line to be used with email
-   //
-   // Return Values
-   //    Zero if initialization was successful
-   //
-   // Remarks
-   //    Passing NULL for lpTo will disable the email feature and cause the crash 
-   //    report to be saved to disk.
-   //
    int Init(
       LPCTSTR lpcszAppName = NULL,
       LPCTSTR lpcszAppVersion = NULL,
@@ -113,28 +82,8 @@ public:
       DWORD dwFlags = 0,
       LPCTSTR lpcszPrivacyPolicyURL = NULL);
 
-   //-----------------------------------------------------------------------------
-   // Destroy
-   //
-
-   int 
-   Destroy();
+   int Destroy();
    
-   //-----------------------------------------------------------------------------
-   // AddFile
-   //    Adds a file to the crash report.
-   //
-   // Parameters
-   //    lpFile      Fully qualified file name
-   //    lpDesc      File description
-   //
-   // Return Values
-   //    none
-   //
-   // Remarks
-   //    Call this function to include application specific file(s) in the crash
-   //    report.  For example, applicatoin logs, initialization files, etc.
-   //
    int 
    AddFile(
       LPCTSTR lpFile,                     // File name
@@ -142,24 +91,8 @@ public:
       LPCTSTR lpDesc                      // File description
       );
 
-   //-----------------------------------------------------------------------------
-   // GenerateErrorReport
-   //    Produces a crash report.
-   //
-   // Parameters
-   //    pExInfo     Pointer to an EXCEPTION_POINTERS structure
-   //
-   // Return Values
-   //    none
-   //
-   // Remarks
-   //    Call this function to manually generate a crash report.
-   //
    int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
-  
-   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
-     PCR_EXCEPTION_INFO pExceptionInfo);
-
+     
    int SetProcessExceptionHandlers(DWORD dwFlags);
    int UnSetProcessExceptionHandlers();
 
@@ -173,8 +106,10 @@ public:
 protected:
   
   void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** pExceptionPointers);
-  int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);
-  int ZipErrorReport(CString sFileName);  
+  void CollectMiscCrashInfo();
+  int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);  
+  int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
+     PCR_EXCEPTION_INFO pExceptionInfo);
   int LaunchCrashSender(CString sZipName);  
 
   CString _ReplaceRestrictedXMLCharacters(CString sText);
@@ -220,6 +155,11 @@ protected:
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
   CString m_sPrivacyPolicyURL;   // Privacy policy URL
+
+  CString m_sCrashTime;          // Crash time in UTC format
+  DWORD m_dwGuiResources;        // Count of GUI resources in use
+  DWORD m_dwProcessHandleCount;  // Count of opened handles
+  CString m_sMemUsage;           // Memory usage
 
   BOOL m_bInitialized;
 };

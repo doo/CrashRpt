@@ -984,6 +984,15 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
   return 0;
 }
 
+int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
+{
+  if(sPropName.IsEmpty())
+    return 1;
+
+  m_props[sPropName] = sPropValue;
+  return 0;
+}
+
 int CCrashHandler::GenerateErrorReport(
   PCR_EXCEPTION_INFO pExceptionInfo)
 {  
@@ -995,6 +1004,10 @@ int CCrashHandler::GenerateErrorReport(
     crSetErrorMsg(_T("Exception info is NULL."));
     return 1;
   }
+
+  /* Collect crash info */
+
+  CollectMiscCrashInfo();
 
   /* Let client add application-specific files to report via crash callback. */
 
@@ -1010,56 +1023,32 @@ int CCrashHandler::GenerateErrorReport(
     GetExceptionPointers(pExceptionInfo->code, &pExceptionInfo->pexcptrs);
   }
   
-  /* Create crash minidump and crash log. */
+  /* Create directory for this report. */
 
-  CString sTempDir = Utility::getTempFileName();
-  DeleteFile(sTempDir);
+  CString sReportFolderName = m_sUnsentCrashReportsFolder + m_sCrashGUID;
+  BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
+  ATLASSERT(bCreateDir);
 
-  BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
-  if(bCreateDir)
-  {    
-    /* Create crash minidump file */
+  /* Create crash minidump file. */
 
-    CString sFileName;
-    sFileName.Format(_T("%s\\crashdump.dmp"), sTempDir);
-    int result = CreateMinidump(sFileName, pExceptionInfo->pexcptrs);
-    ATLASSERT(result==0);
-
-    if(result==0)
-    {
-      AddFile(sFileName, NULL, _T("Crash Dump"));      
-    }
-    
-    /* Create crash report descriptor file in XML format. */
+  CString sFileName;
+  sFileName.Format(_T("%s\\crashdump.dmp"), sReportFolderName);
+  int result = CreateMinidump(sFileName, pExceptionInfo->pexcptrs);
+  ATLASSERT(result==0);
+  AddFile(sFileName, NULL, _T("Crash Dump"));      
+      
+  /* Create crash report descriptor file in XML format. */
   
-    sFileName.Format(_T("%s\\crashrpt.xml"), sTempDir);
-    result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
-    ATLASSERT(result==0);
+  sFileName.Format(_T("%s\\crashrpt.xml"), sReportFolderName);
+  result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
+  ATLASSERT(result==0);
+  AddFile(sFileName, NULL, _T("Crash Log"));        
     
-    AddFile(sFileName, NULL, _T("Crash Log"));        
-  }
-    
-  // Save error report as ZIP archive.
-  CString sZipName = m_sUnsentCrashReportsFolder+_T("\\")+m_sCrashGUID+_T(".zip");
-  int zipped = ZipErrorReport(sZipName);
-  if(zipped!=0)
-  {
-    ATLASSERT(zipped==0);
-    
-    // Failed to create zip.
-    // Try notify user about crash using message box.
-    CString szCaption;
-    szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
-    CString szMessage;
-    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to create the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
-    MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
-    return 2;
-  }
-
   // Launch the CrashSender process that would notify user about crash
   // and send the error report by E-mail.
   
-  int result = LaunchCrashSender(sZipName);
+  CString sZipName;
+  result = LaunchCrashSender(sZipName);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -1082,187 +1071,24 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
-int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
-{
-  if(sPropName.IsEmpty())
-    return 1;
+void CCrashHandler::CollectMiscCrashInfo()
+{  
+  // Get crash time
+  Utility::GetSystemTimeUTC(m_sCrashTime);
 
-  m_props[sPropName] = sPropValue;
-  return 0;
-}
-
-int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,          
-     PCR_EXCEPTION_INFO pExceptionInfo)
-{
-  crSetErrorMsg(_T("Unspecified error."));
-
-  strconv_t strconv;
-  TiXmlDocument doc;
-  
-  // Add root element
-  TiXmlElement* root = new TiXmlElement("CrashRpt");
-  doc.LinkEndChild(root);
-  
-  // Add <?xml version="1.0" encoding="utf-8" ?> element
-  TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "utf-8", "" );
-  doc.InsertBeforeChild(root, *decl);
-  
-  // Write CrashRpt version
-  CString sCrashRptVer;
-  sCrashRptVer.Format(_T("%d"), CRASHRPT_VER);
-  LPCSTR lpszCrashRptVer = strconv.t2a(sCrashRptVer.GetBuffer(0));
-  root->SetAttribute("version", lpszCrashRptVer);
-
-  // Write crash GUID
-  TiXmlElement* crash_guid = new TiXmlElement("CrashGUID");
-  root->LinkEndChild(crash_guid);
-  LPCSTR lpszCrashGUID = strconv.t2a(m_sCrashGUID.GetBuffer(0));
-  TiXmlText* crash_guid_text = new TiXmlText(lpszCrashGUID);
-  crash_guid->LinkEndChild(crash_guid_text);
-
-  // Write application name 
-  TiXmlElement* app_name = new TiXmlElement("AppName");
-  root->LinkEndChild(app_name);
-  LPCSTR lpszAppName = strconv.t2a(m_sAppName.GetBuffer(0));
-  TiXmlText* app_name_text = new TiXmlText(lpszAppName);
-  app_name->LinkEndChild(app_name_text);
-
-  // Write application version 
-  TiXmlElement* app_ver = new TiXmlElement("AppVersion");
-  root->LinkEndChild(app_ver);
-  LPCSTR lpszAppVersion = strconv.t2a(m_sAppVersion.GetBuffer(0));
-  TiXmlText* app_ver_text = new TiXmlText(lpszAppVersion);
-  app_ver->LinkEndChild(app_ver_text);
-
-  // Write EXE image name
-  TiXmlElement* image_name = new TiXmlElement("ImageName");
-  root->LinkEndChild(image_name);
-  LPCSTR lpszImageName = strconv.t2a(m_sImageName.GetBuffer(0));  
-  TiXmlText* image_name_text = new TiXmlText(lpszImageName);
-  image_name->LinkEndChild(image_name_text);
-
-  // Write operating system friendly name  
-  TiXmlElement* os_name = new TiXmlElement("OperatingSystem");
-  root->LinkEndChild(os_name);
-  LPCSTR lpszOSName = strconv.t2a(m_sOSName.GetBuffer(0));
-  TiXmlText* os_name_text = new TiXmlText(lpszOSName);
-  os_name->LinkEndChild(os_name_text);
-  
-  // Write system time in UTC format
-  CString sSystemTime;
-  Utility::GetSystemTimeUTC(sSystemTime);
-  TiXmlElement* sys_time = new TiXmlElement("SystemTimeUTC");
-  root->LinkEndChild(sys_time);
-  LPCSTR lpszSystemTime = strconv.t2a(sSystemTime.GetBuffer(0));
-  TiXmlText* sys_time_text = new TiXmlText(lpszSystemTime);
-  sys_time->LinkEndChild(sys_time_text);
-  
-  // Write exception type
-  CString sExcType;
-  sExcType.Format(_T("%d"), pExceptionInfo->exctype);  
-  TiXmlElement* exc_type = new TiXmlElement("ExceptionType");
-  root->LinkEndChild(exc_type);  
-  LPCSTR lpszExcType = strconv.t2a(sExcType.GetBuffer(0));
-  TiXmlText* exc_type_text = new TiXmlText(lpszExcType);
-  exc_type->LinkEndChild(exc_type_text);
-
-  if(pExceptionInfo->exctype==CR_WIN32_STRUCTURED_EXCEPTION)
-  {
-    // Write exception code
-    CString sSECode;
-    sSECode.Format(_T("0x%X"), pExceptionInfo->pexcptrs->ExceptionRecord->ExceptionCode);    
-    TiXmlElement* sehcode = new TiXmlElement("ExceptionCode");
-    root->LinkEndChild(sehcode);  
-	  LPCSTR lpszSEHCode = strconv.t2a(sSECode.GetBuffer(0));
-    TiXmlText* sehcode_text = new TiXmlText(lpszSEHCode);
-    sehcode->LinkEndChild(sehcode_text);
-  }
-
-  if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
-  {
-    // Write FPE exception subcode
-    CString sFpeSubcode;
-    sFpeSubcode.Format(_T("%d"), pExceptionInfo->fpe_subcode);    
-    TiXmlElement* fpe_subcode = new TiXmlElement("FPESubcode");
-    root->LinkEndChild(fpe_subcode);  
-	  LPCSTR lpszFpeSubcode = strconv.t2a(sFpeSubcode.GetBuffer(0));
-    TiXmlText* fpe_subcode_text = new TiXmlText(lpszFpeSubcode);
-    fpe_subcode->LinkEndChild(fpe_subcode_text);
-  }
-
-#if _MSC_VER>=1400
-  if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
-  {
-    if(pExceptionInfo->expression!=NULL)
-    {
-      // Write expression      
-      TiXmlElement* expr = new TiXmlElement("InvParamExpression");
-      root->LinkEndChild(expr);  
-	    LPCSTR lpszExpr = strconv.w2a(pExceptionInfo->expression);
-      TiXmlText* expr_text = new TiXmlText(lpszExpr);
-      expr->LinkEndChild(expr_text);
-    }
-
-    if(pExceptionInfo->function!=NULL)
-    {
-      // Write function      
-      TiXmlElement* func = new TiXmlElement("InvParamFunction");
-      root->LinkEndChild(func);  
-	    LPCSTR lpszFunc = strconv.w2a(pExceptionInfo->function);
-      TiXmlText* func_text = new TiXmlText(lpszFunc);
-      func->LinkEndChild(func_text);
-    }
-
-    if(pExceptionInfo->file!=NULL)
-    {
-      // Write file
-      TiXmlElement* file = new TiXmlElement("InvParamFile");
-      root->LinkEndChild(file);  
-	    LPCSTR lpszFile = strconv.w2a(pExceptionInfo->file);
-      TiXmlText* file_text = new TiXmlText(lpszFile);
-      file->LinkEndChild(file_text);
-    }
-    
-    // Write line
-    CString sLine;
-    sLine.Format(_T("%d"), pExceptionInfo->line);    
-    TiXmlElement* line = new TiXmlElement("InvParamLine");
-    root->LinkEndChild(line);  
-	  LPCSTR lpszLine = strconv.t2a(sLine.GetBuffer(0));
-    TiXmlText* line_text = new TiXmlText(lpszLine);
-    line->LinkEndChild(line_text);
-  }
-#endif 
-
-  // Write the number of GUI resources in use
+  // Get number of GUI resources in use
   HANDLE hCurProcess = GetCurrentProcess();
-  DWORD dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
-  if(GetLastError()==NOERROR)
-  {
-    CString sGuiResources;
-    sGuiResources.Format(_T("%lu"), dwGuiResources);
-    TiXmlElement* gui_resources = new TiXmlElement("GuiResourceCount");
-    root->LinkEndChild(gui_resources);
-    LPCSTR lpszGuiResources = strconv.t2a(sGuiResources.GetBuffer(0));
-    TiXmlText* gui_resources_text = new TiXmlText(lpszGuiResources);
-    gui_resources->LinkEndChild(gui_resources_text);
-  }
-
-  // Write count of open handles that belong to current process
+  m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
+  
+  // Get count of opened handles
   DWORD dwHandleCount = 0;
   BOOL bGetHandleCount = GetProcessHandleCount(hCurProcess, &dwHandleCount);
   if(bGetHandleCount)
-  {
-    CString sHandleCount;
-    sHandleCount.Format(_T("%lu"), dwHandleCount);
-    TiXmlElement* handle_count = new TiXmlElement("OpenHandleCount");
-    root->LinkEndChild(handle_count);
-    LPCSTR lpszHandleCount = strconv.t2a(sHandleCount.GetBuffer(0));
-    TiXmlText* handle_count_text = new TiXmlText(lpszHandleCount);
-    handle_count->LinkEndChild(handle_count_text);
-  }
+    m_dwProcessHandleCount = dwHandleCount;
+  else
+    m_dwProcessHandleCount = 0;
 
-  // Write memory usage info
+  // Get memory usage info
   PROCESS_MEMORY_COUNTERS meminfo;
   BOOL bGetMemInfo = GetProcessMemoryInfo(hCurProcess, &meminfo, 
     sizeof(PROCESS_MEMORY_COUNTERS));
@@ -1274,18 +1100,113 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
 #else
     sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize);
 #endif 
-    TiXmlElement* mem_usage = new TiXmlElement("MemoryUsageInBytes");
-    root->LinkEndChild(mem_usage);
-    LPCSTR lpszMemUsage = strconv.t2a(sMemUsage.GetBuffer(0));
-    TiXmlText* mem_usage_text = new TiXmlText(lpszMemUsage);
-    mem_usage->LinkEndChild(mem_usage_text);
+    m_sMemUsage = sMemUsage;
+  }
+}
+
+int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,          
+     PCR_EXCEPTION_INFO pExceptionInfo)
+{
+  crSetErrorMsg(_T("Unspecified error."));
+
+  strconv_t strconv;  
+  FILE* f = NULL;
+
+#if _MSC_VER>=1400
+  _tfopen_s(&f, pszFileName, _T("wt"));
+#else
+  f = fopen(pszFileName, _T("wt"));
+#endif
+  
+  if(f==NULL)
+    return 1; // Couldn't create file
+
+  // Add <?xml version="1.0" encoding="utf-8" ?> element
+  _ftprintf(f, _T("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"), CRASHRPT_VER);
+
+  // Add root element
+  _ftprintf(f, _T("<CrashRpt version=\"%d\">\n"), CRASHRPT_VER);
+  
+  // Write crash GUID
+  _ftprintf(f, _T("  <CrashGUID>%s</CrashGUID>\n"), m_sCrashGUID.GetBuffer(0));
+
+  // Write application name 
+  _ftprintf(f, _T("  <AppName>%s</AppName>\n"), m_sAppName.GetBuffer(0));
+
+  // Write application version 
+  _ftprintf(f, _T("  <AppVersion>%s</AppVersion>\n"), m_sAppVersion.GetBuffer(0));
+  
+  // Write EXE image name
+  _ftprintf(f, _T("  <ImageName>%s</ImageName>\n"), m_sImageName.GetBuffer(0));
+
+  // Write operating system friendly name  
+  _ftprintf(f, _T("  <OperatingSystem>%s</OperatingSystem>\n"), m_sOSName.GetBuffer(0));
+  
+  // Write system time in UTC format
+  _ftprintf(f, _T("  <SystemTimeUTC>%s</SystemTimeUTC>\n"), m_sCrashTime.GetBuffer(0));
+  
+  // Write exception type
+  _ftprintf(f, _T("  <ExceptionType>%d</ExceptionType>\n"), pExceptionInfo->exctype);
+
+  if(pExceptionInfo->exctype==CR_WIN32_STRUCTURED_EXCEPTION)
+  {
+    // Write exception code
+    _ftprintf(f, _T("  <ExceptionCode>0x%X</ExceptionCode>\n"), 
+      pExceptionInfo->pexcptrs->ExceptionRecord->ExceptionCode);
   }
 
+  if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
+  {
+    // Write FPE exception subcode
+    _ftprintf(f, _T("  <FPESubcode>%d</FPESubcode>\n"), 
+      pExceptionInfo->fpe_subcode);
+  }
+
+#if _MSC_VER>=1400
+  if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
+  {
+    if(pExceptionInfo->expression!=NULL)
+    {
+      // Write expression      
+      _ftprintf(f, _T("  <InvParamExpression>%s</InvParamExpression>\n"), 
+        pExceptionInfo->expression);
+    }
+
+    if(pExceptionInfo->function!=NULL)
+    {
+      // Write function      
+      _ftprintf(f, _T("  <InvParamFunction>%s</InvParamFunction>\n"), 
+        pExceptionInfo->function);
+    }
+
+    if(pExceptionInfo->file!=NULL)
+    {
+      // Write file
+      _ftprintf(f, _T("  <InvParamFile>%s</InvParamFile>\n"), 
+        pExceptionInfo->file);
+    }
+    
+    // Write line
+    _ftprintf(f, _T("  <InvParamLine>%d</InvParamLine>\n"), 
+      pExceptionInfo->line);
+  }
+#endif 
+
+  // Write the number of GUI resources in use
+  _ftprintf(f, _T("  <GUIResourceCount>%lu</GUIResourceCount>\n"), 
+      m_dwGuiResources);
+
+  // Write count of open handles that belong to current process
+  _ftprintf(f, _T("  <OpenHandleCount>%lu</OpenHandleCount>\n"), 
+    m_dwProcessHandleCount);  
+
+  // Write memory usage info
+  _ftprintf(f, _T("  <MemoryUsageInBytes>%lu</MemoryUsageInBytes>\n"), 
+    m_dwProcessHandleCount);  
+
   // Write list of custom user-added properties
-
-  TiXmlElement* prop_list = new TiXmlElement("CustomProps");
-  root->LinkEndChild(prop_list);      
-
+  _ftprintf(f, _T("  <CustomProps>\n"));
+  
   std::map<CString, CString>::iterator pit = m_props.begin();
   unsigned i;
   for (i = 0; i < m_props.size(); i++, pit++)
@@ -1293,21 +1214,16 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     CString sPropName = pit->first;
     CString sPropValue = pit->second;
 
-    TiXmlElement* prop_item = new TiXmlElement("Prop");
-    prop_list->LinkEndChild(prop_item);      
-
-	  LPCSTR szPropNameA = strconv.t2a(sPropName.GetBuffer(0));
-    LPCSTR szPropValueA = strconv.t2a(sPropValue.GetBuffer(0));
-
-    prop_item->SetAttribute("name", szPropNameA);    
-    prop_item->SetAttribute("value", szPropValueA);    
+    _ftprintf(f, _T("    <Prop name=\"%s\" value= \"%s\"/>\n"),
+      sPropName, sPropValue);
   }
+
+  _ftprintf(f, _T("  </CustomProps>\n"));
   
   // Write list of files that present in this crash report
 
-  TiXmlElement* file_list = new TiXmlElement("FileList");
-  root->LinkEndChild(file_list);      
-
+  _ftprintf(f, _T("  <FileItems>\n"));
+  
   std::map<CString, FileItem>::iterator cur = m_files.begin();
   for (i = 0; i < m_files.size(); i++, cur++)
   {    
@@ -1319,28 +1235,17 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     if(pos!=-1)
       sDestFile = sDestFile.Mid(pos+1);
 
-    FileItem& fi = (*cur).second;
+    FileItem& fi = cur->second;
 
-    TiXmlElement* file_item = new TiXmlElement("FileItem");
-    file_list->LinkEndChild(file_item);      
-
-	  LPCSTR lpszDestFile = strconv.t2a(sDestFile.GetBuffer(0));
-    LPCSTR lpszFileDesc = strconv.t2a(fi.m_sDescription.GetBuffer(0));
-
-    file_item->SetAttribute("name", lpszDestFile);    
-    file_item->SetAttribute("description", lpszFileDesc);    
+    _ftprintf(f, _T("    <FileItem name=\"%s\" description=\"%s\" />\n"),
+      sDestFile, fi.m_sDescription);  
   }
 
-  // Save document to file
+  _ftprintf(f, _T("  </FileItems>\n"));
 
-  LPCSTR lpszFileName = strconv.t2a(pszFileName);
-  bool bSave = doc.SaveFile(lpszFileName);
-  if(!bSave)
-  {
-    ATLASSERT(bSave);
-    crSetErrorMsg(_T("Can't save crash log to XML."));
-    return 2;
-  }
+  _ftprintf(f, _T("  <CrashRpt>\n"));
+
+  fclose(f);  
 
   crSetErrorMsg(_T("Success."));
   return 0;
@@ -1397,37 +1302,6 @@ int CCrashHandler::CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExIn
   // Close file
   CloseHandle(hFile);
 
-  return 0;
-}
-
-int CCrashHandler::ZipErrorReport(CString sFileName)
-{
-  CString sTempFileName = Utility::getTempFileName();
-
-  HZIP hz = CreateZip(sFileName, NULL);
-  if (hz==NULL)
-  {
-    crSetErrorMsg(_T("Couldn't create zip archive for the error report."));
-    return 1;
-  }
-
-  // add report files to zip
-  std::map<CString, FileItem>::iterator cur = m_files.begin();
-  unsigned i;
-  for (i = 0; i < m_files.size(); i++, cur++)
-  {    
-    CString szDestFile = (*cur).first;
-        
-    ZRESULT zr = ZipAdd(hz, szDestFile, cur->second.m_sFileName);
-    if(zr!=ZR_OK)
-    {
-      crSetErrorMsg(_T("Couldn't add file to zip archive."));
-      CloseZip(hz);
-      return 1;
-    }
-  }
-
-  CloseZip(hz);    
   return 0;
 }
 
