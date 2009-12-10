@@ -112,7 +112,7 @@ protected:
      PCR_EXCEPTION_INFO pExceptionInfo);
   int LaunchCrashSender(CString sZipName);  
 
-  CString _ReplaceRestrictedXMLCharacters(CString sText);
+  CString _repxrch(CString sText);
   
   // Sets internal pointers to exception handlers to NULL
   void InitPrevCPPExceptionHandlerPointers();

@@ -1025,9 +1025,14 @@ int CCrashHandler::GenerateErrorReport(
   
   /* Create directory for this report. */
 
-  CString sReportFolderName = m_sUnsentCrashReportsFolder + m_sCrashGUID;
+  CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
   BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
-  ATLASSERT(bCreateDir);
+  if(!bCreateDir)
+  {
+    ATLASSERT(bCreateDir);
+    return 1; // Failed to create directory
+  }
+  
 
   /* Create crash minidump file. */
 
@@ -1043,7 +1048,17 @@ int CCrashHandler::GenerateErrorReport(
   result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
   AddFile(sFileName, NULL, _T("Crash Log"));        
-    
+  
+  /* Copy user-defined files. */
+
+  std::map<CString, FileItem>::iterator it;
+  for(it=m_files.begin(); it!=m_files.end(); it++)
+  {
+    CString sDestFileName = sReportFolderName + _T("\\") + it->first;    
+    CString sSrcFileName = it->second.m_sFileName;
+    CopyFile(sSrcFileName, sDestFileName, TRUE);    
+  }
+
   // Launch the CrashSender process that would notify user about crash
   // and send the error report by E-mail.
   
@@ -1122,43 +1137,50 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     return 1; // Couldn't create file
 
   // Add <?xml version="1.0" encoding="utf-8" ?> element
-  _ftprintf(f, _T("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"), CRASHRPT_VER);
+  fprintf(f, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n", CRASHRPT_VER);
 
   // Add root element
-  _ftprintf(f, _T("<CrashRpt version=\"%d\">\n"), CRASHRPT_VER);
+  fprintf(f, "<CrashRpt version=\"%d\">\n", CRASHRPT_VER);
   
   // Write crash GUID
-  _ftprintf(f, _T("  <CrashGUID>%s</CrashGUID>\n"), m_sCrashGUID.GetBuffer(0));
+  fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
+    strconv.t2utf8(_repxrch(m_sCrashGUID.GetBuffer(0))));
 
   // Write application name 
-  _ftprintf(f, _T("  <AppName>%s</AppName>\n"), m_sAppName.GetBuffer(0));
+  fprintf(f, "  <AppName>%s</AppName>\n", 
+    strconv.t2utf8(_repxrch(m_sAppName.GetBuffer(0))));
 
   // Write application version 
-  _ftprintf(f, _T("  <AppVersion>%s</AppVersion>\n"), m_sAppVersion.GetBuffer(0));
+  fprintf(f, "  <AppVersion>%s</AppVersion>\n", 
+    strconv.t2utf8(_repxrch(m_sAppVersion.GetBuffer(0))));
   
   // Write EXE image name
-  _ftprintf(f, _T("  <ImageName>%s</ImageName>\n"), m_sImageName.GetBuffer(0));
+  fprintf(f, "  <ImageName>%s</ImageName>\n", 
+    strconv.t2utf8(_repxrch(m_sImageName.GetBuffer(0))));
 
   // Write operating system friendly name  
-  _ftprintf(f, _T("  <OperatingSystem>%s</OperatingSystem>\n"), m_sOSName.GetBuffer(0));
+  fprintf(f, "  <OperatingSystem>%s</OperatingSystem>\n", 
+    strconv.t2utf8(_repxrch(m_sOSName.GetBuffer(0))));
   
   // Write system time in UTC format
-  _ftprintf(f, _T("  <SystemTimeUTC>%s</SystemTimeUTC>\n"), m_sCrashTime.GetBuffer(0));
+  fprintf(f, "  <SystemTimeUTC>%s</SystemTimeUTC>\n", 
+    strconv.t2utf8(_repxrch(m_sCrashTime.GetBuffer(0))));
   
   // Write exception type
-  _ftprintf(f, _T("  <ExceptionType>%d</ExceptionType>\n"), pExceptionInfo->exctype);
+  fprintf(f, "  <ExceptionType>%d</ExceptionType>\n", 
+    pExceptionInfo->exctype);
 
   if(pExceptionInfo->exctype==CR_WIN32_STRUCTURED_EXCEPTION)
   {
     // Write exception code
-    _ftprintf(f, _T("  <ExceptionCode>0x%X</ExceptionCode>\n"), 
+    fprintf(f, "  <ExceptionCode>0x%X</ExceptionCode>\n", 
       pExceptionInfo->pexcptrs->ExceptionRecord->ExceptionCode);
   }
 
   if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
   {
     // Write FPE exception subcode
-    _ftprintf(f, _T("  <FPESubcode>%d</FPESubcode>\n"), 
+    fprintf(f, "  <FPESubcode>%d</FPESubcode>\n", 
       pExceptionInfo->fpe_subcode);
   }
 
@@ -1168,44 +1190,44 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     if(pExceptionInfo->expression!=NULL)
     {
       // Write expression      
-      _ftprintf(f, _T("  <InvParamExpression>%s</InvParamExpression>\n"), 
-        pExceptionInfo->expression);
+      fprintf(f, "  <InvParamExpression>%s</InvParamExpression>\n", 
+        strconv.w2utf8(_repxrch(pExceptionInfo->expression)));
     }
 
     if(pExceptionInfo->function!=NULL)
     {
       // Write function      
-      _ftprintf(f, _T("  <InvParamFunction>%s</InvParamFunction>\n"), 
-        pExceptionInfo->function);
+      fprintf(f, "  <InvParamFunction>%s</InvParamFunction>\n", 
+        strconv.t2utf8(_repxrch(pExceptionInfo->function)));
     }
 
     if(pExceptionInfo->file!=NULL)
     {
       // Write file
-      _ftprintf(f, _T("  <InvParamFile>%s</InvParamFile>\n"), 
-        pExceptionInfo->file);
+      fprintf(f, "  <InvParamFile>%s</InvParamFile>\n", 
+        strconv.w2utf8(_repxrch(pExceptionInfo->file)));
     }
     
     // Write line
-    _ftprintf(f, _T("  <InvParamLine>%d</InvParamLine>\n"), 
+    fprintf(f, "  <InvParamLine>%d</InvParamLine>\n", 
       pExceptionInfo->line);
   }
 #endif 
 
   // Write the number of GUI resources in use
-  _ftprintf(f, _T("  <GUIResourceCount>%lu</GUIResourceCount>\n"), 
+  fprintf(f, "  <GUIResourceCount>%lu</GUIResourceCount>\n", 
       m_dwGuiResources);
 
   // Write count of open handles that belong to current process
-  _ftprintf(f, _T("  <OpenHandleCount>%lu</OpenHandleCount>\n"), 
+  fprintf(f, "  <OpenHandleCount>%lu</OpenHandleCount>\n", 
     m_dwProcessHandleCount);  
 
   // Write memory usage info
-  _ftprintf(f, _T("  <MemoryUsageInBytes>%lu</MemoryUsageInBytes>\n"), 
+  fprintf(f, "  <MemoryUsageInBytes>%lu</MemoryUsageInBytes>\n", 
     m_dwProcessHandleCount);  
 
   // Write list of custom user-added properties
-  _ftprintf(f, _T("  <CustomProps>\n"));
+  fprintf(f, "  <CustomProps>\n");
   
   std::map<CString, CString>::iterator pit = m_props.begin();
   unsigned i;
@@ -1214,15 +1236,15 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     CString sPropName = pit->first;
     CString sPropValue = pit->second;
 
-    _ftprintf(f, _T("    <Prop name=\"%s\" value= \"%s\"/>\n"),
-      sPropName, sPropValue);
+    fprintf(f, "    <Prop name=\"%s\" value= \"%s\"/>\n",
+      strconv.t2utf8(_repxrch(sPropName)), strconv.t2utf8(_repxrch(sPropValue)));
   }
 
-  _ftprintf(f, _T("  </CustomProps>\n"));
+  fprintf(f, "  </CustomProps>\n");
   
   // Write list of files that present in this crash report
 
-  _ftprintf(f, _T("  <FileItems>\n"));
+  fprintf(f, "  <FileItems>\n");
   
   std::map<CString, FileItem>::iterator cur = m_files.begin();
   for (i = 0; i < m_files.size(); i++, cur++)
@@ -1237,13 +1259,13 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
 
     FileItem& fi = cur->second;
 
-    _ftprintf(f, _T("    <FileItem name=\"%s\" description=\"%s\" />\n"),
-      sDestFile, fi.m_sDescription);  
+    fprintf(f, "    <FileItem name=\"%s\" description=\"%s\" />\n",
+      strconv.t2utf8(_repxrch(sDestFile)), strconv.t2utf8(_repxrch(fi.m_sDescription)));  
   }
 
-  _ftprintf(f, _T("  </FileItems>\n"));
+  fprintf(f, "  </FileItems>\n");
 
-  _ftprintf(f, _T("  <CrashRpt>\n"));
+  fprintf(f, "</CrashRpt>\n");
 
   fclose(f);  
 
@@ -1360,17 +1382,17 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
     _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\"\
 appver=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\"\
 smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"), 
-    _ReplaceRestrictedXMLCharacters(m_sSubject), 
-    _ReplaceRestrictedXMLCharacters(m_sTo),
-    _ReplaceRestrictedXMLCharacters(m_sUrl),
-    _ReplaceRestrictedXMLCharacters(m_sAppName),
-    _ReplaceRestrictedXMLCharacters(m_sAppVersion),
-    _ReplaceRestrictedXMLCharacters(m_sImageName),
-    _ReplaceRestrictedXMLCharacters(sZipName),
+    _repxrch(m_sSubject), 
+    _repxrch(m_sTo),
+    _repxrch(m_sUrl),
+    _repxrch(m_sAppName),
+    _repxrch(m_sAppVersion),
+    _repxrch(m_sImageName),
+    _repxrch(sZipName),
     m_uPriorities[CR_HTTP],
     m_uPriorities[CR_SMTP],
     m_uPriorities[CR_SMAPI],
-    _ReplaceRestrictedXMLCharacters(m_sPrivacyPolicyURL));
+    _repxrch(m_sPrivacyPolicyURL));
 
   LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
   
@@ -1392,7 +1414,7 @@ smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"),
   return 0;
 }
 
-CString CCrashHandler::_ReplaceRestrictedXMLCharacters(CString sText)
+CString CCrashHandler::_repxrch(CString sText)
 {
   CString sResult;
 

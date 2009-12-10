@@ -109,7 +109,7 @@ public:
     if(lpsz==NULL)
       return NULL;
 
-    int count = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, NULL, 0, NULL, NULL);
+    int count = WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, NULL, 0, NULL, NULL);
     if(count==0)
       return NULL;
 
@@ -117,6 +117,62 @@ public:
     int result = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, (LPSTR)pBuffer, count, NULL, NULL);
     if(result==0)
     {
+      delete [] pBuffer;
+      return NULL;
+    }    
+
+    m_ConvertedStrings.push_back(pBuffer);
+    return (LPCSTR)pBuffer;
+  }
+
+  LPCSTR a2utf8(LPCSTR lpsz)
+  {
+    if(lpsz==NULL)
+      return NULL;
+
+    // 1. Convert input ANSI string to widechar using 
+    // MultiByteToWideChar(CP_ACP, ...) function (CP_ACP 
+    // is current Windows system Ansi code page)
+    
+    // Calculate required buffer size
+    int count = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, NULL, 0);
+    if(count==0)
+      return NULL;
+
+    // Convert ANSI->UNICODE
+    wchar_t* pBuffer = new wchar_t[count];
+    int result = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, lpsz, -1, (LPWSTR)pBuffer, count);
+    if(result==0)
+    {
+      delete [] pBuffer;
+      return NULL;
+    }  
+
+    // 2. Convert output widechar string from previous call to 
+    // UTF-8 using WideCharToMultiByte(CP_UTF8, ...)  function
+     
+    LPCSTR pszResult = (LPCSTR)w2utf8(pBuffer);
+    delete [] pBuffer;
+    return pszResult;
+  }
+
+  LPCSTR w2utf8(LPCWSTR lpsz)
+  {
+    if(lpsz==NULL)
+      return NULL;
+     
+    // Calculate required buffer size
+    int count = WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, NULL, 0, NULL, NULL);
+    if(count==0)
+    {      
+      return NULL;
+    }
+
+    // Convert UNICODE->UTF8
+    LPSTR pBuffer = new char[count];
+    int result = WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, (LPSTR)pBuffer, count, NULL, NULL);    
+    if(result==0)
+    {      
       delete [] pBuffer;
       return NULL;
     }    
@@ -158,6 +214,15 @@ LPCTSTR w2t(LPCWSTR lpsz)
     return lpsz;
 #else
     return w2a(lpsz);
+#endif
+  }
+
+LPCSTR t2utf8(LPCTSTR lpsz)
+  {
+#ifdef UNICODE    
+    return w2utf8(lpsz);
+#else
+    return a2utf8(lpsz);
 #endif
   }
 
