@@ -51,8 +51,9 @@ int crSetErrorMsg(PTSTR pszErrorMsg);
 
 struct FileItem
 {
-  CString m_sFileName;
-  CString m_sDescription;
+  CString m_sFileName;    // Path to the original file 
+  CString m_sDescription; // Description
+  BOOL m_bMakeCopy;       // Should we make a copy of this file on crash?
 };
 
 // ===========================================================================
@@ -88,7 +89,8 @@ public:
    AddFile(
       LPCTSTR lpFile,                     // File name
       LPCTSTR lpDestFile,                 // Destination file name
-      LPCTSTR lpDesc                      // File description
+      LPCTSTR lpDesc,                     // File description
+      DWORD dwFlags
       );
 
    int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
@@ -110,7 +112,7 @@ protected:
   int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);  
   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
-  int LaunchCrashSender(CString sZipName);  
+  int LaunchCrashSender(CString sErrorReportFolderName);  
 
   CString _repxrch(CString sText);
   

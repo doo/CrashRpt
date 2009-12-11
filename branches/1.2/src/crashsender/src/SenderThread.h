@@ -11,6 +11,7 @@ struct SenderThreadContext
   CString m_sEmailSubject;
   CString m_sEmailText;
   CString m_sUrl;
+  CString m_sErrorReportDirName;
   CString m_sZipName;
   UINT m_uPriorities[3];
 };

@@ -283,19 +283,19 @@ int
 CRASHRPTAPI 
 crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 {
-  return crAddFile2W(pszFile, NULL, pszDesc);
+  return crAddFile2W(pszFile, NULL, pszDesc, 0);
 }
 
 int
 CRASHRPTAPI 
 crAddFileA(PCSTR pszFile, PCSTR pszDesc)
 {
-  return crAddFile2A(pszFile, NULL, pszDesc);
+  return crAddFile2A(pszFile, NULL, pszDesc, 0);
 }
 
 int 
 CRASHRPTAPI 
-crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc)
+crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -315,7 +315,7 @@ crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc)
   LPCTSTR lptszDestFile = strconv.w2t((LPWSTR)pszDestFile);
   LPCTSTR lptszDesc = strconv.w2t((LPWSTR)pszDesc);
 
-  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDestFile, lptszDesc);
+  int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDestFile, lptszDesc, dwFlags);
   if(nAddResult!=0)
   {
     ATLASSERT(nAddResult==0);
@@ -328,7 +328,7 @@ crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc)
 
 int
 CRASHRPTAPI 
-crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc)
+crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc, DWORD dwFlags)
 {
   // Convert parameters to wide char
 
@@ -347,7 +347,7 @@ crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc)
   if(pszDesc)
     pwszDesc = strconv.a2w(pszDesc);    
   
-  return crAddFile2W(pwszFile, pwszDestFile, pwszDesc);
+  return crAddFile2W(pwszFile, pwszDestFile, pwszDesc, dwFlags);
 }
 
 int
@@ -359,6 +359,16 @@ crAddScreenshot(
   crSetErrorMsg(_T("Unspecified error."));
   CScreenCapture sc;
   std::vector<CString> screenshot_names;
+
+  CCrashHandler *pCrashHandler = 
+    CCrashHandler::GetCurrentProcessCrashHandler();
+
+  if(pCrashHandler==NULL)
+  {
+    ATLASSERT(pCrashHandler!=NULL);
+    crSetErrorMsg(_T("Crash handler wasn't previously installed for current thread."));
+    return 1; // Invalid parameter?
+  }
 
   if(dwFlags==CR_SCREENSHOT_VIRTUAL_SCREEN)
   {
@@ -401,7 +411,7 @@ crAddScreenshot(
   {
     CString sDestFile;
     sDestFile.Format(_T("Screenshot_%d.png"), i); 
-    int nAdd = crAddFile2(screenshot_names[i], sDestFile, _T("Screenshot"));
+    int nAdd = pCrashHandler->AddFile(screenshot_names[i], sDestFile, _T("Screenshot"), 0);
     if(nAdd!=0)
     {
       return -4;

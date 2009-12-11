@@ -76,6 +76,9 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   CStatic statPreview = GetDlgItem(IDC_PREVIEWTEXT);
   statPreview.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Preview")));  
 
+  CButton btnClose = GetDlgItem(IDOK);
+  btnClose.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Close")));  
+
   // center the dialog on the screen
 	CenterWindow();  
 

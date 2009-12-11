@@ -764,6 +764,10 @@ crAddFileA(
 #define crAddFile crAddFileA
 #endif //UNICODE
 
+// Flags for crAddFile2() function.
+#define CR_TAKE_ORIGINAL_FILE  0  //<! Take the original file (do not copy it to the error report folder).
+#define CR_MAKE_FILE_COPY      1  //<! Copy the file to the error report folder.
+
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a file to crash report.
  * 
@@ -772,6 +776,7 @@ crAddFileA(
  *  \param[in] pszFile Absolute path to the file to add.
  *  \param[in] pszDestFile Destination file name.
  *  \param[in] pszDesc File description (used in Error Report Details dialog).
+ *  \param[in] dwFlags Flags.
  *
  *    This function superceeds the crAddFile() function.
  *
@@ -787,9 +792,16 @@ crAddFileA(
  *    to specify different file name for the file in ZIP archive. If this parameter is NULL, the pszFile
  *    file name is used as destination file name.
  *
- *    \a pszDesc is a description of a file. It can be NULL.
+ *    \a pszDesc is a literal description of a file. It can be NULL.
  *
- *    Function fails if \a pszFile doesn't exist at the moment of function call. 
+ *    \a dwFlags parameter defines the behavior of the function. This can be one of the following:
+ *       - \ref CR_TAKE_ORIGINAL_FILE The function will try to include the file as it is. This behavior is the default one.
+ *       - \ref CR_MAKE_FILE_COPY The function will make a copy of the file and save it to the error report folder. 
+ *
+ *    If your file is not very large, specify the \ref CR_MAKE_FILE_COPY as \a dwFlags parameter value. This will
+ *    guarantee that a snapshot of your file at the moment of crash is taken and saved to the error report folder.
+ *
+ *    This function fails if \a pszFile doesn't exist at the moment of function call. 
  * 
  *    The crAddFile2W() and crAddFile2A() are wide-character and multibyte-character
  *    versions of crAddFile2() function. The crAddFile2() macro defines character set
@@ -805,7 +817,8 @@ CRASHRPTAPI
 crAddFile2W(
    LPCWSTR pszFile,
    LPCWSTR pszDestFile,
-   LPCWSTR pszDesc 
+   LPCWSTR pszDesc,
+   DWORD dwFlags
    );
 
 /*! \ingroup CrashRptAPI
@@ -817,7 +830,8 @@ CRASHRPTAPI
 crAddFile2A(
    LPCSTR pszFile,
    LPCSTR pszDestFile,
-   LPCSTR pszDesc 
+   LPCSTR pszDesc,
+   DWORD dwFlags
    );
 
 /*! \brief Character set-independent mapping of crAddFileW() and crAddFileA() functions. 

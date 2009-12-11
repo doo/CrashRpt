@@ -26,7 +26,7 @@ public:
   CString     m_sEmailFrom;     // Email: From  
   CString     m_sEmailTo;
   CString     m_sDescription;   // Email: Body
-  CString     m_sZipName;
+  CString     m_sErrorReportDirName;
   CString     m_sUrl;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;

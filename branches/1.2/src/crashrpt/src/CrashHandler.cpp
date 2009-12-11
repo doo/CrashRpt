@@ -946,7 +946,7 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
 }
 
 
-int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc)
+int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc, DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -965,6 +965,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
   FileItem fi;
   fi.m_sDescription = pszDesc;
   fi.m_sFileName = pszFile;
+  fi.m_bMakeCopy = (dwFlags&CR_MAKE_FILE_COPY)!=0;
   if(pszDestFile!=NULL)
     m_files[pszDestFile] = fi;
   else
@@ -1040,14 +1041,14 @@ int CCrashHandler::GenerateErrorReport(
   sFileName.Format(_T("%s\\crashdump.dmp"), sReportFolderName);
   int result = CreateMinidump(sFileName, pExceptionInfo->pexcptrs);
   ATLASSERT(result==0);
-  AddFile(sFileName, NULL, _T("Crash Dump"));      
+  AddFile(sFileName, NULL, _T("Crash Dump"), 0);      
       
   /* Create crash report descriptor file in XML format. */
   
   sFileName.Format(_T("%s\\crashrpt.xml"), sReportFolderName);
   result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
-  AddFile(sFileName, NULL, _T("Crash Log"));        
+  AddFile(sFileName, NULL, _T("Crash Log"), 0);        
   
   /* Copy user-defined files. */
 
@@ -1061,9 +1062,8 @@ int CCrashHandler::GenerateErrorReport(
 
   // Launch the CrashSender process that would notify user about crash
   // and send the error report by E-mail.
-  
-  CString sZipName;
-  result = LaunchCrashSender(sZipName);
+    
+  result = LaunchCrashSender(sReportFolderName);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -1111,9 +1111,9 @@ void CCrashHandler::CollectMiscCrashInfo()
   {    
     CString sMemUsage;
 #ifdef _WIN64
-    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize);
+    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
 #else
-    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize);
+    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
 #endif 
     m_sMemUsage = sMemUsage;
   }
@@ -1223,8 +1223,8 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     m_dwProcessHandleCount);  
 
   // Write memory usage info
-  fprintf(f, "  <MemoryUsageInBytes>%lu</MemoryUsageInBytes>\n", 
-    m_dwProcessHandleCount);  
+  fprintf(f, "  <MemoryUsageKbytes>%lu</MemoryUsageKbytes>\n", 
+    strconv.t2utf8(_repxrch(m_sMemUsage.GetBuffer(0))));  
 
   // Write list of custom user-added properties
   fprintf(f, "  <CustomProps>\n");
@@ -1327,7 +1327,7 @@ int CCrashHandler::CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExIn
   return 0;
 }
 
-int CCrashHandler::LaunchCrashSender(CString sZipName)
+int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -1379,8 +1379,8 @@ int CCrashHandler::LaunchCrashSender(CString sZipName)
 
   CString sCrashInfo;
   sCrashInfo.Format(
-    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\"\
-appver=\"%s\" imagename=\"%s\" zipname=\"%s\" http_priority=\"%d\"\
+    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" \
+appver=\"%s\" imagename=\"%s\" errorreportdirname=\"%s\" http_priority=\"%d\" \
 smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"), 
     _repxrch(m_sSubject), 
     _repxrch(m_sTo),
@@ -1388,7 +1388,7 @@ smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"),
     _repxrch(m_sAppName),
     _repxrch(m_sAppVersion),
     _repxrch(m_sImageName),
-    _repxrch(sZipName),
+    _repxrch(sErrorReportDirName),
     m_uPriorities[CR_HTTP],
     m_uPriorities[CR_SMTP],
     m_uPriorities[CR_SMAPI],

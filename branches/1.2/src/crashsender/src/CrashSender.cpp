@@ -22,7 +22,7 @@ int ParseCrashInfo(
   CString& sMailTo, 
   CString& sUrl, 
   UINT (*puPriorities)[3], 
-  CString& sZipName,
+  CString& sErrorReportDirName,
   CString& sPrivacyPolicyURL
   )
 {  
@@ -41,7 +41,7 @@ int ParseCrashInfo(
   const char* pszSubject = hRoot.ToElement()->Attribute("subject");
   const char* pszMailTo = hRoot.ToElement()->Attribute("mailto");
   const char* pszUrl = hRoot.ToElement()->Attribute("url");
-  const char* pszZipName = hRoot.ToElement()->Attribute("zipname");
+  const char* pszErrorReportDirName = hRoot.ToElement()->Attribute("errorreportdirname");
   const char* pszHttpPriority = hRoot.ToElement()->Attribute("http_priority");
   const char* pszSmtpPriority = hRoot.ToElement()->Attribute("smtp_priority");
   const char* pszMapiPriority = hRoot.ToElement()->Attribute("mapi_priority");
@@ -65,8 +65,8 @@ int ParseCrashInfo(
   if(pszUrl!=NULL)
     sUrl = pszUrl;
 
-  if(pszZipName!=NULL)
-    sZipName = pszZipName;
+  if(pszErrorReportDirName!=NULL)
+    sErrorReportDirName = pszErrorReportDirName;
 
   if(pszHttpPriority!=NULL)
     (*puPriorities)[CR_HTTP] = atoi(pszHttpPriority);
@@ -181,7 +181,7 @@ GetCrashInfoThroughPipe(
   CString& sMailTo,
   CString& sUrl,
   UINT (*puPriorities)[3],
-  CString& sZipName,
+  CString& sErrorReportDirName,
   CString& sPrivacyPolicyURL,
   std::map<std::string, std::string> &file_list)
 {
@@ -247,7 +247,7 @@ GetCrashInfoThroughPipe(
 
   // Parse text  
   int nParseResult = ParseCrashInfo(sDataA.c_str(), sAppName, sAppVersion, sImageName, 
-    sSubject, sMailTo, sUrl, puPriorities, sZipName, sPrivacyPolicyURL);
+    sSubject, sMailTo, sUrl, puPriorities, sErrorReportDirName, sPrivacyPolicyURL);
   if(nParseResult!=0)
   {
     ATLASSERT(nParseResult==0);
@@ -262,8 +262,12 @@ GetCrashInfoThroughPipe(
   CloseHandle(hPipe);
   CloseHandle(overlapped.hEvent); 
 
-  if(0!=GetFileList(sZipName, file_list))
-    return 7;
+  int nGetFileList=GetFileList(sErrorReportDirName+_T("\\crashrpt.xml"), file_list);
+  if(nGetFileList!=0)
+  {
+    ATLASSERT(nGetFileList==0);
+    //return 7;
+  }
 
   // Success
   return 0;
@@ -282,7 +286,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
   CMainDlg dlgMain;
   
-  if(GetCrashInfoThroughPipe(
+  int nGetCrashInfoThroughPipe = GetCrashInfoThroughPipe(
     dlgMain.m_sAppName,
     dlgMain.m_sAppVersion,
     dlgMain.m_sImageName,
@@ -290,10 +294,14 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
     dlgMain.m_sEmailTo, 
     dlgMain.m_sUrl,
     &dlgMain.m_uPriorities,
-    dlgMain.m_sZipName,    
+    dlgMain.m_sErrorReportDirName,    
     dlgMain.m_sPrivacyPolicyURL,
-    dlgMain.m_pUDFiles)!=0)
+    dlgMain.m_pUDFiles);
+  if(nGetCrashInfoThroughPipe!=0)
+  {
+    ATLASSERT(nGetCrashInfoThroughPipe==0);
     return 1; 
+  }
     
 	if(dlgMain.Create(NULL) == NULL)
 	{

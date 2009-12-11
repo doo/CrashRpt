@@ -283,7 +283,7 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   
   m_ctx.m_sAppName = m_sAppName;
   m_ctx.m_sAppVersion = m_sAppVersion;
-  m_ctx.m_sZipName = m_sZipName;
+  m_ctx.m_sErrorReportDirName = m_sErrorReportDirName;
   m_ctx.m_sEmailTo = m_sEmailTo;
   m_ctx.m_sEmailFrom = m_sEmailFrom;
   m_ctx.m_sEmailSubject = m_sEmailSubject;
@@ -318,7 +318,8 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
   strconv_t strconv;
 
-  HZIP hz = CreateZip(m_sZipName, NULL);
+  CString sZipName = m_sErrorReportDirName + _T("\\report.zip"); 
+  HZIP hz = CreateZip(sZipName, NULL);
   
   TStrStrMap::iterator cur = m_pUDFiles.begin();
   unsigned int i;
