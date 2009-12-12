@@ -93,6 +93,10 @@ public:
       DWORD dwFlags
       );
 
+  int AddProperty(CString sPropName, CString sPropValue);
+
+  int AddScreenshot(DWORD dwFlags);
+
    int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
      
    int SetProcessExceptionHandlers(DWORD dwFlags);
@@ -101,8 +105,6 @@ public:
    int SetThreadExceptionHandlers(DWORD dwFlags);   
    int UnSetThreadExceptionHandlers();
   
-   int AddProperty(CString sPropName, CString sPropValue);
-
    static CCrashHandler* GetCurrentProcessCrashHandler();
 
 protected:
@@ -156,8 +158,7 @@ protected:
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
-  CString m_sPrivacyPolicyURL;   // Privacy policy URL
-
+  CString m_sPrivacyPolicyURL;   // Privacy policy URL  
   CString m_sCrashTime;          // Crash time in UTC format
   DWORD m_dwGuiResources;        // Count of GUI resources in use
   DWORD m_dwProcessHandleCount;  // Count of opened handles

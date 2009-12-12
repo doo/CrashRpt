@@ -191,6 +191,7 @@ int GetCrashInfoThroughPipe()
   CloseHandle(hPipe);
   CloseHandle(overlapped.hEvent); 
 
+  ATLASSERT(0);
   // Parse text  
   int nParseResult = g_CrashInfo.ParseCrashInfo(sDataA.c_str());
   if(nParseResult!=0)

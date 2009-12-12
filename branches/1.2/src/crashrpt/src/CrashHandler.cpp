@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include "tinyxml.h"
 #include <psapi.h>
+#include "ScreenCap.h"
 
 #if _MSC_VER>=1300
 #include <rtcapi.h>
@@ -987,11 +988,85 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
 
 int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
 {
+  crSetErrorMsg(_T("Unspecified error."));
+
   if(sPropName.IsEmpty())
+  {
+    crSetErrorMsg(_T("Invalid property name specified."));
     return 1;
+  }
 
   m_props[sPropName] = sPropValue;
+
+  // OK.
+  crSetErrorMsg(_T("Success."));
   return 0;
+}
+
+int CCrashHandler::AddScreenshot(DWORD dwFlags)
+{
+  crSetErrorMsg(_T("Unspecified error."));
+
+  CScreenCapture sc;
+  std::vector<CString> screenshot_names;
+
+  /* Create directory for the error report (if not created yet). */
+
+  CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+  BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
+  if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
+  { 
+    crSetErrorMsg(_T("Couldn't create directory."));
+    return -1;
+  }  
+
+  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
+  {
+    CRect rcScreen;
+    sc.GetScreenRect(&rcScreen);
+    
+    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
+    if(bMakeScreenshot==FALSE)
+    {
+      crSetErrorMsg(_T("Couldn't take a screenshot."));
+      return -3;
+    }
+  }
+  else if(dwFlags==CR_AS_MAIN_WINDOW)
+  {    
+    HWND hMainWnd = Utility::FindAppWindow();
+    if(hMainWnd==NULL)
+    {
+      crSetErrorMsg(_T("Couldn't find main application window."));
+      return -2;
+    }
+
+    CRect rcWindow; 
+    GetWindowRect(hMainWnd, &rcWindow);
+    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
+    if(bMakeScreenshot==FALSE)
+    {
+      crSetErrorMsg(_T("Couldn't take a screenshot."));
+      return -3;
+    }
+  }
+  else
+  {
+    crSetErrorMsg(_T("Invalid flag specified."));
+    return -1;
+  }
+
+  size_t i;
+  for(i=0; i<screenshot_names.size(); i++)
+  {
+    CString sDestFile;
+    sDestFile.Format(_T("screenshot%d.png"), i); 
+    int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
+    if(nAdd!=0)
+    {
+      return -4;
+    }
+  }
 }
 
 int CCrashHandler::GenerateErrorReport(
@@ -1028,7 +1103,7 @@ int CCrashHandler::GenerateErrorReport(
 
   CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
   BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
-  if(!bCreateDir)
+  if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
   {    
     ATLASSERT(bCreateDir);
     CString szCaption;
@@ -1080,6 +1155,71 @@ int CCrashHandler::GenerateErrorReport(
 
   crSetErrorMsg(_T("Success."));
   return 0; 
+}
+
+void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode, 
+  EXCEPTION_POINTERS** ppExceptionPointers)
+{
+  // The following code was taken from VC++ 8.0 CRT (invarg.c: line 104)
+  
+  EXCEPTION_RECORD ExceptionRecord;
+  CONTEXT ContextRecord;
+  memset(&ContextRecord, 0, sizeof(CONTEXT));
+  
+#ifdef _X86_
+
+  __asm {
+      mov dword ptr [ContextRecord.Eax], eax
+      mov dword ptr [ContextRecord.Ecx], ecx
+      mov dword ptr [ContextRecord.Edx], edx
+      mov dword ptr [ContextRecord.Ebx], ebx
+      mov dword ptr [ContextRecord.Esi], esi
+      mov dword ptr [ContextRecord.Edi], edi
+      mov word ptr [ContextRecord.SegSs], ss
+      mov word ptr [ContextRecord.SegCs], cs
+      mov word ptr [ContextRecord.SegDs], ds
+      mov word ptr [ContextRecord.SegEs], es
+      mov word ptr [ContextRecord.SegFs], fs
+      mov word ptr [ContextRecord.SegGs], gs
+      pushfd
+      pop [ContextRecord.EFlags]
+  }
+
+  ContextRecord.ContextFlags = CONTEXT_CONTROL;
+#pragma warning(push)
+#pragma warning(disable:4311)
+  ContextRecord.Eip = (ULONG)_ReturnAddress();
+  ContextRecord.Esp = (ULONG)_AddressOfReturnAddress();
+#pragma warning(pop)
+  ContextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress()-1);
+
+
+#elif defined (_IA64_) || defined (_AMD64_)
+
+  /* Need to fill up the Context in IA64 and AMD64. */
+  RtlCaptureContext(&ContextRecord);
+
+#else  /* defined (_IA64_) || defined (_AMD64_) */
+
+  ZeroMemory(&ContextRecord, sizeof(ContextRecord));
+
+#endif  /* defined (_IA64_) || defined (_AMD64_) */
+
+  ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
+
+  ExceptionRecord.ExceptionCode = dwExceptionCode;
+  ExceptionRecord.ExceptionAddress = _ReturnAddress();
+
+  ///
+  
+  EXCEPTION_RECORD* pExceptionRecord = new EXCEPTION_RECORD;
+  memcpy(pExceptionRecord, &ExceptionRecord, sizeof(EXCEPTION_RECORD));
+  CONTEXT* pContextRecord = new CONTEXT;
+  memcpy(pContextRecord, &ContextRecord, sizeof(CONTEXT));
+
+  *ppExceptionPointers = new EXCEPTION_POINTERS;
+  (*ppExceptionPointers)->ExceptionRecord = pExceptionRecord;
+  (*ppExceptionPointers)->ContextRecord = pContextRecord;  
 }
 
 void CCrashHandler::CollectMiscCrashInfo()
@@ -1441,70 +1581,6 @@ CString CCrashHandler::_repxrch(CString sText)
   return sResult;
 }
 
-void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode, 
-  EXCEPTION_POINTERS** ppExceptionPointers)
-{
-  // The following code was taken from VC++ 8.0 CRT (invarg.c: line 104)
-  
-  EXCEPTION_RECORD ExceptionRecord;
-  CONTEXT ContextRecord;
-  memset(&ContextRecord, 0, sizeof(CONTEXT));
-  
-#ifdef _X86_
-
-  __asm {
-      mov dword ptr [ContextRecord.Eax], eax
-      mov dword ptr [ContextRecord.Ecx], ecx
-      mov dword ptr [ContextRecord.Edx], edx
-      mov dword ptr [ContextRecord.Ebx], ebx
-      mov dword ptr [ContextRecord.Esi], esi
-      mov dword ptr [ContextRecord.Edi], edi
-      mov word ptr [ContextRecord.SegSs], ss
-      mov word ptr [ContextRecord.SegCs], cs
-      mov word ptr [ContextRecord.SegDs], ds
-      mov word ptr [ContextRecord.SegEs], es
-      mov word ptr [ContextRecord.SegFs], fs
-      mov word ptr [ContextRecord.SegGs], gs
-      pushfd
-      pop [ContextRecord.EFlags]
-  }
-
-  ContextRecord.ContextFlags = CONTEXT_CONTROL;
-#pragma warning(push)
-#pragma warning(disable:4311)
-  ContextRecord.Eip = (ULONG)_ReturnAddress();
-  ContextRecord.Esp = (ULONG)_AddressOfReturnAddress();
-#pragma warning(pop)
-  ContextRecord.Ebp = *((ULONG *)_AddressOfReturnAddress()-1);
-
-
-#elif defined (_IA64_) || defined (_AMD64_)
-
-  /* Need to fill up the Context in IA64 and AMD64. */
-  RtlCaptureContext(&ContextRecord);
-
-#else  /* defined (_IA64_) || defined (_AMD64_) */
-
-  ZeroMemory(&ContextRecord, sizeof(ContextRecord));
-
-#endif  /* defined (_IA64_) || defined (_AMD64_) */
-
-  ZeroMemory(&ExceptionRecord, sizeof(EXCEPTION_RECORD));
-
-  ExceptionRecord.ExceptionCode = dwExceptionCode;
-  ExceptionRecord.ExceptionAddress = _ReturnAddress();
-
-  ///
-  
-  EXCEPTION_RECORD* pExceptionRecord = new EXCEPTION_RECORD;
-  memcpy(pExceptionRecord, &ExceptionRecord, sizeof(EXCEPTION_RECORD));
-  CONTEXT* pContextRecord = new CONTEXT;
-  memcpy(pContextRecord, &ContextRecord, sizeof(CONTEXT));
-
-  *ppExceptionPointers = new EXCEPTION_POINTERS;
-  (*ppExceptionPointers)->ExceptionRecord = pExceptionRecord;
-  (*ppExceptionPointers)->ContextRecord = pContextRecord;  
-}
 
 
 

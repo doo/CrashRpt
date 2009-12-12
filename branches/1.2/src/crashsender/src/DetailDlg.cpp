@@ -44,9 +44,12 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   unsigned i;
   for (i = 0, p = g_CrashInfo.m_FileItems.begin(); p != g_CrashInfo.m_FileItems.end(); p++, i++)
   {     
-	  CString sFileName = p->first;
+	  CString sDestFile = p->first;
+    CString sSrcFile = p->second.m_sSrcFile;
+    CString sFileDesc = p->second.m_sDesc;
+
     SHFILEINFO sfi;
-    SHGetFileInfo(sFileName, 0, &sfi, sizeof(sfi),
+    SHGetFileInfo(sSrcFile, 0, &sfi, sizeof(sfi),
       SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
 
     int iImage = -1;
@@ -56,13 +59,13 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
       DestroyIcon(sfi.hIcon);
     }
 
-    int nItem = m_list.InsertItem(i, sfi.szDisplayName, iImage);
-    CString sFileDesc = p->second.m_sDesc;
+    int nItem = m_list.InsertItem(i, sDestFile, iImage);
+    
 	  CString sFileType = sfi.szTypeName;
     m_list.SetItemText(nItem, 1, sFileDesc);
     m_list.SetItemText(nItem, 2, sFileType);
 
-    hFind = FindFirstFile(sFileName, &findFileData);
+    hFind = FindFirstFile(sSrcFile, &findFileData);
     if (INVALID_HANDLE_VALUE != hFind)
     {
       FindClose(hFind);
@@ -111,7 +114,7 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
   std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
-  CString sFileName = p->first;
+  CString sFileName = p->second.m_sSrcFile;
   dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
     0, 0, SW_SHOWNORMAL);
   ATLASSERT(dwRet > 32);
@@ -135,7 +138,7 @@ void CDetailDlg::SelectItem(int iItem)
   //
   // Display file contents in preview window
   //
-  CString sFileName = p->first;
+  CString sFileName = p->second.m_sSrcFile;
   HANDLE hFile = CreateFile(
      sFileName,
      GENERIC_READ,

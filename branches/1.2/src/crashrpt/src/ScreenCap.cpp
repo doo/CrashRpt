@@ -36,7 +36,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 	nHeight = lprcMonitor->bottom - lprcMonitor->top;
 	
   // Init PNG writer
-  sFileName = Utility::getTempFileName();
+  sFileName.Format(_T("%s\\screenshot%d.png"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
   BOOL bInit = psc->PngInit(nWidth, nHeight, sFileName);
   if(!bInit)
     goto cleanup;
@@ -82,9 +82,18 @@ cleanup:
 	return TRUE;
 }
 
+CScreenCapture::CScreenCapture()
+{
+  m_fp = NULL;
+  m_png_ptr = NULL;
+  m_info_ptr = NULL;
+  m_nIdStartFrom = 0;
+}
 
-BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, std::vector<CString>& out_file_list)
-{		
+BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list)
+{	
+  m_nIdStartFrom = nIdStartFrom;
+  m_sSaveDirName = sSaveDirName;
 	EnumDisplayMonitors(NULL, &rcCapture, EnumMonitorsProc, (LPARAM)this);	
   out_file_list = m_out_file_list;
 	return TRUE;

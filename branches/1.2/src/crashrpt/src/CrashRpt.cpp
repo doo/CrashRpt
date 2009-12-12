@@ -2,7 +2,6 @@
 #include "CrashRpt.h"
 #include "CrashHandler.h"
 #include "Utility.h"
-#include "ScreenCap.h"
 
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
@@ -357,9 +356,7 @@ crAddScreenshot(
    )
 {
   crSetErrorMsg(_T("Unspecified error."));
-  CScreenCapture sc;
-  std::vector<CString> screenshot_names;
-
+  
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
 
@@ -370,56 +367,7 @@ crAddScreenshot(
     return 1; // Invalid parameter?
   }
 
-  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
-  {
-    CRect rcScreen;
-    sc.GetScreenRect(&rcScreen);
-    
-    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, screenshot_names);
-    if(bMakeScreenshot==FALSE)
-    {
-      crSetErrorMsg(_T("Couldn't take a screenshot."));
-      return -3;
-    }
-  }
-  else if(dwFlags==CR_AS_MAIN_WINDOW)
-  {    
-    HWND hMainWnd = Utility::FindAppWindow();
-    if(hMainWnd==NULL)
-    {
-      crSetErrorMsg(_T("Couldn't find main application window."));
-      return -2;
-    }
-
-    CRect rcWindow; 
-    GetWindowRect(hMainWnd, &rcWindow);
-    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, screenshot_names);
-    if(bMakeScreenshot==FALSE)
-    {
-      crSetErrorMsg(_T("Couldn't take a screenshot."));
-      return -3;
-    }
-  }
-  else
-  {
-    crSetErrorMsg(_T("Invalid flag specified."));
-    return -1;
-  }
-
-  size_t i;
-  for(i=0; i<screenshot_names.size(); i++)
-  {
-    CString sDestFile;
-    sDestFile.Format(_T("screenshot%d.png"), i); 
-    int nAdd = pCrashHandler->AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
-    if(nAdd!=0)
-    {
-      return -4;
-    }
-  }
-
-  crSetErrorMsg(_T("Success."));
-  return 0;
+  return pCrashHandler->AddScreenshot(dwFlags);
 }
 
 int
