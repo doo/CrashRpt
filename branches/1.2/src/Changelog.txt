@@ -1,5 +1,31 @@
 ======= Change History ========
 
+--- Ver. 1.2.1 ---
+
+- Refactored crash report generation and sending functionality. Now report files are stored 
+  in unzipped state, compression is performed during sending procedure. This will be required for
+  huge reports (that will be fully supported in the future).
+
+- Added support of x64 platform (issue 7).
+
+- Added an ability to make screenshots of the screen or the main app window on crash 
+  through crAddScreenshot() function (issue 8).
+
+- More information is collected on crash (memory usage, open handles count and GUI resources)
+
+- Ability to add custom text properties to the crash descriptor through crAddProperty() function    (issue 9).
+
+- New function crAddFile2() improving the application-defined files addition.
+
+- Ability to control which dbghelp.dll to use (issue 10).
+
+- Ability to define the type of minidump (from normal size to huge size) (issue 10). 
+  Contributed by crcode.s.
+
+- Fixed incorrectly displayed file size in DetailsDlg (issue 14).
+
+- Fixed untranslatable Close button of DetailsDlg (issue 15).
+
 --- Ver. 1.2.0 ---
 
 - Reorgranized the include files; moved from 'CrashRpt\include' to 'include'.
