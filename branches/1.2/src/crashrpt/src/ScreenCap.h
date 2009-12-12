@@ -22,6 +22,8 @@ public:
 
   /* Member variables. */
 
+  CPoint m_ptCursorPos;
+  CURSORINFO m_CursorInfo;
   int m_nIdStartFrom;
   CString m_sSaveDirName;
   FILE* m_fp;

@@ -10,31 +10,64 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
 	MONITORINFOEX mi;
 	HDC hDC = NULL;  
+  HDC hCompatDC = NULL;
   HBITMAP hBitmap = NULL;
-  BITMAPINFO bmi;    
+  BITMAPINFO bmi;
+  int nLeft = 0;
+  int nTop = 0;
   int nWidth = 0;
   int nHeight = 0;
   int nRowWidth = 0;
   LPBYTE pRowBits = NULL;
   CString sFileName;
 
+  // Get monitor size
+  nLeft = lprcMonitor->left;
+  nTop = lprcMonitor->top;
+	nWidth = lprcMonitor->right - lprcMonitor->left;
+	nHeight = lprcMonitor->bottom - lprcMonitor->top;
+	
   // Get monitor info
   mi.cbSize = sizeof(MONITORINFOEX);
 	GetMonitorInfo(hMonitor, &mi);
-  
+    
 	// Get the device context for this monitor
 	hDC = CreateDC(_T("DISPLAY"), mi.szDevice, NULL, NULL); 
 	if(hDC==NULL)
     goto cleanup;
 
-  hBitmap = (HBITMAP)GetCurrentObject(hDC, OBJ_BITMAP);  
+  hCompatDC = CreateCompatibleDC(hDC);
+  if(hCompatDC==NULL)
+    goto cleanup;
+
+  //hBitmap = (HBITMAP)GetCurrentObject(hDC, OBJ_BITMAP);  
+  hBitmap = CreateCompatibleBitmap(hDC, nWidth, nHeight);
   if(hBitmap==NULL)
     goto cleanup;
 
-  // Get monitor size
-	nWidth = lprcMonitor->right - lprcMonitor->left;
-	nHeight = lprcMonitor->bottom - lprcMonitor->top;
-	
+  SelectObject(hCompatDC, hBitmap);
+
+  BOOL bBitBlt = BitBlt(hCompatDC, 0, 0, nWidth, nHeight, hDC, nLeft, nTop, SRCCOPY|CAPTUREBLT);
+  if(!bBitBlt)
+    goto cleanup;
+  
+  // Draw mouse cursor.
+  if(PtInRect(lprcMonitor, psc->m_ptCursorPos))
+	{						
+		if(psc->m_CursorInfo.flags == CURSOR_SHOWING)
+		{
+      ICONINFO IconInfo;
+		  GetIconInfo((HICON)psc->m_CursorInfo.hCursor, &IconInfo);
+			int x = psc->m_ptCursorPos.x - nLeft - IconInfo.xHotspot;
+			int y = psc->m_ptCursorPos.y - nTop  - IconInfo.yHotspot;
+			DrawIcon(hCompatDC, x, y, (HICON)psc->m_CursorInfo.hCursor);
+      DeleteObject(IconInfo.hbmMask);
+			DeleteObject(IconInfo.hbmColor);
+		}				
+	}
+
+  /* Write screenshot bitmap to a PNG file. */
+
   // Init PNG writer
   sFileName.Format(_T("%s\\screenshot%d.png"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
   BOOL bInit = psc->PngInit(nWidth, nHeight, sFileName);
@@ -56,9 +89,8 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
   int i;
   for(i=nHeight-1; i>=0; i--)
-  {
-    
-    int nFetched = GetDIBits(hDC, hBitmap, i, 1, pRowBits, &bmi, DIB_RGB_COLORS);
+  {    
+    int nFetched = GetDIBits(hCompatDC, hBitmap, i, 1, pRowBits, &bmi, DIB_RGB_COLORS);
     if(nFetched!=1)
       break;
 
@@ -74,6 +106,12 @@ cleanup:
   // Clean up
   if(hDC)
     DeleteDC(hDC);
+
+  if(hCompatDC)
+    DeleteDC(hCompatDC);
+
+  if(hBitmap)
+    DeleteObject(hBitmap);
 
   if(pRowBits)
     delete [] pRowBits;
@@ -92,6 +130,11 @@ CScreenCapture::CScreenCapture()
 
 BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list)
 {	
+  // Get cursor information
+  GetCursorPos(&m_ptCursorPos);
+  m_CursorInfo.cbSize = sizeof(CURSORINFO);
+  GetCursorInfo(&m_CursorInfo);
+
   m_nIdStartFrom = nIdStartFrom;
   m_sSaveDirName = sSaveDirName;
 	EnumDisplayMonitors(NULL, &rcCapture, EnumMonitorsProc, (LPARAM)this);	
