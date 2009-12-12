@@ -4,15 +4,12 @@
 #include <atlctrlx.h>
 #include "resource.h"
 #include "MailMsg.h"
+#include "CrashSender.h"
 
 class CDetailDlg : public CDialogImpl<CDetailDlg>
 {
 public:
 	enum { IDD = IDD_DETAILDLG };
-
-  TStrStrMap  m_pUDFiles;      // File <name,desc>
-  CString m_sPrivacyPolicyURL;
-
 
   CImageList  m_iconList;       // Shell icon list
   CListViewCtrl m_list;

@@ -13,10 +13,10 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DlgCaption")));
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
-  m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
+  m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
   m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("DetailDlg"), _T("PrivacyPolicy")));
 
-  if(!m_sPrivacyPolicyURL.IsEmpty())
+  if(!g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
     m_linkPrivacyPolicy.ShowWindow(SW_SHOW);
   else
     m_linkPrivacyPolicy.ShowWindow(SW_HIDE);
@@ -39,12 +39,12 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   WIN32_FIND_DATA   findFileData   = {0};
   HANDLE            hFind          = NULL;
   CString           sSize;
-  //LVITEM            lvi            = {0};
-  TStrStrMap::iterator p;
+  
+  std::map<CString, FileItem>::iterator p;
   unsigned i;
-  for (i = 0, p = m_pUDFiles.begin(); p != m_pUDFiles.end(); p++, i++)
+  for (i = 0, p = g_CrashInfo.m_FileItems.begin(); p != g_CrashInfo.m_FileItems.end(); p++, i++)
   {     
-	  CString sFileName = p->first.c_str();
+	  CString sFileName = p->first;
     SHFILEINFO sfi;
     SHGetFileInfo(sFileName, 0, &sfi, sizeof(sfi),
       SHGFI_DISPLAYNAME | SHGFI_ICON | SHGFI_TYPENAME | SHGFI_SMALLICON);
@@ -57,7 +57,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     }
 
     int nItem = m_list.InsertItem(i, sfi.szDisplayName, iImage);
-	  CString sFileDesc = p->second.c_str();
+    CString sFileDesc = p->second.m_sDesc;
 	  CString sFileType = sfi.szTypeName;
     m_list.SetItemText(nItem, 1, sFileDesc);
     m_list.SetItemText(nItem, 2, sFileType);
@@ -105,13 +105,13 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
   int iItem                     = lpItem->iItem;
   DWORD_PTR dwRet               = 0;
 
-  if (iItem < 0 || (int)m_pUDFiles.size() < iItem)
+  if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
      return 0;
 
-  TStrStrMap::iterator p = m_pUDFiles.begin();
+  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
-  CString sFileName = p->first.c_str();
+  CString sFileName = p->first;
   dwRet = (DWORD_PTR)::ShellExecute(0, _T("open"), sFileName,
     0, 0, SW_SHOWNORMAL);
   ATLASSERT(dwRet > 32);
@@ -126,16 +126,16 @@ void CDetailDlg::SelectItem(int iItem)
   BYTE buffer[MAX_FILE_SIZE + 1]  = "";
 
   // Sanity check
-  if (iItem < 0 || (int)m_pUDFiles.size() < iItem)
+  if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
       return;
 
-  TStrStrMap::iterator p = m_pUDFiles.begin();
+  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   //
   // Display file contents in preview window
   //
-  CString sFileName = p->first.c_str();
+  CString sFileName = p->first;
   HANDLE hFile = CreateFile(
      sFileName,
      GENERIC_READ,

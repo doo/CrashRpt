@@ -1155,6 +1155,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CrashSender.h"
+				>
+			</File>
+			<File
 				RelativePath=".\DetailDlg.h"
 				>
 			</File>

@@ -19,20 +19,6 @@ class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
 public:
 	enum { IDD = IDD_MAINDLG };
 
-  CString     m_sAppName;
-  CString     m_sAppVersion;
-  CString     m_sImageName;
-  CString     m_sEmailSubject;
-  CString     m_sEmailFrom;     // Email: From  
-  CString     m_sEmailTo;
-  CString     m_sDescription;   // Email: Body
-  CString     m_sErrorReportDirName;
-  CString     m_sUrl;
-  UINT        m_uPriorities[3];
-  CString     m_sPrivacyPolicyURL;
-
-  TStrStrMap  m_pUDFiles;      // Files <name,desc>
-
   CStatic m_statIcon;  
   CHyperLink  m_link;           
   CHyperLink m_linkMoreInfo;
@@ -44,7 +30,6 @@ public:
   CButton m_btnCancel;
   CStatic m_statHorzLine;
   CStatic m_statCrashRpt; 
-  //CStatic m_statBySending; 
   CHyperLink  m_linkPrivacyPolicy;           
   int m_nDeltaY;
   CFont m_HeadingFont;
@@ -53,7 +38,6 @@ public:
   CProgressDlg m_dlgProgress;
   HANDLE m_hSenderThread;
   SenderThreadContext m_ctx;
-
   
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();

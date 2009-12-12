@@ -370,7 +370,7 @@ crAddScreenshot(
     return 1; // Invalid parameter?
   }
 
-  if(dwFlags==CR_SCREENSHOT_VIRTUAL_SCREEN)
+  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
   {
     CRect rcScreen;
     sc.GetScreenRect(&rcScreen);
@@ -382,7 +382,7 @@ crAddScreenshot(
       return -3;
     }
   }
-  else if(dwFlags==CR_SCREENSHOT_MAIN_WINDOW)
+  else if(dwFlags==CR_AS_MAIN_WINDOW)
   {    
     HWND hMainWnd = Utility::FindAppWindow();
     if(hMainWnd==NULL)
@@ -410,8 +410,8 @@ crAddScreenshot(
   for(i=0; i<screenshot_names.size(); i++)
   {
     CString sDestFile;
-    sDestFile.Format(_T("Screenshot_%d.png"), i); 
-    int nAdd = pCrashHandler->AddFile(screenshot_names[i], sDestFile, _T("Screenshot"), 0);
+    sDestFile.Format(_T("screenshot%d.png"), i); 
+    int nAdd = pCrashHandler->AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
     if(nAdd!=0)
     {
       return -4;

@@ -765,8 +765,12 @@ crAddFileA(
 #endif //UNICODE
 
 // Flags for crAddFile2() function.
-#define CR_TAKE_ORIGINAL_FILE  0  //<! Take the original file (do not copy it to the error report folder).
-#define CR_MAKE_FILE_COPY      1  //<! Copy the file to the error report folder.
+
+#define CR_AF_TAKE_ORIGINAL_FILE  0  //<! Take the original file (do not copy it to the error report folder).
+#define CR_AF_MAKE_FILE_COPY      1  //<! Copy the file to the error report folder.
+
+#define CR_AF_FILE_MUST_EXIST     0  //<! Function will fail if file doesn't exist at the moment of function call.
+#define CR_AF_MISSING_FILE_OK     2  //<! Do not fail if file is missing (assume it will be created later).
 
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a file to crash report.
@@ -777,8 +781,6 @@ crAddFileA(
  *  \param[in] pszDestFile Destination file name.
  *  \param[in] pszDesc File description (used in Error Report Details dialog).
  *  \param[in] dwFlags Flags.
- *
- *    This function superceeds the crAddFile() function.
  *
  *    This function can be called anytime after crInstall() to add one or more
  *    files to the generated crash report. However, the recommended way is to 
@@ -794,20 +796,23 @@ crAddFileA(
  *
  *    \a pszDesc is a literal description of a file. It can be NULL.
  *
- *    \a dwFlags parameter defines the behavior of the function. This can be one of the following:
- *       - \ref CR_TAKE_ORIGINAL_FILE The function will try to include the file as it is. This behavior is the default one.
- *       - \ref CR_MAKE_FILE_COPY The function will make a copy of the file and save it to the error report folder. 
+ *    \a dwFlags parameter defines the behavior of the function. This can be a combination of the following flags:
+ *       - \ref CR_AF_TAKE_ORIGINAL_FILE The function will try to include the file as it is. This behavior is the default one.
+ *       - \ref CR_AF_MAKE_FILE_COPY The function will make a copy of the file and save it to the error report folder. 
+ *
+ *       - \ref CR_AF_FILE_MUST_EXIST The function will fail if file doesn't exist at the moment of function call (the default behavior). 
+ *       - \ref CR_AF_MISSING_FILE_OK Do not fail if file is missing (assume it will be created later).
  *
  *    If your file is not very large, specify the \ref CR_MAKE_FILE_COPY as \a dwFlags parameter value. This will
  *    guarantee that a snapshot of your file at the moment of crash is taken and saved to the error report folder.
  *
- *    This function fails if \a pszFile doesn't exist at the moment of function call. 
+ *    This function fails if \a pszFile doesn't exist at the moment of function call, unless you specify \ref CR_AF_MISSING_FILE_OK flag. 
  * 
  *    The crAddFile2W() and crAddFile2A() are wide-character and multibyte-character
  *    versions of crAddFile2() function. The crAddFile2() macro defines character set
  *    independent mapping.
  *
- *    This function is available <b>since v.1.2.1</b>.
+ *    This function is available <b>since v.1.2.1</b>. This function superceeds the crAddFile() function.
  *
  *  \sa crAddFile2W(), crAddFile2A(), crAddFile2()
  */
@@ -845,8 +850,8 @@ crAddFile2A(
 
 
 // Flags for crAddScreenshot function.
-#define CR_SCREENSHOT_VIRTUAL_SCREEN  0 //!< Take a screenshot of the virtual screen.
-#define CR_SCREENSHOT_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
+#define CR_AS_VIRTUAL_SCREEN  0 //!< Take a screenshot of the virtual screen.
+#define CR_AS_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
 
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a screenshot to crash report.

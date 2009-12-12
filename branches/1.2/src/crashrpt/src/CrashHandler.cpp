@@ -954,7 +954,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
   struct _stat st;
   int result = _tstat(pszFile, &st);
 
-  if (result!=0)
+  if (result!=0 && (dwFlags&CR_AF_MISSING_FILE_OK)==0)
   {
    ATLASSERT(0);
    crSetErrorMsg(_T("Couldn't stat file. File may not exist."));
@@ -965,7 +965,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
   FileItem fi;
   fi.m_sDescription = pszDesc;
   fi.m_sFileName = pszFile;
-  fi.m_bMakeCopy = (dwFlags&CR_MAKE_FILE_COPY)!=0;
+  fi.m_bMakeCopy = (dwFlags&CR_AF_MAKE_FILE_COPY)!=0;
   if(pszDestFile!=NULL)
     m_files[pszDestFile] = fi;
   else
@@ -1015,7 +1015,7 @@ int CCrashHandler::GenerateErrorReport(
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
   {
     crSetErrorMsg(_T("The operation was cancelled by client application."));
-    return 1;
+    return 2;
   }
   
   /* Get exception pointers if not provided. */
@@ -1024,16 +1024,21 @@ int CCrashHandler::GenerateErrorReport(
     GetExceptionPointers(pExceptionInfo->code, &pExceptionInfo->pexcptrs);
   }
   
-  /* Create directory for this report. */
+  /* Create directory for the error report. */
 
   CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
   BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
   if(!bCreateDir)
-  {
+  {    
     ATLASSERT(bCreateDir);
+    CString szCaption;
+    szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
+    CString szMessage;
+    // Try notify user about crash using message box.
+    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to save the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 1; // Failed to create directory
   }
-  
 
   /* Create crash minidump file. */
 
@@ -1046,22 +1051,13 @@ int CCrashHandler::GenerateErrorReport(
   /* Create crash report descriptor file in XML format. */
   
   sFileName.Format(_T("%s\\crashrpt.xml"), sReportFolderName);
+  AddFile(sFileName, NULL, _T("Crash Log"), CR_AF_MISSING_FILE_OK);        
   result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
-  AddFile(sFileName, NULL, _T("Crash Log"), 0);        
   
-  /* Copy user-defined files. */
-
-  std::map<CString, FileItem>::iterator it;
-  for(it=m_files.begin(); it!=m_files.end(); it++)
-  {
-    CString sDestFileName = sReportFolderName + _T("\\") + it->first;    
-    CString sSrcFileName = it->second.m_sFileName;
-    CopyFile(sSrcFileName, sDestFileName, TRUE);    
-  }
-
-  // Launch the CrashSender process that would notify user about crash
-  // and send the error report by E-mail.
+  
+  // Launch the CrashSender process that would copy user-specified files to the error report folder, 
+  // notify user about crash, compress the report into ZIP archive and send the error report by E-mail or HTTP.
     
   result = LaunchCrashSender(sReportFolderName);
   if(result!=0)
@@ -1113,7 +1109,7 @@ void CCrashHandler::CollectMiscCrashInfo()
 #ifdef _WIN64
     sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
 #else
-    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
+    sMemUsage.Format(_T("%lu"), meminfo.WorkingSetSize/1024);
 #endif 
     m_sMemUsage = sMemUsage;
   }
@@ -1223,7 +1219,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     m_dwProcessHandleCount);  
 
   // Write memory usage info
-  fprintf(f, "  <MemoryUsageKbytes>%lu</MemoryUsageKbytes>\n", 
+  fprintf(f, "  <MemoryUsageKbytes>%s</MemoryUsageKbytes>\n", 
     strconv.t2utf8(_repxrch(m_sMemUsage.GetBuffer(0))));  
 
   // Write list of custom user-added properties
@@ -1347,7 +1343,7 @@ int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
   if(!bCreateProcess)
   {
     ATLASSERT(bCreateProcess);
-    crSetErrorMsg(_T("Error crating CrashSender process."));
+    crSetErrorMsg(_T("Error creating CrashSender process."));
     return 1;
   }
 
@@ -1375,13 +1371,14 @@ int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
     return 2;
   }
 
-  /* Transfer crash information in XML format */
+  /* Transfer private crash information in XML format */
 
   CString sCrashInfo;
+  
   sCrashInfo.Format(
     _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" \
 appver=\"%s\" imagename=\"%s\" errorreportdirname=\"%s\" http_priority=\"%d\" \
-smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"), 
+smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\">"), 
     _repxrch(m_sSubject), 
     _repxrch(m_sTo),
     _repxrch(m_sUrl),
@@ -1394,6 +1391,25 @@ smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\"/>"),
     m_uPriorities[CR_SMAPI],
     _repxrch(m_sPrivacyPolicyURL));
 
+  CString sFileItems;
+  sFileItems += _T("<FileItems>");
+  std::map<CString, FileItem>::iterator it;
+  for(it=m_files.begin(); it!=m_files.end(); it++)
+  {
+    CString sFileItem;
+    sFileItem.Format(_T("<FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />"),
+      _repxrch(it->first), 
+      _repxrch(it->second.m_sFileName), 
+      _repxrch(it->second.m_sDescription), 
+      it->second.m_bMakeCopy?1:0);
+    sFileItems += sFileItem;
+  }
+  sFileItems += _T("</FileItems>");
+
+  sCrashInfo += sFileItems;
+  sCrashInfo += _T("</crashrpt>");
+
+  // Convert to multi-byte
   LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
   
   DWORD dwBytesWritten = 0;

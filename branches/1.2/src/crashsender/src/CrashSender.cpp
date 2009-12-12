@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include "CrashSender.h"
 #include "resource.h"
 #include "MainDlg.h"
 #include "tinyxml.h"
@@ -12,19 +13,9 @@
 #include "CrashRpt.h"
 
 CAppModule _Module;
+CCrashInfo g_CrashInfo;
 
-int ParseCrashInfo(
-  LPCSTR text, 
-  CString& sAppName, 
-  CString& sAppVersion, 
-  CString& sImageName,
-  CString& sSubject, 
-  CString& sMailTo, 
-  CString& sUrl, 
-  UINT (*puPriorities)[3], 
-  CString& sErrorReportDirName,
-  CString& sPrivacyPolicyURL
-  )
+int CCrashInfo::ParseCrashInfo(LPCSTR text)
 {  
   TiXmlDocument doc;
   doc.Parse(text);
@@ -48,142 +39,89 @@ int ParseCrashInfo(
   const char* pszPrivacyPolicyURL = hRoot.ToElement()->Attribute("privacy_policy_url");
 
   if(pszAppName)
-    sAppName = pszAppName;
+    m_sAppName = pszAppName;
 
   if(pszAppVersion)
-    sAppVersion = pszAppVersion;
+    m_sAppVersion = pszAppVersion;
 
   if(pszImageName)
-    sImageName = pszImageName;
+    m_sImageName = pszImageName;
 
   if(pszSubject)
-    sSubject = pszSubject;
+    m_sEmailSubject = pszSubject;
 
   if(pszMailTo!=NULL)
-    sMailTo = pszMailTo;
+    m_sEmailTo = pszMailTo;
 
   if(pszUrl!=NULL)
-    sUrl = pszUrl;
+    m_sUrl = pszUrl;
 
   if(pszErrorReportDirName!=NULL)
-    sErrorReportDirName = pszErrorReportDirName;
+    m_sErrorReportDirName = pszErrorReportDirName;
 
   if(pszHttpPriority!=NULL)
-    (*puPriorities)[CR_HTTP] = atoi(pszHttpPriority);
+    m_uPriorities[CR_HTTP] = atoi(pszHttpPriority);
   else
-    (*puPriorities)[CR_HTTP] = 0;
+    m_uPriorities[CR_HTTP] = 0;
 
   if(pszSmtpPriority!=NULL)
-    (*puPriorities)[CR_SMTP] = atoi(pszSmtpPriority);
+    m_uPriorities[CR_SMTP] = atoi(pszSmtpPriority);
   else
-    (*puPriorities)[CR_SMTP] = 0;
+    m_uPriorities[CR_SMTP] = 0;
 
   if(pszMapiPriority!=NULL)
-    (*puPriorities)[CR_SMAPI] = atoi(pszMapiPriority);
+    m_uPriorities[CR_SMAPI] = atoi(pszMapiPriority);
   else
-    (*puPriorities)[CR_SMAPI] = 0;
+    m_uPriorities[CR_SMAPI] = 0;
   
   if(pszPrivacyPolicyURL!=NULL)
-    sPrivacyPolicyURL = pszPrivacyPolicyURL;
+    m_sPrivacyPolicyURL = pszPrivacyPolicyURL;
 
-  return 0;
+  return ParseFileList(hRoot);
 }
 
-int 
-GetFileList(CString sZipName, std::map<std::string, std::string>& file_list)
+int CCrashInfo::ParseFileList(TiXmlHandle& hRoot)
 {
   strconv_t strconv;
-
-  HZIP hz = OpenZip(sZipName, NULL);
-  if(hz==NULL)
-    return 1;
-
-  int index = -1;
-  ZIPENTRY ze;
-  ZRESULT zr = FindZipItem(hz, _T("crashrpt.xml"), false, &index, &ze);
-  if(zr!=ZR_OK)
-  {
-    CloseZip(hz);
-    return 2;
-  }
-
-  CString sTempFileName = Utility::getTempFileName();
-  zr = UnzipItem(hz, index, sTempFileName);
-  if(zr!=ZR_OK)
-  {
-    CloseZip(hz);
-    return 2;
-  }
-
-  CString sTempDir = Utility::getTempFileName();
-  DeleteFile(sTempDir);
-
-  BOOL bCreateDir = CreateDirectory(sTempDir, NULL);  
-  ATLASSERT(bCreateDir);
-  bCreateDir;
-  
-  LPCSTR lpszTempFileName = strconv.t2a(sTempFileName.GetBuffer(0));
-
-  TiXmlDocument doc;
-  bool bLoad = doc.LoadFile(lpszTempFileName);
-  if(!bLoad)
-  {
-    CloseZip(hz);
-    return 3;
-  }
-
-  TiXmlHandle hRoot = doc.FirstChild("CrashRpt");
-  if(hRoot.ToElement()==NULL)
-  {
-    CloseZip(hz);
-    return 4;
-  }
-  
-  TiXmlHandle fl = hRoot.FirstChild("FileList");
+   
+  TiXmlHandle fl = hRoot.FirstChild("FileItems");
   if(fl.ToElement()==0)
-  {
-    CloseZip(hz);
-    return 5;
+  {    
+    return 1;
   }
 
   TiXmlHandle fi = fl.FirstChild("FileItem");
   while(fi.ToElement()!=0)
   {
-    const char* pszName = fi.ToElement()->Attribute("name");
+    const char* pszDestFile = fi.ToElement()->Attribute("destfile");
+    const char* pszSrcFile = fi.ToElement()->Attribute("srcfile");
     const char* pszDesc = fi.ToElement()->Attribute("description");
+    const char* pszMakeCopy = fi.ToElement()->Attribute("srcfile");
 
-    if(pszName!=NULL && pszDesc!=NULL)
+    if(pszDestFile!=NULL)
     {
-	    CString sFileName = pszName;
-      CString sFilePathName = sTempDir + _T("\\") + CString(pszName);      
-      int index = -1;
-      ZIPENTRY ze;	  
-      ZRESULT zr = FindZipItem(hz, sFileName, false, &index, &ze);
-      zr = UnzipItem(hz, index, sFilePathName);
-	    LPCSTR pszFilePathName = strconv.t2a(sFilePathName.GetBuffer(0));
-      file_list[pszFilePathName]=pszDesc;
+	    CString sDestFile = pszDestFile;      
+      FileItem item;
+      item.m_sDestFile = sDestFile;
+      if(pszSrcFile)
+        item.m_sSrcFile = pszSrcFile;
+      if(pszDesc)
+        item.m_sDesc = pszDesc;
+      if(pszMakeCopy)
+        item.m_bMakeCopy = TRUE;
+      else
+        item.m_bMakeCopy = TRUE;
+      
+      m_FileItems[sDestFile] = item;
     }
 
     fi = fi.ToElement()->NextSibling("FileItem");
   }
 
-  CloseZip(hz);
-
   return 0;
 }
 
-int 
-GetCrashInfoThroughPipe(
-  CString& sAppName,
-  CString& sAppVersion,
-  CString& sImageName,
-  CString& sSubject,
-  CString& sMailTo,
-  CString& sUrl,
-  UINT (*puPriorities)[3],
-  CString& sErrorReportDirName,
-  CString& sPrivacyPolicyURL,
-  std::map<std::string, std::string> &file_list)
+int GetCrashInfoThroughPipe()
 {
   // Create named pipe to get crash information from client process.
   
@@ -245,15 +183,6 @@ GetCrashInfoThroughPipe(
     sDataA += std::string((char*)buffer, dwBytesRead);
   }
 
-  // Parse text  
-  int nParseResult = ParseCrashInfo(sDataA.c_str(), sAppName, sAppVersion, sImageName, 
-    sSubject, sMailTo, sUrl, puPriorities, sErrorReportDirName, sPrivacyPolicyURL);
-  if(nParseResult!=0)
-  {
-    ATLASSERT(nParseResult==0);
-    return 6;
-  }
-
   // Disconnect
   BOOL bDisconnected = DisconnectNamedPipe(hPipe);
   ATLASSERT(bDisconnected);
@@ -262,23 +191,25 @@ GetCrashInfoThroughPipe(
   CloseHandle(hPipe);
   CloseHandle(overlapped.hEvent); 
 
-  int nGetFileList=GetFileList(sErrorReportDirName+_T("\\crashrpt.xml"), file_list);
-  if(nGetFileList!=0)
+  // Parse text  
+  int nParseResult = g_CrashInfo.ParseCrashInfo(sDataA.c_str());
+  if(nParseResult!=0)
   {
-    ATLASSERT(nGetFileList==0);
-    //return 7;
+    ATLASSERT(nParseResult==0);
+    return 6;
   }
-
+  
   // Success
   return 0;
 }
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
+  // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
-	SetProcessDefaultLayout(LAYOUT_RTL);  
+  	SetProcessDefaultLayout(LAYOUT_RTL);  
   }  
 
   CMessageLoop theLoop;
@@ -286,17 +217,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
   CMainDlg dlgMain;
   
-  int nGetCrashInfoThroughPipe = GetCrashInfoThroughPipe(
-    dlgMain.m_sAppName,
-    dlgMain.m_sAppVersion,
-    dlgMain.m_sImageName,
-    dlgMain.m_sEmailSubject, 
-    dlgMain.m_sEmailTo, 
-    dlgMain.m_sUrl,
-    &dlgMain.m_uPriorities,
-    dlgMain.m_sErrorReportDirName,    
-    dlgMain.m_sPrivacyPolicyURL,
-    dlgMain.m_pUDFiles);
+  int nGetCrashInfoThroughPipe = GetCrashInfoThroughPipe();
   if(nGetCrashInfoThroughPipe!=0)
   {
     ATLASSERT(nGetCrashInfoThroughPipe==0);

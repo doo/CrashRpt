@@ -10,6 +10,7 @@
 #include "tinyxml.h"
 #include "zip.h"
 #include "unzip.h"
+#include "CrashSender.h"
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 {
@@ -38,7 +39,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   SetIcon(::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME)), 0);
 
   // Load heading icon
-  HMODULE hExeModule = LoadLibrary(m_sImageName);
+  HMODULE hExeModule = LoadLibrary(g_CrashInfo.m_sImageName);
   if(hExeModule)
   {
     // Use IDR_MAINFRAME icon which is the default one for the crashed application.
@@ -63,7 +64,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_linkMoreInfo.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("ProvideAdditionalInfo")));
   
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
-  m_linkPrivacyPolicy.SetHyperLink(m_sPrivacyPolicyURL);
+  m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
   m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("PrivacyPolicy")));
   
   m_statEmail = GetDlgItem(IDC_STATMAIL);
@@ -121,7 +122,7 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
 
-  BOOL bShowPrivacyPolicy = !m_sPrivacyPolicyURL.IsEmpty();  
+  BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty();  
   m_linkPrivacyPolicy.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
 
   int k = bShow?-1:1;
@@ -187,7 +188,7 @@ LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
   rcHeading.right -= 10;
 
   CString sHeading;
-  sHeading.Format(Utility::GetINIString(_T("MainDlg"), _T("HeaderText")), m_sAppName);
+  sHeading.Format(Utility::GetINIString(_T("MainDlg"), _T("HeaderText")), g_CrashInfo.m_sAppName);
   dc.SelectFont(m_HeadingFont);
   dc.DrawTextEx(sHeading.GetBuffer(0), sHeading.GetLength(), &rcHeading, 
     DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
@@ -224,8 +225,6 @@ void CMainDlg::CloseDialog(int nVal)
 LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   CDetailDlg dlg;
-  dlg.m_pUDFiles = m_pUDFiles;
-  dlg.m_sPrivacyPolicyURL = m_sPrivacyPolicyURL;
   dlg.DoModal();
   return 0;
 }
@@ -244,22 +243,22 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
   int      nDescLen = ::GetWindowTextLength(hWndDesc);
 
-  LPTSTR lpStr = m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
+  LPTSTR lpStr = g_CrashInfo.m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
   ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
-  m_sEmailFrom.ReleaseBuffer();
+  g_CrashInfo.m_sEmailFrom.ReleaseBuffer();
 
-  lpStr = m_sDescription.GetBufferSetLength(nDescLen+1);
+  lpStr = g_CrashInfo.m_sDescription.GetBufferSetLength(nDescLen+1);
   ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
-  m_sDescription.ReleaseBuffer();
+  g_CrashInfo.m_sDescription.ReleaseBuffer();
 
   //
   // If an email address was entered, verify that
   // it [1] contains a @ and [2] the last . comes
   // after the @.
   //
-  if (m_sEmailFrom.GetLength() &&
-      (m_sEmailFrom.Find(_T('@')) < 0 ||
-       m_sEmailFrom.ReverseFind(_T('.')) < m_sEmailFrom.Find(_T('@'))))
+  if (g_CrashInfo.m_sEmailFrom.GetLength() &&
+      (g_CrashInfo.m_sEmailFrom.Find(_T('@')) < 0 ||
+       g_CrashInfo.m_sEmailFrom.ReverseFind(_T('.')) < g_CrashInfo.m_sEmailFrom.Find(_T('@'))))
   {
     DWORD dwFlags = 0;
     CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
@@ -279,17 +278,17 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   }
 
   // Write user email and problem description to XML
-  AddUserInfoToCrashDescriptorXML(m_sEmailFrom, m_sDescription);
+  AddUserInfoToCrashDescriptorXML(g_CrashInfo.m_sEmailFrom, g_CrashInfo.m_sDescription);
   
-  m_ctx.m_sAppName = m_sAppName;
-  m_ctx.m_sAppVersion = m_sAppVersion;
-  m_ctx.m_sErrorReportDirName = m_sErrorReportDirName;
-  m_ctx.m_sEmailTo = m_sEmailTo;
-  m_ctx.m_sEmailFrom = m_sEmailFrom;
-  m_ctx.m_sEmailSubject = m_sEmailSubject;
-  m_ctx.m_sEmailText = m_sDescription;
-  m_ctx.m_sUrl = m_sUrl;
-  memcpy(&m_ctx.m_uPriorities, &m_uPriorities, 3*sizeof(UINT));
+  m_ctx.m_sAppName = g_CrashInfo.m_sAppName;
+  m_ctx.m_sAppVersion = g_CrashInfo.m_sAppVersion;
+  m_ctx.m_sErrorReportDirName = g_CrashInfo.m_sErrorReportDirName;
+  m_ctx.m_sEmailTo = g_CrashInfo.m_sEmailTo;
+  m_ctx.m_sEmailFrom = g_CrashInfo.m_sEmailFrom;
+  m_ctx.m_sEmailSubject = g_CrashInfo.m_sEmailSubject;
+  m_ctx.m_sEmailText = g_CrashInfo.m_sDescription;
+  m_ctx.m_sUrl = g_CrashInfo.m_sUrl;
+  memcpy(&m_ctx.m_uPriorities, &g_CrashInfo.m_uPriorities, 3*sizeof(UINT));
 
   DWORD dwThreadId = 0;
   m_hSenderThread = CreateThread(NULL, 0, SenderThread, (LPVOID)&m_ctx, NULL, &dwThreadId);
@@ -318,55 +317,36 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
   strconv_t strconv;
 
-  CString sZipName = m_sErrorReportDirName + _T("\\report.zip"); 
-  HZIP hz = CreateZip(sZipName, NULL);
+  TiXmlDocument doc;
   
-  TStrStrMap::iterator cur = m_pUDFiles.begin();
-  unsigned int i;
-  for (i = 0; i < m_pUDFiles.size(); i++, cur++)
-  {
-    CString sFileName = cur->first.c_str();
-    sFileName = sFileName.Mid(sFileName.ReverseFind('\\')+1);
-    if(sFileName.CompareNoCase(_T("crashrpt.xml"))==0)
-    {
-      TiXmlDocument doc;
-  
-      bool bLoad = doc.LoadFile(cur->first.c_str());
-      if(!bLoad)
-        return;
+  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
+  if(!bLoad)
+    return;
 
-      TiXmlNode* root = doc.FirstChild("CrashRpt");
-      if(!root)
-        return;
+  TiXmlNode* root = doc.FirstChild("CrashRpt");
+  if(!root)
+    return;
 
-      // Write user e-mail
+  // Write user e-mail
 
-      TiXmlElement* email = new TiXmlElement("UserEmail");
-      root->LinkEndChild(email);
+  TiXmlElement* email = new TiXmlElement("UserEmail");
+  root->LinkEndChild(email);
 
-      LPCSTR lpszEmail = strconv.t2a(sEmail.GetBuffer(0));
-      TiXmlText* email_text = new TiXmlText(lpszEmail);
-      email->LinkEndChild(email_text);              
+  LPCSTR lpszEmail = strconv.t2a(sEmail.GetBuffer(0));
+  TiXmlText* email_text = new TiXmlText(lpszEmail);
+  email->LinkEndChild(email_text);              
 
-      // Write problem description
+  // Write problem description
 
-      TiXmlElement* desc = new TiXmlElement("ProblemDescription");
-      root->LinkEndChild(desc);
+  TiXmlElement* desc = new TiXmlElement("ProblemDescription");
+  root->LinkEndChild(desc);
 
-      LPCSTR lpszDesc = strconv.t2a(sDesc.GetBuffer(0));
-      TiXmlText* desc_text = new TiXmlText(lpszDesc);
-      desc->LinkEndChild(desc_text);              
+  LPCSTR lpszDesc = strconv.t2a(sDesc.GetBuffer(0));
+  TiXmlText* desc_text = new TiXmlText(lpszDesc);
+  desc->LinkEndChild(desc_text);              
 
-      doc.SaveFile();      
-    }
-
-	  LPCTSTR lptszFilePath = strconv.a2t((char*)cur->first.c_str());
-    ZRESULT zr = ZipAdd(hz, sFileName, lptszFilePath);
-    ATLASSERT(zr==ZR_OK); 
-	  zr;
-  }  
-
-  CloseZip(hz);
+  doc.SaveFile();        
 }
 
 LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
