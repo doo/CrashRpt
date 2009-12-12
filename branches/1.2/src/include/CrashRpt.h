@@ -59,7 +59,7 @@ extern "C" {
  *  \remarks
  *  The crash callback function is called when crash occurs. This way client application is
  *  notified about the crash.
- *  In crash callback, you can use crAddFile() to add a custom file to the error report.
+ *  In crash callback, you can use crAddFile2() to add a custom file to the error report.
  *  
  *  The crash callback function should return \c TRUE to allow generate error report. It should 
  *  return \c FALSE to prevent crash report generation.
@@ -71,9 +71,10 @@ extern "C" {
  *  BOOL CALLBACK CrashCallback(LPVOID lpvState)
  *  {    
  *    // add custom log file to crash report
- *    crAddFile(
+ *    crAddFile2(
  *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
- *       _T("My custom log file"));
+ *       _T("My custom log file"),
+ *       0);
  *
  *    return TRUE;
  *  }
@@ -186,8 +187,8 @@ Uninstall(
  *
  *  \deprecated
  *    This function is deprecated. It is still supported for compatiblity with
- *    older versions of CrashRpt, however consider using crAddFile() function instead.
- *    This function is implemented as a wrapper for crAddFile().
+ *    older versions of CrashRpt, however consider using crAddFile2() function instead.
+ *    This function is implemented as a wrapper for crAddFile2().
  *
  *  \remarks
  *
@@ -454,7 +455,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    On crash, the crash minidump file is created, which contains CPU and 
  *    stack state information. Also XML file is created that contains additional 
  *    information that may be helpful for crash analysis. These files along with several additional
- *    files added with crAddFile() are packed to a single ZIP file.
+ *    files added with crAddFile2() are packed to a single ZIP file.
  *
  *    When crash information is collected, another process, <b>CrashSender.exe</b>, is launched 
  *    and the process where crash had occured is terminated. The CrashSender process is 
@@ -756,7 +757,7 @@ crAddFileA(
    );
 
 /*! \brief Character set-independent mapping of crAddFileW() and crAddFileA() functions. 
- *  \ingroup CrashRptAPI
+ *  \ingroup DeprecatedAPI
  */
 #ifdef UNICODE
 #define crAddFile crAddFileW
@@ -766,11 +767,11 @@ crAddFileA(
 
 // Flags for crAddFile2() function.
 
-#define CR_AF_TAKE_ORIGINAL_FILE  0  //<! Take the original file (do not copy it to the error report folder).
-#define CR_AF_MAKE_FILE_COPY      1  //<! Copy the file to the error report folder.
+#define CR_AF_TAKE_ORIGINAL_FILE  0 //!< Take the original file (do not copy it to the error report folder).
+#define CR_AF_MAKE_FILE_COPY      1 //!< Copy the file to the error report folder.
 
-#define CR_AF_FILE_MUST_EXIST     0  //<! Function will fail if file doesn't exist at the moment of function call.
-#define CR_AF_MISSING_FILE_OK     2  //<! Do not fail if file is missing (assume it will be created later).
+#define CR_AF_FILE_MUST_EXIST     0 //!< Function will fail if file doesn't exist at the moment of function call.
+#define CR_AF_MISSING_FILE_OK     2 //!< Do not fail if file is missing (assume it will be created later).
 
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a file to crash report.
@@ -797,13 +798,13 @@ crAddFileA(
  *    \a pszDesc is a literal description of a file. It can be NULL.
  *
  *    \a dwFlags parameter defines the behavior of the function. This can be a combination of the following flags:
- *       - \ref CR_AF_TAKE_ORIGINAL_FILE The function will try to include the file as it is. This behavior is the default one.
- *       - \ref CR_AF_MAKE_FILE_COPY The function will make a copy of the file and save it to the error report folder. 
+ *       - \ref CR_AF_TAKE_ORIGINAL_FILE  On crash, the CrashSender.exe will try to locate the file from its original location. This behavior is the default one.
+ *       - \ref CR_AF_MAKE_FILE_COPY      On crash, the CrashSender.exe will make a copy of the file and save it to the error report folder.  
  *
- *       - \ref CR_AF_FILE_MUST_EXIST The function will fail if file doesn't exist at the moment of function call (the default behavior). 
- *       - \ref CR_AF_MISSING_FILE_OK Do not fail if file is missing (assume it will be created later).
+ *       - \ref CR_AF_FILE_MUST_EXIST     The function will fail if file doesn't exist at the moment of function call (the default behavior). 
+ *       - \ref CR_AF_MISSING_FILE_OK     Do not fail if file is missing (assume it will be created later).
  *
- *    If your file is not very large, specify the \ref CR_MAKE_FILE_COPY as \a dwFlags parameter value. This will
+ *    If your file is not huge, specify the \ref CR_AF_MAKE_FILE_COPY as \a dwFlags parameter value. This will
  *    guarantee that a snapshot of your file at the moment of crash is taken and saved to the error report folder.
  *
  *    This function fails if \a pszFile doesn't exist at the moment of function call, unless you specify \ref CR_AF_MISSING_FILE_OK flag. 
@@ -812,7 +813,7 @@ crAddFileA(
  *    versions of crAddFile2() function. The crAddFile2() macro defines character set
  *    independent mapping.
  *
- *    This function is available <b>since v.1.2.1</b>. This function superceeds the crAddFile() function.
+ *    This function is available <b>since v.1.2.1</b>. This function replaces the crAddFile() function.
  *
  *  \sa crAddFile2W(), crAddFile2A(), crAddFile2()
  */
@@ -827,7 +828,7 @@ crAddFile2W(
    );
 
 /*! \ingroup CrashRptAPI
- *  \copydoc crAddFileW()
+ *  \copydoc crAddFile2W()
  */
 
 int
@@ -839,13 +840,13 @@ crAddFile2A(
    DWORD dwFlags
    );
 
-/*! \brief Character set-independent mapping of crAddFileW() and crAddFileA() functions. 
+/*! \brief Character set-independent mapping of crAddFileW2() and crAddFileA2() functions. 
  *  \ingroup CrashRptAPI
  */
 #ifdef UNICODE
-#define crAddFile2 crAddFile2W
+#define crAddFile2 crAddFileW
 #else
-#define crAddFile2 crAddFile2A
+#define crAddFile2 crAddFileA
 #endif //UNICODE
 
 
@@ -866,14 +867,19 @@ crAddFile2A(
  *  the screenshot to the error report. Call this function inside of \ref LPGETLOGFILE crash callback.
  * 
  *  \a dwFlags can be one of the following:
- *    - \ref CR_SCREENSHOT_VIRTUAL_SCREEN Use this to take a screenshot of the desktop (virtual screen).
- *    - \ref CR_SCREENSHOT_MAIN_WINDOW Use this to take a screenshot of the application's main window.
+ *    - \ref CR_AS_VIRTUAL_SCREEN Use this to take a screenshot of the desktop (virtual screen).
+ *    - \ref CR_AS_MAIN_WINDOW    Use this to take a screenshot of the application's main window.
  *  
  *  Screenshots are added in form of PNG files. When capturing entire desktop consisting of several monitors, 
  *  one screenshot file is added per each monitor.
  *
+ *  You should be carefull when using this feature, because the screenshot may contain user-identifying 
+ *  or private information. Always specify the purposes you will use the collected 
+ *  information for in your Privacy Policy. Typically, the screenshot is not a required information to 
+ *  debug the crash, however sometimes it may be useful.
+ *
  *  \sa
- *   crAddFile()
+ *   crAddFile2()
  */
 
 int
@@ -893,10 +899,20 @@ crAddScreenshot(
  *  \remarks 
  *
  *  Use this function to add a string property to the crash descriptor XML file.
- *  User-added properties are listed under \<CustomProperties\> tag.
+ *  User-added properties are listed under \<CustomProperties\> tag of the XML file.
+ *
+ *  The following example shows how to add information about the amount of free disk space to the crash
+ *  descriptor XML file:
+ *  \code
+ *  // It is assumed that you already calculated the amount of free disk space, converted it to text
+ *  // and store it as szFreeSpace string.
+ *  LPCTSTR szFreeSpace = _T("0 Kb");
+ *  crAddProperty(_T("FreeDiskSpace"), szFreeSpace);
+ *
+ *  \endcode
  *
  *  \sa
- *   crAddFile(), crAddScreenshot()
+ *   crAddFile2(), crAddScreenshot()
  */
 
 int
@@ -1012,7 +1028,7 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
  *    control is returned to the caller. The crGenerateErrorReport() doesn't terminate the caller process.
  *
  *    The crash report contains crash minidump, crash descriptor in XML format and
- *    additional custom files added with crAddFile().
+ *    additional custom files added with crAddFile2().
  *
  *    The exception information should be passed using \ref CR_EXCEPTION_INFO structure. 
  *

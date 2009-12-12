@@ -54,7 +54,27 @@ install exception handlers in each worker thread.
 
 Typically an application creates and maintains a log file where operations and errors are
 written. Such log file can be helpful for crash analysis and should be added to your application's error
-report. You add application-specific files to the error report using crAddFile() function.
+report. You add application-specific files to the error report using crAddFile2() function.
+
+\section adding_a_custom_property Adding a Custom Property
+
+One way to add application-defined info to the error report is adding a file as described above. But
+sometimes you may want to extend the crash descriptor XML file by adding a named literal property to the
+file. You can do this through the crAddProperty() function. 
+
+For example, you may need to add the info about amount of free disk space on a specific disk drive 
+at the moment of crash, or about the version of the graphics card driver. 
+
+\section adding_a_screenshot Adding a Screenshot
+
+It may be useful to see what happened on user's desktop when error occurred. You can make a snapshot of
+user's virtual screen or a snapshot of your main window using crAddSnapshot() function. 
+
+You should be carefull when using this feature, because the screenshot may contain user-identifying 
+or private information. Always specify the purposes you will use the collected 
+information for in your Privacy Policy. By clicking the Send Report button, user confirms he is familiar 
+with the contents of the error report and terms of the Privacy Policy, agrees to the terms of the Privacy Policy
+and gives his consent to use the collected data as stated by the terms of the Privacy Policy.
 
 \section debugging_a_remote_logics_error Debugging a Remote Logics Error
 
