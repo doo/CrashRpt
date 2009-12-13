@@ -615,6 +615,24 @@ int output_document(CrpHandle hReport, FILE* f)
   if(result==0)
     doc.PutRecord(_T("CPU count"), sCPUCount.c_str());
 
+  // Print GUIResourceCount
+  tstring sGUIResourceCount;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_GUI_RESOURCE_COUNT, sGUIResourceCount);
+  if(result==0)
+    doc.PutRecord(_T("GUI resource count"), sGUIResourceCount.c_str());
+
+  // Print OpenHandleCount
+  tstring sOpenHandleCount;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_OPEN_HANDLE_COUNT, sOpenHandleCount);
+  if(result==0)
+    doc.PutRecord(_T("Open handle count"), sOpenHandleCount.c_str());
+
+  // Print MemoryUsageKbytes
+  tstring sMemoryUsageKbytes;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_MEMORY_USAGE_KBYTES, sMemoryUsageKbytes);
+  if(result==0)
+    doc.PutRecord(_T("Memory usage (Kbytes)"), sMemoryUsageKbytes.c_str());
+  
   int nExceptionType = 0;
   tstring sExceptionType;
   result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_EXCEPTION_TYPE, sExceptionType);
@@ -670,6 +688,33 @@ int output_document(CrpHandle hReport, FILE* f)
 
   doc.EndSection();
   
+  doc.BeginSection(_T("Application-defined proeprties"));
+  
+  int nPropCount = get_table_row_count(hReport, CRP_TBL_XMLDESC_CUSTOM_PROPS);
+  if(nPropCount>0)
+  {
+    // Print custom property list  
+    doc.PutTableCell(_T("#"), 2, false);
+    doc.PutTableCell(_T("Name"), 16, false);
+    doc.PutTableCell(_T("Value"), 32, true);
+          
+    int i;
+    for(i=0; i<nPropCount; i++)
+    { 
+      TCHAR szBuffer[10];
+      _STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
+      doc.PutTableCell(szBuffer, 2, false);
+      tstring sPropName;
+      get_prop(hReport, CRP_TBL_XMLDESC_CUSTOM_PROPS, CRP_COL_PROPERTY_NAME, sPropName, i);
+      doc.PutTableCell(sPropName.c_str(), 16, false);
+      tstring sPropValue;
+      get_prop(hReport, CRP_TBL_XMLDESC_CUSTOM_PROPS, CRP_COL_PROPERTY_VALUE, sPropValue, i);
+      doc.PutTableCell(sPropValue.c_str(), 32, true);      
+    }  
+    
+    doc.EndSection();
+  }
+
   doc.BeginSection(_T("File list"));
   
   // Print file list  

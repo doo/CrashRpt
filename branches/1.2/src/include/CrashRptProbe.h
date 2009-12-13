@@ -164,8 +164,9 @@ crpCloseErrorReport(
 
 /* Table names passed to crpGetProperty() function. */
 
-#define CRP_TBL_XMLDESC_MISC _T("XmlDescMisc") //!< Table: Miscellaneous info contained in crash descriptor XML file. 
-#define CRP_TBL_XMLDESC_FILE_ITEMS _T("XmlDescFileItems") //!< Table: The list of file items contained in error report.
+#define CRP_TBL_XMLDESC_MISC _T("XmlDescMisc")                //!< Table: Miscellaneous info contained in crash descriptor XML file. 
+#define CRP_TBL_XMLDESC_FILE_ITEMS _T("XmlDescFileItems")     //!< Table: The list of file items contained in error report.
+#define CRP_TBL_XMLDESC_CUSTOM_PROPS _T("XmlDescCustomProps") //!< Table: The list of application-defined properties (available since v.1.2.1).
 #define CRP_TBL_MDMP_MISC    _T("MdmpMisc")    //!< Table: Miscellaneous info contained in crash minidump file.  
 #define CRP_TBL_MDMP_MODULES _T("MdmpModules") //!< Table: The list of loaded modules.
 #define CRP_TBL_MDMP_THREADS _T("MdmpThreads") //!< Table: The list of threads.
@@ -193,10 +194,17 @@ crpCloseErrorReport(
 #define CRP_COL_FPE_SUBCODE      _T("FPESubcode")      //!< Column: Subcode of floating point exception; for FPE exceptions only.
 #define CRP_COL_USER_EMAIL       _T("UserEmail")       //!< Column: Email of the user who sent this report.
 #define CRP_COL_PROBLEM_DESCRIPTION _T("ProblemDescription") //!< Column: User-provided problem description.
+#define CRP_COL_MEMORY_USAGE_KBYTES _T("MemoryUsageKbytes")  //!<  Column: Memory usage at the moment of crash (in KB).
+#define CRP_COL_GUI_RESOURCE_COUNT _T("GUIResourceCount")    //!<  Column: Count of used GUI resources at the moment of crash.
+#define CRP_COL_OPEN_HANDLE_COUNT  _T("OpenHandleCount")     //!<  Column: Count of open handles at the moment of crash.
 
 // Column IDs of the CRP_XMLDESC_FILE_ITEMS table
 #define CRP_COL_FILE_ITEM_NAME   _T("FileItemName")    //!< Column: File list: Name of the file contained in the report.
 #define CRP_COL_FILE_ITEM_DESCRIPTION _T("FileItemDescription") //!< Column: File list: Description of the file contained in the report.
+
+// Column IDs of the CRP_XMLDESC_CUSTOM_PROPS table
+#define CRP_COL_PROPERTY_NAME   _T("PropertyName")     //!< Column: Name of the application-defined property.
+#define CRP_COL_PROPERTY_VALUE  _T("PropertyValue")    //!< Column: Value of the application-defined property.
 
 // Column IDs of the CRP_MDMP_MISC table
 #define CRP_COL_CPU_ARCHITECTURE _T("CPUArchitecture") //!< Column: Processor architecture.

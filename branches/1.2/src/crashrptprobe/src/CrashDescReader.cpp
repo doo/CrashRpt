@@ -269,6 +269,45 @@ int CCrashDescReader::Load(CString sFileName)
     }
   }
 
+  // Get GUI resource count
+  TiXmlHandle hGUIResourceCount = hRoot.ToElement()->FirstChild("GUIResourceCount");
+  if(hGUIResourceCount.ToElement())
+  {      
+    TiXmlText* pTextElem = hGUIResourceCount.FirstChild().Text();     
+    if(pTextElem)
+    {
+      const char* text = pTextElem->Value();
+      if(text)
+        m_sGUIResourceCount = text;          
+    }
+  }
+
+  // Get open handle count
+  TiXmlHandle hOpenHandleCount = hRoot.ToElement()->FirstChild("OpenHandleCount");
+  if(hOpenHandleCount.ToElement())
+  {      
+    TiXmlText* pTextElem = hOpenHandleCount.FirstChild().Text();     
+    if(pTextElem)
+    {
+      const char* text = pTextElem->Value();
+      if(text)
+        m_sOpenHandleCount = text;          
+    }
+  }
+
+  // Get memory usage in KB
+  TiXmlHandle hMemoryUsageKbytes = hRoot.ToElement()->FirstChild("MemoryUsageKbytes");
+  if(hMemoryUsageKbytes.ToElement())
+  {      
+    TiXmlText* pTextElem = hMemoryUsageKbytes.FirstChild().Text();     
+    if(pTextElem)
+    {
+      const char* text = pTextElem->Value();
+      if(text)
+        m_sMemoryUsageKbytes = text;          
+    }
+  }
+
   // Get file items list
   TiXmlHandle hFileList = hRoot.ToElement()->FirstChild("FileList");
   if(hFileList.ToElement())
@@ -291,6 +330,27 @@ int CCrashDescReader::Load(CString sFileName)
     }
   }
 
+  // Get custom property list
+  TiXmlHandle hCustomProps = hRoot.ToElement()->FirstChild("CustomProps");
+  if(hCustomProps.ToElement())
+  {
+    TiXmlHandle hProp = hCustomProps.ToElement()->FirstChild("Prop");
+    while(hProp.ToElement())
+    {
+      const char* szName = hProp.ToElement()->Attribute("name");
+      const char* szValue = hProp.ToElement()->Attribute("value");
+      
+      CString sName, sValue;
+      if(szName!=NULL)
+        sName = strconv.a2t(szName);    
+      if(szValue!=NULL)
+        sValue = strconv.a2t(szValue);    
+        
+      m_aCustomProps[sName]=sValue;
+
+      hProp = hProp.ToElement()->NextSibling();
+    }
+  }
 
   // OK
   m_bLoaded = true;

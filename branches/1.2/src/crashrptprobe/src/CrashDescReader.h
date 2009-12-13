@@ -36,7 +36,12 @@ public:
   CString m_sUserEmail;
   CString m_sProblemDescription;
 
+  CString m_sMemoryUsageKbytes;
+  CString m_sGUIResourceCount;
+  CString m_sOpenHandleCount;
+
   std::map<CString, CString> m_aFileItems;
+  std::map<CString, CString> m_aCustomProps;
 
 private:
 

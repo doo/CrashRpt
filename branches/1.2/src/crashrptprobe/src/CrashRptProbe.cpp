@@ -623,6 +623,36 @@ crpGetPropertyW(
       }
       pszPropVal = strconv.t2w(pDescReader->m_sProblemDescription);    
     }
+    else if(sColumnId.Compare(CRP_COL_GUI_RESOURCE_COUNT)==0)
+    {
+      // We do not support this property for older versions of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion<1201)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
+      pszPropVal = strconv.t2w(pDescReader->m_sGUIResourceCount);    
+    }
+    else if(sColumnId.Compare(CRP_COL_OPEN_HANDLE_COUNT)==0)
+    {
+      // We do not support this property for older versions of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion<1201)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
+      pszPropVal = strconv.t2w(pDescReader->m_sOpenHandleCount);    
+    }
+    else if(sColumnId.Compare(CRP_COL_MEMORY_USAGE_KBYTES)==0)
+    {
+      // We do not support this property for older versions of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion<1201)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
+      pszPropVal = strconv.t2w(pDescReader->m_sMemoryUsageKbytes);    
+    }
     else
     {
       crpSetErrorMsg(_T("Invalid column ID specified."));
@@ -681,7 +711,43 @@ crpGetPropertyW(
       crpSetErrorMsg(_T("Invalid column ID specified."));
       return -2;
     }
-  }  
+  }
+  else if(sTableId.Compare(CRP_TBL_XMLDESC_CUSTOM_PROPS)==0)
+  {
+    if(pDescReader->m_dwGeneratorVersion<1201)
+    {
+      crpSetErrorMsg(_T("Invalid table ID specified."));
+      return -3;    
+    }
+
+    if(nRowIndex>=(int)pDescReader->m_aCustomProps.size())
+    {
+      crpSetErrorMsg(_T("Invalid row index specified."));
+      return -4;    
+    }
+      
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return (int)pDescReader->m_aCustomProps.size();
+    }
+    else if( sColumnId.Compare(CRP_COL_PROPERTY_NAME)==0 || 
+        sColumnId.Compare(CRP_COL_PROPERTY_VALUE)==0 )
+    { 
+      std::map<CString, CString>::iterator it = pDescReader->m_aCustomProps.begin();
+      int i;
+      for(i=0; i<nRowIndex; i++) it++;
+
+      if(sColumnId.Compare(CRP_COL_PROPERTY_NAME)==0)
+        pszPropVal = strconv.t2w(it->first);    
+      else
+        pszPropVal = strconv.t2w(it->second);          
+    }
+    else
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
+  }
   else if(sTableId.Compare(CRP_TBL_MDMP_MISC)==0)
   {
     if(nRowIndex!=0)

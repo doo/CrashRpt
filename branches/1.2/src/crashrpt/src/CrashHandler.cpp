@@ -1067,6 +1067,9 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags)
       return -4;
     }
   }
+
+  crSetErrorMsg(_T("Success."));
+  return 0;
 }
 
 int CCrashHandler::GenerateErrorReport(

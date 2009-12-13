@@ -873,7 +873,7 @@ crAddFile2A(
  *  Screenshots are added in form of PNG files. When capturing entire desktop consisting of several monitors, 
  *  one screenshot file is added per each monitor.
  *
- *  You should be carefull when using this feature, because the screenshot may contain user-identifying 
+ *  You should be carefull when using this feature, because screenshots may contain user-identifying 
  *  or private information. Always specify the purposes you will use the collected 
  *  information for in your Privacy Policy. Typically, the screenshot is not a required information to 
  *  debug the crash, however sometimes it may be useful.
