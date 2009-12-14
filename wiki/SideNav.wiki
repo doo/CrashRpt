@@ -1,15 +1,7 @@
 #labels Deprecated
-  * Quick Start
-    * [CrashRpt About CrashRpt]
-    * [FAQ Frequently Asked Questions]
-    * [WhoUsesCrashRpt Who Uses CrashRpt?]
-  * Documentation
-    * ContributingLanguageFiles
-    * PrivacyPolicyTemplate
-    * [CrashRpt_v1_0_Documentation]
-  * Release History
-    * [CrashRpt_v1_1_3_ReleaseNotes]
-    * [CrashRpt_v1_1_2_ReleaseNotes]
-    * [CrashRpt_v1_1_1_ReleaseNotes]
-    * [CrashRpt_v1_1b_ReleaseNotes]
-
+  * [FAQ Frequently Asked Questions]
+  * [WhatsNew Release History]
+  * [WhoUsesCrashRpt Who Uses CrashRpt?]
+  * ContributingLanguageFiles
+  * PrivacyPolicyTemplate
+  * [CrashRpt_v1_0_Documentation]
