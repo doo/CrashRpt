@@ -106,7 +106,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.uPriorities[CR_SMAPI] = 1; 
   info.dwFlags = 0;
   info.pszDebugHelpDLL = 0;
-  info.uMiniDumpType = MinidumpNormal;
+  info.uMiniDumpType = MiniDumpNormal;
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
   CrAutoInstallHelper cr_install_helper(&info);
