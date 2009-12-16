@@ -52,11 +52,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -1013,138 +1013,6 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
-			<Filter
-				Name="zip_utils"
-				>
-				<File
-					RelativePath="..\..\zip_utils\unzip.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\zip_utils\zip.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311;4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311;4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311;4996"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4311;4996"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1211,18 +1079,6 @@
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxml.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="zip_utils"
-				>
-				<File
-					RelativePath="..\..\zip_utils\unzip.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\zip_utils\zip.h"
 					>
 				</File>
 			</Filter>

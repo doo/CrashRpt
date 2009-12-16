@@ -45,6 +45,22 @@ struct AssyncNotification
     m_cs.Unlock();
   }
 
+  void SetProgress(int percentCompleted, bool bRelative=true)
+  {
+    m_cs.Lock();
+    
+    if(bRelative)
+    {
+      m_nPercentCompleted += percentCompleted;
+      if(m_nPercentCompleted>100)
+        m_nPercentCompleted = 100;      
+    }
+    else
+      m_nPercentCompleted = percentCompleted;
+
+    m_cs.Unlock();
+  }
+
   void GetProgress(int& nProgressPct, std::vector<CString>& msg_log)
   {
     msg_log.clear();
