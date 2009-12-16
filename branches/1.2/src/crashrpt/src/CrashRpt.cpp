@@ -103,6 +103,8 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszEmailSubject = strconv.w2t((LPWSTR)pInfo->pszEmailSubject);
   LPCTSTR ptszUrl = strconv.w2t((LPWSTR)pInfo->pszUrl);
   LPCTSTR ptszPrivacyPolicyURL = strconv.w2t((LPWSTR)pInfo->pszPrivacyPolicyURL);
+  LPCTSTR ptszDebugHelpDLL_file = strconv.w2t((LPWSTR)pInfo->pszDebugHelpDLL);
+  MINIDUMP_TYPE miniDumpType = pInfo->uMiniDumpType;
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -114,7 +116,10 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszUrl,
     &pInfo->uPriorities,
     pInfo->dwFlags,
-    ptszPrivacyPolicyURL);
+    ptszPrivacyPolicyURL,
+    ptszDebugHelpDLL_file,
+    miniDumpType
+    );
   
   if(nInitResult!=0)
   {
@@ -141,6 +146,7 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   LPCWSTR lpwszEmailTo = NULL;
   LPCWSTR lpwszUrl = NULL;
   LPCWSTR lpwszPrivacyPolicyURL = NULL;
+  LPCWSTR lpwszDebugHelpDLL = NULL;
 
   CR_INSTALL_INFOW ii;
   memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
@@ -192,6 +198,15 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
     lpwszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
     ii.pszPrivacyPolicyURL = lpwszPrivacyPolicyURL;
   }
+
+  if(pInfo->pszDebugHelpDLL!=NULL)
+  {
+    lpwszDebugHelpDLL = strconv.a2w(pInfo->pszDebugHelpDLL);
+    ii.pszDebugHelpDLL = lpwszDebugHelpDLL;
+  }
+
+  ii.uMiniDumpType = pInfo->uMiniDumpType;
+
 
   return crInstallW(&ii);
 }

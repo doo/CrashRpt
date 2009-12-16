@@ -81,7 +81,9 @@ public:
       LPCTSTR lpcszUrl = NULL,
       UINT (*puPriorities)[5] = NULL,
       DWORD dwFlags = 0,
-      LPCTSTR lpcszPrivacyPolicyURL = NULL);
+      LPCTSTR lpcszPrivacyPolicyURL = NULL,
+      LPCTSTR lpcszDebugHelpDLLPath = NULL,
+      MINIDUMP_TYPE miniDumpType = MiniDumpNormal);
 
    int Destroy();
    
@@ -159,6 +161,9 @@ protected:
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
   CString m_sPrivacyPolicyURL;   // Privacy policy URL  
+  HMODULE m_hDbgHelpDll;               // HANDLE to debug help DLL
+  CString m_sPathToDebugHelpDll;       // Path to dbghelp DLL
+  MINIDUMP_TYPE m_MiniDumpType;        // Mini dump type - 0 == small, 1 == medium, 2 == full
   CString m_sCrashTime;          // Crash time in UTC format
   DWORD m_dwGuiResources;        // Count of GUI resources in use
   DWORD m_dwProcessHandleCount;  // Count of opened handles

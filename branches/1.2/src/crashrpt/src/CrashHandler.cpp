@@ -376,7 +376,8 @@ CCrashHandler::CCrashHandler()
   m_lpfnCallback = NULL;
   m_pid = 0;
   memset(&m_uPriorities, 0, 3*sizeof(UINT));
-
+  m_hDbgHelpDll = 0;
+  m_MiniDumpType = MiniDumpNormal;
 }
 
 CCrashHandler::~CCrashHandler()
@@ -395,7 +396,9 @@ int CCrashHandler::Init(
   LPCTSTR lpcszUrl,
   UINT (*puPriorities)[5],
   DWORD dwFlags,
-  LPCTSTR lpcszPrivacyPolicyURL)
+  LPCTSTR lpcszPrivacyPolicyURL,
+  LPCTSTR lpcszDebugHelpDLLPath,
+  MINIDUMP_TYPE miniDumpType)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -630,6 +633,31 @@ int CCrashHandler::Init(
     crSetErrorMsg(_T("Couldn't set C++ exception handlers for main execution thread."));
     return 1;
   }
+
+  if(lpcszDebugHelpDLLPath==NULL)
+  {
+    // By default assume that debughlp.dll is located in the same dir as CrashRpt.dll
+    m_sPathToDebugHelpDll = Utility::GetModulePath(hCrashRptModule);   
+  }
+  else
+    m_sPathToDebugHelpDll = CString(lpcszDebugHelpDLLPath);    
+
+  if(m_sPathToDebugHelpDll.Right(1)!='\\')
+    m_sPathToDebugHelpDll+="\\";
+
+  const CString sDebugHelpDLL_name = "dbghelp.dll";
+  m_sPathToDebugHelpDll+=sDebugHelpDLL_name;
+
+  m_hDbgHelpDll = LoadLibrary(m_sPathToDebugHelpDll);
+  if(!m_hDbgHelpDll)
+  {
+    //try again ... fallback to dbghelp.dll in path
+    m_hDbgHelpDll = LoadLibrary(sDebugHelpDLL_name);
+    if(!m_hDbgHelpDll)
+      return 1;
+  }
+
+  m_MiniDumpType = miniDumpType;
 
   // associate this handler with the caller process
   m_pid = _getpid();
@@ -1444,11 +1472,26 @@ int CCrashHandler::CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExIn
   cbMiniDump.CallbackRoutine = NULL;
   cbMiniDump.CallbackParam = 0;
 
-  BOOL bWriteDump = MiniDumpWriteDump(
+  if(!m_hDbgHelpDll)
+  {
+    crSetErrorMsg(_T("Bad HANDLE to DebugHelpDLL"));
+    return 2;
+  }
+
+  typedef BOOL (WINAPI *PFMiniDumpWriteDump)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType, CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+  PFMiniDumpWriteDump FMiniDumpWriteDump = (PFMiniDumpWriteDump)GetProcAddress(m_hDbgHelpDll, "MiniDumpWriteDump");
+
+  if(!FMiniDumpWriteDump)
+  {
+    crSetErrorMsg(_T("Bad exported function - MiniDumpWriteDump"));
+    return 3;
+  }
+
+  BOOL bWriteDump = FMiniDumpWriteDump(
     GetCurrentProcess(),
     GetCurrentProcessId(),
     hFile,
-    MiniDumpNormal,
+    m_MiniDumpType,
     pExInfo ? &eInfo : NULL,
     NULL,
     &cbMiniDump);
@@ -1457,7 +1500,7 @@ int CCrashHandler::CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExIn
   {
     ATLASSERT(bWriteDump);
     crSetErrorMsg(_T("Couldn't write minidump to file."));
-    return 2;
+    return 4;
   }
 
   // Close file
