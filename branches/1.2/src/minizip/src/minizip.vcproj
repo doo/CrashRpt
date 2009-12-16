@@ -62,6 +62,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="..\lib\minizipd.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
