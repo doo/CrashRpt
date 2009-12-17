@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ProgressDlg.h"
 #include "Utility.h"
+#include "CrashSender.h"
 
 
 LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -10,8 +11,6 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   {
     Utility::SetLayoutRTL(m_hWnd);
   }
-
-  SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")));
 
   HICON hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
   SetIcon(hIcon, FALSE);
@@ -24,8 +23,10 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   m_listView.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
   m_listView.InsertColumn(0, _T("Status"), LVCFMT_LEFT, 2048);
   
-  CStatic statCancel = GetDlgItem(IDCANCEL);
-  statCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
+  m_statText = GetDlgItem(IDC_TEXT);
+
+  m_btnCancel = GetDlgItem(IDCANCEL);
+  m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
 
   DlgResize_Init();
 
@@ -36,8 +37,8 @@ LRESULT CProgressDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 {    
   if(m_bFinished)
   {
-	HWND hWndParent = ::GetParent(m_hWnd);
-	::PostMessage(hWndParent, WM_CLOSE, 0, 0);
+	  HWND hWndParent = ::GetParent(m_hWnd);
+	  ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
     return 0;
   }
 
@@ -50,8 +51,8 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 { 
   if(m_bFinished)
   {
-	HWND hWndParent = ::GetParent(m_hWnd);
-	::PostMessage(hWndParent, WM_CLOSE, 0, 0);
+	  HWND hWndParent = ::GetParent(m_hWnd);
+	  ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
     return 0;
   }
 
@@ -61,17 +62,30 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
   return 0;
 }
 
-void CProgressDlg::Start()
+void CProgressDlg::Start(BOOL bCollectInfo)
 { 
   // center the dialog on the screen
 	CenterWindow();
+
+  if(bCollectInfo)
+  {
+    CString sCaption;
+    sCaption.Format(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption2")), g_CrashInfo.m_sAppName);
+    SetWindowText(sCaption);    
+  }
+  else
+  {
+    SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")));    
+  }
 
   ShowWindow(SW_SHOW); 
   SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
   FlashWindow(FALSE);
 
-  SetTimer(1, 3000);
-  SetTimer(0, 200);
+  if(!bCollectInfo)
+    SetTimer(1, 3000); // Hide this dialog in 3 sec.
+
+  SetTimer(0, 200); // Update this dialog each 200 ms.
 
   m_bFinished = FALSE;
 }
@@ -93,13 +107,17 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
 
     unsigned i;
     for(i=0; i<messages.size(); i++)
-    {
-      CStatic statText = GetDlgItem(IDC_TEXT);
+    {  
+      if(messages[i].CompareNoCase(_T("[collecting_crash_info]"))==0)
+      { 
+        m_bFinished = TRUE;
+        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CollectingCrashInfo")));        
+      }
 
       if(messages[i].CompareNoCase(_T("[status_success]"))==0)
       { 
         m_bFinished = TRUE;
-        statText.SetWindowText(_T("Completed successfuly!"));
+        m_statText.SetWindowText(_T("Completed successfuly!"));
         HWND hWndParent = ::GetParent(m_hWnd);
         ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
@@ -108,7 +126,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       { 
         m_bFinished = TRUE;
         KillTimer(1);
-        statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompletedWithErrors")));
+        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompletedWithErrors")));
         
         CButton btnCancel = GetDlgItem(IDCANCEL);
         btnCancel.EnableWindow(1);
@@ -118,7 +136,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
 
       if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
       { 
-        statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancelling")));
+        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancelling")));
       }
 
       if(messages[i].CompareNoCase(_T("[sending_attempt]"))==0)
@@ -126,7 +144,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         attempt ++;      
         CString str;
         str.Format(Utility::GetINIString(_T("ProgressDlg"), _T("StatusText")), attempt);
-        statText.SetWindowText(str);
+        m_statText.SetWindowText(str);
       }
       
       if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)

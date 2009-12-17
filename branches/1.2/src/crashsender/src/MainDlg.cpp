@@ -101,6 +101,10 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   ShowMoreInfo(FALSE);
 
   m_dlgProgress.Create(m_hWnd);
+  m_dlgProgress.Start(TRUE);
+
+  DWORD dwThreadId = 0;
+  m_hSenderThread = CreateThread(NULL, 0, CollectorThread, (LPVOID)&m_ctx, 0, &dwThreadId);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -296,7 +300,7 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);
   m_dlgProgress.m_pctx = &m_ctx;
-  m_dlgProgress.Start();    
+  m_dlgProgress.Start(FALSE);    
   SetTimer(0, 500);
     
   return 0;

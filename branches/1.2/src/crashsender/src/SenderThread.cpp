@@ -75,13 +75,17 @@ void FeedbackReady(int code)
   an.FeedbackReady(code);
 }
 
-BOOL CompressReportFiles()
-{  
+BOOL CompressReportFiles(SenderThreadContext* pc)
+{ 
+  BOOL bStatus = FALSE;
   strconv_t strconv;
   zipFile hZip = NULL;
   CString sMsg;
   LONG64 lTotalSize = 0;
   LONG64 lTotalCompressed = 0;
+  BYTE buff[1024];
+  DWORD dwBytesRead=0;
+  CString sZipName;
 
   an.SetProgress(_T("Start compressing files..."), 0, false);
   an.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
@@ -89,6 +93,9 @@ BOOL CompressReportFiles()
   std::map<CString, FileItem>::iterator it;
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
   {    
+    if(an.IsCancelled())    
+      goto cleanup;
+
     CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
     HANDLE hFile = CreateFile(sFileName, 
       GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
@@ -116,7 +123,8 @@ BOOL CompressReportFiles()
   sMsg.Format(_T("Total file size for compression is %I64d"), lTotalSize);
   an.SetProgress(sMsg, 0, false);
 
-  CString sZipName = g_CrashInfo.m_sErrorReportDirName + _T(".zip");  
+  sZipName = g_CrashInfo.m_sErrorReportDirName + _T(".zip");  
+  pc->m_sZipName = sZipName;
   
   sMsg.Format(_T("Creating ZIP archive file %s"), sZipName);
   an.SetProgress(sMsg, 1, false);
@@ -125,11 +133,13 @@ BOOL CompressReportFiles()
   if(hZip==NULL)
   {
     an.SetProgress(_T("Failed to create ZIP file."), 100, true);
-    return FALSE;
+    goto cleanup;
   }
 
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
-  {   
+  { 
+    if(an.IsCancelled())    
+      return FALSE;
     
     CString sDstFileName = it->second.m_sDestFile.GetBuffer(0);
     CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
@@ -173,12 +183,11 @@ BOOL CompressReportFiles()
       continue;
     }
 
-
-    BYTE buff[1024];
-    DWORD dwBytesRead=0;
-
     for(;;)
     {
+      if(an.IsCancelled())    
+        goto cleanup;
+
       BOOL bRead = ReadFile(hFile, buff, 1024, &dwBytesRead, NULL);
       if(!bRead || dwBytesRead==0)
         break;
@@ -186,6 +195,9 @@ BOOL CompressReportFiles()
       int res = zipWriteInFileInZip(hZip, buff, dwBytesRead);
       if(res!=0)
       {
+        zipCloseFileInZip(hZip);
+        sMsg.Format(_T("Couldn't write to compressed file %s"), sDstFileName);
+        an.SetProgress(sMsg, 0, false);        
         break;
       }
 
@@ -195,14 +207,24 @@ BOOL CompressReportFiles()
       an.SetProgress((int)fProgress, false);
     }
 
-    int res = zipCloseFileInZip(hZip);
-
+    zipCloseFileInZip(hZip);
     CloseHandle(hFile);
   }
 
-  zipClose(hZip, NULL);
-  an.SetProgress(_T("Finished compressing files...OK"), 100, true);
-  return TRUE;
+  if(lTotalSize==lTotalCompressed)
+    bStatus = TRUE;
+
+cleanup:
+
+  if(hZip!=NULL)
+    zipClose(hZip, NULL);
+
+  if(bStatus)
+    an.SetProgress(_T("Finished compressing files...OK"), 100, true);
+  else
+    an.SetProgress(_T("File compression failed."), 100, true);
+
+  return bStatus;
 }
 
 BOOL SendOverHTTP(SenderThreadContext* pc)
@@ -374,52 +396,54 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
   int status = 1;
 
-  CompressReportFiles();
-
-  std::multimap<int, int> order;
-
-  std::pair<int, int> pair3(pc->m_uPriorities[CR_SMAPI], CR_SMAPI);
-  order.insert(pair3);
-
-  std::pair<int, int> pair2(pc->m_uPriorities[CR_SMTP], CR_SMTP);
-  order.insert(pair2);
-
-  std::pair<int, int> pair1(pc->m_uPriorities[CR_HTTP], CR_HTTP);
-  order.insert(pair1);
-
-  std::multimap<int, int>::reverse_iterator rit;
-  
-  for(rit=order.rbegin(); rit!=order.rend(); rit++)
+  BOOL bCompress = CompressReportFiles(pc);
+  if(bCompress)
   {
-    an.SetProgress(_T("[sending_attempt]"), 0);
-    attempt++;    
+    std::multimap<int, int> order;
 
-    if(an.IsCancelled()){ break; }
+    std::pair<int, int> pair3(pc->m_uPriorities[CR_SMAPI], CR_SMAPI);
+    order.insert(pair3);
 
-    int id = rit->second;
+    std::pair<int, int> pair2(pc->m_uPriorities[CR_SMTP], CR_SMTP);
+    order.insert(pair2);
 
-    BOOL bResult = FALSE;
+    std::pair<int, int> pair1(pc->m_uPriorities[CR_HTTP], CR_HTTP);
+    order.insert(pair1);
 
-    if(id==CR_HTTP)
-      bResult = SendOverHTTP(pc);    
-    else if(id==CR_SMTP)
-      bResult = SendOverSMTP(pc);  
-    else if(id==CR_SMAPI)
-      bResult = SendOverSMAPI(pc);
-
-    if(bResult==FALSE)
-      continue;
-
-    if(id==CR_SMAPI && bResult==TRUE)
+    std::multimap<int, int>::reverse_iterator rit;
+    
+    for(rit=order.rbegin(); rit!=order.rend(); rit++)
     {
-      status = 0;
-      break;
-    }
+      an.SetProgress(_T("[sending_attempt]"), 0);
+      attempt++;    
 
-    if(0==an.WaitForCompletion())
-    {
-      status = 0;
-      break;
+      if(an.IsCancelled()){ break; }
+
+      int id = rit->second;
+
+      BOOL bResult = FALSE;
+
+      if(id==CR_HTTP)
+        bResult = SendOverHTTP(pc);    
+      else if(id==CR_SMTP)
+        bResult = SendOverSMTP(pc);  
+      else if(id==CR_SMAPI)
+        bResult = SendOverSMAPI(pc);
+
+      if(bResult==FALSE)
+        continue;
+
+      if(id==CR_SMAPI && bResult==TRUE)
+      {
+        status = 0;
+        break;
+      }
+
+      if(0==an.WaitForCompletion())
+      {
+        status = 0;
+        break;
+      }
     }
   }
 
@@ -439,6 +463,102 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
   an.SetCompleted(status);
   
+  return 0;
+}
+
+
+
+
+DWORD WINAPI CollectorThread(LPVOID lpParam)
+{
+  ATLASSERT(0);
+  SenderThreadContext* pc = (SenderThreadContext*)lpParam;
+  CString str;
+  
+  an.SetProgress(_T("Start collecting information about the crash..."), 0, false);
+  an.SetProgress(_T("[collecting_crash_info]"), 0, false);
+
+  // Copy application-defined files that should be copied on crash
+  
+  CString sErrorReportDir = g_CrashInfo.m_sErrorReportDirName;
+
+  std::map<CString, FileItem>::iterator it;
+  for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
+  {
+    if(an.IsCancelled())
+      goto cleanup;
+
+    if(it->second.m_bMakeCopy)
+    {
+      str.Format(_T("Copying file %s."), it->second.m_sSrcFile);
+      an.SetProgress(str, 0, false);
+      
+      HANDLE hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
+        FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+      if(hSrcFile==INVALID_HANDLE_VALUE)
+      {
+        str.Format(_T("Error opening file %s."), it->second.m_sSrcFile);
+        an.SetProgress(str, 0, false);
+      }
+
+      LARGE_INTEGER lFileSize;
+      BOOL bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
+      if(!bGetSize)
+      {
+        str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
+        an.SetProgress(str, 0, false);
+        CloseHandle(hSrcFile);
+        continue;
+      }
+
+      CString sDestFile = sErrorReportDir + _T("\\") + it->second.m_sDestFile;
+      
+      HANDLE hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
+        FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+      if(hDestFile==INVALID_HANDLE_VALUE)
+      {
+        str.Format(_T("Error creating file %s."), sDestFile);
+        an.SetProgress(str, 0, false);
+        CloseHandle(hSrcFile);
+        continue;
+      }
+
+      LPBYTE buffer[4096];
+      LARGE_INTEGER lTotalWritten;
+      lTotalWritten.QuadPart = 0;
+
+      for(;;)
+      {        
+        if(an.IsCancelled())
+          goto cleanup;
+  
+        DWORD dwBytesRead=0;
+        DWORD dwBytesWritten=0;
+
+        BOOL bRead = ReadFile(hSrcFile, buffer, 4096, &dwBytesRead, NULL);
+        if(!bRead || dwBytesRead==0)
+          break;
+
+        BOOL bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
+        if(!bWrite || dwBytesRead!=dwBytesWritten)
+          break;
+
+        lTotalWritten.QuadPart += dwBytesWritten;
+
+        int nProgress = (int)(100.0f*lTotalWritten.QuadPart/lFileSize.QuadPart);
+
+        an.SetProgress(nProgress, false);
+      }
+
+      CloseHandle(hSrcFile);
+      CloseHandle(hDestFile);
+    }
+  }
+
+cleanup:
+
+  an.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
+
   return 0;
 }
 

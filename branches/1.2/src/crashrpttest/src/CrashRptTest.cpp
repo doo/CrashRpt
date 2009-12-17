@@ -37,7 +37,7 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
 #else
   lpvState;
   
-  int nAddFile = crAddFile(sLogFile, _T("Dummy Log File"));
+  int nAddFile = crAddFile2(sLogFile, NULL, _T("Dummy Log File"), CR_AF_MAKE_FILE_COPY);
   ATLASSERT(nAddFile==0);
 
   nAddFile = crAddFile(sIniFile, _T("Dummy INI File"));

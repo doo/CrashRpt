@@ -19,5 +19,6 @@ struct SenderThreadContext
 void GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log);
 void CancelSenderThread();
 void FeedbackReady(int code);
+DWORD WINAPI CollectorThread(LPVOID lpParam);
 DWORD WINAPI SenderThread(LPVOID lpParam);
 

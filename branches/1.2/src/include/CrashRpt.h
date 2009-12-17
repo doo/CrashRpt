@@ -849,9 +849,9 @@ crAddFile2A(
  *  \ingroup CrashRptAPI
  */
 #ifdef UNICODE
-#define crAddFile2 crAddFileW
+#define crAddFile2 crAddFile2W
 #else
-#define crAddFile2 crAddFileA
+#define crAddFile2 crAddFile2A
 #endif //UNICODE
 
 

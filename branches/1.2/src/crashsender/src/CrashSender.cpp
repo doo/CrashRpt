@@ -14,6 +14,8 @@
 
 CAppModule _Module;
 CCrashInfo g_CrashInfo;
+CMainDlg dlgMain;
+CProgressDlg dlgProgress;
 
 int CCrashInfo::ParseCrashInfo(LPCSTR text)
 {  
@@ -214,8 +216,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
   CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
-
-  CMainDlg dlgMain;
   
   int nGetCrashInfoThroughPipe = GetCrashInfoThroughPipe();
   if(nGetCrashInfoThroughPipe!=0)
@@ -229,8 +229,8 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		ATLTRACE(_T("Main dialog creation failed!\n"));
 		return 0;
 	}
-
-	dlgMain.ShowWindow(nCmdShow);
+  
+	//dlgMain.ShowWindow(nCmdShow);
 
 	int nRet = theLoop.Run();
 

@@ -14,6 +14,8 @@ public:
   
   CProgressBarCtrl m_prgProgress;
   CListViewCtrl m_listView;
+  CButton m_btnCancel;
+  CStatic m_statText;
   SenderThreadContext* m_pctx;
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)
@@ -48,7 +50,7 @@ public:
   LRESULT OnCopyLog(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 
 
-  void Start();
+  void Start(BOOL bCollectInfo);
   void CloseDialog(int nVal);
   int SetClipboard(CString& sData);
 
