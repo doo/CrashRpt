@@ -77,7 +77,9 @@ void CProgressDlg::Start(BOOL bCollectInfo)
   }
   else
   {
-    SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")));    
+    CString sCaption;
+    sCaption.Format(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")), g_CrashInfo.m_sAppName);
+    SetWindowText(sCaption);    
   }
 
   SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
