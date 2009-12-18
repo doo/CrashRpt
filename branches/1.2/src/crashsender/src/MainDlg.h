@@ -25,13 +25,16 @@ public:
   CStatic m_statEmail;
   CEdit m_editEmail;
   CStatic m_statDesc;
+  CStatic m_statIndent;
   CEdit m_editDesc;
   CButton m_btnOk;
   CButton m_btnCancel;
   CStatic m_statHorzLine;
-  CStatic m_statCrashRpt; 
+  CStatic m_statCrashRpt;
+  CStatic m_statConsent;
   CHyperLink  m_linkPrivacyPolicy;           
   int m_nDeltaY;
+  int m_nDeltaY2;
   CFont m_HeadingFont;
   CIcon m_HeadingIcon;
 

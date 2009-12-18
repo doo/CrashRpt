@@ -118,8 +118,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
     for(i=0; i<messages.size(); i++)
     {  
       if(messages[i].CompareNoCase(_T("[collecting_crash_info]"))==0)
-      { 
-        m_bFinished = TRUE;
+      {         
         m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CollectingCrashInfo")));        
       }
       else if(messages[i].CompareNoCase(_T("[completed_collecting_crash_info]"))==0)
@@ -149,6 +148,13 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         m_btnCancel.EnableWindow(1);
         m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
         ShowWindow(SW_SHOW);
+      }
+      else if(messages[i].CompareNoCase(_T("[status_exit_silently]"))==0)
+      { 
+        m_bFinished = TRUE;
+        KillTimer(1);        
+        HWND hWndParent = ::GetParent(m_hWnd);        
+        ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
       else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
       { 

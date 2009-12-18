@@ -66,24 +66,26 @@ BEGIN
     LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,14,172,144,8
 END
 
-IDD_MAINDLG DIALOGEX 0, 0, 325, 194
+IDD_MAINDLG DIALOGEX 0, 0, 325, 215
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Error Report"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Send report",IDOK,10,170,80,16
-    PUSHBUTTON      "Close the program",IDCANCEL,101,170,80,16
-    LTEXT           "What does this report contain?",IDC_LINK,12,66,296,8
+    DEFPUSHBUTTON   "Send report",IDOK,10,191,80,16
+    PUSHBUTTON      "Close the program",IDCANCEL,101,191,80,16
+    LTEXT           "What does this report contain?",IDC_LINK,12,66,149,8
     LTEXT           "Provide additional info about the problem (recommended)",IDC_MOREINFO,12,81,295,8
-    EDITTEXT        IDC_EMAIL,85,98,222,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_DESCRIPTION,16,128,291,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_HORZLINE,"Static",SS_ETCHEDHORZ,0,161,326,1
-    LTEXT           "CrashRpt",IDC_CRASHRPT,286,157,31,8,WS_DISABLED
+    EDITTEXT        IDC_EMAIL,96,98,209,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_DESCRIPTION,27,128,278,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_HORZLINE,"Static",SS_ETCHEDHORZ,0,182,326,1
+    LTEXT           "CrashRpt",IDC_CRASHRPT,286,178,31,8,WS_DISABLED
     CONTROL         "",IDC_UPPERHORZ,"Static",SS_ETCHEDHORZ,0,37,326,1
     LTEXT           "Please send us this error report to help fix the problem and improve this software.",IDC_SUBHEADER,12,47,296,16
-    LTEXT           "Your E-mail:",IDC_STATMAIL,16,101,65,8
-    LTEXT           "Describe in few words what did you do when the error occurred:",IDC_DESCRIBE,16,118,291,8
-    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,16,147,165,8
+    LTEXT           "Your E-mail:",IDC_STATMAIL,27,101,65,8
+    LTEXT           "Describe in few words what did you do when the error occurred:",IDC_DESCRIBE,27,118,279,8
+    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,12,166,165,8
+    LTEXT           "By clicking the 'Send report' button, I confirm I'm familiar with the content of this report and agree to the terms of the Privacy Policy.",IDC_CONSENT,12,149,297,17
+    CONTROL         "",IDC_INDENT,"Static",SS_BLACKRECT,12,94,2,49
 END
 
 IDD_PROGRESSDLG DIALOGEX 0, 0, 266, 112
@@ -117,7 +119,7 @@ BEGIN
     IDD_MAINDLG, DIALOG
     BEGIN
         VERTGUIDE, 16
-        BOTTOMMARGIN, 186
+        BOTTOMMARGIN, 207
         HORZGUIDE, 105
     END
 

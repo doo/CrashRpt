@@ -63,10 +63,6 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
   m_linkMoreInfo.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("ProvideAdditionalInfo")));
   
-  m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
-  m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
-  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("PrivacyPolicy")));
-  
   m_statEmail = GetDlgItem(IDC_STATMAIL);
   m_statEmail.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("YourEmail")));
 
@@ -76,21 +72,49 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_statDesc.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DescribeProblem")));
 
   m_editDesc = GetDlgItem(IDC_DESCRIPTION);
+
+  m_statIndent =  GetDlgItem(IDC_INDENT);
+  
+  m_statConsent = GetDlgItem(IDC_CONSENT);
+
+  LOGFONT lf;
+  memset(&lf, 0, sizeof(LOGFONT));
+  lf.lfHeight = 11;
+  lf.lfWeight = FW_NORMAL;
+  lf.lfQuality = ANTIALIASED_QUALITY;
+  _TCSCPY_S(lf.lfFaceName, 32, _T("Tahoma"));
+  CFontHandle hConsentFont;
+  hConsentFont.CreateFontIndirect(&lf);
+  m_statConsent.SetFont(hConsentFont);
+
+  if(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
+    m_statConsent.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("MyConsent2")));
+  else
+    m_statConsent.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("MyConsent")));
+
+  m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
+  m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("PrivacyPolicy")));
+  
+  BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty();  
+  m_linkPrivacyPolicy.ShowWindow(bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
+  
   m_statCrashRpt = GetDlgItem(IDC_CRASHRPT);
   m_statHorzLine = GetDlgItem(IDC_HORZLINE);  
-  
+
   m_btnOk = GetDlgItem(IDOK);
   m_btnOk.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SendReport")));
 
   m_btnCancel = GetDlgItem(IDCANCEL);
   m_btnCancel.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("CloseTheProgram")));
 
-  CRect rc1, rc2;
+  CRect rc1, rc2, rc3;
   m_linkMoreInfo.GetWindowRect(&rc1);
-  m_statHorzLine.GetWindowRect(&rc2);
-  m_nDeltaY = rc1.bottom+15-rc2.top;
-
-  LOGFONT lf;
+  m_statConsent.GetWindowRect(&rc2);
+  m_nDeltaY = rc2.top-rc1.bottom;
+  m_statHorzLine.GetWindowRect(&rc3);
+  m_nDeltaY2 = rc3.top-rc2.bottom;
+  
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
   lf.lfWeight = FW_NORMAL;
@@ -125,39 +149,51 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   m_editEmail.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-
-  BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty();  
-  m_linkPrivacyPolicy.ShowWindow(bShow&bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
-
-  int k = bShow?-1:1;
-
-  m_statHorzLine.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_statHorzLine.MoveWindow(&rc1);
-
-  m_statCrashRpt.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_statCrashRpt.MoveWindow(&rc1);
+  m_statIndent.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   
+  int k = bShow?1:-1;
+
+  m_statConsent.GetWindowRect(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
+  rc1.OffsetRect(0, k*m_nDeltaY);
+  m_statConsent.MoveWindow(&rc1);
+
   m_linkPrivacyPolicy.GetWindowRect(&rc1);
   ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
   rc1.OffsetRect(0, k*m_nDeltaY);
   m_linkPrivacyPolicy.MoveWindow(&rc1);
 
+  int nDeltaY = m_nDeltaY;
+  if(!m_linkPrivacyPolicy.IsWindowVisible())
+  {
+    if(!bShow)
+      nDeltaY = m_nDeltaY+m_nDeltaY2;
+    else
+      nDeltaY = m_nDeltaY-m_nDeltaY2;
+  }
+
+  m_statHorzLine.GetWindowRect(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
+  rc1.OffsetRect(0, k*nDeltaY);
+  m_statHorzLine.MoveWindow(&rc1);
+
+  m_statCrashRpt.GetWindowRect(&rc1);
+  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
+  rc1.OffsetRect(0, k*nDeltaY);
+  m_statCrashRpt.MoveWindow(&rc1);
+
   m_btnOk.GetWindowRect(&rc1);
   ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
+  rc1.OffsetRect(0, k*nDeltaY);
   m_btnOk.MoveWindow(&rc1);
 
   m_btnCancel.GetWindowRect(&rc1);
   ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
+  rc1.OffsetRect(0, k*nDeltaY);
   m_btnCancel.MoveWindow(&rc1);
 
   GetClientRect(&rc1);
-  rc1.bottom += k*m_nDeltaY;
+  rc1.bottom += k*nDeltaY;
   ResizeClient(rc1.Width(), rc1.Height());
 
   if(bShow)

@@ -471,17 +471,30 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
 
 DWORD WINAPI CollectorThread(LPVOID lpParam)
-{  
+{ 
   SenderThreadContext* pc = (SenderThreadContext*)lpParam;
+
+  BOOL bStatus = FALSE;
   CString str;
+  CString sErrorReportDir = g_CrashInfo.m_sErrorReportDirName;
+  CString sSrcFile;
+  CString sDestFile;
+  HANDLE hSrcFile = INVALID_HANDLE_VALUE;
+  HANDLE hDestFile = INVALID_HANDLE_VALUE;
+  LARGE_INTEGER lFileSize;
+  BOOL bGetSize = FALSE;
+  LPBYTE buffer[4096];
+  LARGE_INTEGER lTotalWritten;
+  DWORD dwBytesRead=0;
+  DWORD dwBytesWritten=0;
+  BOOL bRead = FALSE;
+  BOOL bWrite = FALSE;
+
   
+  // Copy application-defined files that should be copied on crash
   an.SetProgress(_T("Start collecting information about the crash..."), 0, false);
   an.SetProgress(_T("[collecting_crash_info]"), 0, false);
-
-  // Copy application-defined files that should be copied on crash
   
-  CString sErrorReportDir = g_CrashInfo.m_sErrorReportDirName;
-
   std::map<CString, FileItem>::iterator it;
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
   {
@@ -493,16 +506,15 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
       str.Format(_T("Copying file %s."), it->second.m_sSrcFile);
       an.SetProgress(str, 0, false);
       
-      HANDLE hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
+      hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
         FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
       if(hSrcFile==INVALID_HANDLE_VALUE)
       {
         str.Format(_T("Error opening file %s."), it->second.m_sSrcFile);
         an.SetProgress(str, 0, false);
       }
-
-      LARGE_INTEGER lFileSize;
-      BOOL bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
+      
+      bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
       if(!bGetSize)
       {
         str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
@@ -511,9 +523,9 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
         continue;
       }
 
-      CString sDestFile = sErrorReportDir + _T("\\") + it->second.m_sDestFile;
+      sDestFile = sErrorReportDir + _T("\\") + it->second.m_sDestFile;
       
-      HANDLE hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
+      hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
         FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
       if(hDestFile==INVALID_HANDLE_VALUE)
       {
@@ -523,23 +535,18 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
         continue;
       }
 
-      LPBYTE buffer[4096];
-      LARGE_INTEGER lTotalWritten;
       lTotalWritten.QuadPart = 0;
 
       for(;;)
       {        
         if(an.IsCancelled())
           goto cleanup;
-  
-        DWORD dwBytesRead=0;
-        DWORD dwBytesWritten=0;
-
-        BOOL bRead = ReadFile(hSrcFile, buffer, 4096, &dwBytesRead, NULL);
+    
+        bRead = ReadFile(hSrcFile, buffer, 4096, &dwBytesRead, NULL);
         if(!bRead || dwBytesRead==0)
           break;
 
-        BOOL bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
+        bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
         if(!bWrite || dwBytesRead!=dwBytesWritten)
           break;
 
@@ -550,15 +557,34 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
         an.SetProgress(nProgress, false);
       }
 
+      if(lTotalWritten.QuadPart!=lFileSize.QuadPart)
+        goto cleanup; // Error copying file
+
       CloseHandle(hSrcFile);
       CloseHandle(hDestFile);
     }
   }
 
+  // Success
+  bStatus = TRUE;
+
 cleanup:
   
-  an.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
-  an.SetProgress(_T("[completed_collecting_crash_info]"), 0, true);
+  if(hSrcFile!=INVALID_HANDLE_VALUE)
+    CloseHandle(hSrcFile);
+
+  if(hDestFile!=INVALID_HANDLE_VALUE)
+    CloseHandle(hDestFile);
+
+  if(bStatus)
+  {
+    an.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
+    an.SetProgress(_T("[completed_collecting_crash_info]"), 0, true);
+  }
+  else
+  {    
+    an.SetProgress(_T("[status_exit_silently]"), 0, true);
+  }
 
   return 0;
 }
