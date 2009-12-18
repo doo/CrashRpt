@@ -88,6 +88,7 @@ BOOL CompressReportFiles(SenderThreadContext* pc)
   CString sZipName;
 
   an.SetProgress(_T("Start compressing files..."), 0, false);
+  an.SetProgress(_T("[compressing_files]"), 0, false);
   an.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
 
   std::map<CString, FileItem>::iterator it;
@@ -470,8 +471,7 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
 
 DWORD WINAPI CollectorThread(LPVOID lpParam)
-{
-  ATLASSERT(0);
+{  
   SenderThreadContext* pc = (SenderThreadContext*)lpParam;
   CString str;
   
@@ -556,8 +556,9 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
   }
 
 cleanup:
-
+  
   an.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
+  an.SetProgress(_T("[completed_collecting_crash_info]"), 0, true);
 
   return 0;
 }

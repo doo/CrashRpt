@@ -6,6 +6,8 @@
 #include "MailMsg.h"
 #include "smtpclient.h"
 
+#define WM_COMPLETECOLLECT (WM_APP+1)
+
 class CProgressDlg : public CDialogImpl<CProgressDlg>,
   public CDialogResize<CProgressDlg>
 {

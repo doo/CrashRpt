@@ -5,6 +5,11 @@
 
 struct FileItem
 {
+  FileItem()
+  {
+    m_bMakeCopy = FALSE;
+  }
+
   CString m_sDestFile;
   CString m_sSrcFile;
   CString m_sDesc;

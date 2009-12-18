@@ -98,7 +98,7 @@ int CCrashInfo::ParseFileList(TiXmlHandle& hRoot)
     const char* pszDestFile = fi.ToElement()->Attribute("destfile");
     const char* pszSrcFile = fi.ToElement()->Attribute("srcfile");
     const char* pszDesc = fi.ToElement()->Attribute("description");
-    const char* pszMakeCopy = fi.ToElement()->Attribute("srcfile");
+    const char* pszMakeCopy = fi.ToElement()->Attribute("makecopy");
 
     if(pszDestFile!=NULL)
     {
@@ -109,10 +109,16 @@ int CCrashInfo::ParseFileList(TiXmlHandle& hRoot)
         item.m_sSrcFile = pszSrcFile;
       if(pszDesc)
         item.m_sDesc = pszDesc;
+
       if(pszMakeCopy)
-        item.m_bMakeCopy = TRUE;
+      {
+        if(strcmp(pszMakeCopy, "1")==0)
+          item.m_bMakeCopy = TRUE;
+        else
+          item.m_bMakeCopy = FALSE;
+      }
       else
-        item.m_bMakeCopy = TRUE;
+        item.m_bMakeCopy = FALSE;
       
       m_FileItems[sDestFile] = item;
     }

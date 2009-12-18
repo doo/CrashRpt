@@ -6,9 +6,11 @@
 
 LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
+  // Check if current UI language is an RTL language
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
+    // Mirror this window
     Utility::SetLayoutRTL(m_hWnd);
   }
 
@@ -16,15 +18,15 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   SetIcon(hIcon, FALSE);
   SetIcon(hIcon, TRUE);
 
+  m_statText = GetDlgItem(IDC_TEXT);
+
   m_prgProgress = GetDlgItem(IDC_PROGRESS);
   m_prgProgress.SetRange(0, 100);
-
+  
   m_listView = GetDlgItem(IDC_LIST); 
   m_listView.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
   m_listView.InsertColumn(0, _T("Status"), LVCFMT_LEFT, 2048);
   
-  m_statText = GetDlgItem(IDC_TEXT);
-
   m_btnCancel = GetDlgItem(IDCANCEL);
   m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
 
@@ -56,17 +58,17 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
     return 0;
   }
 
-  CancelSenderThread();
-  CButton m_btnCancel = GetDlgItem(IDCANCEL);
+  // Start cancelling the worker thread
+  CancelSenderThread();  
+
+  // Disable Cancel button
   m_btnCancel.EnableWindow(0);
+
   return 0;
 }
 
 void CProgressDlg::Start(BOOL bCollectInfo)
 { 
-  // center the dialog on the screen
-	CenterWindow();
-
   if(bCollectInfo)
   {
     CString sCaption;
@@ -78,12 +80,16 @@ void CProgressDlg::Start(BOOL bCollectInfo)
     SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")));    
   }
 
-  ShowWindow(SW_SHOW); 
   SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-  FlashWindow(FALSE);
+  // center the dialog on the screen
+	CenterWindow();
+  ShowWindow(SW_SHOW); 
+  SetFocus();    
 
   if(!bCollectInfo)
+  {
     SetTimer(1, 3000); // Hide this dialog in 3 sec.
+  }
 
   SetTimer(0, 200); // Update this dialog each 200 ms.
 
@@ -94,16 +100,17 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
 {
   WORD wTimerId = (WORD)wParam;
 
-  if(wTimerId==0)
+  if(wTimerId==0) // Dialog update timer
   {
+    // Get current progress
     int nProgressPct = 0;
     std::vector<CString> messages;
-
     GetSenderThreadStatus(nProgressPct, messages);
     
+    // Update progress bar
     m_prgProgress.SetPos(nProgressPct);
 
-    int attempt = 0;
+    int attempt = 0; // Sending attempt
 
     unsigned i;
     for(i=0; i<messages.size(); i++)
@@ -113,41 +120,46 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         m_bFinished = TRUE;
         m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CollectingCrashInfo")));        
       }
-
-      if(messages[i].CompareNoCase(_T("[status_success]"))==0)
+      else if(messages[i].CompareNoCase(_T("[completed_collecting_crash_info]"))==0)
       { 
         m_bFinished = TRUE;
-        m_statText.SetWindowText(_T("Completed successfuly!"));
-        HWND hWndParent = ::GetParent(m_hWnd);
+        ShowWindow(SW_HIDE);
+        HWND hWndParent = ::GetParent(m_hWnd);        
+        ::PostMessage(hWndParent, WM_COMPLETECOLLECT, 0, 0);
+      }
+      if(messages[i].CompareNoCase(_T("[compressing_files]"))==0)
+      {         
+        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompressingFiles")));        
+      }
+      else if(messages[i].CompareNoCase(_T("[status_success]"))==0)
+      { 
+        m_bFinished = TRUE;        
+        m_statText.SetWindowText(_T("Completed successfuly!"));        
+        HWND hWndParent = ::GetParent(m_hWnd);        
         ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
-
-      if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
+      else if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
       { 
         m_bFinished = TRUE;
         KillTimer(1);
         m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompletedWithErrors")));
-        
-        CButton btnCancel = GetDlgItem(IDCANCEL);
-        btnCancel.EnableWindow(1);
-        btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
+                
+        m_btnCancel.EnableWindow(1);
+        m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
         ShowWindow(SW_SHOW);
       }
-
-      if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
+      else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
       { 
         m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancelling")));
       }
-
-      if(messages[i].CompareNoCase(_T("[sending_attempt]"))==0)
+      else if(messages[i].CompareNoCase(_T("[sending_attempt]"))==0)
       {
         attempt ++;      
         CString str;
         str.Format(Utility::GetINIString(_T("ProgressDlg"), _T("StatusText")), attempt);
         m_statText.SetWindowText(str);
       }
-      
-      if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
+      else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
       {       
         KillTimer(1);        
         ShowWindow(SW_SHOW);
@@ -176,8 +188,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
 
     }
   }
-
-  if(wTimerId==1)
+  else if(wTimerId==1) // The timer that hides this window
   {
     AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
     KillTimer(1);

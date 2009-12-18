@@ -213,6 +213,12 @@ LRESULT CMainDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 	return 0;
 }
 
+LRESULT CMainDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  ShowWindow(SW_SHOW);
+  return 0;
+}
+
 LRESULT CMainDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   CreateTrayIcon(FALSE, m_hWnd);
@@ -399,8 +405,7 @@ LRESULT CMainDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BO
 
 	if(uMouseMsg==WM_LBUTTONDBLCLK)
 	{
-	  m_dlgProgress.ShowWindow(SW_SHOW);
-  	//m_dlgProgress.SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);		
+	  m_dlgProgress.ShowWindow(SW_SHOW);  	
     m_dlgProgress.SetFocus();
 	}	
   return 0;

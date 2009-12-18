@@ -1403,7 +1403,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     CString sPropName = pit->first;
     CString sPropValue = pit->second;
 
-    fprintf(f, "    <Prop name=\"%s\" value= \"%s\"/>\n",
+    fprintf(f, "    <Prop name=\"%s\" value=\"%s\"/>\n",
       strconv.t2utf8(_repxrch(sPropName)), strconv.t2utf8(_repxrch(sPropValue)));
   }
 
