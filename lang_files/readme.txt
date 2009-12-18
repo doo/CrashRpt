@@ -8,7 +8,11 @@ a previous version to the latest version.
 
 --- v.1.2.1 ---
 
-The following strings has changed:
+The following strings have changed:
+
+ * In [MainDlg] section:
+   - MyConsent - new
+   - MyConsent2 - new
 
  * In [ProgressDlg] section:
    - DlgCaption - modified 
