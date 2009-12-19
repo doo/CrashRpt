@@ -453,6 +453,7 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
     an.SetProgress(_T("[status_success]"), 0);
     // Move the ZIP to Recycle Bin
     Utility::RecycleFile(pc->m_sZipName, false);
+    Utility::RecycleFile(pc->m_sErrorReportDirName, false);
   }
   else
   {
@@ -520,6 +521,7 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
         str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
         an.SetProgress(str, 0, false);
         CloseHandle(hSrcFile);
+        hSrcFile = INVALID_HANDLE_VALUE;
         continue;
       }
 
@@ -532,6 +534,7 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
         str.Format(_T("Error creating file %s."), sDestFile);
         an.SetProgress(str, 0, false);
         CloseHandle(hSrcFile);
+        hSrcFile = INVALID_HANDLE_VALUE;
         continue;
       }
 
@@ -561,7 +564,9 @@ DWORD WINAPI CollectorThread(LPVOID lpParam)
         goto cleanup; // Error copying file
 
       CloseHandle(hSrcFile);
+      hSrcFile = INVALID_HANDLE_VALUE;
       CloseHandle(hDestFile);
+      hDestFile = INVALID_HANDLE_VALUE;
     }
   }
 

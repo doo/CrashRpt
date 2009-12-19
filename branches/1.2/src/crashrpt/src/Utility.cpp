@@ -348,4 +348,44 @@ HWND Utility::FindAppWindow()
   return hWnd;
 }
 
+//
+
+CCritSec::CCritSec()
+{
+  InitializeCriticalSection(&m_CritSec);
+  m_currentOwner = m_lockCount = 0;    
+}
+
+CCritSec::~CCritSec()
+{
+  DeleteCriticalSection(&m_CritSec);
+}
+
+void CCritSec::Lock()
+{
+  DWORD us = GetCurrentThreadId();
+  DWORD currentOwner = m_currentOwner;
+  if (currentOwner && (currentOwner != us)) 
+  {
+    // already owned, but not by us
+  }
+  
+  EnterCriticalSection(&m_CritSec);
+  if (0 == m_lockCount++) 
+  {
+    // we now own it for the first time.  Set owner information
+    m_currentOwner = us;
+  }
+}
+
+void CCritSec::Unlock() 
+{
+  if (0 == --m_lockCount) 
+  {
+    // about to be unowned
+    m_currentOwner = 0;
+  }
+ 
+  LeaveCriticalSection(&m_CritSec);
+}
 

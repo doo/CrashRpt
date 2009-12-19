@@ -25,6 +25,7 @@
 #include <exception>
 #include <string>
 #include <dbghelp.h>
+#include "Utility.h"
 
 typedef std::map<CString, CString> TStrStrMap;
 
@@ -118,6 +119,7 @@ protected:
      PCR_EXCEPTION_INFO pExceptionInfo);
   int LaunchCrashSender(CString sErrorReportFolderName);  
 
+  // Replaces characters that are restricted in XML.
   CString _repxrch(CString sText);
   
   // Sets internal pointers to exception handlers to NULL
@@ -144,6 +146,7 @@ protected:
 
   // List of exception handlers installed for threads of current process
   std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
+  CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers
 
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   int m_pid;                     // Process id.
@@ -161,9 +164,9 @@ protected:
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
   CString m_sPrivacyPolicyURL;   // Privacy policy URL  
-  HMODULE m_hDbgHelpDll;               // HANDLE to debug help DLL
-  CString m_sPathToDebugHelpDll;       // Path to dbghelp DLL
-  MINIDUMP_TYPE m_MiniDumpType;        // Mini dump type - 0 == small, 1 == medium, 2 == full
+  HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
+  CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
+  MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
   CString m_sCrashTime;          // Crash time in UTC format
   DWORD m_dwGuiResources;        // Count of GUI resources in use
   DWORD m_dwProcessHandleCount;  // Count of opened handles

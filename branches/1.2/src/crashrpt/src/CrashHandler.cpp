@@ -688,8 +688,11 @@ int CCrashHandler::Destroy()
   // All installed per-thread C++ exception handlers should be uninstalled 
   // using crUninstallFromCurrentThread() before calling Destroy()
   
-  ATLASSERT(m_ThreadExceptionHandlers.size()==0);      
-  m_ThreadExceptionHandlers.clear();
+  {
+    CAutoLock lock(&m_csThreadExceptionHandlers);
+    ATLASSERT(m_ThreadExceptionHandlers.size()==0);      
+    m_ThreadExceptionHandlers.clear();
+  }
 
   std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(m_pid);
   if(it==g_CrashHandlers.m_map.end())
@@ -871,6 +874,8 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
 
   DWORD dwThreadId = GetCurrentThreadId();
 
+  CAutoLock lock(&m_csThreadExceptionHandlers);
+
   std::map<DWORD, _cpp_thread_exception_handlers>::iterator it = 
     m_ThreadExceptionHandlers.find(dwThreadId);
 
@@ -937,6 +942,8 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
   crSetErrorMsg(_T("Unspecified error."));
 
   DWORD dwThreadId = GetCurrentThreadId();
+
+  CAutoLock lock(&m_csThreadExceptionHandlers);
 
   std::map<DWORD, _cpp_thread_exception_handlers>::iterator it = 
     m_ThreadExceptionHandlers.find(dwThreadId);

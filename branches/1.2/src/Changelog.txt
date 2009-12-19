@@ -26,6 +26,8 @@
 
 - Fixed untranslatable Close button of DetailsDlg (issue 15).
 
+- Fixed: Access to m_ThreadExceptionHandlers should be synchronized (issue 16).
+
 --- Ver. 1.2.0 ---
 
 - Reorgranized the include files; moved from 'CrashRpt\include' to 'include'.

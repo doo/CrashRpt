@@ -23,7 +23,7 @@ BOOL CMainDlg::OnIdle()
 }
 
 LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{ 
+{   
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
@@ -108,12 +108,13 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_btnCancel = GetDlgItem(IDCANCEL);
   m_btnCancel.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("CloseTheProgram")));
 
-  CRect rc1, rc2, rc3;
-  m_linkMoreInfo.GetWindowRect(&rc1);
+  CRect rc1, rc2, rc3, rc4;
+  m_editEmail.GetWindowRect(&rc1);
   m_statConsent.GetWindowRect(&rc2);
-  m_nDeltaY = rc2.top-rc1.bottom;
-  m_statHorzLine.GetWindowRect(&rc3);
-  m_nDeltaY2 = rc3.top-rc2.bottom;
+  m_nDeltaY = rc2.top-rc1.top;
+  m_linkPrivacyPolicy.GetWindowRect(&rc3);
+  m_statCrashRpt.GetWindowRect(&rc4);
+  m_nDeltaY2 = rc4.top-rc3.top;
   
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
@@ -164,13 +165,10 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
   m_linkPrivacyPolicy.MoveWindow(&rc1);
 
   int nDeltaY = m_nDeltaY;
-  if(!m_linkPrivacyPolicy.IsWindowVisible())
-  {
-    if(!bShow)
-      nDeltaY = m_nDeltaY+m_nDeltaY2;
-    else
-      nDeltaY = m_nDeltaY-m_nDeltaY2;
-  }
+  
+  BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty(); 
+  if(!bShow && !bShowPrivacyPolicy)
+    nDeltaY += m_nDeltaY2;
 
   m_statHorzLine.GetWindowRect(&rc1);
   ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);

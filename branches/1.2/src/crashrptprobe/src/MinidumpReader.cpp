@@ -602,7 +602,7 @@ BOOL CALLBACK ReadProcessMemoryProc64(
         return FALSE;
 
       *lpNumberOfBytesRead = (DWORD)lBytesRead;
-      memcpy(lpBuffer, (LPBYTE)mr.m_pStartPtr+dwOffs, lBytesRead);
+      memcpy(lpBuffer, (LPBYTE)mr.m_pStartPtr+dwOffs, (size_t)lBytesRead);
      
       return TRUE;
     }
