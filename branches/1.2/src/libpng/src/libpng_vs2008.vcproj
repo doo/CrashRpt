@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7,10"
+	Version="9,00"
 	Name="libpng"
 	ProjectGUID="{71DADA6A-5801-4188-8793-A4A48BAC164B}"
 	RootNamespace="libpng"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -50,7 +51,6 @@
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4267;4996"
 			/>

@@ -6,6 +6,7 @@
 	ProjectGUID="{C610F50E-1013-46F0-AE20-4E918654B40F}"
 	RootNamespace="minizip"
 	Keyword="Win32Proj"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -50,7 +51,6 @@
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4133;4996"
 			/>
@@ -113,7 +113,6 @@
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4133;4996"
 			/>
