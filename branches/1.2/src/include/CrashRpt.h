@@ -306,21 +306,19 @@ GenerateErrorReport(
  *
  *  \remarks
  *
- *    \a cb should always contain size of this structure in bytes. 
+ *    \a cb should always contain the size of this structure in bytes. 
  *
- *    \a pszAppName is a friendly name of client application. The application name is
- *       displayed in Error Report dialog. This parameter can be NULL.
- *       If this parameter is NULL, the name of EXE file that was used to start caller
+ *    \a pszAppName is the friendly name of the client application. The application name is
+ *       displayed in Error Report dialog. If this parameter is NULL, the name of EXE file that was used to start caller
  *       process becomes the application name.
  *
- *    \a pszAppVersion should be the application version. Example: "1.0.1". This parameter can be NULL.
+ *    \a pszAppVersion should be the application version. Example: "1.0.1". 
  *       If it equals to NULL, product version is extracted from the executable file which started 
  *       the process and this product version is used as application version.
  * 
  *    \a pszEmailTo is the email address of the recipient of error reports, for example
  *       "name@example.com". 
- *       This parameter can be NULL. If it equals to NULL, the crash report won't be sent using
- *       E-mail client.
+ *       If it equals to NULL, the crash report won't be sent using E-mail client.
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
  *       the default subject of form '[app_name] [app_version] Error Report' is generated.
@@ -362,8 +360,15 @@ GenerateErrorReport(
  *      - \ref CR_INST_SIGINT_HANDLER                 Install SIGINT signal handler  
  *      - \ref CR_INST_SIGTERM_HANDLER                Install SIGTERM signal handler  
  *
- *   <b>Since v1.1.2</b> \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
+ *   <b>Since v1.1.2</b>, \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
  *   Error Report dialog. If this parameter is NULL, the link is not displayed.
+ *
+ *   <b>Since v1.2.1</b>, \a pszDebugHelpDLL parameter defines the location of the dbghelp.dll to load. 
+ *   If this parameter is NULL, the dbghelp.dll is searched using the default search sequence.
+ *
+ *   <b>Since v.1.2.1</b>, \a uMiniDumpType parameter defines the minidump type. For the list of available minidump
+ *   types, see the documentation for <b>MiniDumpWriteDump()</b> function in MSDN. It is recommended to set this 
+ *   parameter with zero (equivalent of \b MiniDumpNormal constant). Other values may increase the minidump size significantly.
  *
  *  \note
  *
@@ -381,12 +386,12 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
   LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
   LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-  LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL - optional
-  MINIDUMP_TYPE uMiniDumpType;    //!< Mini dump type - Note, value of 0 == MiniDumpNormal
   LPGETLOGFILE pfnCrashCallback;  //!< User crash callback.
   UINT uPriorities[5];            //!< Array of error sending transport priorities.
   DWORD dwFlags;                  //!< Flags.
   LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
+  LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
+  MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
 }
 CR_INSTALL_INFOW;
 
@@ -406,12 +411,12 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
   LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
   LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-  LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL - optional
-  MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type - Note, value of 0 == MiniDumpNormal
   LPGETLOGFILE pfnCrashCallback; //!< User crash callback.
   UINT uPriorities[3];           //!< Array of error sending transport priorities.
   DWORD dwFlags;                 //!< Flags.
   LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
+  LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
+  MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
 }
 CR_INSTALL_INFOA;
 
@@ -502,7 +507,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      info.pfnCrashCallback = CrashCallback; 
  *      info.uPriorities[CR_HTTP] = 3; // Try HTTP first
  *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
- *      info.uPriorities[CR_SMAPI] = 1; // Try system email program last
+ *      info.uPriorities[CR_SMAPI] = 1; // Try system email program the last
  *      info.dwFlags = 0; // Install all available exception handlers
  *      info.pszPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
  *
@@ -845,7 +850,7 @@ crAddFile2A(
    DWORD dwFlags
    );
 
-/*! \brief Character set-independent mapping of crAddFileW2() and crAddFileA2() functions. 
+/*! \brief Character set-independent mapping of crAddFile2W() and crAddFile2A() functions. 
  *  \ingroup CrashRptAPI
  */
 #ifdef UNICODE
@@ -860,7 +865,7 @@ crAddFile2A(
 #define CR_AS_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
 
 /*! \ingroup CrashRptAPI  
- *  \brief Adds a screenshot to crash report.
+ *  \brief Adds a screenshot to the crash report.
  * 
  *  \return This function returns zero if succeeded.
  *
@@ -868,7 +873,7 @@ crAddFile2A(
  *  
  *  \remarks 
  *
- *  This functions can be used to make a screenshot at the moment of crash and to add
+ *  This function can be used to make a screenshot at the moment of crash and add
  *  the screenshot to the error report. Call this function inside of \ref LPGETLOGFILE crash callback.
  * 
  *  \a dwFlags can be one of the following:
@@ -894,7 +899,7 @@ crAddScreenshot(
    );
 
 /*! \ingroup CrashRptAPI  
- *  \brief Adds a string property to crash report.
+ *  \brief Adds a string property to the crash report.
  * 
  *  \return This function returns zero if succeeded.
  *

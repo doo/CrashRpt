@@ -26,7 +26,7 @@
 
 - Fixed untranslatable Close button of DetailsDlg (issue 15).
 
-- Fixed: Access to m_ThreadExceptionHandlers should be synchronized (issue 16).
+- Fixed: Access to CCrashHandler::m_ThreadExceptionHandlers should be synchronized (issue 16).
 
 --- Ver. 1.2.0 ---
 

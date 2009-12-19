@@ -145,15 +145,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include"
 				PreprocessorDefinitions="WIN64;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -169,10 +170,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib"
+				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizipd.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashSenderd.pdb"
 				SubSystem="2"
@@ -237,7 +238,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\include;..\..\minizip\src"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -328,7 +329,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include"
 				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -351,10 +352,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib"
+				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizip.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
 				SubSystem="2"

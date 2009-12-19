@@ -384,7 +384,8 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
   {
     szMD5Hash = _fgetts(szMD5Buffer, 64, f);   
     fclose(f);
-    _tprintf(_T("Found MD5 file %s; MD5=%s\n"), sMD5FileName.c_str(), szMD5Hash);
+    if(szTableId==NULL)
+      _tprintf(_T("Found MD5 file %s; MD5=%s\n"), sMD5FileName.c_str(), szMD5Hash);
   }    
   else if(szTableId==NULL)
   {

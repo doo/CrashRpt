@@ -471,10 +471,8 @@ DWORD WINAPI SenderThread(LPVOID lpParam)
 
 
 
-DWORD WINAPI CollectorThread(LPVOID lpParam)
+DWORD WINAPI CollectorThread(LPVOID /*lpParam*/)
 { 
-  SenderThreadContext* pc = (SenderThreadContext*)lpParam;
-
   BOOL bStatus = FALSE;
   CString str;
   CString sErrorReportDir = g_CrashInfo.m_sErrorReportDirName;

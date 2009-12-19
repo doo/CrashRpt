@@ -240,34 +240,27 @@ class CCritSec
 
   CRITICAL_SECTION m_CritSec;
 
-#ifdef _DEBUG
 public:
-    DWORD   m_currentOwner;
-    DWORD   m_lockCount;    
-public:
-    CCritSec();
-    ~CCritSec();
-    void Lock();
-    void Unlock();
-#else
 
-public:
-    CCritSec() {
-        InitializeCriticalSection(&m_CritSec);
+    CCritSec() 
+    {
+      InitializeCriticalSection(&m_CritSec);
     };
 
-    ~CCritSec() {
-        DeleteCriticalSection(&m_CritSec);
+    ~CCritSec() 
+    {
+      DeleteCriticalSection(&m_CritSec);
+    }
+
+    void Lock() 
+    {
+      EnterCriticalSection(&m_CritSec);
     };
 
-    void Lock() {
-        EnterCriticalSection(&m_CritSec);
+    void Unlock() 
+    {
+      LeaveCriticalSection(&m_CritSec);
     };
-
-    void Unlock() {
-        LeaveCriticalSection(&m_CritSec);
-    };
-#endif
 };
 
 // locks a critical section, and unlocks it automatically

@@ -211,7 +211,7 @@ int GetCrashInfoThroughPipe()
   return 0;
 }
 
-int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
+int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {
   // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));

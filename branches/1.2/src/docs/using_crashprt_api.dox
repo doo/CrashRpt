@@ -68,18 +68,17 @@ at the moment of crash, or about the version of the graphics card driver.
 \section adding_a_screenshot Adding a Screenshot
 
 It may be useful to see what happened on user's desktop when error occurred. You can make a snapshot of
-user's virtual screen or a snapshot of your main window using crAddSnapshot() function. 
+user's virtual screen or a snapshot of your main window using crAddScreenshot() function. 
 
-You should be carefull when using this feature, because the screenshot may contain user-identifying 
+You should be careful when using this feature, because the screenshot may contain user-identifying 
 or private information. Always specify the purposes you will use the collected 
 information for in your Privacy Policy. By clicking the Send Report button, user confirms he is familiar 
-with the contents of the error report and terms of the Privacy Policy, agrees to the terms of the Privacy Policy
-and gives his consent to use the collected data as stated by the terms of the Privacy Policy.
+with the contents of the error report and accepts the terms of the Privacy Policy.
 
 \section debugging_a_remote_logics_error Debugging a Remote Logics Error
 
 Sometimes it is required to remotely debug some application logics error. Such an error,
-for example, infinite loop, may not cause program crash. To collect the information about
+for example, infinite loop in a worker thread, may not cause program crash. To collect the information about
 error that doesn't cause crash, a software developer might provide an ability to generate 
 error report manually on user demand,
 for example on a key combination press. The crGenerateErrorReport() function allows to generate an error
@@ -87,7 +86,7 @@ report manually.
 
 \section handling_structured_exceptions Handling Structured Exceptions
 
-Visual C++ provides structured exception handling mechanism. You may use __try{}__except(Expression){}
+Visual C++ provides structured exception handling mechanism. You may use <i>__try{}__except(Expression){}</i>
 construction to catch a structured exception in a block of code in your program, however this requires some
 work to write custom exception filter function. To simplify this, use crExceptionFilter() function instead to
 generate an error report when structured exception occurs. 
@@ -107,7 +106,7 @@ text error message of the last called function, use crGetLastErrorMsg().
 
 - \ref CrashRptAPI
 - \ref CrashRptStructs
-- \ref DeprecatedAPI
 - \ref CrashRptWrappers
+- \ref DeprecatedAPI 
 
 */

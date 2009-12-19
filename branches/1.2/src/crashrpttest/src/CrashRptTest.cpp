@@ -37,17 +37,17 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
 #else
   lpvState;
   
-  int nAddFile = crAddFile2(sLogFile, NULL, _T("Dummy Log File"), CR_AF_MAKE_FILE_COPY);
-  ATLASSERT(nAddFile==0);
+  int nResult = crAddFile2(sLogFile, NULL, _T("Dummy Log File"), CR_AF_MAKE_FILE_COPY);
+  ATLASSERT(nResult==0);
 
-  nAddFile = crAddFile(sIniFile, _T("Dummy INI File"));
-  ATLASSERT(nAddFile==0);
+  nResult = crAddFile(sIniFile, _T("Dummy INI File"));
+  ATLASSERT(nResult==0);
 
-  int nAddScreenshot = crAddScreenshot(CR_AS_MAIN_WINDOW);
-  ATLASSERT(nAddScreenshot==0);
+  nResult = crAddScreenshot(CR_AS_MAIN_WINDOW);
+  ATLASSERT(nResult==0);
 
-  int nAddProperty = crAddProperty(_T("MyCustomStatus"),_T("May be better..."));
-  ATLASSERT(nAddProperty==0);
+  nResult = crAddProperty(_T("MyCustomStatus"),_T("May be better..."));
+  ATLASSERT(nResult==0);
 #endif
 
   return TRUE;
@@ -96,7 +96,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
   info.pszAppName = _T("CrashRpt Tests");
-  info.pszAppVersion = _T("1.2.0");
+  info.pszAppVersion = _T("1.2.1");
   info.pszEmailSubject = _T("Error from CrashRptTests");
   info.pszEmailTo = _T("test@hotmail.com");
   info.pszUrl = _T("http://myappcom.com/crashrpt.php");
