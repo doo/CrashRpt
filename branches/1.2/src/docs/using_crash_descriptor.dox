@@ -13,23 +13,28 @@ A typical crash descriptor is presented below.
 
 \code
 
-<?xml version="1.0" encoding="utf-8" ?> 
-<CrashRpt version="1103">
-    <CrashGUID>5822d7e1-61ba-4fb0-bedf-672369fa9d36</CrashGUID>
-    <AppName>CrashRpt Tests</AppName>
-    <AppVersion>1.0.0</AppVersion>
-    <ImageName>d:\Projects\CrashRpt\src\bin\CrashRptTest.exe</ImageName>
-    <OperatingSystem>Windows 7 Ultimate Build 7100</OperatingSystem>
-    <SystemTimeUTC>2009-06-28T04:47:32Z</SystemTimeUTC>
-    <ExceptionType>11</ExceptionType>
-    <FileList>
-        <FileItem name="crashdump.dmp" description="Crash Dump" />
-        <FileItem name="crashrpt.xml" description="Crash Log" />
-        <FileItem name="dummy.ini" description="Dummy INI File" />
-        <FileItem name="dummy.log" description="Dummy Log File" />
-    </FileList>
-    <UserEmail></UserEmail>
-    <ProblemDescription></ProblemDescription>
+<?xml version="1.0" encoding="utf-8" ?>
+<CrashRpt version="1201">
+  <CrashGUID>374db652-d268-4b0b-94dc-c014150c8cfe</CrashGUID>
+  <AppName>CrashRpt Tests</AppName>
+  <AppVersion>1.2.1</AppVersion>
+  <ImageName>D:\Projects\CrashRpt\src\bin\CrashRptTestd.exe</ImageName>
+  <OperatingSystem>Windows 7 Ultimate Build 7100</OperatingSystem>
+  <SystemTimeUTC>2009-12-19T08:21:49Z</SystemTimeUTC>
+  <ExceptionType>11</ExceptionType>
+  <GUIResourceCount>51</GUIResourceCount>
+  <OpenHandleCount>71</OpenHandleCount>
+  <MemoryUsageKbytes>8144</MemoryUsageKbytes>
+  <CustomProps>
+    <Prop name="MyCustomStatus" value="May be better..."/>
+  </CustomProps>
+  <FileItems>
+    <FileItem name="crashdump.dmp" description="Crash Dump" />
+    <FileItem name="crashrpt.xml" description="Crash Log" />
+    <FileItem name="dummy.ini" description="Dummy INI File" />
+    <FileItem name="dummy.log" description="Dummy Log File" />
+    <FileItem name="screenshot0.png" description="Desktop Screenshot" />
+  </FileItems>
 </CrashRpt>
 
 \endcode

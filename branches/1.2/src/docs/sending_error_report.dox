@@ -2,12 +2,12 @@
 
 \page sending_error_reports Sending Error Reports
 
-When crash occurs, CrashRpt builds and saves the error report and then runs another process named CrashSender.exe. 
+When crash occurs, CrashRpt collects crash information and runs another process named CrashSender.exe. 
 The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
 
-\note CrashRpt saves the error report as a ZIP archive to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
-CrashRpt moves the crash report file to the Recycle Bin after it was sent to the recipient successfuly. If error report sending procedure
-fails, CrashRpt doesn't delete the report file.          
+\note CrashRpt saves the error report data to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
+CrashRpt moves the crash report files to the Recycle Bin after it was sent to the recipient successfuly. If error report sending procedure
+fails, CrashRpt doesn't delete the report files.          
 
 The CrashSender.exe displays GUI as described in \ref error_report and when user confirms error report submission, 
 it attempts to send the error report to the software support team

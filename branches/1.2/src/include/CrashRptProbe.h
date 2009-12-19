@@ -140,7 +140,7 @@ crpOpenErrorReportA(
 #define crpOpenErrorReport crpOpenErrorReportA
 #endif //UNICODE
 
-/*! 
+/*! \ingroup CrashRptProbeAPI
  *  \brief Closes the crash report.
  *  \return This function returns zero on success.
  *  \param[in] hReport Handle to the opened error report.

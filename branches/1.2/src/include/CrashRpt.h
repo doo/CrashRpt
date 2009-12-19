@@ -324,7 +324,8 @@ GenerateErrorReport(
  *       the default subject of form '[app_name] [app_version] Error Report' is generated.
  *
  *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP
- *       connection. If this parameter is NULL, HTTP connection won't be used to send crash reports.
+ *       connection. If this parmeter is NULL, HTTP connection won't be used to send crash reports. For
+ *       example of a server-side script that can receive crash report, see \ref sending_error_reports.
  *
  *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *       The crash sender process is responsible for letting end user know about the crash and 

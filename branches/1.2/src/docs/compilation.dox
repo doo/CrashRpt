@@ -61,7 +61,7 @@ F7 to start building process.
 \section compiling_x64_platform Compilation for x64 Plaform
 
 <b>Since v.1.2.1</b>, CrashRpt can be compiled for both Win32 and x64 plaforms.
-Visual C++ 2005 or later is required (VC++ Express also support this). 
+Visual C++ 2005 or later is required. 
 You can choose the current plaform by opening menu Build->Configuration Manager... 
 and by selecting the desired plaform in the 'Active solution plaform:' combo box.
 
