@@ -1304,7 +1304,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
 #if _MSC_VER>=1400
   _tfopen_s(&f, pszFileName, _T("wt"));
 #else
-  f = fopen(pszFileName, _T("wt"));
+  f = _tfopen(pszFileName, _T("wt"));
 #endif
   
   if(f==NULL)

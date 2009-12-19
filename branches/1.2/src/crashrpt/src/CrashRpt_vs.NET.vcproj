@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\zip_utils;..\..\zlib;..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\include;..\..\zip_utils;..\..\zlib\src;..\..\tinyxml;..\..\libpng\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPT_VSNET_EXPORTS;CRASHRPT_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib zlibd.lib"
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib zlibd.lib libpngd.lib psapi.lib"
 				OutputFile="..\..\bin\CrashRptd.dll"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				SubSystem="2"
@@ -72,7 +72,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\zip_utils;..\..\zlib;..\..\tinyxml"
+				AdditionalIncludeDirectories="..\..\include;..\..\zip_utils;..\..\zlib\src;..\..\tinyxml;..\..\libpng\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
@@ -84,9 +84,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib"
+				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib libpng.lib psapi.lib"
 				OutputFile="..\..\bin\CrashRpt.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -174,6 +175,9 @@
 				RelativePath=".\CrashRpt.rc">
 			</File>
 			<File
+				RelativePath=".\ScreenCap.cpp">
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp">
 			</File>
 			<File
@@ -236,6 +240,9 @@
 			</File>
 			<File
 				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath=".\ScreenCap.h">
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">

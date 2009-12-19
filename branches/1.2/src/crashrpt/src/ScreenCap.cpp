@@ -3,6 +3,9 @@
 #include <tchar.h>
 #include "Utility.h"
 
+// Disable warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable
+#pragma warning(disable:4611)
+
 // This function is used for monitor enumeration
 BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM dwData)
 {	
