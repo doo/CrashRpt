@@ -3,6 +3,42 @@
 
 <wiki:toc max_depth="1" />
 
+= crashrpt v1.2.1 =
+
+CrashRpt v1.2.1 introduces support of compilation for x64 platform and desktop screenshots at the moment of crash, extends crash descriptor XML, improves crash report generation functionality and user interface. Below the list of changes is presented. 
+
+== What's New ==
+
+  * Refactored crash report generation and sending functionality. Now report files are stored in unzipped state, compression is performed during sending procedure. This will be required for huge reports (that will be fully supported in the future).
+
+  * Added support of x64 platform (issue 7).
+
+  * Added an ability to make screenshots of the screen or the main app window on crash through crAddScreenshot() function (issue 8).
+
+  * More information is collected on crash (memory usage, open handles count and GUI resources)
+
+  * Ability to add custom text properties to the crash descriptor through crAddProperty() function    (issue 9).
+
+  * New function crAddFile2() improving the application-defined files addition.
+
+  * Ability to control which dbghelp.dll to use (issue 10).
+
+  * Ability to define the type of minidump (from normal size to huge size) (issue 10). 
+  Contributed by crcode.s.
+
+  * Fixed incorrectly displayed file size in DetailsDlg (issue 14).
+
+- Fixed untranslatable Close button of DetailsDlg (issue 15).
+
+- Fixed: Access to CCrashHandler::m_ThreadExceptionHandlers should be synchronized (issue 16).
+
+
+== Requirements ==
+
+  * Windows operating system
+  * Microsoft Visual C++ .NET 2003, 2005, 2008 or VC++ Express
+
+
 = crashrpt v1.2.0 =
 
 CrashRpt v1.2.0 introduces crash report processing tool (crporber.exe), crash report processing application programming interface (CrashRptProbe API), extends documentation and fixes some minor bugs. Below the list of changes is presented. 
