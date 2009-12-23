@@ -35,7 +35,7 @@ CrashRpt provides functionality to properly handle structured Win32 exceptions, 
 
 == What is current crashrpt project status? ==
 
-The latest version of CrashRpt is v1.2.0. For the list of changes, see WhatsNew.
+The latest version of CrashRpt can be found at http://code.google.com/p/crashrpt/downloads/list. For the list of changes, see WhatsNew.
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
