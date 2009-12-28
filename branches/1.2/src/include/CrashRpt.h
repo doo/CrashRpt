@@ -954,6 +954,65 @@ crAddPropertyA(
 #endif //UNICODE
 
 
+
+/*! \brief Sets application restart options.
+ *  \ingroup CrashRptAPI
+ *
+ *  \return This function returns zero if succeeded.
+ *
+ *  \param[in] pszCmdLineArgs Command line arguments, or NULL to disable restart.
+ *  \param[in] lWaitTime      Defines the time interval between crash and restart.
+ *  \param[in] dwFlags        Flags.
+ *
+ * \remarks
+ *
+ *  This function allows to enable automatic restart of the process which crashes. You can call this function 
+ *  several times; each call updates the restart options.
+ *
+ *  To avoid cyclical restarts, CrashRpt checks that the crashed process had been working at least 60 seconds before crash. If
+ *  the process crashed in less than 60 seconds after its start, CrashRpt doesn't restart the process.
+ *
+ * \a pszCmdLineArgs parameter defines the command line arguments for the executable file being restarted.
+ * This parameter should not contain the executable name to run. CrashRpt will run the same executable that had crashed.
+ * This parameter can be NULL, which disables the automatic application restart.
+ *
+ * \a lWaitTime parameter defines how much time in seconds to wait since crash until application restart. 
+ *
+ * \a dwFlags parameter is reserved for future use and should be 0.
+ *  
+ *
+ *
+ */
+
+int
+CRASHRPTAPI
+crSetApplicationRestartOptionsW(
+   LPCWSTR pszCmdLineArgs,
+   LONG  lWaitTime,
+   DWORD dwFlags
+   );
+
+/*! \ingroup CrashRptAPI
+ *  \copydoc crSetApplicationRestartOptionsW()
+ */
+
+int
+CRASHRPTAPI
+crSetApplicationRestartOptionsA(
+   LPCWSTR pszCmdLineArgs,
+   DWORD dwFlags
+   );
+
+/*! \brief Character set-independent mapping of crSetApplicationRestartOptionsW() and crSetApplicationRestartOptionsA() functions. 
+ *  \ingroup CrashRptAPI
+ */
+#ifdef UNICODE
+#define crSetAppRestartOptions crSetAppRestartOptionsW
+#else
+#define crSetAppRestartOptions crSetAppRestartOptionsA
+#endif //UNICODE
+
+
 // Exception types
 #define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
