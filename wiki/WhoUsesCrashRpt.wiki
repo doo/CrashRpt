@@ -15,3 +15,4 @@ We will be happy to include it to the list.
 = Software Products that Use CrashRpt =
 
   # Connect-Radio and NBOX-Radio
+  # [http://link-dead.net Link-Dead] (devblog http://mm.soldat.pl)
