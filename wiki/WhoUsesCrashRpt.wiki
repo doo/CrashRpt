@@ -1,8 +1,6 @@
 #summary The list of software projects using CrashRpt.
 #labels Featured,Phase-Support
 
-= Introduction =
-
 We are interested to know how many software products use CrashRpt.
 
 Add a comment to this wiki page and provide any of the following: 
