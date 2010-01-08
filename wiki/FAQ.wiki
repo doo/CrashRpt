@@ -150,13 +150,15 @@ If there is no language file for your favourite language, you can contribute one
 
 For instructions, see ContributingLanguageFiles.
 
-== How do I use crashrpt in my Visual C++ project? ==
+== What's the crashrpt architecture? ==
 
-CrashRpt is separated into these modules to be able to close the application which crashes and to continue sending error report through CrashSender.exe in background.
+CrashRpt consists of two core modules: `CrashRpt.dll` and `CrashSender.exe`.
+`CrashRpt.dll` contains functionality for intercepting exceptions in a client software.
+`CrashSender.exe` contains functionality for sending error reports to the software's support team.
 
-Typically a process (executable file) loads CrashRpt.dll into its address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the process' address space. Client application uses CrashRpt API functions to set exception handlers in the process once, typically in its main() function. In a multi-theraded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
+crashrpt is separated into these modules to be able to close the application which crashes and to continue sending error report through CrashSender.exe in background.
 
-CrashRpt is designed to use C runtime libraries (CRT) as a Multi-threaded DLL (/MD compiler flag). All modules in the client application must be linked to the same version of CRT DLL in order to use CrashRpt. If some dependent module of the application uses different version of CRT or is statically linked to CRT, exceptions are not intercepted in that module.
+Typically a process (executable file) loads `CrashRpt.dll` into its address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the process' address space. Client application uses CrashRpt API functions to set exception handlers in the process once, typically in its `main()` function. In a multi-theraded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
 
 == What .h file should I include in my code and what .lib file should I link my code to? ==
 
