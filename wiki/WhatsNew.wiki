@@ -1,8 +1,6 @@
 #summary Release History.
 #labels Featured,Phase-Deploy
 
-<wiki:toc max_depth="1" />
-
 = crashrpt v1.2.1 =
 
 CrashRpt v1.2.1 introduces support of compilation for x64 platform and desktop screenshots at the moment of crash, extends crash descriptor XML, improves crash report generation functionality and user interface. Below the list of changes is presented. 
