@@ -9,15 +9,19 @@
 
 CrashRpt library is an open source error handling, reporting and processing tool for applications created in Microsoft Visual C++ and running under Windows. 
 
+== What license does crashrpt use? ==
+
+CrashRpt is distributed under the New BSD License. For the license text, please see [http://crashrpt.sourceforge.net/license.txt here].
+
 == Why should I use crashrpt in my Visual C++ project? ==
 
-If you ever tried to determine the reason of a crash on user's machine, you might know how difficult it is, given user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you and tell about the problem and just give up using it. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situtations. That's why it is important to use special tools to report errors automatically.
+If you ever tried to determine the reason of a crash on user's machine, you might know how difficult it is, given user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you and tell about the problem and just give up using the program. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situtations. That's why it is important to use special tools to report errors automatically.
 
 == What are the main features of crashrpt? ==
 
 CrashRpt is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. CrashRpt is able to intercept a structured Win32 exception, typed C++ exception or C run-time error.
 
-CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable for users not having servers for storing error reports. To send reports over E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable for developers not having servers for storing error reports. To send reports over E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 
 CrashRpt also has a tool for error reports' post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
@@ -43,25 +47,23 @@ For example, an exception may occur because of the following:
 
 == What is current crashrpt project status? ==
 
-The latest version of CrashRpt can be found at http://code.google.com/p/crashrpt/downloads/list. For the list of changes, see WhatsNew.
+The latest version of CrashRpt can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
 You can sign in using Google account and add a comment for this wiki page. Or you can ask a question using our [http://groups.google.com/group/crashrpt Discussions group] (Google account is also required).
 
-== How can I show my appreciation of crashrpt project? ==
-
-If you like this project and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make CrashRpt more significant for other users and support further development.
-
 == How do I report a bug in crashrpt or request a new feature? ==
 
-You can create an issue in our issue tracker http://code.google.com/p/crashrpt/issues/list. We appreciate your feedback. 
-
-Note that creating an issue requires you to be signed in using Google account.
+You can create an issue at our [http://code.google.com/p/crashrpt/issues/list Issues] page. We appreciate your feedback. Note that creating an issue requires you to be signed in using Google account.
 
 == How do I contribute into crashrpt project development? ==
 
-You can create a topic in crashpt group http://groups.google.com/group/crashrpt and describe there how you would like to contribute. After that project owner will add your email to the list of project members and you will be able to make changes in source code.
+First of all create a topic in our [http://groups.google.com/group/crashrpt Discussions] group and describe there how you would like to contribute. Then we will add your email to the list of project members and you will be able to make changes in the source code.
+
+== How can I show my appreciation of crashrpt project? ==
+
+If you like CrashRpt and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make CrashRpt more significant for other users and also support further development.
 
 == Are there  any analogous software for crash reporting? ==
 
