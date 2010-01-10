@@ -96,7 +96,7 @@ That's all. Now you are be able to compile CrashRpt.
 
 This is because CrashRpt depends on WTL library, which in turn depends on Microsoft's ATL library. 
 
-ATL library is a part of Visual Studio SDKs. The latest version at the moment is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform SDK for Windows Server 2003 R2. Since then, Platform SDK was renamed into Windows SDK and the latest version (at the moment) of Windows SDK is v6.0. However, Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of commercial Visual Studio having ATL. The dependency on ATL introduces a lot of problems for WTL, so in the future WTL developers might remove this dependency at all (if possible).
+ATL library is a part of Visual Studio SDKs. The latest version at the moment is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows SDK and the latest version (at the moment) of Windows SDK is v6.0. However, Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of commercial Visual Studio having ATL. The dependency on ATL introduces a lot of problems for WTL, so in the future WTL developers might remove this dependency at all (if possible).
 
 For additional info on using WTL with VC++ Express, see this [http://www.codeproject.com/KB/wtl/WTLExpress.aspx article].
 
