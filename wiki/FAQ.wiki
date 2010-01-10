@@ -27,9 +27,7 @@ CrashRpt also has a tool for error reports' post processing. The tool may be use
 
 == What programming languages can I use crashrpt in? ==
 
-You can use CrashRpt in C++ programs created using Visual C++. You can't use it in .NET or Visual Basic. 
-
-CrashRpt is specific to Visual C++. It intercepts structured WIN32 exceptions that are Windows-specific and in theory can be intercepted in other languages, too. But also it intercepts C run-time libraries (CRT) errors. These errors are Visual C++ specific, other languages have different error handling mechanisms.
+You can use CrashRpt in C++ programs created using Visual C++. You can not use it in .NET or in Visual Basic. 
 
 == What is an exception? ==
 
