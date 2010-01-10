@@ -279,9 +279,10 @@ When a crash report comes in, you use the release binaries and debug symbols you
 
 == What files should I never distribute with my software release package? ==
 
-  # All binaries (EXE, DLL) and program database files (PDB) compiled in `Debug` configuration SHOULD NOT be distributed as they will not only take up more space on your CD/download/client's machine, but they will also make reverse engineering your code a trivial exercise.
+You SHOULD NOT distribute the following files:
 
-  # The program database files (PDB) generated in `Release` configuration SHOULD NOT be distributed because of they may make it easier to reverse engineer your code. 
+  * All binaries (EXE, DLL) and program database files (PDB) compiled in `Debug` configuration SHOULD NOT be distributed as they will not only take up more space on your CD/download/client's machine, but they will also make reverse engineering your code a trivial exercise.
+  * The program database files (PDB) generated in `Release` configuration SHOULD NOT be distributed because of they may make it easier to reverse engineer your code. 
 
 == What crashrpt files do I distribute with my software release package? == 
 
