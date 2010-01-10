@@ -223,7 +223,7 @@ This should be done for all projects in your solution to ensure all modules will
 
 Ensure that all modules that exist in your application use the same version of CRT. If some dependent modules were compiled using an older version of CRT, you should recompile them to ensure the single version or CRT DLL is used.
 
-For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a C++ exception in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only.
+For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only. However, CrashRpt will intercept structured exceptions in all modules not depending on CRT version.
 
 == What do I do if my project uses CRT as a static library? ==
 
