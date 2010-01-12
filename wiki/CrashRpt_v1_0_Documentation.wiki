@@ -4,7 +4,7 @@
 ----
 *NOTE:* This is the documentation for CrashRpt v1.0. CrashRpt v1.0 is obsolete. 
 
-This article can also be found in [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article.
+This article is a copy of the [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article.
 ----
 
 <wiki:toc max_depth="2" />
