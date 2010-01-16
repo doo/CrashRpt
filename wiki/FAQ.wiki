@@ -90,7 +90,7 @@ In VC++ Express window, open `Tools->Options...->Projects and Solutions->VC++ Di
 
 That's all. Now you are be able to compile CrashRpt.
 
-== Why do I have to install `Platform SDK for Windows Server 2003` to be able to compile crashrpt? ==
+== Why do I have to install Platform SDK for Windows Server 2003 to be able to compile crashrpt in Visual C++ Express? ==
 
 This is because CrashRpt depends on WTL library, which in turn depends on Microsoft's ATL library. 
 
