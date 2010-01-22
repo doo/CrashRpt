@@ -220,7 +220,8 @@ The following code example shows how to do this (code provided by tdev):
   
   char buf[120];
   sprintf( buf, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-    g->Data1, g->Data2, g->Data3, UINT(g->Data4[0]), UINT(g->Data4[1]), UINT(g->Data4[2]), UINT(g->Data4[3]), UINT(g->Data4[4]), UINT(g->Data4[5]), UINT(g->Data4[6]), UINT(g->Data4[7]));
+    g->Data1, g->Data2, g->Data3, UINT(g->Data4[0]), UINT(g->Data4[1]), UINT(g->Data4[2]), 
+    UINT(g->Data4[3]), UINT(g->Data4[4]), UINT(g->Data4[5]), UINT(g->Data4[6]), UINT(g->Data4[7]));
   delete g;
   std::string guid = std::string(buf);
 
