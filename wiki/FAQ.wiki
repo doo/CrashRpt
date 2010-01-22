@@ -205,8 +205,7 @@ One way to add application-defined info to the error report is adding a custom f
 
 For example, you may need to add the info about amount of free disk space on a specific disk drive at the moment of crash, or about the version of the graphics card driver installed on user's machine.
 
-== I want to uniquely identify the installation by what the error reports are
-sent. What do I do? ==
+== I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
 In CrashRpt v.1.2.1 we introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the crAddProperty() function, so the named property will be added to the crashrpt.xml and 
 you will be able to identify the installation and associate the bugs together.
@@ -229,9 +228,7 @@ The following code example shows how to do this (code provided by tdev):
   crAddProperty("System GUID", guid);
 }}}
 
-== We ship a software (game etc.) and certain crashes only happen on certain hardware.
-So we need some sort of functionality that gathers GPU/CPU/general
-hardware information upon crash report generation. What do we do? ==
+== We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
 
 We introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can also use the `crAddFile2()` function, which allows to add a used-defined file to the crash report.
 
