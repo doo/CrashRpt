@@ -155,8 +155,8 @@ Typically a process (executable file) loads `CrashRpt.dll` into its address spac
 Include `CrashRpt.h` header file in the beginning of your code.
 
 {{{
-// Include CrashRpt header
-#include "CrashRpt.h"
+  // Include CrashRpt header
+  #include "CrashRpt.h"
 }}}
 
 You also need to add `CrashRpt.lib` to the list of input libraries for your project. In the Solution Explorer window, right-click your project and choose Properties item in the context menu. Then open `Configuration Properties->Linker->Input->Additional Dependencies` and then add `CrashRpt.lib` to the list of libraries.
@@ -207,7 +207,7 @@ For example, you may need to add the info about amount of free disk space on a s
 
 == I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
-In CrashRpt v.1.2.1 we introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the crAddProperty() function, so the named property will be added to the crashrpt.xml and 
+In CrashRpt v.1.2.1 we introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
 you will be able to identify the installation and associate the bugs together.
 
 The following code example shows how to do this (code provided by tdev):
@@ -225,7 +225,7 @@ The following code example shows how to do this (code provided by tdev):
   std::string guid = std::string(buf);
 
   //... later, add it to the crashreport:
-  crAddProperty("System GUID", guid);
+  crAddProperty("SystemGUID", guid);
 }}}
 
 == We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
@@ -441,8 +441,7 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 See CrashRpt documentation more information.
 
-== It would be ideal if the whole process of sending error reports would be bi-
-directional: the user gets an email with updates on his issue. Is this possible? ==
+== It would be ideal if the whole process of sending error reports would be bidirectional: the user gets an email with updates on his issue. Is this possible? ==
 
 We currently do not support bidirectional communication, because this would require some complex server-side functionality. You can add such integration on your server for users of your software yourself if you wish. 
 
