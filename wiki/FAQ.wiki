@@ -475,8 +475,7 @@ Then double-click on the minidump file name. This should open it using an associ
 
 Alternatively, you can open the minidump file using `WinDbg` program from `Microsoft Debugging Tools`. It is freely distributed.
 
-== How to identify if the symbol files fit to a certain executable? is
-there a GUID somewhere or how is it working? ==
+== How to identify if the symbol files fit to a certain executable? Is there a GUID somewhere or how is it working? ==
 
 Symbol files are identified by timestamps (in older versions of PDB) or by GUIDs (in newer versions of PDB). 
 
