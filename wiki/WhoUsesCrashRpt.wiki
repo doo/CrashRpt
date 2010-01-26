@@ -12,7 +12,7 @@ We will be happy to include it to the list.
 
 Software products that use сrashrpt:
 
-|| Logo || Name/Link ||
+|| *Logo* || *Name/Link* ||
 || || Connect-Radio and NBOX-Radio || 
 || || [http://link-dead.net Link-Dead] (devblog http://mm.soldat.pl) ||
 || http://static.greatgamesexperiment.com/userimages/a/aab8e18904b27faf7dfcfaedd3ad9936_sq.gif || *[http://rigsofrods.com Rigs of Rods]* ||
