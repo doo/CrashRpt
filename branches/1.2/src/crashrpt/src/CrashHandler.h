@@ -17,7 +17,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "crashrpt.h"      
+#include "CrashRpt.h"      
 #include <new.h>
 #include <map>
 #include <stdlib.h>
@@ -26,8 +26,7 @@
 #include <string>
 #include <dbghelp.h>
 #include "Utility.h"
-
-typedef std::map<CString, CString> TStrStrMap;
+#include "SharedMem.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
 struct _cpp_thread_exception_handlers
@@ -171,6 +170,8 @@ protected:
   DWORD m_dwGuiResources;        // Count of GUI resources in use
   DWORD m_dwProcessHandleCount;  // Count of opened handles
   CString m_sMemUsage;           // Memory usage
+
+  CInterProcessCommunicator m_Communicator; // Shared memory
 
   BOOL m_bInitialized;
 };

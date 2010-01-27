@@ -742,6 +742,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SharedMem.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -870,6 +874,10 @@
 			</File>
 			<File
 				RelativePath=".\ScreenCap.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedMem.h"
 				>
 			</File>
 			<File

@@ -10,12 +10,10 @@
 
 #include "stdafx.h"
 #include "CrashHandler.h"
-#include "zip.h"
 #include "process.h"
 #include "Utility.h"
 #include "resource.h"
 #include <sys/stat.h>
-#include "tinyxml.h"
 #include <psapi.h>
 #include "ScreenCap.h"
 
@@ -654,10 +652,22 @@ int CCrashHandler::Init(
     //try again ... fallback to dbghelp.dll in path
     m_hDbgHelpDll = LoadLibrary(sDebugHelpDLL_name);
     if(!m_hDbgHelpDll)
+    {
+      ATLASSERT(m_hDbgHelpDll);
+      crSetErrorMsg(_T("Couldn't load dbghelp.dll."));      
       return 1;
+    }
   }
 
   m_MiniDumpType = miniDumpType;
+
+  BOOL bCreateCommunicator = m_Communicator.Create(m_sCrashGUID);
+  if(!bCreateCommunicator)
+  {
+    ATLASSERT(bCreateCommunicator);
+    crSetErrorMsg(_T("Couldn't create shared memory object."));
+    return 1;
+  }
 
   // associate this handler with the caller process
   m_pid = _getpid();
@@ -1522,6 +1532,39 @@ int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
 
   strconv_t strconv;
 
+  /* Write crash information to shared memory */
+
+  SMHeader* pSharedMem = m_Communicator.GetSharedMem();
+    
+
+  CString sFileItems;
+  sFileItems += _T("<FileItems>");
+  std::map<CString, FileItem>::iterator it;
+  for(it=m_files.begin(); it!=m_files.end(); it++)
+  {
+    CString sFileItem;
+    sFileItem.Format(_T("<FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />"),
+      _repxrch(it->first), 
+      _repxrch(it->second.m_sFileName), 
+      _repxrch(it->second.m_sDescription), 
+      it->second.m_bMakeCopy?1:0);
+    sFileItems += sFileItem;
+  }
+  
+  // Convert to multi-byte
+  LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
+  
+  DWORD dwBytesWritten = 0;
+  DWORD dwLength = (DWORD)strlen(lpszCrashInfo);
+  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, dwLength, &dwBytesWritten, NULL);
+  
+  if(bWrite==FALSE || (int)dwBytesWritten == dwLength)
+  {
+    ATLASSERT(bWrite);
+    ATLASSERT((int)dwBytesWritten == strlen(lpszCrashInfo));
+    crSetErrorMsg(_T("Error transferring the crash information through the pipe."));
+  }
+
   /* Create CrashSender process */
 
   STARTUPINFO si;
@@ -1540,89 +1583,16 @@ int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
     return 1;
   }
 
-  /* Connect to the pipe that CrashSender creates. */
+  /* Wait until CrashSender finishes with making screenshot, 
+     copying files, creating minidump. */  
 
-  CString sPipeName;
-  sPipeName.Format(_T("\\\\.\\pipe\\CrashRpt_%lu"), pi.dwProcessId);
-
-  HANDLE hPipe = INVALID_HANDLE_VALUE;
-
-  int MAX_ATTEMPTS = 30;
-  int i;
-  for(i=0; i<MAX_ATTEMPTS; i++)
-  {
-    hPipe = CreateFile(sPipeName, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-    if(hPipe!=INVALID_HANDLE_VALUE)
-      break;
-    Sleep(1000);
-  }
-
-  if(hPipe==INVALID_HANDLE_VALUE)
-  {
-    ATLASSERT(hPipe!=INVALID_HANDLE_VALUE);
-    crSetErrorMsg(_T("Error connecting to pipe."));
-    return 2;
-  }
-
-  /* Transfer private crash information in XML format */
-
-  CString sCrashInfo;
+  m_Communicator.W
   
-  sCrashInfo.Format(
-    _T("<crashrpt subject=\"%s\" mailto=\"%s\" url=\"%s\" appname=\"%s\" \
-appver=\"%s\" imagename=\"%s\" errorreportdirname=\"%s\" http_priority=\"%d\" \
-smtp_priority=\"%d\" mapi_priority=\"%d\" privacy_policy_url=\"%s\">"), 
-    _repxrch(m_sSubject), 
-    _repxrch(m_sTo),
-    _repxrch(m_sUrl),
-    _repxrch(m_sAppName),
-    _repxrch(m_sAppVersion),
-    _repxrch(m_sImageName),
-    _repxrch(sErrorReportDirName),
-    m_uPriorities[CR_HTTP],
-    m_uPriorities[CR_SMTP],
-    m_uPriorities[CR_SMAPI],
-    _repxrch(m_sPrivacyPolicyURL));
-
-  CString sFileItems;
-  sFileItems += _T("<FileItems>");
-  std::map<CString, FileItem>::iterator it;
-  for(it=m_files.begin(); it!=m_files.end(); it++)
-  {
-    CString sFileItem;
-    sFileItem.Format(_T("<FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />"),
-      _repxrch(it->first), 
-      _repxrch(it->second.m_sFileName), 
-      _repxrch(it->second.m_sDescription), 
-      it->second.m_bMakeCopy?1:0);
-    sFileItems += sFileItem;
-  }
-  sFileItems += _T("</FileItems>");
-
-  sCrashInfo += sFileItems;
-  sCrashInfo += _T("</crashrpt>");
-
-  // Convert to multi-byte
-  LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
-  
-  DWORD dwBytesWritten = 0;
-  DWORD dwLength = (DWORD)strlen(lpszCrashInfo);
-  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, dwLength, &dwBytesWritten, NULL);
-  
-  if(bWrite==FALSE || (int)dwBytesWritten == dwLength)
-  {
-    ATLASSERT(bWrite);
-    ATLASSERT((int)dwBytesWritten == strlen(lpszCrashInfo));
-    crSetErrorMsg(_T("Error transferring the crash information through the pipe."));
-  }
-
-  /* Clean up */
-
-  CloseHandle(hPipe);
 
   return 0;
 }
 
+// Replaces characters restricted by XML
 CString CCrashHandler::_repxrch(CString sText)
 {
   CString sResult;

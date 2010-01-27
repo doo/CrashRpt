@@ -43,7 +43,6 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   if(hCompatDC==NULL)
     goto cleanup;
 
-  //hBitmap = (HBITMAP)GetCurrentObject(hDC, OBJ_BITMAP);  
   hBitmap = CreateCompatibleBitmap(hDC, nWidth, nHeight);
   if(hBitmap==NULL)
     goto cleanup;
