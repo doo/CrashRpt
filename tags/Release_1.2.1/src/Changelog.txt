@@ -1,0 +1,167 @@
+======= Change History ========
+
+--- Ver. 1.2.1 ---
+
+- Refactored crash report generation and sending functionality. Now report files are stored 
+  in unzipped state, compression is performed during sending procedure. This will be required for
+  huge reports (that will be fully supported in the future).
+
+- Added support of x64 platform (issue 7).
+
+- Added an ability to make screenshots of the screen or the main app window on crash 
+  through crAddScreenshot() function (issue 8).
+
+- More information is collected on crash (memory usage, open handles count and GUI resources)
+
+- Ability to add custom text properties to the crash descriptor through crAddProperty() function    (issue 9).
+
+- New function crAddFile2() improving the application-defined files addition.
+
+- Ability to control which dbghelp.dll to use (issue 10).
+
+- Ability to define the type of minidump (from normal size to huge size) (issue 10). 
+  Contributed by crcode.s.
+
+- Fixed incorrectly displayed file size in DetailsDlg (issue 14).
+
+- Fixed untranslatable Close button of DetailsDlg (issue 15).
+
+- Fixed: Access to CCrashHandler::m_ThreadExceptionHandlers should be synchronized (issue 16).
+
+--- Ver. 1.2.0 ---
+
+- Reorgranized the include files; moved from 'CrashRpt\include' to 'include'.
+
+- Support of error report batch processing (crprober.exe tool).
+
+- New application programming interface for error report processing (CrashRptProbe.dll).
+
+- Introduced functions crpOpenErrorReport(), crpCloseErrorReport(),
+  crpGetProperty(), crpGetLastErrorMsg().
+
+- Fixed problem with missing gzio.c (issue 6).
+
+- Extended documentation : new section 'Automating Error Report Processing'.
+
+--- Ver. 1.1.3 ---
+
+- Support of globalization and RTL languages.
+
+- Reorganized and improved documentation; New pages Architecture Overview and
+  Internationalization Support.
+
+- Added <?xml version="1.0" encoding="utf-8" ?> element in the 
+  beginning of crash descriptor XML.
+
+--- Ver. 1.1.2 ---
+
+- crInstall: Ability to select what exception handlers to install
+
+- Extended CR_INSTALL_INFO with new members: pszPrivacyPolicyURL and dwFlags.
+
+- New API function crInstallToCurrentThead2().
+
+- Improved documentation; Fixed some mistakes; Added info on compiling CrashRpt in VC++ Express
+
+- Using standard Windows convention __stdcall instead of __cdecl in API function declarations 
+
+- Using undecorated API function names (extern "C")
+
+- Using static zlib linkage instead of zlib DLL
+
+- Replaced obsolete ATL 3.0 string conversion macros with self-written class strconv_t.
+
+- Fixed some compilation warnings in VC++ Express
+
+- Fixed wrong "unh" message box in unhandled exception handler
+
+- Fixed bug in CUtility::GetOSFriendlyName() -- Operating system build 
+  number and service pack are never retrieved 
+
+- Fixed error with writing 'ExceptionCode' to XML (always zero)
+
+- Writing exception code to XML in hex format
+
+- Refactored code of crEmulateCrash()
+
+
+--- Ver. 1.1.1 ---
+
+- Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
+
+- Improved documentation; New page About Exceptions and Exception Handling
+
+- New wrapper classes CrAutoInstallHelper and CrThreadAutoInstallHelper
+
+- MD5 hash for error report is calculated and attached to email 
+  when error report is sent over email
+
+- Error report is removed when sent successfuly
+
+- Refactored error report sending code
+
+- Extended E-mail message text generation for error reports being sent over email
+
+- 'Copy selected lines' and 'copy the whole log' from context menu of error report
+  sending log
+
+- Fixed many VS-version-specific bugs
+
+--- Ver. 1.1 ---
+
+
+Major Features:
+
+- Removed support of Visual Studio 6.0 and added support of VS.NET 2003,
+  VS 2005 and VS 2008
+
+- New API functions (crInstall(); crUninstall(); crInstallToCurrentThread();
+  crUninstallFromCurrentThread(); crGenerateErrorReport(); crExceptionFilter();
+  crEmulateCrash(); crGetLastErrorMsg())
+
+- Character set specific functions have A and w suffixes. Introduced macros for
+  defining character set indepandent function names mapping
+
+- Support of various C++ exception handlers (Visual Studio-specific)
+
+- Crash report generation and crash sending functionality are separeted into 
+  different modules (CrashRpt.dll and CrashSender.exe)
+
+- New ways of sending error reports: using HTTP connection, using SMTP embed client or
+  (as in 1.0) using Simple MAPI.
+
+- Each error report is now assigned a unique CrashGUID
+
+- Doxygen-based documentation system
+
+- Revamped GUI of Send Error Report dialog
+
+- New Error Report Sending Progress dialog
+
+- Improved crash descriptor XML format
+
+
+Minor features:
+
+- Using TinyXml framework instead of MSXML
+
+- Using the latest version (at the moment) of dbghelp 
+
+- Using the latest version (at the moment) of zlib
+
+
+--- Ver. 1.0 ---
+
+
+    * 03/17/2003
+          o Replaced MFC with WTL.
+          o Changed crashrpt interface.
+          o Major refactoring.
+          o Updated article.
+          o Details dialog preview window now uses system defined window color instead of white.
+          o Directory structure not saved in ZIP.
+          o Support for use by multiple apps.
+          o Buffer overrun error when previewing files > 32k.
+          o Main dialog now displays app icon. 
+    * 01/12/2003
+          o Initial release. 

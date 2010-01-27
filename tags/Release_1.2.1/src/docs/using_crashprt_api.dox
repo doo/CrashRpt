@@ -1,0 +1,112 @@
+/*!
+
+\page using_crashrpt_api Using CrashRpt API
+
+CrashRpt library provides several API functions, structures and classes that can be used in your 
+project (see \ref CrashRptAPI, \ref CrashRptStructs, \ref CrashRptWrappers). 
+
+\note Older versions of CrashRpt provided different set of API functions that are now 
+declared obsolete. They are still supported for compatibility with older versions of CrashRpt,
+but it is recommended that you use the newer functions instead. Here is the complete list of
+\ref DeprecatedAPI.
+
+All CrashRpt functions have \c cr prefix, CrashRpt structures have \c CR prefix 
+and CrashRpt classes have \c Cr prefix.
+
+All CrashRpt functions using character set dependent arguments have two versions of function name 
+(multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crInstall()
+function has two versions of function name: crInstallA() and crInstallW(). Typically you use a
+character set independent mapping of function name in your program, for example use crInstall() that 
+expands into crInstallW() if you use wide character set or into crInstallA() if you use multibyte 
+character set.
+
+\section enabling_crash_reporting Enabling Crash Reporting
+
+To enable crash reporting support in your C++ application you use crInstall()
+and crInstallToCurrentThread2() functions. There are two functions because of difference in work of
+exception handlers. Some of them work for entire process and others work for caller thread
+only.
+
+The function crInstall() installs exception handlers that work on per-process basis. Typically you
+call the crInstall() in the beginning of your \b main() or \b WinMain() function. You can
+create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
+The crash callback is called on crash and allows to add custom files to the error report or perform
+another action.
+
+On application exit, you should use the crUninstall() function to unset exception handlers. 
+
+The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
+In a multithreaded program you call the crInstallToCurrentThread2() for all 
+threads except the main one. Typically you call this function in the beginning of the thread
+procedure.
+
+Just before the return from the thread procedure, call the
+crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
+crUninstallFromCurrentThread() function in the main executrion thread, because crUninstall() will do that for
+you automatically.
+
+You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
+handlers in your program. Use CrAutoInstallHelper wrapper class to install excetpion handlers in your
+\b main() function. In a multithreaded program, use CrThreadAutoInstallHelper wrapper class to 
+install exception handlers in each worker thread.
+
+\section adding_a_custom_file Adding a Custom File
+
+Typically an application creates and maintains a log file where operations and errors are
+written. Such log file can be helpful for crash analysis and should be added to your application's error
+report. You add application-specific files to the error report using crAddFile2() function.
+
+\section adding_a_custom_property Adding a Custom Property
+
+One way to add application-defined info to the error report is adding a file as described above. But
+sometimes you may want to extend the crash descriptor XML file by adding a named literal property to the
+file. You can do this through the crAddProperty() function. 
+
+For example, you may need to add the info about amount of free disk space on a specific disk drive 
+at the moment of crash, or about the version of the graphics card driver. 
+
+\section adding_a_screenshot Adding a Screenshot
+
+It may be useful to see what happened on user's desktop when error occurred. You can make a snapshot of
+user's virtual screen or a snapshot of your main window using crAddScreenshot() function. 
+
+You should be careful when using this feature, because the screenshot may contain user-identifying 
+or private information. Always specify the purposes you will use the collected 
+information for in your Privacy Policy. By clicking the Send Report button, user confirms he is familiar 
+with the contents of the error report and accepts the terms of the Privacy Policy.
+
+\section debugging_a_remote_logics_error Debugging a Remote Logics Error
+
+Sometimes it is required to remotely debug some application logics error. Such an error,
+for example, infinite loop in a worker thread, may not cause program crash. To collect the information about
+error that doesn't cause crash, a software developer might provide an ability to generate 
+error report manually on user demand,
+for example on a key combination press. The crGenerateErrorReport() function allows to generate an error
+report manually.
+
+\section handling_structured_exceptions Handling Structured Exceptions
+
+Visual C++ provides structured exception handling mechanism. You may use <i>__try{}__except(Expression){}</i>
+construction to catch a structured exception in a block of code in your program, however this requires some
+work to write custom exception filter function. To simplify this, use crExceptionFilter() function instead to
+generate an error report when structured exception occurs. 
+
+\section testing_if_intercepted Testing If Exceptions are Intercepted
+
+When you install crash reporting support to your program, it is important to test if CrashRpt
+intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation. 
+You may call this function in each thread of your program to ensure all exceptions will be catched.
+
+\section get_err_msg Getting Error Messages
+
+Typically a CrashRpt API function returns zero value if succeeded and non-zero if failed. To get
+text error message of the last called function, use crGetLastErrorMsg().
+
+\section api_reference CrashRpt API Reference
+
+- \ref CrashRptAPI
+- \ref CrashRptStructs
+- \ref CrashRptWrappers
+- \ref DeprecatedAPI 
+
+*/
