@@ -263,7 +263,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\tinyxml;..\..\zlib\src;..\..\zip_utils;..\..\libpng\src"
+				AdditionalIncludeDirectories="..\..\include;..\..\crashsender\src;..\..\tinyxml;..\..\zlib\src;..\..\zip_utils;..\..\libpng\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -634,6 +634,18 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
+				RelativePath="..\..\crashsender\src\base64.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="CrashHandler.cpp"
 				>
 				<FileConfiguration
@@ -736,14 +748,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\ScreenCap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SharedMem.cpp"
-				>
 			</File>
 			<File
 				RelativePath="StdAfx.cpp"
@@ -861,6 +865,10 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\..\crashsender\src\base64.h"
+				>
+			</File>
+			<File
 				RelativePath="CrashHandler.h"
 				>
 			</File>
@@ -870,14 +878,6 @@
 			</File>
 			<File
 				RelativePath="resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ScreenCap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SharedMem.h"
 				>
 			</File>
 			<File

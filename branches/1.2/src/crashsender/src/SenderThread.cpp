@@ -75,6 +75,115 @@ void FeedbackReady(int code)
   an.FeedbackReady(code);
 }
 
+BOOL CALLBACK MiniDumpCallback(
+  __in     PVOID CallbackParam,
+  __in     const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+  __inout  PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
+{
+  
+  return TRUE;
+}
+
+
+BOOL CreateMinidump()
+{ 
+  BOOL bStatus = FALSE;
+  HMODULE hDbgHelp = NULL;
+  HANDLE hFile = NULL;
+  MINIDUMP_EXCEPTION_INFORMATION eInfo;
+  MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
+  CString sMinidumpFile = g_CrashInfo.m_sErrorReportDirName + _T("\\crashdump.dmp");
+
+  an.SetProgress(_T("Creating crash dump file..."), 0, false);
+  an.SetProgress(_T("[crating_dump]"), 0, false);
+
+  // Load dbghelp.dll
+  hDbgHelp = LoadLibrary(g_CrashInfo.m_sDbgHelpPath);
+  if(hDbgHelp==NULL)
+  {
+    an.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
+    goto cleanup;
+  }
+
+  // Create the file
+  hFile = CreateFile(
+    sMinidumpFile,
+    GENERIC_WRITE,
+    0,
+    NULL,
+    CREATE_ALWAYS,
+    FILE_ATTRIBUTE_NORMAL,
+    NULL);
+
+  if(hFile==INVALID_HANDLE_VALUE)
+  {
+    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
+    an.SetProgress(_T("Couldn't create dump file."), 0, false);
+    return FALSE;
+  }
+
+  // Write minidump to the file
+  eInfo.ThreadId = g_CrashInfo.m_dwThreadId;
+  eInfo.ExceptionPointers = &g_CrashInfo.m_ExInfo;
+  eInfo.ClientPointers = TRUE;
+  
+  cbMiniDump.CallbackRoutine = MiniDumpCallback;
+  cbMiniDump.CallbackParam = 0;
+
+  typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(
+    HANDLE hProcess, 
+    DWORD ProcessId, 
+    HANDLE hFile, 
+    MINIDUMP_TYPE DumpType, 
+    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
+    CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, 
+    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+
+  LPMINIDUMPWRITEDUMP pfnMiniDumpWriteDump = 
+    (LPMINIDUMPWRITEDUMP)GetProcAddress(hDbgHelp, "MiniDumpWriteDump");
+  if(!pfnMiniDumpWriteDump)
+  {    
+    an.SetProgress(_T("Bad MiniDumpWriteDump function."), 0, false);
+    return FALSE;
+  }
+
+  HANDLE hProcess = OpenProcess(
+    PROCESS_ALL_ACCESS, 
+    FALSE, 
+    g_CrashInfo.m_dwProcessId);
+
+  BOOL bWriteDump = pfnMiniDumpWriteDump(
+    hProcess,
+    g_CrashInfo.m_dwProcessId,
+    hFile,
+    g_CrashInfo.m_MinidumpType,
+    (&g_CrashInfo.m_ExInfo) ? &eInfo : NULL,
+    NULL,
+    &cbMiniDump);
+ 
+  if(!bWriteDump)
+  {
+    ATLASSERT(bWriteDump);
+    an.SetProgress(_T("Error writing dump."), 0, false);
+    an.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
+    goto cleanup;
+  }
+
+  bStatus = TRUE;
+  an.SetProgress(_T("Finished creating dump."), 100, false);
+
+cleanup:
+
+  // Close file
+  if(hFile)
+    CloseHandle(hFile);
+
+  if(hDbgHelp)
+    FreeLibrary(hDbgHelp);
+
+  return bStatus;
+}
+
 BOOL CompressReportFiles(SenderThreadContext* pc)
 { 
   BOOL bStatus = FALSE;
@@ -489,6 +598,7 @@ DWORD WINAPI CollectorThread(LPVOID /*lpParam*/)
   BOOL bRead = FALSE;
   BOOL bWrite = FALSE;
 
+  BOOL bCreateMinidump = CreateMinidump();
   
   // Copy application-defined files that should be copied on crash
   an.SetProgress(_T("Start collecting information about the crash..."), 0, false);

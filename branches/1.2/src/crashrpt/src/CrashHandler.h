@@ -26,7 +26,6 @@
 #include <string>
 #include <dbghelp.h>
 #include "Utility.h"
-#include "SharedMem.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
 struct _cpp_thread_exception_handlers
@@ -112,11 +111,15 @@ public:
 protected:
   
   void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** pExceptionPointers);
+  
   void CollectMiscCrashInfo();
-  int CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo);  
+    
   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
-  int LaunchCrashSender(CString sErrorReportFolderName);  
+
+  int CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POINTERS* pExInfo);
+  
+  int LaunchCrashSender(CString sCrashInfoFileName);  
 
   // Replaces characters that are restricted in XML.
   CString _repxrch(CString sText);
@@ -162,6 +165,7 @@ protected:
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
+  CString m_sReportFolderName;   // Folder where current crash report will be saved.
   CString m_sPrivacyPolicyURL;   // Privacy policy URL  
   HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
   CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
@@ -171,7 +175,7 @@ protected:
   DWORD m_dwProcessHandleCount;  // Count of opened handles
   CString m_sMemUsage;           // Memory usage
 
-  CInterProcessCommunicator m_Communicator; // Shared memory
+  HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
 
   BOOL m_bInitialized;
 };

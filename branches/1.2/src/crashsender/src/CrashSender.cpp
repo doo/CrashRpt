@@ -11,73 +11,121 @@
 #include "unzip.h"
 #include "utility.h"
 #include "CrashRpt.h"
+#include "base64.h"
 
 CAppModule _Module;
 CCrashInfo g_CrashInfo;
 CMainDlg dlgMain;
 CProgressDlg dlgProgress;
 
-int CCrashInfo::ParseCrashInfo(LPCSTR text)
-{  
+int CCrashInfo::ParseCrashInfo(CString sCrashInfoFileName)
+{ 
+  strconv_t strconv;
+
   TiXmlDocument doc;
-  doc.Parse(text);
-  if(doc.Error())
+  bool bOpen = doc.LoadFile(strconv.t2a(sCrashInfoFileName));
+  if(!bOpen)
     return 1;
 
-  TiXmlHandle hRoot = doc.FirstChild("crashrpt");
+  TiXmlHandle hRoot = doc.FirstChild("CrashRptInternal");
   if(hRoot.ToElement()==NULL)
     return 1;
 
-  const char* pszAppName = hRoot.ToElement()->Attribute("appname");
-  const char* pszAppVersion= hRoot.ToElement()->Attribute("appver");
-  const char* pszImageName = hRoot.ToElement()->Attribute("imagename");
-  const char* pszSubject = hRoot.ToElement()->Attribute("subject");
-  const char* pszMailTo = hRoot.ToElement()->Attribute("mailto");
-  const char* pszUrl = hRoot.ToElement()->Attribute("url");
-  const char* pszErrorReportDirName = hRoot.ToElement()->Attribute("errorreportdirname");
-  const char* pszHttpPriority = hRoot.ToElement()->Attribute("http_priority");
-  const char* pszSmtpPriority = hRoot.ToElement()->Attribute("smtp_priority");
-  const char* pszMapiPriority = hRoot.ToElement()->Attribute("mapi_priority");
-  const char* pszPrivacyPolicyURL = hRoot.ToElement()->Attribute("privacy_policy_url");
-
-  if(pszAppName)
-    m_sAppName = pszAppName;
-
-  if(pszAppVersion)
-    m_sAppVersion = pszAppVersion;
-
-  if(pszImageName)
-    m_sImageName = pszImageName;
-
-  if(pszSubject)
-    m_sEmailSubject = pszSubject;
-
-  if(pszMailTo!=NULL)
-    m_sEmailTo = pszMailTo;
-
-  if(pszUrl!=NULL)
-    m_sUrl = pszUrl;
-
-  if(pszErrorReportDirName!=NULL)
-    m_sErrorReportDirName = pszErrorReportDirName;
-
-  if(pszHttpPriority!=NULL)
-    m_uPriorities[CR_HTTP] = atoi(pszHttpPriority);
-  else
-    m_uPriorities[CR_HTTP] = 0;
-
-  if(pszSmtpPriority!=NULL)
-    m_uPriorities[CR_SMTP] = atoi(pszSmtpPriority);
-  else
-    m_uPriorities[CR_SMTP] = 0;
-
-  if(pszMapiPriority!=NULL)
-    m_uPriorities[CR_SMAPI] = atoi(pszMapiPriority);
-  else
-    m_uPriorities[CR_SMAPI] = 0;
+  TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
+  const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
+  if(szReportFolder!=NULL)
+    m_sErrorReportDirName = szReportFolder;
   
-  if(pszPrivacyPolicyURL!=NULL)
-    m_sPrivacyPolicyURL = pszPrivacyPolicyURL;
+  TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
+  const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
+  if(szCrashGUID!=NULL)
+    m_sCrashGUID = szCrashGUID;
+
+  TiXmlHandle hDbgHelpPath = hRoot.FirstChild("DbgHelpPath");
+  const char* szDbgHelpPath = hDbgHelpPath.FirstChild().ToText()->Value();
+  if(szDbgHelpPath!=NULL)
+    m_sDbgHelpPath = szDbgHelpPath;
+
+  TiXmlHandle hMinidumpType = hRoot.FirstChild("MinidumpType");
+  const char* szMinidumpType = hMinidumpType.FirstChild().ToText()->Value();
+  if(szMinidumpType!=NULL)
+    m_MinidumpType = (MINIDUMP_TYPE)atol(szMinidumpType);
+
+  TiXmlHandle hUrl = hRoot.FirstChild("Url");
+  const char* szUrl = hUrl.FirstChild().ToText()->Value();
+  if(szUrl!=NULL)
+    m_sUrl = szUrl;
+
+  TiXmlHandle hPrivacyPolicyUrl = hRoot.FirstChild("PrivacyPolicyUrl");
+  const char* szPrivacyPolicyUrl = hPrivacyPolicyUrl.FirstChild().ToText()->Value();
+  if(szPrivacyPolicyUrl!=NULL)
+    m_sPrivacyPolicyURL = szPrivacyPolicyUrl;
+
+  TiXmlHandle hHttpPriority = hRoot.FirstChild("HttpPriority");
+  const char* szHttpPriority = hHttpPriority.FirstChild().ToText()->Value();
+  if(szHttpPriority!=NULL)
+    m_uPriorities[CR_HTTP] = atoi(szHttpPriority);
+
+  TiXmlHandle hSmtpPriority = hRoot.FirstChild("SmtpPriority");
+  const char* szSmtpPriority = hSmtpPriority.FirstChild().ToText()->Value();
+  if(szSmtpPriority!=NULL)
+    m_uPriorities[CR_SMTP] = atoi(szSmtpPriority);
+
+  TiXmlHandle hMapiPriority = hRoot.FirstChild("MapiPriority");
+  const char* szMapiPriority = hMapiPriority.FirstChild().ToText()->Value();
+  if(szMapiPriority!=NULL)
+    m_uPriorities[CR_SMAPI] = atoi(szMapiPriority);
+
+  TiXmlHandle hProcessId = hRoot.FirstChild("ProcessId");
+  const char* szProcessId = hProcessId.FirstChild().ToText()->Value();
+  if(szProcessId!=NULL)
+    m_dwProcessId = strtoul(szProcessId, NULL, 10);
+
+  TiXmlHandle hThreadId = hRoot.FirstChild("ThreadId");
+  const char* szThreadId = hThreadId.FirstChild().ToText()->Value();
+  if(szThreadId!=NULL)
+    m_dwThreadId = strtoul(szThreadId, NULL, 10);
+
+  TiXmlHandle hExceptionPointers = hRoot.FirstChild("ExceptionPointers");
+  if(hExceptionPointers.ToElement()!=NULL)
+  {
+    TiXmlHandle hContext = hExceptionPointers.FirstChild("Context");
+    const char* szContext = hContext.FirstChild().ToText()->Value();
+    if(szContext!=NULL)
+    {
+      std::string sContext = base64_decode(szContext);
+      g_CrashInfo.m_ExInfo.ContextRecord = new CONTEXT;
+      memcpy(g_CrashInfo.m_ExInfo.ContextRecord, sContext.c_str(), sizeof(CONTEXT));
+    }
+
+    int n = 0;
+    EXCEPTION_RECORD* pExRec = NULL;
+    for(;;n++)
+    {
+      CString sName;
+      sName.Format(_T("ExceptionRecord%d"), n);
+      TiXmlHandle hExRec = hExceptionPointers.FirstChild(strconv.t2a(sName));
+      if(hExRec.ToElement()==NULL)
+        break;
+      
+      const char* szExRec = hExRec.FirstChild().ToText()->Value();
+      if(szExRec)
+      {
+        EXCEPTION_RECORD* pNewRec = new EXCEPTION_RECORD;
+        if(pExRec==NULL)
+          g_CrashInfo.m_ExInfo.ExceptionRecord = pNewRec;
+        else
+          pNewRec->ExceptionRecord = pNewRec;
+
+        pExRec = pNewRec;
+
+        std::string sExRec = base64_decode(szExRec);
+        memcpy(pExRec, sExRec.c_str(), sizeof(EXCEPTION_RECORD));           
+      }      
+    }
+  }
+
+  ParseCrashDescriptor(m_sErrorReportDirName + _T("\\crashrpt.xml"));
 
   return ParseFileList(hRoot);
 }
@@ -129,90 +177,59 @@ int CCrashInfo::ParseFileList(TiXmlHandle& hRoot)
   return 0;
 }
 
-int GetCrashInfoThroughPipe()
+int CCrashInfo::ParseCrashDescriptor(CString sFileName)
 {
-  // Create named pipe to get crash information from client process.
-  
-  DWORD dwProcessId = GetCurrentProcessId();
-  CString szPipeName;
-  szPipeName.Format(_T("\\\\.\\pipe\\CrashRpt_%lu"), dwProcessId);
-  
-  HANDLE hPipe = CreateNamedPipe(
-    szPipeName, PIPE_ACCESS_INBOUND|FILE_FLAG_OVERLAPPED, 
-    0, 1, 0, 1024, 0, NULL);
-  
-  if(hPipe==INVALID_HANDLE_VALUE)
-  {
-    ATLASSERT(hPipe!=INVALID_HANDLE_VALUE);
-    return 1; // Couldn't create pipe
-  }
+  strconv_t strconv;
 
-  // Connect pipe
-  OVERLAPPED overlapped;
-  memset(&overlapped, 0, sizeof(OVERLAPPED));
-  overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-  BOOL bConnected = ConnectNamedPipe(hPipe, &overlapped);
-  DWORD dwLastError = GetLastError();
-  if(!bConnected && 
-     dwLastError!=ERROR_IO_PENDING &&
-     dwLastError!=ERROR_PIPE_CONNECTED)
-  {
-    ATLASSERT(bConnected);
-    CloseHandle(hPipe);
-    return 3; // Couldn't connect 
-  }
+  TiXmlDocument doc;
+  bool bOpen = doc.LoadFile(strconv.t2a(sFileName));
+  if(!bOpen)
+    return 1;
 
-  DWORD dwWaitResult = WaitForSingleObject(overlapped.hEvent, 60*1000);
-  if(dwWaitResult!=WAIT_OBJECT_0)
-  {    
-    ATLASSERT(dwWaitResult==WAIT_OBJECT_0);
-    CloseHandle(hPipe);
-    return 4; // Time out interval exceeded
-  }
+  TiXmlHandle hRoot = doc.FirstChild("CrashRpt");
+  if(hRoot.ToElement()==NULL)
+    return 1;
 
-  // Check connection result
-  DWORD dwBytesTransferred = 0;
-  BOOL bConnectionResult = GetOverlappedResult(hPipe, &overlapped, &dwBytesTransferred, TRUE); 
-  if(!bConnectionResult)
-  {
-    ATLASSERT(bConnectionResult!=0);
-    return 5; // Connection failed
-  }
+  TiXmlHandle hAppName = hRoot.FirstChild("AppName");
+  const char* szAppName = hAppName.FirstChild().ToText()->Value();
+  if(szAppName!=NULL)
+    m_sAppName = szAppName;
 
-  // Read incoming data
-  std::string sDataA;
-  for(;;)
-  {
-    DWORD dwBytesRead = 0;
-    BYTE buffer[1024];
-    BOOL bRead = ReadFile(hPipe, buffer, 1024, &dwBytesRead, NULL);
-    if(!bRead)
-      break;
-    sDataA += std::string((char*)buffer, dwBytesRead);
-  }
+  TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
+  const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
+  if(szAppVersion!=NULL)
+    m_sAppVersion = szAppVersion;
 
-  // Disconnect
-  BOOL bDisconnected = DisconnectNamedPipe(hPipe);
-  ATLASSERT(bDisconnected);
-  bDisconnected;
+  TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
+  const char* szImageName = hAppName.FirstChild().ToText()->Value();
+  if(szImageName!=NULL)
+    m_sImageName = szImageName;
 
-  CloseHandle(hPipe);
-  CloseHandle(overlapped.hEvent); 
-
-  // Parse text  
-  int nParseResult = g_CrashInfo.ParseCrashInfo(sDataA.c_str());
-  if(nParseResult!=0)
-  {
-    ATLASSERT(nParseResult==0);
-    return 6;
-  }
-  
-  // Success
   return 0;
 }
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {
+  LPCWSTR szCommandLine = GetCommandLineW();  
+  int argc = 0;
+  LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
+ 
+  ATLASSERT(0);
+
+  if(argc==1)
+  {
+    g_CrashInfo.ParseCrashInfo(CString(argv[0]));
+  }
+
+  // Notify the parent process that we have finished,
+  // so the parent process unblock
+  CString sEventName;
+  sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.m_sCrashGUID);
+  HANDLE hEvent = OpenEvent(SYNCHRONIZE, FALSE, sEventName);
+  if(hEvent!=NULL)
+    SetEvent(hEvent);
+
+
   // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
@@ -223,24 +240,16 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
   
-  int nGetCrashInfoThroughPipe = GetCrashInfoThroughPipe();
-  if(nGetCrashInfoThroughPipe!=0)
-  {
-    ATLASSERT(nGetCrashInfoThroughPipe==0);
-    return 1; 
-  }
-    
 	if(dlgMain.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));
 		return 0;
 	}
   
-	//dlgMain.ShowWindow(nCmdShow);
-
 	int nRet = theLoop.Run();
 
 	_Module.RemoveMessageLoop();
+
 	return nRet;
 }
 

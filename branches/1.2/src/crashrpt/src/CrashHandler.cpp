@@ -15,7 +15,7 @@
 #include "resource.h"
 #include <sys/stat.h>
 #include <psapi.h>
-#include "ScreenCap.h"
+#include "base64.h"
 
 #if _MSC_VER>=1300
 #include <rtcapi.h>
@@ -37,7 +37,8 @@ EXTERNC void * _ReturnAddress(void);
 #endif 
 
 // This internal structure contains the list of processes 
-// that had called crInstall().
+// that had called crInstall(). The list is always contain single item -
+// the current process.
 struct _crash_handlers
 {
   _crash_handlers(){m_bCrashHappened=FALSE;}
@@ -376,6 +377,7 @@ CCrashHandler::CCrashHandler()
   memset(&m_uPriorities, 0, 3*sizeof(UINT));
   m_hDbgHelpDll = 0;
   m_MiniDumpType = MiniDumpNormal;
+  m_hEvent = NULL;
 }
 
 CCrashHandler::~CCrashHandler()
@@ -569,6 +571,11 @@ int CCrashHandler::Init(
     return 1; 
   }
 
+  // Create event that will be used to synchronize with CrashSender.exe process
+  CString sEventName;
+  sEventName.Format(_T("Local\\CrashRptEvent_%s"), m_sCrashGUID);
+  m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+
   // Get operating system friendly name.
   if(0!=Utility::GetOSFriendlyName(m_sOSName))
   {
@@ -612,7 +619,9 @@ int CCrashHandler::Init(
   }
 
   m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolderAppName;
-    
+  
+  m_sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+
   // Set C++ exception handlers
   InitPrevCPPExceptionHandlerPointers();
    
@@ -659,15 +668,9 @@ int CCrashHandler::Init(
     }
   }
 
-  m_MiniDumpType = miniDumpType;
+  FreeLibrary(m_hDbgHelpDll);
 
-  BOOL bCreateCommunicator = m_Communicator.Create(m_sCrashGUID);
-  if(!bCreateCommunicator)
-  {
-    ATLASSERT(bCreateCommunicator);
-    crSetErrorMsg(_T("Couldn't create shared memory object."));
-    return 1;
-  }
+  m_MiniDumpType = miniDumpType;
 
   // associate this handler with the caller process
   m_pid = _getpid();
@@ -1052,66 +1055,66 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
 
-  CScreenCapture sc;
-  std::vector<CString> screenshot_names;
+  //CScreenCapture sc;
+  //std::vector<CString> screenshot_names;
 
-  /* Create directory for the error report (if not created yet). */
+  ///* Create directory for the error report (if not created yet). */
 
-  CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
-  BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
-  if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
-  { 
-    crSetErrorMsg(_T("Couldn't create directory."));
-    return -1;
-  }  
+  //CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+  //BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
+  //if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
+  //{ 
+  //  crSetErrorMsg(_T("Couldn't create directory."));
+  //  return -1;
+  //}  
 
-  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
-  {
-    CRect rcScreen;
-    sc.GetScreenRect(&rcScreen);
-    
-    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
-    if(bMakeScreenshot==FALSE)
-    {
-      crSetErrorMsg(_T("Couldn't take a screenshot."));
-      return -3;
-    }
-  }
-  else if(dwFlags==CR_AS_MAIN_WINDOW)
-  {    
-    HWND hMainWnd = Utility::FindAppWindow();
-    if(hMainWnd==NULL)
-    {
-      crSetErrorMsg(_T("Couldn't find main application window."));
-      return -2;
-    }
+  //if(dwFlags==CR_AS_VIRTUAL_SCREEN)
+  //{
+  //  CRect rcScreen;
+  //  sc.GetScreenRect(&rcScreen);
+  //  
+  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
+  //  if(bMakeScreenshot==FALSE)
+  //  {
+  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
+  //    return -3;
+  //  }
+  //}
+  //else if(dwFlags==CR_AS_MAIN_WINDOW)
+  //{    
+  //  HWND hMainWnd = Utility::FindAppWindow();
+  //  if(hMainWnd==NULL)
+  //  {
+  //    crSetErrorMsg(_T("Couldn't find main application window."));
+  //    return -2;
+  //  }
 
-    CRect rcWindow; 
-    GetWindowRect(hMainWnd, &rcWindow);
-    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
-    if(bMakeScreenshot==FALSE)
-    {
-      crSetErrorMsg(_T("Couldn't take a screenshot."));
-      return -3;
-    }
-  }
-  else
-  {
-    crSetErrorMsg(_T("Invalid flag specified."));
-    return -1;
-  }
+  //  CRect rcWindow; 
+  //  GetWindowRect(hMainWnd, &rcWindow);
+  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
+  //  if(bMakeScreenshot==FALSE)
+  //  {
+  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
+  //    return -3;
+  //  }
+  //}
+  //else
+  //{
+  //  crSetErrorMsg(_T("Invalid flag specified."));
+  //  return -1;
+  //}
 
-  size_t i;
-  for(i=0; i<screenshot_names.size(); i++)
-  {
-    CString sDestFile;
-    sDestFile.Format(_T("screenshot%d.png"), i); 
-    int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
-    if(nAdd!=0)
-    {
-      return -4;
-    }
-  }
+  //size_t i;
+  //for(i=0; i<screenshot_names.size(); i++)
+  //{
+  //  CString sDestFile;
+  //  sDestFile.Format(_T("screenshot%d.png"), i); 
+  //  int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
+  //  if(nAdd!=0)
+  //  {
+  //    return -4;
+  //  }
+  //}
 
   crSetErrorMsg(_T("Success."));
   return 0;
@@ -1148,9 +1151,8 @@ int CCrashHandler::GenerateErrorReport(
   }
   
   /* Create directory for the error report. */
-
-  CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
-  BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
+  
+  BOOL bCreateDir = CreateDirectory(m_sReportFolderName, NULL);
   if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
   {    
     ATLASSERT(bCreateDir);
@@ -1158,7 +1160,7 @@ int CCrashHandler::GenerateErrorReport(
     szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
     CString szMessage;
     // Try notify user about crash using message box.
-    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to save the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    szMessage.Format(_T("Couldn't save error report."));
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 1; // Failed to create directory
   }
@@ -1166,23 +1168,30 @@ int CCrashHandler::GenerateErrorReport(
   /* Create crash minidump file. */
 
   CString sFileName;
-  sFileName.Format(_T("%s\\crashdump.dmp"), sReportFolderName);
-  int result = CreateMinidump(sFileName, pExceptionInfo->pexcptrs);
-  ATLASSERT(result==0);
-  AddFile(sFileName, NULL, _T("Crash Dump"), 0);      
+  sFileName.Format(_T("%s\\crashdump.dmp"), m_sReportFolderName);
+  AddFile(sFileName, NULL, _T("Crash Dump"), CR_AF_MISSING_FILE_OK);      
       
-  /* Create crash report descriptor file in XML format. */
+  // Create crash report descriptor file in XML format. 
   
-  sFileName.Format(_T("%s\\crashrpt.xml"), sReportFolderName);
+  sFileName.Format(_T("%s\\crashrpt.xml"), m_sReportFolderName);
   AddFile(sFileName, NULL, _T("Crash Log"), CR_AF_MISSING_FILE_OK);        
-  result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
+  int result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
   
+  // Write internal crash info to file. This info is required by 
+  // CrashSender.exe only and will not be sent to developer. 
   
-  // Launch the CrashSender process that would copy user-specified files to the error report folder, 
-  // notify user about crash, compress the report into ZIP archive and send the error report by E-mail or HTTP.
+  sFileName = m_sReportFolderName + _T("\\~CrashRptInternal.xml");
+  result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs);
+  ATLASSERT(result==0);
+  SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
+
+  // Launch the CrashSender process that would take dekstop screenshot, 
+  // copy user-specified files to the error report folder, create minidump, 
+  // notify user about crash, compress the report into 
+  // ZIP archive and send the error report 
     
-  result = LaunchCrashSender(sReportFolderName);
+  result = LaunchCrashSender(sFileName);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -1193,7 +1202,7 @@ int CCrashHandler::GenerateErrorReport(
     CString szCaption;
     szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
     CString szMessage;
-    szMessage.Format(_T("The program has stopped working due to unexpected error, but CrashRpt wasn't able to run CrashSender.exe and send the error report.\nPlease report about this issue at http://code.google.com/p/crashrpt/issues/list"));
+    szMessage.Format(_T("Error launching CrashSender.exe"));
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 3;
   }
@@ -1321,7 +1330,7 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
     return 1; // Couldn't create file
 
   // Add <?xml version="1.0" encoding="utf-8" ?> element
-  fprintf(f, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n", CRASHRPT_VER);
+  fprintf(f, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 
   // Add root element
   fprintf(f, "<CrashRpt version=\"%d\">\n", CRASHRPT_VER);
@@ -1457,114 +1466,137 @@ int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,
   return 0;
 }
 
-int CCrashHandler::CreateMinidump(LPCTSTR pszFileName, EXCEPTION_POINTERS* pExInfo)
-{   
-  crSetErrorMsg(_T("Success."));
-
-  // Create the file
-  HANDLE hFile = CreateFile(
-    pszFileName,
-    GENERIC_WRITE,
-    0,
-    NULL,
-    CREATE_ALWAYS,
-    FILE_ATTRIBUTE_NORMAL,
-    NULL);
-
-  if(hFile==INVALID_HANDLE_VALUE)
-  {
-    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
-    crSetErrorMsg(_T("Couldn't create file."));
-    return 1;
-  }
-
-  // Write the minidump to the file
-  
-  MINIDUMP_EXCEPTION_INFORMATION eInfo;
-  eInfo.ThreadId = GetCurrentThreadId();
-  eInfo.ExceptionPointers = pExInfo;
-  eInfo.ClientPointers = FALSE;
-
-  MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
-  cbMiniDump.CallbackRoutine = NULL;
-  cbMiniDump.CallbackParam = 0;
-
-  if(!m_hDbgHelpDll)
-  {
-    crSetErrorMsg(_T("Bad HANDLE to DebugHelpDLL"));
-    return 2;
-  }
-
-  typedef BOOL (WINAPI *PFMiniDumpWriteDump)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType, CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-  PFMiniDumpWriteDump FMiniDumpWriteDump = (PFMiniDumpWriteDump)GetProcAddress(m_hDbgHelpDll, "MiniDumpWriteDump");
-
-  if(!FMiniDumpWriteDump)
-  {
-    crSetErrorMsg(_T("Bad exported function - MiniDumpWriteDump"));
-    return 3;
-  }
-
-  BOOL bWriteDump = FMiniDumpWriteDump(
-    GetCurrentProcess(),
-    GetCurrentProcessId(),
-    hFile,
-    m_MiniDumpType,
-    pExInfo ? &eInfo : NULL,
-    NULL,
-    &cbMiniDump);
- 
-  if(!bWriteDump)
-  {
-    ATLASSERT(bWriteDump);
-    crSetErrorMsg(_T("Couldn't write minidump to file."));
-    return 4;
-  }
-
-  // Close file
-  CloseHandle(hFile);
-
-  return 0;
-}
-
-int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
+int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POINTERS* pExInfo)
 {
-  crSetErrorMsg(_T("Success."));
+  crSetErrorMsg(_T("Unspecified error."));
+  
+  strconv_t strconv;  
 
-  strconv_t strconv;
+  DWORD dwProcessId = GetCurrentProcessId();
+  DWORD dwThreadId = GetCurrentThreadId();
 
-  /* Write crash information to shared memory */
+  FILE* f = NULL;
 
-  SMHeader* pSharedMem = m_Communicator.GetSharedMem();
+#if _MSC_VER>=1400
+  _tfopen_s(&f, sFileName, _T("wt"));
+#else
+  f = _tfopen(sFileName, _T("wt"));
+#endif
+  
+  if(f==NULL)
+  {
+    crSetErrorMsg(_T("Couldn't create internal crash info file."));
+    return 1; // Couldn't create file
+  }
+  
+  // Add <?xml version="1.0" encoding="utf-8" ?> element
+  fprintf(f, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+
+  // Add root element
+  fprintf(f, "<CrashRptInternal version=\"%d\">\n", CRASHRPT_VER);
+
+  // Add CrashGUID tag
+  fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
+    strconv.t2utf8(_repxrch(m_sCrashGUID)));
+
+  // Add ReportFolder tag
+  fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
+    strconv.t2utf8(_repxrch(m_sReportFolderName)));
+
+  // Add DbgHelpPath tag
+  fprintf(f, "  <DbgHelpPath>%s</DbgHelpPath>\n", 
+    strconv.t2utf8(_repxrch(m_sPathToDebugHelpDll)));
+
+  // Add MinidumpType tag
+  fprintf(f, "  <MinidumpType>%lu</MinidumpType>\n", m_MiniDumpType);
+
+  // Add ProcessId tag
+  fprintf(f, "  <ProcessId>%lu</ProcessId>\n", dwProcessId);
+
+  // Add ThreadId tag
+  fprintf(f, "  <ThreadId>%lu</ThreadId>\n", dwThreadId);
+
+  // Write ExceptionPointers tag
+  fprintf(f, "  <ExceptionPointers>\n");
+  
+  // Add Context tag
+
+  std::string sContext = base64_encode(
+    (const unsigned char*)pExInfo->ContextRecord, sizeof(CONTEXT));
+
+  fprintf(f, "    <Context>%s</Context>\n",
+    sContext.c_str());
+
+  int n = 0;
+  EXCEPTION_RECORD* pExRec = pExInfo->ExceptionRecord;
+  while(pExRec)
+  {
+    std::string sExRec = base64_encode(
+      (const unsigned char*)pExRec, sizeof(EXCEPTION_RECORD));
+
+    // Add ExceptionRecord tag
+    fprintf(f, "    <ExceptionRecord%d>%s</ExceptionRecord%d>\n", n,
+      sExRec.c_str(), n);
+
+    n++;
+    pExRec = pExRec->ExceptionRecord;
+  }
+  
+  fprintf(f, "  </ExceptionPointers>\n");
+
+  // Add EmailSubject tag
+  fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
+    strconv.t2utf8(_repxrch(m_sSubject)));
+
+  // Add EmailTo tag
+  fprintf(f, "  <EmailTo>%s</EmailTo>\n", 
+    strconv.t2utf8(_repxrch(m_sTo)));
+
+  // Add Url tag
+  fprintf(f, "  <Url>%s</Url>\n", 
+    strconv.t2utf8(_repxrch(m_sUrl)));
+
+  // Add PrivacyPolicyUrl tag
+  fprintf(f, "  <PrivacyPolicyUrl>%s</PrivacyPolicyUrl>\n", 
+    strconv.t2utf8(_repxrch(m_sPrivacyPolicyURL)));
+
+  // Add HttpPriority tag
+  fprintf(f, "  <HttpPriority>%d</HttpPriority>\n", m_uPriorities[CR_HTTP]);
+
+  // Add SmtpPriority tag
+  fprintf(f, "  <SmtpPriority>%d</SmtpPriority>\n", m_uPriorities[CR_SMTP]);
+
+  // Add MapiPriority tag
+  fprintf(f, "  <MapiPriority>%d</MapiPriority>\n", m_uPriorities[CR_SMAPI]);
+
+  // Write file items
+  fprintf(f, "  <FileItems>\n");
     
-
-  CString sFileItems;
-  sFileItems += _T("<FileItems>");
   std::map<CString, FileItem>::iterator it;
   for(it=m_files.begin(); it!=m_files.end(); it++)
   {
-    CString sFileItem;
-    sFileItem.Format(_T("<FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />"),
-      _repxrch(it->first), 
-      _repxrch(it->second.m_sFileName), 
-      _repxrch(it->second.m_sDescription), 
-      it->second.m_bMakeCopy?1:0);
-    sFileItems += sFileItem;
-  }
-  
-  // Convert to multi-byte
-  LPCSTR lpszCrashInfo =  strconv.t2a(sCrashInfo.GetBuffer(0));
-  
-  DWORD dwBytesWritten = 0;
-  DWORD dwLength = (DWORD)strlen(lpszCrashInfo);
-  BOOL bWrite = WriteFile(hPipe, lpszCrashInfo, dwLength, &dwBytesWritten, NULL);
-  
-  if(bWrite==FALSE || (int)dwBytesWritten == dwLength)
-  {
-    ATLASSERT(bWrite);
-    ATLASSERT((int)dwBytesWritten == strlen(lpszCrashInfo));
-    crSetErrorMsg(_T("Error transferring the crash information through the pipe."));
+    fprintf(f, "    <FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />\n",
+      strconv.t2utf8(_repxrch(it->first)), 
+      strconv.t2utf8(_repxrch(it->second.m_sFileName)), 
+      strconv.t2utf8(_repxrch(it->second.m_sDescription)), 
+      it->second.m_bMakeCopy?1:0 );    
   }
 
+  fprintf(f, "  </FileItems>\n");
+  
+  fprintf(f, "</CrashRptInternal>\n");
+
+  fclose(f);
+
+  crSetErrorMsg(_T("Success."));
+  return 0;
+}
+
+// Launches CrashSender.exe process
+int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
+{
+  crSetErrorMsg(_T("Success."));
+  
   /* Create CrashSender process */
 
   STARTUPINFO si;
@@ -1574,8 +1606,11 @@ int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
   PROCESS_INFORMATION pi;
   memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
 
-  BOOL bCreateProcess = CreateProcess(m_sPathToCrashSender, 
-    NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+  CString sArgs;
+  sArgs.Format(_T("\"%s\""), sCrashInfoFileName.GetBuffer(0));
+  BOOL bCreateProcess = CreateProcess(
+    m_sPathToCrashSender, sArgs.GetBuffer(0), 
+    NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
   if(!bCreateProcess)
   {
     ATLASSERT(bCreateProcess);
@@ -1586,13 +1621,12 @@ int CCrashHandler::LaunchCrashSender(CString sErrorReportDirName)
   /* Wait until CrashSender finishes with making screenshot, 
      copying files, creating minidump. */  
 
-  m_Communicator.W
-  
+  WaitForSingleObject(m_hEvent, INFINITE);  
 
   return 0;
 }
 
-// Replaces characters restricted by XML
+// Helper method that replaces characters restricted by XML
 CString CCrashHandler::_repxrch(CString sText)
 {
   CString sResult;
