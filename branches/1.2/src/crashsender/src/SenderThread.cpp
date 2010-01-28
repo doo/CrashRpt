@@ -80,7 +80,9 @@ BOOL CALLBACK MiniDumpCallback(
   __in     const PMINIDUMP_CALLBACK_INPUT CallbackInput,
   __inout  PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
 {
-  
+  /*switch(CallbackInput.CallbackType)
+  {    
+  };*/
   return TRUE;
 }
 
@@ -90,8 +92,8 @@ BOOL CreateMinidump()
   BOOL bStatus = FALSE;
   HMODULE hDbgHelp = NULL;
   HANDLE hFile = NULL;
-  MINIDUMP_EXCEPTION_INFORMATION eInfo;
-  MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
+  MINIDUMP_EXCEPTION_INFORMATION mei;
+  MINIDUMP_CALLBACK_INFORMATION mci;
   CString sMinidumpFile = g_CrashInfo.m_sErrorReportDirName + _T("\\crashdump.dmp");
 
   an.SetProgress(_T("Creating crash dump file..."), 0, false);
@@ -123,12 +125,12 @@ BOOL CreateMinidump()
   }
 
   // Write minidump to the file
-  eInfo.ThreadId = g_CrashInfo.m_dwThreadId;
-  eInfo.ExceptionPointers = &g_CrashInfo.m_ExInfo;
-  eInfo.ClientPointers = TRUE;
+  mei.ThreadId = g_CrashInfo.m_dwThreadId;
+  mei.ExceptionPointers = &g_CrashInfo.m_ExInfo;
+  mei.ClientPointers = TRUE;
   
-  cbMiniDump.CallbackRoutine = MiniDumpCallback;
-  cbMiniDump.CallbackParam = 0;
+  mci.CallbackRoutine = MiniDumpCallback;
+  mci.CallbackParam = 0;
 
   typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(
     HANDLE hProcess, 
@@ -157,13 +159,12 @@ BOOL CreateMinidump()
     g_CrashInfo.m_dwProcessId,
     hFile,
     g_CrashInfo.m_MinidumpType,
-    (&g_CrashInfo.m_ExInfo) ? &eInfo : NULL,
+    &mei,
     NULL,
-    &cbMiniDump);
+    &mci);
  
   if(!bWriteDump)
-  {
-    ATLASSERT(bWriteDump);
+  {    
     an.SetProgress(_T("Error writing dump."), 0, false);
     an.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
     goto cleanup;
