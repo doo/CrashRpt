@@ -5,12 +5,12 @@
 #include "CrashRptProbe.h"
 #include "CrashRpt.h"
 #include <map>
-#include "unzip.h"
 #include "CrashDescReader.h"
 #include "MinidumpReader.h"
 #include "md5.h"
 #include "Utility.h"
 #include "strconv.h"
+#include "unzip.h"
 
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
@@ -46,7 +46,7 @@ struct CrpReportData
     m_pDmpReader = NULL;
   }
 
-  HZIP m_hZip; // Handle to the ZIP archive
+  unzFile m_hZip; // Handle to the ZIP archive
   CCrashDescReader* m_pDescReader; // Pointer to the crash descriptor reader object
   CMiniDumpReader* m_pDmpReader;   // Pointer to the minidump reader object
   CString m_sMiniDumpTempName;     // The name of the tmp file to store extracted minidump in
@@ -108,6 +108,56 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
   return 0;
 }
 
+int UnzipFile(unzFile hZip, const char* szFileName, const char* szOutFileName)
+{
+  int status = -1;
+  int zr=0;
+  int open_file_res = 0;
+  FILE* f = NULL;
+  BYTE buff[1024];
+  int read_len = 0;
+  
+  zr = unzLocateFile(hZip, szFileName, 1);
+  if(zr!=UNZ_OK)
+    return -1;
+
+  open_file_res = unzOpenCurrentFile(hZip);
+  if(open_file_res!=UNZ_OK)
+    goto cleanup;
+
+#if _MSC_VER>=1400
+  fopen_s(&f, szOutFileName, "wb");
+#else
+  f = fopen(szOutFileName, "wb");
+#endif
+
+  if(f==NULL)
+    goto cleanup;
+
+  for(;;)
+  {
+    read_len = unzReadCurrentFile(hZip, buff, 1024);
+
+    if(read_len<0)
+      goto cleanup;
+
+    if(read_len==0)
+      break;
+  }  
+
+  status = 0;
+
+cleanup:
+
+  if(open_file_res==UNZ_OK)
+    unzCloseCurrentFile(hZip);
+
+  if(f!=NULL)
+    fclose(f);
+
+  return status;
+}
+
 int
 CRASHRPTPROBE_API
 crpOpenErrorReportW(
@@ -122,13 +172,16 @@ crpOpenErrorReportW(
   int status = -1;
   int nNewHandle = 0;
   CrpReportData report_data;  
-  ZRESULT zr = 0;
-  ZIPENTRY ze;
-  int xml_index = -1;
-  int dmp_index = -1;
+  int zr = 0;
+  int xml_find_res = UNZ_END_OF_LIST_OF_FILE;
+  int dmp_find_res = UNZ_END_OF_LIST_OF_FILE;
+  char szXmlFileName[1024]="";
+  char szDmpFileName[1024]="";
+  char szFileName[1024]="";
   CString sCalculatedMD5Hash;
   CString sAppName;
-
+  strconv_t strconv;
+  
   crpSetErrorMsg(_T("Unspecified error."));
   *pHandle = 0;
   
@@ -151,7 +204,7 @@ crpOpenErrorReportW(
   }
 
   // Open ZIP archive
-  report_data.m_hZip = OpenZip(pszFileName, 0);
+  report_data.m_hZip = unzOpen(strconv.w2a(pszFileName));
   if(report_data.m_hZip==NULL)
   {
     crpSetErrorMsg(_T("Error opening ZIP archive."));
@@ -159,63 +212,66 @@ crpOpenErrorReportW(
   }
 
   // Look for v1.1 crash descriptor XML
-  zr = FindZipItem(report_data.m_hZip, _T("crashrpt.xml"), false, &xml_index, &ze);
+  xml_find_res = unzLocateFile(report_data.m_hZip, "crashrpt.xml", 1);
+  zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szXmlFileName, 1024, NULL, 0, NULL, 0);
   
   // Look for v1.1 crash dump 
-  zr = FindZipItem(report_data.m_hZip, _T("crashdump.dmp"), false, &dmp_index, &ze);
+  dmp_find_res = unzLocateFile(report_data.m_hZip, "crashdump.dmp", 1);
+  zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szDmpFileName, 1024, NULL, 0, NULL, 0);
   
   // If xml and dmp still not found, assume it is v1.0
-  if(xml_index==-1 && dmp_index==-1)  
+  if(xml_find_res!=UNZ_OK && dmp_find_res!=UNZ_OK)  
   {    
     // Look for .dmp file
-    zr = GetZipItem(report_data.m_hZip, -1, &ze);
-    int nItemCount = ze.index;
-    int i=0;
-    for(i=0;nItemCount;i++)
+    zr = unzGoToFirstFile(report_data.m_hZip);
+    if(zr==UNZ_OK)
     {
-      zr = GetZipItem(report_data.m_hZip, i, &ze);
-      if(zr!=ZR_OK)
-        break;
+      for(;;)
+      {        
+        zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szDmpFileName, 1024, NULL, 0, NULL, 0);
+        if(zr!=UNZ_OK)
+          break;
 
-      CString sExt = Utility::GetFileExtension(ze.name);
-      if(sExt.CompareNoCase(_T("dmp"))==0)
-      {
-        // DMP found
-        sAppName = Utility::GetBaseFileName(ze.name);
-        dmp_index = i;
-        break;
+        CString sFileName = szDmpFileName;
+
+        CString sExt = Utility::GetFileExtension(sFileName);
+        if(sExt.CompareNoCase(_T("dmp"))==0)
+        {
+          // DMP found
+          sAppName = Utility::GetBaseFileName(sFileName);
+          dmp_find_res = Z_OK;
+          break;
+        }
+
+        zr=unzGoToNextFile(report_data.m_hZip);
+        if(zr!=UNZ_OK)
+          break;
       }
     }
 
     // Assume the name of XML is the same as DMP
-    CString sXmlName = Utility::GetBaseFileName(ze.name) + _T(".xml");
-    zr = FindZipItem(report_data.m_hZip, sXmlName, false, &xml_index, &ze);
-    if(zr!=ZR_OK)
+    CString sXmlName = Utility::GetBaseFileName(CString(szDmpFileName)) + _T(".xml");
+    zr = unzLocateFile(report_data.m_hZip, strconv.t2a(sXmlName), 1);
+    zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szXmlFileName, 1024, NULL, 0, NULL, 0);
+    if(zr==UNZ_OK)
     {
-      xml_index = -1;
+      xml_find_res = UNZ_OK;
     }
   }
 
   // Check that both xml and dmp found
-  if(xml_index<0 || dmp_index<0)
+  if(xml_find_res==UNZ_OK || dmp_find_res==UNZ_OK)
   {
     crpSetErrorMsg(_T("File is not a valid crash report (XML or DMP missing)."));
     goto exit; // XML or DMP not found 
   }
   
   // Load crash descriptor data
-  if(xml_index>=0)
+  if(xml_find_res==UNZ_OK)
   {
-    zr = GetZipItem(report_data.m_hZip, xml_index, &ze);
-    if(zr!=ZR_OK)
-    {
-      crpSetErrorMsg(_T("Error retrieving ZIP item."));
-      goto exit; // Can't get ZIP element
-    }
-
     CString sTempFile = Utility::getTempFileName();
-    zr = UnzipItem(report_data.m_hZip, xml_index, sTempFile);
-    if(zr!=ZR_OK)
+    zr = UnzipFile(report_data.m_hZip, szXmlFileName, strconv.t2a(sTempFile));
+    if(zr!=0)
     {
       crpSetErrorMsg(_T("Error extracting ZIP item."));
       goto exit; // Can't unzip ZIP element
@@ -228,15 +284,14 @@ crpOpenErrorReportW(
       crpSetErrorMsg(_T("Crash descriptor is not a valid XML file."));
       goto exit; // Corrupted XML
     }    
-
   }  
 
   // Extract minidump file
-  if(dmp_index>=0)
+  if(dmp_find_res==UNZ_OK)
   {
     CString sTempFile = Utility::getTempFileName();
-    zr = UnzipItem(report_data.m_hZip, dmp_index, sTempFile);
-    if(zr!=ZR_OK)
+    zr = UnzipFile(report_data.m_hZip, szDmpFileName, strconv.t2a(sTempFile));
+    if(zr!=0)
     {
       crpSetErrorMsg(_T("Error extracting ZIP item."));
       goto exit; // Can't unzip ZIP element
@@ -307,15 +362,23 @@ crpOpenErrorReportW(
   }
 
   // Enumerate contained files
-  int i=0;
-  for(i=0;;i++)
+  zr = unzGoToFirstFile(report_data.m_hZip);
+  if(zr==UNZ_OK)
   {
-    zr = GetZipItem(report_data.m_hZip, i, &ze);
-    if(zr!=ZR_OK)
-      break;
+    for(;;)
+    {        
+      zr = unzGetCurrentFileInfo(report_data.m_hZip, 
+        NULL, szFileName, 1024, NULL, 0, NULL, 0);
+      if(zr!=UNZ_OK)
+        break;
 
-    CString sFile = ze.name;
-    report_data.m_ContainedFiles.push_back(sFile);
+      CString sFileName = szFileName;
+      report_data.m_ContainedFiles.push_back(sFileName);
+      
+      zr=unzGoToNextFile(report_data.m_hZip);
+      if(zr!=UNZ_OK)
+        break;      
+    }    
   }
 
   // Add handle to the list of opened handles
@@ -334,7 +397,7 @@ exit:
     delete report_data.m_pDmpReader;
 
     if(report_data.m_hZip!=0) 
-      CloseZip(report_data.m_hZip);
+      unzClose(report_data.m_hZip);
   }
 
   
@@ -378,7 +441,7 @@ crpCloseErrorReport(
   delete it->second.m_pDmpReader;
 
   if(it->second.m_hZip)
-    CloseZip(it->second.m_hZip);
+    unzClose(it->second.m_hZip);
 
   // Remove from the list of opened handles
   g_OpenedHandles.erase(it);
@@ -1079,10 +1142,8 @@ crpExtractFileW(
   crpSetErrorMsg(_T("Unspecified error."));
   
   strconv_t strconv;
-  ZRESULT zr;
-  ZIPENTRY ze;
-  int index = -1;
-  HZIP hZip = 0;
+  int zr;  
+  unzFile hZip = 0;
   
   std::map<int, CrpReportData>::iterator it = g_OpenedHandles.find(hReport);
   if(it==g_OpenedHandles.end())
@@ -1093,8 +1154,8 @@ crpExtractFileW(
   
   hZip = it->second.m_hZip;
 
-  zr = FindZipItem(hZip, strconv.w2t(lpszFileName), true, &index, &ze);
-  if(zr!=ZR_OK)
+  zr = unzLocateFile(hZip, strconv.w2a(lpszFileName), 1);
+  if(zr!=UNZ_OK)
   {
     crpSetErrorMsg(_T("Couldn't find the specified zip item."));
     return -2;
@@ -1112,8 +1173,8 @@ crpExtractFileW(
     }
   }
 
-  zr = UnzipItem(hZip, index, strconv.w2t(lpszFileSaveAs));
-  if(zr!=ZR_OK)
+  zr = UnzipFile(hZip, strconv.w2a(lpszFileName), strconv.w2a(lpszFileSaveAs));
+  if(zr!=UNZ_OK)
   {
     crpSetErrorMsg(_T("Error extracting the specified zip item."));
     return -4;
