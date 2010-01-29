@@ -3,6 +3,7 @@
 #include "CrashDescReader.h"
 #include "tinyxml.h"
 #include "Utility.h"
+#include "strconv.h"
 
 CCrashDescReader::CCrashDescReader()
 {

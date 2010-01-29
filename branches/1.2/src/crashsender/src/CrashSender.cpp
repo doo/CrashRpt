@@ -12,6 +12,7 @@
 #include "utility.h"
 #include "CrashRpt.h"
 #include "base64.h"
+#include "strconv.h"
 
 CAppModule _Module;
 CCrashInfo g_CrashInfo;

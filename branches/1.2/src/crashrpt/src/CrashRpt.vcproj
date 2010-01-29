@@ -295,7 +295,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlibd.lib version.lib shell32.lib Comdlg32.lib gdi32.lib libpngd.lib psapi.lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib version.lib shell32.lib Comdlg32.lib gdi32.lib psapi.lib"
 				OutputFile="../../bin/CrashRptd.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -877,6 +877,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CritSec.h"
+				>
+			</File>
+			<File
 				RelativePath="resource.h"
 				>
 			</File>
@@ -885,11 +889,11 @@
 				>
 			</File>
 			<File
-				RelativePath="Utility.h"
+				RelativePath=".\strconv.h"
 				>
 			</File>
 			<File
-				RelativePath="zlibcpp.h"
+				RelativePath="Utility.h"
 				>
 			</File>
 		</Filter>

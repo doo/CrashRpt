@@ -1,12 +1,39 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Module: Utility.cpp
-//
-//    Desc: See Utility.h
-//
-// Copyright (c) 2003 Michael Carruth
-//
-///////////////////////////////////////////////////////////////////////////////
+/************************************************************************************* 
+  This file is a part of CrashRpt library.
+
+  CrashRpt is Copyright (c) 2003, Michael Carruth
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+ 
+   * Redistributions of source code must retain the above copyright notice, this 
+     list of conditions and the following disclaimer.
+ 
+   * Redistributions in binary form must reproduce the above copyright notice, 
+     this list of conditions and the following disclaimer in the documentation 
+     and/or other materials provided with the distribution.
+ 
+   * Neither the name of the author nor the names of its contributors 
+     may be used to endorse or promote products derived from this software without 
+     specific prior written permission.
+ 
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************************************/
+
+// File: Utility.cpp
+// Description: Miscellaneous helper functions
+// Authors: mikecarruth, zexspectrum
+// Date: 
 
 #include "stdafx.h"
 #include "Utility.h"
@@ -14,7 +41,7 @@
 #include <time.h>
 #include "atldlgs.h"
 #include <shellapi.h>
-
+#include "strconv.h"
 
 CString Utility::getAppName()
 {
@@ -27,6 +54,25 @@ CString Utility::getAppName()
                       .SpanExcluding(_T("."));
 
    return sAppName;
+}
+
+CString Utility::GetModuleName(HMODULE hModule)
+{
+	CString string;
+	LPTSTR buf = string.GetBuffer(_MAX_PATH);
+	GetModuleFileName(hModule, buf, _MAX_PATH);
+	string.ReleaseBuffer();
+	return string;
+}
+
+CString Utility::GetModulePath(HMODULE hModule)
+{
+	CString string;
+	LPTSTR buf = string.GetBuffer(_MAX_PATH);
+	GetModuleFileName(hModule, buf, _MAX_PATH);
+	*(_tcsrchr(buf,'\\'))=0; // remove executable name
+	string.ReleaseBuffer();
+	return string;
 }
 
 int Utility::getTempDirectory(CString& strTemp)
@@ -60,17 +106,6 @@ CString Utility::getTempFileName()
       GetTempFileName(szTempDir, getAppName(), 0, szTempFile);
 
    return szTempFile;
-}
-
-
-CString Utility::GetModulePath(HMODULE hModule)
-{
-	CString string;
-	LPTSTR buf = string.GetBuffer(_MAX_PATH);
-	GetModuleFileName(hModule, buf, _MAX_PATH);
-	*(_tcsrchr(buf,'\\'))=0; // remove executable name
-	string.ReleaseBuffer();
-	return string;
 }
 
 int Utility::GetSystemTimeUTC(CString& sTime)
@@ -348,5 +383,66 @@ HWND Utility::FindAppWindow()
   return hWnd;
 }
 
+CString Utility::GetProductVersion(CString sModuleName)
+{
+  CString sProductVer; 
 
+  DWORD dwBuffSize = GetFileVersionInfoSize(sModuleName, 0);
+  LPBYTE pBuff = new BYTE[dwBuffSize];
+    
+  if(0!=GetFileVersionInfo(sModuleName, 0, dwBuffSize, pBuff))
+  {
+    VS_FIXEDFILEINFO* fi = NULL;
+    UINT uLen = 0;
+    VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
 
+    WORD dwVerMajor = (WORD)(fi->dwProductVersionMS>>16);
+    WORD dwVerMinor = (WORD)(fi->dwProductVersionMS&0xFF);
+    WORD dwPatchLevel = (WORD)(fi->dwProductVersionLS>>16);
+    WORD dwVerBuild = (WORD)(fi->dwProductVersionLS&0xFF);
+
+    sProductVer.Format(_T("%u.%u.%u.%u"), 
+      dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);
+  }
+
+  delete [] pBuff;
+
+  return sProductVer;
+}
+
+// Creates a folder. If some intermediate folders in the path do not exist,
+// it creates them.
+BOOL Utility::CreateFolder(CString sFolderName)
+{  
+  CString sIntermediateFolder;
+
+  // Skip disc drive name "X:\" if presents
+  int start = sFolderName.Find(':', 0);
+  if(start>=0)
+    start+=2; 
+
+  int pos = start;  
+  for(;;)
+  {
+    pos = sFolderName.Find('\\', pos);
+    if(pos<0)
+    {
+      sIntermediateFolder = sFolderName;
+    }
+    else
+    {
+      sIntermediateFolder = sFolderName.Left(pos);
+    }
+
+    BOOL bCreate = CreateDirectory(sIntermediateFolder, NULL);
+    if(!bCreate && GetLastError()!=ERROR_ALREADY_EXISTS)
+      return FALSE;
+
+    if(pos==-1)
+      break;
+
+    pos++;
+  }
+
+  return TRUE;
+}

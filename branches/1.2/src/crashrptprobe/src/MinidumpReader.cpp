@@ -2,6 +2,7 @@
 #include "MinidumpReader.h"
 #include <assert.h>
 #include "Utility.h"
+#include "strconv.h"
 
 CMiniDumpReader* g_pMiniDumpReader = NULL;
 

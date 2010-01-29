@@ -6,7 +6,7 @@
 #pragma once
 
 // Change these values to use different versions
-#define WINVER		0x0500
+#define WINVER		0x0501
 #define _WIN32_WINNT	0x0501
 #define _WIN32_IE	0x0501
 #define _RICHEDIT_VER	0x0200
@@ -50,6 +50,11 @@ extern CAppModule _Module;
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
 
+#include <new.h>
+#include <map>
+#include <stdlib.h>
+#include <string>
+#include <dbghelp.h>
 
 #if _MSC_VER<1400
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy(strDest, strSource, count)

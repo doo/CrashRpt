@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include "base64.h"
 #include "Utility.h"
+#include "strconv.h"
 
 CSmtpClient::CSmtpClient()
 {

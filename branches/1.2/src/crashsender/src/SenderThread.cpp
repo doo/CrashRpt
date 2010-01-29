@@ -8,6 +8,7 @@
 #include "Utility.h"
 #include "zip.h"
 #include "CrashSender.h"
+#include "strconv.h"
 
 int attempt = 0;
 AssyncNotification an;
@@ -73,6 +74,73 @@ void CancelSenderThread()
 void FeedbackReady(int code)
 {
   an.FeedbackReady(code);
+}
+
+
+BOOL MakeDesktopScreenshot()
+{
+  //CScreenCapture sc;
+  //std::vector<CString> screenshot_names;
+
+  ///* Create directory for the error report (if not created yet). */
+
+  //CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+  //BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
+  //if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
+  //{ 
+  //  crSetErrorMsg(_T("Couldn't create directory."));
+  //  return -1;
+  //}  
+
+  //if(dwFlags==CR_AS_VIRTUAL_SCREEN)
+  //{
+  //  CRect rcScreen;
+  //  sc.GetScreenRect(&rcScreen);
+  //  
+  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
+  //  if(bMakeScreenshot==FALSE)
+  //  {
+  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
+  //    return -3;
+  //  }
+  //}
+  //else if(dwFlags==CR_AS_MAIN_WINDOW)
+  //{    
+  //  HWND hMainWnd = Utility::FindAppWindow();
+  //  if(hMainWnd==NULL)
+  //  {
+  //    crSetErrorMsg(_T("Couldn't find main application window."));
+  //    return -2;
+  //  }
+
+  //  CRect rcWindow; 
+  //  GetWindowRect(hMainWnd, &rcWindow);
+  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
+  //  if(bMakeScreenshot==FALSE)
+  //  {
+  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
+  //    return -3;
+  //  }
+  //}
+  //else
+  //{
+  //  crSetErrorMsg(_T("Invalid flag specified."));
+  //  return -1;
+  //}
+
+  //size_t i;
+  //for(i=0; i<screenshot_names.size(); i++)
+  //{
+  //  CString sDestFile;
+  //  sDestFile.Format(_T("screenshot%d.png"), i); 
+  //  int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
+  //  if(nAdd!=0)
+  //  {
+  //    return -4;
+  //  }
+  //}
+
+  return TRUE;
 }
 
 BOOL CALLBACK MiniDumpCallback(

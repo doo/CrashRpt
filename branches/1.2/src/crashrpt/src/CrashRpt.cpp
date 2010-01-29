@@ -2,6 +2,7 @@
 #include "CrashRpt.h"
 #include "CrashHandler.h"
 #include "Utility.h"
+#include "strconv.h"
 
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.

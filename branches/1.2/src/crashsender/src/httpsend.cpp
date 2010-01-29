@@ -6,6 +6,7 @@
 #include "md5.h"
 #include <string>
 #include "Utility.h"
+#include "strconv.h"
 
 BOOL CHttpSender::SendAssync(CString sUrl, CString sFileName, AssyncNotification* an)
 {

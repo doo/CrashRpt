@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "MailMsg.h"
 #include "Utility.h"
+#include "strconv.h"
 
 CMailMsg::CMailMsg()
 {

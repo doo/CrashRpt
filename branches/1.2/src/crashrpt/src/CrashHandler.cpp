@@ -10,12 +10,12 @@
 
 #include "stdafx.h"
 #include "CrashHandler.h"
-#include "process.h"
 #include "Utility.h"
 #include "resource.h"
 #include <sys/stat.h>
 #include <psapi.h>
 #include "base64.h"
+#include "strconv.h"
 
 #if _MSC_VER>=1300
 #include <rtcapi.h>
@@ -378,13 +378,14 @@ CCrashHandler::CCrashHandler()
   m_hDbgHelpDll = 0;
   m_MiniDumpType = MiniDumpNormal;
   m_hEvent = NULL;
+  m_bAddScreenshot = FALSE;
+  m_dwScreenshotFlags = 0;
 }
 
 CCrashHandler::~CCrashHandler()
 {
   Destroy();
 }
-
 
 int CCrashHandler::Init(
   LPCTSTR lpcszAppName,
@@ -398,14 +399,16 @@ int CCrashHandler::Init(
   DWORD dwFlags,
   LPCTSTR lpcszPrivacyPolicyURL,
   LPCTSTR lpcszDebugHelpDLLPath,
-  MINIDUMP_TYPE miniDumpType)
+  MINIDUMP_TYPE MiniDumpType)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
-  // save user supplied callback
-  if (lpfnCallback)
-    m_lpfnCallback = lpfnCallback;
+  // Save minidump type
+  m_MiniDumpType = MiniDumpType;
 
+  // Save user supplied callback
+  m_lpfnCallback = lpfnCallback;
+  
   // Get handle to the EXE module used to create this process
   HMODULE hExeModule = GetModuleHandle(NULL);
   if(hExeModule==NULL)
@@ -415,25 +418,17 @@ int CCrashHandler::Init(
     return 1;
   }
 
-  TCHAR szExeName[_MAX_PATH];
-  DWORD dwLength = GetModuleFileName(hExeModule, szExeName, _MAX_PATH);  
-  if(dwLength==0)
-  {
-    // Couldn't get the name of EXE that was used to create current process
-    ATLASSERT(0);
-    crSetErrorMsg(_T("Couldn't get the name of EXE that was used to create current process."));
-    return 1;
-  }  
-
   // Save EXE image name
-  m_sImageName = CString(szExeName, dwLength);
+  m_sImageName = Utility::GetModuleName(hExeModule);
 
   // Save application name
   m_sAppName = lpcszAppName;
 
   // If no app name provided, use the default (EXE name)
   if(m_sAppName.IsEmpty())
+  {
     m_sAppName = Utility::getAppName();
+  }
 
   // Save app version
   m_sAppVersion = lpcszAppVersion;
@@ -441,33 +436,19 @@ int CCrashHandler::Init(
   // If no app version provided, use the default (EXE product version)
   if(m_sAppVersion.IsEmpty())
   {
-    DWORD dwBuffSize = GetFileVersionInfoSize(szExeName, 0);
-    LPBYTE pBuff = new BYTE[dwBuffSize];
-    
-    if(0!=GetFileVersionInfo(szExeName, 0, dwBuffSize, pBuff))
-    {
-      VS_FIXEDFILEINFO* fi = NULL;
-      UINT uLen = 0;
-      VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
-
-      WORD dwVerMajor = (WORD)(fi->dwProductVersionMS>>16);
-      WORD dwVerMinor = (WORD)(fi->dwProductVersionMS&0xFF);
-      WORD dwPatchLevel = (WORD)(fi->dwProductVersionLS>>16);
-      WORD dwVerBuild = (WORD)(fi->dwProductVersionLS&0xFF);
-
-      m_sAppVersion.Format(_T("%u.%u.%u.%u"), 
-        dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);
-    }
-
-    delete [] pBuff;
+    m_sAppVersion = Utility::GetProductVersion(m_sImageName);
   }
 
+  // Save URL to send reports via HTTP
   if(lpcszUrl!=NULL)
+  {
     m_sUrl = CString(lpcszUrl);
+  }
 
-  // save email info
+  // Save Email recipient address
   m_sTo = lpcszTo;
 
+  // Check that at least one recipient address is provided (URL or Email)
   if(m_sTo.IsEmpty() && m_sUrl.IsEmpty())
   {
     crSetErrorMsg(_T("Error report recipient's address is not defined."));
@@ -496,6 +477,7 @@ int CCrashHandler::Init(
   if(lpcszPrivacyPolicyURL!=NULL)
     m_sPrivacyPolicyURL = lpcszPrivacyPolicyURL;
 
+  // Get the name of CrashRpt DLL
   LPTSTR pszCrashRptModule = NULL;
 
 #ifndef CRASHRPT_LIB
@@ -517,14 +499,19 @@ int CCrashHandler::Init(
     return 1;
   }  
   
+  // Save path to CrashSender.exe
   if(lpcszCrashSenderPath==NULL)
   {
     // By default assume that CrashSender.exe is located in the same dir as CrashRpt.dll
     m_sPathToCrashSender = Utility::GetModulePath(hCrashRptModule);   
   }
   else
+  {
+    // Save user-specified path
     m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
+  }
 
+  // Remove ending backslash if any
   if(m_sPathToCrashSender.Right(1)!='\\')
       m_sPathToCrashSender+="\\";
 
@@ -539,7 +526,6 @@ int CCrashHandler::Init(
     return 1; // Language INI file has wrong version!
   }
 
-
   // Get CrashSender EXE name
   CString sCrashSenderName;
 
@@ -551,95 +537,16 @@ int CCrashHandler::Init(
 
   m_sPathToCrashSender+=sCrashSenderName;   
 
+  // Check that CrashSender.exe file exists
   HANDLE hFile = CreateFile(m_sPathToCrashSender, FILE_GENERIC_READ, 
-    FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-  
+    FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);  
   if(hFile==INVALID_HANDLE_VALUE)
   {
     ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
     crSetErrorMsg(_T("Couldn't locate CrashSender.exe in specified directory."));
     return 1; // CrashSender not found!
   }
-
   CloseHandle(hFile);
-  
-  // Generate unique GUID for this crash report.
-  if(0!=Utility::GenerateGUID(m_sCrashGUID))
-  {
-    ATLASSERT(0);
-    crSetErrorMsg(_T("Couldn't generate crash GUID."));
-    return 1; 
-  }
-
-  // Create event that will be used to synchronize with CrashSender.exe process
-  CString sEventName;
-  sEventName.Format(_T("Local\\CrashRptEvent_%s"), m_sCrashGUID);
-  m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
-
-  // Get operating system friendly name.
-  if(0!=Utility::GetOSFriendlyName(m_sOSName))
-  {
-    ATLASSERT(0);
-    crSetErrorMsg(_T("Couldn't get operating system's friendly name."));
-    return 1; 
-  }
-
-  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
-  CString sLocalAppDataFolder;
-
-  DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
-
-  Utility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
-  if(sLocalAppDataFolder.Right(1)!='\\')
-    sLocalAppDataFolder += _T("\\");
-  
-  CString sCrashRptFolder = sLocalAppDataFolder+_T("CrashRpt");
-  if(FALSE==CreateDirectory(sCrashRptFolder, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
-  {
-    ATLASSERT(0);
-    crSetErrorMsg(_T("Couldn't create CrashRpt directory."));
-    return 1; 
-  }
-
-  CString sUnsentCrashReportsFolder = sCrashRptFolder+_T("\\UnsentCrashReports");
-  if(FALSE==CreateDirectory(sUnsentCrashReportsFolder, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
-  {
-    ATLASSERT(0);
-    crSetErrorMsg(_T("Couldn't create UnsentCrashReports directory."));
-    return 1; 
-  }
-
-  CString str = sUnsentCrashReportsFolder+_T("\\")+m_sAppName+_T("_")+m_sAppVersion;
-  CString sUnsentCrashReportsFolderAppName = Utility::ReplaceInvalidCharsInFileName(str);
-  if(FALSE==CreateDirectory(sUnsentCrashReportsFolderAppName, NULL) && GetLastError()!=ERROR_ALREADY_EXISTS)
-  {
-    ATLASSERT(0);
-    crSetErrorMsg(_T("Couldn't create UnsentCrashReports\\AppName directory."));
-    return 1; 
-  }
-
-  m_sUnsentCrashReportsFolder = sUnsentCrashReportsFolderAppName;
-  
-  m_sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
-
-  // Set C++ exception handlers
-  InitPrevCPPExceptionHandlerPointers();
-   
-  int nSetProcessHandlers = SetProcessExceptionHandlers(dwFlags);   
-  if(nSetProcessHandlers!=0)
-  {
-    ATLASSERT(nSetProcessHandlers==0);
-    crSetErrorMsg(_T("Couldn't set C++ exception handlers for current process."));
-    return 1;
-  }
-
-  int nSetThreadHandlers = SetThreadExceptionHandlers(dwFlags);
-  if(nSetThreadHandlers!=0)
-  {
-    ATLASSERT(nSetThreadHandlers==0);
-    crSetErrorMsg(_T("Couldn't set C++ exception handlers for main execution thread."));
-    return 1;
-  }
 
   if(lpcszDebugHelpDLLPath==NULL)
   {
@@ -670,9 +577,72 @@ int CCrashHandler::Init(
 
   FreeLibrary(m_hDbgHelpDll);
 
-  m_MiniDumpType = miniDumpType;
+  // Generate unique GUID for this crash report.
+  if(0!=Utility::GenerateGUID(m_sCrashGUID))
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't generate crash GUID."));
+    return 1; 
+  }
 
-  // associate this handler with the caller process
+  // Create event that will be used to synchronize with CrashSender.exe process
+  CString sEventName;
+  sEventName.Format(_T("Local\\CrashRptEvent_%s"), m_sCrashGUID);
+  m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+  if(m_hEvent==NULL)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't create synchronization event."));
+    return 1; 
+  }
+
+  // Get operating system friendly name.
+  if(0!=Utility::GetOSFriendlyName(m_sOSName))
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't get operating system's friendly name."));
+    return 1; 
+  }
+
+  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
+  CString sLocalAppDataFolder;
+  DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
+  Utility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
+  m_sUnsentCrashReportsFolder.Format(_T("%s\\CrashRpt\\UnsentCrashReports\\%s_%s"), 
+    sLocalAppDataFolder, m_sAppName, m_sAppVersion);
+  BOOL bCreateDir = Utility::CreateFolder(m_sUnsentCrashReportsFolder);
+  if(!bCreateDir)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't create crash report directory."));
+    return 1; 
+  }
+    
+  // Save the name of the folder we will save this crash report (if occur)
+  m_sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+
+  // Set exception handlers with initial values (NULLs)
+  InitPrevCPPExceptionHandlerPointers();
+   
+  // Set exception handlers that work on per-process basis
+  int nSetProcessHandlers = SetProcessExceptionHandlers(dwFlags);   
+  if(nSetProcessHandlers!=0)
+  {
+    ATLASSERT(nSetProcessHandlers==0);
+    crSetErrorMsg(_T("Couldn't set C++ exception handlers for current process."));
+    return 1;
+  }
+
+  // Set exception handlers that work on per-thread basis
+  int nSetThreadHandlers = SetThreadExceptionHandlers(dwFlags);
+  if(nSetThreadHandlers!=0)
+  {
+    ATLASSERT(nSetThreadHandlers==0);
+    crSetErrorMsg(_T("Couldn't set C++ exception handlers for main execution thread."));
+    return 1;
+  }
+  
+  // Associate this handler with the caller process
   m_pid = _getpid();
   g_CrashHandlers.m_map[m_pid] =  this;
     
@@ -1052,70 +1022,9 @@ int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
 }
 
 int CCrashHandler::AddScreenshot(DWORD dwFlags)
-{
-  crSetErrorMsg(_T("Unspecified error."));
-
-  //CScreenCapture sc;
-  //std::vector<CString> screenshot_names;
-
-  ///* Create directory for the error report (if not created yet). */
-
-  //CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
-  //BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
-  //if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
-  //{ 
-  //  crSetErrorMsg(_T("Couldn't create directory."));
-  //  return -1;
-  //}  
-
-  //if(dwFlags==CR_AS_VIRTUAL_SCREEN)
-  //{
-  //  CRect rcScreen;
-  //  sc.GetScreenRect(&rcScreen);
-  //  
-  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
-  //  if(bMakeScreenshot==FALSE)
-  //  {
-  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
-  //    return -3;
-  //  }
-  //}
-  //else if(dwFlags==CR_AS_MAIN_WINDOW)
-  //{    
-  //  HWND hMainWnd = Utility::FindAppWindow();
-  //  if(hMainWnd==NULL)
-  //  {
-  //    crSetErrorMsg(_T("Couldn't find main application window."));
-  //    return -2;
-  //  }
-
-  //  CRect rcWindow; 
-  //  GetWindowRect(hMainWnd, &rcWindow);
-  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
-  //  if(bMakeScreenshot==FALSE)
-  //  {
-  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
-  //    return -3;
-  //  }
-  //}
-  //else
-  //{
-  //  crSetErrorMsg(_T("Invalid flag specified."));
-  //  return -1;
-  //}
-
-  //size_t i;
-  //for(i=0; i<screenshot_names.size(); i++)
-  //{
-  //  CString sDestFile;
-  //  sDestFile.Format(_T("screenshot%d.png"), i); 
-  //  int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
-  //  if(nAdd!=0)
-  //  {
-  //    return -4;
-  //  }
-  //}
-
+{  
+  m_bAddScreenshot = TRUE;
+  m_dwScreenshotFlags = dwFlags;
   crSetErrorMsg(_T("Success."));
   return 0;
 }
@@ -1153,7 +1062,7 @@ int CCrashHandler::GenerateErrorReport(
   /* Create directory for the error report. */
   
   BOOL bCreateDir = CreateDirectory(m_sReportFolderName, NULL);
-  if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
+  if(!bCreateDir)
   {    
     ATLASSERT(bCreateDir);
     CString szCaption;
@@ -1288,13 +1197,21 @@ void CCrashHandler::CollectMiscCrashInfo()
   HANDLE hCurProcess = GetCurrentProcess();
   m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
   
-  // Get count of opened handles
-  DWORD dwHandleCount = 0;
-  BOOL bGetHandleCount = GetProcessHandleCount(hCurProcess, &dwHandleCount);
-  if(bGetHandleCount)
-    m_dwProcessHandleCount = dwHandleCount;
-  else
-    m_dwProcessHandleCount = 0;
+  // Determine if GetProcessHandleCount function available
+  typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
+  HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
+  LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
+    (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
+  if(pfnGetProcessHandleCount!=NULL)
+  {    
+    // Get count of opened handles
+    DWORD dwHandleCount = 0;
+    BOOL bGetHandleCount = GetProcessHandleCount(hCurProcess, &dwHandleCount);
+    if(bGetHandleCount)
+      m_dwProcessHandleCount = dwHandleCount;
+    else
+      m_dwProcessHandleCount = 0;
+  }
 
   // Get memory usage info
   PROCESS_MEMORY_COUNTERS meminfo;

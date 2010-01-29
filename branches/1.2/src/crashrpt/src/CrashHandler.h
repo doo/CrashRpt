@@ -3,8 +3,8 @@
 //  Module: CrashHandler.h
 //
 //    Desc: CCrashHandler is the main class used by crashrpt to manage all
-//          of the details associated with handling the exception, generating
-//          the report, gathering client input, and sending the report.
+//          of the details associated with handling the exception and generating
+//          the report.
 //
 // Copyright (c) 2003 Michael Carruth
 //
@@ -13,19 +13,12 @@
 #ifndef _CRASHHANDLER_H_
 #define _CRASHHANDLER_H_
 
-#if _MSC_VER >= 1000
-#pragma once
-#endif // _MSC_VER >= 1000
-
-#include "CrashRpt.h"      
-#include <new.h>
-#include <map>
-#include <stdlib.h>
+#include "stdafx.h"
 #include <signal.h>
 #include <exception>
-#include <string>
-#include <dbghelp.h>
+#include "CrashRpt.h"      
 #include "Utility.h"
+#include "CritSec.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
 struct _cpp_thread_exception_handlers
@@ -46,6 +39,7 @@ struct _cpp_thread_exception_handlers
   void (__cdecl *m_prevSigSEGV)(int);  // Previous illegal storage access handler
 };
 
+// Sets the last error message (for the caller thread).
 int crSetErrorMsg(PTSTR pszErrorMsg);
 
 struct FileItem
@@ -55,11 +49,6 @@ struct FileItem
   BOOL m_bMakeCopy;       // Should we make a copy of this file on crash?
 };
 
-// ===========================================================================
-// CCrashHandler
-// 
-// See the module comment at top of file.
-//
 class CCrashHandler  
 {
 public:
@@ -74,7 +63,7 @@ public:
       LPCTSTR lpcszAppName = NULL,
       LPCTSTR lpcszAppVersion = NULL,
       LPCTSTR lpcszCrashSenderPath = NULL,
-      LPGETLOGFILE lpfn = NULL,           
+      LPGETLOGFILE lpfnCallback = NULL,           
       LPCTSTR lpcszTo = NULL,             
       LPCTSTR lpcszSubject = NULL,
       LPCTSTR lpcszUrl = NULL,
@@ -82,7 +71,7 @@ public:
       DWORD dwFlags = 0,
       LPCTSTR lpcszPrivacyPolicyURL = NULL,
       LPCTSTR lpcszDebugHelpDLLPath = NULL,
-      MINIDUMP_TYPE miniDumpType = MiniDumpNormal);
+      MINIDUMP_TYPE MiniDumpType = MiniDumpNormal);
 
    int Destroy();
    
@@ -94,31 +83,45 @@ public:
       DWORD dwFlags
       );
 
+  // Adds a named text property to the report
   int AddProperty(CString sPropName, CString sPropValue);
 
+  // Adds desktop screenshot on crash
   int AddScreenshot(DWORD dwFlags);
 
-   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
+  // Generates error report
+  int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
      
-   int SetProcessExceptionHandlers(DWORD dwFlags);
-   int UnSetProcessExceptionHandlers();
+  // Sets/unsets exception handlers for the current process
+  int SetProcessExceptionHandlers(DWORD dwFlags);
+  int UnSetProcessExceptionHandlers();
 
-   int SetThreadExceptionHandlers(DWORD dwFlags);   
-   int UnSetThreadExceptionHandlers();
+  // Sets/unsets exception handlers for the caller thread
+  int SetThreadExceptionHandlers(DWORD dwFlags);   
+  int UnSetThreadExceptionHandlers();
   
-   static CCrashHandler* GetCurrentProcessCrashHandler();
+  // Returns the crash handler object if such object was 
+  // created for the current process
+  static CCrashHandler* GetCurrentProcessCrashHandler();
 
 protected:
   
-  void GetExceptionPointers(DWORD dwExceptionCode, EXCEPTION_POINTERS** pExceptionPointers);
+  // Collects current process state
+  void GetExceptionPointers(DWORD dwExceptionCode, 
+    EXCEPTION_POINTERS** pExceptionPointers);
   
+  // Collects various information useful for crash analyzis
   void CollectMiscCrashInfo();
     
+  // Creates crash descriptor XML file
   int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
-  int CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POINTERS* pExInfo);
+  // Creates internally used crash description file
+  int CreateInternalCrashInfoFile(CString sFileName, 
+    EXCEPTION_POINTERS* pExInfo);
   
+  // Launches the CrashSender.exe process
   int LaunchCrashSender(CString sCrashInfoFileName);  
 
   // Replaces characters that are restricted in XML.
@@ -163,21 +166,25 @@ protected:
   CString m_sImageName;          // Path to client executable file.
   CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
   CString m_sCrashGUID;          // Unique ID of the crash report.
-  CString m_sOSName;             // Operating system name.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
   CString m_sReportFolderName;   // Folder where current crash report will be saved.
   CString m_sPrivacyPolicyURL;   // Privacy policy URL  
   HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
   CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
+
   CString m_sCrashTime;          // Crash time in UTC format
+  CString m_sOSName;             // Operating system name.
   DWORD m_dwGuiResources;        // Count of GUI resources in use
   DWORD m_dwProcessHandleCount;  // Count of opened handles
   CString m_sMemUsage;           // Memory usage
 
+  BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
+  DWORD m_dwScreenshotFlags;     // Screenshot flags
+
   HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
 
-  BOOL m_bInitialized;
+  BOOL m_bInitialized;           // Flag telling if this object was are initialized.
 };
 
 #endif	// !_CRASHHANDLER_H_
