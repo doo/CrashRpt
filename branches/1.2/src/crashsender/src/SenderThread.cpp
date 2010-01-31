@@ -9,6 +9,7 @@
 #include "zip.h"
 #include "CrashSender.h"
 #include "strconv.h"
+#include "ScreenCap.h"
 
 int attempt = 0;
 AssyncNotification an;
@@ -79,66 +80,56 @@ void FeedbackReady(int code)
 
 BOOL MakeDesktopScreenshot()
 {
-  //CScreenCapture sc;
-  //std::vector<CString> screenshot_names;
+  CScreenCapture sc;
+  std::vector<CString> screenshot_names;
+  
+  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
+  {
+    CRect rcScreen;
+    sc.GetScreenRect(&rcScreen);
+    
+    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
+    if(bMakeScreenshot==FALSE)
+    {
+      crSetErrorMsg(_T("Couldn't take a screenshot."));
+      return -3;
+    }
+  }
+  else if(dwFlags==CR_AS_MAIN_WINDOW)
+  {    
+    HWND hMainWnd = Utility::FindAppWindow();
+    if(hMainWnd==NULL)
+    {
+      crSetErrorMsg(_T("Couldn't find main application window."));
+      return -2;
+    }
 
-  ///* Create directory for the error report (if not created yet). */
+    CRect rcWindow; 
+    GetWindowRect(hMainWnd, &rcWindow);
+    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
+    if(bMakeScreenshot==FALSE)
+    {
+      crSetErrorMsg(_T("Couldn't take a screenshot."));
+      return -3;
+    }
+  }
+  else
+  {
+    crSetErrorMsg(_T("Invalid flag specified."));
+    return -1;
+  }
 
-  //CString sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
-  //BOOL bCreateDir = CreateDirectory(sReportFolderName, NULL);
-  //if(!bCreateDir && GetLastError()!=ERROR_ALREADY_EXISTS)
-  //{ 
-  //  crSetErrorMsg(_T("Couldn't create directory."));
-  //  return -1;
-  //}  
-
-  //if(dwFlags==CR_AS_VIRTUAL_SCREEN)
-  //{
-  //  CRect rcScreen;
-  //  sc.GetScreenRect(&rcScreen);
-  //  
-  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
-  //  if(bMakeScreenshot==FALSE)
-  //  {
-  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
-  //    return -3;
-  //  }
-  //}
-  //else if(dwFlags==CR_AS_MAIN_WINDOW)
-  //{    
-  //  HWND hMainWnd = Utility::FindAppWindow();
-  //  if(hMainWnd==NULL)
-  //  {
-  //    crSetErrorMsg(_T("Couldn't find main application window."));
-  //    return -2;
-  //  }
-
-  //  CRect rcWindow; 
-  //  GetWindowRect(hMainWnd, &rcWindow);
-  //  BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
-  //  if(bMakeScreenshot==FALSE)
-  //  {
-  //    crSetErrorMsg(_T("Couldn't take a screenshot."));
-  //    return -3;
-  //  }
-  //}
-  //else
-  //{
-  //  crSetErrorMsg(_T("Invalid flag specified."));
-  //  return -1;
-  //}
-
-  //size_t i;
-  //for(i=0; i<screenshot_names.size(); i++)
-  //{
-  //  CString sDestFile;
-  //  sDestFile.Format(_T("screenshot%d.png"), i); 
-  //  int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
-  //  if(nAdd!=0)
-  //  {
-  //    return -4;
-  //  }
-  //}
+  size_t i;
+  for(i=0; i<screenshot_names.size(); i++)
+  {
+    CString sDestFile;
+    sDestFile.Format(_T("screenshot%d.png"), i); 
+    int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
+    if(nAdd!=0)
+    {
+      return -4;
+    }
+  }
 
   return TRUE;
 }
@@ -194,7 +185,7 @@ BOOL CreateMinidump()
 
   // Write minidump to the file
   mei.ThreadId = g_CrashInfo.m_dwThreadId;
-  mei.ExceptionPointers = &g_CrashInfo.m_ExInfo;
+  mei.ExceptionPointers = g_CrashInfo.m_pExInfo;
   mei.ClientPointers = TRUE;
   
   mci.CallbackRoutine = MiniDumpCallback;
@@ -668,7 +659,15 @@ DWORD WINAPI CollectorThread(LPVOID /*lpParam*/)
   BOOL bWrite = FALSE;
 
   BOOL bCreateMinidump = CreateMinidump();
-  
+
+  // Notify the parent process that we have finished with minidump,
+  // so the parent process is able to unblock and terminate.
+  CString sEventName;
+  sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.m_sCrashGUID);
+  HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+  if(hEvent!=NULL)
+    SetEvent(hEvent);
+
   // Copy application-defined files that should be copied on crash
   an.SetProgress(_T("Start collecting information about the crash..."), 0, false);
   an.SetProgress(_T("[collecting_crash_info]"), 0, false);

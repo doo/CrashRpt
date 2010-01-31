@@ -57,6 +57,16 @@ int CCrashInfo::ParseCrashInfo(CString sCrashInfoFileName)
   if(szUrl!=NULL)
     m_sUrl = szUrl;
 
+  TiXmlHandle hEmailTo = hRoot.FirstChild("EmailTo");
+  const char* szEmailTo = hEmailTo.FirstChild().ToText()->Value();
+  if(szEmailTo!=NULL)
+    m_sEmailTo = szEmailTo;
+
+  TiXmlHandle hEmailSubject = hRoot.FirstChild("EmailSubject");
+  const char* szEmailSubject = hEmailSubject.FirstChild().ToText()->Value();
+  if(szEmailSubject!=NULL)
+    m_sEmailSubject = szEmailSubject;
+
   TiXmlHandle hPrivacyPolicyUrl = hRoot.FirstChild("PrivacyPolicyUrl");
   const char* szPrivacyPolicyUrl = hPrivacyPolicyUrl.FirstChild().ToText()->Value();
   if(szPrivacyPolicyUrl!=NULL)
@@ -87,44 +97,26 @@ int CCrashInfo::ParseCrashInfo(CString sCrashInfoFileName)
   if(szThreadId!=NULL)
     m_dwThreadId = strtoul(szThreadId, NULL, 10);
 
-  TiXmlHandle hExceptionPointers = hRoot.FirstChild("ExceptionPointers");
-  if(hExceptionPointers.ToElement()!=NULL)
+  TiXmlHandle hExceptionPointersAddress = hRoot.FirstChild("ExceptionPointersAddress");
+  const char* szExceptionPointersAddress = hExceptionPointersAddress.FirstChild().ToText()->Value();
+  if(szExceptionPointersAddress!=NULL)
   {
-    TiXmlHandle hContext = hExceptionPointers.FirstChild("Context");
-    const char* szContext = hContext.FirstChild().ToText()->Value();
-    if(szContext!=NULL)
-    {
-      std::string sContext = base64_decode(szContext);
-      g_CrashInfo.m_ExInfo.ContextRecord = new CONTEXT;
-      memcpy(g_CrashInfo.m_ExInfo.ContextRecord, sContext.c_str(), sizeof(CONTEXT));
-    }
-
-    int n = 0;
-    EXCEPTION_RECORD* pExRec = NULL;
-    for(;;n++)
-    {
-      CString sName;
-      sName.Format(_T("ExceptionRecord%d"), n);
-      TiXmlHandle hExRec = hExceptionPointers.FirstChild(strconv.t2a(sName));
-      if(hExRec.ToElement()==NULL)
-        break;
-      
-      const char* szExRec = hExRec.FirstChild().ToText()->Value();
-      if(szExRec)
-      {
-        EXCEPTION_RECORD* pNewRec = new EXCEPTION_RECORD;
-        if(pExRec==NULL)
-          g_CrashInfo.m_ExInfo.ExceptionRecord = pNewRec;
-        else
-          pNewRec->ExceptionRecord = pNewRec;
-
-        pExRec = pNewRec;
-
-        std::string sExRec = base64_decode(szExRec);
-        memcpy(pExRec, sExRec.c_str(), sizeof(EXCEPTION_RECORD));           
-      }      
-    }
+#ifdef _WIN64
+    m_pExInfo = _tcstoul(szExceptionPointersAddress, NULL, 10);
+#else
+    m_pExInfo = (PEXCEPTION_POINTERS)strtoul(szExceptionPointersAddress, NULL, 10);
+#endif 
   }
+
+  TiXmlHandle hAddScreenshot = hRoot.FirstChild("AddScreenshot");
+  const char* szAddScreenshot = hAddScreenshot.FirstChild().ToText()->Value();
+  if(szAddScreenshot!=NULL)
+    m_bAddScreenshot = strtol(szAddScreenshot, NULL, 10);
+
+  TiXmlHandle hScreenshotFlags = hRoot.FirstChild("ScreenshotFlags");
+  const char* szScreenshotFlags = hScreenshotFlags.FirstChild().ToText()->Value();
+  if(szScreenshotFlags!=NULL)
+    m_dwScreenshotFlags = strtoul(szScreenshotFlags, NULL, 10);
 
   ParseCrashDescriptor(m_sErrorReportDirName + _T("\\crashrpt.xml"));
 
@@ -221,15 +213,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   {
     g_CrashInfo.ParseCrashInfo(CString(argv[0]));
   }
-
-  // Notify the parent process that we have finished,
-  // so the parent process unblock
-  CString sEventName;
-  sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.m_sCrashGUID);
-  HANDLE hEvent = OpenEvent(SYNCHRONIZE, FALSE, sEventName);
-  if(hEvent!=NULL)
-    SetEvent(hEvent);
-
 
   // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));

@@ -1,12 +1,39 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//  Module: CrashHandler.cpp
-//
-//    Desc: See CrashHandler.h
-//
-// Copyright (c) 2003 Michael Carruth
-//
-///////////////////////////////////////////////////////////////////////////////
+/************************************************************************************* 
+  This file is a part of CrashRpt library.
+
+  CrashRpt is Copyright (c) 2003, Michael Carruth
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+ 
+   * Redistributions of source code must retain the above copyright notice, this 
+     list of conditions and the following disclaimer.
+ 
+   * Redistributions in binary form must reproduce the above copyright notice, 
+     this list of conditions and the following disclaimer in the documentation 
+     and/or other materials provided with the distribution.
+ 
+   * Neither the name of the author nor the names of its contributors 
+     may be used to endorse or promote products derived from this software without 
+     specific prior written permission.
+ 
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************************************/
+
+// File: CrashHandler.cpp
+// Description: Exception handling and report generation functionality.
+// Authors: mikecarruth, zexspectrum
+// Date: 
 
 #include "stdafx.h"
 #include "CrashHandler.h"
@@ -448,14 +475,6 @@ int CCrashHandler::Init(
   // Save Email recipient address
   m_sTo = lpcszTo;
 
-  // Check that at least one recipient address is provided (URL or Email)
-  if(m_sTo.IsEmpty() && m_sUrl.IsEmpty())
-  {
-    crSetErrorMsg(_T("Error report recipient's address is not defined."));
-    ATLASSERT(!m_sTo.IsEmpty() || !m_sUrl.IsEmpty());
-    return 1;
-  }
-
   // Save E-mail subject
   m_sSubject = lpcszSubject;
 
@@ -490,7 +509,7 @@ int CCrashHandler::Init(
   pszCrashRptModule = NULL;
 #endif
 
-  // Get handle to the CrashRpt module that is loaded by current process
+  // Get handle to the CrashRpt module that is loaded by the current process
   HMODULE hCrashRptModule = GetModuleHandle(pszCrashRptModule);
   if(hCrashRptModule==NULL)
   {
@@ -1433,33 +1452,12 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add ThreadId tag
   fprintf(f, "  <ThreadId>%lu</ThreadId>\n", dwThreadId);
 
-  // Write ExceptionPointers tag
-  fprintf(f, "  <ExceptionPointers>\n");
-  
-  // Add Context tag
-
-  std::string sContext = base64_encode(
-    (const unsigned char*)pExInfo->ContextRecord, sizeof(CONTEXT));
-
-  fprintf(f, "    <Context>%s</Context>\n",
-    sContext.c_str());
-
-  int n = 0;
-  EXCEPTION_RECORD* pExRec = pExInfo->ExceptionRecord;
-  while(pExRec)
-  {
-    std::string sExRec = base64_encode(
-      (const unsigned char*)pExRec, sizeof(EXCEPTION_RECORD));
-
-    // Add ExceptionRecord tag
-    fprintf(f, "    <ExceptionRecord%d>%s</ExceptionRecord%d>\n", n,
-      sExRec.c_str(), n);
-
-    n++;
-    pExRec = pExRec->ExceptionRecord;
-  }
-  
-  fprintf(f, "  </ExceptionPointers>\n");
+  // Add ExceptionPointersAddress tag
+#ifdef _WIN64
+  fprintf(f, "  <ExceptionPointersAddress>%I64lu</ExceptionPointersAddress>\n", pExInfo);
+#else
+  fprintf(f, "  <ExceptionPointersAddress>%I32u</ExceptionPointersAddress>\n", pExInfo );
+#endif
 
   // Add EmailSubject tag
   fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
@@ -1485,6 +1483,12 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add MapiPriority tag
   fprintf(f, "  <MapiPriority>%d</MapiPriority>\n", m_uPriorities[CR_SMAPI]);
+
+  // Add AddScreenshot tag
+  fprintf(f, "  <AddScreenshot>%d</AddScreenshot>\n", m_bAddScreenshot);
+
+  // Add ScreenshotFlags tag
+  fprintf(f, "  <ScreenshotFlags>%ul</ScreenshotFlags>\n", m_dwScreenshotFlags);
 
   // Write file items
   fprintf(f, "  <FileItems>\n");

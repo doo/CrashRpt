@@ -33,7 +33,7 @@
 // File: strconv.h
 // Description: String conversion class
 // Author: zexspectrum
-// Date: Jan 2010
+// Date: 2009-2010
 
 #ifndef _STRCONV_H
 #define _STRCONV_H

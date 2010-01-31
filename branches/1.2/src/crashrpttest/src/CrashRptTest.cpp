@@ -46,7 +46,7 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
   nResult = crAddScreenshot(CR_AS_MAIN_WINDOW);
   ATLASSERT(nResult==0);
 
-  nResult = crAddProperty(_T("MyCustomStatus"),_T("May be better..."));
+  nResult = crAddProperty(_T("MyCustomStatus"),_T("Malfunction!"));
   ATLASSERT(nResult==0);
 #endif
 
@@ -106,7 +106,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.uPriorities[CR_SMAPI] = 1; 
   info.dwFlags = 0;
   info.pszDebugHelpDLL = 0;
-  info.uMiniDumpType = MiniDumpWithDataSegs;//MiniDumpNormal;
+  info.uMiniDumpType = MiniDumpWithFullMemory;//MiniDumpNormal;
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
   CrAutoInstallHelper cr_install_helper(&info);

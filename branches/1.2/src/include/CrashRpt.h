@@ -1,3 +1,35 @@
+/************************************************************************************* 
+  This file is a part of CrashRpt library.
+
+  CrashRpt is Copyright (c) 2003, Michael Carruth
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+ 
+   * Redistributions of source code must retain the above copyright notice, this 
+     list of conditions and the following disclaimer.
+ 
+   * Redistributions in binary form must reproduce the above copyright notice, 
+     this list of conditions and the following disclaimer in the documentation 
+     and/or other materials provided with the distribution.
+ 
+   * Neither the name of the author nor the names of its contributors 
+     may be used to endorse or promote products derived from this software without 
+     specific prior written permission.
+ 
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
+  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
+  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED 
+  TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR 
+  BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT 
+  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+***************************************************************************************/
+
 /*! \file   CrashRpt.h
  *  \brief  Defines the interface for the CrashRpt.DLL.
  *  \date   2003-2009
@@ -277,28 +309,30 @@ GenerateErrorReport(
 
 #endif //_CRASHRPT_REMOVE_DEPRECATED
 
-// Array indices for CR_INSTALL_INFO::uPriorities
-#define CR_HTTP 0 //!< Send error report via HTTP connection
-#define CR_SMTP 1 //!< Send error report via SMTP connection
-#define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client)
+// Array indices for CR_INSTALL_INFO::uPriorities.
+#define CR_HTTP 0 //!< Send error report via HTTP connection.
+#define CR_SMTP 1 //!< Send error report via SMTP connection.
+#define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client).
 
 // Flags for CR_INSTALL_INFO::dwFlags
-#define CR_INST_STRUCTURED_EXCEPTION_HANDLER   1    //!< Install structured exception handler
-#define CR_INST_TERMINATE_HANDLER              2    //!< Install terminate handler
-#define CR_INST_UNEXPECTED_HANDLER             4    //!< Install unexpected handler
-#define CR_INST_PURE_CALL_HANDLER              8    //!< Install pure call handler (VS .NET and later)
-#define CR_INST_NEW_OPERATOR_ERROR_HANDLER     16   //!< Install new operator error handler (VS .NET and later)
-#define CR_INST_SECURITY_ERROR_HANDLER         32   //!< Install security errror handler (VS .NET and later)
-#define CR_INST_INVALID_PARAMETER_HANDLER      64   //!< Install invalid parameter handler (VS 2005 and later)
-#define CR_INST_SIGABRT_HANDLER                128  //!< Install SIGABRT signal handler
-#define CR_INST_SIGFPE_HANDLER                 256  //!< Install SIGFPE signal handler   
-#define CR_INST_SIGILL_HANDLER                 512  //!< Install SIGILL signal handler  
-#define CR_INST_SIGINT_HANDLER                 1024 //!< Install SIGINT signal handler  
-#define CR_INST_SIGSEGV_HANDLER                2048 //!< Install SIGSEGV signal handler
-#define CR_INST_SIGTERM_HANDLER                4096 //!< Install SIGTERM signal handler  
+#define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install structured exception handler.
+#define CR_INST_TERMINATE_HANDLER              0x2    //!< Install terminate handler.
+#define CR_INST_UNEXPECTED_HANDLER             0x4    //!< Install unexpected handler.
+#define CR_INST_PURE_CALL_HANDLER              0x8    //!< Install pure call handler (VS .NET and later).
+#define CR_INST_NEW_OPERATOR_ERROR_HANDLER     0x10   //!< Install new operator error handler (VS .NET and later).
+#define CR_INST_SECURITY_ERROR_HANDLER         0x20   //!< Install security errror handler (VS .NET and later).
+#define CR_INST_INVALID_PARAMETER_HANDLER      0x40   //!< Install invalid parameter handler (VS 2005 and later).
+#define CR_INST_SIGABRT_HANDLER                0x80   //!< Install SIGABRT signal handler.
+#define CR_INST_SIGFPE_HANDLER                 0x100  //!< Install SIGFPE signal handler.   
+#define CR_INST_SIGILL_HANDLER                 0x200  //!< Install SIGILL signal handler.  
+#define CR_INST_SIGINT_HANDLER                 0x400  //!< Install SIGINT signal handler.  
+#define CR_INST_SIGSEGV_HANDLER                0x800  //!< Install SIGSEGV signal handler.
+#define CR_INST_SIGTERM_HANDLER                0x1000 //!< Install SIGTERM signal handler.  
 
-#define CR_INST_ALL_EXCEPTION_HANDLERS 0      //!< Install all possible exception handlers
-#define CR_INST_CRT_EXCEPTION_HANDLERS 0x1FFE //!< Install exception handlers for the linked CRT module
+#define CR_INST_ALL_EXCEPTION_HANDLERS 0      //!< Install all possible exception handlers.
+#define CR_INST_CRT_EXCEPTION_HANDLERS 0x1FFE //!< Install exception handlers for the linked CRT module.
+
+#define CR_INST_SILENT_MODE                    0x2000 //!< Do not show GUI, send report silently.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()

@@ -37,7 +37,9 @@ public:
   MINIDUMP_TYPE m_MinidumpType;
   DWORD       m_dwProcessId;
   DWORD       m_dwThreadId;
-  EXCEPTION_POINTERS m_ExInfo;
+  PEXCEPTION_POINTERS m_pExInfo;
+  BOOL        m_bAddScreenshot;
+  DWORD       m_dwScreenshotFlags;
   std::map<CString, FileItem>  m_FileItems; 
 
   // Gets crash info from XML
