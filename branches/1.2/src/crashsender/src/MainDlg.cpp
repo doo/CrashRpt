@@ -10,7 +10,7 @@
 #include "tinyxml.h"
 #include "zip.h"
 #include "unzip.h"
-#include "CrashSender.h"
+#include "CrashInfoReader.h"
 #include "strconv.h"
 
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)

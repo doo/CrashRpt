@@ -30,6 +30,11 @@
   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
+// File: CrashInfoReader.h
+// Description: Retrieves crash information passed from CrashRpt.dll in form of XML files.
+// Authors: zexspectrum
+// Date: 2010
+
 #pragma once
 #include <map>
 #include "tinyxml.h"
@@ -48,7 +53,7 @@ struct FileItem
   BOOL m_bMakeCopy;
 };
 
-class CCrashInfo
+class CCrashInfoReader
 {
 public:
 
@@ -73,16 +78,17 @@ public:
   DWORD       m_dwScreenshotFlags;
   std::map<CString, FileItem>  m_FileItems; 
 
-  // Gets crash info from XML file
-  int ParseCrashInfo(CString sCrashInfoFile);
+  // Gets crash info from internal crash info XML file
+  int Init(CString sCrashInfoFile);
 
 private:
 
   // Gets the list of file items 
   int ParseFileList(TiXmlHandle& hRoot);
 
+  // Retrieves some crash info from crash descriptor XML
   int ParseCrashDescriptor(CString sFileName);
-
 };
 
-extern CCrashInfo g_CrashInfo;
+// Declare globally available object
+extern CCrashInfoReader g_CrashInfo;

@@ -631,6 +631,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\CrashInfoReader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CrashSender.cpp"
 				>
 			</File>
@@ -1024,7 +1028,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CrashSender.h"
+				RelativePath=".\CrashInfoReader.h"
 				>
 			</File>
 			<File

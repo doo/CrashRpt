@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DetailDlg.h"
 #include "Utility.h"
+#include "CrashInfoReader.h"
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {

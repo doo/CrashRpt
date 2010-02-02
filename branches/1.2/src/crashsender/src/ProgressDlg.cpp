@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ProgressDlg.h"
 #include "Utility.h"
-#include "CrashSender.h"
+#include "CrashInfoReader.h"
 
 
 LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

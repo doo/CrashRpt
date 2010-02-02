@@ -7,7 +7,7 @@
 #include "md5.h"
 #include "Utility.h"
 #include "zip.h"
-#include "CrashSender.h"
+#include "CrashInfoReader.h"
 #include "strconv.h"
 #include "ScreenCap.h"
 
