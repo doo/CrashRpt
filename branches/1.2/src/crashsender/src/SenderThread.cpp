@@ -80,9 +80,11 @@ void FeedbackReady(int code)
 
 BOOL MakeDesktopScreenshot()
 {
-  CScreenCapture sc;
+  /*CScreenCapture sc;
   std::vector<CString> screenshot_names;
   
+  DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
+
   if(dwFlags==CR_AS_VIRTUAL_SCREEN)
   {
     CRect rcScreen;
@@ -129,7 +131,7 @@ BOOL MakeDesktopScreenshot()
     {
       return -4;
     }
-  }
+  }*/
 
   return TRUE;
 }
@@ -657,6 +659,8 @@ DWORD WINAPI CollectorThread(LPVOID /*lpParam*/)
   DWORD dwBytesWritten=0;
   BOOL bRead = FALSE;
   BOOL bWrite = FALSE;
+
+  BOOL bMakeScreenshot = MakeDesktopScreenshot();
 
   BOOL bCreateMinidump = CreateMinidump();
 

@@ -43,10 +43,7 @@
 #include <psapi.h>
 #include "base64.h"
 #include "strconv.h"
-
-#if _MSC_VER>=1300
 #include <rtcapi.h>
-#endif
 
 #ifndef _AddressOfReturnAddress
 
@@ -63,344 +60,14 @@ EXTERNC void * _ReturnAddress(void);
 
 #endif 
 
-// This internal structure contains the list of processes 
-// that had called crInstall(). The list is always contain single item -
-// the current process.
-struct _crash_handlers
-{
-  _crash_handlers(){m_bCrashHappened=FALSE;}
-
-  ~_crash_handlers()
-  {
-    // On destroy, check that client process has called crUninstall().
-    ATLASSERT( m_bCrashHappened || (!m_bCrashHappened && m_map.size()==0) );    
-  }
-
-  std::map<int, CCrashHandler*> m_map; // <PID, CrashHandler> pairs
-  BOOL m_bCrashHappened; // This flag is set by exception handler when crash happens
-}
-g_CrashHandlers;
-
-LONG WINAPI Win32UnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPtrs)
-{  
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
-    ei.pexcptrs = pExceptionPtrs;
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1);
-
-#if _MSC_VER<1300 // This is to make MSVC6.0 compiler happy
-  return EXCEPTION_EXECUTE_HANDLER;
-#endif
-}
-
-
-void __cdecl cpp_terminate_handler()
-{
-  // Abnormal program termination (terminate() function was called)
-
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {    
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_TERMINATE_CALL;
-    
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1); 
-}
-
-void __cdecl cpp_unexp_handler()
-{
-  // Unexpected error (unexpected() function was called)
-  
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  { 
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_UNEXPECTED_CALL;
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1); 
-}
-
-#if _MSC_VER>=1300
-void __cdecl cpp_purecall_handler()
-{
-  // Pure virtual function call
-    
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {    
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_PURE_CALL;
-    
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1); 
-}
-#endif
-
-#if _MSC_VER>=1300 && _MSC_VER<1400
-void __cdecl cpp_security_handler(int code, void *x)
-{
-  // Security error (buffer overrun).
-
-  code;
-  x;
-  
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {    
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SECURITY_ERROR;
-    
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  exit(1); // Terminate program 
-}
-#endif 
-
-#if _MSC_VER>=1400
-void __cdecl cpp_invalid_parameter_handler(
-  const wchar_t* expression, 
-  const wchar_t* function, 
-  const wchar_t* file, 
-  unsigned int line, 
-  uintptr_t pReserved)
- {
-   pReserved;
-
-   // Invalid parameter exception
-   
-   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-   ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  { 
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_INVALID_PARAMETER;
-    ei.expression = expression;
-    ei.function = function;
-    ei.file = file;
-    ei.line = line;    
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-   exit(1); // Terminate program
- }
-#endif
-
-#if _MSC_VER>=1300
-int __cdecl cpp_new_handler(size_t)
-{
-  // 'new' operator memory allocation exception
-   
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {     
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_NEW_OPERATOR_ERROR;
-    ei.pexcptrs = NULL;    
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-   exit(1); // Terminate program
-}
-#endif //_MSC_VER>=1300
-
-void cpp_sigabrt_handler(int)
-{
-  // Caught SIGABRT C++ signal
-
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {     
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SIGABRT;    
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
- 
-  // Terminate program
-  exit(1);
-}
-
-void cpp_sigfpe_handler(int /*code*/, int subcode)
-{
-  // Floating point exception (SIGFPE)
- 
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {     
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SIGFPE;
-    ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
-    ei.fpe_subcode = subcode;
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1);
-}
-
-void cpp_sigill_handler(int)
-{
-  // Illegal instruction (SIGILL)
-
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {    
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SIGILL;
-    
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1);
-}
-
-void cpp_sigint_handler(int)
-{
-  // Interruption (SIGINT)
-
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  { 
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SIGINT;
-
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1);
-}
-
-void cpp_sigsegv_handler(int)
-{
-  // Invalid storage access (SIGSEGV)
-
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-  
-  if(pCrashHandler!=NULL)
-  {     
-    // Fill in exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);    
-    ei.exctype = CR_CPP_SIGSEGV;
-    ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
-        
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1);
-}
-
-void cpp_sigterm_handler(int)
-{
-  // Termination request (SIGTERM)
-
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-
-  if(pCrashHandler!=NULL)
-  {    
-    // Fill in the exception info
-    CR_EXCEPTION_INFO ei;
-    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
-    ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_CPP_SIGTERM;
-    
-    pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  // Terminate program
-  exit(1);
-}
+CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
 CCrashHandler::CCrashHandler()
 {
   m_bInitialized = FALSE;
-
-  m_oldFilter = NULL;
-  InitPrevCPPExceptionHandlerPointers();
+  
+  InitPrevExceptionHandlerPointers();
   m_lpfnCallback = NULL;
-  m_pid = 0;
   memset(&m_uPriorities, 0, 3*sizeof(UINT));
   m_hDbgHelpDll = 0;
   m_MiniDumpType = MiniDumpNormal;
@@ -641,7 +308,7 @@ int CCrashHandler::Init(
   m_sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
 
   // Set exception handlers with initial values (NULLs)
-  InitPrevCPPExceptionHandlerPointers();
+  InitPrevExceptionHandlerPointers();
    
   // Set exception handlers that work on per-process basis
   int nSetProcessHandlers = SetProcessExceptionHandlers(dwFlags);   
@@ -662,8 +329,7 @@ int CCrashHandler::Init(
   }
   
   // Associate this handler with the caller process
-  m_pid = _getpid();
-  g_CrashHandlers.m_map[m_pid] =  this;
+  m_pProcessCrashHandler =  this;
     
   // OK.
   m_bInitialized = TRUE;
@@ -682,29 +348,20 @@ int CCrashHandler::Destroy()
   }  
 
   // Reset exception callback
-  if (m_oldFilter)
-    SetUnhandledExceptionFilter(m_oldFilter);
+  if (m_oldSehHandler)
+    SetUnhandledExceptionFilter(m_oldSehHandler);
 
-  m_oldFilter = NULL;
+  m_oldSehHandler = NULL;
 
   // All installed per-thread C++ exception handlers should be uninstalled 
   // using crUninstallFromCurrentThread() before calling Destroy()
-  
+
   {
     CAutoLock lock(&m_csThreadExceptionHandlers);
-    ATLASSERT(m_ThreadExceptionHandlers.size()==0);      
-    m_ThreadExceptionHandlers.clear();
+    ATLASSERT(m_ThreadExceptionHandlers.size()==0);          
   }
 
-  std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(m_pid);
-  if(it==g_CrashHandlers.m_map.end())
-  {    
-    // No such crash handler list entry
-    ATLASSERT(!g_CrashHandlers.m_bCrashHappened); 
-    return 1;
-  }
-
-  g_CrashHandlers.m_map.erase(it);
+  m_pProcessCrashHandler = NULL;
 
   // OK.
   m_bInitialized = FALSE;
@@ -714,8 +371,9 @@ int CCrashHandler::Destroy()
 
 
 // Sets internal pointers to previously used exception handlers to NULL
-void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
+void CCrashHandler::InitPrevExceptionHandlerPointers()
 {
+  m_oldSehHandler = NULL;
 
 #if _MSC_VER>=1300
   m_prevPurec = NULL;
@@ -732,17 +390,12 @@ void CCrashHandler::InitPrevCPPExceptionHandlerPointers()
 
   m_prevSigABRT = NULL;  
   m_prevSigINT = NULL;  
-  m_prevSigTERM = NULL;  
+  m_prevSigTERM = NULL;
 }
 
 CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
-{
-  int pid = _getpid();
-  std::map<int, CCrashHandler*>::iterator it = g_CrashHandlers.m_map.find(pid);
-  if(it==g_CrashHandlers.m_map.end())
-    return NULL; // No handler for calling process.
-
-  return it->second;
+{  
+  return m_pProcessCrashHandler;
 }
 
 int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
@@ -751,13 +404,13 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
 
   // If 0 is specified as dwFlags, assume all handlers should be
   // installed
-  if(dwFlags==0)
-    dwFlags = 0x1FFF;
+  if(dwFlags&0x1FF==0)
+    dwFlags |= 0x1FFF;
   
   if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
   {
     // Install structured exception handler
-    m_oldFilter = SetUnhandledExceptionFilter(Win32UnhandledExceptionFilter);
+    m_oldSehHandler = SetUnhandledExceptionFilter(SehHandler);
   }
 
   _set_error_mode(_OUT_TO_STDERR);
@@ -770,14 +423,14 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
     // calling this function immediately impacts all threads. The last 
     // caller on any thread sets the handler. 
     // http://msdn.microsoft.com/en-us/library/t296ys27.aspx
-    m_prevPurec = _set_purecall_handler(cpp_purecall_handler);    
+    m_prevPurec = _set_purecall_handler(PureCallHandler);    
   }
 
   if(dwFlags&CR_INST_NEW_OPERATOR_ERROR_HANDLER)
   {
     // Catch new operator memory allocation exceptions
     _set_new_mode(1); // Force malloc() to call new handler too
-    m_prevNewHandler = _set_new_handler(cpp_new_handler);
+    m_prevNewHandler = _set_new_handler(NewHandler);
   }
 #endif
 
@@ -785,7 +438,7 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   if(dwFlags&CR_INST_INVALID_PARAMETER_HANDLER)
   {
     // Catch invalid parameter exceptions.
-    m_prevInvpar = _set_invalid_parameter_handler(cpp_invalid_parameter_handler); 
+    m_prevInvpar = _set_invalid_parameter_handler(InvalidParameterHandler); 
   }
 #endif
 
@@ -795,7 +448,7 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   {
     // Catch buffer overrun exceptions
     // The _set_security_error_handler is deprecated in VC8 C++ run time library
-    m_prevSec = _set_security_error_handler(cpp_security_handler);
+    m_prevSec = _set_security_error_handler(SecurityHandler);
   }
 #endif
 
@@ -808,19 +461,19 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   _set_abort_behavior(_CALL_REPORTFAULT, _CALL_REPORTFAULT);
 #endif
   // Catch an abnormal program termination
-  m_prevSigABRT = signal(SIGABRT, cpp_sigabrt_handler);  
+  m_prevSigABRT = signal(SIGABRT, SigabrtHandler);  
   }
    
   if(dwFlags&CR_INST_SIGILL_HANDLER)
   {
     // Catch illegal instruction handler
-    m_prevSigINT = signal(SIGINT, cpp_sigint_handler);     
+    m_prevSigINT = signal(SIGINT, SigintHandler);     
   }
   
   if(dwFlags&CR_INST_TERMINATE_HANDLER)
   {
     // Catch a termination request
-    m_prevSigTERM = signal(SIGTERM, cpp_sigterm_handler);          
+    m_prevSigTERM = signal(SIGTERM, SigtermHandler);          
   }
 
   crSetErrorMsg(_T("Success."));
@@ -869,16 +522,16 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
 
-  // If 0 is specified as dwFlags, assume all handlers should be
+  // If 0 is specified as dwFlags, assume all available exception handlers should be
   // installed  
-  if(dwFlags==0)
-    dwFlags = 0x1FFF;
+  if(dwFlags&0x1FFF==0)
+    dwFlags |= 0x1FFF;
 
   DWORD dwThreadId = GetCurrentThreadId();
 
   CAutoLock lock(&m_csThreadExceptionHandlers);
 
-  std::map<DWORD, _cpp_thread_exception_handlers>::iterator it = 
+  std::map<DWORD, ThreadExceptionHandlers>::iterator it = 
     m_ThreadExceptionHandlers.find(dwThreadId);
 
   if(it!=m_ThreadExceptionHandlers.end())
@@ -889,7 +542,7 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
     return 1; // failed
   }
   
-  _cpp_thread_exception_handlers handlers;
+  ThreadExceptionHandlers handlers;
 
   if(dwFlags&CR_INST_TERMINATE_HANDLER)
   {
@@ -898,7 +551,7 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
     // separately for each thread. Each new thread needs to install its own 
     // terminate function. Thus, each thread is in charge of its own termination handling.
     // http://msdn.microsoft.com/en-us/library/t6fk7h29.aspx
-    handlers.m_prevTerm = set_terminate(cpp_terminate_handler);       
+    handlers.m_prevTerm = set_terminate(TerminateHandler);       
   }
 
   if(dwFlags&CR_INST_UNEXPECTED_HANDLER)
@@ -908,27 +561,27 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
     // separately for each thread. Each new thread needs to install its own 
     // unexpected function. Thus, each thread is in charge of its own unexpected handling.
     // http://msdn.microsoft.com/en-us/library/h46t5b69.aspx  
-    handlers.m_prevUnexp = set_unexpected(cpp_unexp_handler);    
+    handlers.m_prevUnexp = set_unexpected(UnexpectedHandler);    
   }
 
   if(dwFlags&CR_INST_SIGFPE_HANDLER)
   {
     // Catch a floating point error
     typedef void (*sigh)(int);
-    handlers.m_prevSigFPE = signal(SIGFPE, (sigh)cpp_sigfpe_handler);     
+    handlers.m_prevSigFPE = signal(SIGFPE, (sigh)SigfpeHandler);     
   }
 
   
   if(dwFlags&CR_INST_SIGILL_HANDLER)
   {
     // Catch an illegal instruction
-    handlers.m_prevSigILL = signal(SIGILL, cpp_sigill_handler);     
+    handlers.m_prevSigILL = signal(SIGILL, SigillHandler);     
   }
 
   if(dwFlags&CR_INST_SIGSEGV_HANDLER)
   {
     // Catch illegal storage access errors
-    handlers.m_prevSigSEGV = signal(SIGSEGV, cpp_sigsegv_handler);   
+    handlers.m_prevSigSEGV = signal(SIGSEGV, SigsegvHandler);   
   }
 
   // Insert the structure to the list of handlers  
@@ -947,18 +600,18 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
 
   CAutoLock lock(&m_csThreadExceptionHandlers);
 
-  std::map<DWORD, _cpp_thread_exception_handlers>::iterator it = 
+  std::map<DWORD, ThreadExceptionHandlers>::iterator it = 
     m_ThreadExceptionHandlers.find(dwThreadId);
 
   if(it==m_ThreadExceptionHandlers.end())
   {
-    // no such handlers?
+    // No exception handlers were installed for the caller thread?
     ATLASSERT(0);
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current thread."));
     return 1;
   }
   
-  _cpp_thread_exception_handlers* handlers = &(it->second);
+  ThreadExceptionHandlers* handlers = &(it->second);
 
   if(handlers->m_prevTerm!=NULL)
     set_terminate(handlers->m_prevTerm);
@@ -1060,11 +713,12 @@ int CCrashHandler::GenerateErrorReport(
     return 1;
   }
 
-  /* Collect crash info */
+  /* Collect miscellaneous crash info */
 
   CollectMiscCrashInfo();
 
-  /* Let client add application-specific files to report via crash callback. */
+  /* Let client add application-specific files / desktop screenshot 
+     to report via the crash callback function. */
 
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
   {
@@ -1116,8 +770,8 @@ int CCrashHandler::GenerateErrorReport(
 
   // Launch the CrashSender process that would take dekstop screenshot, 
   // copy user-specified files to the error report folder, create minidump, 
-  // notify user about crash, compress the report into 
-  // ZIP archive and send the error report 
+  // notify user about crash, compress the report into ZIP archive and send 
+  // the error report 
     
   result = LaunchCrashSender(sFileName);
   if(result!=0)
@@ -1134,10 +788,7 @@ int CCrashHandler::GenerateErrorReport(
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 3;
   }
-
-  // Notify g_CrashHandlers about crash, to avoid assertion in destructor
-  g_CrashHandlers.m_bCrashHappened = TRUE;
-
+  
   crSetErrorMsg(_T("Success."));
   return 0; 
 }
@@ -1559,6 +1210,324 @@ CString CCrashHandler::_repxrch(CString sText)
   return sResult;
 }
 
+// Structured exception handler
+LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
+{  
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
 
+  if(pCrashHandler!=NULL)
+  {
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+    ei.pexcptrs = pExceptionPtrs;
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1);
+}
+
+// CRT terminate() call handler
+void __cdecl CCrashHandler::TerminateHandler()
+{
+  // Abnormal program termination (terminate() function was called)
+
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {    
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_TERMINATE_CALL;
+    
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1); 
+}
+
+// CRT unexpected() call handler
+void __cdecl CCrashHandler::UnexpectedHandler()
+{
+  // Unexpected error (unexpected() function was called)
+  
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  { 
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_UNEXPECTED_CALL;
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1); 
+}
+
+// CRT Pure virtual method call handler
+#if _MSC_VER>=1300
+void __cdecl CCrashHandler::PureCallHandler()
+{
+  // Pure virtual function call
+    
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {    
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_PURE_CALL;
+    
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1); 
+}
+#endif
+
+// CRT buffer overrun handler. Available in CRT 7.1 only
+#if _MSC_VER>=1300 && _MSC_VER<1400
+void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
+{
+  // Security error (buffer overrun).
+
+  code;
+  x;
+  
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {    
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SECURITY_ERROR;
+    
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  exit(1); // Terminate program 
+}
+#endif 
+
+// CRT invalid parameter handler
+#if _MSC_VER>=1400
+void __cdecl CCrashHandler::InvalidParameterHandler(
+  const wchar_t* expression, 
+  const wchar_t* function, 
+  const wchar_t* file, 
+  unsigned int line, 
+  uintptr_t pReserved)
+ {
+   pReserved;
+
+   // Invalid parameter exception
+   
+   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+   ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  { 
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_INVALID_PARAMETER;
+    ei.expression = expression;
+    ei.function = function;
+    ei.file = file;
+    ei.line = line;    
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+   exit(1); // Terminate program
+ }
+#endif
+
+// CRT new operator fault handler
+#if _MSC_VER>=1300
+int __cdecl CCrashHandler::NewHandler(size_t)
+{
+  // 'new' operator memory allocation exception
+   
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {     
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_NEW_OPERATOR_ERROR;
+    ei.pexcptrs = NULL;    
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+   exit(1); // Terminate program
+}
+#endif //_MSC_VER>=1300
+
+// CRT SIGABRT signal handler
+void CCrashHandler::SigabrtHandler(int)
+{
+  // Caught SIGABRT C++ signal
+
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {     
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SIGABRT;    
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+ 
+  // Terminate program
+  exit(1);
+}
+
+// CRT SIGFPE signal handler
+void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
+{
+  // Floating point exception (SIGFPE)
+ 
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {     
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SIGFPE;
+    ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
+    ei.fpe_subcode = subcode;
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1);
+}
+
+// CRT sigill signal handler
+void CCrashHandler::SigillHandler(int)
+{
+  // Illegal instruction (SIGILL)
+
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {    
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SIGILL;
+    
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1);
+}
+
+// CRT sigint signal handler
+void CCrashHandler::SigintHandler(int)
+{
+  // Interruption (SIGINT)
+
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  { 
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SIGINT;
+
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1);
+}
+
+// CRT SIGSEGV signal handler
+void CCrashHandler::SigsegvHandler(int)
+{
+  // Invalid storage access (SIGSEGV)
+
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+  
+  if(pCrashHandler!=NULL)
+  {     
+    // Fill in exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);    
+    ei.exctype = CR_CPP_SIGSEGV;
+    ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
+        
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1);
+}
+
+// CRT SIGTERM signal handler
+void CCrashHandler::SigtermHandler(int)
+{
+  // Termination request (SIGTERM)
+
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);
+
+  if(pCrashHandler!=NULL)
+  {    
+    // Fill in the exception info
+    CR_EXCEPTION_INFO ei;
+    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
+    ei.cb = sizeof(CR_EXCEPTION_INFO);
+    ei.exctype = CR_CPP_SIGTERM;
+    
+    pCrashHandler->GenerateErrorReport(&ei);
+  }
+
+  // Terminate program
+  exit(1);
+}
 
 

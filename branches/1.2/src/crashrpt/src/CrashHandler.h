@@ -46,9 +46,9 @@
 #include "CritSec.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
-struct _cpp_thread_exception_handlers
+struct ThreadExceptionHandlers
 {
-  _cpp_thread_exception_handlers()
+  ThreadExceptionHandlers()
   {
     m_prevTerm = NULL;
     m_prevUnexp = NULL;
@@ -78,13 +78,12 @@ class CCrashHandler
 {
 public:
 	
-   // Default constructor.
-   CCrashHandler();
+  // Default constructor.
+  CCrashHandler();
 
-   virtual 
-   ~CCrashHandler();
+  virtual ~CCrashHandler();
 
-   int Init(
+  int Init(
       LPCTSTR lpcszAppName = NULL,
       LPCTSTR lpcszAppVersion = NULL,
       LPCTSTR lpcszCrashSenderPath = NULL,
@@ -98,15 +97,10 @@ public:
       LPCTSTR lpcszDebugHelpDLLPath = NULL,
       MINIDUMP_TYPE MiniDumpType = MiniDumpNormal);
 
-   int Destroy();
+  int Destroy();
    
-   int 
-   AddFile(
-      LPCTSTR lpFile,                     // File name
-      LPCTSTR lpDestFile,                 // Destination file name
-      LPCTSTR lpDesc,                     // File description
-      DWORD dwFlags
-      );
+  // Adds a file to the crash report
+  int AddFile(LPCTSTR lpFile, LPCTSTR lpDestFile, LPCTSTR lpDesc, DWORD dwFlags);
 
   // Adds a named text property to the report
   int AddProperty(CString sPropName, CString sPropValue);
@@ -129,8 +123,40 @@ public:
   // created for the current process
   static CCrashHandler* GetCurrentProcessCrashHandler();
 
-protected:
-  
+private:
+
+  /* Exception handler functions. */
+
+  static LONG WINAPI SehHandler(PEXCEPTION_POINTERS pExceptionPtrs);
+  static void __cdecl TerminateHandler();
+  static void __cdecl UnexpectedHandler();
+
+#if _MSC_VER>=1300
+  static void __cdecl PureCallHandler();
+#endif 
+
+#if _MSC_VER>=1300 && _MSC_VER<1400
+  static void __cdecl SecurityHandler(int code, void *x);
+#endif
+
+#if _MSC_VER>=1400
+  static void __cdecl InvalidParameterHandler(const wchar_t* expression, 
+    const wchar_t* function, const wchar_t* file, unsigned int line, uintptr_t pReserved);
+#endif
+
+#if _MSC_VER>=1300
+  static int __cdecl NewHandler(size_t);
+#endif
+
+  static void SigabrtHandler(int);
+  static void SigfpeHandler(int /*code*/, int subcode);
+  static void SigintHandler(int);
+  static void SigillHandler(int);
+  static void SigsegvHandler(int);
+  static void SigtermHandler(int);
+
+  /* Crash report generation methods */
+
   // Collects current process state
   void GetExceptionPointers(DWORD dwExceptionCode, 
     EXCEPTION_POINTERS** pExceptionPointers);
@@ -153,9 +179,13 @@ protected:
   CString _repxrch(CString sText);
   
   // Sets internal pointers to exception handlers to NULL
-  void InitPrevCPPExceptionHandlerPointers();
+  void InitPrevExceptionHandlerPointers();
 
-  LPTOP_LEVEL_EXCEPTION_FILTER  m_oldFilter;      // previous exception filter
+  /* Private member variables. */
+
+  static CCrashHandler* m_pProcessCrashHandler; // Singleton of the CCrashHandler class
+  
+  LPTOP_LEVEL_EXCEPTION_FILTER  m_oldSehHandler;  // previous SEH exception filter
       
 #if _MSC_VER>=1300
   _purecall_handler m_prevPurec;   // Previous pure virtual call exception filter
@@ -174,14 +204,13 @@ protected:
   void (__cdecl *m_prevSigINT)(int);  // Previous SIGINT handler
   void (__cdecl *m_prevSigTERM)(int); // Previous SIGTERM handler
 
-  // List of exception handlers installed for threads of current process
-  std::map<DWORD, _cpp_thread_exception_handlers> m_ThreadExceptionHandlers;
+  // List of exception handlers installed for worker threads of current process
+  std::map<DWORD, ThreadExceptionHandlers> m_ThreadExceptionHandlers;
   CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers
 
-  LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
-  int m_pid;                     // Process id.
   std::map<CString, FileItem> m_files;  // Files to add.
   std::map<CString, CString> m_props;   // User-defined properties
+  LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   CString m_sTo;                 // Email:To.
   CString m_sSubject;            // Email:Subject.
   CString m_sUrl;                // URL for sending reports via HTTP.
