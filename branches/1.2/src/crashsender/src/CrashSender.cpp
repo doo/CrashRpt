@@ -38,7 +38,7 @@
 #include "Utility.h"
 
 CAppModule _Module;
-CMainDlg dlgMain;
+CErrorReportDlg dlgMain;
 CProgressDlg dlgProgress;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)

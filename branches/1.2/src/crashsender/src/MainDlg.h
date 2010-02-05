@@ -1,4 +1,4 @@
-// MainDlg.h : interface of the CMainDlg class
+// MainDlg.h : interface of the CErrorReportDlg class
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #define WM_TRAYICON (WM_USER+128)
 
-class CMainDlg : public CDialogImpl<CMainDlg>, public CUpdateUI<CMainDlg>,
+class CErrorReportDlg : public CDialogImpl<CErrorReportDlg>, public CUpdateUI<CErrorReportDlg>,
 		public CMessageFilter, public CIdleHandler
 {
 public:
@@ -40,15 +40,14 @@ public:
 
   CProgressDlg m_dlgProgress;
   HANDLE m_hSenderThread;
-  SenderThreadContext m_ctx;
   
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnIdle();
 
-	BEGIN_UPDATE_UI_MAP(CMainDlg)
+	BEGIN_UPDATE_UI_MAP(CErrorReportDlg)
 	END_UPDATE_UI_MAP()
 
-	BEGIN_MSG_MAP(CMainDlg)
+	BEGIN_MSG_MAP(CErrorReportDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)    
     MESSAGE_HANDLER(WM_COMPLETECOLLECT, OnCompleteCollectCrashInfo)

@@ -246,7 +246,7 @@ cleanup:
   return bStatus;
 }
 
-BOOL CompressReportFiles(SenderThreadContext* pc)
+BOOL CompressReportFiles()
 { 
   BOOL bStatus = FALSE;
   strconv_t strconv;
@@ -296,8 +296,7 @@ BOOL CompressReportFiles(SenderThreadContext* pc)
   an.SetProgress(sMsg, 0, false);
 
   sZipName = g_CrashInfo.m_sErrorReportDirName + _T(".zip");  
-  pc->m_sZipName = sZipName;
-  
+    
   sMsg.Format(_T("Creating ZIP archive file %s"), sZipName);
   an.SetProgress(sMsg, 1, false);
 
@@ -399,14 +398,14 @@ cleanup:
   return bStatus;
 }
 
-BOOL SendOverHTTP(SenderThreadContext* pc)
+BOOL SendOverHTTP(CString sZipName)
 {  
-  if(pc->m_sUrl.IsEmpty())
+  if(g_CrashInfo.m_sUrl.IsEmpty())
   {
     an.SetProgress(_T("No URL specified for sending error report over HTTP; skipping."), 0);
     return FALSE;
   }
-  BOOL bSend = http.SendAssync(pc->m_sUrl, pc->m_sZipName, &an);  
+  BOOL bSend = http.SendAssync(g_CrashInfo.m_sUrl, sZipName, &an);  
   return bSend;
 }
 

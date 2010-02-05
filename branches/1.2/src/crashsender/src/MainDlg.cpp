@@ -1,4 +1,4 @@
-// MainDlg.cpp : implementation of the CMainDlg class
+// MainDlg.cpp : implementation of the CErrorReportDlg class
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,17 +13,17 @@
 #include "CrashInfoReader.h"
 #include "strconv.h"
 
-BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
+BOOL CErrorReportDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
 }
 
-BOOL CMainDlg::OnIdle()
+BOOL CErrorReportDlg::OnIdle()
 {
 	return FALSE;
 }
 
-LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
@@ -130,7 +130,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   m_dlgProgress.Start(TRUE);
 
   DWORD dwThreadId = 0;
-  m_hSenderThread = CreateThread(NULL, 0, CollectorThread, (LPVOID)&m_ctx, 0, &dwThreadId);
+  m_hSenderThread = CreateThread(NULL, 0, CollectorThread, NULL, 0, &dwThreadId);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -143,7 +143,7 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 	return TRUE;
 }
 
-void CMainDlg::ShowMoreInfo(BOOL bShow)
+void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
 {
   CRect rc1, rc2;
 
@@ -201,7 +201,7 @@ void CMainDlg::ShowMoreInfo(BOOL bShow)
     m_btnOk.SetFocus();
 }
 
-LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   CDCHandle dc((HDC)wParam);
 
@@ -242,46 +242,46 @@ LRESULT CMainDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
   return TRUE;
 }
 
-LRESULT CMainDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	CloseDialog(wID);  
 	return 0;
 }
 
-LRESULT CMainDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   ShowWindow(SW_SHOW);
   return 0;
 }
 
-LRESULT CMainDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   CreateTrayIcon(FALSE, m_hWnd);
   CloseDialog(0);  
   return 0;
 }
 
-void CMainDlg::CloseDialog(int nVal)
+void CErrorReportDlg::CloseDialog(int nVal)
 {
 	DestroyWindow();
 	::PostQuitMessage(nVal);
 }
 
-LRESULT CMainDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   CDetailDlg dlg;
   dlg.DoModal();
   return 0;
 }
 
-LRESULT CMainDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
  m_linkMoreInfo.EnableWindow(0);
  ShowMoreInfo(TRUE);
  return 0;
 }
 
-LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
   HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
@@ -324,23 +324,12 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
 
   // Write user email and problem description to XML
   AddUserInfoToCrashDescriptorXML(g_CrashInfo.m_sEmailFrom, g_CrashInfo.m_sDescription);
-  
-  m_ctx.m_sAppName = g_CrashInfo.m_sAppName;
-  m_ctx.m_sAppVersion = g_CrashInfo.m_sAppVersion;
-  m_ctx.m_sErrorReportDirName = g_CrashInfo.m_sErrorReportDirName;
-  m_ctx.m_sEmailTo = g_CrashInfo.m_sEmailTo;
-  m_ctx.m_sEmailFrom = g_CrashInfo.m_sEmailFrom;
-  m_ctx.m_sEmailSubject = g_CrashInfo.m_sEmailSubject;
-  m_ctx.m_sEmailText = g_CrashInfo.m_sDescription;
-  m_ctx.m_sUrl = g_CrashInfo.m_sUrl;
-  memcpy(&m_ctx.m_uPriorities, &g_CrashInfo.m_uPriorities, 3*sizeof(UINT));
-
+    
   DWORD dwThreadId = 0;
-  m_hSenderThread = CreateThread(NULL, 0, SenderThread, (LPVOID)&m_ctx, NULL, &dwThreadId);
+  m_hSenderThread = CreateThread(NULL, 0, SenderThread, NULL, NULL, &dwThreadId);
 
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);
-  m_dlgProgress.m_pctx = &m_ctx;
   m_dlgProgress.Start(FALSE);    
   SetTimer(0, 500);
     
@@ -348,7 +337,7 @@ LRESULT CMainDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
 }
 
 
-LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   if(WaitForSingleObject(m_hSenderThread, 0)==WAIT_OBJECT_0 )
   {
@@ -358,7 +347,7 @@ LRESULT CMainDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, B
   return 0;
 }
 
-void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
+void CErrorReportDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
 { 
   strconv_t strconv;
 
@@ -394,7 +383,7 @@ void CMainDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
   doc.SaveFile();        
 }
 
-LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
   if((HWND)lParam!=m_statIcon)
     return 0;
@@ -405,7 +394,7 @@ LRESULT CMainDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
   return (LRESULT)TRUE;
 }
 
-int CMainDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
+int CErrorReportDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 {
   NOTIFYICONDATA nf;
 	memset(&nf,0,sizeof(NOTIFYICONDATA));
@@ -434,7 +423,7 @@ int CMainDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 }
 
                
-LRESULT CMainDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
   UINT uMouseMsg = (UINT)lParam; 
 
