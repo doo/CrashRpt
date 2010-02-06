@@ -1,7 +1,3 @@
-// MainDlg.cpp : implementation of the CErrorReportDlg class
-//
-/////////////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
 #include <windows.h>
 #include "resource.h"
@@ -128,10 +124,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
   m_dlgProgress.Create(m_hWnd);
   m_dlgProgress.Start(TRUE);
-
-  DWORD dwThreadId = 0;
-  m_hSenderThread = CreateThread(NULL, 0, CollectorThread, NULL, 0, &dwThreadId);
-
+  
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -244,6 +237,8 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  // Notify the sender thread that user has declined to send report
+  g_ErrorReportSender.FeedbackReady(1);
 	CloseDialog(wID);  
 	return 0;
 }
@@ -323,16 +318,16 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   }
 
   // Write user email and problem description to XML
-  AddUserInfoToCrashDescriptorXML(g_CrashInfo.m_sEmailFrom, g_CrashInfo.m_sDescription);
+  g_CrashInfo.AddUserInfoToCrashDescriptionXML(g_CrashInfo.m_sEmailFrom, g_CrashInfo.m_sDescription);
     
-  DWORD dwThreadId = 0;
-  m_hSenderThread = CreateThread(NULL, 0, SenderThread, NULL, NULL, &dwThreadId);
-
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);
   m_dlgProgress.Start(FALSE);    
   SetTimer(0, 500);
-    
+  
+  // Notify user has confirmed error report submission
+  g_ErrorReportSender.FeedbackReady(0);
+
   return 0;
 }
 
@@ -345,42 +340,6 @@ LRESULT CErrorReportDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   }
   
   return 0;
-}
-
-void CErrorReportDlg::AddUserInfoToCrashDescriptorXML(CString sEmail, CString sDesc)
-{ 
-  strconv_t strconv;
-
-  TiXmlDocument doc;
-  
-  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
-  bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
-  if(!bLoad)
-    return;
-
-  TiXmlNode* root = doc.FirstChild("CrashRpt");
-  if(!root)
-    return;
-
-  // Write user e-mail
-
-  TiXmlElement* email = new TiXmlElement("UserEmail");
-  root->LinkEndChild(email);
-
-  LPCSTR lpszEmail = strconv.t2a(sEmail.GetBuffer(0));
-  TiXmlText* email_text = new TiXmlText(lpszEmail);
-  email->LinkEndChild(email_text);              
-
-  // Write problem description
-
-  TiXmlElement* desc = new TiXmlElement("ProblemDescription");
-  root->LinkEndChild(desc);
-
-  LPCSTR lpszDesc = strconv.t2a(sDesc.GetBuffer(0));
-  TiXmlText* desc_text = new TiXmlText(lpszDesc);
-  desc->LinkEndChild(desc_text);              
-
-  doc.SaveFile();        
 }
 
 LRESULT CErrorReportDlg::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)

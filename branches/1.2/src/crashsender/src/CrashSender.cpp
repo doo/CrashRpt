@@ -38,7 +38,7 @@
 #include "Utility.h"
 
 CAppModule _Module;
-CErrorReportDlg dlgMain;
+CErrorReportDlg dlgErrorReport;
 CProgressDlg dlgProgress;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
@@ -55,6 +55,9 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
     g_CrashInfo.Init(CString(argv[0]));
   }
 
+  // Do the rest of the work assynchroniosly
+  g_ErrorReportSender.DoWork();
+
   // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
@@ -65,13 +68,16 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
   
-	if(dlgMain.Create(NULL) == NULL)
+	if(dlgErrorReport.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));
 		return 0;
 	}
   
 	int nRet = theLoop.Run();
+
+  // Wait untill the worker thread is exited
+  g_ErrorReportSender.WaitForCompletion();
 
 	_Module.RemoveMessageLoop();
 

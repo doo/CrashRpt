@@ -37,6 +37,7 @@
 
 #pragma once
 #include <map>
+#include <vector>
 #include "tinyxml.h"
 #include "dbghelp.h"
 
@@ -80,6 +81,9 @@ public:
 
   // Gets crash info from internal crash info XML file
   int Init(CString sCrashInfoFile);
+
+  BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
+  BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
 
 private:
 

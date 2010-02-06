@@ -11,14 +11,287 @@
 #include "strconv.h"
 #include "ScreenCap.h"
 
-int attempt = 0;
-AssyncNotification an;
-CEmailMessage msg;
-CSmtpClient smtp;  
-CHttpSender http;
-CMailMsg mailmsg;
+// Globally accessible object
+CErrorReportSender g_ErrorReportSender;
 
-int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
+CErrorReportSender::CErrorReportSender()
+{
+  m_hThread = NULL;
+  m_SendAttempt = 0;
+}
+
+CErrorReportSender::~CErrorReportSender()
+{  
+}
+
+// This method does crash files collection and
+// error report sending work
+BOOL CErrorReportSender::DoWork()
+{
+  // Create worker thread which will do all work assynchroniously
+  m_hThread = CreateThread(NULL, 0, WorkerThread, (LPVOID)this, 0, NULL);
+  
+  // Check if the thread created ok
+  if(m_hThread==NULL)
+    return FALSE;
+
+  return TRUE;
+}
+
+// This method creates worker thread and delegates further work 
+// back to the CErrorReportSender class
+DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
+{
+  // Delegate the action to the CErrorReportSender::DoWorkAssync() method
+  CErrorReportSender* pSender = (CErrorReportSender*)lpParam;
+  pSender->DoWorkAssync();
+
+  return 0;
+}
+
+// This method collects required crash files (minidump, screenshot etc.)
+// and then sends the error report
+void CErrorReportSender::DoWorkAssync()
+{
+  m_Assync.SetProgress(_T("Start collecting information about the crash..."), 0, false);
+    
+  // First take a screenshot of user's desktop (if needed).
+  TakeDesktopScreenshot();
+
+  m_Assync.SetProgress(_T("[collecting_crash_info]"), 0, false);
+
+  // Create crash dump.
+  CreateMiniDump();
+
+  // Notify the parent process that we have finished with minidump,
+  // so the parent process is able to unblock and terminate itself.
+  CString sEventName;
+  sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.m_sCrashGUID);
+  HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+  if(hEvent!=NULL)
+    SetEvent(hEvent);
+
+  // Collect user-provided files.
+  CollectCrashFiles();
+
+  // Now notify the main thread that we need confirmation from user 
+  // to stard error report submission.
+  m_Assync.SetProgress(_T("[confirm_send_report]"), 0);
+  int confirm = 1;
+  // Block until confirmation is received.
+  m_Assync.WaitForFeedback(confirm);
+  if(confirm!=0)
+  {
+    m_Assync.SetProgress(_T("Cancelled by user"), 100, false);
+    return;
+  }
+
+  // Finally, send the error report.
+  SendReport();
+  return;
+}
+
+// This method blocks until worker thread is exited
+void CErrorReportSender::WaitForCompletion()
+{
+  WaitForSingleObject(m_hThread, INFINITE);
+}
+
+// This method collects user-specified files
+BOOL CErrorReportSender::CollectCrashFiles()
+{ 
+  BOOL bStatus = FALSE;
+  CString str;
+  CString sErrorReportDir = g_CrashInfo.m_sErrorReportDirName;
+  CString sSrcFile;
+  CString sDestFile;
+  HANDLE hSrcFile = INVALID_HANDLE_VALUE;
+  HANDLE hDestFile = INVALID_HANDLE_VALUE;
+  LARGE_INTEGER lFileSize;
+  BOOL bGetSize = FALSE;
+  LPBYTE buffer[4096];
+  LARGE_INTEGER lTotalWritten;
+  DWORD dwBytesRead=0;
+  DWORD dwBytesWritten=0;
+  BOOL bRead = FALSE;
+  BOOL bWrite = FALSE;
+
+  // Copy application-defined files that should be copied on crash
+  
+  std::map<CString, FileItem>::iterator it;
+  for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
+  {
+    if(m_Assync.IsCancelled())
+      goto cleanup;
+
+    if(it->second.m_bMakeCopy)
+    {
+      str.Format(_T("Copying file %s."), it->second.m_sSrcFile);
+      m_Assync.SetProgress(str, 0, false);
+      
+      hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
+        FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+      if(hSrcFile==INVALID_HANDLE_VALUE)
+      {
+        str.Format(_T("Error opening file %s."), it->second.m_sSrcFile);
+        m_Assync.SetProgress(str, 0, false);
+      }
+      
+      bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
+      if(!bGetSize)
+      {
+        str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
+        m_Assync.SetProgress(str, 0, false);
+        CloseHandle(hSrcFile);
+        hSrcFile = INVALID_HANDLE_VALUE;
+        continue;
+      }
+
+      sDestFile = sErrorReportDir + _T("\\") + it->second.m_sDestFile;
+      
+      hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
+        FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
+      if(hDestFile==INVALID_HANDLE_VALUE)
+      {
+        str.Format(_T("Error creating file %s."), sDestFile);
+        m_Assync.SetProgress(str, 0, false);
+        CloseHandle(hSrcFile);
+        hSrcFile = INVALID_HANDLE_VALUE;
+        continue;
+      }
+
+      lTotalWritten.QuadPart = 0;
+
+      for(;;)
+      {        
+        if(m_Assync.IsCancelled())
+          goto cleanup;
+    
+        bRead = ReadFile(hSrcFile, buffer, 4096, &dwBytesRead, NULL);
+        if(!bRead || dwBytesRead==0)
+          break;
+
+        bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
+        if(!bWrite || dwBytesRead!=dwBytesWritten)
+          break;
+
+        lTotalWritten.QuadPart += dwBytesWritten;
+
+        int nProgress = (int)(100.0f*lTotalWritten.QuadPart/lFileSize.QuadPart);
+
+        m_Assync.SetProgress(nProgress, false);
+      }
+
+      if(lTotalWritten.QuadPart!=lFileSize.QuadPart)
+        goto cleanup; // Error copying file
+
+      CloseHandle(hSrcFile);
+      hSrcFile = INVALID_HANDLE_VALUE;
+      CloseHandle(hDestFile);
+      hDestFile = INVALID_HANDLE_VALUE;
+    }
+  }
+
+  // Success
+  bStatus = TRUE;
+
+cleanup:
+  
+  if(hSrcFile!=INVALID_HANDLE_VALUE)
+    CloseHandle(hSrcFile);
+
+  if(hDestFile!=INVALID_HANDLE_VALUE)
+    CloseHandle(hDestFile);
+
+  if(bStatus)
+  {
+    m_Assync.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
+    m_Assync.SetProgress(_T("[completed_collecting_crash_info]"), 0, true);
+  }
+  else
+  {    
+    m_Assync.SetProgress(_T("[status_exit_silently]"), 0, true);
+  }
+
+  return 0;
+}
+
+BOOL CErrorReportSender::SendReport()
+{
+  int status = 1;
+
+  BOOL bCompress = CompressReportFiles();
+  if(bCompress)
+  {
+    std::multimap<int, int> order;
+
+    std::pair<int, int> pair3(g_CrashInfo.m_uPriorities[CR_SMAPI], CR_SMAPI);
+    order.insert(pair3);
+
+    std::pair<int, int> pair2(g_CrashInfo.m_uPriorities[CR_SMTP], CR_SMTP);
+    order.insert(pair2);
+
+    std::pair<int, int> pair1(g_CrashInfo.m_uPriorities[CR_HTTP], CR_HTTP);
+    order.insert(pair1);
+
+    std::multimap<int, int>::reverse_iterator rit;
+    
+    for(rit=order.rbegin(); rit!=order.rend(); rit++)
+    {
+      m_Assync.SetProgress(_T("[sending_attempt]"), 0);
+      m_SendAttempt++;    
+
+      if(m_Assync.IsCancelled()){ break; }
+
+      int id = rit->second;
+
+      BOOL bResult = FALSE;
+
+      if(id==CR_HTTP)
+        bResult = SendOverHTTP();    
+      else if(id==CR_SMTP)
+        bResult = SendOverSMTP();  
+      else if(id==CR_SMAPI)
+        bResult = SendOverSMAPI();
+
+      if(bResult==FALSE)
+        continue;
+
+      if(id==CR_SMAPI && bResult==TRUE)
+      {
+        status = 0;
+        break;
+      }
+
+      if(0==m_Assync.WaitForCompletion())
+      {
+        status = 0;
+        break;
+      }
+    }
+  }
+
+  if(status==0)
+  {
+    m_Assync.SetProgress(_T("[status_success]"), 0);
+    // Move the ZIP to Recycle Bin
+    Utility::RecycleFile(m_sZipName, false);
+    Utility::RecycleFile(g_CrashInfo.m_sErrorReportDirName, false);
+  }
+  else
+  {
+    CString str;
+    str.Format(_T("The error report is saved to '%s'"), m_sZipName);
+    m_Assync.SetProgress(str, 0);    
+    m_Assync.SetProgress(_T("[status_failed]"), 0);    
+  }
+
+  m_Assync.SetCompleted(status);
+  
+  return 0;
+}
+
+int CErrorReportSender::CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 {
   FILE* f = NULL;
   BYTE buff[512];
@@ -62,25 +335,25 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
   return 0;
 }
 
-void GetSenderThreadStatus(int& nProgressPct, std::vector<CString>& msg_log)
+void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
-  an.GetProgress(nProgressPct, msg_log); 
+  m_Assync.GetProgress(nProgressPct, msg_log); 
 }
 
-void CancelSenderThread()
+void CErrorReportSender::Cancel()
 {
-  an.Cancel();
+  m_Assync.Cancel();
 }
 
-void FeedbackReady(int code)
+void CErrorReportSender::FeedbackReady(int code)
 {
-  an.FeedbackReady(code);
+  m_Assync.FeedbackReady(code);
 }
 
 
-BOOL MakeDesktopScreenshot()
+BOOL CErrorReportSender::TakeDesktopScreenshot()
 {
-  /*CScreenCapture sc;
+  CScreenCapture sc;
   std::vector<CString> screenshot_names;
   
   DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
@@ -90,56 +363,61 @@ BOOL MakeDesktopScreenshot()
     CRect rcScreen;
     sc.GetScreenRect(&rcScreen);
     
-    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcScreen, sReportFolderName, 0, screenshot_names);
-    if(bMakeScreenshot==FALSE)
+    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcScreen, 
+      g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
+    if(bTakeScreenshot==FALSE)
     {
-      crSetErrorMsg(_T("Couldn't take a screenshot."));
-      return -3;
+      return FALSE;
     }
   }
   else if(dwFlags==CR_AS_MAIN_WINDOW)
   {    
     HWND hMainWnd = Utility::FindAppWindow();
     if(hMainWnd==NULL)
-    {
-      crSetErrorMsg(_T("Couldn't find main application window."));
-      return -2;
+    {      
+      return FALSE;
     }
 
     CRect rcWindow; 
     GetWindowRect(hMainWnd, &rcWindow);
-    BOOL bMakeScreenshot = sc.CaptureScreenRect(rcWindow, sReportFolderName, 0, screenshot_names);
-    if(bMakeScreenshot==FALSE)
-    {
-      crSetErrorMsg(_T("Couldn't take a screenshot."));
-      return -3;
+    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcWindow, 
+      g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
+    if(bTakeScreenshot==FALSE)
+    {      
+      return FALSE;
     }
   }
   else
-  {
-    crSetErrorMsg(_T("Invalid flag specified."));
-    return -1;
+  {    
+    return FALSE;
   }
 
+  std::vector<FileItem> FilesToAdd;
   size_t i;
   for(i=0; i<screenshot_names.size(); i++)
   {
     CString sDestFile;
     sDestFile.Format(_T("screenshot%d.png"), i); 
-    int nAdd = AddFile(screenshot_names[i], sDestFile, _T("Desktop Screenshot"), 0);
-    if(nAdd!=0)
-    {
-      return -4;
-    }
-  }*/
+    FileItem fi;
+    fi.m_sSrcFile = screenshot_names[i];
+    fi.m_sDestFile = sDestFile;
+    fi.m_sDesc = _T("Desktop Screenshot");    
+    FilesToAdd.push_back(fi);
+  }
+
+  int nAdd = g_CrashInfo.AddFilesToCrashDescriptionXML(FilesToAdd);
+  if(nAdd!=0)
+  {
+    return FALSE;
+  }
 
   return TRUE;
 }
 
-BOOL CALLBACK MiniDumpCallback(
-  __in     PVOID CallbackParam,
-  __in     const PMINIDUMP_CALLBACK_INPUT CallbackInput,
-  __inout  PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
+BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
+  PVOID CallbackParam,
+  const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+  PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
 {
   /*switch(CallbackInput.CallbackType)
   {    
@@ -148,7 +426,7 @@ BOOL CALLBACK MiniDumpCallback(
 }
 
 
-BOOL CreateMinidump()
+BOOL CErrorReportSender::CreateMiniDump()
 { 
   BOOL bStatus = FALSE;
   HMODULE hDbgHelp = NULL;
@@ -157,14 +435,14 @@ BOOL CreateMinidump()
   MINIDUMP_CALLBACK_INFORMATION mci;
   CString sMinidumpFile = g_CrashInfo.m_sErrorReportDirName + _T("\\crashdump.dmp");
 
-  an.SetProgress(_T("Creating crash dump file..."), 0, false);
-  an.SetProgress(_T("[crating_dump]"), 0, false);
+  m_Assync.SetProgress(_T("Creating crash dump file..."), 0, false);
+  m_Assync.SetProgress(_T("[crating_dump]"), 0, false);
 
   // Load dbghelp.dll
   hDbgHelp = LoadLibrary(g_CrashInfo.m_sDbgHelpPath);
   if(hDbgHelp==NULL)
   {
-    an.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
+    m_Assync.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
     goto cleanup;
   }
 
@@ -181,7 +459,7 @@ BOOL CreateMinidump()
   if(hFile==INVALID_HANDLE_VALUE)
   {
     ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
-    an.SetProgress(_T("Couldn't create dump file."), 0, false);
+    m_Assync.SetProgress(_T("Couldn't create dump file."), 0, false);
     return FALSE;
   }
 
@@ -206,7 +484,7 @@ BOOL CreateMinidump()
     (LPMINIDUMPWRITEDUMP)GetProcAddress(hDbgHelp, "MiniDumpWriteDump");
   if(!pfnMiniDumpWriteDump)
   {    
-    an.SetProgress(_T("Bad MiniDumpWriteDump function."), 0, false);
+    m_Assync.SetProgress(_T("Bad MiniDumpWriteDump function."), 0, false);
     return FALSE;
   }
 
@@ -226,13 +504,13 @@ BOOL CreateMinidump()
  
   if(!bWriteDump)
   {    
-    an.SetProgress(_T("Error writing dump."), 0, false);
-    an.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
+    m_Assync.SetProgress(_T("Error writing dump."), 0, false);
+    m_Assync.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
     goto cleanup;
   }
 
   bStatus = TRUE;
-  an.SetProgress(_T("Finished creating dump."), 100, false);
+  m_Assync.SetProgress(_T("Finished creating dump."), 100, false);
 
 cleanup:
 
@@ -246,7 +524,7 @@ cleanup:
   return bStatus;
 }
 
-BOOL CompressReportFiles()
+BOOL CErrorReportSender::CompressReportFiles()
 { 
   BOOL bStatus = FALSE;
   strconv_t strconv;
@@ -258,14 +536,14 @@ BOOL CompressReportFiles()
   DWORD dwBytesRead=0;
   CString sZipName;
 
-  an.SetProgress(_T("Start compressing files..."), 0, false);
-  an.SetProgress(_T("[compressing_files]"), 0, false);
-  an.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
+  m_Assync.SetProgress(_T("Start compressing files..."), 0, false);
+  m_Assync.SetProgress(_T("[compressing_files]"), 0, false);
+  m_Assync.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
 
   std::map<CString, FileItem>::iterator it;
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
   {    
-    if(an.IsCancelled())    
+    if(m_Assync.IsCancelled())    
       goto cleanup;
 
     CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
@@ -274,7 +552,7 @@ BOOL CompressReportFiles()
     if(hFile==INVALID_HANDLE_VALUE)
     {
       sMsg.Format(_T("Couldn't open file %s"), sFileName);
-      an.SetProgress(sMsg, 0, false);
+      m_Assync.SetProgress(sMsg, 0, false);
       continue;
     }
 
@@ -283,7 +561,7 @@ BOOL CompressReportFiles()
     if(!bGetSize)
     {
       sMsg.Format(_T("Couldn't get file size of %s"), sFileName);
-      an.SetProgress(sMsg, 0, false);
+      m_Assync.SetProgress(sMsg, 0, false);
       CloseHandle(hFile);
       continue;
     }
@@ -293,23 +571,23 @@ BOOL CompressReportFiles()
   }
 
   sMsg.Format(_T("Total file size for compression is %I64d"), lTotalSize);
-  an.SetProgress(sMsg, 0, false);
+  m_Assync.SetProgress(sMsg, 0, false);
 
   sZipName = g_CrashInfo.m_sErrorReportDirName + _T(".zip");  
     
   sMsg.Format(_T("Creating ZIP archive file %s"), sZipName);
-  an.SetProgress(sMsg, 1, false);
+  m_Assync.SetProgress(sMsg, 1, false);
 
   hZip = zipOpen(strconv.t2a(sZipName.GetBuffer(0)), APPEND_STATUS_CREATE);
   if(hZip==NULL)
   {
-    an.SetProgress(_T("Failed to create ZIP file."), 100, true);
+    m_Assync.SetProgress(_T("Failed to create ZIP file."), 100, true);
     goto cleanup;
   }
 
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
   { 
-    if(an.IsCancelled())    
+    if(m_Assync.IsCancelled())    
       return FALSE;
     
     CString sDstFileName = it->second.m_sDestFile.GetBuffer(0);
@@ -317,14 +595,14 @@ BOOL CompressReportFiles()
     CString sDesc = it->second.m_sDesc;
 
     sMsg.Format(_T("Compressing %s"), sDstFileName);
-    an.SetProgress(sMsg, 0, false);
+    m_Assync.SetProgress(sMsg, 0, false);
         
     HANDLE hFile = CreateFile(sFileName, 
       GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
     if(hFile==INVALID_HANDLE_VALUE)
     {
       sMsg.Format(_T("Couldn't open file %s"), sFileName);
-      an.SetProgress(sMsg, 0, false);
+      m_Assync.SetProgress(sMsg, 0, false);
       continue;
     }
 
@@ -350,13 +628,13 @@ BOOL CompressReportFiles()
     if(n!=0)
     {
       sMsg.Format(_T("Couldn't compress file %s"), sDstFileName);
-      an.SetProgress(sMsg, 0, false);
+      m_Assync.SetProgress(sMsg, 0, false);
       continue;
     }
 
     for(;;)
     {
-      if(an.IsCancelled())    
+      if(m_Assync.IsCancelled())    
         goto cleanup;
 
       BOOL bRead = ReadFile(hFile, buff, 1024, &dwBytesRead, NULL);
@@ -368,14 +646,14 @@ BOOL CompressReportFiles()
       {
         zipCloseFileInZip(hZip);
         sMsg.Format(_T("Couldn't write to compressed file %s"), sDstFileName);
-        an.SetProgress(sMsg, 0, false);        
+        m_Assync.SetProgress(sMsg, 0, false);        
         break;
       }
 
       lTotalCompressed += dwBytesRead;
 
       float fProgress = 100.0f*lTotalCompressed/lTotalSize;
-      an.SetProgress((int)fProgress, false);
+      m_Assync.SetProgress((int)fProgress, false);
     }
 
     zipCloseFileInZip(hZip);
@@ -391,27 +669,27 @@ cleanup:
     zipClose(hZip, NULL);
 
   if(bStatus)
-    an.SetProgress(_T("Finished compressing files...OK"), 100, true);
+    m_Assync.SetProgress(_T("Finished compressing files...OK"), 100, true);
   else
-    an.SetProgress(_T("File compression failed."), 100, true);
+    m_Assync.SetProgress(_T("File compression failed."), 100, true);
 
   return bStatus;
 }
 
-BOOL SendOverHTTP(CString sZipName)
+BOOL CErrorReportSender::SendOverHTTP()
 {  
   if(g_CrashInfo.m_sUrl.IsEmpty())
   {
-    an.SetProgress(_T("No URL specified for sending error report over HTTP; skipping."), 0);
+    m_Assync.SetProgress(_T("No URL specified for sending error report over HTTP; skipping."), 0);
     return FALSE;
   }
-  BOOL bSend = http.SendAssync(g_CrashInfo.m_sUrl, sZipName, &an);  
+  BOOL bSend = m_HttpSender.SendAssync(g_CrashInfo.m_sUrl, m_sZipName, &m_Assync);  
   return bSend;
 }
 
-CString FormatEmailText(SenderThreadContext* pc)
+CString CErrorReportSender::FormatEmailText()
 {
-  CString sFileTitle = pc->m_sZipName;
+  CString sFileTitle = m_sZipName;
   sFileTitle.Replace('/', '\\');
   int pos = sFileTitle.ReverseFind('\\');
   if(pos>=0)
@@ -419,17 +697,19 @@ CString FormatEmailText(SenderThreadContext* pc)
 
   CString sText;
 
-  sText += _T("This is an error report from ") + pc->m_sAppName + _T(" ") + pc->m_sAppVersion+_T(".\n\n");
+  sText += _T("This is m_Assync error report from ") + g_CrashInfo.m_sAppName + 
+    _T(" ") + g_CrashInfo.m_sAppVersion+_T(".\n\n");
  
-  if(!pc->m_sEmailFrom.IsEmpty())
+  if(!g_CrashInfo.m_sEmailFrom.IsEmpty())
   {
-    sText += _T("This error report was sent by ") + pc->m_sEmailFrom + _T(".\n");
+    sText += _T("This error report was sent by ") + g_CrashInfo.m_sEmailFrom + _T(".\n");
     sText += _T("If you need additional info about the problem, you may want to contact this user again.\n\n");
   }     
 
-  if(!pc->m_sEmailFrom.IsEmpty())
+  if(!g_CrashInfo.m_sEmailFrom.IsEmpty())
   {
-    sText += _T("The user has provided the following problem description:\n<<< ") + pc->m_sEmailText + _T(" >>>\n\n");    
+    sText += _T("The user has provided the following problem description:\n<<< ") + 
+      g_CrashInfo.m_sDescription + _T(" >>>\n\n");    
   }
 
   sText += _T("You may find detailed information about the error in files attached to this message:\n\n");
@@ -438,31 +718,31 @@ CString FormatEmailText(SenderThreadContext* pc)
 
   sText += sFileTitle + _T(".md5 file contains MD5 hash for the ZIP archive. You might want to use this file to check integrity of the error report.\n\n");
   
-  sText += _T("For additional information about using error reports, see FAQ http://code.google.com/p/crashrpt/wiki/FAQ#Using_Error_Reports\n");
+  sText += _T("For additional information, see FAQ http://code.google.com/p/crashrpt/wiki/FAQ\n");
 
   return sText;
 }
 
-BOOL SendOverSMTP(SenderThreadContext* pc)
+BOOL CErrorReportSender::SendOverSMTP()
 {  
   strconv_t strconv;
 
-  if(pc->m_sEmailTo.IsEmpty())
+  if(g_CrashInfo.m_sEmailTo.IsEmpty())
   {
-    an.SetProgress(_T("No E-mail address is specified for sending error report over SMTP; skipping."), 0);
+    m_Assync.SetProgress(_T("No E-mail address is specified for sending error report over SMTP; skipping."), 0);
     return FALSE;
   }
-  msg.m_sFrom = (!pc->m_sEmailFrom.IsEmpty())?pc->m_sEmailFrom:pc->m_sEmailTo;
-  msg.m_sTo = pc->m_sEmailTo;
-  msg.m_sSubject = pc->m_sEmailSubject;
-  msg.m_sText = FormatEmailText(pc);
+  m_EmailMsg.m_sFrom = (!g_CrashInfo.m_sEmailFrom.IsEmpty())?g_CrashInfo.m_sEmailFrom:g_CrashInfo.m_sEmailTo;
+  m_EmailMsg.m_sTo = g_CrashInfo.m_sEmailTo;
+  m_EmailMsg.m_sSubject = g_CrashInfo.m_sEmailSubject;
+  m_EmailMsg.m_sText = FormatEmailText();
   
-  msg.m_aAttachments.insert(pc->m_sZipName);  
+  m_EmailMsg.m_aAttachments.insert(m_sZipName);  
 
   // Create and attach MD5 hash file
   CString sErrorRptHash;
-  CalcFileMD5Hash(pc->m_sZipName, sErrorRptHash);
-  CString sFileTitle = pc->m_sZipName;
+  CalcFileMD5Hash(m_sZipName, sErrorRptHash);
+  CString sFileTitle = m_sZipName;
   sFileTitle.Replace('/', '\\');
   int pos = sFileTitle.ReverseFind('\\');
   if(pos>=0)
@@ -478,66 +758,66 @@ BOOL SendOverSMTP(SenderThreadContext* pc)
     LPCSTR szErrorRptHash = strconv.t2a(sErrorRptHash.GetBuffer(0));
     fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
     fclose(f);
-    msg.m_aAttachments.insert(sTmpFileName);  
+    m_EmailMsg.m_aAttachments.insert(sTmpFileName);  
   }
 
-  int res = smtp.SendEmailAssync(&msg, &an); 
+  int res = m_SmtpClient.SendEmailAssync(&m_EmailMsg, &m_Assync); 
   return (res==0);
 }
 
-BOOL SendOverSMAPI(SenderThreadContext* pc)
+BOOL CErrorReportSender::SendOverSMAPI()
 {  
   strconv_t strconv;
 
-  if(pc->m_sEmailTo.IsEmpty())
+  if(g_CrashInfo.m_sEmailTo.IsEmpty())
   {
-    an.SetProgress(_T("No E-mail address is specified for sending error report over Simple MAPI; skipping."), 0);
+    m_Assync.SetProgress(_T("No E-mail address is specified for sending error report over Simple MAPI; skipping."), 0);
     return FALSE;
   }
 
-  an.SetProgress(_T("Sending error report using Simple MAPI"), 0, false);
-  an.SetProgress(_T("Initializing MAPI"), 1);
+  m_Assync.SetProgress(_T("Sending error report using Simple MAPI"), 0, false);
+  m_Assync.SetProgress(_T("Initializing MAPI"), 1);
 
-  BOOL bMAPIInit = mailmsg.MAPIInitialize();
+  BOOL bMAPIInit = m_MapiSender.MAPIInitialize();
   if(!bMAPIInit)
   {
-    an.SetProgress(mailmsg.GetLastErrorMsg(), 100, false);
+    m_Assync.SetProgress(m_MapiSender.GetLastErrorMsg(), 100, false);
     return FALSE;
   }
   
-  if(attempt!=0)
+  if(m_SendAttempt!=0)
   {
-    an.SetProgress(_T("[confirm_launch_email_client]"), 0);
+    m_Assync.SetProgress(_T("[confirm_launch_email_client]"), 0);
     int confirm = 1;
-    an.WaitForFeedback(confirm);
+    m_Assync.WaitForFeedback(confirm);
     if(confirm!=0)
     {
-      an.SetProgress(_T("Cancelled by user"), 100, false);
+      m_Assync.SetProgress(_T("Cancelled by user"), 100, false);
       return FALSE;
     }
   }
 
   CString msg;
   CString sMailClientName;
-  mailmsg.DetectMailClient(sMailClientName);
+  m_MapiSender.DetectMailClient(sMailClientName);
   
   msg.Format(_T("Launching the default email client (%s)"), sMailClientName);
-  an.SetProgress(msg, 10);
+  m_Assync.SetProgress(msg, 10);
 
-  mailmsg.SetFrom(pc->m_sEmailFrom);
-  mailmsg.SetTo(pc->m_sEmailTo);
-  mailmsg.SetSubject(pc->m_sEmailSubject);
-  CString sFileTitle = pc->m_sZipName;
+  m_MapiSender.SetFrom(g_CrashInfo.m_sEmailFrom);
+  m_MapiSender.SetTo(g_CrashInfo.m_sEmailTo);
+  m_MapiSender.SetSubject(g_CrashInfo.m_sEmailSubject);
+  CString sFileTitle = m_sZipName;
   sFileTitle.Replace('/', '\\');
   int pos = sFileTitle.ReverseFind('\\');
   if(pos>=0)
     sFileTitle = sFileTitle.Mid(pos+1);
-  mailmsg.SetMessage(FormatEmailText(pc));
-  mailmsg.AddAttachment(pc->m_sZipName, sFileTitle);
+  m_MapiSender.SetMessage(FormatEmailText());
+  m_MapiSender.AddAttachment(m_sZipName, sFileTitle);
 
   // Create and attach MD5 hash file
   CString sErrorRptHash;
-  CalcFileMD5Hash(pc->m_sZipName, sErrorRptHash);
+  CalcFileMD5Hash(m_sZipName, sErrorRptHash);
   sFileTitle += _T(".md5");
   CString sTempDir;
   Utility::getTempDirectory(sTempDir);
@@ -549,227 +829,19 @@ BOOL SendOverSMAPI(SenderThreadContext* pc)
     LPCSTR szErrorRptHash = strconv.t2a(sErrorRptHash.GetBuffer(0));
     fwrite(szErrorRptHash, strlen(szErrorRptHash), 1, f);
     fclose(f);
-    mailmsg.AddAttachment(sTmpFileName, sFileTitle);  
+    m_MapiSender.AddAttachment(sTmpFileName, sFileTitle);  
   }
 
-  BOOL bSend = mailmsg.Send();
+  BOOL bSend = m_MapiSender.Send();
   if(!bSend)
-    an.SetProgress(mailmsg.GetLastErrorMsg(), 100, false);
+    m_Assync.SetProgress(m_MapiSender.GetLastErrorMsg(), 100, false);
   else
-    an.SetProgress(_T("Sent OK"), 100, false);
+    m_Assync.SetProgress(_T("Sent OK"), 100, false);
   
   return bSend;
 }
 
-DWORD WINAPI SenderThread(LPVOID lpParam)
-{
-  SenderThreadContext* pc = (SenderThreadContext*)lpParam;
-
-  int status = 1;
-
-  BOOL bCompress = CompressReportFiles(pc);
-  if(bCompress)
-  {
-    std::multimap<int, int> order;
-
-    std::pair<int, int> pair3(pc->m_uPriorities[CR_SMAPI], CR_SMAPI);
-    order.insert(pair3);
-
-    std::pair<int, int> pair2(pc->m_uPriorities[CR_SMTP], CR_SMTP);
-    order.insert(pair2);
-
-    std::pair<int, int> pair1(pc->m_uPriorities[CR_HTTP], CR_HTTP);
-    order.insert(pair1);
-
-    std::multimap<int, int>::reverse_iterator rit;
-    
-    for(rit=order.rbegin(); rit!=order.rend(); rit++)
-    {
-      an.SetProgress(_T("[sending_attempt]"), 0);
-      attempt++;    
-
-      if(an.IsCancelled()){ break; }
-
-      int id = rit->second;
-
-      BOOL bResult = FALSE;
-
-      if(id==CR_HTTP)
-        bResult = SendOverHTTP(pc);    
-      else if(id==CR_SMTP)
-        bResult = SendOverSMTP(pc);  
-      else if(id==CR_SMAPI)
-        bResult = SendOverSMAPI(pc);
-
-      if(bResult==FALSE)
-        continue;
-
-      if(id==CR_SMAPI && bResult==TRUE)
-      {
-        status = 0;
-        break;
-      }
-
-      if(0==an.WaitForCompletion())
-      {
-        status = 0;
-        break;
-      }
-    }
-  }
-
-  if(status==0)
-  {
-    an.SetProgress(_T("[status_success]"), 0);
-    // Move the ZIP to Recycle Bin
-    Utility::RecycleFile(pc->m_sZipName, false);
-    Utility::RecycleFile(pc->m_sErrorReportDirName, false);
-  }
-  else
-  {
-    CString str;
-    str.Format(_T("The error report is saved to '%s'"), pc->m_sZipName);
-    an.SetProgress(str, 0);    
-    an.SetProgress(_T("[status_failed]"), 0);    
-  }
-
-  an.SetCompleted(status);
-  
-  return 0;
-}
 
 
 
-
-DWORD WINAPI CollectorThread(LPVOID /*lpParam*/)
-{ 
-  BOOL bStatus = FALSE;
-  CString str;
-  CString sErrorReportDir = g_CrashInfo.m_sErrorReportDirName;
-  CString sSrcFile;
-  CString sDestFile;
-  HANDLE hSrcFile = INVALID_HANDLE_VALUE;
-  HANDLE hDestFile = INVALID_HANDLE_VALUE;
-  LARGE_INTEGER lFileSize;
-  BOOL bGetSize = FALSE;
-  LPBYTE buffer[4096];
-  LARGE_INTEGER lTotalWritten;
-  DWORD dwBytesRead=0;
-  DWORD dwBytesWritten=0;
-  BOOL bRead = FALSE;
-  BOOL bWrite = FALSE;
-
-  BOOL bMakeScreenshot = MakeDesktopScreenshot();
-
-  BOOL bCreateMinidump = CreateMinidump();
-
-  // Notify the parent process that we have finished with minidump,
-  // so the parent process is able to unblock and terminate.
-  CString sEventName;
-  sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.m_sCrashGUID);
-  HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
-  if(hEvent!=NULL)
-    SetEvent(hEvent);
-
-  // Copy application-defined files that should be copied on crash
-  an.SetProgress(_T("Start collecting information about the crash..."), 0, false);
-  an.SetProgress(_T("[collecting_crash_info]"), 0, false);
-  
-  std::map<CString, FileItem>::iterator it;
-  for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
-  {
-    if(an.IsCancelled())
-      goto cleanup;
-
-    if(it->second.m_bMakeCopy)
-    {
-      str.Format(_T("Copying file %s."), it->second.m_sSrcFile);
-      an.SetProgress(str, 0, false);
-      
-      hSrcFile = CreateFile(it->second.m_sSrcFile, GENERIC_READ, 
-        FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
-      if(hSrcFile==INVALID_HANDLE_VALUE)
-      {
-        str.Format(_T("Error opening file %s."), it->second.m_sSrcFile);
-        an.SetProgress(str, 0, false);
-      }
-      
-      bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
-      if(!bGetSize)
-      {
-        str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
-        an.SetProgress(str, 0, false);
-        CloseHandle(hSrcFile);
-        hSrcFile = INVALID_HANDLE_VALUE;
-        continue;
-      }
-
-      sDestFile = sErrorReportDir + _T("\\") + it->second.m_sDestFile;
-      
-      hDestFile = CreateFile(sDestFile, GENERIC_WRITE, 
-        FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
-      if(hDestFile==INVALID_HANDLE_VALUE)
-      {
-        str.Format(_T("Error creating file %s."), sDestFile);
-        an.SetProgress(str, 0, false);
-        CloseHandle(hSrcFile);
-        hSrcFile = INVALID_HANDLE_VALUE;
-        continue;
-      }
-
-      lTotalWritten.QuadPart = 0;
-
-      for(;;)
-      {        
-        if(an.IsCancelled())
-          goto cleanup;
-    
-        bRead = ReadFile(hSrcFile, buffer, 4096, &dwBytesRead, NULL);
-        if(!bRead || dwBytesRead==0)
-          break;
-
-        bWrite = WriteFile(hDestFile, buffer, dwBytesRead, &dwBytesWritten, NULL);
-        if(!bWrite || dwBytesRead!=dwBytesWritten)
-          break;
-
-        lTotalWritten.QuadPart += dwBytesWritten;
-
-        int nProgress = (int)(100.0f*lTotalWritten.QuadPart/lFileSize.QuadPart);
-
-        an.SetProgress(nProgress, false);
-      }
-
-      if(lTotalWritten.QuadPart!=lFileSize.QuadPart)
-        goto cleanup; // Error copying file
-
-      CloseHandle(hSrcFile);
-      hSrcFile = INVALID_HANDLE_VALUE;
-      CloseHandle(hDestFile);
-      hDestFile = INVALID_HANDLE_VALUE;
-    }
-  }
-
-  // Success
-  bStatus = TRUE;
-
-cleanup:
-  
-  if(hSrcFile!=INVALID_HANDLE_VALUE)
-    CloseHandle(hSrcFile);
-
-  if(hDestFile!=INVALID_HANDLE_VALUE)
-    CloseHandle(hDestFile);
-
-  if(bStatus)
-  {
-    an.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
-    an.SetProgress(_T("[completed_collecting_crash_info]"), 0, true);
-  }
-  else
-  {    
-    an.SetProgress(_T("[status_exit_silently]"), 0, true);
-  }
-
-  return 0;
-}
 

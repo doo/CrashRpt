@@ -59,7 +59,7 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
   }
 
   // Start cancelling the worker thread
-  CancelSenderThread();  
+  g_ErrorReportSender.Cancel();  
 
   // Disable Cancel button
   m_btnCancel.EnableWindow(0);
@@ -107,7 +107,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
     // Get current progress
     int nProgressPct = 0;
     std::vector<CString> messages;
-    GetSenderThreadStatus(nProgressPct, messages);
+    g_ErrorReportSender.GetStatus(nProgressPct, messages);
     
     // Update progress bar
     m_prgProgress.SetPos(nProgressPct);
@@ -186,7 +186,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
           Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")),
           MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
 
-        FeedbackReady(result==IDOK?0:1);       
+        g_ErrorReportSender.FeedbackReady(result==IDOK?0:1);       
         ShowWindow(SW_HIDE);
       }
 

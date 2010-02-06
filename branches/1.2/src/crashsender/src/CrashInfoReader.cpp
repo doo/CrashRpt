@@ -39,6 +39,7 @@
 #include "CrashRpt.h"
 #include "CrashInfoReader.h"
 #include "strconv.h"
+#include "tinyxml.h"
 
 // Define global CCrashInfoReader object
 CCrashInfoReader g_CrashInfo;
@@ -225,4 +226,83 @@ int CCrashInfoReader::ParseCrashDescriptor(CString sFileName)
   return 0;
 }
 
+BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc)
+{ 
+  strconv_t strconv;
 
+  TiXmlDocument doc;
+  
+  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
+  if(!bLoad)
+    return FALSE;
+
+  TiXmlNode* root = doc.FirstChild("CrashRpt");
+  if(!root)
+    return FALSE;
+
+  // Write user e-mail
+
+  TiXmlElement* email = new TiXmlElement("UserEmail");
+  root->LinkEndChild(email);
+
+  LPCSTR lpszEmail = strconv.t2a(sEmail.GetBuffer(0));
+  TiXmlText* email_text = new TiXmlText(lpszEmail);
+  email->LinkEndChild(email_text);              
+
+  // Write problem description
+
+  TiXmlElement* desc = new TiXmlElement("ProblemDescription");
+  root->LinkEndChild(desc);
+
+  LPCSTR lpszDesc = strconv.t2a(sDesc.GetBuffer(0));
+  TiXmlText* desc_text = new TiXmlText(lpszDesc);
+  desc->LinkEndChild(desc_text);              
+
+  bool bSave = doc.SaveFile(); 
+  if(!bSave)
+    return FALSE;
+  return TRUE;
+}
+
+BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> FilesToAdd)
+{
+  strconv_t strconv;
+
+  TiXmlDocument doc;
+  
+  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
+  if(!bLoad)
+    return FALSE;
+
+  TiXmlNode* root = doc.FirstChild("CrashRpt");
+  if(!root)
+    return FALSE;
+  
+  TiXmlHandle hFileItems = root->FirstChild("FileItems");
+  if(hFileItems.ToElement()==NULL)
+  {
+    hFileItems = new TiXmlElement("FileItems");
+    root->LinkEndChild(hFileItems.ToNode());
+  }
+  
+  unsigned i;
+  for(i=0; i<FilesToAdd.size(); i++)
+  {
+    LPCSTR lpszName = strconv.t2a(FilesToAdd[i].m_sDestFile);
+    LPCSTR lpszDesc = strconv.t2a(FilesToAdd[i].m_sDesc);
+    
+    TiXmlHandle hFileItem = new TiXmlElement("FileItem");
+    hFileItem.ToElement()->SetAttribute("name", lpszName);
+    hFileItem.ToElement()->SetAttribute("descrition", lpszDesc);
+    hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
+
+    m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+  }
+  
+  bool bSave = doc.SaveFile(); 
+  if(!bSave)
+    return FALSE;
+  return TRUE;
+}

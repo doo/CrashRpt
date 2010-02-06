@@ -76,10 +76,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib"
+				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib libpngd.lib"
 				OutputFile="..\..\bin\CrashSenderd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashSenderd.pdb"
 				SubSystem="2"
@@ -579,6 +579,10 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
+				RelativePath=".\AssyncNotification.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\base64.cpp"
 				>
 				<FileConfiguration
@@ -708,6 +712,10 @@
 			</File>
 			<File
 				RelativePath=".\ProgressDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ScreenCap.cpp"
 				>
 			</File>
 			<File
@@ -1024,6 +1032,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
+				RelativePath=".\AssyncNotification.h"
+				>
+			</File>
+			<File
 				RelativePath=".\base64.h"
 				>
 			</File>
@@ -1057,6 +1069,10 @@
 			</File>
 			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ScreenCap.h"
 				>
 			</File>
 			<File

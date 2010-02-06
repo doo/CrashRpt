@@ -43,7 +43,7 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
   nResult = crAddFile(sIniFile, _T("Dummy INI File"));
   ATLASSERT(nResult==0);
 
-  nResult = crAddScreenshot(CR_AS_MAIN_WINDOW);
+  nResult = crAddScreenshot(CR_AS_VIRTUAL_SCREEN);
   ATLASSERT(nResult==0);
 
   nResult = crAddProperty(_T("MyCustomStatus"),_T("Malfunction!"));

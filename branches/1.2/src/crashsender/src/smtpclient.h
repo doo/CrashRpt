@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include "AssyncNotification.h"
 
 class CEmailMessage
 {
@@ -14,127 +15,6 @@ public:
   std::set<CString> m_aAttachments;
 };
 
-struct AssyncNotification
-{
-  AssyncNotification()
-  {
-    m_nCompletionStatus = -1;    
-    m_nPercentCompleted = 0;
-    m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
-    m_hCancelEvent = CreateEvent(0, FALSE, FALSE, 0);
-    m_hFeedbackEvent = CreateEvent(0, FALSE, FALSE, 0);
-  }
-
-  void SetProgress(CString sStatusMsg, int percentCompleted, bool bRelative=true)
-  {
-    m_cs.Lock();
-  
-    m_statusLog.push_back(sStatusMsg);
-  
-    if(bRelative)
-    {
-      m_nPercentCompleted += percentCompleted;
-      if(m_nPercentCompleted>100)
-        m_nPercentCompleted = 100;      
-    }
-    else
-      m_nPercentCompleted = percentCompleted;
-
-    m_cs.Unlock();
-  }
-
-  void SetProgress(int percentCompleted, bool bRelative=true)
-  {
-    m_cs.Lock();
-    
-    if(bRelative)
-    {
-      m_nPercentCompleted += percentCompleted;
-      if(m_nPercentCompleted>100)
-        m_nPercentCompleted = 100;      
-    }
-    else
-      m_nPercentCompleted = percentCompleted;
-
-    m_cs.Unlock();
-  }
-
-  void GetProgress(int& nProgressPct, std::vector<CString>& msg_log)
-  {
-    msg_log.clear();
-    
-    m_cs.Lock();
-    nProgressPct = m_nPercentCompleted;
-    msg_log = m_statusLog;
-    m_statusLog.clear();
-    m_cs.Unlock();
-  }
-
-  void SetCompleted(int nCompletionStatus)
-  {
-    m_cs.Lock();
-    m_nCompletionStatus = nCompletionStatus;
-    m_cs.Unlock();
-    SetEvent(m_hCompletionEvent);
-  }
-
-  int WaitForCompletion()
-  {
-    WaitForSingleObject(m_hCompletionEvent, INFINITE);
-    
-    int status = -1;
-    m_cs.Lock();
-    status = m_nCompletionStatus;
-    m_cs.Unlock();
-
-    return status;
-  }
-
-  void Cancel()
-  {
-    SetProgress(_T("[cancelled_by_user]"), 0);
-    SetEvent(m_hCancelEvent);
-  }
-
-  bool IsCancelled()
-  {
-    DWORD dwWaitResult = WaitForSingleObject(m_hCancelEvent, 0);
-    if(dwWaitResult==WAIT_OBJECT_0)
-    {
-      SetEvent(m_hCancelEvent);      
-      return true;
-    }
-    
-    return false;
-  }
-
-  void WaitForFeedback(int &code)
-  {
-    ResetEvent(m_hFeedbackEvent);      
-    WaitForSingleObject(m_hFeedbackEvent, INFINITE);
-    m_cs.Lock();
-    code = m_nCompletionStatus;
-    m_cs.Unlock();
-  }
-
-  void FeedbackReady(int code)
-  {
-    m_cs.Lock();
-    m_nCompletionStatus = code;
-    m_cs.Unlock();
-    SetEvent(m_hFeedbackEvent);      
-  }
-
-private:
-
-  CComAutoCriticalSection m_cs;
-  int m_nCompletionStatus;
-  HANDLE m_hCompletionEvent;
-  HANDLE m_hCancelEvent;
-  HANDLE m_hFeedbackEvent;
-  int m_nPercentCompleted;
-  std::vector<CString> m_statusLog;
-};
 
 class CSmtpClient
 {
