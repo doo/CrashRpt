@@ -235,6 +235,107 @@ exit:
   return bStatus;
 }
 
+BOOL CHttpSender::SendMultiPart()
+{
+  BOOL bStatus = FALSE;
+  HINTERNET hSession = NULL;
+  HINTERNET hConnect = NULL;
+  
+  hSession = InternetOpen(_T("CrashRpt"), INTERNET_OPEN_TYPE_PRECONFIG,
+		NULL, NULL, 0);
+	if(!hSession)
+	{
+		goto cleanup;
+	}
+
+	hConnect = InternetConnect(hSession, argv[2], INTERNET_DEFAULT_HTTP_PORT,
+		NULL, NULL, INTERNET_SERVICE_HTTP,NULL, NULL);
+	if (!hConnect)
+		printf( "Failed to connect\n" );
+	else
+	{
+		HINTERNET hRequest = HttpOpenRequest(hConnect, "POST", argv[3], 
+			NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
+		if (!hRequest)
+			printf( "Failed to open request handle\n" );
+		else
+		{
+			if(UseHttpSendReqEx(hRequest, dwPostSize))
+			{	
+				char pcBuffer[BUFFSIZE];
+				DWORD dwBytesRead;
+
+				printf("\nThe following was returned by the server:\n");
+				do
+				{	dwBytesRead=0;
+					if(InternetReadFile(hRequest, pcBuffer, BUFFSIZE-1, &dwBytesRead))
+					{
+						pcBuffer[dwBytesRead]=0x00; // Null-terminate buffer
+						printf("%s", pcBuffer);
+					}
+					else
+						printf("\nInternetReadFile failed");
+				}while(dwBytesRead>0);
+				printf("\n");
+			}
+			if (!InternetCloseHandle(hRequest))
+				printf( "Failed to close Request handle\n" );
+		}
+		if(!InternetCloseHandle(hConnect))
+			printf("Failed to close Connect handle\n");
+	}
+	if( InternetCloseHandle( hSession ) == FALSE )
+		printf( "Failed to close Session handle\n" );
+}
+
+BOOL CHttpSender::UseHttpSendRequestEx()
+{
+  INTERNET_BUFFERS BufferIn;
+	DWORD dwBytesWritten;
+	int n;
+	BYTE pBuffer[1024];
+	BOOL bRet;
+
+	BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
+    BufferIn.Next = NULL; 
+    BufferIn.lpcszHeader = NULL;
+    BufferIn.dwHeadersLength = 0;
+    BufferIn.dwHeadersTotal = 0;
+    BufferIn.lpvBuffer = NULL;                
+    BufferIn.dwBufferLength = 0;
+    BufferIn.dwBufferTotal = dwPostSize; // This is the only member used other than dwStructSize
+    BufferIn.dwOffsetLow = 0;
+    BufferIn.dwOffsetHigh = 0;
+
+    if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
+    {
+        printf( "Error on HttpSendRequestEx %d\n",GetLastError() );
+        return FALSE;
+    }
+
+	FillMemory(pBuffer, 1024, 'D'); // Fill buffer with data
+
+	bRet=TRUE;
+	for(n=1; n<=(int)dwPostSize/1024 && bRet; n++)
+	{
+		if(bRet=InternetWriteFile( hRequest, pBuffer, 1024, &dwBytesWritten))
+			printf( "\r%d bytes sent.", n*1024);
+	}
+		
+	if(!bRet)
+	{
+        printf( "\nError on InternetWriteFile %lu\n",GetLastError() );
+        return FALSE;
+    }
+
+    if(!HttpEndRequest(hRequest, NULL, 0, 0))
+    {
+        printf( "Error on HttpEndRequest %lu \n", GetLastError());
+        return FALSE;
+    }
+
+	return TRUE;
+}
 
 // This method's code was taken from 
 // http://www.codeproject.com/KB/IP/simplehttpclient.aspx
