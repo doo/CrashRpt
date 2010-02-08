@@ -706,33 +706,32 @@ int CCrashHandler::GenerateErrorReport(
 {  
   crSetErrorMsg(_T("Unspecified error."));
 
-  /* Validate input parameters */
+  // Validate input parameters 
   if(pExceptionInfo==NULL)
   {
     crSetErrorMsg(_T("Exception info is NULL."));
     return 1;
   }
 
-  /* Collect miscellaneous crash info */
+  // Get exception pointers if not provided. 
+  if(pExceptionInfo->pexcptrs==NULL)
+  {
+    GetExceptionPointers(pExceptionInfo->code, &pExceptionInfo->pexcptrs);
+  }
 
+  // Collect miscellaneous crash info (current time etc.) 
   CollectMiscCrashInfo();
 
-  /* Let client add application-specific files / desktop screenshot 
-     to report via the crash callback function. */
+  // Let client add application-specific files / desktop screenshot 
+  // to the report via the crash callback function. 
 
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
   {
     crSetErrorMsg(_T("The operation was cancelled by client application."));
     return 2;
   }
-  
-  /* Get exception pointers if not provided. */
-  if(pExceptionInfo->pexcptrs==NULL)
-  {
-    GetExceptionPointers(pExceptionInfo->code, &pExceptionInfo->pexcptrs);
-  }
-  
-  /* Create directory for the error report. */
+ 
+  // Create directory for the error report. 
   
   BOOL bCreateDir = CreateDirectory(m_sReportFolderName, NULL);
   if(!bCreateDir)
@@ -746,14 +745,8 @@ int CCrashHandler::GenerateErrorReport(
     MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
     return 1; // Failed to create directory
   }
-
-  /* Create crash minidump file. */
-
-  CString sFileName;
-  sFileName.Format(_T("%s\\crashdump.dmp"), m_sReportFolderName);
-  AddFile(sFileName, NULL, _T("Crash Dump"), CR_AF_MISSING_FILE_OK);      
-      
-  // Create crash report descriptor file in XML format. 
+    
+  // Create crash description file in XML format. 
   
   sFileName.Format(_T("%s\\crashrpt.xml"), m_sReportFolderName);
   AddFile(sFileName, NULL, _T("Crash Log"), CR_AF_MISSING_FILE_OK);        
@@ -761,17 +754,17 @@ int CCrashHandler::GenerateErrorReport(
   ATLASSERT(result==0);
   
   // Write internal crash info to file. This info is required by 
-  // CrashSender.exe only and will not be sent to developer. 
+  // CrashSender.exe only and will not be sent anywhere. 
   
   sFileName = m_sReportFolderName + _T("\\~CrashRptInternal.xml");
   result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs);
   ATLASSERT(result==0);
   SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
 
-  // Launch the CrashSender process that would take dekstop screenshot, 
+  // Start the CrashSender process which will take the dekstop screenshot, 
   // copy user-specified files to the error report folder, create minidump, 
   // notify user about crash, compress the report into ZIP archive and send 
-  // the error report 
+  // the error report. 
     
   result = LaunchCrashSender(sFileName);
   if(result!=0)
@@ -789,6 +782,7 @@ int CCrashHandler::GenerateErrorReport(
     return 3;
   }
   
+  // OK
   crSetErrorMsg(_T("Success."));
   return 0; 
 }
@@ -899,7 +893,7 @@ void CCrashHandler::CollectMiscCrashInfo()
   }
 }
 
-int CCrashHandler::GenerateCrashDescriptorXML(LPTSTR pszFileName,          
+int CCrashHandler::GenerateCrashDescriptionXML(LPTSTR pszFileName,          
      PCR_EXCEPTION_INFO pExceptionInfo)
 {
   crSetErrorMsg(_T("Unspecified error."));
