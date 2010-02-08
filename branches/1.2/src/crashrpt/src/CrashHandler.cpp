@@ -747,10 +747,10 @@ int CCrashHandler::GenerateErrorReport(
   }
     
   // Create crash description file in XML format. 
-  
+  CString sFileName;
   sFileName.Format(_T("%s\\crashrpt.xml"), m_sReportFolderName);
   AddFile(sFileName, NULL, _T("Crash Log"), CR_AF_MISSING_FILE_OK);        
-  int result = GenerateCrashDescriptorXML(sFileName.GetBuffer(0), pExceptionInfo);
+  int result = GenerateCrashDescriptionXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
   
   // Write internal crash info to file. This info is required by 

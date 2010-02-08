@@ -45,7 +45,7 @@ private:
   AssyncNotification m_Assync; // Used for communication with the main thread
   CEmailMessage m_EmailMsg;    // Email message to send
   CSmtpClient m_SmtpClient;    // Used to send report over SMTP 
-  CHttpSender m_HttpSender;    // Used to send report over HTTP
+  CHttpRequestSender m_HttpSender;    // Used to send report over HTTP
   CMailMsg m_MapiSender;       // Used to send report over SMAPI
   CString m_sZipName;          // Name of the ZIP archive to send
 };

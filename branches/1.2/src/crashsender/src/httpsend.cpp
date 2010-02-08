@@ -8,42 +8,28 @@
 #include "Utility.h"
 #include "strconv.h"
 
-BOOL CHttpSender::SendAssync(CString sUrl, CString sFileName, AssyncNotification* an)
+BOOL CHttpRequestSender::SendAssync(CHttpRequest& Request, AssyncNotification* an)
 {
-  DWORD dwThreadId = 0;
-    
-  HttpSendThreadParams params; 
-  params.m_sURL = sUrl;
-  params.m_sFileName = sFileName;
-  params.an = an;
+  // Copy parameters
+  m_Request = Request;
+  m_Assync = an;
 
-  HANDLE hThread = CreateThread(NULL, 0, HttpSendThread, (void*)&params, 0, &dwThreadId);
+  // Create worker thread
+  HANDLE hThread = CreateThread(NULL, 0, WorkerThread, (void*)this, 0, NULL);
   if(hThread==NULL)
     return FALSE;
-
-  an->WaitForCompletion();
-
+  
   return TRUE;
 }
 
-DWORD WINAPI CHttpSender::HttpSendThread(VOID* pParam)
+DWORD WINAPI CHttpRequestSender::WorkerThread(VOID* pParam)
 {
-  HttpSendThreadParams* params = (HttpSendThreadParams*)pParam;
-   
-  CString sURL = params->m_sURL;
-  CString sFileName = params->m_sFileName;
-  AssyncNotification* an = params->an;
-
-  an->SetCompleted(0);
-
-  int nResult = _Send(sURL, sFileName, an);
-
-  an->SetCompleted( nResult?0:1 );  
-
-  return nResult;
+  CHttpRequestSender* pSender = (CHttpRequestSender*)pParam;
+  // Delegate further actions to CHttpRequestSender class
+  pSender->InternalSend();  
 }
 
-BOOL CHttpSender::_Send(CString sURL, CString sFileName, AssyncNotification* an)
+BOOL CHttpRequestSender::InternalSend(CString sURL, CString sFileName, AssyncNotification* an)
 { 
   strconv_t strconv;
   BOOL bStatus = FALSE;
@@ -288,7 +274,7 @@ BOOL CHttpSender::SendMultiPart()
 		printf( "Failed to close Session handle\n" );
 }
 
-BOOL CHttpSender::UseHttpSendRequestEx()
+BOOL CHttpRequestSender::UseHttpSendRequestEx()
 {
   INTERNET_BUFFERS BufferIn;
 	DWORD dwBytesWritten;
@@ -337,11 +323,18 @@ BOOL CHttpSender::UseHttpSendRequestEx()
 	return TRUE;
 }
 
-// This method's code was taken from 
+// Parses URL. This method's code was taken from 
 // http://www.codeproject.com/KB/IP/simplehttpclient.aspx
-void CHttpSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol, 
-                           LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, 
-                           LPTSTR szURI, UINT cbURI)
+void 
+CHttpRequestSender::ParseURL(
+  LPCTSTR szURL, 
+  LPTSTR szProtocol, 
+  UINT cbProtocol, 
+  LPTSTR szAddress, 
+  UINT cbAddress, 
+  DWORD &dwPort, 
+  LPTSTR szURI, 
+  UINT cbURI)
 {  
 	cbURI;
 	cbAddress;

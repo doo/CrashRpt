@@ -78,7 +78,7 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1201
+#define CRASHRPT_VER 1202
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -332,7 +332,8 @@ GenerateErrorReport(
 #define CR_INST_ALL_EXCEPTION_HANDLERS 0      //!< Install all possible exception handlers.
 #define CR_INST_CRT_EXCEPTION_HANDLERS 0x1FFE //!< Install exception handlers for the linked CRT module.
 
-#define CR_INST_SILENT_MODE                    0x2000 //!< Do not show GUI, send report silently.
+#define CR_INST_SILENT_MODE                    0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
+#define CR_INST_MULTIPART_HTTP_UPLOADS         0x4000 //!< Use multi-part HTTP uploads.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()

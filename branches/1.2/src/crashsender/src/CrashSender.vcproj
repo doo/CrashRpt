@@ -59,7 +59,7 @@
 				RuntimeLibrary="3"
 				ForceConformanceInForLoopScope="true"
 				UsePrecompiledHeader="2"
-				WarningLevel="3"
+				WarningLevel="4"
 				DebugInformationFormat="4"
 			/>
 			<Tool

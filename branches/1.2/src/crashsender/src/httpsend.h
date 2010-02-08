@@ -38,29 +38,38 @@
 #pragma once
 #include "stdafx.h"
 #include <string>
+#include <map>
 #include "AssyncNotification.h"
 
-class CHttpSender
+// HTTP request information
+class CHttpRequest
+{
+public:
+  CString m_sUrl;      // Script URL
+  BOOL m_bMultiPart;   // TRUE==use multi-part content encoding, FALSE==use URL encoding + BASE64 encoding
+  std::map<CString, CString> m_aTextFields;    // Array of text fields to include into POST data
+  std::map<CString, CString> m_aIncludedFiles; // Array of binary files to include into POST data
+};
+
+// Sends HTTP request
+class CHttpRequestSender
 {
 public:
   
-  BOOL SendAssync(CString sUrl, CString sFileName, AssyncNotification* an);
+  // Sends HTTP request assynchroniously
+  BOOL SendAssync(CHttpRequest& Request, AssyncNotification* an);
 
 private:
 
-  static void ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
+  void ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
     LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI);
 
-  static BOOL _Send(CString sURL, CString sFileName, AssyncNotification* an);
+  BOOL InternalSend();
 
-  static DWORD WINAPI HttpSendThread(VOID* pParam);
+  static DWORD WINAPI WorkerThread(VOID* pParam);  
 
-  struct HttpSendThreadParams
-  {
-    CString m_sURL;
-    CString m_sFileName;
-    AssyncNotification* an;
-  };
+  AssyncNotification* m_Assync;
+  CHttpRequest m_Request;
 };
 
 

@@ -164,8 +164,8 @@ private:
   // Collects various information useful for crash analyzis
   void CollectMiscCrashInfo();
     
-  // Creates crash descriptor XML file
-  int GenerateCrashDescriptorXML(LPTSTR pszFileName, 
+  // Creates crash description XML file
+  int GenerateCrashDescriptionXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
   // Creates internally used crash description file
