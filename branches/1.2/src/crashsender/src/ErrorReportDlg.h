@@ -42,7 +42,6 @@
 #include "MailMsg.h"
 #include "DetailDlg.h"
 #include "ProgressDlg.h"
-#include "SenderThread.h"
 
 #define WM_TRAYICON (WM_USER+128)
 

@@ -41,6 +41,12 @@
 #include <map>
 #include "AssyncNotification.h"
 
+struct CHttpRequestFile
+{
+  CString m_sSrcFileName;
+  CString m_sContentType;
+};
+
 // HTTP request information
 class CHttpRequest
 {
@@ -48,7 +54,7 @@ public:
   CString m_sUrl;      // Script URL
   BOOL m_bMultiPart;   // TRUE==use multi-part content encoding, FALSE==use URL encoding + BASE64 encoding
   std::map<CString, CString> m_aTextFields;    // Array of text fields to include into POST data
-  std::map<CString, CString> m_aIncludedFiles; // Array of binary files to include into POST data
+  std::map<CString, CHttpRequestFile> m_aIncludedFiles; // Array of binary files to include into POST data
 };
 
 // Sends HTTP request
@@ -60,16 +66,22 @@ public:
   BOOL SendAssync(CHttpRequest& Request, AssyncNotification* an);
 
 private:
-
-  void ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
-    LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI);
+  
+  // Worker thread procedure
+  static DWORD WINAPI WorkerThread(VOID* pParam);  
 
   BOOL InternalSend();
 
-  static DWORD WINAPI WorkerThread(VOID* pParam);  
+  // Used to calculate summary size of the request
+  BOOL CalcRequestSize(LONGLONG& lSize);
+  BOOL FormatFormDataPart(CString sName, CString& sPart);
+    
+  // This helper function is used to split URL into several parts
+  void ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
+    LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI);
 
-  AssyncNotification* m_Assync;
-  CHttpRequest m_Request;
+  CHttpRequest m_Request;       // HTTP request being sent
+  AssyncNotification* m_Assync; // Used to communicate with the main thread  
 };
 
 

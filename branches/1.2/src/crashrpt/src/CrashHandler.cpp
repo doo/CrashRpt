@@ -944,7 +944,7 @@ int CCrashHandler::GenerateCrashDescriptionXML(LPTSTR pszFileName,
   fprintf(f, "  <ExceptionType>%d</ExceptionType>\n", 
     pExceptionInfo->exctype);
 
-  if(pExceptionInfo->exctype==CR_WIN32_STRUCTURED_EXCEPTION)
+  if(pExceptionInfo->exctype==CR_SEH_EXCEPTION)
   {
     // Write exception code
     fprintf(f, "  <ExceptionCode>0x%X</ExceptionCode>\n", 
@@ -980,11 +980,11 @@ int CCrashHandler::GenerateCrashDescriptionXML(LPTSTR pszFileName,
       // Write file
       fprintf(f, "  <InvParamFile>%s</InvParamFile>\n", 
         strconv.w2utf8(_repxrch(pExceptionInfo->file)));
-    }
-    
-    // Write line
-    fprintf(f, "  <InvParamLine>%d</InvParamLine>\n", 
-      pExceptionInfo->line);
+
+      // Write line number
+      fprintf(f, "  <InvParamLine>%d</InvParamLine>\n", 
+        pExceptionInfo->line);
+    }    
   }
 #endif 
 
@@ -1010,7 +1010,7 @@ int CCrashHandler::GenerateCrashDescriptionXML(LPTSTR pszFileName,
     CString sPropName = pit->first;
     CString sPropValue = pit->second;
 
-    fprintf(f, "    <Prop name=\"%s\" value=\"%s\"/>\n",
+    fprintf(f, "    <Prop name=\"%s\" value=\"%s \"/>\n",
       strconv.t2utf8(_repxrch(sPropName)), strconv.t2utf8(_repxrch(sPropValue)));
   }
 

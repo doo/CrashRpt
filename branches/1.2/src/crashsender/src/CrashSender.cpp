@@ -32,14 +32,14 @@
 
 #include "stdafx.h"
 #include "resource.h"
-#include "MainDlg.h"
+#include "ErrorReportDlg.h"
 #include "CrashInfoReader.h"
 #include "strconv.h"
 #include "Utility.h"
 
 CAppModule _Module;
 CErrorReportDlg dlgErrorReport;
-CProgressDlg dlgProgress;
+//CProgressDlg dlgProgress;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {

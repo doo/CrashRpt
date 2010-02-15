@@ -1049,7 +1049,8 @@ crSetApplicationRestartOptionsA(
 
 
 // Exception types
-#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception.
+#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception (deprecated name, use SEH exception instead).
+#define CR_SEH_EXCEPTION                0    //!< SEH exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
 #define CR_CPP_PURE_CALL                3    //!< C++ pure virtual function call (VS .NET and later).

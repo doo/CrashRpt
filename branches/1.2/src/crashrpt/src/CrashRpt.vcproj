@@ -634,18 +634,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\..\crashsender\src\base64.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="CrashHandler.cpp"
 				>
 				<FileConfiguration
@@ -864,10 +852,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl"
 			>
-			<File
-				RelativePath="..\..\crashsender\src\base64.h"
-				>
-			</File>
 			<File
 				RelativePath="CrashHandler.h"
 				>

@@ -583,58 +583,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base64.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release LIB|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release LIB|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\CrashInfoReader.cpp"
 				>
 			</File>
@@ -647,15 +595,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\httpsend.cpp"
+				RelativePath=".\ErrorReportDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ErrorReportSender.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HttpRequestSender.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\MailMsg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MainDlg.cpp"
 				>
 			</File>
 			<File
@@ -716,10 +668,6 @@
 			</File>
 			<File
 				RelativePath=".\ScreenCap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SenderThread.cpp"
 				>
 			</File>
 			<File
@@ -1036,7 +984,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\base64.h"
+				RelativePath=".\Base64.hpp"
 				>
 			</File>
 			<File
@@ -1048,15 +996,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\httpsend.h"
+				RelativePath=".\ErrorReportDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ErrorReportSender.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HttpRequestSender.h"
 				>
 			</File>
 			<File
 				RelativePath=".\MailMsg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MainDlg.h"
 				>
 			</File>
 			<File
@@ -1073,10 +1025,6 @@
 			</File>
 			<File
 				RelativePath=".\ScreenCap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SenderThread.h"
 				>
 			</File>
 			<File
