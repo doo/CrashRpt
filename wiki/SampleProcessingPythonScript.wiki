@@ -1,0 +1,147 @@
+#summary A python script that generates simple statistics about processed error reports.
+
+= Introduction =
+
+When you process incoming error reports with `crprober.exe` tool, you find a lot of resulting `*.txt ` files in your output directory. And you might want to calculate some basic statistics about these files.
+
+The following is a python script (provided by RoRThom) that creates a statistical summary of the *.txt files in the existing directory. It will produce a stat.txt file. For example a short snip from it:
+
+{{{
+### OS version (from minidump)
+ 222  | 5.1.2600 Service Pack 3
+ 164  | 6.0.6002 Service Pack 2
+ 122  | 6.1.7600
+ 63   | 6.0.6001 Service Pack 1
+ 56   | 5.1.2600 Service Pack 2
+ 18   | 5.1.2600 Dodatek Service Pack 3
+ 17   | 6.0.6000
+ 14   | 5.1.2600
+ 7    | 6.1.7100
+ 5    | 6.1.7260 Service Pack 3
+ 3    | 5.1.2600 Szervizcsomag 3
+ 3    | 5.0.2195 Service Pack 2
+ 2    | 5.2.3790 Service Pack 2
+ 1    | 6.1.7600 Service Pack 2
+ 1    | 5.1.2600 Szervizcsomag 2
+ 1    | 5.1.2600 Service Pack 4
+ 1    | 5.1.2600 Service Pack 3, v.3244
+ 1    | 4.0.1381 Service Pack 1
+}}}
+
+(so 222 reports use winxp sp3)
+
+= Source =
+
+{{{
+# 2010, thomas{AT}thomasfischer{DOT}biz
+import os
+
+files = os.listdir(".")
+
+exceptions = {}
+intargs = {}
+
+def sort_by_value(d):
+    """ Returns the keys of dictionary d sorted by their values """
+    items=d.items()
+    backitems=[ [v[1],v[0]] for v in items]
+    backitems.sort()
+    backitems.reverse()
+    return [ backitems[i][1] for i in range(0,len(backitems))]
+
+def postprocess(exceptions):
+	# check if we have ints as keys
+	en = {}
+	changes = False
+	for k in exceptions.keys():
+		isInt = True
+		for j in exceptions[k].keys():
+			try:
+				if j == str(int(j.strip())):
+					pass
+			except:
+				isInt = False
+				break
+		if not isInt or len(exceptions[k].keys()) <= 10:
+			en[k] = exceptions[k]
+			continue
+		# rename entry
+		kn = k +' (SUMMARY)'
+		exceptions[kn] = exceptions[k]
+		del exceptions[k]
+		k = kn
+		# find min and max
+		min =  999999999
+		max = -999999999
+		for j in exceptions[k].keys():
+			val = int(j.strip())
+			if val < min:
+				min = val
+			if val > max:
+				max = val
+		stepSize = (max - min) / 10
+		#print min, max, stepSize
+
+		# create new list:
+		en[k] = {}
+		for i in range(min, max, stepSize):
+			cv = 0
+			for j in exceptions[k].keys():
+				val = int(j.strip())
+				#print val
+				if val >= i and val < i + stepSize:
+					cv += exceptions[k][j]
+			if cv > 0:
+				en[k]['%d - %d' % (i, i+stepSize)] = cv
+				changes = True
+	if changes:
+		return en
+	return exceptions
+
+def process(lines):
+  record = False
+  for line in lines:
+    if line.strip() == "== Summary ==":
+      record = True
+    elif record and line[0:2] == "==":
+      record = False
+    if not record:
+      continue
+    args = line.split("=")
+    if len(args) != 2 or args[0].strip() == '':
+	  continue
+    for i in range(0,len(args)):
+	  args[i] = args[i].strip()
+
+    if not args[0] in exceptions.keys():
+	  exceptions[args[0]] = {};
+    #print exceptions
+    try:
+      if not args[1] in exceptions[args[0]].keys():
+        exceptions[args[0]][args[1]] = 0;
+      exceptions[args[0]][args[1]] += 1
+    except:
+	  pass
+ 
+for file in files:
+  if file[-4:] != ".txt":
+    continue
+  f = open(file, "r")
+  content = f.readlines()
+  f.close()
+  process(content)
+
+exceptions = postprocess(exceptions)
+
+f = open("stats.txt", "w")
+for k in exceptions.keys():
+  if len(exceptions[k].keys()) < 1:
+    continue
+  
+  f.write("### %s\n"%(k));
+
+  arr = sort_by_value(exceptions[k])
+  for j in arr:
+    f.write("%- 5d | %s\n"%(exceptions[k][j], j));
+f.close()
+}}}
