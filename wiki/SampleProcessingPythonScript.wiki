@@ -4,7 +4,7 @@
 
 When you process incoming error reports with `crprober.exe` tool, you find a lot of resulting `*.txt ` files in your output directory. And you might want to calculate some basic statistics about these files.
 
-The following is a python script (provided by RoRThom) that creates a statistical summary of the *.txt files in the existing directory. It will produce a stat.txt file. For example a short snip from it:
+The following is a python script (provided by RoRThom) that creates a statistical summary of the `*.txt` files in the existing directory. It will produce a stat.txt file. For example a short snip from it:
 
 {{{
 ### OS version (from minidump)
