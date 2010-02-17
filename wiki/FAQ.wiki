@@ -507,7 +507,7 @@ For usage examples, please see the documentation.
 
 == How do I calculate some statistics about processed error reports? ==
 
-You can write some C++ program or for example Python script that would parse output text files and calculate the desired statistics. For example, see the SampleStatisticsPythonScript by provided RoRThom.
+You can write some C++ program or for example Python script that would parse output text files and calculate the desired statistics. For example, see the SampleProcessingPythonScript by provided RoRThom.
 
 == I need to process error reports on a dedicated server: is it possible to use something like crprober under Linux? with Wine? ==
 
