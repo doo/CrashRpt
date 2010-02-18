@@ -334,11 +334,10 @@ BOOL CHttpRequestSender::FormatFormDataPart(CString sName, CString& sPart)
   }
   else
   {
-    CBase64 base64;
-    char*
-    sPart.Format(_T("%s=%s"),
-      base64.Encode(it->first.GetBuffer(0), it->fi it->second);    
+    sPart.Format(_T("%s=%s"), it->first, it->second);    
   }
+
+  return TRUE;
 }
 
 //BOOL CHttpRequestSender::SendMultiPart()

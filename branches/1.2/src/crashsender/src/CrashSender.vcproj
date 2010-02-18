@@ -759,6 +759,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\UrlEncode.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\crashrpt\src\Utility.cpp"
 				>
 			</File>
@@ -1033,6 +1037,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UrlEncode.h"
 				>
 			</File>
 			<File

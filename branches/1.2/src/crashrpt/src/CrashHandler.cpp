@@ -41,7 +41,6 @@
 #include "resource.h"
 #include <sys/stat.h>
 #include <psapi.h>
-#include "base64.h"
 #include "strconv.h"
 #include <rtcapi.h>
 
