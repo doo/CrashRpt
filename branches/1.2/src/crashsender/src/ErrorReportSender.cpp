@@ -451,6 +451,10 @@ BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
   const PMINIDUMP_CALLBACK_INPUT CallbackInput,
   PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
 {
+  UNREFERENCED_PARAMETER(CallbackInput);
+  UNREFERENCED_PARAMETER(CallbackOutput);
+  UNREFERENCED_PARAMETER(CallbackParam);
+
   /*switch(CallbackInput.CallbackType)
   {    
   };*/

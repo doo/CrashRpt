@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include;..\..\libpng\src"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include;..\..\libpng\src;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,7 +69,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -238,7 +238,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\include;..\..\minizip\src"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\include;..\..\minizip\src;..\..\libpng\src;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -254,14 +254,14 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib"
+				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\zlib\lib"

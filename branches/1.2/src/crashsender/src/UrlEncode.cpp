@@ -99,19 +99,19 @@ CString CURLEncode::URLEncode(CString cText)
 	
 	for(pos = 0; pos < nLength; pos++)
 	{
-		BYTE ch = cText.GetAt(pos);
+		TCHAR ch = cText.GetAt(pos);
 		if(!isUnsafe(ch))
 		{
 			// Safe Character				
-			cEncoded += CString((char)ch);
+			cEncodedText += CString((char)ch);
 		}
 		else
 		{
 			// get Hex Value of the Character
-			cEncoded += convert(ch);
+			cEncodedText += convert(ch);
 		}
 	}
 	
-	return cEncoded;
+	return cEncodedText;
 }
 

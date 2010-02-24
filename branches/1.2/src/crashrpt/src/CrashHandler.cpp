@@ -207,7 +207,7 @@ int CCrashHandler::Init(
   if(lang_file_ver!=CRASHRPT_VER)
   {
     ATLASSERT(lang_file_ver==CRASHRPT_VER);
-    crSetErrorMsg(_T("Missing language INI file or wrong file version."));
+    crSetErrorMsg(_T("Missing language file or wrong language file version."));
     return 1; // Language INI file has wrong version!
   }
 
