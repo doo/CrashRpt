@@ -52,8 +52,9 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
   m_statText = GetDlgItem(IDC_TEXT);
 
-  m_prgProgress = GetDlgItem(IDC_PROGRESS);
+  m_prgProgress = GetDlgItem(IDC_PROGRESS);  
   m_prgProgress.SetRange(0, 100);
+  m_prgProgress.ModifyStyle(0, PBS_MARQUEE);
   
   m_listView = GetDlgItem(IDC_LIST); 
   m_listView.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
@@ -150,11 +151,12 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
     for(i=0; i<messages.size(); i++)
     {  
       if(messages[i].CompareNoCase(_T("[collecting_crash_info]"))==0)
-      {         
+      {        
         m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CollectingCrashInfo")));        
       }
       else if(messages[i].CompareNoCase(_T("[completed_collecting_crash_info]"))==0)
       { 
+        m_prgProgress.ModifyStyle(PBS_MARQUEE, 0);
         m_bFinished = TRUE;
         ShowWindow(SW_HIDE);
         HWND hWndParent = ::GetParent(m_hWnd);        
