@@ -64,6 +64,8 @@ private:
   BOOL CreateMiniDump();
   static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
+  BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+                PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
   BOOL CompressReportFiles();
 
   BOOL SendReport();

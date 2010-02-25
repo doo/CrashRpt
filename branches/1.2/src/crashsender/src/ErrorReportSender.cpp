@@ -451,16 +451,47 @@ BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
   const PMINIDUMP_CALLBACK_INPUT CallbackInput,
   PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
 {
-  UNREFERENCED_PARAMETER(CallbackInput);
-  UNREFERENCED_PARAMETER(CallbackOutput);
-  UNREFERENCED_PARAMETER(CallbackParam);
-
-  /*switch(CallbackInput.CallbackType)
-  {    
-  };*/
-  return TRUE;
+  CErrorReportSender* pErrorReportSender = (CErrorReportSender*)CallbackParam;  
+  return pErrorReportSender->OnMinidumpProgress(CallbackInput, CallbackOutput);  
 }
 
+BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+                PMINIDUMP_CALLBACK_OUTPUT CallbackOutput)
+{
+  switch(CallbackInput->CallbackType)
+  {
+  case CancelCallback:
+    {
+      if(m_Assync.IsCancelled())
+      {
+        CallbackOutput->Cancel = TRUE;      
+        m_Assync.SetProgress(_T("Dump generation cancelled by user"), 0, true);
+      }
+    }
+    break;
+  
+  case ModuleCallback:
+    {
+      strconv_t strconv;
+      CString sMsg;
+      sMsg.Format(_T("Dumping info for module %s"), 
+        strconv.w2t(CallbackInput->Module.FullPath));
+      m_Assync.SetProgress(sMsg, 0, true);
+    }
+    break;
+  case ThreadCallback:
+    {      
+      CString sMsg;
+      sMsg.Format(_T("Dumping info for thread 0x%X"), 
+        CallbackInput->Thread.ThreadId);
+      m_Assync.SetProgress(sMsg, 0, true);
+    }
+    break;
+  
+  };
+  return TRUE;
+}
+  
 
 BOOL CErrorReportSender::CreateMiniDump()
 { 
@@ -505,7 +536,7 @@ BOOL CErrorReportSender::CreateMiniDump()
   mei.ClientPointers = TRUE;
   
   mci.CallbackRoutine = MiniDumpCallback;
-  mci.CallbackParam = 0;
+  mci.CallbackParam = this;
 
   typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(
     HANDLE hProcess, 
