@@ -1214,7 +1214,7 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
-    ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+    ei.exctype = CR_SEH_EXCEPTION;
     ei.pexcptrs = pExceptionPtrs;
 
     pCrashHandler->GenerateErrorReport(&ei);

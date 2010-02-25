@@ -20,7 +20,7 @@ int crpSetErrorMsg(PTSTR pszErrorMsg);
 
 TCHAR* exctypes[13] =
 {
-  _T("structured exception"),
+  _T("SEH exception"),
   _T("terminate call"),
   _T("unexpected call"),
   _T("pure virtual call"),

@@ -480,7 +480,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    For more information, see \ref exception_handling
  *
  *    Below is the list of installed handlers:
- *     - WIN32 top-level unhandled exception filter [ \c SetUnhandledExceptionFilter() ]
+ *     - Top-level SEH exception filter [ \c SetUnhandledExceptionFilter() ]
  *     - C++ pure virtual call handler (Visual Studio .NET 2003 and later) [ \c _set_purecall_handler() ]
  *     - C++ invalid parameter handler (Visual Studio .NET 2005 and later) [ \c _set_invalid_parameter_handler() ]
  *     - C++ new operator error handler (Visual Studio .NET 2003 and later) [ \c _set_new_handler() ]
@@ -989,65 +989,6 @@ crAddPropertyA(
 #endif //UNICODE
 
 
-
-/*! \brief Sets application restart options.
- *  \ingroup CrashRptAPI
- *
- *  \return This function returns zero if succeeded.
- *
- *  \param[in] pszCmdLineArgs Command line arguments, or NULL to disable restart.
- *  \param[in] lWaitTime      Defines the time interval between crash and restart.
- *  \param[in] dwFlags        Flags.
- *
- * \remarks
- *
- *  This function allows to enable automatic restart of the process which crashes. You can call this function 
- *  several times; each call updates the restart options.
- *
- *  To avoid cyclical restarts, CrashRpt checks that the crashed process had been working at least 60 seconds before crash. If
- *  the process crashed in less than 60 seconds after its start, CrashRpt doesn't restart the process.
- *
- * \a pszCmdLineArgs parameter defines the command line arguments for the executable file being restarted.
- * This parameter should not contain the executable name to run. CrashRpt will run the same executable that had crashed.
- * This parameter can be NULL, which disables the automatic application restart.
- *
- * \a lWaitTime parameter defines how much time in seconds to wait since crash until application restart. 
- *
- * \a dwFlags parameter is reserved for future use and should be 0.
- *  
- *
- *
- */
-
-int
-CRASHRPTAPI
-crSetApplicationRestartOptionsW(
-   LPCWSTR pszCmdLineArgs,
-   LONG  lWaitTime,
-   DWORD dwFlags
-   );
-
-/*! \ingroup CrashRptAPI
- *  \copydoc crSetApplicationRestartOptionsW()
- */
-
-int
-CRASHRPTAPI
-crSetApplicationRestartOptionsA(
-   LPCWSTR pszCmdLineArgs,
-   DWORD dwFlags
-   );
-
-/*! \brief Character set-independent mapping of crSetApplicationRestartOptionsW() and crSetApplicationRestartOptionsA() functions. 
- *  \ingroup CrashRptAPI
- */
-#ifdef UNICODE
-#define crSetAppRestartOptions crSetAppRestartOptionsW
-#else
-#define crSetAppRestartOptions crSetAppRestartOptionsA
-#endif //UNICODE
-
-
 // Exception types
 #define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception (deprecated name, use SEH exception instead).
 #define CR_SEH_EXCEPTION                0    //!< SEH exception.
@@ -1080,7 +1021,7 @@ crSetApplicationRestartOptionsA(
  *
  *  \a exctype is the type of exception. This value can be used for crash report classification on developers' side. 
  *  This parameter may be one of the following:
- *     - \ref CR_WIN32_STRUCTURED_EXCEPTION Win32 structured exception
+ *     - \ref CR_SEH_EXCEPTION             SEH (Structured Exception Handling) exception
  *     - \ref CR_CPP_TERMINATE_CALL        C++ terminate() function call
  *     - \ref CR_CPP_UNEXPECTED_CALL       C++ unexpected() function call
  *     - \ref CR_CPP_PURE_CALL Pure virtual method call (Visual Studio .NET 2003 and later) 
@@ -1094,7 +1035,7 @@ crSetApplicationRestartOptionsA(
  *     - \ref CR_CPP_SIGSEGV C++ invalid storage access
  *     - \ref CR_CPP_SIGTERM C++ termination request
  * 
- *   \a code is used if \a exctype is \ref CR_WIN32_STRUCTURED_EXCEPTION and represents the structured exception code. 
+ *   \a code is used if \a exctype is \ref CR_SEH_EXCEPTION and represents the SEH exception code. 
  *   If \a pexptrs is NULL, this value is used when generating exception information for initializing
  *   \c pexptrs->ExceptionRecord->ExceptionCode member, otherwise it is ignored.
  *
@@ -1145,7 +1086,7 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
  *    CR_EXCEPTION_INFO ei;
  *    memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
  *    ei.cb = sizeof(CR_EXCEPTION_INFO);
- *    ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+ *    ei.exctype = CR_SEH_EXCEPTION;
  *    ei.code = 1234;
  *    ei.pexcptrs = NULL;
  *
@@ -1238,7 +1179,7 @@ crExceptionFilter(
  *    crInstallToCurrentThread2() installs exception handlers that function on per-thread basis.
  *    
  *  \a ExceptionType can be one of the following constants:
- *    - \ref CR_WIN32_STRUCTURED_EXCEPTION  This will generate a null pointer exception.
+ *    - \ref CR_SEH_EXCEPTION  This will generate a null pointer exception.
  *    - \ref CR_CPP_TERMINATE_CALL This results in call of terminate() C++ function.
  *    - \ref CR_CPP_UNEXPECTED_CALL This results in call of unexpected() C++ function.
  *    - \ref CR_CPP_PURE_CALL This emulates a call of pure virtual method call of a C++ class instance (Visual Studio .NET 2003 and later).
@@ -1254,7 +1195,7 @@ crExceptionFilter(
  *    - \ref CR_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
  *         is the same as in \ref CR_WIN32_STRUCTURED_EXCEPTION).
  *
- *  The \ref CR_WIN32_STRUCTURED_EXCEPTION uses null pointer write operation to cause the access violation.
+ *  The \ref CR_SEH_EXCEPTION uses null pointer write operation to cause the access violation.
  *
  *  The \ref CR_NONCONTINUABLE_EXCEPTION has the same effect as \ref CR_WIN32_STRUCTURED_EXCEPTION, but it uses
  *  \b RaiseException() WinAPI function to raise noncontinuable software exception.
@@ -1263,7 +1204,7 @@ crExceptionFilter(
  *
  *  \code
  *  // emulate null pointer exception (access violation)
- *  crEmulateCrash(CR_WIN32_STRUCTURED_EXCEPTION);
+ *  crEmulateCrash(CR_SEH_EXCEPTION);
  *  \endcode
  *
  */

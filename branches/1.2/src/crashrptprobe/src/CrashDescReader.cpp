@@ -185,8 +185,8 @@ int CCrashDescReader::Load(CString sFileName)
     }
   }
 
-  // Get ExceptionCode (for structured exceptions only)
-  if(m_dwExceptionType==CR_WIN32_STRUCTURED_EXCEPTION)
+  // Get ExceptionCode (for SEH exceptions only)
+  if(m_dwExceptionType==CR_SEH_EXCEPTION)
   {    
     TiXmlHandle hExceptionCode = hRoot.ToElement()->FirstChild("ExceptionCode");
     if(hExceptionCode.ToElement())

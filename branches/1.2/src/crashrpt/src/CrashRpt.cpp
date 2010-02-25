@@ -94,7 +94,7 @@ void CRASHRPTAPI GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);
-  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.exctype = CR_SEH_EXCEPTION;
   ei.pexcptrs = pExInfo;
   
   crGenerateErrorReport(&ei);
@@ -580,7 +580,7 @@ crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(CR_EXCEPTION_INFO);  
-  ei.exctype = CR_WIN32_STRUCTURED_EXCEPTION;
+  ei.exctype = CR_SEH_EXCEPTION;
   ei.pexcptrs = ep;
   ei.code = code;
 
@@ -698,7 +698,7 @@ crEmulateCrash(unsigned ExceptionType)
 
   switch(ExceptionType)
   {
-  case CR_WIN32_STRUCTURED_EXCEPTION:
+  case CR_SEH_EXCEPTION:
     {
       // Access violation
       int *p = 0;
