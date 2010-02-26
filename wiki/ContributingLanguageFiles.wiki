@@ -1,5 +1,5 @@
 #summary Tutorial on how to contribute a language file.
-#labels Featured,Phase-Implementation
+#labels Phase-Implementation
 
 == Internationalization Support ==
 
