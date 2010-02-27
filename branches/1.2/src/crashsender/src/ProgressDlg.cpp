@@ -116,10 +116,15 @@ void CProgressDlg::Start(BOOL bCollectInfo)
   }
 
   SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
-  // center the dialog on the screen
+  
+  // Center the dialog on the screen
 	CenterWindow();
-  ShowWindow(SW_SHOW); 
-  SetFocus();    
+
+  if(!g_CrashInfo.m_bSilentMode)
+  {
+    ShowWindow(SW_SHOW); 
+    SetFocus();    
+  }
 
   if(!bCollectInfo)
   {
@@ -158,7 +163,10 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       { 
         m_prgProgress.ModifyStyle(PBS_MARQUEE, 0);
         m_bFinished = TRUE;
-        ShowWindow(SW_HIDE);
+        
+        if(!g_CrashInfo.m_bSilentMode)
+          ShowWindow(SW_HIDE);
+        
         HWND hWndParent = ::GetParent(m_hWnd);        
         ::PostMessage(hWndParent, WM_COMPLETECOLLECT, 0, 0);
       }
@@ -181,7 +189,9 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
                 
         m_btnCancel.EnableWindow(1);
         m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
-        ShowWindow(SW_SHOW);
+
+        if(!g_CrashInfo.m_bSilentMode)
+          ShowWindow(SW_SHOW);
       }
       else if(messages[i].CompareNoCase(_T("[status_exit_silently]"))==0)
       { 
@@ -204,24 +214,32 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
       {       
         KillTimer(1);        
-        ShowWindow(SW_SHOW);
+        if(!g_CrashInfo.m_bSilentMode)
+        {
+          ShowWindow(SW_SHOW);
 
-        DWORD dwFlags = 0;
-        CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
-        if(sRTL.CompareNoCase(_T("1"))==0)
-          dwFlags = MB_RTLREADING;
+          DWORD dwFlags = 0;
+          CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+          if(sRTL.CompareNoCase(_T("1"))==0)
+            dwFlags = MB_RTLREADING;
 
-        CString sMailClientName;        
-        CMailMsg::DetectMailClient(sMailClientName);
-        CString msg;
-        msg.Format(Utility::GetINIString(_T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
+          CString sMailClientName;        
+          CMailMsg::DetectMailClient(sMailClientName);
+          CString msg;
+          msg.Format(Utility::GetINIString(_T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
 
-        INT_PTR result = MessageBox(msg, 
-          Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")),
-          MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
+          INT_PTR result = MessageBox(msg, 
+            Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")),
+            MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
 
-        g_ErrorReportSender.FeedbackReady(result==IDOK?0:1);       
-        ShowWindow(SW_HIDE);
+          g_ErrorReportSender.FeedbackReady(result==IDOK?0:1);       
+          ShowWindow(SW_HIDE);
+        }
+        else
+        { 
+          // In silent mode, assume user provides his/her consent
+          g_ErrorReportSender.FeedbackReady(0);       
+        }        
       }
 
       int count = m_listView.GetItemCount();
@@ -232,7 +250,8 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
   }
   else if(wTimerId==1) // The timer that hides this window
   {
-    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+    if(!g_CrashInfo.m_bSilentMode)
+      AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
     KillTimer(1);
   }
 

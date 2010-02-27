@@ -73,6 +73,8 @@ CCrashHandler::CCrashHandler()
   m_hEvent = NULL;
   m_bAddScreenshot = FALSE;
   m_dwScreenshotFlags = 0;
+  m_bMultiPartHttpUploads = FALSE;
+  m_bSilentMode = FALSE;
 }
 
 CCrashHandler::~CCrashHandler()
@@ -98,6 +100,9 @@ int CCrashHandler::Init(
   
   // Save minidump type
   m_MiniDumpType = MiniDumpType;
+
+  // Determine if should work in silent mode. FALSE is the default.
+  m_bSilentMode = (dwFlags&CR_INST_SILENT_MODE)?TRUE:FALSE;
 
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
@@ -137,6 +142,10 @@ int CCrashHandler::Init(
   {
     m_sUrl = CString(lpcszUrl);
   }
+
+  // Determine what encoding to use when sending reports over HTTP.
+  // FALSE is the default (use Base64 encoding for attachment).
+  m_bMultiPartHttpUploads = (dwFlags&CR_INST_MULTIPART_HTTP_UPLOADS)?TRUE:FALSE;
 
   // Save Email recipient address
   m_sTo = lpcszTo;
@@ -749,7 +758,7 @@ int CCrashHandler::GenerateErrorReport(
   CString sFileName;
   sFileName.Format(_T("%s\\crashrpt.xml"), m_sReportFolderName);
   AddFile(sFileName, NULL, _T("Crash Log"), CR_AF_MISSING_FILE_OK);        
-  int result = GenerateCrashDescriptionXML(sFileName.GetBuffer(0), pExceptionInfo);
+  int result = CreateCrashDescriptionXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
   
   // Write internal crash info to file. This info is required by 
@@ -890,10 +899,22 @@ void CCrashHandler::CollectMiscCrashInfo()
 #endif 
     m_sMemUsage = sMemUsage;
   }
+  
+  if(m_bAddScreenshot)
+  {
+    m_rcAppWnd.SetRectEmpty();
+    // Find main app window
+    HWND hWndMain = Utility::FindAppWindow();
+    if(hWndMain)
+    {
+      GetWindowRect(hWndMain, &m_rcAppWnd);
+    }
+  }
 }
 
-int CCrashHandler::GenerateCrashDescriptionXML(LPTSTR pszFileName,          
-     PCR_EXCEPTION_INFO pExceptionInfo)
+int CCrashHandler::CreateCrashDescriptionXML(
+	LPTSTR pszFileName,          
+    PCR_EXCEPTION_INFO pExceptionInfo)
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -1133,6 +1154,16 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add ScreenshotFlags tag
   fprintf(f, "  <ScreenshotFlags>%ul</ScreenshotFlags>\n", m_dwScreenshotFlags);
+
+  // Add AppWindowRect tag
+  fprintf(f, "  <AppWindowRect left=%d top=%d right=%d bottom=%d />\n", 
+    m_rcAppWnd.left, m_rcAppWnd.top, m_rcAppWnd.right, m_rcAppWnd.bottom);
+
+  // Add MultiPartHttpUploads tag
+  fprintf(f, "  <MultiPartHttpUploads>%d</MultiPartHttpUploads>\n", m_bMultiPartHttpUploads);
+
+  // Add SilentMode tag
+  fprintf(f, "  <SilentMode>%d</SilentMode>\n", m_bSilentMode);
 
   // Write file items
   fprintf(f, "  <FileItems>\n");

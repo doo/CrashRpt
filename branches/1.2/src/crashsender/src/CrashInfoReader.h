@@ -69,6 +69,8 @@ public:
   CString     m_sDescription;    
   CString     m_sErrorReportDirName;
   CString     m_sUrl;
+  BOOL        m_bMultiPartHttpUploads;
+  BOOL        m_bSilentMode;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;
   MINIDUMP_TYPE m_MinidumpType;
@@ -77,6 +79,7 @@ public:
   PEXCEPTION_POINTERS m_pExInfo;
   BOOL        m_bAddScreenshot;
   DWORD       m_dwScreenshotFlags;
+  CRect       m_rcAppWnd;
   std::map<CString, FileItem>  m_FileItems; 
 
   // Gets crash info from internal crash info XML file

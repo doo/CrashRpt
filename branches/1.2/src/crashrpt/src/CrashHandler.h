@@ -165,7 +165,7 @@ private:
   void CollectMiscCrashInfo();
     
   // Creates crash description XML file
-  int GenerateCrashDescriptionXML(LPTSTR pszFileName, 
+  int CreateCrashDescriptionXML(LPTSTR pszFileName, 
      PCR_EXCEPTION_INFO pExceptionInfo);
 
   // Creates internally used crash description file
@@ -226,6 +226,8 @@ private:
   HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
   CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
+  BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
+  BOOL m_bMultiPartHttpUploads;  // Use multi-part HTTP uploads instead of legacy way.
 
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.
@@ -235,6 +237,7 @@ private:
 
   BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
   DWORD m_dwScreenshotFlags;     // Screenshot flags
+  CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).
 
   HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
 

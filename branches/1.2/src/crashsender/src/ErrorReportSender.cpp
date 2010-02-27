@@ -387,6 +387,14 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
 {
   CScreenCapture sc;
   std::vector<CString> screenshot_names;
+ 
+  if(!g_CrashInfo.m_bAddScreenshot)
+  {
+    m_Assync.SetProgress(_T("Desktop screenshot generation disabled; skipping."), 0);    
+    return TRUE;
+  }
+
+  m_Assync.SetProgress(_T("Taking desktop screenshot"), 0);    
   
   DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
 
@@ -403,15 +411,13 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     }
   }
   else if(dwFlags==CR_AS_MAIN_WINDOW)
-  {    
-    HWND hMainWnd = Utility::FindAppWindow();
-    if(hMainWnd==NULL)
-    {      
+  {     
+    CRect rcWindow = g_CrashInfo.m_rcAppWnd; 
+    if(rcWindow.IsRectEmpty())
+    {
       return FALSE;
     }
 
-    CRect rcWindow; 
-    GetWindowRect(hMainWnd, &rcWindow);
     BOOL bTakeScreenshot = sc.CaptureScreenRect(rcWindow, 
       g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
     if(bTakeScreenshot==FALSE)

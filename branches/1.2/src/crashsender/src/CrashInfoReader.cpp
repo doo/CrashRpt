@@ -76,6 +76,8 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   const char* szMinidumpType = hMinidumpType.FirstChild().ToText()->Value();
   if(szMinidumpType!=NULL)
     m_MinidumpType = (MINIDUMP_TYPE)atol(szMinidumpType);
+  else
+    m_MinidumpType = MiniDumpNormal;
 
   TiXmlHandle hUrl = hRoot.FirstChild("Url");
   const char* szUrl = hUrl.FirstChild().ToText()->Value();
@@ -101,26 +103,36 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   const char* szHttpPriority = hHttpPriority.FirstChild().ToText()->Value();
   if(szHttpPriority!=NULL)
     m_uPriorities[CR_HTTP] = atoi(szHttpPriority);
+  else
+    m_uPriorities[CR_HTTP] = 0;
 
   TiXmlHandle hSmtpPriority = hRoot.FirstChild("SmtpPriority");
   const char* szSmtpPriority = hSmtpPriority.FirstChild().ToText()->Value();
   if(szSmtpPriority!=NULL)
     m_uPriorities[CR_SMTP] = atoi(szSmtpPriority);
+  else
+    m_uPriorities[CR_SMTP] = 0;
 
   TiXmlHandle hMapiPriority = hRoot.FirstChild("MapiPriority");
   const char* szMapiPriority = hMapiPriority.FirstChild().ToText()->Value();
   if(szMapiPriority!=NULL)
     m_uPriorities[CR_SMAPI] = atoi(szMapiPriority);
+  else
+    m_uPriorities[CR_SMAPI] = 0;
 
   TiXmlHandle hProcessId = hRoot.FirstChild("ProcessId");
   const char* szProcessId = hProcessId.FirstChild().ToText()->Value();
   if(szProcessId!=NULL)
     m_dwProcessId = strtoul(szProcessId, NULL, 10);
+  else
+    m_dwProcessId = 0;
 
   TiXmlHandle hThreadId = hRoot.FirstChild("ThreadId");
   const char* szThreadId = hThreadId.FirstChild().ToText()->Value();
   if(szThreadId!=NULL)
     m_dwThreadId = strtoul(szThreadId, NULL, 10);
+  else 
+    m_dwThreadId = 0;
 
   TiXmlHandle hExceptionPointersAddress = hRoot.FirstChild("ExceptionPointersAddress");
   const char* szExceptionPointersAddress = hExceptionPointersAddress.FirstChild().ToText()->Value();
@@ -132,16 +144,56 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     m_pExInfo = (PEXCEPTION_POINTERS)strtoul(szExceptionPointersAddress, NULL, 10);
 #endif 
   }
+  else
+  {
+    m_pExInfo = NULL;
+  }
 
   TiXmlHandle hAddScreenshot = hRoot.FirstChild("AddScreenshot");
   const char* szAddScreenshot = hAddScreenshot.FirstChild().ToText()->Value();
   if(szAddScreenshot!=NULL)
     m_bAddScreenshot = strtol(szAddScreenshot, NULL, 10);
+  else
+    m_bAddScreenshot = FALSE;
 
   TiXmlHandle hScreenshotFlags = hRoot.FirstChild("ScreenshotFlags");
   const char* szScreenshotFlags = hScreenshotFlags.FirstChild().ToText()->Value();
   if(szScreenshotFlags!=NULL)
     m_dwScreenshotFlags = strtoul(szScreenshotFlags, NULL, 10);
+  else 
+    m_dwScreenshotFlags = 0;
+
+  m_rcAppWnd.SetRectEmpty();
+  TiXmlHandle hAppWndRect = hRoot.FirstChild("AppWndRect");
+  if(hAppWndRect.ToElement()!=NULL)
+  {
+    const char* szLeft = hScreenshotFlags.ToElement()->Attribute("left");
+    const char* szTop = hScreenshotFlags.ToElement()->Attribute("top");
+    const char* szRight = hScreenshotFlags.ToElement()->Attribute("right");
+    const char* szBottom = hScreenshotFlags.ToElement()->Attribute("bottom");
+
+    if(szLeft && szTop && szRight && szBottom)
+    {
+      m_rcAppWnd.left = atoi(szLeft);
+      m_rcAppWnd.top = atoi(szTop);
+      m_rcAppWnd.right = atoi(szRight);
+      m_rcAppWnd.bottom = atoi(szBottom);
+    }
+  }
+
+  TiXmlHandle hMultiPartHttpUploads = hRoot.FirstChild("MultiPartHttpUploads");
+  const char* szMultiPartHttpUploads = hMultiPartHttpUploads.FirstChild().ToText()->Value();
+  if(szMultiPartHttpUploads!=NULL)
+    m_bMultiPartHttpUploads = atoi(szMultiPartHttpUploads);
+  else
+    m_bMultiPartHttpUploads = FALSE;    
+
+  TiXmlHandle hSilentMode = hRoot.FirstChild("SilentMode");
+  const char* szSilentMode = hSilentMode.FirstChild().ToText()->Value();
+  if(szSilentMode!=NULL)
+    m_bSilentMode = atoi(szSilentMode);
+  else
+    m_bSilentMode = FALSE;    
 
   ParseCrashDescriptor(m_sErrorReportDirName + _T("\\crashrpt.xml"));
 
