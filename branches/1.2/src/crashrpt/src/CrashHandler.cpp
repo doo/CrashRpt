@@ -931,7 +931,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
     return 1; // Couldn't create file
 
   // Add <?xml version="1.0" encoding="utf-8" ?> element
-  fprintf(f, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+  fprintf(f, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 
   // Add root element
   fprintf(f, "<CrashRpt version=\"%d\">\n", CRASHRPT_VER);
@@ -1091,7 +1091,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   }
   
   // Add <?xml version="1.0" encoding="utf-8" ?> element
-  fprintf(f, "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
+  fprintf(f, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 
   // Add root element
   fprintf(f, "<CrashRptInternal version=\"%d\">\n", CRASHRPT_VER);
@@ -1153,10 +1153,10 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   fprintf(f, "  <AddScreenshot>%d</AddScreenshot>\n", m_bAddScreenshot);
 
   // Add ScreenshotFlags tag
-  fprintf(f, "  <ScreenshotFlags>%ul</ScreenshotFlags>\n", m_dwScreenshotFlags);
+  fprintf(f, "  <ScreenshotFlags>%lu</ScreenshotFlags>\n", m_dwScreenshotFlags);
 
   // Add AppWindowRect tag
-  fprintf(f, "  <AppWindowRect left=%d top=%d right=%d bottom=%d />\n", 
+  fprintf(f, "  <AppWindowRect left=\"%d\" top=\"%d\" right=\"%d\" bottom=\"%d\" />\n", 
     m_rcAppWnd.left, m_rcAppWnd.top, m_rcAppWnd.right, m_rcAppWnd.bottom);
 
   // Add MultiPartHttpUploads tag

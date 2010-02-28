@@ -315,7 +315,8 @@ GenerateErrorReport(
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client).
 
 // Flags for CR_INSTALL_INFO::dwFlags
-#define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install structured exception handler.
+#define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install SEH handler (deprecated name, use \ref CR_INST_SEH_EXCEPTION_HANDLER instead.
+#define CR_INST_SEH_EXCEPTION_HANDLER   0x1           //!< Install SEH handler.
 #define CR_INST_TERMINATE_HANDLER              0x2    //!< Install terminate handler.
 #define CR_INST_UNEXPECTED_HANDLER             0x4    //!< Install unexpected handler.
 #define CR_INST_PURE_CALL_HANDLER              0x8    //!< Install pure call handler (VS .NET and later).
@@ -383,18 +384,32 @@ GenerateErrorReport(
  *         connection will be tried the first, SMTP connection will be tried the second and simple MAPI will be tried
  *         the last. 
  *
- *    <b>Since v1.1.2</b> \a dwFlags can be used to select what exception handlers to install. 
- *    Use zero value to install all possible exception handlers or
- *    use a combination of the following values:
- *       
- *      - \ref CR_INST_STRUCTURED_EXCEPTION_HANDLER   Install structured exception handler
- *      - \ref CR_INST_PURE_CALL_HANDLER              Install pure call handler (VS .NET and later)
- *      - \ref CR_INST_NEW_OPERATOR_ERROR_HANDLER     Install new operator error handler (VS .NET and later)
- *      - \ref CR_INST_SECURITY_ERROR_HANDLER         Install security errror handler (VS .NET and later)
- *      - \ref CR_INST_INVALID_PARAMETER_HANDLER      Install invalid parameter handler (VS 2005 and later)
- *      - \ref CR_INST_SIGABRT_HANDLER                Install SIGABRT signal handler
- *      - \ref CR_INST_SIGINT_HANDLER                 Install SIGINT signal handler  
- *      - \ref CR_INST_SIGTERM_HANDLER                Install SIGTERM signal handler  
+ *    <b>Since v1.1.2</b> \a dwFlags can be used to define some behavior parameters. This can be a combination of the following values:
+ *
+ *    <table>
+ *    <tr><td colspan="2"> <i>Use the combination of the following constants to specify what exception handlers to install:</i>
+ *    <tr><td> \ref CR_INST_ALL_EXCEPTION_HANDLERS    <td> Install all available exception handlers (equivalent to zero).
+ *    <tr><td> \ref CR_INST_SEH_EXCEPTION_HANDLER     <td> Install SEH exception handler.
+ *    <tr><td> \ref CR_INST_PURE_CALL_HANDLER         <td> Install pure call handler (VS .NET and later).
+ *    <tr><td> \ref CR_INST_NEW_OPERATOR_ERROR_HANDLER <td> Install new operator error handler (VS .NET and later).
+ *    <tr><td> \ref CR_INST_SECURITY_ERROR_HANDLER     <td> Install security errror handler (VS .NET and later).
+ *    <tr><td> \ref CR_INST_INVALID_PARAMETER_HANDLER  <td> Install invalid parameter handler (VS 2005 and later).
+ *    <tr><td> \ref CR_INST_SIGABRT_HANDLER            <td> Install SIGABRT signal handler.
+ *    <tr><td> \ref CR_INST_SIGINT_HANDLER             <td> Install SIGINT signal handler.  
+ *    <tr><td> \ref CR_INST_SIGTERM_HANDLER            <td> Install SIGTERM signal handler.  
+ *    <tr><td colspan="2"> <i>Use the combination of the following constant to define behavior parameters:</i>
+ *    <tr><td> \ref CR_INST_SILENT_MODE                
+ *        <td> <b>Available since v.1.2.2</b> Do not show GUI, send report silently (use for non-GUI apps only).
+ * 
+ *             It is not recommended to use this parameter for regular GUI-based applications. 
+ *             Use this only for services that have no GUI.
+ *    <tr><td> \ref CR_INST_MULTIPART_HTTP_UPLOADS     
+ *        <td> <b>Available since v.1.2.2</b> This affects the way of sending reports over HTTP. 
+ *             By specifying this parameter, you enable usage of multi-part HTTP uploads instead of the legacy way. 
+ * 
+ *            It is recommended to specify this parameter, because it is more suitable for large error reports. The legacy way
+ *            (Base64-encoded report data) is supported for backwards compatibility and not recommended to use.
+ *   </table>
  *
  *   <b>Since v1.1.2</b>, \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
  *   Error Report dialog. If this parameter is NULL, the link is not displayed.
@@ -405,6 +420,7 @@ GenerateErrorReport(
  *   <b>Since v.1.2.1</b>, \a uMiniDumpType parameter defines the minidump type. For the list of available minidump
  *   types, see the documentation for <b>MiniDumpWriteDump()</b> function in MSDN. It is recommended to set this 
  *   parameter with zero (equivalent of \b MiniDumpNormal constant). Other values may increase the minidump size significantly.
+ *   If you plan to use values other than zero, also specify the \ref CR_INST_MULTIPART_HTTP_UPLOADS flag for \a dwFlags field.
  *
  *  \note
  *

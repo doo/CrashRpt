@@ -1,5 +1,17 @@
 ======= Change History ========
 
+--- Ver. 1.2.2 ---
+
+- Introduced silent mode (CrashRpt sends report silently without showing GUI). 
+  This is useful for services and server processes.
+
+- After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe).
+  This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
+
+- Introduced multi-part HTTP uploads. This will help to send large error reports more effectively.
+
+- Fixed: Doesn't work in Windows 2000 (issue 17)
+
 --- Ver. 1.2.1 ---
 
 - Refactored crash report generation and sending functionality. Now report files are stored 
