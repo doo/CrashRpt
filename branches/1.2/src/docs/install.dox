@@ -33,17 +33,61 @@ This option becomes helpful when you receive lots of error reports from users of
 \section chlog What's New in Current Version
 
 The change log is available
-<a href="../../changelog.txt">here</a>
-
-\section license License
-
-This library is distributed under the <b>New BSD license</b>. You can find the 
-license text <a href="../../license.txt">here</a>.
+<a href="../../ChangeLog.txt">here</a>
 
 \section download Download
 
 The latest stable version of CrashRpt is available on
 <a href="http://code.google.com/p/crashrpt">CrashRpt project page</a>
+
+\section license License
+
+This library is distributed under the <b>New BSD license</b>. You can find the 
+license text <a href="../../License.txt">here</a>.
+
+<b>What third-party libraries does crashrpt use internally?</b>
+
+CrashRpt uses the following libraries:
+
+<table>
+
+<tr>
+<td> \b Name
+<td> \b Description
+<td> \b Link
+
+<tr>
+<td>WTL
+<td>Used for GUI management
+<td>http://sourceforge.net/projects/wtl/
+
+<tr>
+<td>Microsoft Debug Help Library 	
+<td>Used for creating crash minidumps
+<td>http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
+
+<tr>
+<td>TinyXml
+<td>Used for creating and editing XML files
+<td>http://www.grinninglizard.com/tinyxml/
+
+<tr>
+<td>ZLib 	
+<td>File compression functionality
+<td>http://www.zlib.net/
+
+<tr>
+<td>minizip 	
+<td>ZIP file management (replacement for zip_utils) 	
+<td>http://www.winimage.com/zLibDll/minizip.html
+
+<tr>
+<td>libpng 	
+<td>PNG file management 	
+<td>http://www.libpng.org/pub/png/libpng.html
+
+</table>
+
 
 \section faq Frequently Asked Questions
 
@@ -52,19 +96,21 @@ You can find a lot of information about CrashRpt in
 
 \section bugrpt Reporting a Bug/Requesting New Feature
 
-If you detect an issue please let us know <a href="http://code.google.com/p/crashrpt/issues/list">here</a>.
-We appreciate your feedback.
+If you detect an issue or want to request a feature, please create an issue at the
+<a href="http://code.google.com/p/crashrpt/issues/list">Issues</a> page.
 
-If you would like to contribute, <a href="http://groups.google.com/group/crashrpt">
-create a topic in our Discussions group </a> and describe there how you would 
-like to contribute. After that, the project owner will add your email to the list 
-of project members and you will be able to make changes in the source code.
+If you would like to contribute or ask a question, create a topic in our <a href="http://groups.google.com/group/crashrpt">
+Discussions </a> group.
 
 \section showing_appreciation How can I show my appreciation of CrashRpt project?
 
-If you like CrashRpt and use it in your software product, you can show your 
-appreciation and add your project name and logo to our 
-<a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
+If you like CrashRpt and use it in your software, you can show your 
+appreciation using any of the following:
+
+  - Add your project name and logo to the 
+    <a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
+  - Make a <a href="http://sourceforge.net/donate/index.php?group_id=279722">donation</a>. 
+
 By doing this you make CrashRpt more significant for other users and support 
 further development. 
 

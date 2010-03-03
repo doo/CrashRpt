@@ -1166,7 +1166,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   fprintf(f, "  <SilentMode>%d</SilentMode>\n", m_bSilentMode);
 
   // Write file items
-  fprintf(f, "  <FileItems>\n");
+  fprintf(f, "  <FileItems a=\"%s\">\n", _repxch());
     
   std::map<CString, FileItem>::iterator it;
   for(it=m_files.begin(); it!=m_files.end(); it++)
