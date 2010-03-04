@@ -176,7 +176,7 @@ private:
   int LaunchCrashSender(CString sCrashInfoFileName);  
 
   // Replaces characters that are restricted in XML.
-  CString _repxrch(CString sText);
+  std::string XmlEncodeStr(CString sText);
   
   // Sets internal pointers to exception handlers to NULL
   void InitPrevExceptionHandlerPointers();

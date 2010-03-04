@@ -94,7 +94,9 @@ private:
   int ParseFileList(TiXmlHandle& hRoot);
 
   // Retrieves some crash info from crash descriptor XML
-  int ParseCrashDescriptor(CString sFileName);
+  int ParseCrashDescription(CString sFileName);
+
+  std::string XmlEncodeStr(CString sText);
 };
 
 // Declare globally available object

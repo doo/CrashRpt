@@ -738,10 +738,21 @@ int CCrashHandler::GenerateErrorReport(
     crSetErrorMsg(_T("The operation was cancelled by client application."));
     return 2;
   }
- 
+
+  if(m_bAddScreenshot)
+  {
+    m_rcAppWnd.SetRectEmpty();
+    // Find main app window
+    HWND hWndMain = Utility::FindAppWindow();
+    if(hWndMain)
+    {
+      GetWindowRect(hWndMain, &m_rcAppWnd);
+    }
+  }
+
   // Create directory for the error report. 
   
-  BOOL bCreateDir = CreateDirectory(m_sReportFolderName, NULL);
+  BOOL bCreateDir = Utility::CreateFolder(m_sReportFolderName);
   if(!bCreateDir)
   {    
     ATLASSERT(bCreateDir);
@@ -899,17 +910,7 @@ void CCrashHandler::CollectMiscCrashInfo()
 #endif 
     m_sMemUsage = sMemUsage;
   }
-  
-  if(m_bAddScreenshot)
-  {
-    m_rcAppWnd.SetRectEmpty();
-    // Find main app window
-    HWND hWndMain = Utility::FindAppWindow();
-    if(hWndMain)
-    {
-      GetWindowRect(hWndMain, &m_rcAppWnd);
-    }
-  }
+
 }
 
 int CCrashHandler::CreateCrashDescriptionXML(
@@ -938,27 +939,27 @@ int CCrashHandler::CreateCrashDescriptionXML(
   
   // Write crash GUID
   fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
-    strconv.t2utf8(_repxrch(m_sCrashGUID.GetBuffer(0))));
+    XmlEncodeStr(m_sCrashGUID.GetBuffer(0)).c_str());
 
   // Write application name 
   fprintf(f, "  <AppName>%s</AppName>\n", 
-    strconv.t2utf8(_repxrch(m_sAppName.GetBuffer(0))));
+    XmlEncodeStr(m_sAppName.GetBuffer(0)).c_str());
 
   // Write application version 
   fprintf(f, "  <AppVersion>%s</AppVersion>\n", 
-    strconv.t2utf8(_repxrch(m_sAppVersion.GetBuffer(0))));
+    XmlEncodeStr(m_sAppVersion.GetBuffer(0)).c_str());
   
   // Write EXE image name
   fprintf(f, "  <ImageName>%s</ImageName>\n", 
-    strconv.t2utf8(_repxrch(m_sImageName.GetBuffer(0))));
+    XmlEncodeStr(m_sImageName.GetBuffer(0)).c_str());
 
   // Write operating system friendly name  
   fprintf(f, "  <OperatingSystem>%s</OperatingSystem>\n", 
-    strconv.t2utf8(_repxrch(m_sOSName.GetBuffer(0))));
+    XmlEncodeStr(m_sOSName.GetBuffer(0)).c_str());
   
   // Write system time in UTC format
   fprintf(f, "  <SystemTimeUTC>%s</SystemTimeUTC>\n", 
-    strconv.t2utf8(_repxrch(m_sCrashTime.GetBuffer(0))));
+    XmlEncodeStr(m_sCrashTime.GetBuffer(0)).c_str());
   
   // Write exception type
   fprintf(f, "  <ExceptionType>%d</ExceptionType>\n", 
@@ -985,21 +986,21 @@ int CCrashHandler::CreateCrashDescriptionXML(
     {
       // Write expression      
       fprintf(f, "  <InvParamExpression>%s</InvParamExpression>\n", 
-        strconv.w2utf8(_repxrch(pExceptionInfo->expression)));
+        XmlEncodeStr(pExceptionInfo->expression).c_str());
     }
 
     if(pExceptionInfo->function!=NULL)
     {
       // Write function      
       fprintf(f, "  <InvParamFunction>%s</InvParamFunction>\n", 
-        strconv.t2utf8(_repxrch(pExceptionInfo->function)));
+        XmlEncodeStr(pExceptionInfo->function).c_str());
     }
 
     if(pExceptionInfo->file!=NULL)
     {
       // Write file
       fprintf(f, "  <InvParamFile>%s</InvParamFile>\n", 
-        strconv.w2utf8(_repxrch(pExceptionInfo->file)));
+        XmlEncodeStr(pExceptionInfo->file).c_str());
 
       // Write line number
       fprintf(f, "  <InvParamLine>%d</InvParamLine>\n", 
@@ -1018,7 +1019,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
 
   // Write memory usage info
   fprintf(f, "  <MemoryUsageKbytes>%s</MemoryUsageKbytes>\n", 
-    strconv.t2utf8(_repxrch(m_sMemUsage.GetBuffer(0))));  
+    XmlEncodeStr(m_sMemUsage.GetBuffer(0)).c_str());  
 
   // Write list of custom user-added properties
   fprintf(f, "  <CustomProps>\n");
@@ -1031,7 +1032,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
     CString sPropValue = pit->second;
 
     fprintf(f, "    <Prop name=\"%s\" value=\"%s\" />\n",
-      strconv.t2utf8(_repxrch(sPropName)), strconv.t2utf8(_repxrch(sPropValue)));
+      XmlEncodeStr(sPropName).c_str(), XmlEncodeStr(sPropValue).c_str());
   }
 
   fprintf(f, "  </CustomProps>\n");
@@ -1054,7 +1055,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
     FileItem& fi = cur->second;
 
     fprintf(f, "    <FileItem name=\"%s\" description=\"%s\" />\n",
-      strconv.t2utf8(_repxrch(sDestFile)), strconv.t2utf8(_repxrch(fi.m_sDescription)));  
+      XmlEncodeStr(sDestFile).c_str(), XmlEncodeStr(fi.m_sDescription).c_str());  
   }
 
   fprintf(f, "  </FileItems>\n");
@@ -1098,15 +1099,15 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add CrashGUID tag
   fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
-    strconv.t2utf8(_repxrch(m_sCrashGUID)));
+    XmlEncodeStr(m_sCrashGUID).c_str());
 
   // Add ReportFolder tag
   fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
-    strconv.t2utf8(_repxrch(m_sReportFolderName)));
+    XmlEncodeStr(m_sReportFolderName).c_str());
 
   // Add DbgHelpPath tag
   fprintf(f, "  <DbgHelpPath>%s</DbgHelpPath>\n", 
-    strconv.t2utf8(_repxrch(m_sPathToDebugHelpDll)));
+    XmlEncodeStr(m_sPathToDebugHelpDll).c_str());
 
   // Add MinidumpType tag
   fprintf(f, "  <MinidumpType>%lu</MinidumpType>\n", m_MiniDumpType);
@@ -1126,19 +1127,19 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add EmailSubject tag
   fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
-    strconv.t2utf8(_repxrch(m_sSubject)));
+    XmlEncodeStr(m_sSubject).c_str());
 
   // Add EmailTo tag
   fprintf(f, "  <EmailTo>%s</EmailTo>\n", 
-    strconv.t2utf8(_repxrch(m_sTo)));
+    XmlEncodeStr(m_sTo).c_str());
 
   // Add Url tag
   fprintf(f, "  <Url>%s</Url>\n", 
-    strconv.t2utf8(_repxrch(m_sUrl)));
+    XmlEncodeStr(m_sUrl).c_str());
 
   // Add PrivacyPolicyUrl tag
   fprintf(f, "  <PrivacyPolicyUrl>%s</PrivacyPolicyUrl>\n", 
-    strconv.t2utf8(_repxrch(m_sPrivacyPolicyURL)));
+    XmlEncodeStr(m_sPrivacyPolicyURL).c_str());
 
   // Add HttpPriority tag
   fprintf(f, "  <HttpPriority>%d</HttpPriority>\n", m_uPriorities[CR_HTTP]);
@@ -1166,15 +1167,15 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   fprintf(f, "  <SilentMode>%d</SilentMode>\n", m_bSilentMode);
 
   // Write file items
-  fprintf(f, "  <FileItems a=\"%s\">\n", _repxch());
-    
+  fprintf(f, "  <FileItems>\n");
+   
   std::map<CString, FileItem>::iterator it;
   for(it=m_files.begin(); it!=m_files.end(); it++)
   {
     fprintf(f, "    <FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />\n",
-      strconv.t2utf8(_repxrch(it->first)), 
-      strconv.t2utf8(_repxrch(it->second.m_sFileName)), 
-      strconv.t2utf8(_repxrch(it->second.m_sDescription)), 
+      XmlEncodeStr(it->first).c_str(), 
+      XmlEncodeStr(it->second.m_sFileName).c_str(), 
+      XmlEncodeStr(it->second.m_sDescription).c_str(), 
       it->second.m_bMakeCopy?1:0 );    
   }
 
@@ -1222,16 +1223,24 @@ int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
   return 0;
 }
 
-// Helper method that replaces characters restricted by XML
-CString CCrashHandler::_repxrch(CString sText)
-{
-  CString sResult;
+// Helper method that encodes string into UTF-8 and replaces some characters
+std::string CCrashHandler::XmlEncodeStr(CString sText)
+{  
+  strconv_t strconv;
 
-  sResult = sText;
+  // Convert to UTF-8 encoding
+
+  LPCSTR pszEncodedStr = strconv.t2utf8(sText);
+
+  // Replace characters restricted by XML
+  CString sResult = pszEncodedStr;
   sResult.Replace(_T("\""), _T("&quot"));
   sResult.Replace(_T("'"), _T("&apos"));
-
-  return sResult;
+  sResult.Replace(_T("&"), _T("&amp"));
+  sResult.Replace(_T("<"), _T("&lt"));
+	sResult.Replace(_T(">"), _T("&gt"));
+  
+  return std::string(strconv.t2a(sResult));
 }
 
 // Structured exception handler

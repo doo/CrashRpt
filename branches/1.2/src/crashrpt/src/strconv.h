@@ -151,6 +151,45 @@ public:
     return (LPCSTR)pBuffer;
   }
 
+  LPCWSTR utf82w(LPCSTR lpsz)
+  {
+    if(lpsz==NULL)
+      return NULL;
+     
+    // Calculate required buffer size
+    int count = MultiByteToWideChar(CP_UTF8, 0, lpsz, -1, NULL, 0);
+    if(count==0)
+    {      
+      return NULL;
+    }
+
+    // Convert UNICODE->UTF8
+    LPWSTR pBuffer = new wchar_t[count];
+    int result = MultiByteToWideChar(CP_UTF8, 0, lpsz, -1, (LPWSTR)pBuffer, count);    
+    if(result==0)
+    {      
+      delete [] pBuffer;
+      return NULL;
+    }    
+
+    m_ConvertedStrings.push_back(pBuffer);
+    return (LPCWSTR)pBuffer;
+  }
+
+  LPCSTR utf82a(LPCSTR lpsz)
+  {
+    return w2a(utf82w(lpsz));
+  }
+
+  LPCTSTR utf82t(LPCSTR lpsz)
+  {
+#ifdef UNICODE    
+    return utf82w(lpsz);
+#else
+    return utf82a(lpsz);
+#endif
+  }
+
   LPCSTR t2a(LPCTSTR lpsz)
   {
 #ifdef UNICODE    

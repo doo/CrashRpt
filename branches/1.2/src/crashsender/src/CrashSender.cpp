@@ -47,8 +47,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   int argc = 0;
   LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
  
-  ATLASSERT(0);
-
   // Read the crash info passed by CrashRpt.dll to CrashSender.exe 
   if(argc==1)
   {

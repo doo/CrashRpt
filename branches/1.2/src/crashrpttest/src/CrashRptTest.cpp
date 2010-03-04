@@ -43,10 +43,10 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
   nResult = crAddFile(sIniFile, _T("Dummy INI File"));
   ATLASSERT(nResult==0);
 
-  nResult = crAddScreenshot(CR_AS_VIRTUAL_SCREEN);
+  nResult = crAddScreenshot(CR_AS_MAIN_WINDOW);
   ATLASSERT(nResult==0);
 
-  nResult = crAddProperty(_T("MyCustomStatus"),_T("Malfunction!"));
+  nResult = crAddProperty(_T("VideoCard"),_T("nVidia GeForce 9800"));
   ATLASSERT(nResult==0);
 #endif
 
@@ -96,7 +96,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);  
   info.pszAppName = _T("CrashRpt Tests");
-  info.pszAppVersion = _T("1.2.1");
+  info.pszAppVersion = _T("1.2.2");
   info.pszEmailSubject = _T("Error from CrashRptTests");
   info.pszEmailTo = _T("test@hotmail.com");
   info.pszUrl = _T("http://myappcom.com/crashrpt.php");
