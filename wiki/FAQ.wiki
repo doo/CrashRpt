@@ -11,6 +11,20 @@ CrashRpt library is an open source error handling, reporting and processing tool
 
 CrashRpt is distributed under the New BSD License. For the license text, please see [http://crashrpt.sourceforge.net/license.txt here].
 
+== What third-party libraries does crashrpt use internally? ==
+
+This depends on what CrashRpt version you use. See the documentation distributed with your version of CrashRpt.
+
+Generally, CrashRpt may use the following libraries:
+
+  * WTL -- Used for GUI management http://sourceforge.net/projects/wtl/
+  * Microsoft Debug Help Library -- Used for creating crash minidumps http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
+  * TinyXml -- Used for creating and editing XML files http://www.grinninglizard.com/tinyxml/
+  * ZLib -- File compression functionality  http://www.zlib.net/
+  * zip utils -- ZIP file management  http://www.codeproject.com/KB/files/zip_utils.aspx
+  * minizip -- ZIP file management (replacement for zip_utils)  http://www.winimage.com/zLibDll/minizip.html
+  * libpng -- PNG file management  http://www.libpng.org/pub/png/libpng.html 
+
 == Why should I use crashrpt in my Visual C++ project? ==
 
 If you have ever tried to determine the reason of a crash on user's machine, you might know how difficult it is, given user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you and tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situtations. That's why it is important to use special tools to report errors automatically.
@@ -112,20 +126,6 @@ In an older version, CrashRpt v1.0, the documentation can be found in [CrashRpt_
 
 This depends on CrashRpt version you use. Typically, you download and unzip CrashRpt archive and then follow installation instructions listed in the documentation.
 
-== What third-party libraries does crashrpt use internally? ==
-
-This depends on what CrashRpt version you use. See the documentation distributed with your version of CrashRpt.
-
-Generally, CrashRpt may use the following libraries:
-
-  * WTL -- Used for GUI management http://sourceforge.net/projects/wtl/
-  * Microsoft Debug Help Library -- Used for creating crash minidumps http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
-  * TinyXml -- Used for creating and editing XML files http://www.grinninglizard.com/tinyxml/
-  * ZLib -- File compression functionality  http://www.zlib.net/
-  * zip utils -- ZIP file management  http://www.codeproject.com/KB/files/zip_utils.aspx
-  * minizip -- ZIP file management (replacement for zip_utils)  http://www.winimage.com/zLibDll/minizip.html
-  * libpng -- PNG file management  http://www.libpng.org/pub/png/libpng.html 
-
 == How does crashrpt support multi-lingual user interface? ==
 
 Since v.1.1.3, CrashRpt supports multi-lingual user interfaces. You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
@@ -207,7 +207,7 @@ For example, you may need to add the info about amount of free disk space on a s
 
 == I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
-In CrashRpt v.1.2.1 we introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
+In CrashRpt v.1.2.1, we introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
 you will be able to identify the installation and associate the bugs together.
 
 The following code example shows how to do this (code provided by tdev):
@@ -309,8 +309,6 @@ It is recommended to direct all project output to bin directory and then just co
 When a crash report comes in, you use the release binaries and debug symbols you saved, along with the minidump included in the crash report, to debug the crash.
 
 == What files should I never distribute with my software release package? ==
-
-You SHOULD NOT distribute the following files:
 
   * All binaries (EXE, DLL) and program database files (PDB) compiled in `Debug` configuration SHOULD NOT be distributed as they will not only take up more space on your CD/download/client's machine, but they will also make reverse engineering your code a trivial exercise.
   * The program database files (PDB) generated in `Release` configuration SHOULD NOT be distributed because of they may make it easier to reverse engineer your code. 
@@ -441,7 +439,7 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 See CrashRpt documentation more information.
 
-== It would be ideal if the whole process of sending error reports would be bidirectional: the user gets an email with updates on his issue. Is this possible? ==
+== Does crashrpt support bidirectional communication (the user gets an email with updates on his issue)? ==
 
 We currently do not support bidirectional communication, because this would require some complex server-side functionality. You can add such integration on your server for users of your software yourself if you wish. 
 
@@ -475,7 +473,7 @@ Then double-click on the minidump file name. This should open it using an associ
 
 Alternatively, you can open the minidump file using `WinDbg` program from `Microsoft Debugging Tools`. It is freely distributed.
 
-== How to identify if the symbol files fit to a certain executable? Is there a GUID somewhere or how is it working? ==
+== How do I identify if the symbol files fit to a certain executable? ==
 
 Symbol files are identified by timestamps (in older versions of PDB) or by GUIDs (in newer versions of PDB). 
 
@@ -507,11 +505,11 @@ For usage examples, please see the documentation.
 
 == How do I calculate some statistics about processed error reports? ==
 
-You can write some C++ program or for example Python script that would parse output text files and calculate the desired statistics. For example, see the SampleProcessingPythonScript by provided RoRThom.
+You can write some C++ program or for example Python script that would parse output text files and calculate the desired statistics. For example, see the SampleProcessingPythonScript provided by RoRThom.
 
-== I need to process error reports on a dedicated server: is it possible to use something like crprober under Linux? with Wine? ==
+== Is it possible to use crprober under Linux? with Wine? ==
 
-crprober depends on `dbghelp.dll` (Microsoft Debug Help Library). I'm not sure if you can make it work under Linux/Wine. You can try and tell us if this work. However, I would recommend to use it under the native Windows server.
+crprober depends on `dbghelp.dll` (Microsoft Debug Help Library). I'm not sure if you can make it work under Linux/Wine. You can try and tell us if this work. However, I would recommend to use it under the native Windows.
 
 == What is crashrptprobe API? ==
 
