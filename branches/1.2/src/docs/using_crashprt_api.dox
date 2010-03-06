@@ -67,13 +67,26 @@ at the moment of crash, or about the version of the graphics card driver.
 
 \section adding_a_screenshot Adding a Screenshot
 
-It may be useful to see what happened on user's desktop when error occurred. You can make a snapshot of
-user's virtual screen or a snapshot of your main window using crAddScreenshot() function. 
+In 90% of cases, minidump file + crash description XML file would be sufficient. 
+The rest 10% require additional information, for example a log that your application maintains. 
+This technical information should be enough to localize the probable place in your code which 
+was the source of the problem.
 
-You should be careful when using this feature, because the screenshot may contain user-identifying 
-or private information. Always specify the purposes you will use the collected 
-information for in your Privacy Policy. By clicking the Send Report button, user confirms he is familiar 
+However, it may be also useful to have a screenshot of user's desktop at the moment of crash. 
+This may help to see which button user clicked before the crash, and to see the desktop state. 
+For example, for multi-monitor desktops it may be useful to see if the application window is 
+positioned on the primary monitor, on the secondary monitor, or at the boundary of two monitors. 
+Sometimes it may be enough to see only the region of the desktop occupied by your application 
+and not the rest of desktop.
+
+But there is one thing to take in account. By enabling screenshot capture, you should be careful 
+about user's privacy. Some parts of the desktop screenshot may contain private or user identifying 
+information: folder names, wallpapers, photos, text fragments and so on. That's why you should 
+always provide a link to your Privacy Policy page describing what information you collect on 
+crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
 with the contents of the error report and accepts the terms of the Privacy Policy.
+
+You can make a snapshot of user's virtual screen or a snapshot of your main window using crAddScreenshot() function. 
 
 \section debugging_a_remote_logics_error Debugging a Remote Logics Error
 

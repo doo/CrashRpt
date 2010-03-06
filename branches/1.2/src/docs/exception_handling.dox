@@ -34,12 +34,12 @@ For example, an exception may occur because of the following:
 - invalid parameter is passed to a C++ system function
 - C run-time libraries detect an error and request program termination
 
-There are two kinds of exceptions that have different nature: structured 
-C exceptions and typed C++ exceptions.
+There are two kinds of exceptions that have different nature: SEH exceptions (Structured Exception Handling, SEH) 
+exceptions and typed C++ exceptions.
 
-Structured exceptions were designed for C language, but they can be used in C++, too. 
+SEH exceptions were designed for C language, but they can be used in C++, too. 
 They are handled using __try{}__except(){} 
-construction. Structured exceptions are Visual C++ compiler-specific. 
+construction. SEH exceptions are Visual C++ compiler-specific. 
 You shouldn't use structured exception handling if you write portable code. 
 
 C++ typed exceptions are handled using try{}catch{} construction.
@@ -63,16 +63,16 @@ int main () {
 }
 \endcode
 
-\section structured_exc Structured Exceptions 
+\section structured_exc Structured Exception Handling
 
-When a structured exception occurs, you typically see a popup window (Dr.Watson) that 
+When a SEH exception occurs, you typically see a popup window (Dr.Watson) that 
 offers to send error report to Microsoft. 
 
-You can generate a structured exception yourself using \b RaiseException() function.
+You can generate a SEH exception yourself using \b RaiseException() function.
 
-You can catch a structured exception in your code using __try{}__except(Expression){} construction.
+You can catch a SEH exception in your code using __try{}__except(Expression){} construction.
 The \b main() function of your program is guarded with such construction, so by default all unhandled
-structured exceptions are cought and Dr.Watson is invoked.
+SEH exceptions are cought and Dr.Watson is invoked.
 
 Example:
 
@@ -93,12 +93,12 @@ Example:
   }
 \endcode 
 
-Each structured exception has an associated exception code. You can extract the exception code inside of __except statement 
+Each SEH exception has an associated exception code. You can extract the exception code inside of __except statement 
 using \b GetExceptionCode() intrinsic function. You can extract exception information inside of __except 
 statement using \b GetExceptionInformation() intrinsic function. To use these intrinsic functions you usually
 create your custom exception filter as shown in the example below.
 
-The following example shows how to use a structured exception filter.
+The following example shows how to use a SEH exception filter.
 
 \code 
 
@@ -125,7 +125,7 @@ void main()
 
 \endcode
 
-The __try{}__except(){} construction is mostly C oriented. However, you can redirect a structured exception to a C++
+The __try{}__except(){} construction is mostly C oriented. However, you can redirect a SEH exception to a C++
 typed exception and handle it as you do with C++ typed exceptions. This can be done using the \b _set_se_translator() 
 function provided by C++ runtime libraries (CRT).
 
@@ -185,11 +185,11 @@ void trans_func( unsigned int u, EXCEPTION_POINTERS* pExp )
 \endcode
 
 
-The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially buggy 
-code that may cause an exception that won't be handled by your program. However, such an unhandled structured exception
-can be catched using the unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
+The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially buggy
+code that may cause an exception that won't be handled by your program. However, such an unhandled SEH exception
+can be catched using the top-level unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
 
-The exception information (CPU state before the exception occured) is passed to the unhandled exception handler
+The exception information (CPU state before the exception occured) is passed to the exception handler
 through \b EXCEPTION_POINTERS structure.
 
 Example:
@@ -215,12 +215,12 @@ void main()
 
 \endcode
 
-The unhandled exception handler works for all threads of the caller process, so its enough to call it once
+The exception handler works for all threads of the caller process, so its enough to call it once
 in the beginning of your \b main() function.
 
 \section crt_errors CRT Error Handling
 
-In addition to WIN32 structured exceptions and C++ typed exceptions, C runtime libraries (CRT) provide their own
+In addition to SEH exceptions and C++ typed exceptions, C runtime libraries (CRT) provide their own
 error handling mechanism that should be taken into account in your program.
 
 When CRT encounters an unhandled C++ typed exception, 
@@ -437,7 +437,7 @@ caused the problem. You use the information to debug the problem.
 The way you retrieve the exception information differs
 depending on the exception handler you use.
 
-In the unhandled structured exception handler set with the \b SetUnhandledExceptionFilter() function, 
+In the SEH exception handler set with the \b SetUnhandledExceptionFilter() function, 
 the exception information is retrieved from \b EXCEPTION_POINTERS structure passed as 
 function parameter.
 
@@ -448,7 +448,7 @@ In the SIGFPE and SIGSEGV signal handlers you can retrieve the exception informa
 global CRT variable that is declared in <signal.h>. This variable is not documented well in MSDN.
 
 In other signal handlers and in CRT error handlers you have no ability to easily extract the exception information.
-In CrashRpt a workaround is used that was found in CRT source files (see CRT 8.0 source files, invarg.c, line 104).
+I found a workaround used in CRT code (see CRT 8.0 source files, invarg.c, line 104).
 
 The following code shows how to get current CPU state used as exception information.
 

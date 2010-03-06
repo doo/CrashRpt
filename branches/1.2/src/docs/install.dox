@@ -9,9 +9,9 @@ users won't contact you to tell about the problem and just give up using
 your program after several crashes. Users who decide to report the problem 
 might not have technical knowledge, so it is difficult to determine the reason 
 of the problem based on their instructions. This makes debugging remote crashes 
-almost impossible, except in the simplest situtations. This makes us to use 
-some tool to collect technical ifnormation about the crash send error reports 
-over the Internet automatically. 
+almost impossible, except in the simplest situtations. This fact makes us to use 
+some tool to automatically collect technical ifnormation about the crash and send error report 
+over the Internet. 
 
 Now assume you receive tons of error reports from users of your software. You 
 would have to spend a lot of time to open each report, analyze its contents and
@@ -32,7 +32,7 @@ an open-source error handling, reporting and post-processing library, which is
 designed specially for Windows applications created in Microsoft Visual C++. 
 
 Every PC user might have seen the window of Dr.Watson, the Windows' default debugger 
-introduced in Windows XP. Dr. Watson is able to intercept unhandled SEH exceptions 
+introduced in Windows XP. Dr. Watson is able to intercept unhandled SEH (Structured Exception Handling, SEH) exceptions 
 in user-mode programs, and in OS modules. It collects technical information about 
 the problem (minidump and textual description) and offers user to send the info to 
 Microsoft's server. The developer can browse arriving error reports by registering 
@@ -68,7 +68,8 @@ and Google Chrome browsers. Breakpad is an open-source cross-platform C++ librar
 designed for handling exceptions in your program and sending reports to your server 
 over HTTP or HTTPS connection. It also provides tools for post-processing minidumps 
 which present stack traces and other information in human-readable form. Windows 
-(x86) and Mac OS (x86 and PowerPC) platforms are supported. Also an experimental version for Linux exists.
+(x86) and Mac OS (x86 and PowerPC) platforms are supported. Also (at the moment of writing this text) 
+an experimental version for Linux exists.
 
 When an exception happens, Breakpad creates minidump file and delegates further actions 
 to a user-provided callback function. The function may silently terminate the program or 
@@ -88,46 +89,50 @@ Disadvantages of Breakpad:
 
  - It is being developed for all possible platforms and compilers (they are unable to 
    develop a tool which will work well everywhere, it is too much efforts needed)
- - Breakpad is not well-suited to Visual C++. For example, it doesn't handle some CRT errors. 
+ - Breakpad is not well-suited to Visual C++. For example, it doesn't handle some CRT errors (at the moment of writing this text). 
  - It uses cross-platform format for storing debugging symbols (instead of PDB files). It makes 
    you to convert PDB files into this format.
 
 Summary. As we see, WER and Breakpad are wide-spread error reporting and processing tools. But WER
 requires you to purchase a digital certificate, which may be costly. Breakad is free, but
-you have to convert debugging info into cross-platform format. And Breakpad doesn't suits well
+you have to convert debugging info into cross-platform format. And Breakpad doesn't suit well
 to Visual C++, e.g. it doesn't handle some CRT errors. So, if you write a program for Windows platform
 only and use Visual C++ only, you might find the CrashRpt library described below more convenient.
 
 \section about_crashrpt About CrashRpt
 
-<b>CrashRpt</b> library is an open source error handling, reporting and post-processing tool for 
+<b>CrashRpt</b> library is an free open-source (distributed under the New BSD Licence) error handling, 
+reporting and post-processing tool for 
 applications created in Microsoft Visual C++ and running under Windows. It supports only one OS 
 (Windows), only one programming language (C++) and only one compiler (Visual C++). This allows to assume
 it knows all aspects of this environment.
 
-Main features:
+Although CrashRpt is not designed for platforms other than Windows, it handles 
+Visual C++ exceptions better than Breakpad (because CrashRpt designed specially for Visual C++).
 
- - CrashRpt is an open-source software distributed under the New BSD Licence
- - Supports Visual C++ .NET 2003, 2005, 2008 and Visual C++ Express. However 
-   you can not use it in .NET framework or Visual Basic. 
- - Can be compiled for 32-bit and 64-bit platforms
- - Handles exceptions in the main or in a worker thread of your user-mode program: 
-   SEH exceptions, CRT errors and signals.
- - Generates error report including crash minidump, extensible crash description XML, 
-   application-defined files and desktop screenshots.
- - Presents UI allowing user to review the crash report. Supports privacy policy definition. 
-   Can display its UI using different languages, which makes it even more suitable for 
-   multi-lingual applications.
- - Sends the report in background after user have provided his/her consent. 
- - CrashRpt can send error reports not only using HTTP, but also using E-mail. This is 
-   suitable for users not having servers for storing error reports. To send reports over 
-   E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird 
-   or Microsoft Outlook.
- - Automates error report processing on developer's side using command-line tool. This option 
-   becomes helpful when you receive lots of error reports from users of your software. Provides 
-   API for accessing error report properties and files.
- - One disadvantage of CrashRpt is the fact that you have to distribute additional binaries 
-   (dbghelp.dll, CrashRpt.dll, CrashSender.exe) with your software (about 1.5 Mb). 
+CrashRpt supports Visual C++ .NET 2003, 2005, 2008 and Visual C++ Express. It can be compiled for 32-bit and 64-bit platforms
+
+It handles exceptions in the main or in a worker thread of your user-mode program: 
+SEH exceptions, CRT errors and signals.
+
+Generates error report including crash minidump, extensible crash description XML, 
+application-defined files and desktop screenshots. CrashRpt uses Microsoft DbgHelp 
+library for minidump creation and post-processing, 
+which makes it more stable on all variety of processor architectures.
+
+Presents UI allowing user to review the crash report. Supports privacy policy definition. 
+Can display its UI using different languages, which makes it even more suitable for 
+multi-lingual applications.
+
+Sends the report in background after user have provided his/her consent. CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable 
+for users not having servers for storing error reports. To send reports over E-mail, 
+user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+
+CrashRpt also has a tool for error reports' post processing. The tool may be useful when you 
+receive hundreds of reports a day and need to process them all at once.
+
+One disadvantage of CrashRpt is the fact that you have to distribute additional binaries 
+(dbghelp.dll, CrashRpt.dll, CrashSender.exe) with your software (about 1.5 Mb). 
 
 \section chlog What's New in Current Version
 
@@ -204,11 +209,26 @@ Discussions </a> group.
 If you like CrashRpt and use it in your software, you can show your 
 appreciation using any of the following:
 
-  - Add your project name and logo to the 
-    <a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
-  - Make a <a href="http://sourceforge.net/donate/index.php?group_id=279722">donation</a>. 
+\subsection add_project_name Tell Us You Use CrashRpt
 
+Add your project name and logo to the 
+<a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
 By doing this you make CrashRpt more significant for other users and support 
 further development. 
+
+\subsection donate Make a donation 
+
+Many open source projects accept donations. You place the 
+Donate button on the project page and then other people can donate some money to 
+your project. The donations help open source projects to evolve, because they 
+encourage developers spend more time improving the project code and introduce new features.
+
+We believe there may be some people who want to support CrashRpt development, 
+so we have created a <a href="http://sourceforge.net/donate/index.php?group_id=279722">Support this Project</a> button. We chose SourceForge.net donation 
+service, because it is trusted, reliable and it allows all project members to be 
+notified about donations status. You can <a href="http://sourceforge.net/donate/index.php?group_id=279722">donate</a> a sum of money (starting from $5) 
+anonymously (or you can write comment if you want your name to appear in the list of supporters). 
+
+<a href="http://sourceforge.net/donate/index.php?group_id=279722">Donate Here!</a> 
 
 */

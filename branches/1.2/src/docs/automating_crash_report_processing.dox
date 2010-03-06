@@ -20,7 +20,7 @@ files and outputting the results to a text file or to terminal.
 The <b>CrashRptProbe API</b> is introduced to provide base crash report processing services to
 your custom error report processing applications.
 
-This section is devided into the following topics:
+This section is divided into the following topics:
 
 - \subpage crprober_tool
 - \subpage using_crashrptprobe_api
