@@ -911,6 +911,8 @@ void CCrashHandler::CollectMiscCrashInfo()
     m_sMemUsage = sMemUsage;
   }
 
+  // Get cursor position
+  GetCursorPos(&m_ptCursorPos);
 }
 
 int CCrashHandler::CreateCrashDescriptionXML(
@@ -1159,6 +1161,10 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add AppWindowRect tag
   fprintf(f, "  <AppWindowRect left=\"%d\" top=\"%d\" right=\"%d\" bottom=\"%d\" />\n", 
     m_rcAppWnd.left, m_rcAppWnd.top, m_rcAppWnd.right, m_rcAppWnd.bottom);
+
+  // Add CursorPos tag
+  fprintf(f, "  <CursorPos x=\"%d\" y=\"%d\" />\n", 
+    m_ptCursorPos.x, m_ptCursorPos.y);
 
   // Add MultiPartHttpUploads tag
   fprintf(f, "  <MultiPartHttpUploads>%d</MultiPartHttpUploads>\n", m_bMultiPartHttpUploads);

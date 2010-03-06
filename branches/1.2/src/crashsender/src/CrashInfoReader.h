@@ -79,6 +79,7 @@ public:
   PEXCEPTION_POINTERS m_pExInfo;
   BOOL        m_bAddScreenshot;
   DWORD       m_dwScreenshotFlags;
+  CPoint      m_ptCursorPos;
   CRect       m_rcAppWnd;
   std::map<CString, FileItem>  m_FileItems; 
 

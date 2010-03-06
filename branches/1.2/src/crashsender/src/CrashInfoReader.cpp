@@ -163,6 +163,19 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   else 
     m_dwScreenshotFlags = 0;
 
+  m_ptCursorPos.SetPoint(0, 0);
+  TiXmlHandle hCursorPos = hRoot.FirstChild("CursorPos");
+  if(hCursorPos.ToElement()!=NULL)
+  {
+    const char* szX = hCursorPos.ToElement()->Attribute("x");
+    const char* szY = hCursorPos.ToElement()->Attribute("y");
+    if(szX && szY)
+    {
+      m_ptCursorPos.x = atoi(szX);
+      m_ptCursorPos.y = atoi(szY);
+    }
+  }
+
   m_rcAppWnd.SetRectEmpty();
   TiXmlHandle hAppWndRect = hRoot.FirstChild("AppWindowRect");
   if(hAppWndRect.ToElement()!=NULL)

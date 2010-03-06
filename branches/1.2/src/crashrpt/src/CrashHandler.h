@@ -238,6 +238,7 @@ private:
   BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
   DWORD m_dwScreenshotFlags;     // Screenshot flags
   CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).
+  CPoint m_ptCursorPos;          // Mouse cursor position at the moment of crash
 
   HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
 

@@ -2,15 +2,28 @@
 
 --- Ver. 1.2.2 ---
 
+- WTL files are now included into CrashRpt distribution.
+
+- Completely removed dependency on zip_utils (it is better to use minizip).
+
+- Removed vs.2008 project files. If you need to compile in VS 2008 and higher, use VS project convertor.
+
+- Modifyed communication between CrashRpt.dll and CrashSender.exe. Now XML file is used for this purpose instead of named pipe.
+
+- Refactored code. After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe).
+  This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
+
 - Introduced silent mode (CrashRpt sends report silently without showing GUI). 
   This is useful for services and server processes.
 
-- After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe).
-  This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
+- Improved documentation (restyling).
 
 - Introduced multi-part HTTP uploads. This will help to send large error reports more effectively.
 
 - Fixed: Doesn't work in Windows 2000 (issue 17)
+
+- Fixed some problems with UTF-8 encoded strings written by tinixml.
+
 
 --- Ver. 1.2.1 ---
 

@@ -162,10 +162,11 @@ CScreenCapture::CScreenCapture()
   m_nIdStartFrom = 0;
 }
 
-BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list)
+BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, POINT ptCursorPos, 
+      CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list)
 {	
   // Get cursor information
-  GetCursorPos(&m_ptCursorPos);
+  m_ptCursorPos = ptCursorPos;
   m_CursorInfo.cbSize = sizeof(CURSORINFO);
   GetCursorInfo(&m_CursorInfo);
 

@@ -63,14 +63,14 @@ BOOL CErrorReportSender::DoWork()
   // Create worker thread which will do all work assynchroniously
   m_hThread = CreateThread(NULL, 0, WorkerThread, (LPVOID)this, 0, NULL);
   
-  // Check if the thread created ok
+  // Check if the thread was created ok
   if(m_hThread==NULL)
     return FALSE;
 
   return TRUE;
 }
 
-// This method creates worker thread and delegates further work 
+// This method is the worker thread procedure that delegates further work 
 // back to the CErrorReportSender class
 DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
 {
@@ -82,18 +82,28 @@ DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
 }
 
 // This method collects required crash files (minidump, screenshot etc.)
-// and then sends the error report
+// and then sends the error report over the Internet.
 void CErrorReportSender::DoWorkAssync()
 {
   m_Assync.SetProgress(_T("Start collecting information about the crash..."), 0, false);
-    
+  
   // First take a screenshot of user's desktop (if needed).
   TakeDesktopScreenshot();
 
-  m_Assync.SetProgress(_T("[collecting_crash_info]"), 0, false);
+  if(m_Assync.IsCancelled())
+  {
+    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
+    return;
+  }
 
   // Create crash dump.
   CreateMiniDump();
+
+  if(m_Assync.IsCancelled())
+  {
+    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
+    return;
+  }
 
   // Notify the parent process that we have finished with minidump,
   // so the parent process is able to unblock and terminate itself.
@@ -106,8 +116,14 @@ void CErrorReportSender::DoWorkAssync()
   // Collect user-provided files.
   CollectCrashFiles();
 
+  if(m_Assync.IsCancelled())
+  {
+    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
+    return;
+  }
+
   // Now notify the main thread that we need confirmation from user 
-  // to stard error report submission.
+  // to start error report submission.
   m_Assync.SetProgress(_T("[confirm_send_report]"), 0);
   int confirm = 1;
   // Block until confirmation is received.
@@ -115,11 +131,23 @@ void CErrorReportSender::DoWorkAssync()
   if(confirm!=0)
   {
     m_Assync.SetProgress(_T("Cancelled by user"), 100, false);
+    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
+    return;
+  }
+
+  // Compress error report files
+  CompressReportFiles();
+
+  if(m_Assync.IsCancelled())
+  {
+    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
     return;
   }
 
   // Finally, send the error report.
   SendReport();
+
+  // Done
   return;
 }
 
@@ -127,6 +155,256 @@ void CErrorReportSender::DoWorkAssync()
 void CErrorReportSender::WaitForCompletion()
 {
   WaitForSingleObject(m_hThread, INFINITE);
+}
+
+void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_log)
+{
+  m_Assync.GetProgress(nProgressPct, msg_log); 
+}
+
+void CErrorReportSender::Cancel()
+{
+  m_Assync.Cancel();
+}
+
+void CErrorReportSender::FeedbackReady(int code)
+{
+  m_Assync.FeedbackReady(code);
+}
+
+
+// This takes the desktop screenshot (screenshot of entire virtual screen
+// or screenshot of the main window). 
+BOOL CErrorReportSender::TakeDesktopScreenshot()
+{
+  CScreenCapture sc;
+  std::vector<CString> screenshot_names;
+ 
+  m_Assync.SetProgress(_T("[taking_screenshot]"), 0);    
+
+  if(!g_CrashInfo.m_bAddScreenshot)
+  {
+    m_Assync.SetProgress(_T("Desktop screenshot generation disabled; skipping."), 0);    
+    return TRUE;
+  }
+
+  m_Assync.SetProgress(_T("Taking desktop screenshot"), 0);    
+  
+  DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
+
+  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
+  {
+    // Take screenshot of entire desktop
+    CRect rcScreen;
+    sc.GetScreenRect(&rcScreen);
+    
+    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcScreen, g_CrashInfo.m_ptCursorPos,
+      g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
+    if(bTakeScreenshot==FALSE)
+    {
+      return FALSE;
+    }
+  }
+  else if(dwFlags==CR_AS_MAIN_WINDOW)
+  {     
+    // Take screenshot of the main window
+    CRect rcWindow = g_CrashInfo.m_rcAppWnd; 
+    if(rcWindow.IsRectEmpty())
+    {
+      return FALSE;
+    }
+
+    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcWindow, g_CrashInfo.m_ptCursorPos,
+      g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
+    if(bTakeScreenshot==FALSE)
+    {      
+      return FALSE;
+    }
+  }
+  else
+  {    
+    // Invalid flags
+    ATLASSERT(0);
+    return FALSE;
+  }
+
+  // Prepare the list of screenshot files we will add to the error report
+  std::vector<FileItem> FilesToAdd;
+  size_t i;
+  for(i=0; i<screenshot_names.size(); i++)
+  {
+    CString sDestFile;
+    sDestFile.Format(_T("screenshot%d.png"), i); 
+    FileItem fi;
+    fi.m_sSrcFile = screenshot_names[i];
+    fi.m_sDestFile = sDestFile;
+    fi.m_sDesc = _T("Desktop Screenshot");    
+    FilesToAdd.push_back(fi);
+  }
+
+  // Add the list of PNG files to the error report
+  int nAdd = g_CrashInfo.AddFilesToCrashDescriptionXML(FilesToAdd);
+  if(nAdd!=0)
+  {
+    return FALSE;
+  }
+
+  // Done
+  return TRUE;
+}
+
+// This callbask function is called by MinidumpWriteDump
+BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
+  PVOID CallbackParam,
+  const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+  PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
+{
+  // Delegate back to the CErrorReportSender
+  CErrorReportSender* pErrorReportSender = (CErrorReportSender*)CallbackParam;  
+  return pErrorReportSender->OnMinidumpProgress(CallbackInput, CallbackOutput);  
+}
+
+// This method is called when MinidumpWriteDump notifies us about
+// currently performed action
+BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+                PMINIDUMP_CALLBACK_OUTPUT CallbackOutput)
+{
+  switch(CallbackInput->CallbackType)
+  {
+  case CancelCallback: 
+    {
+      // This callback allows to cancel minidump generation
+      if(m_Assync.IsCancelled())
+      {
+        CallbackOutput->Cancel = TRUE;      
+        m_Assync.SetProgress(_T("Dump generation cancelled by user"), 0, true);
+      }
+    }
+    break;
+  
+  case ModuleCallback:
+    {
+      // We are currently dumping some module
+      strconv_t strconv;
+      CString sMsg;
+      sMsg.Format(_T("Dumping info for module %s"), 
+        strconv.w2t(CallbackInput->Module.FullPath));
+      m_Assync.SetProgress(sMsg, 0, true);
+    }
+    break;
+  case ThreadCallback:
+    {      
+      // We are currently dumping some thread 
+      CString sMsg;
+      sMsg.Format(_T("Dumping info for thread 0x%X"), 
+        CallbackInput->Thread.ThreadId);
+      m_Assync.SetProgress(sMsg, 0, true);
+    }
+    break;
+  
+  }
+
+  return TRUE;
+}
+  
+// This method creates minidump of the process
+BOOL CErrorReportSender::CreateMiniDump()
+{ 
+  BOOL bStatus = FALSE;
+  HMODULE hDbgHelp = NULL;
+  HANDLE hFile = NULL;
+  MINIDUMP_EXCEPTION_INFORMATION mei;
+  MINIDUMP_CALLBACK_INFORMATION mci;
+  CString sMinidumpFile = g_CrashInfo.m_sErrorReportDirName + _T("\\crashdump.dmp");
+
+  m_Assync.SetProgress(_T("Creating crash dump file..."), 0, false);
+  m_Assync.SetProgress(_T("[creating_dump]"), 0, false);
+
+  // Load dbghelp.dll
+  hDbgHelp = LoadLibrary(g_CrashInfo.m_sDbgHelpPath);
+  if(hDbgHelp==NULL)
+  {
+    m_Assync.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
+    goto cleanup;
+  }
+
+  // Create the minidump file
+  hFile = CreateFile(
+    sMinidumpFile,
+    GENERIC_WRITE,
+    0,
+    NULL,
+    CREATE_ALWAYS,
+    FILE_ATTRIBUTE_NORMAL,
+    NULL);
+
+  if(hFile==INVALID_HANDLE_VALUE)
+  {
+    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
+    m_Assync.SetProgress(_T("Couldn't create dump file."), 0, false);
+    return FALSE;
+  }
+
+  // Write minidump to the file
+  mei.ThreadId = g_CrashInfo.m_dwThreadId;
+  mei.ExceptionPointers = g_CrashInfo.m_pExInfo;
+  mei.ClientPointers = TRUE;
+  
+  mci.CallbackRoutine = MiniDumpCallback;
+  mci.CallbackParam = this;
+
+  typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(
+    HANDLE hProcess, 
+    DWORD ProcessId, 
+    HANDLE hFile, 
+    MINIDUMP_TYPE DumpType, 
+    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
+    CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, 
+    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+
+  LPMINIDUMPWRITEDUMP pfnMiniDumpWriteDump = 
+    (LPMINIDUMPWRITEDUMP)GetProcAddress(hDbgHelp, "MiniDumpWriteDump");
+  if(!pfnMiniDumpWriteDump)
+  {    
+    m_Assync.SetProgress(_T("Bad MiniDumpWriteDump function."), 0, false);
+    return FALSE;
+  }
+
+  HANDLE hProcess = OpenProcess(
+    PROCESS_ALL_ACCESS, 
+    FALSE, 
+    g_CrashInfo.m_dwProcessId);
+
+  BOOL bWriteDump = pfnMiniDumpWriteDump(
+    hProcess,
+    g_CrashInfo.m_dwProcessId,
+    hFile,
+    g_CrashInfo.m_MinidumpType,
+    &mei,
+    NULL,
+    &mci);
+ 
+  if(!bWriteDump)
+  {    
+    m_Assync.SetProgress(_T("Error writing dump."), 0, false);
+    m_Assync.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
+    goto cleanup;
+  }
+
+  bStatus = TRUE;
+  m_Assync.SetProgress(_T("Finished creating dump."), 100, false);
+
+cleanup:
+
+  // Close file
+  if(hFile)
+    CloseHandle(hFile);
+
+  // Unload dbghelp.dll
+  if(hDbgHelp)
+    FreeLibrary(hDbgHelp);
+
+  return bStatus;
 }
 
 // This method collects user-specified files
@@ -149,7 +427,8 @@ BOOL CErrorReportSender::CollectCrashFiles()
   BOOL bWrite = FALSE;
 
   // Copy application-defined files that should be copied on crash
-  
+  m_Assync.SetProgress(_T("[copying_files]"), 0, false);
+
   std::map<CString, FileItem>::iterator it;
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
   {
@@ -235,90 +514,7 @@ cleanup:
   if(hDestFile!=INVALID_HANDLE_VALUE)
     CloseHandle(hDestFile);
 
-  if(bStatus)
-  {
-    m_Assync.SetProgress(_T("Finished collecting information about the crash...OK"), 100, false);
-    m_Assync.SetProgress(_T("[completed_collecting_crash_info]"), 0, true);
-  }
-  else
-  {    
-    m_Assync.SetProgress(_T("[status_exit_silently]"), 0, true);
-  }
-
-  return 0;
-}
-
-BOOL CErrorReportSender::SendReport()
-{
-  int status = 1;
-
-  BOOL bCompress = CompressReportFiles();
-  if(bCompress)
-  {
-    std::multimap<int, int> order;
-
-    std::pair<int, int> pair3(g_CrashInfo.m_uPriorities[CR_SMAPI], CR_SMAPI);
-    order.insert(pair3);
-
-    std::pair<int, int> pair2(g_CrashInfo.m_uPriorities[CR_SMTP], CR_SMTP);
-    order.insert(pair2);
-
-    std::pair<int, int> pair1(g_CrashInfo.m_uPriorities[CR_HTTP], CR_HTTP);
-    order.insert(pair1);
-
-    std::multimap<int, int>::reverse_iterator rit;
-    
-    for(rit=order.rbegin(); rit!=order.rend(); rit++)
-    {
-      m_Assync.SetProgress(_T("[sending_attempt]"), 0);
-      m_SendAttempt++;    
-
-      if(m_Assync.IsCancelled()){ break; }
-
-      int id = rit->second;
-
-      BOOL bResult = FALSE;
-
-      if(id==CR_HTTP)
-        bResult = SendOverHTTP();    
-      else if(id==CR_SMTP)
-        bResult = SendOverSMTP();  
-      else if(id==CR_SMAPI)
-        bResult = SendOverSMAPI();
-
-      if(bResult==FALSE)
-        continue;
-
-      if(id==CR_SMAPI && bResult==TRUE)
-      {
-        status = 0;
-        break;
-      }
-
-      if(0==m_Assync.WaitForCompletion())
-      {
-        status = 0;
-        break;
-      }
-    }
-  }
-
-  if(status==0)
-  {
-    m_Assync.SetProgress(_T("[status_success]"), 0);
-    // Move the ZIP to Recycle Bin
-    Utility::RecycleFile(m_sZipName, false);
-    Utility::RecycleFile(g_CrashInfo.m_sErrorReportDirName, false);
-  }
-  else
-  {
-    CString str;
-    str.Format(_T("The error report is saved to '%s'"), m_sZipName);
-    m_Assync.SetProgress(str, 0);    
-    m_Assync.SetProgress(_T("[status_failed]"), 0);    
-  }
-
-  m_Assync.SetCompleted(status);
+  m_Assync.SetProgress(_T("Finished copying files."), 100, false);
   
   return 0;
 }
@@ -367,236 +563,7 @@ int CErrorReportSender::CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
   return 0;
 }
 
-void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_log)
-{
-  m_Assync.GetProgress(nProgressPct, msg_log); 
-}
-
-void CErrorReportSender::Cancel()
-{
-  m_Assync.Cancel();
-}
-
-void CErrorReportSender::FeedbackReady(int code)
-{
-  m_Assync.FeedbackReady(code);
-}
-
-
-BOOL CErrorReportSender::TakeDesktopScreenshot()
-{
-  CScreenCapture sc;
-  std::vector<CString> screenshot_names;
- 
-  if(!g_CrashInfo.m_bAddScreenshot)
-  {
-    m_Assync.SetProgress(_T("Desktop screenshot generation disabled; skipping."), 0);    
-    return TRUE;
-  }
-
-  m_Assync.SetProgress(_T("Taking desktop screenshot"), 0);    
-  
-  DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
-
-  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
-  {
-    CRect rcScreen;
-    sc.GetScreenRect(&rcScreen);
-    
-    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcScreen, 
-      g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
-    if(bTakeScreenshot==FALSE)
-    {
-      return FALSE;
-    }
-  }
-  else if(dwFlags==CR_AS_MAIN_WINDOW)
-  {     
-    CRect rcWindow = g_CrashInfo.m_rcAppWnd; 
-    if(rcWindow.IsRectEmpty())
-    {
-      return FALSE;
-    }
-
-    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcWindow, 
-      g_CrashInfo.m_sErrorReportDirName, 0, screenshot_names);
-    if(bTakeScreenshot==FALSE)
-    {      
-      return FALSE;
-    }
-  }
-  else
-  {    
-    return FALSE;
-  }
-
-  std::vector<FileItem> FilesToAdd;
-  size_t i;
-  for(i=0; i<screenshot_names.size(); i++)
-  {
-    CString sDestFile;
-    sDestFile.Format(_T("screenshot%d.png"), i); 
-    FileItem fi;
-    fi.m_sSrcFile = screenshot_names[i];
-    fi.m_sDestFile = sDestFile;
-    fi.m_sDesc = _T("Desktop Screenshot");    
-    FilesToAdd.push_back(fi);
-  }
-
-  int nAdd = g_CrashInfo.AddFilesToCrashDescriptionXML(FilesToAdd);
-  if(nAdd!=0)
-  {
-    return FALSE;
-  }
-
-  return TRUE;
-}
-
-BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
-  PVOID CallbackParam,
-  const PMINIDUMP_CALLBACK_INPUT CallbackInput,
-  PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
-{
-  CErrorReportSender* pErrorReportSender = (CErrorReportSender*)CallbackParam;  
-  return pErrorReportSender->OnMinidumpProgress(CallbackInput, CallbackOutput);  
-}
-
-BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
-                PMINIDUMP_CALLBACK_OUTPUT CallbackOutput)
-{
-  switch(CallbackInput->CallbackType)
-  {
-  case CancelCallback:
-    {
-      if(m_Assync.IsCancelled())
-      {
-        CallbackOutput->Cancel = TRUE;      
-        m_Assync.SetProgress(_T("Dump generation cancelled by user"), 0, true);
-      }
-    }
-    break;
-  
-  case ModuleCallback:
-    {
-      strconv_t strconv;
-      CString sMsg;
-      sMsg.Format(_T("Dumping info for module %s"), 
-        strconv.w2t(CallbackInput->Module.FullPath));
-      m_Assync.SetProgress(sMsg, 0, true);
-    }
-    break;
-  case ThreadCallback:
-    {      
-      CString sMsg;
-      sMsg.Format(_T("Dumping info for thread 0x%X"), 
-        CallbackInput->Thread.ThreadId);
-      m_Assync.SetProgress(sMsg, 0, true);
-    }
-    break;
-  
-  };
-  return TRUE;
-}
-  
-
-BOOL CErrorReportSender::CreateMiniDump()
-{ 
-  BOOL bStatus = FALSE;
-  HMODULE hDbgHelp = NULL;
-  HANDLE hFile = NULL;
-  MINIDUMP_EXCEPTION_INFORMATION mei;
-  MINIDUMP_CALLBACK_INFORMATION mci;
-  CString sMinidumpFile = g_CrashInfo.m_sErrorReportDirName + _T("\\crashdump.dmp");
-
-  m_Assync.SetProgress(_T("Creating crash dump file..."), 0, false);
-  m_Assync.SetProgress(_T("[crating_dump]"), 0, false);
-
-  // Load dbghelp.dll
-  hDbgHelp = LoadLibrary(g_CrashInfo.m_sDbgHelpPath);
-  if(hDbgHelp==NULL)
-  {
-    m_Assync.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
-    goto cleanup;
-  }
-
-  // Create the file
-  hFile = CreateFile(
-    sMinidumpFile,
-    GENERIC_WRITE,
-    0,
-    NULL,
-    CREATE_ALWAYS,
-    FILE_ATTRIBUTE_NORMAL,
-    NULL);
-
-  if(hFile==INVALID_HANDLE_VALUE)
-  {
-    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
-    m_Assync.SetProgress(_T("Couldn't create dump file."), 0, false);
-    return FALSE;
-  }
-
-  // Write minidump to the file
-  mei.ThreadId = g_CrashInfo.m_dwThreadId;
-  mei.ExceptionPointers = g_CrashInfo.m_pExInfo;
-  mei.ClientPointers = TRUE;
-  
-  mci.CallbackRoutine = MiniDumpCallback;
-  mci.CallbackParam = this;
-
-  typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(
-    HANDLE hProcess, 
-    DWORD ProcessId, 
-    HANDLE hFile, 
-    MINIDUMP_TYPE DumpType, 
-    CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, 
-    CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, 
-    CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-
-  LPMINIDUMPWRITEDUMP pfnMiniDumpWriteDump = 
-    (LPMINIDUMPWRITEDUMP)GetProcAddress(hDbgHelp, "MiniDumpWriteDump");
-  if(!pfnMiniDumpWriteDump)
-  {    
-    m_Assync.SetProgress(_T("Bad MiniDumpWriteDump function."), 0, false);
-    return FALSE;
-  }
-
-  HANDLE hProcess = OpenProcess(
-    PROCESS_ALL_ACCESS, 
-    FALSE, 
-    g_CrashInfo.m_dwProcessId);
-
-  BOOL bWriteDump = pfnMiniDumpWriteDump(
-    hProcess,
-    g_CrashInfo.m_dwProcessId,
-    hFile,
-    g_CrashInfo.m_MinidumpType,
-    &mei,
-    NULL,
-    &mci);
- 
-  if(!bWriteDump)
-  {    
-    m_Assync.SetProgress(_T("Error writing dump."), 0, false);
-    m_Assync.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
-    goto cleanup;
-  }
-
-  bStatus = TRUE;
-  m_Assync.SetProgress(_T("Finished creating dump."), 100, false);
-
-cleanup:
-
-  // Close file
-  if(hFile)
-    CloseHandle(hFile);
-
-  if(hDbgHelp)
-    FreeLibrary(hDbgHelp);
-
-  return bStatus;
-}
-
+// This method compresses the files contained in the report and produces ZIP archive.
 BOOL CErrorReportSender::CompressReportFiles()
 { 
   BOOL bStatus = FALSE;
@@ -749,6 +716,73 @@ cleanup:
   return bStatus;
 }
 
+// This method sends the error report over the Internet
+BOOL CErrorReportSender::SendReport()
+{
+  int status = 1;
+
+  std::multimap<int, int> order;
+  order[g_CrashInfo.m_uPriorities[CR_SMAPI]] = CR_SMAPI;
+  order[g_CrashInfo.m_uPriorities[CR_SMTP]] = CR_SMTP;
+  order[g_CrashInfo.m_uPriorities[CR_HTTP]] = CR_HTTP;
+  
+  std::multimap<int, int>::reverse_iterator rit;
+  
+  for(rit=order.rbegin(); rit!=order.rend(); rit++)
+  {
+    m_Assync.SetProgress(_T("[sending_attempt]"), 0);
+    m_SendAttempt++;    
+
+    if(m_Assync.IsCancelled()){ break; }
+
+    int id = rit->second;
+
+    BOOL bResult = FALSE;
+
+    if(id==CR_HTTP)
+      bResult = SendOverHTTP();    
+    else if(id==CR_SMTP)
+      bResult = SendOverSMTP();  
+    else if(id==CR_SMAPI)
+      bResult = SendOverSMAPI();
+
+    if(bResult==FALSE)
+      continue;
+
+    if(id==CR_SMAPI && bResult==TRUE)
+    {
+      status = 0;
+      break;
+    }
+
+    if(0==m_Assync.WaitForCompletion())
+    {
+      status = 0;
+      break;
+    }
+  }
+
+  if(status==0)
+  {
+    m_Assync.SetProgress(_T("[status_success]"), 0);
+    // Move the ZIP to Recycle Bin
+    Utility::RecycleFile(m_sZipName, false);
+    Utility::RecycleFile(g_CrashInfo.m_sErrorReportDirName, false);
+  }
+  else
+  {
+    CString str;
+    str.Format(_T("The error report is saved to '%s'"), m_sZipName);
+    m_Assync.SetProgress(str, 0);    
+    m_Assync.SetProgress(_T("[status_failed]"), 0);    
+  }
+
+  m_Assync.SetCompleted(status);
+  
+  return 0;
+}
+
+// This method sends the report over HTTP request
 BOOL CErrorReportSender::SendOverHTTP()
 {  
   if(g_CrashInfo.m_sUrl.IsEmpty())
@@ -767,6 +801,7 @@ BOOL CErrorReportSender::SendOverHTTP()
   return bSend;
 }
 
+// This method formats the E-mail message text
 CString CErrorReportSender::FormatEmailText()
 {
   CString sFileTitle = m_sZipName;
@@ -777,7 +812,7 @@ CString CErrorReportSender::FormatEmailText()
 
   CString sText;
 
-  sText += _T("This is m_Assync error report from ") + g_CrashInfo.m_sAppName + 
+  sText += _T("This is the error report from ") + g_CrashInfo.m_sAppName + 
     _T(" ") + g_CrashInfo.m_sAppVersion+_T(".\n\n");
  
   if(!g_CrashInfo.m_sEmailFrom.IsEmpty())
@@ -803,6 +838,7 @@ CString CErrorReportSender::FormatEmailText()
   return sText;
 }
 
+// This method sends the report over SMTP 
 BOOL CErrorReportSender::SendOverSMTP()
 {  
   strconv_t strconv;
@@ -845,6 +881,7 @@ BOOL CErrorReportSender::SendOverSMTP()
   return (res==0);
 }
 
+// This method sends the report over Simple MAPI
 BOOL CErrorReportSender::SendOverSMAPI()
 {  
   strconv_t strconv;

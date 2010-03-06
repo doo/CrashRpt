@@ -46,7 +46,7 @@ public:
   CScreenCapture();
 
   void GetScreenRect(LPRECT rcScreen);
-  BOOL CaptureScreenRect(RECT rcCapture, CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list);
+  BOOL CaptureScreenRect(RECT rcCapture, POINT ptCursorPos, CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list);
 
   BOOL PngInit(int nWidth, int nHeight, CString sFileName);
   BOOL PngWriteRow(LPBYTE pRow);

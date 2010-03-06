@@ -155,13 +155,21 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
     unsigned i;
     for(i=0; i<messages.size(); i++)
     {  
-      if(messages[i].CompareNoCase(_T("[collecting_crash_info]"))==0)
+      if(messages[i].CompareNoCase(_T("[creating_dump]"))==0)
       {        
         m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CollectingCrashInfo")));        
       }
-      else if(messages[i].CompareNoCase(_T("[completed_collecting_crash_info]"))==0)
+      else if(messages[i].CompareNoCase(_T("[copying_files]"))==0)
       { 
-        m_prgProgress.ModifyStyle(PBS_MARQUEE, 0);
+        // Remove marquee style from progress bar
+        m_prgProgress.ModifyStyle(PBS_MARQUEE, 0);        
+      }
+      else if(messages[i].CompareNoCase(_T("[compressing_files]"))==0)
+      {         
+        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompressingFiles")));        
+      }
+      else if(messages[i].CompareNoCase(_T("[confirm_send_report]"))==0)
+      {
         m_bFinished = TRUE;
         
         if(!g_CrashInfo.m_bSilentMode)
@@ -169,10 +177,6 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         
         HWND hWndParent = ::GetParent(m_hWnd);        
         ::PostMessage(hWndParent, WM_COMPLETECOLLECT, 0, 0);
-      }
-      if(messages[i].CompareNoCase(_T("[compressing_files]"))==0)
-      {         
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompressingFiles")));        
       }
       else if(messages[i].CompareNoCase(_T("[status_success]"))==0)
       { 
@@ -193,7 +197,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         if(!g_CrashInfo.m_bSilentMode)
           ShowWindow(SW_SHOW);
       }
-      else if(messages[i].CompareNoCase(_T("[status_exit_silently]"))==0)
+      else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
       { 
         m_bFinished = TRUE;
         KillTimer(1);        
