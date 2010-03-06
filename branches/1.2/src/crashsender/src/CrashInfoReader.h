@@ -96,7 +96,6 @@ private:
   // Retrieves some crash info from crash descriptor XML
   int ParseCrashDescription(CString sFileName);
 
-  std::string XmlEncodeStr(CString sText);
 };
 
 // Declare globally available object

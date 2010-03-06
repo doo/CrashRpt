@@ -1234,9 +1234,9 @@ std::string CCrashHandler::XmlEncodeStr(CString sText)
 
   // Replace characters restricted by XML
   CString sResult = pszEncodedStr;
-  sResult.Replace(_T("\""), _T("&quot"));
-  sResult.Replace(_T("'"), _T("&apos"));
   sResult.Replace(_T("&"), _T("&amp"));
+  sResult.Replace(_T("\""), _T("&quot"));
+  sResult.Replace(_T("'"), _T("&apos"));  
   sResult.Replace(_T("<"), _T("&lt"));
 	sResult.Replace(_T(">"), _T("&gt"));
   

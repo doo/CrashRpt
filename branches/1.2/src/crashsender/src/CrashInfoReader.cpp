@@ -298,7 +298,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
   TiXmlElement* email = new TiXmlElement("UserEmail");
   root->LinkEndChild(email);
   
-  TiXmlText* email_text = new TiXmlText(XmlEncodeStr(sEmail).c_str());
+  TiXmlText* email_text = new TiXmlText(strconv.t2utf8(sEmail));
   email->LinkEndChild(email_text);              
 
   // Write problem description
@@ -306,7 +306,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
   TiXmlElement* desc = new TiXmlElement("ProblemDescription");
   root->LinkEndChild(desc);
 
-  TiXmlText* desc_text = new TiXmlText(XmlEncodeStr(sDesc).c_str());
+  TiXmlText* desc_text = new TiXmlText(strconv.t2utf8(sDesc));
   desc->LinkEndChild(desc_text);              
 
   bool bSave = doc.SaveFile(); 
@@ -339,13 +339,10 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   
   unsigned i;
   for(i=0; i<FilesToAdd.size(); i++)
-  {
-    LPCSTR lpszName = strconv.t2a(FilesToAdd[i].m_sDestFile);
-    LPCSTR lpszDesc = strconv.t2a(FilesToAdd[i].m_sDesc);
-    
+  {    
     TiXmlHandle hFileItem = new TiXmlElement("FileItem");
-    hFileItem.ToElement()->SetAttribute("name", XmlEncodeStr(lpszName).c_str());
-    hFileItem.ToElement()->SetAttribute("descrition", XmlEncodeStr(lpszDesc).c_str());
+    hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
+    hFileItem.ToElement()->SetAttribute("descrition", strconv.t2utf8(FilesToAdd[i].m_sDesc));
     hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
 
     m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
@@ -355,26 +352,6 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   if(!bSave)
     return FALSE;
   return TRUE;
-}
-
-// Helper method that encodes string into UTF-8 and replaces some characters
-std::string CCrashInfoReader::XmlEncodeStr(CString sText)
-{  
-  strconv_t strconv;
-
-  // Convert to UTF-8 encoding
-
-  LPCSTR pszEncodedStr = strconv.t2utf8(sText);
-
-  // Replace characters restricted by XML
-  CString sResult = pszEncodedStr;
-  sResult.Replace(_T("\""), _T("&quot"));
-  sResult.Replace(_T("'"), _T("&apos"));
-  sResult.Replace(_T("&"), _T("&amp"));
-  sResult.Replace(_T("<"), _T("&lt"));
-	sResult.Replace(_T(">"), _T("&gt"));
-  
-  return std::string(strconv.t2a(sResult));
 }
 
 

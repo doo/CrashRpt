@@ -2,33 +2,132 @@
 
 \page getting_started Getting Started
 
+If you have ever tried to determine the reason of a crash on user's machine, 
+you might know how difficult it is, given user's directions only: "I opened 
+something, then I clicked something and then it stopped working". Most of 
+users won't contact you to tell about the problem and just give up using 
+your program after several crashes. Users who decide to report the problem 
+might not have technical knowledge, so it is difficult to determine the reason 
+of the problem based on their instructions. This makes debugging remote crashes 
+almost impossible, except in the simplest situtations. This makes us to use 
+some tool to collect technical ifnormation about the crash send error reports 
+over the Internet automatically. 
+
+Now assume you receive tons of error reports from users of your software. You 
+would have to spend a lot of time to open each report, analyze its contents and
+write some summary about the report. There may be many reports related to the same 
+problem, so opening such reports doesn't tell anything new. After the 50th report 
+you may become bored and give up further analysis. In the best case, you would 
+analyze only part of reports selected randomly, which guarantees you miss some 
+rarely reported crashes.
+
+That's why it is important to use special tools to report errors automatically
+and tools that help you to post-process arriving error reports.
+
+\section wer_and_breakpad Approaches to Error Reporting
+
+First let's review a couple of well-known approaches to the crash handling, reporting & 
+post-processing problem: WER and Breakpad. Then we present our approach, CrashRpt - 
+an open-source error handling, reporting and post-processing library, which is 
+designed specially for Windows applications created in Microsoft Visual C++. 
+
+Every PC user might have seen the window of Dr.Watson, the Windows' default debugger 
+introduced in Windows XP. Dr. Watson is able to intercept unhandled SEH exceptions 
+in user-mode programs, and in OS modules. It collects technical information about 
+the problem (minidump and textual description) and offers user to send the info to 
+Microsoft's server. The developer can browse arriving error reports by registering 
+on this server (digital certificate is required). The disadvantage of Dr. Watson is 
+inability to use third-party server for storing error reports and inability to customize 
+debugger's user interface and report's content.
+
+In Windows Vista, the Dr.Watson was renamed into 
+<a href="http://en.wikipedia.org/wiki/Windows_Error_Reporting">Windows Error Reporting (WER)</a>. The 
+API allowing to customize error reports was introduced and documented in MSDN. You 
+can use the API to add (or not add) minidump, log file, memory block to the report, 
+modify user interface appearance, queue report submission or send it immediately 
+(after user's consent). You can ask WER to start data recovery operation when you app 
+crashes, and even to restart your app. When non-critical error happens, you can create 
+error report manually. WER can also notify user if the solution of the problem is 
+already known.
+
+Advantages of WER:
+
+ - Native to Windows (no need to distribute), has well-developed functionality and well-documented in MSDN
+ - Allows to customize contents of the error report
+ - Has sophisticated online error report processing services on their Watson server
+
+Disadvantages of WER:
+
+ - It is not an open-source software
+ - Requires you to have digital certificate to access your error reports (costs about USD1500)
+ - Doen't allow to use your own server to store error reports
+
+An alternative of WER is <a href="http://code.google.com/p/google-breakpad/">Google Breakpad</a>. 
+This open-source tool is used in Mozilla Firefox 
+and Google Chrome browsers. Breakpad is an open-source cross-platform C++ library 
+designed for handling exceptions in your program and sending reports to your server 
+over HTTP or HTTPS connection. It also provides tools for post-processing minidumps 
+which present stack traces and other information in human-readable form. Windows 
+(x86) and Mac OS (x86 and PowerPC) platforms are supported. Also an experimental version for Linux exists.
+
+When an exception happens, Breakpad creates minidump file and delegates further actions 
+to a user-provided callback function. The function may silently terminate the program or 
+add custom files to the report and launch report sender program. Breakpad provides C++ 
+classes implementing minidump processing functionality which can be used for writing your 
+custom minidump post-processing tools.
+
+Advantages of Breakpad:
+
+ - Breakpad is an open-source software
+ - Is is used in Firefox and Chrome, which means it is wide-spread and well-tested
+ - It supports multiple platforms: Windows, Mac and Linux
+ - Supports multiple C/C++ compilers, e.g. GCC, MS Visual C++
+ - It allows to transfer error reports through HTTPS to your own server 
+
+Disadvantages of Breakpad:
+
+ - It is being developed for all possible platforms and compilers (they are unable to 
+   develop a tool which will work well everywhere, it is too much efforts needed)
+ - Breakpad is not well-suited to Visual C++. For example, it doesn't handle some CRT errors. 
+ - It uses cross-platform format for storing debugging symbols (instead of PDB files). It makes 
+   you to convert PDB files into this format.
+
+Summary. As we see, WER and Breakpad are wide-spread error reporting and processing tools. But WER
+requires you to purchase a digital certificate, which may be costly. Breakad is free, but
+you have to convert debugging info into cross-platform format. And Breakpad doesn't suits well
+to Visual C++, e.g. it doesn't handle some CRT errors. So, if you write a program for Windows platform
+only and use Visual C++ only, you might find the CrashRpt library described below more convenient.
+
 \section about_crashrpt About CrashRpt
 
-If you've ever been tasked with debugging a fatal exception, you probably know 
-how difficult it can be given only the user's steps to reproduce. Many factors 
-such as the application's version, user's operating system, and dependent modules 
-may contribute to the eventual crash. This makes duplicating the user's environment 
-and thereby the crash, nearly impossible for all but the most obvious bugs.
+<b>CrashRpt</b> library is an open source error handling, reporting and post-processing tool for 
+applications created in Microsoft Visual C++ and running under Windows. It supports only one OS 
+(Windows), only one programming language (C++) and only one compiler (Visual C++). This allows to assume
+it knows all aspects of this environment.
 
-CrashRpt is a light-weight error handling, reporting and processing library. 
-CrashRpt can intercept a Win32 structured exception, an unhandled C++ exception or C run-time error
-occurred in your user-mode application. CrashRpt DLL works like  
-<a href="http://en.wikipedia.org/wiki/Windows_Error_Reporting">
-Windows Error Reporting</a> (also known as Dr.Watson) in Windows Vista or like 
-<a href="http://code.google.com/p/google-breakpad/">Google Breakpad</a> 
-used in popular browsers Mozilla Firefox and Google Chrome. 
+Main features:
 
-CrashRpt intercepts an exception, creates the crash minidump file, builds the crash descriptor 
-file in XML format, presents UI allowing user to review the crash report, and finally it compresses and 
-sends the crash report to the software support team. CrashRpt can be configured to display its UI using 
-different languages. This makes it even more suitable for multi-lingual applications.
-
-You can use CrashRpt in C++ programs created using Visual C++. However you can not use it in .NET framework
-or Visual Basic. Languages other than Visual C++ have different error handling mechanisms 
-and CrashRpt can't intercept errors in other programming languages. 
-
-CrashRpt provides a way for automating error report processing on developer's side.
-This option becomes helpful when you receive lots of error reports from users of your software.
+ - CrashRpt is an open-source software distributed under the New BSD Licence
+ - Supports Visual C++ .NET 2003, 2005, 2008 and Visual C++ Express. However 
+   you can not use it in .NET framework or Visual Basic. 
+ - Can be compiled for 32-bit and 64-bit platforms
+ - Handles exceptions in the main or in a worker thread of your user-mode program: 
+   SEH exceptions, CRT errors and signals.
+ - Generates error report including crash minidump, extensible crash description XML, 
+   application-defined files and desktop screenshots.
+ - Presents UI allowing user to review the crash report. Supports privacy policy definition. 
+   Can display its UI using different languages, which makes it even more suitable for 
+   multi-lingual applications.
+ - Sends the report in background after user have provided his/her consent. 
+ - CrashRpt can send error reports not only using HTTP, but also using E-mail. This is 
+   suitable for users not having servers for storing error reports. To send reports over 
+   E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird 
+   or Microsoft Outlook.
+ - Automates error report processing on developer's side using command-line tool. This option 
+   becomes helpful when you receive lots of error reports from users of your software. Provides 
+   API for accessing error report properties and files.
+ - One disadvantage of CrashRpt is the fact that you have to distribute additional binaries 
+   (dbghelp.dll, CrashRpt.dll, CrashSender.exe) with your software (about 1.5 Mb). 
 
 \section chlog What's New in Current Version
 
@@ -45,9 +144,7 @@ The latest stable version of CrashRpt is available on
 This library is distributed under the <b>New BSD license</b>. You can find the 
 license text <a href="../../License.txt">here</a>.
 
-<b>What third-party libraries does crashrpt use internally?</b>
-
-CrashRpt uses the following libraries:
+Internally, CrashRpt uses the following third-party libraries:
 
 <table>
 
