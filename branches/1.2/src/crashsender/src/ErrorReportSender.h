@@ -67,9 +67,10 @@ private:
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
   BOOL CompressReportFiles();
-
+    
   BOOL SendReport();
   BOOL SendOverHTTP();
+  int CErrorReportSender::Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
   CString FormatEmailText();
   BOOL SendOverSMTP();
   BOOL SendOverSMAPI();

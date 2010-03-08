@@ -99,14 +99,15 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppVersion = _T("1.2.2");
   info.pszEmailSubject = _T("Error from CrashRptTests");
   info.pszEmailTo = _T("test@hotmail.com");
-  info.pszUrl = _T("http://myappcom.com/crashrpt.php");
+  info.pszUrl = _T("http://localhost/crashrpt.php");
+  //info.pszUrl = _T("http://myappcom.com/crashrpt.php");
   info.pfnCrashCallback = CrashCallback;    
   info.uPriorities[CR_HTTP] = 3;
   info.uPriorities[CR_SMTP] = 2;
   info.uPriorities[CR_SMAPI] = 1; 
-  info.dwFlags = 0;
+  info.dwFlags = CR_INST_HTTP_BINARY_ENCODING;
   info.pszDebugHelpDLL = 0;
-  info.uMiniDumpType = MiniDumpWithFullMemory;//MiniDumpNormal;
+  info.uMiniDumpType = MiniDumpNormal;
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
     
   CrAutoInstallHelper cr_install_helper(&info);

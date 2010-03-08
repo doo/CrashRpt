@@ -301,8 +301,8 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
   }
   else
   {
-    sInDirName = sInDirName.substr(0, pos);
     sInFileName = sInDirName.substr(pos+1);
+    sInDirName = sInDirName.substr(0, pos);    
   }
   
   if(szExtractPath!=NULL)
@@ -689,7 +689,7 @@ int output_document(CrpHandle hReport, FILE* f)
 
   doc.EndSection();
   
-  doc.BeginSection(_T("Application-defined proeprties"));
+  doc.BeginSection(_T("Application-defined properties"));
   
   int nPropCount = get_table_row_count(hReport, CRP_TBL_XMLDESC_CUSTOM_PROPS);
   if(nPropCount>0)

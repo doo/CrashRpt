@@ -85,6 +85,9 @@ namespace Utility
   // Formats the error message.
   CString FormatErrorMsg(DWORD dwErrorCode);
 
+  // Parses file path and returns file name.
+  CString GetFileName(CString sPath);
+
   // Parses file path and returns file name without extension.
   CString GetBaseFileName(CString sFileName);
 

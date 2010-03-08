@@ -37,7 +37,7 @@
 #include "Utility.h"
 #include "strconv.h"
 
-#include "Base64.hpp"
+#include "Base64.h"
 
 CSmtpClient::CSmtpClient()
 {
@@ -526,9 +526,8 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
   }
   
   fclose(f);
-  
-  CBase64 base64;
-  //sEncodedFileData = base64.Encode(uchFileData, uFileSize);
+    
+  sEncodedFileData = base64_encode(uchFileData, uFileSize);
 
   delete [] uchFileData;
 

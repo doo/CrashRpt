@@ -321,6 +321,18 @@ CString Utility::FormatErrorMsg(DWORD dwErrorCode)
 
 // GetBaseFileName
 // This helper function returns file name without extension
+CString Utility::GetFileName(CString sPath)
+{
+  CString sBase = sPath;
+  int pos1 = sPath.ReverseFind('\\');
+  if(pos1>=0)
+    sBase = sBase.Mid(pos1+1);
+  
+  return sBase;
+}
+
+// GetBaseFileName
+// This helper function returns file name without extension
 CString Utility::GetBaseFileName(CString sFileName)
 {
   CString sBase = sFileName;

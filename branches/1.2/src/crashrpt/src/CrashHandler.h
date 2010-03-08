@@ -227,7 +227,7 @@ private:
   CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
-  BOOL m_bMultiPartHttpUploads;  // Use multi-part HTTP uploads instead of legacy way.
+  BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
 
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.

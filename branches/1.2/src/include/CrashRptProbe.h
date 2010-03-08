@@ -56,7 +56,7 @@ typedef int CrpHandle;
  *  \remarks
  *
  *  Use this function to open a ZIP archive containing an error report. The error report typically contains
- *  several compressed files, such as XML crash descriptor, crash minidump file, and (optionally) 
+ *  several compressed files, such as XML crash description file, crash minidump file, and (optionally) 
  *  application-defined files.
  *
  *  \a pszFileName should be the name of the error report (ZIP file) to open. Absolute or relative path accepted.
@@ -164,7 +164,7 @@ crpCloseErrorReport(
 
 /* Table names passed to crpGetProperty() function. */
 
-#define CRP_TBL_XMLDESC_MISC _T("XmlDescMisc")                //!< Table: Miscellaneous info contained in crash descriptor XML file. 
+#define CRP_TBL_XMLDESC_MISC _T("XmlDescMisc")                //!< Table: Miscellaneous info contained in crash description XML file. 
 #define CRP_TBL_XMLDESC_FILE_ITEMS _T("XmlDescFileItems")     //!< Table: The list of file items contained in error report.
 #define CRP_TBL_XMLDESC_CUSTOM_PROPS _T("XmlDescCustomProps") //!< Table: The list of application-defined properties (available since v.1.2.1).
 #define CRP_TBL_MDMP_MISC    _T("MdmpMisc")    //!< Table: Miscellaneous info contained in crash minidump file.  
@@ -263,7 +263,7 @@ crpCloseErrorReport(
  *
  *  In all other cases the function returns zero on success.
  *
- *  Some properties are loaded from crash descriptor XML file, while others are loaded from crash minidump file.
+ *  Some properties are loaded from crash description XML file, while others are loaded from crash minidump file.
  *  The minidump is loaded once when you retrive a property from it. This reduces the overall processing time.
  *
  *  \a hReport should be the handle to the opened error report.

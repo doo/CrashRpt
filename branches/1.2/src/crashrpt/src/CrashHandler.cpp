@@ -73,7 +73,7 @@ CCrashHandler::CCrashHandler()
   m_hEvent = NULL;
   m_bAddScreenshot = FALSE;
   m_dwScreenshotFlags = 0;
-  m_bMultiPartHttpUploads = FALSE;
+  m_bHttpBinaryEncoding = FALSE;
   m_bSilentMode = FALSE;
 }
 
@@ -145,7 +145,7 @@ int CCrashHandler::Init(
 
   // Determine what encoding to use when sending reports over HTTP.
   // FALSE is the default (use Base64 encoding for attachment).
-  m_bMultiPartHttpUploads = (dwFlags&CR_INST_MULTIPART_HTTP_UPLOADS)?TRUE:FALSE;
+  m_bHttpBinaryEncoding = (dwFlags&CR_INST_HTTP_BINARY_ENCODING)?TRUE:FALSE;
 
   // Save Email recipient address
   m_sTo = lpcszTo;
@@ -1167,13 +1167,13 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
     m_ptCursorPos.x, m_ptCursorPos.y);
 
   // Add MultiPartHttpUploads tag
-  fprintf(f, "  <MultiPartHttpUploads>%d</MultiPartHttpUploads>\n", m_bMultiPartHttpUploads);
+  fprintf(f, "  <HttpBinaryEncoding>%d</HttpBinaryEncoding>\n", m_bHttpBinaryEncoding);
 
   // Add SilentMode tag
   fprintf(f, "  <SilentMode>%d</SilentMode>\n", m_bSilentMode);
 
-  // Write file items
-  fprintf(f, "  <FileItems>\n");
+  // Write file list
+  fprintf(f, "  <FileList>\n");
    
   std::map<CString, FileItem>::iterator it;
   for(it=m_files.begin(); it!=m_files.end(); it++)
@@ -1185,7 +1185,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
       it->second.m_bMakeCopy?1:0 );    
   }
 
-  fprintf(f, "  </FileItems>\n");
+  fprintf(f, "  </FileList>\n");
   
   fprintf(f, "</CrashRptInternal>\n");
 

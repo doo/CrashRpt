@@ -42,6 +42,8 @@
 #include "CrashInfoReader.h"
 #include "strconv.h"
 #include "ScreenCap.h"
+#include "base64.h"
+#include <sys/stat.h>
 
 // Globally accessible object
 CErrorReportSender g_ErrorReportSender;
@@ -316,6 +318,9 @@ BOOL CErrorReportSender::CreateMiniDump()
   MINIDUMP_EXCEPTION_INFORMATION mei;
   MINIDUMP_CALLBACK_INFORMATION mci;
   CString sMinidumpFile = g_CrashInfo.m_sErrorReportDirName + _T("\\crashdump.dmp");
+  std::vector<FileItem> files_to_add;
+  FileItem fi;
+  BOOL bAdd;
 
   m_Assync.SetProgress(_T("Creating crash dump file..."), 0, false);
   m_Assync.SetProgress(_T("[creating_dump]"), 0, false);
@@ -388,6 +393,18 @@ BOOL CErrorReportSender::CreateMiniDump()
   {    
     m_Assync.SetProgress(_T("Error writing dump."), 0, false);
     m_Assync.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
+    goto cleanup;
+  }
+
+  fi.m_bMakeCopy = false;
+  fi.m_sDesc = _T("Crash Dump");
+  fi.m_sDestFile = _T("crashdump.dmp");
+  fi.m_sSrcFile = sMinidumpFile;
+  files_to_add.push_back(fi);
+  bAdd = g_CrashInfo.AddFilesToCrashDescriptionXML(files_to_add);
+  if(!bAdd)
+  {
+    m_Assync.SetProgress(_T("Error adding minidump file to the reprot."), 0, false);
     goto cleanup;
   }
 
@@ -574,7 +591,7 @@ BOOL CErrorReportSender::CompressReportFiles()
   LONG64 lTotalCompressed = 0;
   BYTE buff[1024];
   DWORD dwBytesRead=0;
-  CString sZipName;
+  //CString sZipName;
 
   m_Assync.SetProgress(_T("Start compressing files..."), 0, false);
   m_Assync.SetProgress(_T("[compressing_files]"), 0, false);
@@ -613,12 +630,12 @@ BOOL CErrorReportSender::CompressReportFiles()
   sMsg.Format(_T("Total file size for compression is %I64d"), lTotalSize);
   m_Assync.SetProgress(sMsg, 0, false);
 
-  sZipName = g_CrashInfo.m_sErrorReportDirName + _T(".zip");  
+  m_sZipName = g_CrashInfo.m_sErrorReportDirName + _T(".zip");  
     
-  sMsg.Format(_T("Creating ZIP archive file %s"), sZipName);
+  sMsg.Format(_T("Creating ZIP archive file %s"), m_sZipName);
   m_Assync.SetProgress(sMsg, 1, false);
 
-  hZip = zipOpen(strconv.t2a(sZipName.GetBuffer(0)), APPEND_STATUS_CREATE);
+  hZip = zipOpen(strconv.t2a(m_sZipName.GetBuffer(0)), APPEND_STATUS_CREATE);
   if(hZip==NULL)
   {
     m_Assync.SetProgress(_T("Failed to create ZIP file."), 100, true);
@@ -722,10 +739,16 @@ BOOL CErrorReportSender::SendReport()
   int status = 1;
 
   std::multimap<int, int> order;
-  order[g_CrashInfo.m_uPriorities[CR_SMAPI]] = CR_SMAPI;
-  order[g_CrashInfo.m_uPriorities[CR_SMTP]] = CR_SMTP;
-  order[g_CrashInfo.m_uPriorities[CR_HTTP]] = CR_HTTP;
-  
+ 
+  std::pair<int, int> pair3(g_CrashInfo.m_uPriorities[CR_SMAPI], CR_SMAPI);
+  order.insert(pair3);
+
+  std::pair<int, int> pair2(g_CrashInfo.m_uPriorities[CR_SMTP], CR_SMTP);
+  order.insert(pair2);
+
+  std::pair<int, int> pair1(g_CrashInfo.m_uPriorities[CR_HTTP], CR_HTTP);
+  order.insert(pair1);
+
   std::multimap<int, int>::reverse_iterator rit;
   
   for(rit=order.rbegin(); rit!=order.rend(); rit++)
@@ -785,21 +808,93 @@ BOOL CErrorReportSender::SendReport()
 // This method sends the report over HTTP request
 BOOL CErrorReportSender::SendOverHTTP()
 {  
+  strconv_t strconv;
+
   if(g_CrashInfo.m_sUrl.IsEmpty())
   {
     m_Assync.SetProgress(_T("No URL specified for sending error report over HTTP; skipping."), 0);
     return FALSE;
   }
   CHttpRequest request;
-  request.m_sUrl = g_CrashInfo.m_sUrl;
-  request.m_bMultiPart = TRUE;
-  CHttpRequestFile f;
-  f.m_sSrcFileName = m_sZipName;
-  f.m_sContentType = _T("application/zip");
-  request.m_aIncludedFiles[m_sZipName] = f;  
+  request.m_sUrl = g_CrashInfo.m_sUrl;  
+    
+  request.m_aTextFields[_T("appname")] = strconv.t2a(g_CrashInfo.m_sAppName);
+  request.m_aTextFields[_T("appversion")] = strconv.t2a(g_CrashInfo.m_sAppVersion);
+  request.m_aTextFields[_T("crashguid")] = strconv.t2a(g_CrashInfo.m_sCrashGUID);
+  request.m_aTextFields[_T("emailfrom")] = strconv.t2a(g_CrashInfo.m_sEmailFrom);
+  request.m_aTextFields[_T("emailsubject")] = strconv.t2a(g_CrashInfo.m_sEmailSubject);
+  request.m_aTextFields[_T("description")] = strconv.t2a(g_CrashInfo.m_sDescription);
+
+  CString sMD5Hash;
+  CalcFileMD5Hash(m_sZipName, sMD5Hash);
+  request.m_aTextFields[_T("md5")] = strconv.t2a(sMD5Hash);
+
+  if(g_CrashInfo.m_bHttpBinaryEncoding)
+  {
+    CHttpRequestFile f;
+    f.m_sSrcFileName = m_sZipName;
+    f.m_sContentType = _T("application/zip");  
+    request.m_aIncludedFiles[_T("crashrpt")] = f;  
+  }
+  else
+  {
+    std::string sEncodedData;
+    int nRet = Base64EncodeAttachment(m_sZipName, sEncodedData);
+    if(nRet!=0)
+    {
+      return FALSE;
+    }
+    request.m_aTextFields[_T("crashrpt")] = sEncodedData;
+  }
+
+
   BOOL bSend = m_HttpSender.SendAssync(request, &m_Assync);  
   return bSend;
 }
+
+int CErrorReportSender::Base64EncodeAttachment(CString sFileName, 
+										std::string& sEncodedFileData)
+{
+  strconv_t strconv;
+  
+  int uFileSize = 0;
+  BYTE* uchFileData = NULL;  
+  struct _stat st;
+  LPCSTR lpszFileNameA = strconv.t2a(sFileName.GetBuffer(0));
+
+  int nResult = _stat(lpszFileNameA, &st);
+  if(nResult != 0)
+    return 1;  // File not found.
+  
+  // Allocate buffer of file size
+  uFileSize = st.st_size;
+  uchFileData = new BYTE[uFileSize];
+
+  // Read file data to buffer.
+  FILE* f = NULL;
+#if _MSC_VER<1400
+  f = fopen(lpszFileNameA, "rb");
+#else
+  /*errno_t err = */_tfopen_s(&f, sFileName, _T("rb"));  
+#endif 
+
+  if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
+  {
+    delete [] uchFileData;
+    uchFileData = NULL;
+    return 2; // Coudln't read file data.
+  }
+  
+  fclose(f);
+    
+  sEncodedFileData = base64_encode(uchFileData, uFileSize);
+
+  delete [] uchFileData;
+
+  // OK.
+  return 0;
+}
+
 
 // This method formats the E-mail message text
 CString CErrorReportSender::FormatEmailText()
@@ -828,7 +923,7 @@ CString CErrorReportSender::FormatEmailText()
   }
 
   sText += _T("You may find detailed information about the error in files attached to this message:\n\n");
-  sText += sFileTitle + _T(" is a ZIP archive which contains crash descriptor XML (crashrpt.xml), crash minidump (crashdump.dmp) ");
+  sText += sFileTitle + _T(" is a ZIP archive which contains crash description XML (crashrpt.xml), crash minidump (crashdump.dmp) ");
   sText += _T("and possibly other files that your application added to the crash report.\n\n");
 
   sText += sFileTitle + _T(".md5 file contains MD5 hash for the ZIP archive. You might want to use this file to check integrity of the error report.\n\n");

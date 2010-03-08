@@ -34,13 +34,25 @@
 #include "HttpRequestSender.h"
 #include <wininet.h>
 #include <sys/stat.h>
-#include "Base64.hpp"
+#include "base64.h"
 #include "md5.h"
 #include <string>
 #include "Utility.h"
 #include "strconv.h"
 
-#define PART_BOUNDARY _T("AaB03x")
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
+
+CHttpRequestSender::CHttpRequestSender()
+{
+  m_sBoundary = _T("AaB03x5fs1045fcc7");
+
+  m_sTextPartHeaderFmt = _T("--%s\r\nContent-disposition: form-data; name=\"%s\"\r\n\r\n");
+  m_sTextPartFooterFmt = _T("\r\n");   
+  m_sFilePartHeaderFmt = _T("--%s\r\nContent-disposition: form-data; name=\"%s\"; filename=\"%s\"\r\nContent-Type: %s\r\nContent-Transfer-Encoding: binary\r\n\r\n");
+  m_sFilePartFooterFmt = _T("\r\n");  
+}
 
 BOOL CHttpRequestSender::SendAssync(CHttpRequest& Request, AssyncNotification* an)
 {
@@ -67,171 +79,6 @@ DWORD WINAPI CHttpRequestSender::WorkerThread(VOID* pParam)
 
 BOOL CHttpRequestSender::InternalSend()
 { 
-//  strconv_t strconv;
-//  BOOL bStatus = FALSE;
-//	TCHAR* hdrs = _T("Content-Type: application/x-www-form-urlencoded");
-//	LPCTSTR accept[2]={_T("*/*"), NULL};
-//  int uFileSize = 0;
-//  BYTE* uchFileData = NULL;
-//  TCHAR szProtocol[512];
-//  TCHAR szServer[512];
-//  TCHAR szURI[1024];
-//  DWORD dwPort;
-//  struct _stat st;
-//  int res = -1;
-//  FILE* f = NULL;
-//  BOOL bResult = FALSE;
-//  char* chPOSTRequest = NULL;
-//  CString sMD5Hash;
-//  CString sPOSTRequest;
-//  LPCSTR szPOSTRequest; // ASCII
-//  char* szPrefix="crashrpt=\"";
-//  char* szSuffix="\"";
-//  CString sErrorMsg;
-//  CHAR szResponce[1024];
-//  DWORD dwBufSize = 1024;
-//  MD5 md5;
-//  MD5_CTX md5_ctx;
-//  unsigned char md5_hash[16];
-//  int i=0;  
-//  CString msg; 
-//  CString sFileName;
-//
-//  m_Assync->SetProgress(_T("Start sending error report over HTTP"), 0, false);
-//
-//  m_Assync->SetProgress(_T("Creating Internet connection"), 3, false);
-//
-//  if(m_Assync->IsCancelled()){ goto exit; }
-//
-//  // Create Internet session
-//	hSession = InternetOpen(_T("CrashRpt"),
-//		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-//	if(hSession==NULL)
-//  {
-//    m_Assync->SetProgress(_T("Error creating Internet conection"), 0);
-//	  goto exit; // Couldn't create internet session
-//  }
-//  
-//  ParseURL(m_Request.m_sUrl, szProtocol, 512, szServer, 512, dwPort, szURI, 1024);
-//
-//  m_Assync->SetProgress(_T("Connecting to server"), 5, false);
-//
-//  // Connect to server
-//	hConnect = InternetConnect(
-//    hSession, 
-//    szServer,
-//		INTERNET_DEFAULT_HTTP_PORT, 
-//    NULL, 
-//    NULL, 
-//    INTERNET_SERVICE_HTTP, 
-//    0, 
-//    1);
-//	
-//	if(hConnect==NULL)
-//  {
-//    m_Assync->SetProgress(_T("Error connecting to server"), 0);
-//	  goto exit; // Couldn't connect
-//  }
-//	
-//  if(m_Assync->IsCancelled()){ goto exit; }
-//
-//  m_Assync->SetProgress(_T("Preparing HTTP request data"), 7, false);
-//
-//  // Load file data into memory
-//  res = _tstat(sFileName.GetBuffer(0), &st);
-//  if(res!=0)
-//  {
-//    m_Assync->SetProgress(_T("Error opening file"), 0);
-//    goto exit; // File not found
-//  }
-//  
-//  uFileSize = st.st_size;
-//  uchFileData = new BYTE[uFileSize];
-//#if _MSC_VER<1400
-//  f = _tfopen(sFileName.GetBuffer(0), _T("rb"));
-//#else
-//  _tfopen_s(&f, sFileName.GetBuffer(0), _T("rb"));
-//#endif
-//  if(!f || fread(uchFileData, uFileSize, 1, f)!=1)
-//  {
-//    m_Assync->SetProgress(_T("Error reading file"), 0);
-//    goto exit;  
-//  }
-//  fclose(f);
-//
-//  md5.MD5Init(&md5_ctx);
-//  md5.MD5Update(&md5_ctx, uchFileData, uFileSize);
-//  md5.MD5Final(md5_hash, &md5_ctx);
-//  
-//  sMD5Hash = _T("&md5=");
-//  for(i=0; i<16; i++)
-//  {
-//    CString number;
-//    number.Format(_T("%02X"), md5_hash[i]);
-//    sMD5Hash += number;
-//  }
-//  
-//  //sPOSTRequest = base64_encode(uchFileData, uFileSize).c_str();
-//  sPOSTRequest = szPrefix + sPOSTRequest + szSuffix;  
-//  sPOSTRequest.Replace(_T("+"), _T("%2B"));
-//  sPOSTRequest.Replace(_T("/"), _T("%2F"));  
-//
-//  sPOSTRequest += sMD5Hash;
-//  
-//  m_Assync->SetProgress(_T("Opening HTTP request"), 10);
-//
-//  if(m_Assync->IsCancelled()){ goto exit; }
-//
-//  // Send POST request
-//  hRequest = HttpOpenRequest(hConnect, _T("POST"),
-//		                         szURI, NULL, NULL, accept, 0, 1);	
-//	if(hRequest==NULL)
-//  {
-//    m_Assync->SetProgress(_T("Error opening HTTP request"), 0);
-//	  goto exit; // Coudn't open request	
-//  }
-//
-//  if(m_Assync->IsCancelled()){ goto exit; }
-//
-//  szPOSTRequest = strconv.t2a(sPOSTRequest.GetBuffer(0));
-//
-//  m_Assync->SetProgress(_T("Sending HTTP request"), 50);
-//  bResult = HttpSendRequest(hRequest, hdrs, (int)_tcslen(hdrs), 
-//    (void*)szPOSTRequest, (DWORD)strlen(szPOSTRequest));
-//    
-//  if(bResult == FALSE)
-//  {
-//    m_Assync->SetProgress(_T("Error sending HTTP request"), 100, false);
-//		goto exit; // Couldn't send request
-//  }
-//	  
-//  m_Assync->SetProgress(_T("Sending error report over HTTP completed OK"), 10, true);
-//    
-//  HttpQueryInfoA(hRequest, HTTP_QUERY_STATUS_CODE, szResponce, &dwBufSize, NULL); 
-//  if(atoi(szResponce)!=200)
-//  {
-//    CString msg;
-//    msg.Format(_T("Error! The server returned code %s"), CString(szResponce));
-//    m_Assync->SetProgress(msg, 0);
-//    goto exit;
-//  }    
-//
-//  InternetReadFile(hRequest, szResponce, 1024, &dwBufSize);
-//  szResponce[dwBufSize] = 0;
-//  msg = CString(szResponce, dwBufSize);
-//  msg = _T("Server returned:") + msg;
-//  m_Assync->SetProgress(msg, 0);
-//    
-//  if(atoi(szResponce)!=200)
-//  {
-//    m_Assync->SetProgress(_T("Failed"), 100, false);
-//    goto exit;
-//  }
-//
-//  m_Assync->SetProgress(_T("Sent OK"), 100, false);
-//  bStatus = TRUE;
-//
-
   BOOL bStatus = FALSE;      // Resulting status
   strconv_t strconv;         // String conversion
   HINTERNET hSession = NULL; // Internet session
@@ -241,8 +88,28 @@ BOOL CHttpRequestSender::InternalSend()
   TCHAR szServer[512];       // Server name
   TCHAR szURI[1024];         // URI
   DWORD dwPort=0;            // Port
+  CString sHeaders = _T("Content-type: multipart/form-data, boundary=") + m_sBoundary;
+	LPCTSTR szAccept[2]={_T("*/*"), NULL};
+  INTERNET_BUFFERS BufferIn;
+	BYTE pBuffer[2048];
+	BOOL bRet = FALSE;
+  DWORD dwBuffSize = 0;
+  CString sMsg;
+  LONGLONG lPostSize = 0;  
+  std::map<CString, std::string>::iterator it;
+  std::map<CString, CHttpRequestFile>::iterator it2;
+
+  // Calculate size of data to send
+  m_Assync->SetProgress(_T("Calculating size of data to send."), 0);
+  bRet = CalcRequestSize(lPostSize);
+  if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error calculating size of data to send!"), 0);
+    goto cleanup;
+  }
 
   // Create Internet session
+  m_Assync->SetProgress(_T("Opening Internet connection."), 0);
   hSession = InternetOpen(_T("CrashRpt"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if(hSession==NULL)
   {
@@ -266,8 +133,78 @@ BOOL CHttpRequestSender::InternalSend()
 
   if(m_Assync->IsCancelled()){ goto cleanup; }
 
-  m_Assync->SetProgress(_T("Preparing HTTP request data"), 7, false);
+  m_Assync->SetProgress(_T("Opening HTTP request..."), 7, false);
+
+  hRequest = HttpOpenRequest(hConnect, _T("POST"), szURI, 
+			NULL, NULL, szAccept, INTERNET_FLAG_NO_CACHE_WRITE, 0);
+  if (!hRequest)
+  {
+	  m_Assync->SetProgress(_T("HttpOpenRequest has failed."), 0, false);
+    goto cleanup;
+  }
   
+	BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
+  BufferIn.Next = NULL; 
+  BufferIn.lpcszHeader = sHeaders;
+  BufferIn.dwHeadersLength = sHeaders.GetLength();
+  BufferIn.dwHeadersTotal = 0;
+  BufferIn.lpvBuffer = NULL;                
+  BufferIn.dwBufferLength = 0;
+  BufferIn.dwBufferTotal = (DWORD)lPostSize; // This is the only member used other than dwStructSize
+  BufferIn.dwOffsetLow = 0;
+  BufferIn.dwOffsetHigh = 0;
+
+  m_dwPostSize = (DWORD)lPostSize;
+  m_dwUploaded = 0;
+
+  if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
+  {
+    m_Assync->SetProgress(_T("HttpSendRequestEx has failed."), 0, false);
+    goto cleanup;
+  }
+
+  // Write text fields
+  for(it=m_Request.m_aTextFields.begin(); it!=m_Request.m_aTextFields.end(); it++)
+  {
+    bRet = WriteTextPart(hRequest, it->first); 
+    if(!bRet)
+      goto cleanup;
+  }
+	
+  // Write attachments
+  for(it2=m_Request.m_aIncludedFiles.begin(); it2!=m_Request.m_aIncludedFiles.end(); it2++)
+  {
+    bRet = WriteAttachmentPart(hRequest, it2->first); 
+    if(!bRet)
+      goto cleanup;
+  }
+	
+  bRet = WriteTrailingBoundary(hRequest);
+  if(!bRet)
+    goto cleanup;
+
+  if(!HttpEndRequest(hRequest, NULL, 0, 0))
+  {
+    goto cleanup;
+  }
+
+  m_Assync->SetProgress(_T("Reading server responce..."), 0, true);
+  
+  InternetReadFile(hRequest, pBuffer, 2048, &dwBuffSize);
+  pBuffer[dwBuffSize] = 0;
+  sMsg = CString((LPCSTR)pBuffer, dwBuffSize);
+  sMsg = _T("Server returned:") + sMsg;
+  m_Assync->SetProgress(sMsg, 0);
+    
+  if(atoi((LPCSTR)pBuffer)!=200)
+  {
+    m_Assync->SetProgress(_T("Failed"), 100, false);
+    goto cleanup;
+  }
+
+  m_Assync->SetProgress(_T("Error report was sent OK!"), 100, false);
+  bStatus = TRUE;
+
 cleanup:
 
   // Clean up
@@ -283,164 +220,320 @@ cleanup:
   return bStatus;
 }
 
+BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
+{
+  BOOL bRet = FALSE;
+    
+  /* Write part header */
+  CString sHeader;
+  bRet= FormatTextPartHeader(sName, sHeader);
+  if(!bRet)
+    return FALSE;
+  
+  strconv_t strconv;
+  LPCSTR pszHeader = strconv.t2a(sHeader);
+  if(pszHeader==NULL)
+    return FALSE;
+
+  DWORD dwBytesWritten = 0;
+  bRet=InternetWriteFile(hRequest, pszHeader, strlen(pszHeader), &dwBytesWritten);
+	if(!bRet)
+    return FALSE;
+  UploadProgress(dwBytesWritten);
+
+  /* Write form data */
+
+  std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
+  if(it==m_Request.m_aTextFields.end())
+    return FALSE; 
+  
+  int nDataSize = it->second.length();
+  int pos = 0;    
+  DWORD dwBytesRead = 0;
+  for(;;)
+  {
+    dwBytesRead = MIN(1024, nDataSize-pos);    
+    if(dwBytesRead==0)
+      break; // EOF
+
+    std::string sBuffer = it->second.substr(pos, dwBytesRead);
+    
+    DWORD dwBytesWritten = 0;
+    bRet=InternetWriteFile(hRequest, sBuffer.c_str(), dwBytesRead, &dwBytesWritten);
+	  if(!bRet)
+      return FALSE;
+    UploadProgress(dwBytesWritten);
+
+    pos += dwBytesRead;    
+  }
+
+  /* Write part footer */
+
+  CString sFooter;
+  bRet= FormatTextPartFooter(sName, sFooter);
+  if(!bRet)
+    return FALSE;
+  
+  LPCSTR pszFooter = strconv.t2a(sFooter);
+  if(pszFooter==NULL)
+    return FALSE;
+
+  bRet=InternetWriteFile(hRequest, pszFooter, strlen(pszFooter), &dwBytesWritten);
+	if(!bRet)
+    return FALSE;
+  UploadProgress(dwBytesWritten);
+
+  return TRUE;
+}
+
+BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
+{
+  BOOL bRet = FALSE;
+    
+  /* Write part header */
+  CString sHeader;
+  bRet= FormatAttachmentPartHeader(sName, sHeader);
+  if(!bRet)
+    return FALSE;
+  
+  strconv_t strconv;
+  LPCSTR pszHeader = strconv.t2a(sHeader);
+  if(pszHeader==NULL)
+    return FALSE;
+
+  DWORD dwBytesWritten = 0;
+  bRet=InternetWriteFile(hRequest, pszHeader, strlen(pszHeader), &dwBytesWritten);
+	if(!bRet)
+    return FALSE;
+  UploadProgress(dwBytesWritten);
+
+  /* Write attachment data */
+
+  std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
+  if(it==m_Request.m_aIncludedFiles.end())
+    return FALSE; 
+
+  CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
+  HANDLE hFile = CreateFile(sFileName, 
+     GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+  if(hFile==INVALID_HANDLE_VALUE)
+  {    
+    return FALSE; 
+  }
+
+  BYTE pBuffer[1024];
+  DWORD dwBytesRead = 0;
+  for(;;)
+  {
+    bRet = ReadFile(hFile, pBuffer, 1024, &dwBytesRead, NULL);
+    if(!bRet)
+    {
+      CloseHandle(hFile);
+      return FALSE;
+    }
+
+    if(dwBytesRead==0)
+      break; // EOF
+
+    DWORD dwBytesWritten = 0;
+    bRet=InternetWriteFile(hRequest, pBuffer, dwBytesRead, &dwBytesWritten);
+	  if(!bRet)
+      return FALSE;
+    UploadProgress(dwBytesWritten);
+  }
+
+  CloseHandle(hFile);
+
+  /* Write part footer */
+
+  CString sFooter;
+  bRet= FormatAttachmentPartFooter(sName, sFooter);
+  if(!bRet)
+    return FALSE;
+  
+  LPCSTR pszFooter = strconv.t2a(sFooter);
+  if(pszFooter==NULL)
+    return FALSE;
+
+  bRet=InternetWriteFile(hRequest, pszFooter, strlen(pszFooter), &dwBytesWritten);
+	if(!bRet)
+    return FALSE;
+  UploadProgress(dwBytesWritten);
+
+  return TRUE;
+}
+
+BOOL CHttpRequestSender::WriteTrailingBoundary(HINTERNET hRequest)
+{
+  BOOL bRet = FALSE;
+
+  CString sText;
+  bRet= FormatTrailingBoundary(sText);
+  if(!bRet)
+    return FALSE;
+  
+  strconv_t strconv;
+  LPCSTR pszText = strconv.t2a(sText);
+  if(pszText==NULL)
+    return FALSE;
+
+  DWORD dwBytesWritten = 0;
+  bRet=InternetWriteFile(hRequest, pszText, strlen(pszText), &dwBytesWritten);
+	if(!bRet)
+    return FALSE;
+
+  UploadProgress(dwBytesWritten);
+
+  return TRUE;
+}
+
+
+BOOL CHttpRequestSender::FormatTextPartHeader(CString sName, CString& sPart)
+{
+  std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
+  if(it==m_Request.m_aTextFields.end())
+    return FALSE;
+ 
+  sPart.Format(m_sTextPartHeaderFmt, m_sBoundary, it->first);    
+  
+  return TRUE;
+}
+
+BOOL CHttpRequestSender::FormatTextPartFooter(CString sName, CString& sText)
+{
+  sText = m_sTextPartFooterFmt;
+  return TRUE;
+}
+
+BOOL CHttpRequestSender::FormatAttachmentPartHeader(CString sName, CString& sText)
+{
+  std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
+  if(it==m_Request.m_aIncludedFiles.end())
+    return FALSE; 
+ 
+  sText.Format(m_sFilePartHeaderFmt, m_sBoundary, it->first, Utility::GetFileName(it->second.m_sSrcFileName), it->second.m_sContentType);
+  return TRUE;
+}
+
+BOOL CHttpRequestSender::FormatAttachmentPartFooter(CString sName, CString& sText)
+{
+  sText = m_sFilePartFooterFmt;
+  return TRUE;
+}  
+
+BOOL CHttpRequestSender::FormatTrailingBoundary(CString& sText)
+{
+  sText.Format(_T("--%s--\r\n"), m_sBoundary);
+  return TRUE;
+}
+
 BOOL CHttpRequestSender::CalcRequestSize(LONGLONG& lSize)
 {
   lSize = 0;
   
   // Calculate summary size of all text fields included into request
-  std::map<CString, CString>::iterator it;
+  std::map<CString, std::string>::iterator it;
   for(it=m_Request.m_aTextFields.begin(); it!=m_Request.m_aTextFields.end(); it++)
   {
-    CString sPart;
-    sPart.Format(_T("--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\nContent-Transfer-Encoding:binary\r\n\r\n%s\r\n"),
-      PART_BOUNDARY, it->first, it->second);
-    lSize += sPart.GetLength();
+    LONGLONG lPartSize;
+    BOOL bCalc = CalcTextPartSize(it->first, lPartSize);        
+    if(!bCalc)
+      return FALSE;
+    lSize += lPartSize;
   }
 
   // Calculate summary size of all files included into report
   std::map<CString, CHttpRequestFile>::iterator it2;
   for(it2=m_Request.m_aIncludedFiles.begin(); it2!=m_Request.m_aIncludedFiles.end(); it2++)
   {
-    CString sPart;
-    sPart.Format(_T("--%s\r\nContent-Disposition: attachment; filename=\"%s\"\r\nContent-Type:%s\r\nContent-Transfer-Encoding:binary\r\n\r\n\r\n"),
-      PART_BOUNDARY, it2->first, it2->second.m_sSrcFileName, it2->second.m_sContentType);
-    lSize += sPart.GetLength();
-    
-    // Calculate size of the attachment
-    LARGE_INTEGER lFileSize;    
-    HANDLE hFile = CreateFile(it2->second.m_sSrcFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
-    if(hFile==INVALID_HANDLE_VALUE)
+    LONGLONG lPartSize;
+    BOOL bCalc = CalcAttachmentPartSize(it2->first, lPartSize);        
+    if(!bCalc)
       return FALSE;
-    BOOL bGetSize = GetFileSizeEx(hFile, &lFileSize);
-    if(!bGetSize)
-      return FALSE;
-
-    lSize += (DWORD)lFileSize.QuadPart;
+    lSize += lPartSize;
   }
+
+  CString sTrailingBoundary;
+  FormatTrailingBoundary(sTrailingBoundary);
+  lSize += sTrailingBoundary.GetLength();
 
   return TRUE;
 }
 
-BOOL CHttpRequestSender::FormatFormDataPart(CString sName, CString& sPart)
+BOOL CHttpRequestSender::CalcTextPartSize(CString sName, LONGLONG& lSize)
 {
-  std::map<CString, CString>::iterator it = m_Request.m_aTextFields.find(sName);
-  if(it==m_Request.m_aTextFields.end())
+  lSize = 0;
+
+  CString sPartHeader;
+  BOOL bFormat = FormatTextPartHeader(sName, sPartHeader);
+  if(!bFormat)
     return FALSE;
- 
-  if(m_Request.m_bMultiPart)
-  {
-    sPart.Format(_T("--%s\r\nContent-Disposition: form-data; name=\"%s\"\r\nContent-Transfer-Encoding:binary\r\n\r\n%s\r\n"),
-      PART_BOUNDARY, it->first, it->second);    
-  }
-  else
-  {
-    sPart.Format(_T("%s=%s"), it->first, it->second);    
-  }
+  lSize += sPartHeader.GetLength();
+
+  std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
+  if(it==m_Request.m_aTextFields.end())
+    return FALSE; 
+  
+  lSize += it->second.length();
+  
+  CString sPartFooter;
+  bFormat = FormatTextPartFooter(sName, sPartFooter);
+  if(!bFormat)
+    return FALSE;
+  lSize += sPartFooter.GetLength();
 
   return TRUE;
 }
 
-//BOOL CHttpRequestSender::SendMultiPart()
-//{
-//  BOOL bStatus = FALSE;
-//  HINTERNET hSession = NULL;
-//  HINTERNET hConnect = NULL;
-//  
-//  hSession = InternetOpen(_T("CrashRpt"), INTERNET_OPEN_TYPE_PRECONFIG,
-//		NULL, NULL, 0);
-//	if(!hSession)
-//	{
-//		goto cleanup;
-//	}
-//
-//	hConnect = InternetConnect(hSession, argv[2], INTERNET_DEFAULT_HTTP_PORT,
-//		NULL, NULL, INTERNET_SERVICE_HTTP,NULL, NULL);
-//	if (!hConnect)
-//		printf( "Failed to connect\n" );
-//	else
-//	{
-//		HINTERNET hRequest = HttpOpenRequest(hConnect, "POST", argv[3], 
-//			NULL, NULL, NULL, INTERNET_FLAG_NO_CACHE_WRITE, 0);
-//		if (!hRequest)
-//			printf( "Failed to open request handle\n" );
-//		else
-//		{
-//			if(UseHttpSendReqEx(hRequest, dwPostSize))
-//			{	
-//				char pcBuffer[BUFFSIZE];
-//				DWORD dwBytesRead;
-//
-//				printf("\nThe following was returned by the server:\n");
-//				do
-//				{	dwBytesRead=0;
-//					if(InternetReadFile(hRequest, pcBuffer, BUFFSIZE-1, &dwBytesRead))
-//					{
-//						pcBuffer[dwBytesRead]=0x00; // Null-terminate buffer
-//						printf("%s", pcBuffer);
-//					}
-//					else
-//						printf("\nInternetReadFile failed");
-//				}while(dwBytesRead>0);
-//				printf("\n");
-//			}
-//			if (!InternetCloseHandle(hRequest))
-//				printf( "Failed to close Request handle\n" );
-//		}
-//		if(!InternetCloseHandle(hConnect))
-//			printf("Failed to close Connect handle\n");
-//	}
-//	if( InternetCloseHandle( hSession ) == FALSE )
-//		printf( "Failed to close Session handle\n" );
-//}
-//
-//BOOL CHttpRequestSender::UseHttpSendRequestEx()
-//{
-//  INTERNET_BUFFERS BufferIn;
-//	DWORD dwBytesWritten;
-//	int n;
-//	BYTE pBuffer[1024];
-//	BOOL bRet;
-//
-//	BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
-//    BufferIn.Next = NULL; 
-//    BufferIn.lpcszHeader = NULL;
-//    BufferIn.dwHeadersLength = 0;
-//    BufferIn.dwHeadersTotal = 0;
-//    BufferIn.lpvBuffer = NULL;                
-//    BufferIn.dwBufferLength = 0;
-//    BufferIn.dwBufferTotal = dwPostSize; // This is the only member used other than dwStructSize
-//    BufferIn.dwOffsetLow = 0;
-//    BufferIn.dwOffsetHigh = 0;
-//
-//    if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
-//    {
-//        printf( "Error on HttpSendRequestEx %d\n",GetLastError() );
-//        return FALSE;
-//    }
-//
-//	FillMemory(pBuffer, 1024, 'D'); // Fill buffer with data
-//
-//	bRet=TRUE;
-//	for(n=1; n<=(int)dwPostSize/1024 && bRet; n++)
-//	{
-//		if(bRet=InternetWriteFile( hRequest, pBuffer, 1024, &dwBytesWritten))
-//			printf( "\r%d bytes sent.", n*1024);
-//	}
-//		
-//	if(!bRet)
-//	{
-//        printf( "\nError on InternetWriteFile %lu\n",GetLastError() );
-//        return FALSE;
-//    }
-//
-//    if(!HttpEndRequest(hRequest, NULL, 0, 0))
-//    {
-//        printf( "Error on HttpEndRequest %lu \n", GetLastError());
-//        return FALSE;
-//    }
-//
-//	return TRUE;
-//}
+BOOL CHttpRequestSender::CalcAttachmentPartSize(CString sName, LONGLONG& lSize)
+{
+  lSize = 0;
+
+  CString sPartHeader;
+  BOOL bFormat = FormatAttachmentPartHeader(sName, sPartHeader);
+  if(!bFormat)
+    return FALSE;
+  lSize += sPartHeader.GetLength();
+
+  std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
+  if(it==m_Request.m_aIncludedFiles.end())
+    return FALSE; 
+
+  CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
+  HANDLE hFile = CreateFile(sFileName, 
+     GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+  if(hFile==INVALID_HANDLE_VALUE)
+  {    
+    return FALSE; 
+  }
+
+  LARGE_INTEGER lFileSize;
+  BOOL bGetSize = GetFileSizeEx(hFile, &lFileSize);
+  if(!bGetSize)
+  {
+    CloseHandle(hFile);
+    return FALSE;
+  }
+
+  lSize += lFileSize.QuadPart;
+  CloseHandle(hFile);
+
+  CString sPartFooter;
+  bFormat = FormatAttachmentPartFooter(sName, sPartFooter);
+  if(!bFormat)
+    return FALSE;
+  lSize += sPartFooter.GetLength();
+
+  return TRUE;
+}
+
+void CHttpRequestSender::UploadProgress(DWORD dwBytesWritten)
+{
+  m_dwUploaded += dwBytesWritten;
+
+  float progress = 100*(float)m_dwUploaded/m_dwPostSize;
+  m_Assync->SetProgress((int)progress, false);
+}
 
 // Parses URL. This method's code was taken from 
 // http://www.codeproject.com/KB/IP/simplehttpclient.aspx

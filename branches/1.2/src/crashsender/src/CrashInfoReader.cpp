@@ -194,12 +194,12 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }
   }
 
-  TiXmlHandle hMultiPartHttpUploads = hRoot.FirstChild("MultiPartHttpUploads");
-  const char* szMultiPartHttpUploads = hMultiPartHttpUploads.FirstChild().ToText()->Value();
-  if(szMultiPartHttpUploads!=NULL)
-    m_bMultiPartHttpUploads = atoi(szMultiPartHttpUploads);
+  TiXmlHandle hHttpBinaryEncoding = hRoot.FirstChild("HttpBinaryEncoding");
+  const char* szHttpBinaryEncoding = hHttpBinaryEncoding.FirstChild().ToText()->Value();
+  if(szHttpBinaryEncoding!=NULL)
+    m_bHttpBinaryEncoding = atoi(szHttpBinaryEncoding);
   else
-    m_bMultiPartHttpUploads = FALSE;    
+    m_bHttpBinaryEncoding = FALSE;    
 
   TiXmlHandle hSilentMode = hRoot.FirstChild("SilentMode");
   const char* szSilentMode = hSilentMode.FirstChild().ToText()->Value();

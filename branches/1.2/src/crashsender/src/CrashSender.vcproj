@@ -583,6 +583,18 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base64.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\CrashInfoReader.cpp"
 				>
 			</File>
@@ -988,7 +1000,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Base64.hpp"
+				RelativePath=".\base64.h"
 				>
 			</File>
 			<File

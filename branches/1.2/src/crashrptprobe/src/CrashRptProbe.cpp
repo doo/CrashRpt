@@ -47,7 +47,7 @@ struct CrpReportData
   }
 
   unzFile m_hZip; // Handle to the ZIP archive
-  CCrashDescReader* m_pDescReader; // Pointer to the crash descriptor reader object
+  CCrashDescReader* m_pDescReader; // Pointer to the crash description reader object
   CMiniDumpReader* m_pDmpReader;   // Pointer to the minidump reader object
   CString m_sMiniDumpTempName;     // The name of the tmp file to store extracted minidump in
   CString m_sSymSearchPath;        // Symbol files search path
@@ -143,6 +143,10 @@ int UnzipFile(unzFile hZip, const char* szFileName, const char* szOutFileName)
 
     if(read_len==0)
       break;
+
+    int written = fwrite(buff, read_len, 1, f);
+    if(written!=1)
+      goto cleanup;
   }  
 
   status = 0;
@@ -211,7 +215,7 @@ crpOpenErrorReportW(
     goto exit;
   }
 
-  // Look for v1.1 crash descriptor XML
+  // Look for v1.1 crash description XML
   xml_find_res = unzLocateFile(report_data.m_hZip, "crashrpt.xml", 1);
   zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szXmlFileName, 1024, NULL, 0, NULL, 0);
   
@@ -239,7 +243,7 @@ crpOpenErrorReportW(
         {
           // DMP found
           sAppName = Utility::GetBaseFileName(sFileName);
-          dmp_find_res = Z_OK;
+          dmp_find_res = UNZ_OK;
           break;
         }
 
@@ -260,13 +264,13 @@ crpOpenErrorReportW(
   }
 
   // Check that both xml and dmp found
-  if(xml_find_res==UNZ_OK || dmp_find_res==UNZ_OK)
+  if(xml_find_res!=UNZ_OK || dmp_find_res!=UNZ_OK)
   {
     crpSetErrorMsg(_T("File is not a valid crash report (XML or DMP missing)."));
     goto exit; // XML or DMP not found 
   }
   
-  // Load crash descriptor data
+  // Load crash description data
   if(xml_find_res==UNZ_OK)
   {
     CString sTempFile = Utility::getTempFileName();
@@ -281,7 +285,7 @@ crpOpenErrorReportW(
     DeleteFile(sTempFile);
     if(result!=0)
     {
-      crpSetErrorMsg(_T("Crash descriptor is not a valid XML file."));
+      crpSetErrorMsg(_T("Crash description file is not a valid XML file."));
       goto exit; // Corrupted XML
     }    
   }  

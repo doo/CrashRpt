@@ -69,7 +69,7 @@ public:
   CString     m_sDescription;    
   CString     m_sErrorReportDirName;
   CString     m_sUrl;
-  BOOL        m_bMultiPartHttpUploads;
+  BOOL        m_bHttpBinaryEncoding;
   BOOL        m_bSilentMode;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;
@@ -94,7 +94,7 @@ private:
   // Gets the list of file items 
   int ParseFileList(TiXmlHandle& hRoot);
 
-  // Retrieves some crash info from crash descriptor XML
+  // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName);
 
 };

@@ -334,7 +334,8 @@ GenerateErrorReport(
 #define CR_INST_CRT_EXCEPTION_HANDLERS 0x1FFE //!< Install exception handlers for the linked CRT module.
 
 #define CR_INST_SILENT_MODE                    0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
-#define CR_INST_MULTIPART_HTTP_UPLOADS         0x4000 //!< Use multi-part HTTP uploads.
+#define CR_INST_HTTP_LEGACY_ENCODING           0      //!< Use HTTP uploads with legacy encoding (not recommended to use).
+#define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -403,12 +404,12 @@ GenerateErrorReport(
  * 
  *             It is not recommended to use this parameter for regular GUI-based applications. 
  *             Use this only for services that have no GUI.
- *    <tr><td> \ref CR_INST_MULTIPART_HTTP_UPLOADS     
+ *    <tr><td> \ref CR_INST_HTTP_BINARY_ENCODING     
  *        <td> <b>Available since v.1.2.2</b> This affects the way of sending reports over HTTP. 
- *             By specifying this parameter, you enable usage of multi-part HTTP uploads instead of the legacy way. 
- * 
- *            It is recommended to specify this parameter, because it is more suitable for large error reports. The legacy way
- *            (Base64-encoded report data) is supported for backwards compatibility and not recommended to use.
+ *             By specifying this parameter, you enable usage of multi-part HTTP uploads with binary encoding instead of the legacy way. 
+ *             It is recommended to specify this parameter, because it is more suitable for large error reports. The legacy way
+ *            (Base64-encoded form data) is supported for backwards compatibility and not recommended to use.
+ *             For additional information, see \ref sending_error_reports.
  *   </table>
  *
  *   <b>Since v1.1.2</b>, \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
@@ -960,11 +961,11 @@ crAddScreenshot(
  *  
  *  \remarks 
  *
- *  Use this function to add a string property to the crash descriptor XML file.
+ *  Use this function to add a string property to the crash description XML file.
  *  User-added properties are listed under \<CustomProperties\> tag of the XML file.
  *
  *  The following example shows how to add information about the amount of free disk space to the crash
- *  descriptor XML file:
+ *  description XML file:
  *  \code
  *  // It is assumed that you already calculated the amount of free disk space, converted it to text
  *  // and store it as szFreeSpace string.
@@ -1091,7 +1092,7 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
  *    Call this function to manually generate a crash report. When crash information is collected,
  *    control is returned to the caller. The crGenerateErrorReport() doesn't terminate the caller process.
  *
- *    The crash report contains crash minidump, crash descriptor in XML format and
+ *    The crash report contains crash minidump, crash description in XML format and
  *    additional custom files added with crAddFile2().
  *
  *    The exception information should be passed using \ref CR_EXCEPTION_INFO structure. 

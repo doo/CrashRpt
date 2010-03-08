@@ -40,28 +40,31 @@
 #include <string>
 #include <map>
 #include "AssyncNotification.h"
+#include <wininet.h>
 
 struct CHttpRequestFile
-{
-  CString m_sSrcFileName;
-  CString m_sContentType;
+{  
+  CString m_sSrcFileName;  // Name of the file attachment.
+  CString m_sContentType;  // Content type.
 };
 
 // HTTP request information
 class CHttpRequest
 {
 public:
-  CString m_sUrl;      // Script URL
-  BOOL m_bMultiPart;   // TRUE==use multi-part content encoding, FALSE==use URL encoding + BASE64 encoding
-  std::map<CString, CString> m_aTextFields;    // Array of text fields to include into POST data
+  CString m_sUrl;      // Script URL  
+  std::map<CString, std::string> m_aTextFields;    // Array of text fields to include into POST data
   std::map<CString, CHttpRequestFile> m_aIncludedFiles; // Array of binary files to include into POST data
 };
 
 // Sends HTTP request
+// See also: RFC 1867 - Form-based File Upload in HTML (http://www.ietf.org/rfc/rfc1867.txt)
 class CHttpRequestSender
 {
 public:
   
+  CHttpRequestSender();
+
   // Sends HTTP request assynchroniously
   BOOL SendAssync(CHttpRequest& Request, AssyncNotification* an);
 
@@ -74,14 +77,32 @@ private:
 
   // Used to calculate summary size of the request
   BOOL CalcRequestSize(LONGLONG& lSize);
-  BOOL FormatFormDataPart(CString sName, CString& sPart);
-    
+  BOOL FormatTextPartHeader(CString sName, CString& sText);
+  BOOL FormatTextPartFooter(CString sName, CString& sText);  
+  BOOL FormatAttachmentPartHeader(CString sName, CString& sText);
+  BOOL FormatAttachmentPartFooter(CString sName, CString& sText);
+  BOOL FormatTrailingBoundary(CString& sBoundary);
+  BOOL CalcTextPartSize(CString sFileName, LONGLONG& lSize);
+  BOOL CalcAttachmentPartSize(CString sFileName, LONGLONG& lSize);
+  BOOL WriteTextPart(HINTERNET hRequest, CString sName);
+  BOOL WriteAttachmentPart(HINTERNET hRequest, CString sName);
+  BOOL WriteTrailingBoundary(HINTERNET hRequest);
+  void UploadProgress(DWORD dwBytesWritten);
+
   // This helper function is used to split URL into several parts
   void ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProtocol,
     LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI);
 
   CHttpRequest m_Request;       // HTTP request being sent
   AssyncNotification* m_Assync; // Used to communicate with the main thread  
+  
+  CString m_sFilePartHeaderFmt;
+  CString m_sFilePartFooterFmt;
+  CString m_sTextPartHeaderFmt;
+  CString m_sTextPartFooterFmt;
+  CString m_sBoundary;
+  DWORD m_dwPostSize;
+  DWORD m_dwUploaded;
 };
 
 
