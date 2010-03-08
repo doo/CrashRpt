@@ -217,7 +217,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
 {
   strconv_t strconv;
    
-  TiXmlHandle fl = hRoot.FirstChild("FileItems");
+  TiXmlHandle fl = hRoot.FirstChild("FileList");
   if(fl.ToElement()==0)
   {    
     return 1;
@@ -343,10 +343,10 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   if(!root)
     return FALSE;
   
-  TiXmlHandle hFileItems = root->FirstChild("FileItems");
+  TiXmlHandle hFileItems = root->FirstChild("FileList");
   if(hFileItems.ToElement()==NULL)
   {
-    hFileItems = new TiXmlElement("FileItems");
+    hFileItems = new TiXmlElement("FileList");
     root->LinkEndChild(hFileItems.ToNode());
   }
   

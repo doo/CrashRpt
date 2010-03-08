@@ -1041,7 +1041,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
   
   // Write list of files that present in this crash report
 
-  fprintf(f, "  <FileItems>\n");
+  fprintf(f, "  <FileList>\n");
   
   std::map<CString, FileItem>::iterator cur = m_files.begin();
   for (i = 0; i < m_files.size(); i++, cur++)
@@ -1060,7 +1060,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
       XmlEncodeStr(sDestFile).c_str(), XmlEncodeStr(fi.m_sDescription).c_str());  
   }
 
-  fprintf(f, "  </FileItems>\n");
+  fprintf(f, "  </FileList>\n");
 
   fprintf(f, "</CrashRpt>\n");
 

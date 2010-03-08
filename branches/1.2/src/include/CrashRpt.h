@@ -354,8 +354,9 @@ GenerateErrorReport(
  *       the process and this product version is used as application version.
  * 
  *    \a pszEmailTo is the email address of the recipient of error reports, for example
- *       "name@example.com". 
- *       If it equals to NULL, the crash report won't be sent using E-mail client.
+ *       "name@example.com". If this equals to NULL, the crash report won't be sent using E-mail client.
+ *       Keep this NULL if you plan to use large error reports (more than several MB in size), because
+ *       large emails may be rejected by the mail server.
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
  *       the default subject of form '[app_name] [app_version] Error Report' is generated.
@@ -363,6 +364,7 @@ GenerateErrorReport(
  *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP
  *       connection. If this parmeter is NULL, HTTP connection won't be used to send crash reports. For
  *       example of a server-side script that can receive crash report, see \ref sending_error_reports.
+ *       HTTP transport is the recommended way of sending large error reports (more than several MB in size).
  *
  *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *       The crash sender process is responsible for letting end user know about the crash and 
@@ -407,13 +409,14 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_HTTP_BINARY_ENCODING     
  *        <td> <b>Available since v.1.2.2</b> This affects the way of sending reports over HTTP. 
  *             By specifying this parameter, you enable usage of multi-part HTTP uploads with binary encoding instead of the legacy way. 
+ *
  *             It is recommended to specify this parameter, because it is more suitable for large error reports. The legacy way
  *            (Base64-encoded form data) is supported for backwards compatibility and not recommended to use.
  *             For additional information, see \ref sending_error_reports.
  *   </table>
  *
  *   <b>Since v1.1.2</b>, \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
- *   Error Report dialog. If this parameter is NULL, the link is not displayed.
+ *   Error Report dialog. If this parameter is NULL, the link is not displayed. For information on the Privacy Policy, see \ref error_report.
  *
  *   <b>Since v1.2.1</b>, \a pszDebugHelpDLL parameter defines the location of the dbghelp.dll to load. 
  *   If this parameter is NULL, the dbghelp.dll is searched using the default search sequence.
@@ -421,7 +424,7 @@ GenerateErrorReport(
  *   <b>Since v.1.2.1</b>, \a uMiniDumpType parameter defines the minidump type. For the list of available minidump
  *   types, see the documentation for <b>MiniDumpWriteDump()</b> function in MSDN. It is recommended to set this 
  *   parameter with zero (equivalent of \b MiniDumpNormal constant). Other values may increase the minidump size significantly.
- *   If you plan to use values other than zero, also specify the \ref CR_INST_MULTIPART_HTTP_UPLOADS flag for \a dwFlags field.
+ *   If you plan to use values other than zero, also specify the \ref CR_INST_HTTP_BINARY_ENCODING flag for \a dwFlags parameter.
  *
  *  \note
  *
