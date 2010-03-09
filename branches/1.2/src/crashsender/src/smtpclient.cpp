@@ -33,10 +33,11 @@
 #include "stdafx.h"
 #include "smtpclient.h"
 #include <Windns.h>
+#include <Ws2tcpip.h>
+#include <Wspiapi.h>
 #include <sys/stat.h>
 #include "Utility.h"
 #include "strconv.h"
-
 #include "Base64.h"
 
 CSmtpClient::CSmtpClient()
