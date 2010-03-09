@@ -144,7 +144,7 @@ int UnzipFile(unzFile hZip, const char* szFileName, const char* szOutFileName)
     if(read_len==0)
       break;
 
-    int written = fwrite(buff, read_len, 1, f);
+    size_t written = fwrite(buff, read_len, 1, f);
     if(written!=1)
       goto cleanup;
   }  

@@ -9,16 +9,6 @@ your version of Visual Studio. This is needed to ensure CrashRpt
 uses the same version of C run-time libraries (CRT) as your 
 application does.
 
-\section wtl Downloading WTL
-
-CrashRpt depends on WTL library (Windows Template Library).
-Download the latest version of WTL from 
-<a href="http://sourceforge.net/projects/wtl">here</a>.
-Unzip the WTL archive to some folder. In Visual Studio, open Tools->
-Options->Projects and Solutions->VC++ Directories.
-In the 'Show directories for' combo select 'Include files', then add 
-the path to <i>WTL\\include</i> directory to the list of include directories.
-
 \section building_solution Building Solution
 
 You can compile CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b>, 
@@ -27,8 +17,9 @@ You can compile CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b>,
 Open one of solution files available in the top level directory of 
 CrashRpt package, depending on your version of Visual Studio:
  - <b>CrashRpt_vs.NET.sln</b> if you use Visual C++ .NET 2003 
- - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005 or Visual C++ 2005 Express 
- - <b>CrashRpt_vs2008.sln</b> if you use Visual C++ 2008 or Visual C++ 2008 Express 
+ - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express 
+    or later versions of Visual C++ (2008, 2010). Visual Studio will convert project 
+    files to the right format if you use a later version of Visual C++.
 
 There are several projects in CrashRpt solution.
 

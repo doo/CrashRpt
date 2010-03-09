@@ -77,7 +77,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sCrashGUID = strconv.a2t(text);    
+        m_sCrashGUID = strconv.utf82t(text);    
     }    
   }
 
@@ -90,7 +90,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sAppName = strconv.a2t(text);        
+        m_sAppName = strconv.utf82t(text);        
     }
   }
 
@@ -103,7 +103,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sAppVersion = strconv.a2t(text);    
+        m_sAppVersion = strconv.utf82t(text);    
     }
   }
 
@@ -116,7 +116,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sImageName = strconv.a2t(text);        
+        m_sImageName = strconv.utf82t(text);        
     }
   }
 
@@ -129,7 +129,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sOperatingSystem = strconv.a2t(text);        
+        m_sOperatingSystem = strconv.utf82t(text);        
     }
   }
 
@@ -142,7 +142,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sSystemTimeUTC = strconv.a2t(text);        
+        m_sSystemTimeUTC = strconv.utf82t(text);        
     }
   }
 
@@ -168,7 +168,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sUserEmail = strconv.a2t(text);    
+        m_sUserEmail = strconv.utf82t(text);    
     }
   }
 
@@ -181,7 +181,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sProblemDescription = strconv.a2t(text);    
+        m_sProblemDescription = strconv.utf82t(text);    
     }
   }
 
@@ -229,7 +229,7 @@ int CCrashDescReader::Load(CString sFileName)
       {
         const char* text = pTextElem->Value();
         if(text)
-          m_sInvParamExpression = strconv.a2t(text);          
+          m_sInvParamExpression = strconv.utf82t(text);          
       }
     }
 
@@ -241,7 +241,7 @@ int CCrashDescReader::Load(CString sFileName)
       {
         const char* text = pTextElem->Value();
         if(text)
-          m_sInvParamFunction = strconv.a2t(text);          
+          m_sInvParamFunction = strconv.utf82t(text);          
       }
     }
 
@@ -253,7 +253,7 @@ int CCrashDescReader::Load(CString sFileName)
       {
         const char* text = pTextElem->Value();
         if(text)
-          m_sInvParamFile = strconv.a2t(text);          
+          m_sInvParamFile = strconv.utf82t(text);          
       }
     }
 
@@ -279,7 +279,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sGUIResourceCount = text;          
+        m_sGUIResourceCount = strconv.utf82t(text);          
     }
   }
 
@@ -292,7 +292,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sOpenHandleCount = text;          
+        m_sOpenHandleCount = strconv.utf82t(text);          
     }
   }
 
@@ -305,7 +305,7 @@ int CCrashDescReader::Load(CString sFileName)
     {
       const char* text = pTextElem->Value();
       if(text)
-        m_sMemoryUsageKbytes = text;          
+        m_sMemoryUsageKbytes = strconv.utf82t(text);          
     }
   }
 
@@ -326,9 +326,9 @@ int CCrashDescReader::Load(CString sFileName)
       
       CString sFileName, sFileDescription;
       if(szFileName!=NULL)
-        sFileName = strconv.a2t(szFileName);    
+        sFileName = strconv.utf82t(szFileName);    
       if(szFileName!=NULL)
-        sFileDescription = strconv.a2t(szFileDescription);    
+        sFileDescription = strconv.utf82t(szFileDescription);    
         
       m_aFileItems[sFileName]=sFileDescription;
 
@@ -348,9 +348,9 @@ int CCrashDescReader::Load(CString sFileName)
       
       CString sName, sValue;
       if(szName!=NULL)
-        sName = strconv.a2t(szName);    
+        sName = strconv.utf82t(szName);    
       if(szValue!=NULL)
-        sValue = strconv.a2t(szValue);    
+        sValue = strconv.utf82t(szValue);    
         
       m_aCustomProps[sName]=sValue;
 

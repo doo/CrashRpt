@@ -236,7 +236,7 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
     return FALSE;
 
   DWORD dwBytesWritten = 0;
-  bRet=InternetWriteFile(hRequest, pszHeader, strlen(pszHeader), &dwBytesWritten);
+  bRet=InternetWriteFile(hRequest, pszHeader, (DWORD)strlen(pszHeader), &dwBytesWritten);
 	if(!bRet)
     return FALSE;
   UploadProgress(dwBytesWritten);
@@ -247,12 +247,12 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
   if(it==m_Request.m_aTextFields.end())
     return FALSE; 
   
-  int nDataSize = it->second.length();
+  size_t nDataSize = it->second.length();
   int pos = 0;    
   DWORD dwBytesRead = 0;
   for(;;)
   {
-    dwBytesRead = MIN(1024, nDataSize-pos);    
+    dwBytesRead = (DWORD)MIN(1024, nDataSize-pos);    
     if(dwBytesRead==0)
       break; // EOF
 
@@ -278,7 +278,7 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
   if(pszFooter==NULL)
     return FALSE;
 
-  bRet=InternetWriteFile(hRequest, pszFooter, strlen(pszFooter), &dwBytesWritten);
+  bRet=InternetWriteFile(hRequest, pszFooter, (DWORD)strlen(pszFooter), &dwBytesWritten);
 	if(!bRet)
     return FALSE;
   UploadProgress(dwBytesWritten);
@@ -302,7 +302,7 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
     return FALSE;
 
   DWORD dwBytesWritten = 0;
-  bRet=InternetWriteFile(hRequest, pszHeader, strlen(pszHeader), &dwBytesWritten);
+  bRet=InternetWriteFile(hRequest, pszHeader, (DWORD)strlen(pszHeader), &dwBytesWritten);
 	if(!bRet)
     return FALSE;
   UploadProgress(dwBytesWritten);
@@ -355,7 +355,7 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
   if(pszFooter==NULL)
     return FALSE;
 
-  bRet=InternetWriteFile(hRequest, pszFooter, strlen(pszFooter), &dwBytesWritten);
+  bRet=InternetWriteFile(hRequest, pszFooter, (DWORD)strlen(pszFooter), &dwBytesWritten);
 	if(!bRet)
     return FALSE;
   UploadProgress(dwBytesWritten);
@@ -378,7 +378,7 @@ BOOL CHttpRequestSender::WriteTrailingBoundary(HINTERNET hRequest)
     return FALSE;
 
   DWORD dwBytesWritten = 0;
-  bRet=InternetWriteFile(hRequest, pszText, strlen(pszText), &dwBytesWritten);
+  bRet=InternetWriteFile(hRequest, pszText, (DWORD)strlen(pszText), &dwBytesWritten);
 	if(!bRet)
     return FALSE;
 

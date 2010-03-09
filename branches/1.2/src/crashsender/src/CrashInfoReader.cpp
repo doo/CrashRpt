@@ -139,7 +139,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   if(szExceptionPointersAddress!=NULL)
   {
 #ifdef _WIN64
-    m_pExInfo = _tcstoul(szExceptionPointersAddress, NULL, 10);
+    m_pExInfo = (PEXCEPTION_POINTERS)_strtoui64(szExceptionPointersAddress, NULL, 10);
 #else
     m_pExInfo = (PEXCEPTION_POINTERS)strtoul(szExceptionPointersAddress, NULL, 10);
 #endif 

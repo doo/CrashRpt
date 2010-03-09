@@ -115,7 +115,7 @@ void CErrorReportSender::DoWorkAssync()
   if(hEvent!=NULL)
     SetEvent(hEvent);
 
-  // Collect user-provided files.
+  // Copy user-provided files.
   CollectCrashFiles();
 
   if(m_Assync.IsCancelled())
