@@ -94,7 +94,8 @@ int CCrashHandler::Init(
   DWORD dwFlags,
   LPCTSTR lpcszPrivacyPolicyURL,
   LPCTSTR lpcszDebugHelpDLLPath,
-  MINIDUMP_TYPE MiniDumpType)
+  MINIDUMP_TYPE MiniDumpType,
+  LPCTSTR lpcszErrorReportSaveDir)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -102,7 +103,7 @@ int CCrashHandler::Init(
   m_MiniDumpType = MiniDumpType;
 
   // Determine if should work in silent mode. FALSE is the default.
-  m_bSilentMode = (dwFlags&CR_INST_SILENT_MODE)?TRUE:FALSE;
+  m_bSilentMode = (dwFlags&CR_INST_NO_GUI)?TRUE:FALSE;
 
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
@@ -146,6 +147,8 @@ int CCrashHandler::Init(
   // Determine what encoding to use when sending reports over HTTP.
   // FALSE is the default (use Base64 encoding for attachment).
   m_bHttpBinaryEncoding = (dwFlags&CR_INST_HTTP_BINARY_ENCODING)?TRUE:FALSE;
+
+  m_bSendErrorReport = (dwFlags&CR_INST_DONT_SEND_REPORT)?FALSE:TRUE;
 
   // Save Email recipient address
   m_sTo = lpcszTo;
@@ -298,12 +301,20 @@ int CCrashHandler::Init(
     return 1; 
   }
 
-  // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
-  CString sLocalAppDataFolder;
-  DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
-  Utility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
-  m_sUnsentCrashReportsFolder.Format(_T("%s\\CrashRpt\\UnsentCrashReports\\%s_%s"), 
-    sLocalAppDataFolder, m_sAppName, m_sAppVersion);
+  if(lpcszErrorReportSaveDir!=NULL)
+  {
+    // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
+    CString sLocalAppDataFolder;
+    DWORD dwCSIDL = CSIDL_LOCAL_APPDATA;
+    Utility::GetSpecialFolder(dwCSIDL, sLocalAppDataFolder);
+    m_sUnsentCrashReportsFolder.Format(_T("%s\\CrashRpt\\UnsentCrashReports\\%s_%s"), 
+      sLocalAppDataFolder, m_sAppName, m_sAppVersion);
+  }
+  else
+  {
+    m_sUnsentCrashReportsFolder = lpcszErrorReportSaveDir;
+  }
+
   BOOL bCreateDir = Utility::CreateFolder(m_sUnsentCrashReportsFolder);
   if(!bCreateDir)
   {

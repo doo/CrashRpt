@@ -333,9 +333,9 @@ GenerateErrorReport(
 #define CR_INST_ALL_EXCEPTION_HANDLERS 0      //!< Install all possible exception handlers.
 #define CR_INST_CRT_EXCEPTION_HANDLERS 0x1FFE //!< Install exception handlers for the linked CRT module.
 
-#define CR_INST_SILENT_MODE                    0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
-#define CR_INST_HTTP_LEGACY_ENCODING           0      //!< Use HTTP uploads with legacy encoding (not recommended to use).
+#define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
+#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -401,18 +401,23 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_SIGINT_HANDLER             <td> Install SIGINT signal handler.  
  *    <tr><td> \ref CR_INST_SIGTERM_HANDLER            <td> Install SIGTERM signal handler.  
  *    <tr><td colspan="2"> <i>Use the combination of the following constant to define behavior parameters:</i>
- *    <tr><td> \ref CR_INST_SILENT_MODE                
- *        <td> <b>Available since v.1.2.2</b> Do not show GUI, send report silently (use for non-GUI apps only).
+ *    <tr><td> \ref CR_INST_NO_GUI                
+ *        <td> <b>Available since v.1.2.2</b> Do not show GUI.
  * 
  *             It is not recommended to use this parameter for regular GUI-based applications. 
  *             Use this only for services that have no GUI.
  *    <tr><td> \ref CR_INST_HTTP_BINARY_ENCODING     
  *        <td> <b>Available since v.1.2.2</b> This affects the way of sending reports over HTTP. 
- *             By specifying this parameter, you enable usage of multi-part HTTP uploads with binary encoding instead of the legacy way. 
+ *             By specifying this parameter, you enable usage of multi-part HTTP uploads with binary encoding instead of the legacy way (Base64-encoded form data). 
  *
  *             It is recommended to specify this parameter, because it is more suitable for large error reports. The legacy way
- *            (Base64-encoded form data) is supported for backwards compatibility and not recommended to use.
+ *             is supported for backwards compatibility and not recommended to use.
  *             For additional information, see \ref sending_error_reports.
+ *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
+ *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report, just save it locally'. 
+ *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
+ *             Although the report won't be sent, the notification email still will be sent if you specify \a pszEmailTo parameter.
+ *
  *   </table>
  *
  *   <b>Since v1.1.2</b>, \a pszPrivacyPolicyURL defines the URL for the Privacy Policy hyperlink of the 
@@ -425,6 +430,9 @@ GenerateErrorReport(
  *   types, see the documentation for <b>MiniDumpWriteDump()</b> function in MSDN. It is recommended to set this 
  *   parameter with zero (equivalent of \b MiniDumpNormal constant). Other values may increase the minidump size significantly.
  *   If you plan to use values other than zero, also specify the \ref CR_INST_HTTP_BINARY_ENCODING flag for \a dwFlags parameter.
+ *
+ *   <b>Since v.1.2.2</b>, \a pszErrorReportSaveDir parameter defines the directory where to save the error reports. 
+ *   If this is NULL, the default directory is used (%%LOCAL_APP_DATA%\\CrashRpt\\UnsentCrashReports\\%%AppName%%_%%AppVersion%).
  *
  *  \note
  *
@@ -448,6 +456,7 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
   LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
   MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
+  LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
 }
 CR_INSTALL_INFOW;
 
@@ -473,6 +482,7 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
   LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
   MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
+  LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
 }
 CR_INSTALL_INFOA;
 

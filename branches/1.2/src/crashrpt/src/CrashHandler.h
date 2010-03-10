@@ -95,7 +95,8 @@ public:
       DWORD dwFlags = 0,
       LPCTSTR lpcszPrivacyPolicyURL = NULL,
       LPCTSTR lpcszDebugHelpDLLPath = NULL,
-      MINIDUMP_TYPE MiniDumpType = MiniDumpNormal);
+      MINIDUMP_TYPE MiniDumpType = MiniDumpNormal,
+      LPCTSTR lpcszErrorReportSaveDir = NULL);
 
   int Destroy();
    
@@ -228,6 +229,7 @@ private:
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
+  BOOL m_bSendErrorReport;       // Should we send error report or just save it  
 
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.
