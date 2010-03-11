@@ -2,99 +2,161 @@
 
 \page simple_example An Example of Using API
 
-The following example shows how to use crInstall() and
-crUninstall() functions to enable crash reporting support 
-in your application. This example assumes you already configured
-your project as described in \ref configuring_project
+The following example shows how to use CrashRpt functions and structures 
+to enable crash reporting support. 
+
+First create a console WinAPI application and call it MyApp. Then configure the MyApp application
+as described in \ref configuring_project.
+
+Let's assume the case when MyApp application has two threads. The first thread, the application thread,
+will be the main one. The \b main() function will be executed in this thread and interaction with user
+will also be done in this thread. The second thread, the worker thread, is 
+usually used when some time-consuming computational work is to be done without blocking the application thread.
+Let's create the code template.
 
 \code
 
-#include "CrashRpt.h"
-#include <tchar.h>
-#include <assert.h> // Using assert()
-#include <string>   // Using std::string
+#include <windows.h>
+#include <stdio.h>
 
-// Define character set independent strings
-typedef std::basic_string<TCHAR> tstring; 
-
-tstring GetAppDataDir()
+// Thread procedure
+DWORD WINAPI ThreadProc(LPVOID lpParam)
 {
-  // Here GetAppDataDir() is a placeholder for your function that returns path to
-  // the directory where application data are stored
-
-}
-
-// Define the crash callback
-BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
-{
-  // dummy.log is an example of a file containing application log
-  tstring sLogFile = GetAppDataDir() + _T("\\dummy.log");
-
-  // dummy.ini is an example of a file containing application settings  
-  tstring sIniFile = GetAppDataDir() + _T("\\dummy.ini");
-
-  // Now add these two files to the error report
-  crAddFile(sLogFile.c_str(), _T("Dummy Log File"));  
-  crAddFile(sIniFile.c_str(), _T("Dummy INI File"));
-
-  // Return TRUE to allow crash report generation
-  return TRUE;
-}
-
-void install_crashrpt()
-{
-  // Install CrashRpt support
- 
-  CR_INSTALL_INFO info;
-  memset(&info, 0, sizeof(CR_INSTALL_INFO));
-  info.cb = sizeof(CR_INSTALL_INFO);  
-  info.pszAppName = _T("My Application");
-  info.pszAppVersion = _T("1.3.5");
-  info.pszEmailSubject = _T("Error Report from My Application 1.3.5");
-  info.pszEmailTo = _T("myapp_support@hotmail.com");  
-  info.pszUrl = _T("http://myapp.com/tools/crashrpt.php");
-  info.pfnCrashCallback = CrashCallback; 
-  info.uPriorities[CR_HTTP] = 3;  // Try HTTP the first
-  info.uPriorities[CR_SMTP] = 2;  // Try SMTP the second
-  info.uPriorities[CR_SMAPI] = 1; // Try Simple MAPI the last  
-  info.dwFlags = 0; // Install all available exception handlers
-  info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); // URL for the Privacy Policy link
-  
-  int nInstResult = crInstall(&info);
-  if(nInstResult!=0)
+  // Define the infinite cycle where some processing will be done 
+  for(;;)
   {
-    // Something goes wrong!
-    TCHAR szErrorMsg[512];
-    szErrorMsg[0]=0;
-
-    crGetLastErrorMsg(szErrorMsg, 512);
-    _tprintf(_T("%s\n"), szErrorMsg);
-
-    assert(nInstResult==0);
-  }
-}
-
-void uninstall_crashrpt()
-{
-  // Unset crash handlers
-  int nUninstResult = crUninstall();
-  assert(nUninstResult==0);
+    // There is a hidden error somewhere inside of the cycle...
+    int* p = NULL;
+    *p = 13; // This results in Access Violation
+  }    
+   
+  return 0;
 }
 
 void main()
 {
-  install_crashrpt();
+  // Create the worker thread
+  DWORD dwThreadId = 0;
+  HANDLE hWorkingThread = CreateThread(NULL, 0, 
+           ThreadProc, (LPVOID)NULL, 0, &dwThreadId);
 
-  //
-  // .. your code follows here ..
-  //
+  // There is a hidden error in the main() function
+  // Call of printf with NULL parameter
+  char* formatString = NULL;
+  printf(formatString);
+
+  // Wait until the worker thread is exited
+  WaitForSingleObject(hWorkingThread, INFINITE);
+}
 
 
-  uninstall_crashrpt();
+\endcode
 
-  return;
+We intentionally inserted the code that would cause an exception to both threads. In real-life
+programs such code always exist, even when you test your application very carefull.
+
+To enable crash reporting support in our application, we need to insert some CrashRpt API functions.
+Below is the same code, but with API functions inserted.
+
+\code
+
+#include <windows.h>
+#include <stdio.h>
+// Include CrashRpt Header 
+#include "CrashRpt.h"
+
+
+// Define the callback function that will be called on crash
+BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
+{  
+  // Add two files to the error report: 
+  // log file and application configuration file  
+  crAddFile("log.txt", "Log File");  
+  crAddFile("config.ini", "Configuration File");
+
+  // We want the screenshot of the entire desktop is to be 
+  // added on crash
+  crAddScreenshot(CR_AS_VIRTUAL_SCREEN);   
+
+  // Add a named property that means what graphics adapter is
+  // installed on user's machine
+  crAddProperty("VideoCard", "nVidia GeForce 8600 GTS");
+
+  return TRUE;
+}
+
+// Thread procedure
+DWORD WINAPI ThreadProc(LPVOID lpParam)
+{
+  // Install exception handlers for this thread
+  crInstallToCurrentThread2(0);
+  
+  // Define the infinite cycle where some processing will be done 
+  for(;;)
+  {
+    // There is a hidden error somewhere inside of the cycle...
+    int* p = NULL;
+    *p = 13; // This results in Access Violation
+  }
+
+  // Unset exception handlers before exiting the thread
+  crUninstallFromCurrentThread();    
+   
+  return 0;
+}
+
+void main()
+{
+  // Define CrashRpt configuration parameters
+  CR_INSTALL_INFO info;  
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));  
+  info.cb = sizeof(CR_INSTALL_INFO);    
+  info.pszAppName = "MyApp";  
+  info.pszAppVersion = "1.0.0";  
+  info.pszEmailSubject = "MyApp 1.0.0 Error Report";  
+  info.pszEmailTo = "myapp_support@hotmail.com";    
+  info.pszUrl = "http://myapp.com/tools/crashrpt.php";  
+  info.pfnCrashCallback = CrashCallback;   
+  info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
+  info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
+  info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
+  info.dwFlags = 0; // Install all available exception handlers  
+  // Define the Privacy Policy URL 
+  info.pszPrivacyPolicyURL = "http://myapp.com/privacypolicy.html"; 
+  
+  // Install exception handlers
+  int nResult = crInstall(&info);    
+  if(nResult!=0)  
+  {    
+    // Something goes wrong. Get error message.
+    char szErrorMsg[512];    
+    szErrorMsg[0]=0;    
+    crGetLastErrorMsg(szErrorMsg, 512);    
+    printf("%s\n", szErrorMsg);    
+    return;
+  } 
+
+  // The main code follows...
+
+  // Create the worker thread
+  DWORD dwThreadId = 0;
+  HANDLE hWorkingThread = CreateThread(NULL, 0, 
+    ThreadProc, (LPVOID)NULL, 0, &dwThreadId);
+
+ // There is a hidden error in the main() function
+ // Call of printf with NULL parameter
+ char* formatString = NULL;
+ printf(formatString);
+
+ // Wait until the worker thread is exited
+  WaitForSingleObject(hWorkingThread, INFINITE);
+
+  // Unset exception handlers before exiting the main function
+  crUninstall();
 }
 
 \endcode
+
+
 
 */

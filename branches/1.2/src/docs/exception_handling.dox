@@ -35,7 +35,7 @@ For example, an exception may occur because of the following:
 - C run-time libraries detect an error and request program termination
 
 There are two kinds of exceptions that have different nature: SEH exceptions (Structured Exception Handling, SEH) 
-exceptions and typed C++ exceptions.
+and typed C++ exceptions.
 
 SEH exceptions were designed for C language, but they can be used in C++, too. 
 They are handled using __try{}__except(){} 

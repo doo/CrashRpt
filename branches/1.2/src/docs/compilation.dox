@@ -11,8 +11,7 @@ application does.
 
 \section building_solution Building Solution
 
-You can compile CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b>, 
-<b>Visual C++ 2008</b> and <b>Visual C++ Express</b>.
+You can compile CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b> and later versions, and in <b>Visual C++ Express</b>.
 
 Open one of solution files available in the top level directory of 
 CrashRpt package, depending on your version of Visual Studio:
