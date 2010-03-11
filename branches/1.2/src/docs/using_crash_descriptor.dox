@@ -1,15 +1,15 @@
 /*!
 
-\page using_crash_descriptor Using Crash Descriptor XML (crashrpt.xml)
+\page using_crash_descriptor Using Crash Description XML (crashrpt.xml)
 
-The crash descriptor is an XML file that contains basic information about the crash.
+The crash description is an XML file that contains basic information about the crash.
 It complements the information contained in mindump file. 
 
 \note The structure of XML file has changed since the version 1.0 of CrashRpt. The old structure
 provided mostly unusable information taken from crash minidump (exception address, 
 module list and so on). 
 
-A typical crash descriptor is presented below.
+A typical crash description is presented below.
 
 \code
 
@@ -28,13 +28,13 @@ A typical crash descriptor is presented below.
   <CustomProps>
     <Prop name="MyCustomStatus" value="May be better..."/>
   </CustomProps>
-  <FileItems>
+  <FileList>
     <FileItem name="crashdump.dmp" description="Crash Dump" />
     <FileItem name="crashrpt.xml" description="Crash Log" />
     <FileItem name="dummy.ini" description="Dummy INI File" />
     <FileItem name="dummy.log" description="Dummy Log File" />
     <FileItem name="screenshot0.png" description="Desktop Screenshot" />
-  </FileItems>
+  </FileList>
 </CrashRpt>
 
 \endcode

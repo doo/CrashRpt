@@ -2,7 +2,7 @@
 
 \page automating_crash_report_processing Automating Crash Report Processing
 
-The error report processing means opening a crash report, reading crash descriptor 
+The error report processing means opening a crash report, reading crash description 
 XML, opening crash minidump file, retrieving important information about the 
 exception, and finally presenting the information to the developer in text form.
 

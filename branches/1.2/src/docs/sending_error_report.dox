@@ -62,53 +62,88 @@ Below is an example server-side PHP script that can receive a crash report and w
 
 $fileroot = "/home/username/crash_reports/";
 
-
 // Checks if field is correct
-function checkOK($field)
+function checkOK($fieldname)
 {
-  if (eregi("\r",$field) || eregi("\n",$field))
+  if ( !isset($_POST[$fieldname]) || 
+       eregi("\r",$_POST[$fieldname]) || 
+       eregi("\n", $_POST[$fieldname]) )
   {
-    echo "450 Invalid parameter";
+    echo "450 Invalid or missing parameter: '$fieldname'.";
     exit(1);
   }
 }
 
 /*** Begin ***/
 
-checkOK($_POST["crashrpt"]);
-checkOK($_POST["md5"]);
+date_default_timezone_set('UTC');
 
-// Decode file data
-$filedata = base64_decode( $_POST["crashrpt"] );
+checkOK('md5');
+$md5 = $_POST['md5'];
+
+if(array_key_exists('crashrpt', $_FILES))
+{
+  $basename = basename($_FILES['crashrpt']['name']);
+  if(empty($basename))
+  {
+    echo "450 Missing filename";
+    exit(1);
+  }
+  $filename = $fileroot.$basename;
+
+  if(!move_uploaded_file($_FILES['crashrpt']['tmp_name'], $filename))
+  {
+    echo "452 Couldn't save data to local storage 1"; 
+    exit(1);
+  }
+}
+else
+{
+  // Assume legacy way is used
+  
+  checkOK('crashrpt');
+
+  // Decode file data
+  $filedata = base64_decode( $_POST['crashrpt'] );
+
+  if(array_key_exists('crashguid', $_POST))
+  {
+    $filename = $fileroot.$_POST['crashguid'].".zip";
+  }
+  else
+  {
+    // Generate ZIP file name
+    $datetime = date(DATE_RFC822);
+    $filename = $fileroot.md5($filedata.$datetime).".zip";
+  }
+
+  // Write decoded data to file
+  $file = fopen($filename, "w");
+  if($file==FALSE)
+  {
+    echo "452 Couldn't save data to local storage"; 
+    exit(1);
+  }
+	 
+  fwrite($file, $filedata);
+  fclose($file);
+}
 
 // Check that decoded data have valid MD5 hash
-$my_md5_hash = strtolower(md5($filedata));
-$their_md5_hash = strtolower($_POST["md5"]);
+$my_md5_hash = strtolower(md5_file($filename));
+$their_md5_hash = strtolower($_POST['md5']);
 if($my_md5_hash!=$their_md5_hash)
 {
-  echo "451 MD5 hash is invalid (yours is ".$their_md5_hash.",but mine is ".$my_md5_hash.")";
+  echo "451 MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")";
   exit(1);
 }
-
-// Generate ZIP file name
-$datetime = date(DATE_RFC822);
-$filename = $fileroot.md5($filedata.$datetime).".zip";
-
-// Write decoded data to file
-$file = fopen($filename, "w");
-if($file==FALSE)
-{
-  echo "452 Couldn't save data to local storage"; 
-  exit(1);
-}
-
-fwrite($file, $filedata);
-fclose($file);
 
 // OK.
 echo "200 Success";
 exit(0);
+
 ?>
+
 \endcode
 
 \section smtpsend Sending Crash Report Using SMTP Connection

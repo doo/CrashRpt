@@ -24,7 +24,7 @@ less and less error reports are received.
 
 A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as 
  - crash minidump (crashdump.dmp)
- - crash descriptor XML (crashrpt.xml) 
+ - crash description XML (crashrpt.xml) 
  - and optionally application specific files, for example, application log files.
 
 For more information about using crash descriptor XML and crash minidump, 

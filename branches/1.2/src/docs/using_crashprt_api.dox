@@ -64,7 +64,7 @@ report. You add application-specific files to the error report using crAddFile2(
 \section adding_a_custom_property Adding a Custom Property
 
 One way to add application-defined info to the error report is adding a file as described above. But
-sometimes you may want to extend the crash descriptor XML file by adding a named literal property to the
+sometimes you may want to extend the crash description XML file by adding a named literal property to the
 file. You can do this through the crAddProperty() function. 
 
 For example, you may need to add the info about amount of free disk space on a specific disk drive 
