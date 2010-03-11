@@ -112,8 +112,11 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   CStatic statPreview = GetDlgItem(IDC_PREVIEWTEXT);
   statPreview.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Preview")));  
 
-  CButton btnClose = GetDlgItem(IDOK);
-  btnClose.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Close")));  
+  m_btnClose = GetDlgItem(IDOK);
+  m_btnClose.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Close")));  
+
+  m_btnExport = GetDlgItem(IDC_EXPORT);
+  m_btnExport.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Export")));  
 
   // center the dialog on the screen
 	CenterWindow();  
@@ -199,4 +202,18 @@ LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
   return 0;
 }
 
+LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CString sFileName = g_CrashInfo.m_sCrashGUID + _T(".zip");
+  CFileDialog dlg(FALSE, _T("*.zip"), sFileName,
+      OFN_PATHMUSTEXIST|OFN_OVERWRITEPROMPT,
+      _T("ZIP Files (*.zip)\0*.zip\0All Files (*.*)\0*.*\0\0"), m_hWnd);
+  
+  INT_PTR result = dlg.DoModal();
+  if(result==IDOK)
+  {
 
+  }
+
+  return 0;
+}

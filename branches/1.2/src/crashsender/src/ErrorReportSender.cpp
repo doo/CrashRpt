@@ -153,6 +153,10 @@ void CErrorReportSender::DoWorkAssync()
   return;
 }
 
+BOOL CErrorReportSender::ExportReport(CString sSaveFileAs)
+{
+}
+
 // This method blocks until worker thread is exited
 void CErrorReportSender::WaitForCompletion()
 {

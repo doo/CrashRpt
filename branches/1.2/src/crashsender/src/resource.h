@@ -24,6 +24,7 @@
 #define IDS_SYMBOL_FILE                 1006
 #define IDS_HTTP_FORM_DATA              1007
 #define IDC_BUTTON1                     1014
+#define IDC_EXPORT                      1014
 #define IDC_FILE_LIST                   1015
 #define IDC_RICHEDIT21                  1017
 #define IDC_HEADINGTEXT                 1018

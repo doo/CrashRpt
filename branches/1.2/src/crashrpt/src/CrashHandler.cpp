@@ -301,7 +301,7 @@ int CCrashHandler::Init(
     return 1; 
   }
 
-  if(lpcszErrorReportSaveDir!=NULL)
+  if(lpcszErrorReportSaveDir==NULL)
   {
     // Create %LOCAL_APPDATA%\CrashRpt\UnsavedCrashReports\AppName_AppVer folder.
     CString sLocalAppDataFolder;

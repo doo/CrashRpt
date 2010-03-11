@@ -47,6 +47,8 @@ public:
 
   BOOL DoWork();
 
+  BOOL ExportReport(CString sSaveFileAs);
+
   void WaitForCompletion();
 
   void GetStatus(int& nProgressPct, std::vector<CString>& msg_log);
@@ -75,14 +77,14 @@ private:
   BOOL SendOverSMTP();
   BOOL SendOverSMAPI();
 
-  HANDLE m_hThread;  // Handle to the worker thread
-  int m_SendAttempt; // Number of current sending attempt
-  AssyncNotification m_Assync; // Used for communication with the main thread
-  CEmailMessage m_EmailMsg;    // Email message to send
-  CSmtpClient m_SmtpClient;    // Used to send report over SMTP 
+  HANDLE m_hThread;                   // Handle to the worker thread
+  int m_SendAttempt;                  // Number of current sending attempt
+  AssyncNotification m_Assync;        // Used for communication with the main thread
+  CEmailMessage m_EmailMsg;           // Email message to send
+  CSmtpClient m_SmtpClient;           // Used to send report over SMTP 
   CHttpRequestSender m_HttpSender;    // Used to send report over HTTP
-  CMailMsg m_MapiSender;       // Used to send report over SMAPI
-  CString m_sZipName;          // Name of the ZIP archive to send
+  CMailMsg m_MapiSender;              // Used to send report over SMAPI
+  CString m_sZipName;                 // Name of the ZIP archive to send
 };
 
 extern CErrorReportSender g_ErrorReportSender;
