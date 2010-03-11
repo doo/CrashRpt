@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\dbghelp\include;..\..\zip_utils"
+				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\dbghelp\include;..\..\zlib\src;..\..\wtl;..\..\minizip\src"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,9 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib minizipd.lib version.lib  zlibd.lib"
 				OutputFile="$(OutDir)\$(ProjectName)d.dll"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\zlib\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				ImportLibrary="..\..\lib\$(TargetName).lib"
@@ -49,7 +50,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -70,7 +72,7 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\zip_utils;..\..\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\dbghelp\include;..\..\zlib\src;..\..\wtl;..\..\minizip\src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="3"
@@ -80,9 +82,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib version.lib zlib.lib"
 				OutputFile="..\..\bin\CrashRptProbe.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\zlib\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="0"
@@ -98,7 +101,8 @@
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -229,43 +233,6 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
-			<Filter
-				Name="zip_utils">
-				<File
-					RelativePath="..\..\zip_utils\unzip.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\zip_utils\zip.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-							DisableSpecificWarnings="4996"/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -296,15 +263,6 @@
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxml.h">
-				</File>
-			</Filter>
-			<Filter
-				Name="zip_utils">
-				<File
-					RelativePath="..\..\zip_utils\unzip.h">
-				</File>
-				<File
-					RelativePath="..\..\zip_utils\zip.h">
 				</File>
 			</Filter>
 		</Filter>

@@ -29,6 +29,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\src\zlib_vs.NE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptProbe", "crashrptprobe\src\CrashRptProbe_vs2003.vcproj", "{42B7465D-C7ED-42D3-9DE6-D966721A6F86}"
 	ProjectSection(ProjectDependencies) = postProject
+		{C610F50E-1013-46F0-AE20-4E918654B40F} = {C610F50E-1013-46F0-AE20-4E918654B40F}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crprober", "crprober\src\crprober_vs2003.vcproj", "{485ADA7C-BF7C-4EDC-AA56-212BF0160351}"

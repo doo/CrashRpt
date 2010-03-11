@@ -155,6 +155,7 @@ void CErrorReportSender::DoWorkAssync()
 
 BOOL CErrorReportSender::ExportReport(CString sSaveFileAs)
 {
+	return TRUE;
 }
 
 // This method blocks until worker thread is exited
@@ -262,7 +263,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
 // This callbask function is called by MinidumpWriteDump
 BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
   PVOID CallbackParam,
-  const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+  PMINIDUMP_CALLBACK_INPUT CallbackInput,
   PMINIDUMP_CALLBACK_OUTPUT CallbackOutput )
 {
   // Delegate back to the CErrorReportSender

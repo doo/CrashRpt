@@ -145,7 +145,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include;..\..\libpng\src;..\..\wtl;..\..\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\include;..\..\libpng\src;..\..\wtl;..\..\dbghelp\include;..\..\wtl"
 				PreprocessorDefinitions="WIN64;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -163,7 +163,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -329,7 +329,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\include;..\..\minizip\src;..\..\libpng\src;..\..\wtl;..\..\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\include;..\..\minizip\src;..\..\libpng\src;..\..\wtl;..\..\dbghelp\include;..\..\wtl"
 				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -345,7 +345,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -795,10 +795,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\UrlEncode.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\crashrpt\src\Utility.cpp"
 				>
 			</File>
@@ -1073,10 +1069,6 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\UrlEncode.h"
 				>
 			</File>
 			<File

@@ -64,7 +64,7 @@ private:
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   BOOL TakeDesktopScreenshot();
   BOOL CreateMiniDump();
-  static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, const PMINIDUMP_CALLBACK_INPUT CallbackInput,
+  static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);

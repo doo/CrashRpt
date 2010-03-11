@@ -138,11 +138,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   const char* szExceptionPointersAddress = hExceptionPointersAddress.FirstChild().ToText()->Value();
   if(szExceptionPointersAddress!=NULL)
   {
-#ifdef _WIN64
     m_pExInfo = (PEXCEPTION_POINTERS)_strtoui64(szExceptionPointersAddress, NULL, 10);
-#else
-    m_pExInfo = (PEXCEPTION_POINTERS)strtoul(szExceptionPointersAddress, NULL, 10);
-#endif 
   }
   else
   {

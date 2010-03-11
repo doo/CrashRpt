@@ -34,6 +34,7 @@
 #include "smtpclient.h"
 #include <Windns.h>
 #include <Ws2tcpip.h>
+#pragma warning(disable:4706)
 #include <Wspiapi.h>
 #include <sys/stat.h>
 #include "Utility.h"
