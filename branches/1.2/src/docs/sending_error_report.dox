@@ -2,42 +2,135 @@
 
 \page sending_error_reports Sending Error Reports
 
-When crash occurs, CrashRpt collects crash information and runs another process named CrashSender.exe. 
-The parent process is then terminated. If you generate error report manually, the parent process is not terminated. 
+When crash occurs, CrashRpt runs the \b CrashSender.exe process that collects crash information (desktop screenshot, minidump, application-defined files). 
+The parent process is then terminated, except in the case when you generate error report manually.
 
-\note CrashRpt saves the error report data to LOCAL_APP_DATA\\CrashRpt\\UnsentErrorReports\\AppName_AppVersion folder. 
-CrashRpt moves the crash report files to the Recycle Bin after it was sent to the recipient successfuly. If error report sending procedure
-fails, CrashRpt doesn't delete the report files.          
+By default, \b CrashSender.exe saves error report files to <i>%%LOCAL_APP_DATA%\\CrashRpt\\UnsentErrorReports\\%%AppName%%_%%AppVersion%</i> folder. 
+Optionally, you can specify another location where to store files using CR_INSTALL_INFO::pszErrorReportSaveDir structure member.
 
-The CrashSender.exe displays GUI as described in \ref error_report and when user confirms error report submission, 
-it attempts to send the error report to the software support team
-using one of the following ways: 
+\b CrashSender.exe moves crash report files to the Recycle Bin after the report is sent to the recipient successfuly. 
+If error report sending procedure fails, \b CrashSender.exe doesn't delete the report files.          
+
+\b CrashSender.exe displays GUI as described in \ref error_report and when user confirms error report submission, 
+\b CrashSender.exe compresses the report files and attempts to send the error report to the recipient over HTTP or over E-mail 
+using the following ways in turn:
  - via HTTP request to a server-side script
- - via connection to an SMTP server
- - via Simple MAPI programming interface (the user's default E-mail client application)
+ - via direct connection to an SMTP server
+ - via Simple MAPI programming interface (user's default E-mail client application)
 
-If one of these ways fails, CrashRpt tries others in turn. 
+You can specify the order of trials by using CR_INSTALL_INFO::uPriorities structure member.
 
-<b>Are there any crash report size limitations?</b>
+\section error_report_size_limitations Error Report Size Limitations
 
-Yes, they are. A crash report should be as small as possible. This is because of limitations 
-of size of email attachments and HTTP request size. If the error report is larger than the 
-limit (which may be different for different systems), it is possible that the error report 
-won't be delivered to the software support team. 
+<b>Since v.1.2.2</b>, CrashRpt provides better support of large error reports being sent using HTTP connection.
+You can send error reports having arbitrary size, however check your web-server settings to ensure it won't
+reject reports larger than some limit. For example, if you use PHP, check the <i>upload_max_filesize</i>
+configuration parameter (the default in 2 megabytes), <i>post_max_size</i> parameter and possibly others (see PHP documentation 
+for details).
+
+In case you plan to deliver error reports over E-mail, than error reports should be as small as possible. 
+This is because of limitations of email attachment size. If the error report is larger than the 
+limit (which may be different for different mail server), it is possible that the error report 
+will be rejected. 
 
 \section httpsend Sending Crash Report Using HTTP Connection
 
 Many software products have web sites on the Internet. Such web servers typically have some 
-scripting engine enabled, for example PHP, Perl and so on. CrashRpt can establish HTTP connection
+scripting engine enabled, for example, PHP, ASP and so on. CrashRpt can establish HTTP connection
 to a server-side script and send the error report as a script parameter.
 
-The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
-of 64 predefined characters. The server-side script should base64-decode the ZIP file data.
+<b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in RFC-1867. This mechanism allows
+to upload large files by using binary content transfer encoding. The 'multipart/form-data' encoding is specified. 
+This is disabled by default. To opt this in, specify \ref CR_INST_HTTP_BINARY_ENCODING flag in CR_INSTALL_INFO::dwFlags 
+structure member.
 
-The encoded data are passed to the script by POST as parameter named "crashrpt".
+Older versions of CrashRpt used 'urlencode' encoding type in conjunction with Base-64 encoding for file attachment. 
+This way is enabled by default for backwards compatibility, however this way of transferring report data is not recommended to use.
 
-Before encoding, an MD5 hash for the file data is calculated. The server-side script can extract the MD5 hash
-from "md5" parameter.
+\subsection script_params Script Parameters
+
+The server-side script receives the following POST parameters. In PHP, these parameters are part of 
+<b>$_POST</b> global array.
+
+<table>
+
+<tr>
+<td> <b>Parameter Name</b>
+<td> <b>Example value</b>
+<td> <b>Remarks</b>
+
+<tr>
+<td> md5
+<td> "af89e902b42cd301092bb34530984e59"
+<td> This parameter contains the MD5 hash of error report data. This can be used to check error report integrity.
+
+<tr>
+<td> crashrpt
+<td> This will be a Base-64 encoded character sequence.
+<td> This parameter contains error report data encoded with Base-64 encoding. This legacy parameter is have to be used 
+     if you need to receive reports being sent by an older (pre-v.1.2.2) version of CrashRpt. 
+
+     The crash report ZIP file data are converted to base64 encoding to replace all restricted characters with a set
+     of 64 predefined characters. The server-side script should base64-decode the ZIP file data.
+
+     Since v.1.2.2, error reports are recommended to send using binary encoding (see CR_INSTALL_INFO::dwFlags member
+     for more information). 
+
+<tr>
+<td> appname
+<td> "MyApp"
+<td> Application name (as passed to \b CR_INSTALL_INFO::pszAppName structure member).
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> appversion
+<td> "1.0.0"
+<td> Application version (as passed to \b CR_INSTALL_INFO::pszAppVersion structure member).
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> crashguid
+<td> ""
+<td> Crash GUID (globally unique identifier). 
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> emailsubject
+<td> "MyApp 1.0.0 Error Report"
+<td> E-mail subject (as passed to \b CR_INSTALL_INFO::pszEmailSubject structure member).
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> emailfrom
+<td> "user@example.com"
+<td> E-mail of the user who sent this report. 
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+<tr>
+<td> description
+<td> "I just started the app and then it crashed. Help!"
+<td> User-provided problem description.
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+</table>
+
+The server side script receives the following file attachments. In PHP, these parameters are part
+of <b>$_FILES</b> global array.
+
+<table>
+
+<tr>
+<td> <b>Attachment Name</b>
+<td> <b>Remarks</b>
+
+<tr>
+<td> crashrpt
+<td> This file attachment contains the error report file data.
+
+     <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
+</table>
+
+\subsection script_return Return Value
 
 The script should return status of request completion as server responce content. In HTTP/1.0 and since, 
 the first line of the HTTP response is called the status line and includes a numeric status code (such as "404") 
@@ -54,6 +147,8 @@ When creating your own script, be careful with the script's return code. If your
 saving error report it should return '200 Success'. If crash sending process 
 encounters another error code, it attempts sending the error report using another way. In such situation
 you may receive the same error report several times through different transport.
+
+\subsection script_example Sample PHP Script
 
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
 
@@ -149,7 +244,7 @@ exit(0);
 \section smtpsend Sending Crash Report Using SMTP Connection
 
 CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
-connection without any user interaction. An error report is sent as an E-mail multi-part message with 
+connection without any user interaction. The error report is sent as an E-mail multi-part message with 
 attachments.
 
 If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP
@@ -163,7 +258,7 @@ This way may fail if firewall blocks outgoing connections on port 25.
 \section smapisend Sending Crash Report Using Simple MAPI
 
 CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
-An error report is sent as an E-mail multi-part message with attachments.
+The error report is sent as an E-mail multi-part message with attachments.
 This requires some user interaction.
 
 This way has the lowest priority by default.
