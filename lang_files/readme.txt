@@ -13,6 +13,10 @@ The following strings have changed:
  * In [DetailDlg] section:
    - Export - new
 
+ * In [ProgressDlg] section:
+   - DlgCaptionExport - new
+   - ExportedWithErrors - new
+
 --- v.1.2.1 ---
 
 The following strings have changed:
