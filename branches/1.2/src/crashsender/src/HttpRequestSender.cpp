@@ -73,7 +73,7 @@ DWORD WINAPI CHttpRequestSender::WorkerThread(VOID* pParam)
   CHttpRequestSender* pSender = (CHttpRequestSender*)pParam;
   // Delegate further actions to CHttpRequestSender class
   pSender->InternalSend();  
-
+  
   return 0;
 }
 
@@ -121,7 +121,7 @@ BOOL CHttpRequestSender::InternalSend()
   ParseURL(m_Request.m_sUrl, szProtocol, 512, szServer, 512, dwPort, szURI, 1024);
 
   // Connect to HTTP server
-  m_Assync->SetProgress(_T("Connecting to server"), 5, false);
+  m_Assync->SetProgress(_T("Connecting to server"), 0, true);
 
   hConnect = InternetConnect(hSession, szServer, (WORD)dwPort, 
     NULL, NULL, INTERNET_SERVICE_HTTP, 0, 1);
@@ -133,13 +133,13 @@ BOOL CHttpRequestSender::InternalSend()
 
   if(m_Assync->IsCancelled()){ goto cleanup; }
 
-  m_Assync->SetProgress(_T("Opening HTTP request..."), 7, false);
+  m_Assync->SetProgress(_T("Opening HTTP request..."), 0, true);
 
   hRequest = HttpOpenRequest(hConnect, _T("POST"), szURI, 
 			NULL, NULL, szAccept, INTERNET_FLAG_NO_CACHE_WRITE, 0);
   if (!hRequest)
   {
-	  m_Assync->SetProgress(_T("HttpOpenRequest has failed."), 0, false);
+	  m_Assync->SetProgress(_T("HttpOpenRequest has failed."), 0, true);
     goto cleanup;
   }
   
@@ -157,9 +157,10 @@ BOOL CHttpRequestSender::InternalSend()
   m_dwPostSize = (DWORD)lPostSize;
   m_dwUploaded = 0;
 
+  m_Assync->SetProgress(_T("Sending HTTP request..."), 0);
   if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
   {
-    m_Assync->SetProgress(_T("HttpSendRequestEx has failed."), 0, false);
+    m_Assync->SetProgress(_T("HttpSendRequestEx has failed."), 0);
     goto cleanup;
   }
 
@@ -183,12 +184,13 @@ BOOL CHttpRequestSender::InternalSend()
   if(!bRet)
     goto cleanup;
 
+  m_Assync->SetProgress(_T("Ending HTTP request..."), 0);
   if(!HttpEndRequest(hRequest, NULL, 0, 0))
   {
     goto cleanup;
   }
 
-  m_Assync->SetProgress(_T("Reading server responce..."), 0, true);
+  m_Assync->SetProgress(_T("Reading server responce..."), 0);
   
   InternetReadFile(hRequest, pBuffer, 2048, &dwBuffSize);
   pBuffer[dwBuffSize] = 0;
@@ -198,7 +200,7 @@ BOOL CHttpRequestSender::InternalSend()
     
   if(atoi((LPCSTR)pBuffer)!=200)
   {
-    m_Assync->SetProgress(_T("Failed"), 100, false);
+    m_Assync->SetProgress(_T("Failed."), 100, false);
     goto cleanup;
   }
 
@@ -216,6 +218,8 @@ cleanup:
 
 	if(hSession) 
     InternetCloseHandle(hSession);
+
+  m_Assync->SetCompleted(bStatus?0:1);
 
   return bStatus;
 }
@@ -252,6 +256,9 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
   DWORD dwBytesRead = 0;
   for(;;)
   {
+    if(m_Assync->IsCancelled())
+      return FALSE;
+
     dwBytesRead = (DWORD)MIN(1024, nDataSize-pos);    
     if(dwBytesRead==0)
       break; // EOF
@@ -325,6 +332,9 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
   DWORD dwBytesRead = 0;
   for(;;)
   {
+    if(m_Assync->IsCancelled())
+      return FALSE;
+
     bRet = ReadFile(hFile, pBuffer, 1024, &dwBytesRead, NULL);
     if(!bRet)
     {

@@ -43,6 +43,8 @@ struct AssyncNotification
   /* Constructor */
   AssyncNotification();  
 
+  void Reset();
+
   // Sets the progress message and percent completed
   void SetProgress(CString sStatusMsg, int percentCompleted, bool bRelative=true);
 

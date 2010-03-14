@@ -106,7 +106,12 @@ BOOL CMailMsg::DetectMailClient(CString& sMailClientName)
   ULONG buf_size = 0;
   LONG lResult;
   
-  lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Clients\\Mail"), KEY_READ);
+  lResult = regKey.Open(HKEY_CURRENT_USER, _T("SOFTWARE\\Clients\\Mail"), KEY_READ);
+  if(lResult!=ERROR_SUCCESS)
+  {
+    lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Clients\\Mail"), KEY_READ);
+  }
+  
   if(lResult==ERROR_SUCCESS)
   {    
     buf_size = 1023;
@@ -119,7 +124,11 @@ BOOL CMailMsg::DetectMailClient(CString& sMailClientName)
       return TRUE;  
     }
 
-    regKey.Close();
+    regKey.Close();  
+  }
+  else
+  {
+    sMailClientName = "Not Detected";
   }
 
   return FALSE;
@@ -132,14 +141,13 @@ BOOL CMailMsg::MAPIInitialize()
    CString sMailClientName;
    if(!DetectMailClient(sMailClientName))
    {
-     m_sErrorMsg = _T("Error detecting E-mail client");
+     m_sErrorMsg = _T("Error detecting E-mail client");     
      return FALSE;
    }
    else
    {
      m_sErrorMsg = _T("Detected E-mail client ") + sMailClientName;
-   }
-   
+   }   
    
    // Load MAPI.dll
 

@@ -35,11 +35,26 @@
 
 AssyncNotification::AssyncNotification()
 {
-  m_nCompletionStatus = -1;    
-  m_nPercentCompleted = 0;
   m_hCompletionEvent = CreateEvent(0, FALSE, FALSE, 0);
   m_hCancelEvent = CreateEvent(0, FALSE, FALSE, 0);
   m_hFeedbackEvent = CreateEvent(0, FALSE, FALSE, 0);
+
+  Reset();
+}
+
+void AssyncNotification::Reset()
+{  
+  m_cs.Lock();
+
+  m_nCompletionStatus = -1;    
+  m_nPercentCompleted = 0;
+  m_statusLog.clear();
+  
+  ResetEvent(m_hCancelEvent);
+  ResetEvent(m_hCompletionEvent);
+  ResetEvent(m_hFeedbackEvent);
+
+  m_cs.Unlock();
 }
 
 void AssyncNotification::SetProgress(CString sStatusMsg, int percentCompleted, bool bRelative)

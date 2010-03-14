@@ -150,6 +150,12 @@ int CCrashHandler::Init(
 
   m_bSendErrorReport = (dwFlags&CR_INST_DONT_SEND_REPORT)?FALSE:TRUE;
 
+  if(!m_bSilentMode && !m_bSendErrorReport)
+  {    
+    crSetErrorMsg(_T("Can't disable error sending when in GUI mode (incompatible flags specified)."));
+    return 1;
+  }
+
   // Save Email recipient address
   m_sTo = lpcszTo;
 
@@ -1182,6 +1188,9 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add SilentMode tag
   fprintf(f, "  <SilentMode>%d</SilentMode>\n", m_bSilentMode);
+
+  // Add SendErrorReport tag
+  fprintf(f, "  <SendErrorReport>%d</SendErrorReport>\n", m_bSendErrorReport);
 
   // Write file list
   fprintf(f, "  <FileList>\n");

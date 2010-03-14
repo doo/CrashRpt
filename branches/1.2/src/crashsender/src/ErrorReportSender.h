@@ -38,6 +38,13 @@
 #include "smtpclient.h"
 #include "HttpRequestSender.h"
 
+enum ActionType  
+{
+  COLLECT_CRASH_INFO = 0x01, 
+  COMPRESS_REPORT    = 0x02, 
+  SEND_REPORT        = 0x04
+};
+
 class CErrorReportSender
 {
 public:
@@ -45,9 +52,8 @@ public:
   CErrorReportSender();
   ~CErrorReportSender();
 
-  BOOL DoWork();
-
-  BOOL ExportReport(CString sSaveFileAs);
+  BOOL DoWork(int action);
+  void SetExportFlag(BOOL bExport, CString sExportFile);
 
   void WaitForCompletion();
 
@@ -85,6 +91,9 @@ private:
   CHttpRequestSender m_HttpSender;    // Used to send report over HTTP
   CMailMsg m_MapiSender;              // Used to send report over SMAPI
   CString m_sZipName;                 // Name of the ZIP archive to send
+  int m_Action;                // Current action
+  BOOL m_bExport;
+  CString m_sExportFileName;
 };
 
 extern CErrorReportSender g_ErrorReportSender;

@@ -34,6 +34,7 @@
 #include "DetailDlg.h"
 #include "Utility.h"
 #include "CrashInfoReader.h"
+#include "ErrorReportSender.h"
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
@@ -205,6 +206,7 @@ LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
 LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   CString sFileName = g_CrashInfo.m_sCrashGUID + _T(".zip");
+
   CFileDialog dlg(FALSE, _T("*.zip"), sFileName,
       OFN_PATHMUSTEXIST|OFN_OVERWRITEPROMPT,
       _T("ZIP Files (*.zip)\0*.zip\0All Files (*.*)\0*.*\0\0"), m_hWnd);
@@ -212,7 +214,9 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
   INT_PTR result = dlg.DoModal();
   if(result==IDOK)
   {
-
+    CString sExportFileName = dlg.m_szFileName;
+    g_ErrorReportSender.SetExportFlag(TRUE, sExportFileName);
+    g_ErrorReportSender.DoWork(COMPRESS_REPORT);
   }
 
   return 0;

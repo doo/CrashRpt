@@ -277,7 +277,11 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 
 LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  ShowWindow(SW_SHOW);
+  if(!g_CrashInfo.m_bSilentMode)
+    ShowWindow(SW_SHOW);
+  else
+    g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
+  
   return 0;
 }
 
@@ -354,6 +358,8 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
     
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);
+  g_ErrorReportSender.SetExportFlag(FALSE, _T(""));
+  g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
   m_dlgProgress.Start(FALSE);    
   SetTimer(0, 500);
   
@@ -362,7 +368,6 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
   return 0;
 }
-
 
 LRESULT CErrorReportDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {

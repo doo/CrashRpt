@@ -416,7 +416,6 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
  *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report, just save it locally'. 
  *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
- *             Although the report won't be sent, the notification email still will be sent if you specify \a pszEmailTo parameter.
  *
  *   </table>
  *

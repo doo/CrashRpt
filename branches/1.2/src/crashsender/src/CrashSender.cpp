@@ -39,7 +39,6 @@
 
 CAppModule _Module;
 CErrorReportDlg dlgErrorReport;
-//CProgressDlg dlgProgress;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {
@@ -47,8 +46,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   int argc = 0;
   LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
  
-  ATLASSERT(0);
-
   // Read the crash info passed by CrashRpt.dll to CrashSender.exe 
   if(argc==1)
   {
@@ -56,7 +53,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   }
 
   // Do the rest of the work assynchroniosly
-  g_ErrorReportSender.DoWork();
+  g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
 
   // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
@@ -76,7 +73,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   
 	int nRet = theLoop.Run();
 
-  // Wait untill the worker thread is exited
+  // Wait until the worker thread is exited
   g_ErrorReportSender.WaitForCompletion();
 
 	_Module.RemoveMessageLoop();

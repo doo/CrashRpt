@@ -71,6 +71,7 @@ public:
   CString     m_sUrl;
   BOOL        m_bHttpBinaryEncoding;
   BOOL        m_bSilentMode;
+  BOOL        m_bSendErrorReport;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;
   MINIDUMP_TYPE m_MinidumpType;

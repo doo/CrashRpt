@@ -143,6 +143,7 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszPrivacyPolicyURL = strconv.w2t((LPWSTR)pInfo->pszPrivacyPolicyURL);
   LPCTSTR ptszDebugHelpDLL_file = strconv.w2t((LPWSTR)pInfo->pszDebugHelpDLL);
   MINIDUMP_TYPE miniDumpType = pInfo->uMiniDumpType;
+  LPCTSTR ptszErrorReportSaveDir = strconv.w2t((LPWSTR)pInfo->pszErrorReportSaveDir);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -156,7 +157,8 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
     pInfo->dwFlags,
     ptszPrivacyPolicyURL,
     ptszDebugHelpDLL_file,
-    miniDumpType
+    miniDumpType,
+    ptszErrorReportSaveDir
     );
   
   if(nInitResult!=0)
@@ -177,74 +179,23 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   // Convert pInfo members to wide char
 
   strconv_t strconv;
-  LPCWSTR lpwszAppName = NULL;
-  LPCWSTR lpwszAppVersion = NULL;
-  LPCWSTR lpwszCrashSenderPath = NULL;
-  LPCWSTR lpwszEmailSubject = NULL;
-  LPCWSTR lpwszEmailTo = NULL;
-  LPCWSTR lpwszUrl = NULL;
-  LPCWSTR lpwszPrivacyPolicyURL = NULL;
-  LPCWSTR lpwszDebugHelpDLL = NULL;
-
+  
   CR_INSTALL_INFOW ii;
   memset(&ii, 0, sizeof(CR_INSTALL_INFOW));
   ii.cb = sizeof(CR_INSTALL_INFOW);
   ii.pfnCrashCallback = pInfo->pfnCrashCallback;
-
-  if(pInfo->pszAppName!=NULL)
-  {
-    lpwszAppName = strconv.a2w(pInfo->pszAppName);
-    ii.pszAppName = lpwszAppName;
-  }
-
-  if(pInfo->pszAppVersion!=NULL)
-  {
-    lpwszAppVersion = strconv.a2w(pInfo->pszAppVersion);
-    ii.pszAppVersion = lpwszAppVersion;
-  }
-
-  if(pInfo->pszCrashSenderPath!=NULL)
-  {
-    lpwszCrashSenderPath = strconv.a2w(pInfo->pszCrashSenderPath);
-    ii.pszCrashSenderPath = lpwszCrashSenderPath;
-  }
-
-  if(pInfo->pszEmailSubject!=NULL)
-  {
-    lpwszEmailSubject = strconv.a2w(pInfo->pszEmailSubject);
-    ii.pszEmailSubject = lpwszEmailSubject;
-  }
-
-  if(pInfo->pszEmailTo!=NULL)
-  {
-    lpwszEmailTo = strconv.a2w(pInfo->pszEmailTo);
-    ii.pszEmailTo = lpwszEmailTo;
-  }
-
-  if(pInfo->pszUrl!=NULL)
-  {
-    lpwszUrl = strconv.a2w(pInfo->pszUrl);
-    ii.pszUrl = lpwszUrl;
-  }
-
+  ii.pszAppName = strconv.a2w(pInfo->pszAppName);
+  ii.pszAppVersion = strconv.a2w(pInfo->pszAppVersion);
+  ii.pszCrashSenderPath = strconv.a2w(pInfo->pszCrashSenderPath);
+  ii.pszEmailSubject = strconv.a2w(pInfo->pszEmailSubject);
+  ii.pszEmailTo = strconv.a2w(pInfo->pszEmailTo);
+  ii.pszUrl = strconv.a2w(pInfo->pszUrl);
   memcpy(&ii.uPriorities, pInfo->uPriorities, 3*sizeof(UINT));
-
   ii.dwFlags = pInfo->dwFlags;
-
-  if(pInfo->pszPrivacyPolicyURL!=NULL)
-  {
-    lpwszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
-    ii.pszPrivacyPolicyURL = lpwszPrivacyPolicyURL;
-  }
-
-  if(pInfo->pszDebugHelpDLL!=NULL)
-  {
-    lpwszDebugHelpDLL = strconv.a2w(pInfo->pszDebugHelpDLL);
-    ii.pszDebugHelpDLL = lpwszDebugHelpDLL;
-  }
-
+  ii.pszPrivacyPolicyURL = strconv.a2w(pInfo->pszPrivacyPolicyURL);
+  ii.pszDebugHelpDLL = strconv.a2w(pInfo->pszDebugHelpDLL);
   ii.uMiniDumpType = pInfo->uMiniDumpType;
-
+  ii.pszErrorReportSaveDir = strconv.a2w(pInfo->pszErrorReportSaveDir);
 
   return crInstallW(&ii);
 }

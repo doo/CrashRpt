@@ -43,6 +43,8 @@ class CProgressDlg : public CDialogImpl<CProgressDlg>,
 public:
 	enum { IDD = IDD_PROGRESSDLG };
   
+  enum ActionOnCancel{DONT_CLOSE, CLOSE_MYSELF, CLOSE_MYSELF_AND_PARENT};
+
   CProgressBarCtrl m_prgProgress;
   CListViewCtrl m_listView;
   CButton m_btnCancel;
@@ -84,8 +86,8 @@ public:
   void CloseDialog(int nVal);
   int SetClipboard(CString& sData);
 
-  BOOL m_bFinished;
-  
+  ActionOnCancel m_ActionOnCancel;  
+  ActionOnCancel m_ActionOnClose;
 };
 
 
