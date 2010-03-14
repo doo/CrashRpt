@@ -39,13 +39,43 @@ Many software products have web sites on the Internet. Such web servers typicall
 scripting engine enabled, for example, PHP, ASP and so on. CrashRpt can establish HTTP connection
 to a server-side script and send the error report as a script parameter.
 
-<b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in RFC-1867. This mechanism allows
+Older versions of CrashRpt used 'urlencode' encoding type in conjunction with Base-64 encoding for file attachment. 
+The legacy way is enabled by default for backwards compatibility, however it is not recommended to use.
+
+This is an equivalent HTTP form:
+\code 
+<http>
+<form action="http://someserver.net/crashrpt.php" method="POST" enctype="url-encoded">
+ MD5:<input type="text" name="md5">
+ Base64-encoded ZIP file data:<input type="text" name="crashrpt">
+ <input type="submit" name="Submit">
+</form>
+</http>
+\endcode
+
+
+<b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in <a href="http://www.ietf.org/rfc/rfc1867.txt">RFC-1867.</a> 
+This mechanism allows
 to upload large files by using binary content transfer encoding. The 'multipart/form-data' encoding is specified. 
 This is disabled by default. To opt this in, specify \ref CR_INST_HTTP_BINARY_ENCODING flag in CR_INSTALL_INFO::dwFlags 
 structure member.
 
-Older versions of CrashRpt used 'urlencode' encoding type in conjunction with Base-64 encoding for file attachment. 
-This way is enabled by default for backwards compatibility, however this way of transferring report data is not recommended to use.
+This is an equivalent HTTP form:
+
+\code 
+<http>
+<form action="http://someserver.net/crashrpt.php" method="POST" enctype="multipart/form-data">
+ Application name:<input type="text" name="appname">
+ Application version:<input type="text" name="appversion">
+ Email from:<input type="text" name="emailfrom">
+ Email subject:<input type="text" name="emailsubject">
+ Crash GUID:<input type="text" name="crashguid">
+ MD5:<input type="text" name="md5">
+ Attach ZIP file:<input type="file" name="crashrpt">
+ <input type="submit" name="Submit">
+</form>
+</http>
+\endcode
 
 \subsection script_params Script Parameters
 
