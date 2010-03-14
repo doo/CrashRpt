@@ -21,9 +21,15 @@
 - Introduced multi-part HTTP uploads. This will help to send large error reports more effectively.
 
 - Fixed: Doesn't work in Windows 2000 (issue 17)
+- Fixed: CrashSender doesn't work on Windows 2000 (issue 21)
 
+- Fixed: mistyping? (issue 18)
+- Fixed: inconsistency in xml Crash Log (issue 20)
 - Fixed some problems with UTF-8 encoded strings written by tinixml.
 
+- Fixed: crprober.exe does not work well (issue 19)
+
+- New: Introcuded an ability to specify the folder where crash reports are created (issue 22)
 
 --- Ver. 1.2.1 ---
 
