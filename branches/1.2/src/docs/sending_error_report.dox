@@ -39,13 +39,15 @@ Many software products have web sites on the Internet. Such web servers typicall
 scripting engine enabled, for example, PHP, ASP and so on. CrashRpt can establish HTTP connection
 to a server-side script and send the error report as a script parameter.
 
-Older versions of CrashRpt used 'urlencode' encoding type in conjunction with Base-64 encoding for file attachment. 
+Older versions of CrashRpt used "application/x-www-form-urlencoded" form encoding type in conjunction 
+with Base-64 encoding for file attachment. 
 The legacy way is enabled by default for backwards compatibility, however it is not recommended to use.
 
-This is an equivalent HTTP form:
+The equivalent HTTP form is presented below:
+
 \code 
 <http>
-<form action="http://someserver.net/crashrpt.php" method="POST" enctype="url-encoded">
+<form action="http://someserver.net/crashrpt.php" method="POST" enctype="application/x-www-form-urlencoded">
  MD5:<input type="text" name="md5">
  Base64-encoded ZIP file data:<input type="text" name="crashrpt">
  <input type="submit" name="Submit">
@@ -54,13 +56,12 @@ This is an equivalent HTTP form:
 \endcode
 
 
-<b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in <a href="http://www.ietf.org/rfc/rfc1867.txt">RFC-1867.</a> 
-This mechanism allows
-to upload large files by using binary content transfer encoding. The 'multipart/form-data' encoding is specified. 
-This is disabled by default. To opt this in, specify \ref CR_INST_HTTP_BINARY_ENCODING flag in CR_INSTALL_INFO::dwFlags 
-structure member.
+<b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in 
+<a href="http://www.ietf.org/rfc/rfc1867.txt">RFC-1867.</a> 
+This mechanism allows to upload large files by using binary content transfer encoding. 
+The "multipart/form-data" form encoding is utilized for this purpose. 
 
-This is an equivalent HTTP form:
+The equivalent HTTP form is presented below:
 
 \code 
 <http>
@@ -77,9 +78,16 @@ This is an equivalent HTTP form:
 </http>
 \endcode
 
+This transfer type is disabled by default to ensure backwards compatibility. To opt this in, 
+specify \ref CR_INST_HTTP_BINARY_ENCODING flag in CR_INSTALL_INFO::dwFlags 
+structure member.
+
 \subsection script_params Script Parameters
 
-The server-side script receives the following POST parameters. In PHP, these parameters are part of 
+Below is the summary of parameters the server-side script may receive. The parameters actually received
+may depend on what version of CrashRpt sent the report.
+
+The server-side script may receive the following POST parameters. In PHP, these parameters are part of 
 <b>$_POST</b> global array.
 
 <table>
@@ -120,7 +128,7 @@ The server-side script receives the following POST parameters. In PHP, these par
      <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
 <tr>
 <td> crashguid
-<td> ""
+<td> "37b4d6da-1211-4e62-adc6-174acb53ddf5"
 <td> Crash GUID (globally unique identifier). 
 
      <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
@@ -144,7 +152,7 @@ The server-side script receives the following POST parameters. In PHP, these par
      <b>This parameter is available in error report sent by CrashRpt v.1.2.2 or later.</b>
 </table>
 
-The server side script receives the following file attachments. In PHP, these parameters are part
+The server side script may receive the following file attachments. In PHP, these parameters are part
 of <b>$_FILES</b> global array.
 
 <table>
@@ -181,6 +189,7 @@ you may receive the same error report several times through different transport.
 \subsection script_example Sample PHP Script
 
 Below is an example server-side PHP script that can receive a crash report and write it to a file.
+The script can receive error reports from any version of CrashRpt.
 
 \code
 <?php

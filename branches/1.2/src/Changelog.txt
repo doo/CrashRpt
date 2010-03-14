@@ -31,6 +31,8 @@
 
 - New: Introcuded an ability to specify the folder where crash reports are created (issue 22)
 
+- New: Introduced an ability to export error report through "Export..." button on Error Report Details dialog.
+
 --- Ver. 1.2.1 ---
 
 - Refactored crash report generation and sending functionality. Now report files are stored 
