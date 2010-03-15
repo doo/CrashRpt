@@ -43,16 +43,16 @@ Older versions of CrashRpt used "application/x-www-form-urlencoded" form encodin
 with Base-64 encoding for file attachment. 
 The legacy way is enabled by default for backwards compatibility, however it is not recommended to use.
 
-The equivalent HTTP form is presented below:
+The equivalent HTML form is presented below:
 
 \code 
-<http>
+<html>
 <form action="http://someserver.net/crashrpt.php" method="POST" enctype="application/x-www-form-urlencoded">
  MD5:<input type="text" name="md5">
  Base64-encoded ZIP file data:<input type="text" name="crashrpt">
  <input type="submit" name="Submit">
 </form>
-</http>
+</html>
 \endcode
 
 
@@ -61,10 +61,10 @@ The equivalent HTTP form is presented below:
 This mechanism allows to upload large files by using binary content transfer encoding. 
 The "multipart/form-data" form encoding is utilized for this purpose. 
 
-The equivalent HTTP form is presented below:
+The equivalent HTML form is presented below:
 
 \code 
-<http>
+<html>
 <form action="http://someserver.net/crashrpt.php" method="POST" enctype="multipart/form-data">
  Application name:<input type="text" name="appname">
  Application version:<input type="text" name="appversion">
@@ -75,7 +75,7 @@ The equivalent HTTP form is presented below:
  Attach ZIP file:<input type="file" name="crashrpt">
  <input type="submit" name="Submit">
 </form>
-</http>
+</html>
 \endcode
 
 This transfer type is disabled by default to ensure backwards compatibility. To opt this in, 
