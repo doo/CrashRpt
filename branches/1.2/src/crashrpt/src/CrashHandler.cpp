@@ -906,7 +906,7 @@ void CCrashHandler::CollectMiscCrashInfo()
   {    
     // Get count of opened handles
     DWORD dwHandleCount = 0;
-    BOOL bGetHandleCount = GetProcessHandleCount(hCurProcess, &dwHandleCount);
+    BOOL bGetHandleCount = pfnGetProcessHandleCount(hCurProcess, &dwHandleCount);
     if(bGetHandleCount)
       m_dwProcessHandleCount = dwHandleCount;
     else
