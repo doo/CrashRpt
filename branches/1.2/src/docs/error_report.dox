@@ -24,6 +24,9 @@ The <b>Error Report Details</b> dialog (see below) contains files that are prese
 Double clicking a filename opens the file using its associated program, 
 if an association exists for the file type. 
 
+Pressing the <i>Export...</i> button results in exporting the error report as ZIP archive.
+This may be useful if you want to save a local copy of the error report.
+
 \image html detaildlg.png "Error Report Details Dialog"
 
 <b>Since v.1.1.2</b> you can use a privacy policy describing what user 

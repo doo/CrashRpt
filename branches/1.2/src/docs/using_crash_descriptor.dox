@@ -1,6 +1,6 @@
 /*!
 
-\page using_crash_descriptor Using Crash Description XML (crashrpt.xml)
+\page using_crash_descriptor Using Crash Description XML
 
 The crash description is an XML file that contains basic information about the crash.
 It complements the information contained in mindump file. 

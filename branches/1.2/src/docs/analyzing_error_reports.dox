@@ -7,7 +7,7 @@ start receiving crash reports.
 
 Count of received crash reports may depend on robustness of your software to various 
 exceptional situations and on popularity of your software. So it's nothing unusual
-if you receive hundreeds of error reports a day. If there are many incoming error reports,
+if you receive hundreds of error reports a day. If there are many incoming error reports,
 you can monitor and analyse them for the first few days after release, and prepare a hot fix 
 release. 
 
@@ -22,12 +22,12 @@ less and less error reports are received.
 
 \section zip_structure The Structure of an Error Report
 
-A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as 
+A crash report is a ZIP file containing several files, such as 
  - crash minidump (crashdump.dmp)
  - crash description XML (crashrpt.xml) 
  - and optionally application specific files, for example, application log files.
 
-For more information about using crash descriptor XML and crash minidump, 
+For more information about using crash description XML and crash minidump, 
 see \ref using_crash_descriptor and \ref using_minidump.
 
 For information on how to automate error report processing, see \ref automating_crash_report_processing.

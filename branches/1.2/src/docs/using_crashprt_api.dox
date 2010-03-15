@@ -15,8 +15,8 @@ and CrashRpt classes have \c Cr prefix.
 
 All CrashRpt functions using character set dependent arguments have two versions of function name 
 (multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, crInstall()
-function has two versions of function name: crInstallA() and crInstallW(). Typically you use a
-character set independent mapping of function name in your program, for example use crInstall() that 
+function has two versions of function name: crInstallA() and crInstallW(). Typically in your program you use a
+character set independent mapping of function name, for example use crInstall() that 
 expands into crInstallW() if you use wide character set or into crInstallA() if you use multibyte 
 character set.
 
@@ -67,7 +67,7 @@ One way to add application-defined info to the error report is adding a file as 
 sometimes you may want to extend the crash description XML file by adding a named literal property to the
 file. You can do this through the crAddProperty() function. 
 
-For example, you may need to add the info about amount of free disk space on a specific disk drive 
+For example, you may need to add the info about the amount of free disk space on a specific disk drive 
 at the moment of crash, or about the version of the graphics card driver. 
 
 \section adding_a_screenshot Adding a Screenshot
@@ -102,12 +102,12 @@ error report manually on user demand,
 for example on a key combination press. The crGenerateErrorReport() function allows to generate an error
 report manually.
 
-\section handling_structured_exceptions Handling Structured Exceptions
+\section handling_structured_exceptions Structured Exception Handling (SEH)
 
 Visual C++ provides structured exception handling mechanism. You may use <i>__try{}__except(Expression){}</i>
-construction to catch a structured exception in a block of code in your program, however this requires some
+construction to catch a SEH exception in a block of code in your program, however this requires some
 work to write custom exception filter function. To simplify this, use crExceptionFilter() function instead to
-generate an error report when structured exception occurs. 
+generate the error report when SEH exception occurs. 
 
 \section testing_if_intercepted Testing If Exceptions are Intercepted
 

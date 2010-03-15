@@ -1,6 +1,6 @@
 /*!
 
-\page demos Running Demo Applications (CrashRptTest.exe and crashcon.exe)
+\page demos Running Demo Applications 
 
 \note If you run the precompiled demos from \c bin folder and do not compile them yourself, you might
 expirience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 

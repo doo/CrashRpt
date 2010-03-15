@@ -1,6 +1,6 @@
 /*!
 
-\page using_minidump Using Crash Minidump (crashdump.dmp)
+\page using_minidump Using Crash Minidump
 
 You can open minidump files in Visual Studio, in WinDbg or in another debugger tool. 
 

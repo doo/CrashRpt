@@ -124,7 +124,7 @@ Presents UI allowing user to review the crash report. Supports privacy policy de
 Can display its UI using different languages, which makes it even more suitable for 
 multi-lingual applications.
 
-Sends the report in background after user have provided his/her consent. CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable 
+Sends the report in background after user has provided his/her consent. CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable 
 for users not having servers for storing error reports. To send reports over E-mail, 
 user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 

@@ -3,17 +3,17 @@
 \page architecture_overview Architecture Overview
 
 CrashRpt consists of two core modules: \b CrashRpt.dll and \b CrashSender.exe.
-- \c CrashRpt.dll contains functionality for intercepting exceptions in a client software.
+- \c CrashRpt.dll contains functionality for handling exceptions in the client software.
 - \c CrashSender.exe contains functionality for sending error reports to the software's support team.
 
 CrashRpt is separated into these modules to be able to close the application 
-which crashes and to continue sending error report through \c CrashSender.exe 
+that crashes and to continue sending error report through \c CrashSender.exe 
 in background.
 
 Typically a process (executable file) loads CrashRpt.dll into its address space 
 when process starts. This single instance of CrashRpt is shared between all DLL 
 modules that are loaded into the process' address space. Client application uses 
-CrashRpt API functions to set exception handlers in the process once, typically 
+\ref CrashRptAPI to set exception handlers in the process once, typically 
 in its \b main() function. In a multi-theraded program, client additionally 
 sets exception handlers in the beginning of thread procedure of each worker thread.
 

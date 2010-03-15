@@ -2,7 +2,7 @@
 
 \page compiling_crashrpt Compiling CrashRpt
 
-By default CrashRpt release package already contains binary files 
+By default, CrashRpt release package already contains binary files 
 compiled with Visual Studio 2005 in its \c bin directory. However, 
 it is strongly recommended that you compile CrashRpt yourself using 
 your version of Visual Studio. This is needed to ensure CrashRpt 
@@ -48,7 +48,7 @@ There are several projects in CrashRpt solution.
 To build solution, choose the Release build configuration and press 
 F7 to start building process.
 
-\section compiling_x64_platform Compilation for x64 Plaform
+\section compiling_x64_platform Compilation for 64-bit (x64) Plaform
 
 <b>Since v.1.2.1</b>, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) plaforms.
 Visual C++ 2005 or later is required. 
@@ -60,7 +60,8 @@ Note, that you should have x64 compiler tools and SDK files properly installed
 
 \section notes_about_evc Notes About Compiling in Visual C++ Express
 
-To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
+Compilation in free Visual C++ Express is a little more complicated than compilation
+in a commercial edition of Visual C++. To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
 Windows Server 2003, because this Platform SDK contains ATL source code. 
 Download and install Microsoft Platform SDK for Windows Server 2003, for example
 <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en">
@@ -84,7 +85,7 @@ at all (if possible).
 
 \section builddox Generating Project Documentation
 
-By default project documentation is already generated and included into the CrashRpt release
+By default, project documentation is already generated and included into the CrashRpt release
 package. To open the documentation, click \c index.html file in the top-level directrory of 
 CrashRpt package.
 
@@ -95,7 +96,7 @@ the tool from <a href="http://www.stack.nl/~dimitri/doxygen/">here</a>.
 To build the documentation, go to the \c docs folder and type in the command line:
 
 \code
-doxygen doxyfile
+doxygen Doxyfile
 \endcode
 
 When doxygen finishes, go to the top level directory and open \c index.html.
