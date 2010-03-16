@@ -1029,7 +1029,7 @@ crAddPropertyA(
 #define CR_CPP_INVALID_PARAMETER        6    //!< Invalid parameter exception (VS 2005 and later).
 #define CR_CPP_SIGABRT                  7    //!< C++ SIGABRT signal (abort).
 #define CR_CPP_SIGFPE                   8    //!< C++ SIGFPE signal (flotating point exception).
-#define CR_CPP_SIGILL                   9   //!< C++ SIGILL signal (illegal instruction).
+#define CR_CPP_SIGILL                   9    //!< C++ SIGILL signal (illegal instruction).
 #define CR_CPP_SIGINT                   10   //!< C++ SIGINT signal (CTRL+C).
 #define CR_CPP_SIGSEGV                  11   //!< C++ SIGSEGV signal (invalid storage access).
 #define CR_CPP_SIGTERM                  12   //!< C++ SIGTERM signal (termination request).

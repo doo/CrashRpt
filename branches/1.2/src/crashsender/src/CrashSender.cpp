@@ -42,16 +42,18 @@ CErrorReportDlg dlgErrorReport;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {
-  LPCWSTR szCommandLine = GetCommandLineW();  
+  LPCWSTR szCommandLine = GetCommandLineW();
+  
   int argc = 0;
   LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
  
   // Read the crash info passed by CrashRpt.dll to CrashSender.exe 
-  if(argc==1)
-  {
-    g_CrashInfo.Init(CString(argv[0]));
-  }
-
+  if(argc!=2)
+    return 1; // No arguments passed
+  
+  // Read crash info
+  g_CrashInfo.Init(CString(argv[1]));
+  
   // Do the rest of the work assynchroniosly
   g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
 

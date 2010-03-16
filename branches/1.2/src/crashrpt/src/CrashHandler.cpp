@@ -1229,11 +1229,10 @@ int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
   PROCESS_INFORMATION pi;
   memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
 
-  CString sArgs;
-  sArgs.Format(_T("\"%s\""), sCrashInfoFileName.GetBuffer(0));
+  CString sCmdLine;
+  sCmdLine.Format(_T("\"%s\" \"%s\""), m_sPathToCrashSender, sCrashInfoFileName.GetBuffer(0));
   BOOL bCreateProcess = CreateProcess(
-    m_sPathToCrashSender, sArgs.GetBuffer(0), 
-    NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    m_sPathToCrashSender, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
   if(!bCreateProcess)
   {
     ATLASSERT(bCreateProcess);
