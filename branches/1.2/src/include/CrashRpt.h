@@ -404,13 +404,13 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_NO_GUI                
  *        <td> <b>Available since v.1.2.2</b> Do not show GUI.
  * 
- *             It is not recommended to use this parameter for regular GUI-based applications. 
+ *             It is not recommended to use this flag for regular GUI-based applications. 
  *             Use this only for services that have no GUI.
  *    <tr><td> \ref CR_INST_HTTP_BINARY_ENCODING     
  *        <td> <b>Available since v.1.2.2</b> This affects the way of sending reports over HTTP. 
- *             By specifying this parameter, you enable usage of multi-part HTTP uploads with binary encoding instead of the legacy way (Base64-encoded form data). 
+ *             By specifying this flag, you enable usage of multi-part HTTP uploads with binary encoding instead of the legacy way (Base64-encoded form data). 
  *
- *             It is recommended to specify this parameter, because it is more suitable for large error reports. The legacy way
+ *             It is recommended to always specify this flag, because it is more suitable for large error reports. The legacy way
  *             is supported for backwards compatibility and not recommended to use.
  *             For additional information, see \ref sending_error_reports.
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     

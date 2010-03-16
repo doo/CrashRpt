@@ -61,7 +61,7 @@ The equivalent HTML form is presented below:
 <b>Since v.1.2.2</b>, CrashRpt supports HTTP file uploads as described in 
 <a href="http://www.ietf.org/rfc/rfc1867.txt">RFC-1867.</a> 
 This mechanism allows to upload large files by using binary content transfer encoding. 
-The "multipart/form-data" form encoding is utilized for this purpose. 
+The "multipart/form-data" encoding type is utilized for this purpose. 
 
 The equivalent HTML form is presented below:
 
