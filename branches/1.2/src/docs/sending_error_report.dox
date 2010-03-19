@@ -196,82 +196,108 @@ The script can receive error reports from any version of CrashRpt.
 \code
 <?php
 
-$fileroot = "/home/username/crash_reports/";
+$file_root = "/home/username/crash_reports/";
 
-// Checks if field is correct
-function checkOK($fieldname)
+error_reporting(E_ALL);
+date_default_timezone_set('UTC');
+
+function checkOK($field)
 {
-  if ( !isset($_POST[$fieldname]) || 
-       eregi("\r",$_POST[$fieldname]) || 
-       eregi("\n", $_POST[$fieldname]) )
+  if (eregi("\\r",$field) || eregi("\\n",$field)) 
   {
-    echo "450 Invalid or missing parameter: '$fieldname'.";
-    exit(1);
+    Die(450, "Invalid input parameter.");
   }
 }
 
-/*** Begin ***/
-
-date_default_timezone_set('UTC');
-
-checkOK('md5');
-$md5 = $_POST['md5'];
-
-if(array_key_exists('crashrpt', $_FILES))
+function Die($return_status, $message)
 {
-  $basename = basename($_FILES['crashrpt']['name']);
-  if(empty($basename))
-  {
-    echo "450 Missing filename";
-    exit(1);
-  }
-  $filename = $fileroot.$basename;
+  echo $return_status." ".$message; 
+  exit(1);
+}
 
-  if(!move_uploaded_file($_FILES['crashrpt']['tmp_name'], $filename))
+$md5_hash = "";
+$file_name = "";
+$crash_guid = "";
+
+if(!isset($_POST["md5"])
+{
+  Die(450, "MD5 hash is missing.");
+}
+
+// Get MD5 hash
+$md5_hash = $_POST["md5"];
+checkOK($md5_hash);
+if(strlen($md5_hash)!=32)
+{
+  Die(450, "MD5 hash value has wrong length.");
+}
+
+if(array_key_exists("crashrpt", $_FILES))
+{
+  $tmp_file_name = $_FILES["crashrpt"]["name"];
+  checkOK($tmp_file_name);
+
+  $base_name = basename($tmp_file_name);
+  if(empty($base_name))
   {
-    echo "452 Couldn't save data to local storage 1"; 
-    exit(1);
+    Die(450, "Missing filename");
+  }
+
+  $file_name = $file_root.$base_name;
+
+  if(!move_uploaded_file($tmp_file_name, $file_name))
+  {
+    Die(452, "Couldn't save data to local storage"); 
   }
 }
 else
 {
   // Assume legacy way is used
-  
-  checkOK('crashrpt');
+  if(!isset($_POST["crashrpt"]))  
+  {
+    Die(450, "Error report data is missing.");
+  }
+
+  $encoded_data = $_POST["crashrpt"];
 
   // Decode file data
-  $filedata = base64_decode( $_POST['crashrpt'] );
+  $file_data = base64_decode($encoded_data);
 
-  if(array_key_exists('crashguid', $_POST))
+  if(array_key_exists("crashguid", $_POST))
   {
-    $filename = $fileroot.$_POST['crashguid'].".zip";
+    $crash_guid = $_POST["crashguid"];
+    checkOK($crash_guid);
+    if(strlen($crash_guid)!=36)
+    {
+      Die(450, "Crash GUID has wrong length.");
+    }
+    
+    $file_name = $file_root.$crash_guid.".zip";
   }
   else
   {
     // Generate ZIP file name
-    $datetime = date(DATE_RFC822);
-    $filename = $fileroot.md5($filedata.$datetime).".zip";
+    $date_time = date(DATE_RFC822);
+    $file_name = $file_root.md5($file_data.$date_time).".zip";
   }
 
   // Write decoded data to file
-  $file = fopen($filename, "w");
-  if($file==FALSE)
+  $f = fopen($file_name, "w");
+  if($f==FALSE)
   {
-    echo "452 Couldn't save data to local storage"; 
-    exit(1);
+    Die(452, "Couldn't save data to local storage"); 
   }
 	 
-  fwrite($file, $filedata);
-  fclose($file);
+  fwrite($f, $file_data);
+  fclose($f);
 }
 
-// Check that decoded data have valid MD5 hash
-$my_md5_hash = strtolower(md5_file($filename));
-$their_md5_hash = strtolower($_POST['md5']);
+// Check that decoded data have correct MD5 hash
+$my_md5_hash = strtolower(md5_file($file_name));
+$their_md5_hash = strtolower($md5_hash);
 if($my_md5_hash!=$their_md5_hash)
 {
-  echo "451 MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")";
-  exit(1);
+  Die(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
 }
 
 // OK.
