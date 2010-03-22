@@ -651,7 +651,7 @@ int output_document(CrpHandle hReport, FILE* f)
   tstring sExceptionCode;
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCPTRS_EXCEPTION_CODE, sExceptionCode);
   if(result==0)
-    doc.PutRecord(_T("Structured exception code (from minidump)"), sExceptionCode.c_str());
+    doc.PutRecord(_T("SEH exception code (from minidump)"), sExceptionCode.c_str());
 
   tstring sExceptionThreadRowID;  
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_EXCEPTION_THREAD_ROWID, sExceptionThreadRowID);

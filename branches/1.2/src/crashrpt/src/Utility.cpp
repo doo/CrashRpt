@@ -238,11 +238,17 @@ int Utility::RecycleFile(CString sFilePath, bool bPermanentDelete)
 {
   SHFILEOPSTRUCT fop;
   memset(&fop, 0, sizeof(SHFILEOPSTRUCT));
+  
+  TCHAR szFrom[_MAX_PATH];  
+  memset(szFrom, 0, sizeof(TCHAR)*(_MAX_PATH));
+  _TCSCPY_S(szFrom, _MAX_PATH, sFilePath.GetBuffer(0));
+  szFrom[sFilePath.GetLength()+1] = 0;
+
   fop.fFlags |= FOF_SILENT;                // don't report progress
-  fop.fFlags |= FOF_NOERRORUI;             // don't report errors
+  fop.fFlags |= FOF_NOERRORUI;           // don't report errors
   fop.fFlags |= FOF_NOCONFIRMATION;        // don't confirm delete
   fop.wFunc = FO_DELETE;                   // REQUIRED: delete operation
-  fop.pFrom = sFilePath.GetBuffer(0);      // REQUIRED: which file(s)
+  fop.pFrom = szFrom;                      // REQUIRED: which file(s)
   fop.pTo = NULL;                          // MUST be NULL
   if (bPermanentDelete) 
   { 

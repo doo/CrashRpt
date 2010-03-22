@@ -769,7 +769,9 @@ BOOL CErrorReportSender::SendReport()
     m_Assync.SetProgress(_T("Error report sending disabled."), 0);
 
     // Move report files to Recycle Bin      
-    Utility::RecycleFile(g_CrashInfo.m_sErrorReportDirName, true);    
+    Utility::RecycleFile(g_CrashInfo.m_sErrorReportDirName, true);
+
+    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
     return FALSE;
   }
 
@@ -1024,6 +1026,12 @@ BOOL CErrorReportSender::SendOverSMAPI()
   if(g_CrashInfo.m_sEmailTo.IsEmpty())
   {
     m_Assync.SetProgress(_T("No E-mail address is specified for sending error report over Simple MAPI; skipping."), 0);
+    return FALSE;
+  }
+
+  if(g_CrashInfo.m_bSilentMode)
+  {
+    m_Assync.SetProgress(_T("Simple MAPI may require user interaction (not acceptable for non-GUI mode); skipping."), 0);
     return FALSE;
   }
 

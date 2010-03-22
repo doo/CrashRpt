@@ -71,8 +71,8 @@ BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
 {  
   // Add two files to the error report: 
   // log file and application configuration file  
-  crAddFile("log.txt", "Log File");  
-  crAddFile("config.ini", "Configuration File");
+  crAddFile2("log.txt", NULL, "Log File", CR_AF_MAKE_FILE_COPY);  
+  crAddFile2("config.ini", NULL, "Configuration File");
 
   // We want the screenshot of the entire desktop is to be 
   // added on crash
@@ -120,7 +120,8 @@ void main()
   info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
-  info.dwFlags = 0; // Install all available exception handlers  
+  // Install all available exception handlers, use HTTP binary transfer encoding (recommended).
+  info.dwFlags = CR_INST_ALL_EXCEPTION_HANDLERS|CR_INST_HTTP_BINARY_ENCODING; 
   // Define the Privacy Policy URL 
   info.pszPrivacyPolicyURL = "http://myapp.com/privacypolicy.html"; 
   

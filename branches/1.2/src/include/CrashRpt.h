@@ -391,7 +391,7 @@ GenerateErrorReport(
  *
  *    <table>
  *    <tr><td colspan="2"> <i>Use the combination of the following constants to specify what exception handlers to install:</i>
- *    <tr><td> \ref CR_INST_ALL_EXCEPTION_HANDLERS    <td> Install all available exception handlers (equivalent to zero).
+ *    <tr><td> \ref CR_INST_ALL_EXCEPTION_HANDLERS    <td> Install all available exception handlers.
  *    <tr><td> \ref CR_INST_SEH_EXCEPTION_HANDLER     <td> Install SEH exception handler.
  *    <tr><td> \ref CR_INST_PURE_CALL_HANDLER         <td> Install pure call handler (VS .NET and later).
  *    <tr><td> \ref CR_INST_NEW_OPERATOR_ERROR_HANDLER <td> Install new operator error handler (VS .NET and later).
@@ -549,42 +549,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *    crInstallW() and crInstallA() are wide-character and multi-byte character versions of crInstall()
  *    function. The \ref crInstall macro defines character set independent mapping for these functions.
  *
- *    The following example shows how to use crInstall() and crUninstall() functions.
- *   
- *    \code
- *    #include <windows.h>
- *    #include <assert.h>
- *    #include "CrashRpt.h"
- *
- *    void main()
- *    {
- *      // Install crash reporting
- *      CR_INSTALL_INFO info;
- *      memset(&info, 0, sizeof(CR_INSTALL_INFO));
- *      info.cb = sizeof(CR_INSTALL_INFO);  
- *      info.pszAppName = _T("My App Name");
- *      info.pszAppVersion = _T("1.2.3");
- *      info.pszEmailSubject = "Error Report from My App v.1.2.3";
- *      // The address to send reports by E-mail
- *      info.pszEmailTo = _T("myname@hotmail.com");  
- *      // The URL to send reports via HTTP connection
- *      info.pszUrl = _T("http://myappname.com/utils/crashrpt.php"); 
- *      info.pfnCrashCallback = CrashCallback; 
- *      info.uPriorities[CR_HTTP] = 3; // Try HTTP first
- *      info.uPriorities[CR_SMTP] = 2; // Try SMTP second
- *      info.uPriorities[CR_SMAPI] = 1; // Try system email program the last
- *      info.dwFlags = 0; // Install all available exception handlers
- *      info.pszPrivacyPolicyURL = _T("http://myappname.com/privacy.html"); // Set URL for privacy policy
- *
- *      int nInstResult = crInstall(&info);
- *      assert(nInstResult==0);
- *   
- *      // Here follows your code..
- *
- *      // Uninstall crash reporting
- *      crUninstall();
- *    }
- *    \endcode
+ *    For code example, see \ref simple_example.
  *
  *  \sa crInstallW(), crInstallA(), crInstall(), CR_INSTALL_INFOW, 
  *      CR_INSTALL_INFOA, CR_INSTALL_INFO, crUninstall(), 

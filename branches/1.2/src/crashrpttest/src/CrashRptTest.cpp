@@ -101,15 +101,19 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszEmailTo = _T("test@hotmail.com");
   info.pszUrl = _T("http://localhost/crashrpt.php");
   //info.pszUrl = _T("http://myappcom.com/crashrpt.php");
-  info.pfnCrashCallback = CrashCallback;    
-  info.uPriorities[CR_HTTP] = 3;
-  info.uPriorities[CR_SMTP] = 2;
-  info.uPriorities[CR_SMAPI] = 1; 
-  info.dwFlags = CR_INST_HTTP_BINARY_ENCODING;
-  info.pszDebugHelpDLL = 0;
-  info.uMiniDumpType = MiniDumpNormal;
+  info.pfnCrashCallback = CrashCallback; // Define crash callback function   
+  // Define sending priorities
+  info.uPriorities[CR_HTTP] = 3;         // Use HTTP the first
+  info.uPriorities[CR_SMTP] = 2;         // Use SMTP the second
+  info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last   
+  info.dwFlags = 0;
+  info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
+  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).
+  info.dwFlags |= CR_INST_NO_GUI|CR_INST_DONT_SEND_REPORT;  
+  info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
+  info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
-  //info.pszErrorReportSaveDir = _T("D:\\reports");
+  info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
     
   CrAutoInstallHelper cr_install_helper(&info);
   ATLASSERT(cr_install_helper.m_nInstallStatus==0); 

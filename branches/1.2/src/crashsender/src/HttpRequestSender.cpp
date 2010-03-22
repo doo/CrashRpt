@@ -187,6 +187,7 @@ BOOL CHttpRequestSender::InternalSend()
   m_Assync->SetProgress(_T("Ending HTTP request..."), 0);
   if(!HttpEndRequest(hRequest, NULL, 0, 0))
   {
+    m_Assync->SetProgress(_T("HttpEndRequest has failed."), 0);
     goto cleanup;
   }
 
@@ -208,6 +209,11 @@ BOOL CHttpRequestSender::InternalSend()
   bStatus = TRUE;
 
 cleanup:
+
+  if(!bStatus)
+  {
+    m_Assync->SetProgress(_T("Error sending HTTP request."), 100, false);
+  }
 
   // Clean up
 	if(hRequest) 
@@ -232,24 +238,36 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
   CString sHeader;
   bRet= FormatTextPartHeader(sName, sHeader);
   if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error formatting text part header."), 0);
     return FALSE;
+  }
   
   strconv_t strconv;
   LPCSTR pszHeader = strconv.t2a(sHeader);
   if(pszHeader==NULL)
+  {
+    m_Assync->SetProgress(_T("Error converting text part header to ASCII."), 0);
     return FALSE;
+  }
 
   DWORD dwBytesWritten = 0;
   bRet=InternetWriteFile(hRequest, pszHeader, (DWORD)strlen(pszHeader), &dwBytesWritten);
 	if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error uploading text part header."), 0);
     return FALSE;
+  }
   UploadProgress(dwBytesWritten);
 
   /* Write form data */
 
   std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
   if(it==m_Request.m_aTextFields.end())
+  {
+    m_Assync->SetProgress(_T("Error searching for text part header name."), 0);
     return FALSE; 
+  }
   
   size_t nDataSize = it->second.length();
   int pos = 0;    
@@ -257,7 +275,9 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
   for(;;)
   {
     if(m_Assync->IsCancelled())
+    {
       return FALSE;
+    }
 
     dwBytesRead = (DWORD)MIN(1024, nDataSize-pos);    
     if(dwBytesRead==0)
@@ -268,7 +288,10 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
     DWORD dwBytesWritten = 0;
     bRet=InternetWriteFile(hRequest, sBuffer.c_str(), dwBytesRead, &dwBytesWritten);
 	  if(!bRet)
+    {
+      m_Assync->SetProgress(_T("Error uploading text part data."), 0);
       return FALSE;
+    }
     UploadProgress(dwBytesWritten);
 
     pos += dwBytesRead;    
@@ -279,15 +302,24 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
   CString sFooter;
   bRet= FormatTextPartFooter(sName, sFooter);
   if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error formatting text part footer."), 0);
     return FALSE;
+  }
   
   LPCSTR pszFooter = strconv.t2a(sFooter);
   if(pszFooter==NULL)
+  {
+    m_Assync->SetProgress(_T("Error converting text part footer to ASCII."), 0);
     return FALSE;
+  }
 
   bRet=InternetWriteFile(hRequest, pszFooter, (DWORD)strlen(pszFooter), &dwBytesWritten);
 	if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error uploading text part footer."), 0);
     return FALSE;
+  }
   UploadProgress(dwBytesWritten);
 
   return TRUE;
@@ -301,30 +333,43 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
   CString sHeader;
   bRet= FormatAttachmentPartHeader(sName, sHeader);
   if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error formatting attachment part header."), 0);
     return FALSE;
+  }
   
   strconv_t strconv;
   LPCSTR pszHeader = strconv.t2a(sHeader);
   if(pszHeader==NULL)
+  {
+    m_Assync->SetProgress(_T("Error converting attachment part header to ASCII."), 0);
     return FALSE;
+  }
 
   DWORD dwBytesWritten = 0;
   bRet=InternetWriteFile(hRequest, pszHeader, (DWORD)strlen(pszHeader), &dwBytesWritten);
 	if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error uploading attachment part header."), 0);
     return FALSE;
+  }
   UploadProgress(dwBytesWritten);
 
   /* Write attachment data */
 
   std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
   if(it==m_Request.m_aIncludedFiles.end())
+  {
+    m_Assync->SetProgress(_T("Error searching for attachment part name."), 0);
     return FALSE; 
+  }
 
   CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
   HANDLE hFile = CreateFile(sFileName, 
      GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
   if(hFile==INVALID_HANDLE_VALUE)
   {    
+    m_Assync->SetProgress(_T("Error opening attachment file."), 0);
     return FALSE; 
   }
 
@@ -338,6 +383,7 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
     bRet = ReadFile(hFile, pBuffer, 1024, &dwBytesRead, NULL);
     if(!bRet)
     {
+      m_Assync->SetProgress(_T("Error reading data from attachment file."), 0);
       CloseHandle(hFile);
       return FALSE;
     }
@@ -348,7 +394,10 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
     DWORD dwBytesWritten = 0;
     bRet=InternetWriteFile(hRequest, pBuffer, dwBytesRead, &dwBytesWritten);
 	  if(!bRet)
+    {
+      m_Assync->SetProgress(_T("Error uploading attachment part data."), 0);
       return FALSE;
+    }
     UploadProgress(dwBytesWritten);
   }
 
@@ -359,15 +408,24 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
   CString sFooter;
   bRet= FormatAttachmentPartFooter(sName, sFooter);
   if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error formatting attachment part footer."), 0);
     return FALSE;
+  }
   
   LPCSTR pszFooter = strconv.t2a(sFooter);
   if(pszFooter==NULL)
+  {
+    m_Assync->SetProgress(_T("Error converting attachment part footer to ASCII."), 0);
     return FALSE;
+  }
 
   bRet=InternetWriteFile(hRequest, pszFooter, (DWORD)strlen(pszFooter), &dwBytesWritten);
 	if(!bRet)
+  {
+    m_Assync->SetProgress(_T("Error uploading attachment part footer."), 0);
     return FALSE;
+  }
   UploadProgress(dwBytesWritten);
 
   return TRUE;

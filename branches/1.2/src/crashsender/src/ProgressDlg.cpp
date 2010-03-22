@@ -246,7 +246,12 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
 
         if(!g_CrashInfo.m_bSilentMode)
-          ShowWindow(SW_SHOW);
+          ShowWindow(SW_SHOW);        
+        else
+        {
+          HWND hWndParent = ::GetParent(m_hWnd);        
+          ::PostMessage(hWndParent, WM_CLOSE, 0, 0);        
+        }
       }
       else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
       { 

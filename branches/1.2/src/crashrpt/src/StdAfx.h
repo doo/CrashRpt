@@ -57,9 +57,11 @@ extern CAppModule _Module;
 #include <dbghelp.h>
 
 #if _MSC_VER<1400
+#define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy(strDestination, strSource)
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy(strDest, strSource, count)
 #define STRCPY_S(strDestination, numberOfElements, strSource) strcpy(strDestination, strSource)
 #else
+#define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy_s(strDestination, numberOfElements, strSource)
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy_s(strDest, sizeInBytes, strSource, count)
 #define STRCPY_S(strDestination, numberOfElements, strSource) strcpy_s(strDestination, numberOfElements, strSource)
 #endif
