@@ -194,42 +194,42 @@ Below is an example server-side PHP script that can receive a crash report and w
 The script can receive error reports from any version of CrashRpt.
 
 \code
+
 <?php
 
 $file_root = "/home/username/crash_reports/";
 
-error_reporting(E_ALL);
 date_default_timezone_set('UTC');
+
+function done($return_status, $message)
+{
+  echo $return_status." ".$message; 
+  exit(0);
+}
 
 function checkOK($field)
 {
   if (eregi("\\r",$field) || eregi("\\n",$field)) 
   {
-    Die(450, "Invalid input parameter.");
+    done(450, "Invalid input parameter.");
   }
-}
-
-function Die($return_status, $message)
-{
-  echo $return_status." ".$message; 
-  exit(1);
 }
 
 $md5_hash = "";
 $file_name = "";
 $crash_guid = "";
 
-if(!isset($_POST["md5"])
+if(!isset($_POST['md5']))
 {
-  Die(450, "MD5 hash is missing.");
+  done(450, "MD5 hash is missing.");
 }
 
 // Get MD5 hash
-$md5_hash = $_POST["md5"];
+$md5_hash = $_POST['md5'];
 checkOK($md5_hash);
 if(strlen($md5_hash)!=32)
 {
-  Die(450, "MD5 hash value has wrong length.");
+  done(450, "MD5 hash value has wrong length.");
 }
 
 if(array_key_exists("crashrpt", $_FILES))
@@ -240,14 +240,14 @@ if(array_key_exists("crashrpt", $_FILES))
   $base_name = basename($tmp_file_name);
   if(empty($base_name))
   {
-    Die(450, "Missing filename");
+    done(450, "Missing filename");
   }
 
   $file_name = $file_root.$base_name;
 
   if(!move_uploaded_file($tmp_file_name, $file_name))
   {
-    Die(452, "Couldn't save data to local storage"); 
+    done(452, "Couldn't save data to local storage"); 
   }
 }
 else
@@ -255,7 +255,7 @@ else
   // Assume legacy way is used
   if(!isset($_POST["crashrpt"]))  
   {
-    Die(450, "Error report data is missing.");
+    done(450, "Error report data is missing.");
   }
 
   $encoded_data = $_POST["crashrpt"];
@@ -269,7 +269,7 @@ else
     checkOK($crash_guid);
     if(strlen($crash_guid)!=36)
     {
-      Die(450, "Crash GUID has wrong length.");
+      done(450, "Crash GUID has wrong length.");
     }
     
     $file_name = $file_root.$crash_guid.".zip";
@@ -285,9 +285,9 @@ else
   $f = fopen($file_name, "w");
   if($f==FALSE)
   {
-    Die(452, "Couldn't save data to local storage"); 
+    done(452, "Couldn't save data to local storage"); 
   }
-	 
+         
   fwrite($f, $file_data);
   fclose($f);
 }
@@ -297,15 +297,13 @@ $my_md5_hash = strtolower(md5_file($file_name));
 $their_md5_hash = strtolower($md5_hash);
 if($my_md5_hash!=$their_md5_hash)
 {
-  Die(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
+  done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
 }
 
 // OK.
-echo "200 Success";
-exit(0);
+done(200, "Success.");
 
 ?>
-
 \endcode
 
 \section smtpsend Sending Crash Report Using SMTP Connection

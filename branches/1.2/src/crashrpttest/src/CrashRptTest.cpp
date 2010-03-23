@@ -98,9 +98,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppName = _T("CrashRpt Tests");
   info.pszAppVersion = _T("1.2.2");
   info.pszEmailSubject = _T("Error from CrashRptTests");
-  info.pszEmailTo = _T("test@hotmail.com");
-  info.pszUrl = _T("http://localhost/crashrpt.php");
-  //info.pszUrl = _T("http://myappcom.com/crashrpt.php");
+  info.pszEmailTo = _T("test@hotmail.com");  
+  info.pszUrl = _T("http://myappcom.com/crashrpt.php");
   info.pfnCrashCallback = CrashCallback; // Define crash callback function   
   // Define sending priorities
   info.uPriorities[CR_HTTP] = 3;         // Use HTTP the first
@@ -108,8 +107,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last   
   info.dwFlags = 0;
   info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
-  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).
-  info.dwFlags |= CR_INST_NO_GUI|CR_INST_DONT_SEND_REPORT;  
+  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");

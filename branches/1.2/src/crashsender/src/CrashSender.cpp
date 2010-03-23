@@ -51,8 +51,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   if(argc!=2)
     return 1; // No arguments passed
   
-  ATLASSERT(0);
-
   // Read crash info
   g_CrashInfo.Init(CString(argv[1]));
   
