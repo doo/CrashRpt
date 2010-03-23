@@ -5,36 +5,34 @@
 
 CrashRpt v1.2.2 improves sending error reports over HTTP connection, improves error report generation by doing all complex actions outside of the crashed process, introduces non-GUI mode and restyles the documentation. Below the complete list of changes is presented. 
 
-- WTL files are now included into CrashRpt distribution.
+  * WTL files are now included into CrashRpt distribution.
 
-- Completely removed dependency on zip_utils (it is better to use minizip).
+  * Completely removed dependency on zip_utils (it is better to use minizip).
 
-- Removed vs.2008 project files. If you need to compile in VS 2008 and higher, use VS project convertor.
+  * Removed vs.2008 project files. If you need to compile in VS 2008 and higher, use VS project convertor.
 
-- Modifyed communication between CrashRpt.dll and CrashSender.exe. Now XML file is used for this purpose instead of named pipe.
+  * Modifyed communication between CrashRpt.dll and CrashSender.exe. Now XML file is used for this purpose instead of named pipe.
 
-- Refactored code. After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe).
-  This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
+  * Refactored code. After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe). This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
 
-- Introduced silent mode (CrashRpt sends report silently without showing GUI). 
-  This is useful for services and server processes.
+  * Introduced silent mode (CrashRpt sends report silently without showing GUI). This is useful for services and server processes.
 
-- Improved documentation (restyling).
+  * Improved documentation (restyling).
 
-- Introduced multi-part HTTP uploads. This will help to send large error reports more effectively.
+  * Introduced multi-part HTTP uploads. This will help to send large error reports more effectively.
 
-- Fixed: Doesn't work in Windows 2000 (issue 17)
-- Fixed: CrashSender doesn't work on Windows 2000 (issue 21)
+  * Fixed: Doesn't work in Windows 2000 (issue 17)
+  * Fixed: CrashSender doesn't work on Windows 2000 (issue 21)
 
-- Fixed: mistyping? (issue 18)
-- Fixed: inconsistency in xml Crash Log (issue 20)
-- Fixed some problems with UTF-8 encoded strings written by tinixml.
+  * Fixed: mistyping? (issue 18)
+  * Fixed: inconsistency in xml Crash Log (issue 20)
+  * Fixed some problems with UTF-8 encoded strings written by tinixml.
 
-- Fixed: crprober.exe does not work well (issue 19)
+  * Fixed: crprober.exe does not work well (issue 19)
 
-- New: Introcuded an ability to specify the folder where crash reports are created (issue 22)
+  * New: Introcuded an ability to specify the folder where crash reports are created (issue 22)
 
-- New: Introduced an ability to export error report through "Export..." button on Error Report Details dialog.
+  * New: Introduced an ability to export error report through "Export..." button on Error Report Details dialog.
 
 
 
