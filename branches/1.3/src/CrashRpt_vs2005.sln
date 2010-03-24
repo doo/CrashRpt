@@ -35,6 +35,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng\src\libpng
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minizip", "minizip\src\minizip.vcproj", "{C610F50E-1013-46F0-AE20-4E918654B40F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CrashRptOrganize", "crashrptorganize\src\CrashRptOrganize.vcproj", "{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -115,6 +117,12 @@ Global
 		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release|Win32.Build.0 = Release|Win32
 		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release|x64.ActiveCfg = Release|x64
 		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release|x64.Build.0 = Release|x64
+		{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}.Debug|Win32.Build.0 = Debug|Win32
+		{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}.Debug|x64.ActiveCfg = Debug|Win32
+		{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}.Release|Win32.ActiveCfg = Release|Win32
+		{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}.Release|Win32.Build.0 = Release|Win32
+		{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
