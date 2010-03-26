@@ -199,15 +199,15 @@ It may be useful to have a screenshot of user's desktop at the moment of crash. 
 
 But there is one thing to take in account. By enabling screenshot capture, you should be careful about user's privacy. Some parts of the desktop screenshot may contain private or user identifying information: folder names, wallpapers, photos, text fragments and so on. That's why you should always provide a link to your Privacy Policy page describing what information you collect on crash and what purposes you use it for. For example, see PrivacyPolicyTemplate.
 
-== Why would I want to add a custom text property to the crash descriptor XML? ==
+== Why would I want to add a custom text property to the crash description XML? ==
 
-One way to add application-defined info to the error report is adding a custom file. But sometimes you may want to extend the crash descriptor XML file by adding a custom named literal property to the XML file. You can do this through the `crAddProperty()` function.
+One way to add application-defined info to the error report is adding a custom file. But sometimes you may want to extend the crash description XML file by adding a custom named literal property to the XML file. You can do this through the `crAddProperty()` function.
 
 For example, you may need to add the info about amount of free disk space on a specific disk drive at the moment of crash, or about the version of the graphics card driver installed on user's machine.
 
 == I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
-In CrashRpt v.1.2.1, we introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
+In CrashRpt v.1.2.1, we introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
 you will be able to identify the installation and associate the bugs together.
 
 The following code example shows how to do this (code provided by tdev):
@@ -230,7 +230,7 @@ The following code example shows how to do this (code provided by tdev):
 
 == We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
 
-We introduced a function `crAddProperty()` specially for purposes of extending the crash descriptor XML as you wish. You can also use the `crAddFile2()` function, which allows to add a used-defined file to the crash report.
+We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a used-defined file to the crash report.
 
 == Why would I want to generate error report without crash? ==
 
@@ -241,6 +241,16 @@ Sometimes it may be required to remotely debug some application logics error. Su
 The user has an ability to enter the description of the problem in the main dialog (see the second link "Provide additional information (recommended)"). 
 
 However, my CrashRpt usage experience shows most users do not enter anything meaningful into this field, some users just enter trash.
+
+== What do I do to save a local copy of an error report to my disk? ==
+
+Since v.1.2.2, you can use the 'Export...' button on the Error Report Details dialog to save a local copy of the error report. 
+
+== Does crashrpt suport a non-GUI (silent) mode? ==
+
+Since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI, but usage of crash reporting is desired.
+
+However, it is not recommended to use the non-GUI mode with regular GUI applications which create windows and interact with user.
 
 == What is the required way of CRT linkage for crashrpt to work properly? ==
 
@@ -347,7 +357,7 @@ An error report refers to a collection of files intended to help the developer d
 
 The error report contains crash minidump file (crashdump.dmp), which has operating system version, processor type, CPU registers state and local variables and stack trace for each execution thread. The minidump can be used on developer's side to determine the reason of the crash and try to fix the problem.
 
-In addition, CrashRpt generates XML crash descriptor file. The file contains various complementary information that might be useful for crash analysis.
+In addition, CrashRpt generates XML crash description file. The file contains various complementary information that might be useful for crash analysis.
 
 Crash report can optionally contain application-defined files, for example, application log files, included into crash report via the crash callback. 
 
@@ -430,9 +440,9 @@ Since CrashRpt v1.1.1., when you receive error reports using email, the MD5 hash
 
 == How do I use an error report for debugging a crash? ==
 
-A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as crash minidump (crashdump.dmp), crash descriptor XML (crashrpt.xml), and optional application-specific files, e.g. , application log files.
+A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as crash minidump (crashdump.dmp), crash description XML (crashrpt.xml), and optional application-specific files, e.g. , application log files.
 
-The crash descriptor is an XML file that contains the basic information about the crash,
+The crash description is an XML file that contains the basic information about the crash,
 for example exception type, operating system name, application name and version.
  
 The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each excecution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studio or in `WinDbg` program and see the place of your code where exception had occurred. 
@@ -443,23 +453,23 @@ See CrashRpt documentation more information.
 
 We currently do not support bidirectional communication, because this would require some complex server-side functionality. You can add such integration on your server for users of your software yourself if you wish. 
 
-== How do I open a crash descriptor XML file? ==
+== How do I open a crash description XML file? ==
 
 You can use notepad, another text editor or your web browser.
 
 == What is crash GUID? ==
 
-A crash descriptor XML contains `CrashGUID` tag. The crash GUID is an unique identifier that is assigned to the error report. GUIDs are generated using special algorithm which guarantees very low probability of generating the same GUID twice, even on different user machines. The crash GUID can be used, for example, as the primary key if you plan to store crash reports in a database.
+A crash description XML contains `CrashGUID` tag. The crash GUID is an unique identifier that is assigned to the error report. GUIDs are generated using special algorithm which guarantees very low probability of generating the same GUID twice, even on different user machines. The crash GUID can be used, for example, as the primary key if you plan to store crash reports in a database.
 
 == How do I determine the name and version of the application that generated the error report?  ==
 
-The crash descriptor XML file contains `AppName` and `AppVersion` tags. You use them to determine what application sent you the report. You are typically interested in analysing error reports from the latest version of your software and ignore reports from older versions.
+The crash description XML file contains `AppName` and `AppVersion` tags. You use them to determine what application sent you the report. You are typically interested in analysing error reports from the latest version of your software and ignore reports from older versions.
 
 == How do I determine the OS version for the error report? ==
 
-A crash descriptor XML contains `OperatingSystem` tag which is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
+A crash description XML contains `OperatingSystem` tag which is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
 
-== What is an `ExceptionType` tag in the crash descriptor XML? ==
+== What is an `ExceptionType` tag in the crash description XML? ==
 
 The exception type shows what exception handler cathed the exception. For example, type 0 means that the structured win32 exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
 
