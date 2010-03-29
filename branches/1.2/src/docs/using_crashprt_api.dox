@@ -113,7 +113,7 @@ generate the error report when SEH exception occurs.
 
 When you install crash reporting support to your program, it is important to test if CrashRpt
 intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation. 
-You may call this function in each thread of your program to ensure all exceptions will be catched.
+You may call this function in each thread of your program to ensure all exceptions will be caught.
 
 \section get_err_msg Getting Error Messages
 

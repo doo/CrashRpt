@@ -63,14 +63,14 @@ void print_usage()
   _tprintf(_T("  where the argument may be any of the following:\n"));
   _tprintf(_T("   /f <input_file>          Required. Absolute or relative path to input ZIP file name.\n"));
   _tprintf(_T("   /fmd5 <md5_file_or_dir>  Optional. Path to .md5 file containing MD5 hash for the <input_file> \
-or directory name where to search for the .md5 file. If this parameter is ommitted, the .md5 file is searched \
+or directory name where to search for the .md5 file. If this parameter is omitted, the .md5 file is searched \
 in the directory where <input_file> is located.\n"));
   _tprintf(_T("   /o <out_file_or_dir>     Optional. Output file name or directory name. Or use empty name \"\" \
-to direct output to terminal. If this parameter is ommitted, output is not generated.\n"));
+to direct output to terminal. If this parameter is omitted, output is not generated.\n"));
   _tprintf(_T("   /sym <sym_search_dirs>   Optional. Symbol files search directory or list of directories \
-separated with semicolon. If this parameter is ommitted, symbol files are searched using the default search sequence.\n"));  
+separated with semicolon. If this parameter is omitted, symbol files are searched using the default search sequence.\n"));  
   _tprintf(_T("   /ext <extract_dir>       Optional. Specifies the directory where to extract all files contained in error report. \
-If this parameter is ommitted, files are not extracted.\n"));    
+If this parameter is omitted, files are not extracted.\n"));    
   _tprintf(_T("   /get <table_id> <column_id> <row_id> Optional. Specifies the table ID, column ID and row index of the property to retrieve. \
 If this parameter specified, the property is written to the output file or to terminal, as defined by /o parameter.\n"));    
 }
@@ -359,7 +359,7 @@ int process_report(LPTSTR szInput, LPTSTR szInputMD5, LPTSTR szOutput,
   // Decide MD5 file name  
   if(szInputMD5==NULL)
   {
-    // If /md5 cmdline argument is ommitted, search for md5 files in the same dir
+    // If /md5 cmdline argument is omitted, search for md5 files in the same dir
     sMD5FileName = szInput;
     sMD5FileName += _T(".md5");
   }

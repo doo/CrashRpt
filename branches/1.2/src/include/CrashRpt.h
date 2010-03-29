@@ -339,7 +339,7 @@ GenerateErrorReport(
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
- *  \brief This function defines general information used by crInstall()
+ *  \brief This structure defines the general information used by crInstall()
  *
  *  \remarks
  *
