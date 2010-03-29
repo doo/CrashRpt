@@ -113,9 +113,10 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
-        MENUITEM "&About CrashRptOrganize...",              ID_APP_ABOUT
+        MENUITEM "&About CrashRptOrganize...",  ID_APP_ABOUT
     END
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -131,19 +132,15 @@ IDR_MAINFRAME           ICON                    "res\\CrashRptOrganize.ico"
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOG  0, 0, 187, 102
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_ABOUTBOX DIALOGEX 0, 0, 187, 71
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "CrashRptOrganize Application v1.0\n\n(c) Copyright 2010",IDC_STATIC,25,57,78,
-                    32
-    ICON            IDR_MAINFRAME,IDC_STATIC,55,26,18,20
-    GROUPBOX        "",IDC_STATIC,7,7,115,88
+    DEFPUSHBUTTON   "OK",IDOK,69,50,50,14
+    ICON            IDR_MAINFRAME,IDC_STATIC,7,22,21,20
+    LTEXT           "CrashRptOrganize",IDC_STATIC,40,27,140,8
 END
-
-
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -159,7 +156,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 180
         TOPMARGIN, 7
-        BOTTOMMARGIN, 95
+        BOTTOMMARGIN, 64
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -211,21 +208,21 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName", "\0"
-            VALUE "FileDescription", "CrashRptOrganize Module\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
-            VALUE "InternalName", "CrashRptOrganize\0"
-            VALUE "LegalCopyright", "Copyright 2010\0"
-            VALUE "OriginalFilename", "CrashRptOrganize.exe\0"
-            VALUE "ProductName", "CrashRptOrganize Module\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "FileDescription", "CrashRptOrganize Module"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "CrashRptOrganize"
+            VALUE "LegalCopyright", "Copyright 2010"
+            VALUE "OriginalFilename", "CrashRptOrganize.exe"
+            VALUE "ProductName", "CrashRptOrganize Module"
+            VALUE "ProductVersion", "1, 0, 0, 1"
         END
     END
     BLOCK "VarFileInfo"
     BEGIN
-        VALUE "Translation", 0x0409, 0x04B0
+        VALUE "Translation", 0x409, 1200
     END
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -234,7 +231,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDR_MAINFRAME	"CrashRptOrganize"
+    IDR_MAINFRAME           "CrashRptOrganize"
 END
 
 STRINGTABLE 
@@ -314,6 +311,10 @@ END
 STRINGTABLE 
 BEGIN
     ATL_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
@@ -321,5 +322,3 @@ END
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef APSTUDIO_INVOKED
-#endif    // not APSTUDIO_INVOKED
