@@ -639,6 +639,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FilePreviewCtrl.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\HttpRequestSender.cpp"
 				>
 			</File>
@@ -1037,6 +1041,10 @@
 			</File>
 			<File
 				RelativePath=".\ErrorReportSender.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FilePreviewCtrl.h"
 				>
 			</File>
 			<File

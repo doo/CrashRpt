@@ -48,7 +48,7 @@ public:
   CProgressBarCtrl m_prgProgress;
   CListViewCtrl m_listView;
   CButton m_btnCancel;
-  CStatic m_statText;  
+  CStatic m_statText;    
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)
     DLGRESIZE_CONTROL(IDC_PROGRESS, DLSZ_SIZE_X)
