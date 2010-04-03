@@ -49,6 +49,8 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DlgCaption")));
 
   m_filePreview.SubclassWindow(GetDlgItem(IDC_PREVIEW));
+  m_filePreview.SetBytesPerLine(10);
+  m_filePreview.SetEmptyMessage(Utility::GetINIString(_T("DetailDlg"), _T("NoDataToDisplay")));
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);

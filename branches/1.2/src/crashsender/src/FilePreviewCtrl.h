@@ -39,7 +39,7 @@ public:
   CFilePreviewCtrl();
   ~CFilePreviewCtrl();
 
-  DECLARE_WND_SUPERCLASS(NULL, CStatic::GetWndClassName())
+  DECLARE_WND_SUPERCLASS(NULL, CWindow::GetWndClassName())
 
   BEGIN_MSG_MAP(CFilePreviewCtrl)  
     if (uMsg == WM_NCHITTEST || 
@@ -63,6 +63,8 @@ public:
   END_MSG_MAP()
 
   BOOL SetFile(CString sFileName, PreviewMode mode);
+  void SetEmptyMessage(CString sText);
+  BOOL SetBytesPerLine(int nBytesPerLine);
 
   LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -87,7 +89,7 @@ public:
 	ULONG64 m_uNumLines;      // Number of lines in the file.
 	ULONG64 m_uFileLength;    // Length of file in bytes.
   int m_nBytesPerLine;      // Count of displayed bytes per line.
-
+  CString m_sEmptyMsg;      // Text to display when file is empty
   int m_nHScrollPos;        // Horizontal scroll position.
 	int m_nHScrollMax;        // Max horizontal scroll position.
 	int m_nVScrollPos;        // Vertical scrolling position.

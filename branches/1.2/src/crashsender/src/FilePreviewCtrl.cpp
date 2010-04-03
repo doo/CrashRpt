@@ -11,7 +11,7 @@ CFileMemoryMapping::CFileMemoryMapping()
   m_uFileLength = 0;
   m_hFileMapping = NULL;
   m_pViewStartPtr = NULL;
-
+  
   SYSTEM_INFO si;  
   GetSystemInfo(&si);
   m_dwAllocGranularity = si.dwAllocationGranularity;
@@ -103,7 +103,8 @@ CFilePreviewCtrl::CFilePreviewCtrl()
 	m_uFileLength = 0;	
   m_nVScrollPos = 0;
 	m_nVScrollMax = 0;
-  m_nBytesPerLine = 10; 
+  m_nBytesPerLine = 16; 
+  m_sEmptyMsg = _T("No data to display");
   m_hFont = CreateFont(14, 7, 0, 0, 0, 0, 0, 0, ANSI_CHARSET, 0, 0, 
     ANTIALIASED_QUALITY, FIXED_PITCH, _T("Courier"));
 }
@@ -158,6 +159,20 @@ BOOL CFilePreviewCtrl::SetFile(CString sFileName, PreviewMode mode)
   return TRUE;
 }
 
+void CFilePreviewCtrl::SetEmptyMessage(CString sText)
+{
+  m_sEmptyMsg = sText;
+}
+
+BOOL CFilePreviewCtrl::SetBytesPerLine(int nBytesPerLine)
+{
+  if(nBytesPerLine<0)
+    return FALSE;
+
+  m_nBytesPerLine = nBytesPerLine;
+  return TRUE;
+}
+
 void CFilePreviewCtrl::SetupScrollbars()
 {
   CRect rcClient;
@@ -172,7 +187,7 @@ void CFilePreviewCtrl::SetupScrollbars()
   m_nVScrollPos = min(m_nVScrollPos, m_nVScrollMax-m_nMaxLinesPerPage+1);
 	
 	sInfo.cbSize = sizeof(SCROLLINFO);
-	sInfo.fMask = SIF_PAGE | SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
+	sInfo.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
 	sInfo.nMin	= 0;
 	sInfo.nMax	= m_nVScrollMax;
 	sInfo.nPos	= m_nVScrollPos;
@@ -277,10 +292,10 @@ void CFilePreviewCtrl::DoPaintEmpty(HDC hDC)
   FillRect(hDC, &rcClient, (HBRUSH)GetStockObject(WHITE_BRUSH));
 
   CRect rcText;
-  DrawTextEx(hDC, _T("No data to display"), -1, &rcText, DT_CALCRECT, NULL);
+  DrawTextEx(hDC, m_sEmptyMsg.GetBuffer(0), -1, &rcText, DT_CALCRECT, NULL);
 
   rcText.MoveToX(rcClient.right/2-rcText.right/2);
-  DrawTextEx(hDC, _T("No data to display"), -1, &rcText, DT_LEFT, NULL);
+  DrawTextEx(hDC, m_sEmptyMsg.GetBuffer(0), -1, &rcText, DT_LEFT, NULL);
 
   SelectObject(hDC, hOldFont);
 }
@@ -356,16 +371,9 @@ LRESULT CFilePreviewCtrl::OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 
 	SetupScrollbars();
 
-	//redraw the window if the user re-sizes, and we are scrolled to the
-	//end of the data - in this case, we need to "drag" the data down
-	//so that we always see the end of the document
-	if(m_nVScrollMax < m_nMaxLinesPerPage && oldVScrollPos != m_nVScrollPos ||
-		m_nVScrollPos != 0 && m_nVScrollPos == m_nVScrollMax - m_nMaxLinesPerPage+1 && 
-    oldVScrollPos != m_nVScrollPos)
-	{
-		InvalidateRect(NULL, FALSE);
-		UpdateWindow();
-	}
+	InvalidateRect(NULL, FALSE);
+	UpdateWindow();
+	
 
   return 0;
 }
