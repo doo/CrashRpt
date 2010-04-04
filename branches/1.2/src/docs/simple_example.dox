@@ -22,10 +22,10 @@ Let's create the code template.
 // Thread procedure
 DWORD WINAPI ThreadProc(LPVOID lpParam)
 {
-  // Define the infinite cycle where some processing will be done 
+  // Define the infinite loop where some processing will be done 
   for(;;)
   {
-    // There is a hidden error somewhere inside of the cycle...
+    // There is a hidden error somewhere inside of the loop...
     int* p = NULL;
     *p = 13; // This results in Access Violation
   }    
@@ -52,11 +52,11 @@ void main()
 
 \endcode
 
-We intentionally inserted the code that would cause an exception to both threads. In real-life
-programs such code always exist, even when you test your application very carefull.
+We intentionally inserted the code that would cause an exception in both threads. In real-life
+programs such code always exist, even when you test your application very carefully.
 
-To enable crash reporting support in our application, we need to insert some CrashRpt API functions.
-Below is the same code, but with API functions inserted.
+To enable crash reporting support in the application, you need to insert some CrashRpt API functions.
+Below is the same code with CrashRpt API functions inserted.
 
 \code
 
@@ -91,10 +91,10 @@ DWORD WINAPI ThreadProc(LPVOID lpParam)
   // Install exception handlers for this thread
   crInstallToCurrentThread2(0);
   
-  // Define the infinite cycle where some processing will be done 
+  // Define the infinite loop where some processing will be done 
   for(;;)
   {
-    // There is a hidden error somewhere inside of the cycle...
+    // There is a hidden error somewhere inside of the loop...
     int* p = NULL;
     *p = 13; // This results in Access Violation
   }
