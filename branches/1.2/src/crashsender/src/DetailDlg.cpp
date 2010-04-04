@@ -169,10 +169,6 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 
 void CDetailDlg::SelectItem(int iItem)
 {
-  const int MAX_FILE_SIZE          = 32768; // 32k file preview max
-  DWORD dwBytesRead                = 0;
-  BYTE buffer[MAX_FILE_SIZE + 1]  = "";
-
   // Sanity check
   if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
       return;

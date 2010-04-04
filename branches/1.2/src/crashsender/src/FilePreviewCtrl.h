@@ -1,5 +1,6 @@
 #pragma once
 #include "atlmisc.h"
+#include <vector>
 
 // Preview mode
 enum PreviewMode
@@ -30,6 +31,13 @@ private:
   DWORD m_dwAllocGranularity; // System allocation granularity  	
 	ULONG64 m_uFileLength;		  // Size of the file.		
 	LPBYTE m_pViewStartPtr;	    // Base of the view of the file.  
+};
+
+struct LineInfo
+{
+  DWORD m_dwOffsetInFile;
+  DWORD m_cchLineLength;
+  std::vector<DWORD> m_aLineBreaks;
 };
 
 class CFilePreviewCtrl : public CWindowImpl<CFilePreviewCtrl, CStatic>
@@ -79,6 +87,8 @@ public:
   void DoPaintEmpty(HDC hDC);
   void DoPaint(HDC hDC);
 
+  BOOL ParseText();
+
   CFileMemoryMapping m_fm;  // File mapping object.  
   HFONT m_hFont;            // Font in use.  
   int m_xChar;              // Size of character in x direction.
@@ -94,6 +104,8 @@ public:
 	int m_nHScrollMax;        // Max horizontal scroll position.
 	int m_nVScrollPos;        // Vertical scrolling position.
 	int m_nVScrollMax;        // Maximum vertical scrolling position.
+
+  std::vector<LineInfo> m_aTextLines;
 };
 
 

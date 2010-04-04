@@ -183,8 +183,8 @@ void CFilePreviewCtrl::SetupScrollbars()
 	//	Vertical scrollbar
 
   m_nMaxLinesPerPage = (int)min(m_uNumLines, rcClient.Height() / m_yChar);
-	m_nVScrollMax = max(0, m_uNumLines-1);
-  m_nVScrollPos = min(m_nVScrollPos, m_nVScrollMax-m_nMaxLinesPerPage+1);
+	m_nVScrollMax = (int)max(0, m_uNumLines-1);
+  m_nVScrollPos = (int)min(m_nVScrollPos, m_nVScrollMax-m_nMaxLinesPerPage+1);
 	
 	sInfo.cbSize = sizeof(SCROLLINFO);
 	sInfo.fMask = SIF_PAGE | SIF_POS | SIF_RANGE;
@@ -269,7 +269,7 @@ void CFilePreviewCtrl::DrawLine(HDC hdc, DWORD nLineNo)
   int nBytesPerLine = m_nBytesPerLine;
 
 	if(m_uFileLength - nLineNo * m_nBytesPerLine < (UINT)m_nBytesPerLine)
-		nBytesPerLine= m_uFileLength - nLineNo * m_nBytesPerLine;
+		nBytesPerLine= (int)(m_uFileLength - nLineNo * m_nBytesPerLine);
 
 	//get data from our file mapping
 	m_fm.Read(buf, nLineNo * m_nBytesPerLine, nBytesPerLine);
@@ -313,7 +313,7 @@ void CFilePreviewCtrl::DoPaint(HDC hDC)
   FillRect(hDC, &rcClient, (HBRUSH)GetStockObject(WHITE_BRUSH));
 
 	int iPaintBeg = max(0, m_nVScrollPos);			//only update the lines that 
-	int iPaintEnd = min(m_uNumLines, m_nVScrollPos + rcClient.bottom / m_yChar);		//need updating!!!!!!!!!!!!!
+	int iPaintEnd = (int)min(m_uNumLines, m_nVScrollPos + rcClient.bottom / m_yChar);		//need updating!!!!!!!!!!!!!
 	
   
 	if(rcClient.bottom % m_yChar) iPaintEnd++;
@@ -349,7 +349,7 @@ void CFilePreviewCtrl::DoPaint(HDC hDC)
 	if(m_uNumLines == 0 || m_uNumLines < m_nMaxLinesPerPage)
 	{
     RECT rc;
-    SetRect(&rc, 0, m_uNumLines * m_yChar, rcClient.right, rcClient.bottom);
+    SetRect(&rc, 0, (int)(m_uNumLines * m_yChar), rcClient.right, rcClient.bottom);
 		ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &rc, _T(""), 0, 0);
 	}
 	
@@ -357,6 +357,52 @@ void CFilePreviewCtrl::DoPaint(HDC hDC)
 	SelectObject(hDC, hOldFont);
 }
 
+BOOL CFilePreviewCtrl::ParseText()
+{
+  m_nMaxDisplayWidth = 0;
+  char c;
+  DWORD dwOffset = 0;
+  while(dwOffset<m_fm.GetSize())
+  {    
+    LineInfo line;
+    line.m_dwOffsetInFile = dwOffset;
+    
+    // Parse current line
+    for(;;)
+    {
+      m_fm.Read((LPBYTE)&c, dwOffset, 1);
+      if(c=='\r')
+      {
+        dwOffset++;
+        m_fm.Read((LPBYTE)&c, dwOffset, 1);
+        if(c=='\n')
+          break;        
+      }
+      else if(c=='\n')
+      {        
+        break;
+      }
+      else if( !(c>='A' && c<='Z') && !(c>='a' && c<='z') && !(c>='0' && c<='9'))
+      {
+        line.m_aLineBreaks.push_back(dwOffset-line.m_dwOffsetInFile);        
+      }
+      
+      dwOffset++;
+      if(dwOffset>=m_fm.GetSize())
+        break;
+    }    
+
+    line.m_cchLineLength = dwOffset-line.m_dwOffsetInFile;
+    m_aTextLines.push_back(line);
+
+    if(m_nMaxDisplayWidth<(int)line.m_cchLineLength)
+      m_nMaxDisplayWidth = line.m_cchLineLength;
+
+    dwOffset++;
+  }
+
+  return TRUE;
+}
 
 LRESULT CFilePreviewCtrl::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
@@ -365,16 +411,13 @@ LRESULT CFilePreviewCtrl::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
   return 0;
 }
 
-LRESULT CFilePreviewCtrl::OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT CFilePreviewCtrl::OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  int oldVScrollPos = m_nVScrollPos;
-
 	SetupScrollbars();
 
 	InvalidateRect(NULL, FALSE);
 	UpdateWindow();
 	
-
   return 0;
 }
 
