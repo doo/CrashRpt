@@ -31,7 +31,7 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
 == What are the main features of crashrpt? ==
 
-CrashRpt is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. CrashRpt is able to intercept a structured Win32 exception, typed C++ exception or C run-time error.
+CrashRpt is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. CrashRpt is able to intercept a SEH exception, typed C++ exception or C run-time error.
 
 CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable for developers not having servers for storing error reports. To send reports over E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 
@@ -264,7 +264,7 @@ This should be done for all projects in your solution to ensure all modules will
 
 Ensure that all modules that exist in your application use the same version of CRT. If some dependent modules were compiled using an older version of CRT, you should recompile them to ensure the single version or CRT DLL is used.
 
-For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only. However, CrashRpt will intercept structured exceptions in all modules not depending on CRT version.
+For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only. However, CrashRpt will intercept SEH exceptions in all modules not depending on CRT version.
 
 == What do I do if my project uses CRT as a static library? ==
 
@@ -471,7 +471,7 @@ A crash description XML contains `OperatingSystem` tag which is the friendly nam
 
 == What is an `ExceptionType` tag in the crash description XML? ==
 
-The exception type shows what exception handler cathed the exception. For example, type 0 means that the structured win32 exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
+The exception type shows what exception handler cathed the exception. For example, type 0 means that the SEH exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
 
 See the documentation for more information about exception type.
 
