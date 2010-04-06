@@ -69,7 +69,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
   m_list.InsertColumn(0, Utility::GetINIString(_T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 130);
   m_list.InsertColumn(1, Utility::GetINIString(_T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 110);
-  m_list.InsertColumn(2, Utility::GetINIString(_T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 100);
+  m_list.InsertColumn(2, Utility::GetINIString(_T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 90);
   m_list.InsertColumn(3, Utility::GetINIString(_T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
 
   m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);

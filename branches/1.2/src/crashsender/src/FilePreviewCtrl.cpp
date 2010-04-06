@@ -476,6 +476,9 @@ LRESULT CFilePreviewCtrl::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPara
 	//keep scroll position in range
 	if(m_nHScrollPos > m_nHScrollMax)
 		m_nHScrollPos = m_nHScrollMax;
+  
+  if(m_nVScrollPos<0)
+    m_nVScrollPos=0;
 
 	nHScrollInc = m_nHScrollPos - nOldHScrollPos;
 		
@@ -555,6 +558,9 @@ LRESULT CFilePreviewCtrl::OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPara
 	//keep scroll position in range
 	if(m_nVScrollPos > m_nVScrollMax - m_nMaxLinesPerPage+1)
 		m_nVScrollPos = m_nVScrollMax - m_nMaxLinesPerPage+1;
+
+  if(m_nVScrollPos<0)
+    m_nVScrollPos=0;
 
 	nVScrollInc = m_nVScrollPos - nOldVScrollPos;
 		

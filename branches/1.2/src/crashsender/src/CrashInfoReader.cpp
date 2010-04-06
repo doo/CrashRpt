@@ -59,134 +59,180 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
 
   {
     TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
-    const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
-    if(szReportFolder!=NULL)
-      m_sErrorReportDirName = strconv.utf82t(szReportFolder);
+    if(hReportFolder.FirstChild().ToText()!=NULL)
+    {
+      const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
+      if(szReportFolder!=NULL)
+        m_sErrorReportDirName = strconv.utf82t(szReportFolder);
+    }
   }
   
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
-    const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
-    if(szCrashGUID!=NULL)
-      m_sCrashGUID = strconv.utf82t(szCrashGUID);
+    if(hCrashGUID.FirstChild().ToText()!=NULL)
+    {
+      const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
+      if(szCrashGUID!=NULL)
+        m_sCrashGUID = strconv.utf82t(szCrashGUID);
+    }
   }
 
   {
     TiXmlHandle hDbgHelpPath = hRoot.FirstChild("DbgHelpPath");
-    const char* szDbgHelpPath = hDbgHelpPath.FirstChild().ToText()->Value();
-    if(szDbgHelpPath!=NULL)
-      m_sDbgHelpPath = strconv.utf82t(szDbgHelpPath);
+    if(hDbgHelpPath.FirstChild().ToText()!=NULL)
+    {
+      const char* szDbgHelpPath = hDbgHelpPath.FirstChild().ToText()->Value();
+      if(szDbgHelpPath!=NULL)
+        m_sDbgHelpPath = strconv.utf82t(szDbgHelpPath);
+    }
   }
 
   {
     TiXmlHandle hMinidumpType = hRoot.FirstChild("MinidumpType");
-    const char* szMinidumpType = hMinidumpType.FirstChild().ToText()->Value();
-    if(szMinidumpType!=NULL)
-      m_MinidumpType = (MINIDUMP_TYPE)atol(szMinidumpType);
+    if(hMinidumpType.FirstChild().ToText()!=NULL)
+    {
+      const char* szMinidumpType = hMinidumpType.FirstChild().ToText()->Value();
+      if(szMinidumpType!=NULL)
+        m_MinidumpType = (MINIDUMP_TYPE)atol(szMinidumpType);
+      else
+        m_MinidumpType = MiniDumpNormal;
+    }
     else
       m_MinidumpType = MiniDumpNormal;
   }
 
   {
     TiXmlHandle hUrl = hRoot.FirstChild("Url");
-    const char* szUrl = hUrl.FirstChild().ToText()->Value();
-    if(szUrl!=NULL)
-      m_sUrl = strconv.utf82t(szUrl);
+    if(hUrl.FirstChild().ToText()!=NULL)
+    {
+      const char* szUrl = hUrl.FirstChild().ToText()->Value();
+      if(szUrl!=NULL)
+        m_sUrl = strconv.utf82t(szUrl);
+    }
   }
 
   {
     TiXmlHandle hEmailTo = hRoot.FirstChild("EmailTo");
-    const char* szEmailTo = hEmailTo.FirstChild().ToText()->Value();
-    if(szEmailTo!=NULL)
-      m_sEmailTo = strconv.utf82t(szEmailTo);
+    if(hEmailTo.FirstChild().ToText()!=NULL)
+    {
+      const char* szEmailTo = hEmailTo.FirstChild().ToText()->Value();
+      if(szEmailTo!=NULL)
+        m_sEmailTo = strconv.utf82t(szEmailTo);
+    }
   }
 
   {
     TiXmlHandle hEmailSubject = hRoot.FirstChild("EmailSubject");
-    const char* szEmailSubject = hEmailSubject.FirstChild().ToText()->Value();
-    if(szEmailSubject!=NULL)
-      m_sEmailSubject = strconv.utf82t(szEmailSubject);
+    if(hEmailSubject.FirstChild().ToText()!=NULL)
+    {
+      const char* szEmailSubject = hEmailSubject.FirstChild().ToText()->Value();
+      if(szEmailSubject!=NULL)
+        m_sEmailSubject = strconv.utf82t(szEmailSubject);
+    }
   }
 
   {
-    TiXmlHandle hPrivacyPolicyUrl = hRoot.FirstChild("PrivacyPolicyUrl");
-    const char* szPrivacyPolicyUrl = hPrivacyPolicyUrl.FirstChild().ToText()->Value();
-    if(szPrivacyPolicyUrl!=NULL)
-      m_sPrivacyPolicyURL = strconv.utf82t(szPrivacyPolicyUrl);
+    TiXmlHandle hPrivacyPolicyUrl = hRoot.FirstChild("PrivacyPolicyUrl");    
+    if(hPrivacyPolicyUrl.FirstChild().ToText()!=NULL)
+    {
+      const char* szPrivacyPolicyUrl = hPrivacyPolicyUrl.FirstChild().ToText()->Value();
+      if(szPrivacyPolicyUrl!=NULL)
+        m_sPrivacyPolicyURL = strconv.utf82t(szPrivacyPolicyUrl);
+    }
   }
 
   {
     TiXmlHandle hHttpPriority = hRoot.FirstChild("HttpPriority");
-    const char* szHttpPriority = hHttpPriority.FirstChild().ToText()->Value();
-    if(szHttpPriority!=NULL)
-      m_uPriorities[CR_HTTP] = atoi(szHttpPriority);
-    else
-      m_uPriorities[CR_HTTP] = 0;
+    if(hHttpPriority.FirstChild().ToText()!=NULL)
+    {
+      const char* szHttpPriority = hHttpPriority.FirstChild().ToText()->Value();
+      if(szHttpPriority!=NULL)
+        m_uPriorities[CR_HTTP] = atoi(szHttpPriority);
+      else
+        m_uPriorities[CR_HTTP] = 0;
+    }
   }
 
   {
     TiXmlHandle hSmtpPriority = hRoot.FirstChild("SmtpPriority");
-    const char* szSmtpPriority = hSmtpPriority.FirstChild().ToText()->Value();
-    if(szSmtpPriority!=NULL)
-      m_uPriorities[CR_SMTP] = atoi(szSmtpPriority);
-    else
-      m_uPriorities[CR_SMTP] = 0;
+    if(hSmtpPriority.FirstChild().ToText()!=NULL)
+    {
+      const char* szSmtpPriority = hSmtpPriority.FirstChild().ToText()->Value();
+      if(szSmtpPriority!=NULL)
+        m_uPriorities[CR_SMTP] = atoi(szSmtpPriority);
+      else
+        m_uPriorities[CR_SMTP] = 0;
+    }
   }
 
   {
     TiXmlHandle hMapiPriority = hRoot.FirstChild("MapiPriority");
-    const char* szMapiPriority = hMapiPriority.FirstChild().ToText()->Value();
-    if(szMapiPriority!=NULL)
-      m_uPriorities[CR_SMAPI] = atoi(szMapiPriority);
-    else
-      m_uPriorities[CR_SMAPI] = 0;
+    if(hMapiPriority.FirstChild().ToText()!=NULL)
+    {
+      const char* szMapiPriority = hMapiPriority.FirstChild().ToText()->Value();
+      if(szMapiPriority!=NULL)
+        m_uPriorities[CR_SMAPI] = atoi(szMapiPriority);
+      else
+        m_uPriorities[CR_SMAPI] = 0;
+    }
   }
 
   {
     TiXmlHandle hProcessId = hRoot.FirstChild("ProcessId");
-    const char* szProcessId = hProcessId.FirstChild().ToText()->Value();
-    if(szProcessId!=NULL)
-      m_dwProcessId = strtoul(szProcessId, NULL, 10);
-    else
-      m_dwProcessId = 0;
-
-    TiXmlHandle hThreadId = hRoot.FirstChild("ThreadId");
-    const char* szThreadId = hThreadId.FirstChild().ToText()->Value();
-    if(szThreadId!=NULL)
-      m_dwThreadId = strtoul(szThreadId, NULL, 10);
-    else 
-      m_dwThreadId = 0;
+    if(hProcessId.FirstChild().ToText()!=NULL)
+    {
+      const char* szProcessId = hProcessId.FirstChild().ToText()->Value();
+      if(szProcessId!=NULL)
+        m_dwProcessId = strtoul(szProcessId, NULL, 10);
+      else
+        m_dwProcessId = 0;
+    }
   }
 
   {
+    TiXmlHandle hThreadId = hRoot.FirstChild("ThreadId");
+    if(hThreadId.FirstChild().ToText()!=NULL)
+    {
+      const char* szThreadId = hThreadId.FirstChild().ToText()->Value();
+      if(szThreadId!=NULL)
+        m_dwThreadId = strtoul(szThreadId, NULL, 10);
+      else 
+        m_dwThreadId = 0;
+    }
+  }
+
+  {
+    m_pExInfo = NULL;
     TiXmlHandle hExceptionPointersAddress = hRoot.FirstChild("ExceptionPointersAddress");
-    const char* szExceptionPointersAddress = hExceptionPointersAddress.FirstChild().ToText()->Value();
-    if(szExceptionPointersAddress!=NULL)
+    if(hExceptionPointersAddress.FirstChild().ToText()!=NULL)
     {
-      m_pExInfo = (PEXCEPTION_POINTERS)_strtoui64(szExceptionPointersAddress, NULL, 10);
-    }
-    else
-    {
-      m_pExInfo = NULL;
-    }
+      const char* szExceptionPointersAddress = hExceptionPointersAddress.FirstChild().ToText()->Value();
+      if(szExceptionPointersAddress!=NULL)
+        m_pExInfo = (PEXCEPTION_POINTERS)_strtoui64(szExceptionPointersAddress, NULL, 10);     
+    }    
   }
 
   {
     TiXmlHandle hAddScreenshot = hRoot.FirstChild("AddScreenshot");
-    const char* szAddScreenshot = hAddScreenshot.FirstChild().ToText()->Value();
-    if(szAddScreenshot!=NULL)
-      m_bAddScreenshot = strtol(szAddScreenshot, NULL, 10);
-    else
-      m_bAddScreenshot = FALSE;
+    if(hAddScreenshot.FirstChild().ToText()!=NULL)
+    {
+      const char* szAddScreenshot = hAddScreenshot.FirstChild().ToText()->Value();
+      if(szAddScreenshot!=NULL)
+        m_bAddScreenshot = strtol(szAddScreenshot, NULL, 10);
+      else
+        m_bAddScreenshot = FALSE;
+    }
   }
 
   {
+    m_dwScreenshotFlags = 0;
     TiXmlHandle hScreenshotFlags = hRoot.FirstChild("ScreenshotFlags");
-    const char* szScreenshotFlags = hScreenshotFlags.FirstChild().ToText()->Value();
-    if(szScreenshotFlags!=NULL)
-      m_dwScreenshotFlags = strtoul(szScreenshotFlags, NULL, 10);
-    else 
-      m_dwScreenshotFlags = 0;
+    if(hScreenshotFlags.FirstChild().ToText()!=NULL)
+    {
+      const char* szScreenshotFlags = hScreenshotFlags.FirstChild().ToText()->Value();
+      if(szScreenshotFlags!=NULL)
+        m_dwScreenshotFlags = strtoul(szScreenshotFlags, NULL, 10);        
+    }
   }
 
   {
@@ -225,30 +271,36 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   }
 
   {
+    m_bHttpBinaryEncoding = FALSE;    
     TiXmlHandle hHttpBinaryEncoding = hRoot.FirstChild("HttpBinaryEncoding");
-    const char* szHttpBinaryEncoding = hHttpBinaryEncoding.FirstChild().ToText()->Value();
-    if(szHttpBinaryEncoding!=NULL)
-      m_bHttpBinaryEncoding = atoi(szHttpBinaryEncoding);
-    else
-      m_bHttpBinaryEncoding = FALSE;    
+    if(hHttpBinaryEncoding.FirstChild().ToText()!=NULL)
+    {
+      const char* szHttpBinaryEncoding = hHttpBinaryEncoding.FirstChild().ToText()->Value();
+      if(szHttpBinaryEncoding!=NULL)
+        m_bHttpBinaryEncoding = atoi(szHttpBinaryEncoding);
+    }      
   }
 
   {
+    m_bSilentMode = FALSE;    
     TiXmlHandle hSilentMode = hRoot.FirstChild("SilentMode");
-    const char* szSilentMode = hSilentMode.FirstChild().ToText()->Value();
-    if(szSilentMode!=NULL)
-      m_bSilentMode = atoi(szSilentMode);
-    else
-      m_bSilentMode = FALSE;    
+    if(hSilentMode.FirstChild().ToText()!=NULL)
+    {
+      const char* szSilentMode = hSilentMode.FirstChild().ToText()->Value();
+      if(szSilentMode!=NULL)
+        m_bSilentMode = atoi(szSilentMode);
+    }      
   }
 
   {
+    m_bSendErrorReport = FALSE;    
     TiXmlHandle hSendErrorReport = hRoot.FirstChild("SendErrorReport");
-    const char* szSendErrorReport = hSendErrorReport.FirstChild().ToText()->Value();
-    if(szSendErrorReport!=NULL)
-      m_bSendErrorReport = atoi(szSendErrorReport);
-    else
-      m_bSendErrorReport = FALSE;    
+    if(hSendErrorReport.FirstChild().ToText()!=NULL)
+    {
+      const char* szSendErrorReport = hSendErrorReport.FirstChild().ToText()->Value();
+      if(szSendErrorReport!=NULL)
+        m_bSendErrorReport = atoi(szSendErrorReport);     
+    }      
   }
 
   ParseCrashDescription(m_sErrorReportDirName + _T("\\crashrpt.xml"));

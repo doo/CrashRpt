@@ -973,6 +973,7 @@ crAddPropertyA(
    LPCSTR pszPropValue
    );
 
+
 /*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
  *  \ingroup CrashRptAPI
  */
@@ -1187,11 +1188,11 @@ crExceptionFilter(
  *    - \ref CR_CPP_SIGSEGV This raises SIGSEGV signal.
  *    - \ref CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
  *    - \ref CR_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
- *         is the same as in \ref CR_WIN32_STRUCTURED_EXCEPTION).
+ *         is the same as in \ref CR_SEH_EXCEPTION).
  *
  *  The \ref CR_SEH_EXCEPTION uses null pointer write operation to cause the access violation.
  *
- *  The \ref CR_NONCONTINUABLE_EXCEPTION has the same effect as \ref CR_WIN32_STRUCTURED_EXCEPTION, but it uses
+ *  The \ref CR_NONCONTINUABLE_EXCEPTION has the same effect as \ref CR_SEH_EXCEPTION, but it uses
  *  \b RaiseException() WinAPI function to raise noncontinuable software exception.
  *
  *  The following example shows how to use crEmulateCrash() function.
