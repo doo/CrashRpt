@@ -7,7 +7,6 @@
 This page is for users of obsolete CrashRpt v1.0. All other users should refer to [http://crashrpt.sourceforge.net Online Documentation].
 
 This article is a copy of the [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article by Mike Carruth.
-{{{</td></tr></table>}}}
 ----
 
 = Overview =
