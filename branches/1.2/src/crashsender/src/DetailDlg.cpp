@@ -35,6 +35,7 @@
 #include "Utility.h"
 #include "CrashInfoReader.h"
 #include "ErrorReportSender.h"
+#include "strconv.h"
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
@@ -48,6 +49,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
   SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DlgCaption")));
 
+  m_previewMode = PREVIEW_AUTO;
   m_filePreview.SubclassWindow(GetDlgItem(IDC_PREVIEW));
   m_filePreview.SetBytesPerLine(10);
   m_filePreview.SetEmptyMessage(Utility::GetINIString(_T("DetailDlg"), _T("NoDataToDisplay")));
@@ -176,7 +178,7 @@ void CDetailDlg::SelectItem(int iItem)
   std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
-  m_filePreview.SetFile(p->second.m_sSrcFile, PREVIEW_AUTO);
+  m_filePreview.SetFile(p->second.m_sSrcFile, m_previewMode);
 }
 
 LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -200,6 +202,43 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
     g_ErrorReportSender.SetExportFlag(TRUE, sExportFileName);
     g_ErrorReportSender.DoWork(COMPRESS_REPORT);
   }
+
+  return 0;
+}
+
+LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
+  CPoint pt;
+  GetCursorPos(&pt);
+
+  CMenu menu;
+  menu.LoadMenu(IDR_POPUPMENU);
+  
+  CMenu submenu = menu.GetSubMenu(1);
+  MENUITEMINFO mii;
+  memset(&mii, 0, sizeof(MENUITEMINFO));
+  mii.cbSize = sizeof(MENUITEMINFO);
+  mii.fMask = MIIM_STRING;
+  
+  strconv_t strconv;
+  mii.dwTypeData = (LPWSTR)strconv.t2w(Utility::GetINIString(_T("DetailDlg"), _T("PreviewAuto")));
+  submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);
+  
+  mii.dwTypeData = (LPWSTR)strconv.t2w(Utility::GetINIString(_T("DetailDlg"), _T("PreviewHex")));
+  submenu.SetMenuItemInfo(ID_PREVIEW_HEX, FALSE, &mii);
+
+  mii.dwTypeData = (LPWSTR)strconv.t2w(Utility::GetINIString(_T("DetailDlg"), _T("PreviewText")));
+  submenu.SetMenuItemInfo(ID_PREVIEW_TEXT, FALSE, &mii);
+
+  UINT uItem = ID_PREVIEW_AUTO;
+  if(m_previewMode==PREVIEW_HEX)
+    uItem = ID_PREVIEW_HEX;
+  else if(m_previewMode==PREVIEW_TEXT)
+    uItem = ID_PREVIEW_TEXT;
+
+  submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, uItem, MF_BYCOMMAND); 
+
+  submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);
 
   return 0;
 }

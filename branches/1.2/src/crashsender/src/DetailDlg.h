@@ -51,12 +51,13 @@ public:
   CButton m_btnExport;
   CStatic m_statPreview;
   CFilePreviewCtrl m_filePreview;
+  PreviewMode m_previewMode;
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)    
     DLGRESIZE_CONTROL(IDC_FILE_LIST, DLSZ_SIZE_X)
     DLGRESIZE_CONTROL(IDC_PREVIEW, DLSZ_SIZE_X|DLSZ_SIZE_Y)
     DLGRESIZE_CONTROL(IDC_PRIVACYPOLICY, DLSZ_MOVE_Y)
-    DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_Y)
+    DLGRESIZE_CONTROL(IDOK, DLSZ_CENTER_X|DLSZ_MOVE_Y)
     DLGRESIZE_CONTROL(IDC_EXPORT, DLSZ_MOVE_X|DLSZ_MOVE_Y)
   END_DLGRESIZE_MAP()
 
@@ -67,6 +68,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnOK)
     COMMAND_ID_HANDLER(IDCANCEL, OnOK)
     COMMAND_ID_HANDLER(IDC_EXPORT, OnExport)
+    NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick);
 
     CHAIN_MSG_MAP(CDialogResize<CDetailDlg>)
 	END_MSG_MAP()
@@ -82,6 +84,7 @@ public:
   LRESULT OnExport(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
   LRESULT OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
+  LRESULT OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
   void SelectItem(int iItem);
 	  

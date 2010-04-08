@@ -772,3 +772,14 @@ LRESULT CFilePreviewCtrl::OnComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
   InvalidateRect(NULL);
   return 0;
 }
+
+LRESULT CFilePreviewCtrl::OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  NMHDR nmhdr;
+  nmhdr.hwndFrom = m_hWnd;
+  nmhdr.code = NM_RCLICK;
+  nmhdr.idFrom = GetWindowLong(GWL_ID);
+
+  GetParent().SendMessage(WM_NOTIFY, 0, (LPARAM)&nmhdr);
+  return 0;
+}

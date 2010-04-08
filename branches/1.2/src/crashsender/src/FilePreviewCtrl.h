@@ -25,7 +25,7 @@ public:
 	BOOL Destroy();
 
   ULONG64 GetSize();
-	LPBYTE CFileMemoryMapping::CreateView(DWORD dwOffset, DWORD dwLength);
+	LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
 
 private:
 
@@ -75,6 +75,7 @@ public:
     MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
     MESSAGE_HANDLER(WM_FPC_COMPLETE, OnComplete)
+    MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
   END_MSG_MAP()
 
   LPCTSTR GetFile();
@@ -94,6 +95,7 @@ public:
   LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+  LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
   void SetupScrollbars();
   CString FormatHexLine(LPBYTE pData, int nBytesInLine, ULONG64 uLineOffset);
