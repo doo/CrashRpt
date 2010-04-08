@@ -176,7 +176,7 @@ void CDetailDlg::SelectItem(int iItem)
   std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
-  m_filePreview.SetFile(p->second.m_sSrcFile, PREVIEW_HEX);
+  m_filePreview.SetFile(p->second.m_sSrcFile, PREVIEW_AUTO);
 }
 
 LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

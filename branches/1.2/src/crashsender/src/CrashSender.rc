@@ -33,6 +33,12 @@ BEGIN
         MENUITEM "Copy selected line(s)",       ID_MENU1_COPYSEL
         MENUITEM "Copy the whole log",          ID_MENU1_COPYLOG
     END
+    POPUP "menu2"
+    BEGIN
+        MENUITEM "Auto",                        ID_PREVIEW_AUTO
+        MENUITEM "Hex",                         ID_PREVIEW_HEX
+        MENUITEM "Text",                        ID_PREVIEW_TEXT
+    END
 END
 
 #endif    // Neutral resources
@@ -59,10 +65,10 @@ CAPTION "Error Report Details"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Close",IDOK,105,199,57,14
+    PUSHBUTTON      "Export...",IDC_EXPORT,222,199,60,14
     CONTROL         "",IDC_FILE_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,19,275,78
     LTEXT           "Double-click an item to open it with an appropriate program.",IDC_HEADERTEXT,7,7,275,8
     LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,14,182,144,8
-    PUSHBUTTON      "Export...",IDC_EXPORT,222,199,60,14
     LTEXT           "Preview",IDC_PREVIEWTEXT,7,100,151,8
     LTEXT           "",IDC_PREVIEW,7,111,275,69,0,WS_EX_CLIENTEDGE
 END
