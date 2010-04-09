@@ -434,8 +434,30 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   
   if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
   {
-    // Install structured exception handler
-    m_oldSehHandler = SetUnhandledExceptionFilter(SehHandler);
+    typedef PVOID (WINAPI *LPFNADDVECTOREDEXCEPTIONHANDLER)
+      (ULONG, PVECTORED_EXCEPTION_HANDLER);
+    
+    HMODULE hKernel32 = LoadLibrary(_T("KERNEL32.DLL"));
+    LPFNADDVECTOREDEXCEPTIONHANDLER pfnAddVectoredExceptionHandler = NULL;
+    if(hKernel32!=NULL)
+    {
+      pfnAddVectoredExceptionHandler = (LPFNADDVECTOREDEXCEPTIONHANDLER)
+        GetProcAddress(hKernel32, "AddVectoredExceptionHandler");
+    }
+
+    if(pfnAddVectoredExceptionHandler!=NULL)
+    {
+      // Install VEH handler
+      pfnAddVectoredExceptionHandler(0, SehHandler);
+      
+      if(hKernel32)
+        FreeLibrary(hKernel32);
+    }
+    else
+    {
+      // Install top-level SEH handler
+      m_oldSehHandler = SetUnhandledExceptionFilter(SehHandler);
+    }
   }
 
   _set_error_mode(_OUT_TO_STDERR);
