@@ -33,8 +33,8 @@
 /*! \file   CrashRpt.h
  *  \brief  Defines the interface for the CrashRpt.DLL.
  *  \date   2003-2009
- *  \author Michael Carruth (mcarruth@gmail.com)
- *  \author zeXspectrum (zexspectrum@gmail.com)
+ *  \author Michael Carruth 
+ *  \author zeXspectrum 
  */
 
 #ifndef _CRASHRPT_H_
@@ -78,7 +78,7 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1202
+#define CRASHRPT_VER 1203
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */

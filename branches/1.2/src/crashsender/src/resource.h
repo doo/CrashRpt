@@ -59,8 +59,8 @@
 #define ID_MENU2_HEX                    32776
 #define ID_MENU2_HEX32777               32777
 #define ID_MENU2_TEXT                   32778
-#define ID_PREVIEW_HEX                  32779
-#define ID_PREVIEW_AUTO                 32780
+#define ID_PREVIEW_AUTO                 32779
+#define ID_PREVIEW_HEX                  32780
 #define ID_PREVIEW_TEXT                 32781
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610

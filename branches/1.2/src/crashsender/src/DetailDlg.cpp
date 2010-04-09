@@ -178,6 +178,7 @@ void CDetailDlg::SelectItem(int iItem)
   std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
+  m_previewMode = PREVIEW_AUTO;
   m_filePreview.SetFile(p->second.m_sSrcFile, m_previewMode);
 }
 
@@ -221,13 +222,17 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
   mii.fMask = MIIM_STRING;
   
   strconv_t strconv;
-  mii.dwTypeData = (LPWSTR)strconv.t2w(Utility::GetINIString(_T("DetailDlg"), _T("PreviewAuto")));
+  CString sAuto = Utility::GetINIString(_T("DetailDlg"), _T("PreviewAuto"));
+  CString sText = Utility::GetINIString(_T("DetailDlg"), _T("PreviewText"));
+  CString sHex = Utility::GetINIString(_T("DetailDlg"), _T("PreviewHex"));
+  
+  mii.dwTypeData = sAuto.GetBuffer(0);  
   submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);
   
-  mii.dwTypeData = (LPWSTR)strconv.t2w(Utility::GetINIString(_T("DetailDlg"), _T("PreviewHex")));
+  mii.dwTypeData = sHex.GetBuffer(0);
   submenu.SetMenuItemInfo(ID_PREVIEW_HEX, FALSE, &mii);
 
-  mii.dwTypeData = (LPWSTR)strconv.t2w(Utility::GetINIString(_T("DetailDlg"), _T("PreviewText")));
+  mii.dwTypeData = sText.GetBuffer(0);
   submenu.SetMenuItemInfo(ID_PREVIEW_TEXT, FALSE, &mii);
 
   UINT uItem = ID_PREVIEW_AUTO;
@@ -240,5 +245,17 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
 
   submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);
 
+  return 0;
+}
+
+LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  PreviewMode mode = PREVIEW_AUTO;
+  if(wID==ID_PREVIEW_TEXT)
+    mode = PREVIEW_TEXT;
+  else if(wID==ID_PREVIEW_HEX)
+    mode = PREVIEW_HEX;
+  m_previewMode = mode;
+  m_filePreview.SetPreviewMode(mode);
   return 0;
 }

@@ -68,7 +68,8 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnOK)
     COMMAND_ID_HANDLER(IDCANCEL, OnOK)
     COMMAND_ID_HANDLER(IDC_EXPORT, OnExport)
-    NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick);
+    COMMAND_RANGE_HANDLER(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, OnPreviewModeChanged)
+    NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick)
 
     CHAIN_MSG_MAP(CDialogResize<CDetailDlg>)
 	END_MSG_MAP()
@@ -82,9 +83,11 @@ public:
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnExport(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
   LRESULT OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
   LRESULT OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+  
 
   void SelectItem(int iItem);
 	  
