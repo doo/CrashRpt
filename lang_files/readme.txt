@@ -6,6 +6,16 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.3 ---
+
+The following strings have changed:
+
+ * In [DetailDlg] section:
+   - NoDataToDisplay - new
+   - PreviewAuto - new
+   - PreviewText - new
+   - PreviewHex - new
+
 --- v.1.2.2 ---
 
 The following strings have changed:
