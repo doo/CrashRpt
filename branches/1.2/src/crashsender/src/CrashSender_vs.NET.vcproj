@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\CrashRpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\wtl;..\..\libpng\src;..\..\dbghelp\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="0"
@@ -155,10 +155,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zdll.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib"
+				AdditionalDependencies="WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib libpng.lib version.lib rpcrt4.lib"
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -182,7 +182,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				AdditionalIncludeDirectories="..\..\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
@@ -221,6 +221,9 @@
 			</File>
 			<File
 				RelativePath=".\ErrorReportSender.cpp">
+			</File>
+			<File
+				RelativePath=".\FilePreviewCtrl.cpp">
 			</File>
 			<File
 				RelativePath=".\HttpRequestSender.cpp">
@@ -390,6 +393,9 @@
 			</File>
 			<File
 				RelativePath=".\ErrorReportSender.h">
+			</File>
+			<File
+				RelativePath=".\FilePreviewCtrl.h">
 			</File>
 			<File
 				RelativePath=".\HttpRequestSender.h">

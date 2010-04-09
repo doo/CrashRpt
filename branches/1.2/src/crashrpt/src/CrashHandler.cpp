@@ -1160,11 +1160,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   fprintf(f, "  <ThreadId>%lu</ThreadId>\n", dwThreadId);
 
   // Add ExceptionPointersAddress tag
-#ifdef _WIN64
-  fprintf(f, "  <ExceptionPointersAddress>%I64lu</ExceptionPointersAddress>\n", pExInfo);
-#else
-  fprintf(f, "  <ExceptionPointersAddress>%I32u</ExceptionPointersAddress>\n", pExInfo );
-#endif
+  fprintf(f, "  <ExceptionPointersAddress>%p</ExceptionPointersAddress>\n", pExInfo);
 
   // Add EmailSubject tag
   fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
