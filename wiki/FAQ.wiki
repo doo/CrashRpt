@@ -305,6 +305,10 @@ For more information, see this [https://connect.microsoft.com/VisualStudio/feedb
 
 When you install crash reporting support to your program, it is important to test if CrashRpt intercepts exceptions properly. Use `crEmulateCrash()` function to emulate an exceptional situation. Call this function in your `main()` function and in the thread procedure of each of your working threads.
 
+== Do program optimizations (/O compiler switch) affect the minidump generation? ==
+
+Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete. Hovewer, this is not the reason to turn the optimizations off. You can manage some error log file which is not affected by optimizations.
+
 == What files do I save locally before my software is released? ==
 
 When you are ready for a software release, the following steps must be performed to be able to properly read the error reports received from end-users:
