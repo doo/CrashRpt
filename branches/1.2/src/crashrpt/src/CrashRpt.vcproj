@@ -513,7 +513,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="version.lib  Rpcrt4.lib psapi.lib"
+				AdditionalDependencies="psapi.lib version.lib  Rpcrt4.lib"
 				OutputFile="..\..\lib\CrashRptLIB.lib"
 				AdditionalLibraryDirectories=""
 				IgnoreAllDefaultLibraries="true"

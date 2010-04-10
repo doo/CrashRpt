@@ -12,6 +12,7 @@ The page covers the following topics:
 
 - \ref about_exceptions
 - \ref structured_exc
+- \ref vectored_exc
 - \ref crt_errors
 - \ref cpp_signals
 - \ref getting_exception_context
@@ -187,7 +188,7 @@ void trans_func( unsigned int u, EXCEPTION_POINTERS* pExp )
 
 The disadvantage of the __try{}__catch(Expression){} construction is that you may forget to guard a potentially buggy
 code that may cause an exception that won't be handled by your program. However, such an unhandled SEH exception
-can be catched using the top-level unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
+can be caught using the top-level unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
 
 The exception information (CPU state before the exception occured) is passed to the exception handler
 through \b EXCEPTION_POINTERS structure.
@@ -217,6 +218,34 @@ void main()
 
 The exception handler works for all threads of the caller process, so its enough to call it once
 in the beginning of your \b main() function.
+
+\section vectored_exc Vectored Exception Handling
+
+Vectored exception handling (VEH) is an extension to structured exception handling. 
+It was introduced in Windows XP.
+
+To add a vectored exception handler, you can use the \b AddVectoredExceptionHandler() function. 
+The disadvantage is that VEH is available in WinXP and later, so the presence of
+\b AddVectoredExceptionHandler() function should be checked at run-time.
+
+To remove the previously installed handler, use the \b RemoveVectoredExceptionHandler()  function.
+
+VEH allows to watch or handle <i>all</i> exceptions for the application. To preserve backwards compatibility, 
+when a SEH exception occurs in some part of the program, the system calls installed VEH handlers in turn, 
+after that it searches for the usual SEH handlers.
+
+An advantage of VEH is an ability to chain exception handlers, so if somebody
+installs vectored exception handler above yours, you still can intercept the exception.
+
+Vectored exception handling is suitable when you need to monitor _ALL_ exceptions,
+like a debugger does. But the problem is you have to decide which exception to handle and
+which to skip. In program's code, some exceptions may be intentionally guarded by
+__try{}__except(){} construction, and handling such exceptions in VEH and not passing it to
+frame-based SEH handler, you may introduce bugs into application logics.
+
+VEH is currently not used by CrashRpt. \b SetUnhandledExceptionFilter() is more suitable, because it is the top-level SEH
+handler. If nobody handles the exception, top-level SEH handler is called and you
+don't need to decide if you should skip the exception or not.
 
 \section crt_errors CRT Error Handling
 
@@ -625,6 +654,8 @@ See also:
 - <a href="http://msdn.microsoft.com/en-us/library/e7s85ffb%28VS.80%29.aspx">/fp (Specify Floating-Point Behavior)</a>
 - <a href="http://msdn.microsoft.com/en-us/library/8dbf701c%28VS.80%29.aspx">/GS (Buffer Security Check)</a>
 - <a href="http://msdn.microsoft.com/en-us/library/abx4dbyh%28VS.80%29.aspx">C Run-time Libraries (CRT)</a>
-
-
+- <a href="http://msdn.microsoft.com/en-us/magazine/cc301714.aspx">Under the Hood: New Vectored Exception Handling in Windows XP</a>
+- <a href="http://msdn.microsoft.com/en-us/library/ms681420%28VS.85%29.aspx">Vectored Exception Handling</a>
+- <a href="http://msdn.microsoft.com/en-us/library/ms679274%28VS.85%29.aspx">AddVectoredExceptionHandler Function</a>
+- <a href="http://msdn.microsoft.com/en-us/library/ms680571%28VS.85%29.aspx">RemoveVectoredExceptionHandler Function</a>
 */

@@ -99,7 +99,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppVersion = _T("1.2.2");
   info.pszEmailSubject = _T("Error from CrashRptTests");
   info.pszEmailTo = _T("test@hotmail.com");  
-  info.pszUrl = NULL;//_T("http://myappcom.com/crashrpt.php");
+  info.pszUrl = _T("http://myappcom.com/crashrpt.php");
   info.pfnCrashCallback = CrashCallback; // Define crash callback function   
   // Define sending priorities
   info.uPriorities[CR_HTTP] = 0;         // Use HTTP the first
@@ -110,7 +110,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
-  info.pszPrivacyPolicyURL = NULL;//_T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
+  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
   info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
     
   CrAutoInstallHelper cr_install_helper(&info);

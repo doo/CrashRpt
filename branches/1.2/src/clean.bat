@@ -9,11 +9,13 @@ erase bin\*.pdb
 erase bin\*.ilk
 erase bin\*d.exe
 erase bin\*d.dll
+erase bin\*LIB.exe
 
 erase docs\Warnings.txt
 
 erase lib\*d.lib
 erase lib\*.exp
+erase lib\*LIB.lib
 
 rmdir /S /Q crashcon\src\Debug
 rmdir /S /Q crashcon\src\Release

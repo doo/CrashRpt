@@ -331,6 +331,13 @@ BOOL CErrorReportSender::CreateMiniDump()
   hDbgHelp = LoadLibrary(g_CrashInfo.m_sDbgHelpPath);
   if(hDbgHelp==NULL)
   {
+    //try again ... fallback to dbghelp.dll in path
+    const CString sDebugHelpDLL_name = "dbghelp.dll";
+    hDbgHelp = LoadLibrary(sDebugHelpDLL_name);    
+  }
+
+  if(hDbgHelp==NULL)
+  {
     m_Assync.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
     goto cleanup;
   }

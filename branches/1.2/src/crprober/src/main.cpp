@@ -34,7 +34,7 @@ int output_document(CrpHandle hReport, FILE* f);
 int extract_files(CrpHandle hReport, LPCTSTR pszExtractPath);
 
 // We want to use secure version of _stprintf function when possible
-int _STPRINTF_S(TCHAR* buffer, size_t sizeOfBuffer, const TCHAR* format, ... )
+int __STPRINTF_S(TCHAR* buffer, size_t sizeOfBuffer, const TCHAR* format, ... )
 {
   va_list args; 
 	va_start(args, format);
@@ -116,7 +116,7 @@ public:
   void PutTableCell(LPCTSTR pszValue, int width, bool bLastInRow)
   {
     TCHAR szFormat[32];
-    _STPRINTF_S(szFormat, 32, _T("%%-%ds%s"), width, bLastInRow?_T("\n"):_T(" "));
+    __STPRINTF_S(szFormat, 32, _T("%%-%ds%s"), width, bLastInRow?_T("\n"):_T(" "));
     _ftprintf(m_fOut, szFormat, pszValue);
   }
   
@@ -703,7 +703,7 @@ int output_document(CrpHandle hReport, FILE* f)
     for(i=0; i<nPropCount; i++)
     { 
       TCHAR szBuffer[10];
-      _STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
+      __STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
       doc.PutTableCell(szBuffer, 2, false);
       tstring sPropName;
       get_prop(hReport, CRP_TBL_XMLDESC_CUSTOM_PROPS, CRP_COL_PROPERTY_NAME, sPropName, i);
@@ -728,7 +728,7 @@ int output_document(CrpHandle hReport, FILE* f)
   for(i=0; i<nItemCount; i++)
   { 
     TCHAR szBuffer[10];
-    _STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
+    __STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
     doc.PutTableCell(szBuffer, 2, false);
     tstring sFileName;
     get_prop(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_COL_FILE_ITEM_NAME, sFileName, i);
@@ -833,7 +833,7 @@ int output_document(CrpHandle hReport, FILE* f)
   for(i=0; i<nItemCount; i++)
   {
     TCHAR szBuffer[10];
-    _STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
+    __STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
     doc.PutTableCell(szBuffer, 2, false);
 
     tstring sModuleName;
