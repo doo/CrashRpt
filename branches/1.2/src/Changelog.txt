@@ -4,6 +4,8 @@
 
 - Improved file preview in DetailDlg. Now a file can be previewed in HEX or in text mode.
 
+- Ability to customize the port for SMTP connection.
+
 - Fixed: CrashSender Crash (issue 24)
 
 - Fixed: dbghelp.dll cannot be found (issue 26)
