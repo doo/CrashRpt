@@ -114,6 +114,48 @@
 			<Tool
 				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
+		<Configuration
+			Name="Release LIB|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="4"
+			CharacterSet="1"
+			WholeProgramOptimization="TRUE">
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\dbghelp\include;..\..\zlib\src;..\..\wtl;..\..\minizip\src"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_LIB;CRASHRPTPROBE_EXPORTS"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="3"
+				WarningLevel="4"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLibrarianTool"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib version.lib zlib.lib"
+				OutputFile="..\..\lib\CrashRptProbeLIB.lib"
+				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\dbghelp\lib; ..\..\zlib\lib"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				AdditionalIncludeDirectories="..\..\wtl"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -142,6 +184,12 @@
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\MinidumpReader.cpp">
@@ -156,6 +204,12 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"/>
@@ -186,6 +240,12 @@
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxml.cpp">
@@ -197,6 +257,12 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"/>
@@ -216,6 +282,12 @@
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\tinyxml\tinyxmlparser.cpp">
@@ -227,6 +299,12 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|Win32">
 						<Tool
 							Name="VCCLCompilerTool"
 							UsePrecompiledHeader="0"/>

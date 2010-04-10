@@ -1,5 +1,19 @@
 ======= Change History ========
 
+--- Ver. 1.2.3 ---
+
+- Improved file preview in DetailDlg. Now a file can be previewed in HEX or in text mode.
+
+- Fixed: CrashSender Crash (issue 24)
+
+- Fixed: dbghelp.dll cannot be found (issue 26)
+
+- Fixed: Certain fields cannot be omitted (issue 27).
+
+- Fixed: Release LIB configuration is obsolete (issue 28).
+  There may be some people using Release LIB configuration, so the configuration was made up-to-date.
+
+
 --- Ver. 1.2.2 ---
 
 - WTL files are now included into CrashRpt distribution.

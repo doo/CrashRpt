@@ -66,6 +66,7 @@ public:
   CString     m_sEmailSubject;
   CString     m_sEmailFrom;     
   CString     m_sEmailTo;
+  int         m_nSmtpPort;
   CString     m_sDescription;    
   CString     m_sErrorReportDirName;
   CString     m_sUrl;

@@ -43,6 +43,7 @@ public:
   CString m_sSubject;
   CString m_sFrom;
   CString m_sTo;
+  int m_nRecipientPort;
   CString m_sText;
   std::set<CString> m_aAttachments;
 };

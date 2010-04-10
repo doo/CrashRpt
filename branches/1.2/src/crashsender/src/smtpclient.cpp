@@ -184,7 +184,8 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
 
   int iResult = -1;  
   CString sPostServer;
-  CString sServiceName = "25";  
+  CString sServiceName;
+  sServiceName.Format(_T("%d"), msg->m_nRecipientPort);  
   SOCKET sock = INVALID_SOCKET;
   CString sMsg, str;
   std::set<CString>::iterator it;

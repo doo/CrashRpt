@@ -99,7 +99,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszAppVersion = _T("1.2.2");
   info.pszEmailSubject = _T("Error from CrashRptTests");
   info.pszEmailTo = _T("test@hotmail.com");  
-  info.pszUrl = _T("http://myappcom.com/crashrpt.php");
+  info.pszUrl = _T("http://myappcom.com:1234/crashrpt.php");
   info.pfnCrashCallback = CrashCallback; // Define crash callback function   
   // Define sending priorities
   info.uPriorities[CR_HTTP] = 0;         // Use HTTP the first

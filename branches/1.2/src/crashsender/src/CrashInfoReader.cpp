@@ -122,6 +122,17 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   }
 
   {
+    m_nSmtpPort = 25;
+    TiXmlHandle hSmtpPort = hRoot.FirstChild("SmtpPort");
+    if(hSmtpPort.FirstChild().ToText()!=NULL)
+    {
+      const char* szSmtpPort = hSmtpPort.FirstChild().ToText()->Value();
+      if(szSmtpPort!=NULL)
+        m_nSmtpPort = atoi(szSmtpPort);
+    }
+  }
+
+  {
     TiXmlHandle hEmailSubject = hRoot.FirstChild("EmailSubject");
     if(hEmailSubject.FirstChild().ToText()!=NULL)
     {

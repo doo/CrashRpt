@@ -357,6 +357,8 @@ GenerateErrorReport(
  *       "name@example.com". If this equals to NULL, the crash report won't be sent using E-mail client.
  *       Keep this NULL if you plan to use large error reports (more than several MB in size), because
  *       large emails may be rejected by the mail server.
+ *       To define a custom port for SMTP connection, use the following address format: "http://user@example.com:port",
+ *       where \a port is the placeholder for the port number. 
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
  *       the default subject of form '[app_name] [app_version] Error Report' is generated.
@@ -365,6 +367,8 @@ GenerateErrorReport(
  *       connection. If this parmeter is NULL, HTTP connection won't be used to send crash reports. For
  *       example of a server-side script that can receive crash report, see \ref sending_error_reports.
  *       HTTP transport is the recommended way of sending large error reports (more than several MB in size).
+ *       To define a custom port for HTTP connection, use the following URL format: "http://example.com:port/crashrpt.php",
+ *       where \a port is the placeholder for the port number.
  *
  *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *       The crash sender process is responsible for letting end user know about the crash and 

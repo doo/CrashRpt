@@ -994,6 +994,7 @@ BOOL CErrorReportSender::SendOverSMTP()
   }
   m_EmailMsg.m_sFrom = (!g_CrashInfo.m_sEmailFrom.IsEmpty())?g_CrashInfo.m_sEmailFrom:g_CrashInfo.m_sEmailTo;
   m_EmailMsg.m_sTo = g_CrashInfo.m_sEmailTo;
+  m_EmailMsg.m_nRecipientPort = g_CrashInfo.m_nSmtpPort;
   m_EmailMsg.m_sSubject = g_CrashInfo.m_sEmailSubject;
 
   m_EmailMsg.m_sText = FormatEmailText();
