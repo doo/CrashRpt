@@ -217,7 +217,7 @@ BOOL CFilePreviewCtrl::SetFile(LPCTSTR szFileName, PreviewMode mode)
   {       
     m_bCancelled = FALSE;
     m_hWorkerThread = CreateThread(NULL, 0, TextParsingThread, this, 0, NULL);
-    SetTimer(0, 250, NULL);
+    ::SetTimer(m_hWnd, 0, 250, NULL);
   }
 
   SetupScrollbars();
@@ -780,6 +780,7 @@ LRESULT CFilePreviewCtrl::OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   nmhdr.code = NM_RCLICK;
   nmhdr.idFrom = GetWindowLong(GWL_ID);
 
-  GetParent().SendMessage(WM_NOTIFY, 0, (LPARAM)&nmhdr);
+  HWND hWndParent = GetParent();
+  ::SendMessage(hWndParent, WM_NOTIFY, 0, (LPARAM)&nmhdr);
   return 0;
 }
