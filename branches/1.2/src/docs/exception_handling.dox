@@ -66,14 +66,14 @@ int main () {
 
 \section structured_exc Structured Exception Handling
 
-When a SEH exception occurs, you typically see a popup window (Dr.Watson) that 
+When a SEH exception occurs, you typically see a pop-up window (Dr.Watson) that 
 offers to send error report to Microsoft. 
 
 You can generate a SEH exception yourself using \b RaiseException() function.
 
 You can catch a SEH exception in your code using __try{}__except(Expression){} construction.
 The \b main() function of your program is guarded with such construction, so by default all unhandled
-SEH exceptions are cought and Dr.Watson is invoked.
+SEH exceptions are caught and Dr.Watson is invoked.
 
 Example:
 
@@ -190,7 +190,7 @@ The disadvantage of the __try{}__catch(Expression){} construction is that you ma
 code that may cause an exception that won't be handled by your program. However, such an unhandled SEH exception
 can be caught using the top-level unhandled exception filter set with the \b SetUnhandledExceptionFilter() function.
 
-The exception information (CPU state before the exception occured) is passed to the exception handler
+The exception information (CPU state before the exception occurred) is passed to the exception handler
 through \b EXCEPTION_POINTERS structure.
 
 Example:
@@ -230,7 +230,7 @@ The disadvantage is that VEH is available in WinXP and later, so the presence of
 
 To remove the previously installed handler, use the \b RemoveVectoredExceptionHandler()  function.
 
-VEH allows to watch or handle <i>all</i> exceptions for the application. To preserve backwards compatibility, 
+VEH allows to watch or handle <i>all</i> exceptions for the application. To preserve backward compatibility, 
 when a SEH exception occurs in some part of the program, the system calls installed VEH handlers in turn, 
 after that it searches for the usual SEH handlers.
 
@@ -284,7 +284,7 @@ of Visual C++ exception handling. However, consider using the \b set_unexpected(
 to set handler for the \b unexpected() function, too.
 
 \note
-In a multithreaded environment, unexpected and terminate functions are maintained 
+In a multi-threaded environment, unexpected and terminate functions are maintained 
 separately for each thread. Each new thread needs to install its own 
 unexpected and terminate function. Thus, each thread is in charge of its own unexpected and
 terminate handling.
@@ -447,7 +447,7 @@ void main()
 {
   signal(SIGABRT, sigabrt_handler);
      
-  // Cause abourt
+  // Cause abort
   abort();       
 }                
 
@@ -471,7 +471,7 @@ the exception information is retrieved from \b EXCEPTION_POINTERS structure pass
 function parameter.
 
 In __try{}__catch(Expression){} construction you retrieve exception information using \b GetExceptionInformation()
-instrinsic function and pass it to the structured exception filter function as parameter.
+intrinsic function and pass it to the structured exception filter function as parameter.
 
 In the SIGFPE and SIGSEGV signal handlers you can retrieve the exception information from the \b _pxcptinfoptrs
 global CRT variable that is declared in <signal.h>. This variable is not documented well in MSDN.
@@ -578,7 +578,7 @@ the switches if open project Properties->Configuration Properties->C/C++->Code G
 <b>Exception Handling Model</b>
 
 You set an exception handling model for your Visual C++ compiler with \b /EHs (or \b EHsc) to specify  
-synchronious exception handling model or \b /EHa to specify assynchronious exception 
+synchronous exception handling model or \b /EHa to specify asynchronous exception 
 handling model. See the <i>/EH (Exception Handling Model)</i> in the Reference section below
 for more information.
 
@@ -611,7 +611,7 @@ For additional info please see these links:
 \section crt_version_and_dll Exception Handling and CRT Linkage
 
 Each module (EXE, DLL) in your application is linked to CRT (C run-time libraries). 
-You may link CRT as multithreaded static library or as multithreaded dynamic link library. 
+You may link CRT as multi-threaded static library or as multi-threaded dynamic link library. 
 When you set CRT error handlers, such as terminate handler, unexpected handler, 
 pure call handler, invalid parameter handler, new operator error handler or a signal handler, they will work for 
 the CRT the caller module is linked to and won't intercept exceptions 
@@ -619,7 +619,7 @@ in different CRT modules (if exist), because each CRT module has its own interna
 
 Several project modules may share single CRT DLL. This reduces to minimum the overall size 
 of linked CRT code. And all exceptions within that CRT DLL can be handled 
-at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
+at once. That's why multi-threaded CRT DLL is the recommended way of CRT linkage.
 
 If you plan to use CRT as a static link library (which is not recommended to do) and want to use some crash
 reporting functionality, you have to build the functionality as a static library with /NODEFAULTLIB linker 

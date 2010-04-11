@@ -9,8 +9,8 @@ users won't contact you to tell about the problem and just give up using
 your program after several crashes. Users who decide to report the problem 
 might not have technical knowledge, so it is difficult to determine the reason 
 of the problem based on their instructions. This makes debugging remote crashes 
-almost impossible, except in the simplest situtations. This fact makes us to use 
-some tool to automatically collect technical ifnormation about the crash and send error report 
+almost impossible, except in the simplest situations. This fact encourages to use 
+some tool to automatically collect technical information about the crash and send error report 
 over the Internet. 
 
 Now assume you receive tons of error reports from users of your software. You 
@@ -60,7 +60,7 @@ Disadvantages of WER:
 
  - It is not an open-source software
  - Requires you to have digital certificate to access your error reports (costs about USD1500)
- - Doen't allow to use your own server to store error reports
+ - Doesn't allow to use your own server to store error reports
 
 An alternative of WER is <a href="http://code.google.com/p/google-breakpad/">Google Breakpad</a>. 
 This open-source tool is used in Mozilla Firefox 
@@ -94,7 +94,7 @@ Disadvantages of Breakpad:
    you to convert PDB files into this format.
 
 Summary. As we see, WER and Breakpad are wide-spread error reporting and processing tools. But WER
-requires you to purchase a digital certificate, which may be costly. Breakad is free, but
+requires you to purchase a digital certificate, which may be costly. Breakpad is free, but
 you have to convert debugging info into cross-platform format. And Breakpad doesn't suit well
 to Visual C++, e.g. it doesn't handle some CRT errors. So, if you write a program for Windows platform
 only and use Visual C++ only, you might find the CrashRpt library described below more convenient.

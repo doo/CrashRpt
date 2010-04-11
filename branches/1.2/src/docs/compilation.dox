@@ -86,7 +86,7 @@ at all (if possible).
 \section builddox Generating Project Documentation
 
 By default, project documentation is already generated and included into the CrashRpt release
-package. To open the documentation, click \c index.html file in the top-level directrory of 
+package. To open the documentation, click \c index.html file in the top-level directory of 
 CrashRpt package.
 
 You can also build documentation yourself. CrashRpt documentation can be 

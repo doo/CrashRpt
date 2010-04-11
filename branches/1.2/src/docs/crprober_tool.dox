@@ -7,7 +7,7 @@ can be used for automating crash report processing. To run the tool, go to
 \c bin directory and type <b>crprober.exe</b> in the command line.
 
 \note If you run the precompiled tool from \c bin folder and do not compile it yourself, you might
-expirience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 
+experience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 
 There may be error messages like 'The application configuration is incorrect' and so on.
 If you do not have Visual C++ 2005 Redistributable on your machine and do not want to install it, 
 please compile the solution yourself as described in \ref compiling_crashrpt.
@@ -22,7 +22,7 @@ higher.
 
 Typically an error report file contains an associated MD5 hash file. The crprober tool
 can perform integrity check using the MD5 hash file. When you receive a report
-using HTTP connection, the MD5 hash can be retreived from 'md5' script argument. When you
+using HTTP connection, the MD5 hash can be retrieved from 'md5' script argument. When you
 receive a report using E-mail, the hash is attached to the mail message. For more information,
 see \ref sending_error_reports.
 
@@ -56,23 +56,23 @@ arguments are listed in the table below:
 <tr>
 <td>/fmd5 \<md5_file_or_dir\>         
 <td>Optional. Path to .md5 file containing MD5 hash for the \<input_file\> or directory name where to 
-search for the .md5 file. If this parameter is ommitted, the .md5 file is searched in the directory 
+search for the .md5 file. If this parameter is omitted, the .md5 file is searched in the directory 
 where \<input_file\> is located.
 
 <tr>
 <td>/o \<out_file_or_dir\>     
 <td>Optional. Output file name or directory name. Or use empty name "" to direct output to terminal. 
-If this parameter is ommitted, output is not generated.
+If this parameter is omitted, output is not generated.
 
 <tr>
 <td>/sym \<sym_search_dirs\>   
 <td> Optional. Symbol files search directory or list of directories separated with semicolon. 
-If this parameter is ommitted, symbol files are searched using the default search sequence.
+If this parameter is omitted, symbol files are searched using the default search sequence.
 
 <tr>
 <td> /ext \<extract_dir\>
 <td> Optional. Specifies the directory where to extract all files contained in error report. 
-If this parameter is ommitted, files are not extracted.
+If this parameter is omitted, files are not extracted.
 
 <tr>
 <td> /get \<table_id\> \<column_id\> \<row_id\>

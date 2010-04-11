@@ -59,7 +59,7 @@ The element  \c ImageName is path to the executable image of your software.
 \c OperatingSystem is the friendly name of end user's operating system, including name, build number
 and service pack. It is useful information because many errors are OS-specific.
 
-\c SystemTimeUTC is the time in UTC format when crash had occured. This value can be used to
+\c SystemTimeUTC is the time in UTC format when crash had occurred. This value can be used to
 order crash reports by creation time.
 
 \c UserEmail is the E-mail address of error report sender. If specified, it can be used
@@ -79,7 +79,7 @@ to contact user and request additional info about error.
 - 5 Buffer overrun error.
 - 6 Invalid parameter exception.
 - 7 C++ SIGABRT signal (abort).
-- 8 C++ SIGFPE signal (flotating point exception).
+- 8 C++ SIGFPE signal (floating point exception).
 - 9 C++ SIGILL signal (illegal instruction).
 - 10 C++ SIGINT signal.
 - 11 C++ SIGSEGV signal (invalid storage access)
@@ -103,7 +103,7 @@ of CRT is used in your application.
 
 \c OpenHandleCount is the number of handles (for example, file handles) in use by your program by the moment of crash.
 
-\c MemoryUsageKbytes is the amount of memory (in kylobytes) in use by your problem at the moment of crash.
+\c MemoryUsageKbytes is the amount of memory (in kilobytes) in use by your problem at the moment of crash.
 
 
 */

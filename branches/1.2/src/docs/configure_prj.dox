@@ -101,7 +101,7 @@ your code, however you typically store it locally and do not distribute with you
 software release package. So, using crashrpt doesn't affect the difficulty of reverse 
 engineering your code. 
 
-<b>Shoud I use rebase.exe to set preferred load address for modules of my application 
+<b>Should I use rebase.exe to set preferred load address for modules of my application 
 to be able read minidumps later?</b>
 
 This is not necessary, because a minidump file itself contains the list of loaded modules 
