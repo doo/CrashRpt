@@ -1,6 +1,22 @@
 #summary Release History.
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.2.3 =
+
+CrashRpt v1.2.3 improves file preview (HEX and text) in Error Report Details dialog and fixes some detected issues. Below the complete list of changes is presented. 
+
+  * Improved file preview in DetailDlg. Now a file can be previewed in HEX or in text mode.
+
+  * Ability to customize the port for SMTP connection.
+
+  * Fixed: CrashSender Crash (issue 24)
+
+  * Fixed: dbghelp.dll cannot be found (issue 26)
+
+  * Fixed: Certain fields cannot be omitted (issue 27).
+
+  * Fixed: Release LIB configuration is obsolete (issue 28). There may be some people using Release LIB configuration, so the configuration was made up-to-date.
+
 = crashrpt v1.2.2 =
 
 CrashRpt v1.2.2 improves sending error reports over HTTP connection, improves error report generation by doing all complex actions outside of the crashed process, introduces non-GUI mode and restyles the documentation. Below the complete list of changes is presented. 
