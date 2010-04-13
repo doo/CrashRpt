@@ -112,9 +112,9 @@ ATL library is a part of Visual Studio SDKs. The latest version at the moment is
 
 For additional info on using WTL with VC++ Express, see this [http://www.codeproject.com/KB/wtl/WTLExpress.aspx article].
 
-== What plaforms crashrpt can be compiled for? ==
+== What platforms crashrpt can be compiled for? ==
 
-Since v1.2.1, CrashRpt can be compiled for both Win32 and x64 plaforms. Earlier versions supported Win32 plaform only.
+Since v1.2.1, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms. Earlier versions supported Win32 platform only.
 
 == Where do I look for crashrpt documentation? ==
 
@@ -181,9 +181,9 @@ Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine ho
 
 You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
-== Does using crashrpt makes it easier for somebody to reverse engineer my code? ==
+== Does using crashrpt make it easier for somebody to reverse engineer my code? ==
 
-Actually not. In order to use CrashRpt, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using CrashRpt doesn't affect the difficulty of reverse engineering your code. 
+No, actually not. In order to use CrashRpt, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using CrashRpt doesn't affect the difficulty of reverse engineering your code. 
 
 == How do I use crashrpt API functions that have character set dependent arguments? ==
 
@@ -248,7 +248,7 @@ Since v.1.2.2, you can use the 'Export...' button on the Error Report Details di
 
 == Does crashrpt suport a non-GUI (silent) mode? ==
 
-Since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI, but usage of crash reporting is desired.
+Since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
 
 However, it is not recommended to use the non-GUI mode with regular GUI applications which create windows and interact with user.
 
@@ -268,17 +268,17 @@ For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but so
 
 == What do I do if my project uses CRT as a static library? ==
 
-In such case you can't use current version of CrashRpt in your project, because it uses dynamically linked C runtime libraries (Multi-threaded DLL (/MD) compiler flag). For more information, see below.
+You can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
 
-Each module (EXE, DLL) in your project is linked to CRT (C runtime libraries). You may link CRT as multithreaded static library or as multithreaded dynamic link library (DLL). When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
+Each module (EXE, DLL) in your project is linked to CRT (C runtime libraries). You may link CRT as multi-threaded static library or as multi-threaded dynamic link library (DLL). When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
 
 Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
 
-If your project uses CRT as a static link library (which is not recommended to do) and  you want to use some crash reporting functionality, you would have to compile the functionality as static a lib with `/NODEFAULTLIB` linker option. Then you would have to install CRT error handlers for _EACH_ module that your program loads into its address space. CrashRpt doesn't support this currently. 
+If your project uses CRT as a static link library (which is not recommended to do) and  you want to use some crash reporting functionality, you would have to compile the functionality as static a lib with `/NODEFAULTLIB` linker option. Then you would have to install CRT error handlers for _EACH_ module that your program loads into its address space. 
 
 == Can I compile crashrpt as a static library? ==
 
-No, currently you can't do this.
+It is not recommended to use CRT as a statically linked library. However, you can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
 
 == Why should I enable Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag? ==
 
@@ -307,7 +307,11 @@ When you install crash reporting support to your program, it is important to tes
 
 == Do program optimizations (/O compiler switch) affect the minidump generation? ==
 
-Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete. Hovewer, this is not the reason to turn the optimizations off. You can manage some error log file which is not affected by optimizations.
+Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete (e.g., see issue 25). Hovewer, this is not the reason to turn the optimizations off. Instead, you can manage some error log file which is not affected by optimizations.
+
+== What is the minidump type? What minidump type should I use? ==
+
+The minidump type defines what information is contained in the minidump. The default minidump type is `MinidumpNormal`. However, the `MinidumpNormal` contains only essential info required to recover the stack traces for each thread. To recover the state of global variables, other minidump types should be used. For additional info, see the [http://www.debuginfo.com/articles/effminidumps.html Effective Minidumps] article.
 
 == What files do I save locally before my software is released? ==
 
