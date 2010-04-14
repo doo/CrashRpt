@@ -355,7 +355,7 @@ It is recommended that you distribute `dbghelp.dll` with your software, because 
 
 No, this is impossible.
 
-Currently you can't compile CrashRpt as static lib. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. In addition, architecture of CrashRpt requires two modules: `CrashRpt.dll` and `CrashSender.exe`. So, you have to distribute all these binaries.
+Architecture of CrashRpt requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
 
 = Error Reports Creation and Delivery = 
 
