@@ -35,9 +35,12 @@
 #include "Utility.h"
 #include "CrashInfoReader.h"
 #include "ErrorReportSender.h"
+#include "strconv.h"
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+  DlgResize_Init();
+
   CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
@@ -45,6 +48,11 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   }
 
   SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DlgCaption")));
+
+  m_previewMode = PREVIEW_AUTO;
+  m_filePreview.SubclassWindow(GetDlgItem(IDC_PREVIEW));
+  m_filePreview.SetBytesPerLine(10);
+  m_filePreview.SetEmptyMessage(Utility::GetINIString(_T("DetailDlg"), _T("NoDataToDisplay")));
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
@@ -61,10 +69,10 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_list = GetDlgItem(IDC_FILE_LIST);
   m_list.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
 
-  m_list.InsertColumn(0, Utility::GetINIString(_T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 120);
-  m_list.InsertColumn(1, Utility::GetINIString(_T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 80);
-  m_list.InsertColumn(2, Utility::GetINIString(_T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 80);
-  m_list.InsertColumn(3, Utility::GetINIString(_T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 80);
+  m_list.InsertColumn(0, Utility::GetINIString(_T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 130);
+  m_list.InsertColumn(1, Utility::GetINIString(_T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 110);
+  m_list.InsertColumn(2, Utility::GetINIString(_T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 90);
+  m_list.InsertColumn(3, Utility::GetINIString(_T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
 
   m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
   m_list.SetImageList(m_iconList, LVSIL_SMALL);
@@ -110,14 +118,16 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
   m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
 
-  CStatic statPreview = GetDlgItem(IDC_PREVIEWTEXT);
-  statPreview.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Preview")));  
+  m_statPreview = GetDlgItem(IDC_PREVIEWTEXT);
+  m_statPreview.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Preview")));  
 
   m_btnClose = GetDlgItem(IDOK);
   m_btnClose.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Close")));  
 
   m_btnExport = GetDlgItem(IDC_EXPORT);
   m_btnExport.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Export")));  
+
+  
 
   // center the dialog on the screen
 	CenterWindow();  
@@ -161,10 +171,6 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 
 void CDetailDlg::SelectItem(int iItem)
 {
-  const int MAX_FILE_SIZE          = 32768; // 32k file preview max
-  DWORD dwBytesRead                = 0;
-  BYTE buffer[MAX_FILE_SIZE + 1]  = "";
-
   // Sanity check
   if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
       return;
@@ -172,29 +178,8 @@ void CDetailDlg::SelectItem(int iItem)
   std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
-  //
-  // Display file contents in preview window
-  //
-  CString sFileName = p->second.m_sSrcFile;
-  HANDLE hFile = CreateFile(
-     sFileName,
-     GENERIC_READ,
-     FILE_SHARE_READ | FILE_SHARE_WRITE,
-     NULL,
-     OPEN_EXISTING,
-     FILE_ATTRIBUTE_NORMAL,
-     0);
-
-  if (hFile!=INVALID_HANDLE_VALUE)
-  {
-     // Read up to first 32 KB
-     ReadFile(hFile, buffer, MAX_FILE_SIZE, &dwBytesRead, 0);
-     buffer[dwBytesRead] = 0;
-     CloseHandle(hFile);
-  }
-
-  // Update edit control with file contents
-  ::SetWindowTextA(GetDlgItem(IDC_FILE_EDIT), (char*)buffer);
+  m_previewMode = PREVIEW_AUTO;
+  m_filePreview.SetFile(p->second.m_sSrcFile, m_previewMode);
 }
 
 LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -219,5 +204,58 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
     g_ErrorReportSender.DoWork(COMPRESS_REPORT);
   }
 
+  return 0;
+}
+
+LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
+  CPoint pt;
+  GetCursorPos(&pt);
+
+  CMenu menu;
+  menu.LoadMenu(IDR_POPUPMENU);
+  
+  CMenu submenu = menu.GetSubMenu(1);
+  MENUITEMINFO mii;
+  memset(&mii, 0, sizeof(MENUITEMINFO));
+  mii.cbSize = sizeof(MENUITEMINFO);
+  mii.fMask = MIIM_STRING;
+  
+  strconv_t strconv;
+  CString sAuto = Utility::GetINIString(_T("DetailDlg"), _T("PreviewAuto"));
+  CString sText = Utility::GetINIString(_T("DetailDlg"), _T("PreviewText"));
+  CString sHex = Utility::GetINIString(_T("DetailDlg"), _T("PreviewHex"));
+  
+  mii.dwTypeData = sAuto.GetBuffer(0);  
+  submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);
+  
+  mii.dwTypeData = sHex.GetBuffer(0);
+  submenu.SetMenuItemInfo(ID_PREVIEW_HEX, FALSE, &mii);
+
+  mii.dwTypeData = sText.GetBuffer(0);
+  submenu.SetMenuItemInfo(ID_PREVIEW_TEXT, FALSE, &mii);
+
+  UINT uItem = ID_PREVIEW_AUTO;
+  if(m_previewMode==PREVIEW_HEX)
+    uItem = ID_PREVIEW_HEX;
+  else if(m_previewMode==PREVIEW_TEXT)
+    uItem = ID_PREVIEW_TEXT;
+
+  submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, uItem, MF_BYCOMMAND); 
+
+  submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);
+
+  return 0;
+}
+
+LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  PreviewMode mode = PREVIEW_AUTO;
+  if(wID==ID_PREVIEW_TEXT)
+    mode = PREVIEW_TEXT;
+  else if(wID==ID_PREVIEW_HEX)
+    mode = PREVIEW_HEX;
+  m_previewMode = mode;
+  m_filePreview.SetPreviewMode(mode);
   return 0;
 }

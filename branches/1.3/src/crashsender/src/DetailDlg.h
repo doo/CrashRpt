@@ -36,8 +36,10 @@
 #include <atlctrlx.h>
 #include "resource.h"
 #include "MailMsg.h"
+#include "FilePreviewCtrl.h"
 
-class CDetailDlg : public CDialogImpl<CDetailDlg>
+class CDetailDlg : public CDialogImpl<CDetailDlg>,
+  public CDialogResize<CDetailDlg>
 {
 public:
 	enum { IDD = IDD_DETAILDLG };
@@ -47,6 +49,17 @@ public:
   CHyperLink m_linkPrivacyPolicy;
   CButton m_btnClose;
   CButton m_btnExport;
+  CStatic m_statPreview;
+  CFilePreviewCtrl m_filePreview;
+  PreviewMode m_previewMode;
+
+  BEGIN_DLGRESIZE_MAP(CProgressDlg)    
+    DLGRESIZE_CONTROL(IDC_FILE_LIST, DLSZ_SIZE_X)
+    DLGRESIZE_CONTROL(IDC_PREVIEW, DLSZ_SIZE_X|DLSZ_SIZE_Y)
+    DLGRESIZE_CONTROL(IDC_PRIVACYPOLICY, DLSZ_MOVE_Y)
+    DLGRESIZE_CONTROL(IDOK, DLSZ_CENTER_X|DLSZ_MOVE_Y)
+    DLGRESIZE_CONTROL(IDC_EXPORT, DLSZ_MOVE_X|DLSZ_MOVE_Y)
+  END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CDetailDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
@@ -55,6 +68,10 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnOK)
     COMMAND_ID_HANDLER(IDCANCEL, OnOK)
     COMMAND_ID_HANDLER(IDC_EXPORT, OnExport)
+    COMMAND_RANGE_HANDLER(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, OnPreviewModeChanged)
+    NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick)
+
+    CHAIN_MSG_MAP(CDialogResize<CDetailDlg>)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -66,8 +83,11 @@ public:
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnExport(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
   LRESULT OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
+  LRESULT OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+  
 
   void SelectItem(int iItem);
 	  

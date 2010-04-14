@@ -14,7 +14,7 @@ Typically a process (executable file) loads CrashRpt.dll into its address space
 when process starts. This single instance of CrashRpt is shared between all DLL 
 modules that are loaded into the process' address space. Client application uses 
 \ref CrashRptAPI to set exception handlers in the process once, typically 
-in its \b main() function. In a multi-theraded program, client additionally 
+in its \b main() function. In a multi-threaded program, client additionally 
 sets exception handlers in the beginning of thread procedure of each worker thread.
 
 CrashRpt is designed to use C runtime libraries (CRT) as a Multi-threaded DLL 
@@ -41,7 +41,7 @@ the client process take care of exception handling instead of your DLL.
 
 Each process loads its own copy of \c CrashRpt.dll. It is difficult to imagine 
 how you can share single loaded instance of CrashRpt.dll between several processes. 
-Currently CrashRpt doesn't support such possiblity.  
+Currently CrashRpt doesn't support such possibility.  
 
 */
 

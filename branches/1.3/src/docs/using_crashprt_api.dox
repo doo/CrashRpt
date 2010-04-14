@@ -41,18 +41,18 @@ another action.
 On application exit, you should use the crUninstall() function to unset exception handlers. 
 
 The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
-In a multithreaded program you call the crInstallToCurrentThread2() for all 
+In a multi-threaded program you call the crInstallToCurrentThread2() for all 
 threads except the main one. Typically you call this function in the beginning of the thread
 procedure.
 
 Just before the return from the thread procedure, call the
 crUninstallFromCurrentThread() function to unset exception handlers from the caller thread. No need to call the
-crUninstallFromCurrentThread() function in the main executrion thread, because crUninstall() will do that for
+crUninstallFromCurrentThread() function in the main execution thread, because crUninstall() will do that for
 you automatically.
 
 You can use \ref CrashRptWrappers to simplify installation and uninstallation of exception
-handlers in your program. Use CrAutoInstallHelper wrapper class to install excetpion handlers in your
-\b main() function. In a multithreaded program, use CrThreadAutoInstallHelper wrapper class to 
+handlers in your program. Use CrAutoInstallHelper wrapper class to install exception handlers in your
+\b main() function. In a multi-threaded program, use CrThreadAutoInstallHelper wrapper class to 
 install exception handlers in each worker thread.
 
 \section adding_a_custom_file Adding a Custom File
@@ -113,7 +113,7 @@ generate the error report when SEH exception occurs.
 
 When you install crash reporting support to your program, it is important to test if CrashRpt
 intercepts exceptions properly. Use crEmulateCrash() function to emulate an exceptional situation. 
-You may call this function in each thread of your program to ensure all exceptions will be catched.
+You may call this function in each thread of your program to ensure all exceptions will be caught.
 
 \section get_err_msg Getting Error Messages
 

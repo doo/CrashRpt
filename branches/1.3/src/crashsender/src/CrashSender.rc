@@ -33,6 +33,12 @@ BEGIN
         MENUITEM "Copy selected line(s)",       ID_MENU1_COPYSEL
         MENUITEM "Copy the whole log",          ID_MENU1_COPYLOG
     END
+    POPUP "menu2"
+    BEGIN
+        MENUITEM "Auto",                        ID_PREVIEW_AUTO
+        MENUITEM "Hex",                         ID_PREVIEW_HEX
+        MENUITEM "Text",                        ID_PREVIEW_TEXT
+    END
 END
 
 #endif    // Neutral resources
@@ -53,18 +59,18 @@ LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
 // Dialog
 //
 
-IDD_DETAILDLG DIALOGEX 0, 0, 267, 209
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_DETAILDLG DIALOGEX 0, 0, 289, 220
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Error Report Details"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Close",IDOK,105,188,57,14
-    CONTROL         "",IDC_FILE_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,19,253,61
-    EDITTEXT        IDC_FILE_EDIT,14,96,237,64,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL | WS_HSCROLL
-    LTEXT           "Double-click an item to open it with an appropriate program.",IDC_HEADERTEXT,7,7,253,8
-    GROUPBOX        "Preview",IDC_PREVIEWTEXT,7,85,253,84,0,WS_EX_TRANSPARENT
-    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,14,172,144,8
-    PUSHBUTTON      "Export...",IDC_EXPORT,200,188,60,14
+    DEFPUSHBUTTON   "Close",IDOK,105,199,57,14
+    PUSHBUTTON      "Export...",IDC_EXPORT,222,199,60,14
+    CONTROL         "",IDC_FILE_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,7,19,275,78
+    LTEXT           "Double-click an item to open it with an appropriate program.",IDC_HEADERTEXT,7,7,275,8
+    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,14,182,144,8
+    LTEXT           "Preview",IDC_PREVIEWTEXT,7,100,151,8
+    LTEXT           "",IDC_PREVIEW,7,111,275,69,0,WS_EX_CLIENTEDGE
 END
 
 IDD_MAINDLG DIALOGEX 0, 0, 325, 215
@@ -112,9 +118,9 @@ BEGIN
     IDD_DETAILDLG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 260
+        RIGHTMARGIN, 282
         TOPMARGIN, 7
-        BOTTOMMARGIN, 202
+        BOTTOMMARGIN, 213
     END
 
     IDD_MAINDLG, DIALOG
@@ -212,8 +218,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,2,0,2
- PRODUCTVERSION 1,2,0,2
+ FILEVERSION 1,2,0,3
+ PRODUCTVERSION 1,2,0,3
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -229,12 +235,12 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "FileDescription", "CrashSender Module"
-            VALUE "FileVersion", "1, 2, 0, 2"
+            VALUE "FileVersion", "1, 2, 0, 3"
             VALUE "InternalName", "CrashSender"
             VALUE "LegalCopyright", "Copyright 2009"
             VALUE "OriginalFilename", "CrashSender.exe"
             VALUE "ProductName", "CrashSender Module"
-            VALUE "ProductVersion", "1, 2, 0, 2"
+            VALUE "ProductVersion", "1, 2, 0, 3"
         END
     END
     BLOCK "VarFileInfo"

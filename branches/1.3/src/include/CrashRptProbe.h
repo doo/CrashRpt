@@ -31,10 +31,18 @@ extern "C" {
   #define __out_ecount_z(x)
 #endif
 
+#ifndef CRASHRPTPROBE_LIB // If CrashRptProbe is used as DLL
+#define CRASHRPTPROBE_DECLSPEC_DLLEXPORT __declspec(dllexport) 
+#define CRASHRPTPROBE_DECLSPEC_DLLIMPORT __declspec(dllimport) 
+#else // If CrashRpt is used as static library
+#define CRASHRPTPROBE_DECLSPEC_DLLEXPORT 
+#define CRASHRPTPROBE_DECLSPEC_DLLIMPORT
+#endif
+
 #ifdef CRASHRPTPROBE_EXPORTS
-#define CRASHRPTPROBE_API __declspec(dllexport) WINAPI
+#define CRASHRPTPROBE_API CRASHRPTPROBE_DECLSPEC_DLLEXPORT WINAPI
 #else
-#define CRASHRPTPROBE_API __declspec(dllimport) WINAPI
+#define CRASHRPTPROBE_API CRASHRPTPROBE_DECLSPEC_DLLIMPORT WINAPI
 #endif
 
 //! Handle to an opened error report.

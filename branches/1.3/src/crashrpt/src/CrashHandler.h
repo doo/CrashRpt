@@ -213,6 +213,7 @@ private:
   std::map<CString, CString> m_props;   // User-defined properties
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   CString m_sTo;                 // Email:To.
+  int m_nSmtpPort;               // Port for SMTP connection.
   CString m_sSubject;            // Email:Subject.
   CString m_sUrl;                // URL for sending reports via HTTP.
   UINT m_uPriorities[3];         // Which way to prefer when sending crash report?

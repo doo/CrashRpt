@@ -33,8 +33,8 @@
 /*! \file   CrashRpt.h
  *  \brief  Defines the interface for the CrashRpt.DLL.
  *  \date   2003-2009
- *  \author Michael Carruth (mcarruth@gmail.com)
- *  \author zeXspectrum (zexspectrum@gmail.com)
+ *  \author Michael Carruth 
+ *  \author zeXspectrum 
  */
 
 #ifndef _CRASHRPT_H_
@@ -78,7 +78,7 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1202
+#define CRASHRPT_VER 1203
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -339,7 +339,7 @@ GenerateErrorReport(
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
- *  \brief This function defines general information used by crInstall()
+ *  \brief This structure defines the general information used by crInstall()
  *
  *  \remarks
  *
@@ -357,6 +357,8 @@ GenerateErrorReport(
  *       "name@example.com". If this equals to NULL, the crash report won't be sent using E-mail client.
  *       Keep this NULL if you plan to use large error reports (more than several MB in size), because
  *       large emails may be rejected by the mail server.
+ *       To define a custom port for SMTP connection, use the following address format: "http://user@example.com:port",
+ *       where \a port is the placeholder for the port number. 
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
  *       the default subject of form '[app_name] [app_version] Error Report' is generated.
@@ -365,6 +367,8 @@ GenerateErrorReport(
  *       connection. If this parmeter is NULL, HTTP connection won't be used to send crash reports. For
  *       example of a server-side script that can receive crash report, see \ref sending_error_reports.
  *       HTTP transport is the recommended way of sending large error reports (more than several MB in size).
+ *       To define a custom port for HTTP connection, use the following URL format: "http://example.com:port/crashrpt.php",
+ *       where \a port is the placeholder for the port number.
  *
  *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *       The crash sender process is responsible for letting end user know about the crash and 
@@ -973,6 +977,7 @@ crAddPropertyA(
    LPCSTR pszPropValue
    );
 
+
 /*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
  *  \ingroup CrashRptAPI
  */
@@ -1187,11 +1192,11 @@ crExceptionFilter(
  *    - \ref CR_CPP_SIGSEGV This raises SIGSEGV signal.
  *    - \ref CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
  *    - \ref CR_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
- *         is the same as in \ref CR_WIN32_STRUCTURED_EXCEPTION).
+ *         is the same as in \ref CR_SEH_EXCEPTION).
  *
  *  The \ref CR_SEH_EXCEPTION uses null pointer write operation to cause the access violation.
  *
- *  The \ref CR_NONCONTINUABLE_EXCEPTION has the same effect as \ref CR_WIN32_STRUCTURED_EXCEPTION, but it uses
+ *  The \ref CR_NONCONTINUABLE_EXCEPTION has the same effect as \ref CR_SEH_EXCEPTION, but it uses
  *  \b RaiseException() WinAPI function to raise noncontinuable software exception.
  *
  *  The following example shows how to use crEmulateCrash() function.

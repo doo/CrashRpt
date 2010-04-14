@@ -420,7 +420,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib;..\..\zip_utils;..\..\CrashRpt\include"
+				AdditionalIncludeDirectories="..\..\CrashRpt\src;..\..\include\; ..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\libpng\src;..\..\dbghelp\include;..\..\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -437,17 +437,17 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="..\..\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib"
+				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib "
 				OutputFile="..\..\bin\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\zlib\lib;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
 				SubSystem="2"
@@ -617,6 +617,14 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\CrashInfoReader.cpp"
@@ -636,6 +644,10 @@
 			</File>
 			<File
 				RelativePath=".\ErrorReportSender.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FilePreviewCtrl.cpp"
 				>
 			</File>
 			<File
@@ -1037,6 +1049,10 @@
 			</File>
 			<File
 				RelativePath=".\ErrorReportSender.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FilePreviewCtrl.h"
 				>
 			</File>
 			<File

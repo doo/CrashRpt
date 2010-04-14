@@ -88,7 +88,7 @@ All other sections, such as [MainDlg] and [DetailDlg] contain strings that are u
 Translate the right part of the string; the left part should not be modified.
 
 Some strings contain formatting symbols, for example <b>%%s</b> (string placeholder), 
-<b>%%d</b> (integer plaseholder) or <b>\\n</b> (new line). These
+<b>%%d</b> (integer placeholder) or <b>\\n</b> (new line). These
 special symbols should be left as they are, do not remove them! 
 
 When you are finished the translation, save your changes as a file named \b crashrpt_lang_XX.ini. Replace XX with an appropriate

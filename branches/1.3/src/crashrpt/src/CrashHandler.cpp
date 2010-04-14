@@ -158,6 +158,17 @@ int CCrashHandler::Init(
 
   // Save Email recipient address
   m_sTo = lpcszTo;
+  m_nSmtpPort = 25;
+  
+  // Check for custom SMTP port
+  int pos = m_sTo.ReverseFind(':');
+  if(pos>=0)
+  {
+    CString sServer = m_sTo.Mid(0, pos);
+    CString sPort = m_sTo.Mid(pos+1);
+    m_sTo = sServer;
+    m_nSmtpPort = _ttoi(sPort);
+  }
 
   // Save E-mail subject
   m_sSubject = lpcszSubject;
@@ -434,8 +445,8 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   
   if(dwFlags&CR_INST_STRUCTURED_EXCEPTION_HANDLER)
   {
-    // Install structured exception handler
-    m_oldSehHandler = SetUnhandledExceptionFilter(SehHandler);
+    // Install top-level SEH handler
+    m_oldSehHandler = SetUnhandledExceptionFilter(SehHandler);    
   }
 
   _set_error_mode(_OUT_TO_STDERR);
@@ -1138,11 +1149,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   fprintf(f, "  <ThreadId>%lu</ThreadId>\n", dwThreadId);
 
   // Add ExceptionPointersAddress tag
-#ifdef _WIN64
-  fprintf(f, "  <ExceptionPointersAddress>%I64lu</ExceptionPointersAddress>\n", pExInfo);
-#else
-  fprintf(f, "  <ExceptionPointersAddress>%I32u</ExceptionPointersAddress>\n", pExInfo );
-#endif
+  fprintf(f, "  <ExceptionPointersAddress>%p</ExceptionPointersAddress>\n", pExInfo);
 
   // Add EmailSubject tag
   fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
@@ -1151,6 +1158,9 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add EmailTo tag
   fprintf(f, "  <EmailTo>%s</EmailTo>\n", 
     XmlEncodeStr(m_sTo).c_str());
+
+  // Add SmtpPort tag
+  fprintf(f, "  <SmtpPort>%d</SmtpPort>\n", m_nSmtpPort);
 
   // Add Url tag
   fprintf(f, "  <Url>%s</Url>\n", 
