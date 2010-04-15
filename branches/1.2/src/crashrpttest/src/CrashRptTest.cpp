@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
+#include <shellapi.h>
 
 
 CAppModule _Module;
@@ -58,8 +59,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
+  // Get command line params
+  LPCWSTR szCommandLine = GetCommandLineW();  
+  int argc = 0;
+  LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
+  
 	CMainDlg dlgMain;
 
+  if(argc==2 && wcscmp(argv[1], L"/restart")==0)
+    dlgMain.m_bRestarted = TRUE;
+  else
+    dlgMain.m_bRestarted = FALSE;
+  
 	if(dlgMain.Create(NULL) == NULL)
 	{
 		ATLTRACE(_T("Main dialog creation failed!\n"));
@@ -108,10 +119,12 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.dwFlags = 0;
   info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
+  info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
   info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
+  info.pszRestartCmdLine = _T("/restart");
     
   CrAutoInstallHelper cr_install_helper(&info);
   ATLASSERT(cr_install_helper.m_nInstallStatus==0); 

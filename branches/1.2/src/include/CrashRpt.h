@@ -78,7 +78,7 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1203
+#define CRASHRPT_VER 1204
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -336,6 +336,7 @@ GenerateErrorReport(
 #define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
 #define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
+#define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -420,6 +421,9 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
  *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report, just save it locally'. 
  *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
+ *    <tr><td> \ref CR_INST_APP_RESTART     
+ *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
+ *             for the application is taken from \a pszRestartCmdLine parameter.
  *
  *   </table>
  *
@@ -437,6 +441,10 @@ GenerateErrorReport(
  *   <b>Since v.1.2.2</b>, \a pszErrorReportSaveDir parameter defines the directory where to save the error reports. 
  *   If this is NULL, the default directory is used (%%LOCAL_APP_DATA%\\CrashRpt\\UnsentCrashReports\\%%AppName%%_%%AppVersion%).
  *
+ *   <b> Since v.1.2.4</b>, \a pszRestartCmdLine parameter defines the string that specifies the 
+ *   command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). Do not include the name of 
+ *   the executable in the command line; it is added automatically. This parameter can be NULL.
+ *  
  *  \note
  *
  *    \ref CR_INSTALL_INFOW and \ref CR_INSTALL_INFOA structures are wide-character and multi-byte character 
@@ -460,6 +468,7 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
   MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
   LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
+  LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
 }
 CR_INSTALL_INFOW;
 
@@ -486,6 +495,7 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
   MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
   LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
+  LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
 }
 CR_INSTALL_INFOA;
 

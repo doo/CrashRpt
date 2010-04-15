@@ -42,7 +42,8 @@ enum ActionType
 {
   COLLECT_CRASH_INFO = 0x01, 
   COMPRESS_REPORT    = 0x02, 
-  SEND_REPORT        = 0x04
+  RESTART_APP        = 0x04,
+  SEND_REPORT        = 0x08
 };
 
 class CErrorReportSender
@@ -74,6 +75,7 @@ private:
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
+  BOOL RestartApp();
   BOOL CompressReportFiles();
     
   BOOL SendReport();

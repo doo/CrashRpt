@@ -122,7 +122,7 @@ void CErrorReportSender::DoWorkAssync()
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     if(hEvent!=NULL)
       SetEvent(hEvent);
-
+    
     // Copy user-provided files.
     CollectCrashFiles();
 
@@ -134,11 +134,19 @@ void CErrorReportSender::DoWorkAssync()
 
     m_Assync.SetProgress(_T("[confirm_send_report]"), 100, false);
   }
+  
   if(m_Action&COMPRESS_REPORT)
-  {    
+  { 
     // Compress error report files
     CompressReportFiles();
   }
+
+  if(m_Action&RESTART_APP)
+  { 
+    // Restart the application
+    RestartApp();
+  }
+  
   if(m_Action&SEND_REPORT)
   {
     // Send the error report.
@@ -587,6 +595,35 @@ int CErrorReportSender::CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
   }
 
   return 0;
+}
+
+// This method restarts the application
+BOOL CErrorReportSender::RestartApp()
+{
+  if(g_CrashInfo.m_bAppRestart==FALSE)
+    return FALSE;
+
+  m_Assync.SetProgress(_T("Restarting the application..."), 0, false);
+
+  STARTUPINFO si;
+  memset(&si, 0, sizeof(STARTUPINFO));
+  si.cb = sizeof(STARTUPINFO);
+
+  PROCESS_INFORMATION pi;
+  memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
+
+  CString sCmdLine;
+  sCmdLine.Format(_T("\"%s\" \"%s\""), g_CrashInfo.m_sImageName, g_CrashInfo.m_sRestartCmdLine.GetBuffer(0));
+  BOOL bCreateProcess = CreateProcess(
+    g_CrashInfo.m_sImageName, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+  if(!bCreateProcess)
+  {    
+    m_Assync.SetProgress(_T("Error restarting the application!"), 0, false);
+    return FALSE;
+  }
+
+  m_Assync.SetProgress(_T("Application restarted OK."), 0, false);
+  return TRUE;
 }
 
 // This method compresses the files contained in the report and produces ZIP archive.

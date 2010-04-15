@@ -75,6 +75,7 @@ CCrashHandler::CCrashHandler()
   m_dwScreenshotFlags = 0;
   m_bHttpBinaryEncoding = FALSE;
   m_bSilentMode = FALSE;
+  m_bAppRestart = FALSE;
 }
 
 CCrashHandler::~CCrashHandler()
@@ -95,7 +96,8 @@ int CCrashHandler::Init(
   LPCTSTR lpcszPrivacyPolicyURL,
   LPCTSTR lpcszDebugHelpDLLPath,
   MINIDUMP_TYPE MiniDumpType,
-  LPCTSTR lpcszErrorReportSaveDir)
+  LPCTSTR lpcszErrorReportSaveDir,
+  LPCTSTR lpcszRestartCmdLine)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -155,6 +157,9 @@ int CCrashHandler::Init(
     crSetErrorMsg(_T("Can't disable error sending when in GUI mode (incompatible flags specified)."));
     return 1;
   }
+
+  m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
+  m_sRestartCmdLine = lpcszRestartCmdLine;
 
   // Save Email recipient address
   m_sTo = lpcszTo;
@@ -1201,6 +1206,13 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add SendErrorReport tag
   fprintf(f, "  <SendErrorReport>%d</SendErrorReport>\n", m_bSendErrorReport);
+
+  // Add AppRestart tag
+  fprintf(f, "  <AppRestart>%d</AppRestart>\n", m_bAppRestart);
+
+  // Add RestartCmdLine tag
+  fprintf(f, "  <RestartCmdLine>%s</RestartCmdLine>\n", 
+    XmlEncodeStr(m_sRestartCmdLine).c_str());
 
   // Write file list
   fprintf(f, "  <FileList>\n");

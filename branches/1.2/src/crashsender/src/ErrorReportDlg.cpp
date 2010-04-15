@@ -108,6 +108,8 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   CString sCaption;
   sCaption.Format(Utility::GetINIString(_T("MainDlg"), _T("RestartApp")), g_CrashInfo.m_sAppName);
   m_chkRestart.SetWindowText(sCaption);
+  m_chkRestart.SetCheck(BST_CHECKED);
+  m_chkRestart.ShowWindow(g_CrashInfo.m_bAppRestart?SW_SHOW:SW_HIDE);
 
   m_statConsent = GetDlgItem(IDC_CONSENT);
   
@@ -245,8 +247,8 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  // Notify the sender thread that user has declined to send report
-  g_ErrorReportSender.FeedbackReady(1);
+  // If needed, restart the application
+  g_ErrorReportSender.DoWork(RESTART_APP);
 	CloseDialog(wID);  
 	return 0;
 }
@@ -290,6 +292,9 @@ LRESULT CErrorReportDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWN
 
 LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  BOOL bRestart = m_chkRestart.GetCheck()==BST_CHECKED?TRUE:FALSE;
+  g_CrashInfo.m_bAppRestart = bRestart;
+
   return 0;
 }
 
@@ -340,7 +345,7 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);
   g_ErrorReportSender.SetExportFlag(FALSE, _T(""));
-  g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
+  g_ErrorReportSender.DoWork(COMPRESS_REPORT|RESTART_APP|SEND_REPORT);
   m_dlgProgress.Start(FALSE);    
   SetTimer(0, 500);
   

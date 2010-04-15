@@ -96,7 +96,8 @@ public:
       LPCTSTR lpcszPrivacyPolicyURL = NULL,
       LPCTSTR lpcszDebugHelpDLLPath = NULL,
       MINIDUMP_TYPE MiniDumpType = MiniDumpNormal,
-      LPCTSTR lpcszErrorReportSaveDir = NULL);
+      LPCTSTR lpcszErrorReportSaveDir = NULL,
+      LPCTSTR lpcszRestartCmdLine = NULL);
 
   int Destroy();
    
@@ -242,6 +243,9 @@ private:
   DWORD m_dwScreenshotFlags;     // Screenshot flags
   CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).
   CPoint m_ptCursorPos;          // Mouse cursor position at the moment of crash
+
+  BOOL m_bAppRestart;            // Should we restart the crashed app or not?
+  CString m_sRestartCmdLine;     // Command line for app restart.
 
   HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe
 

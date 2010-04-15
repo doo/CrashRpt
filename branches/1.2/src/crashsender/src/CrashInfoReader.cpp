@@ -314,6 +314,27 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }      
   }
 
+  {
+    m_bAppRestart = FALSE;    
+    TiXmlHandle hAppRestart = hRoot.FirstChild("AppRestart");
+    if(hAppRestart.FirstChild().ToText()!=NULL)
+    {
+      const char* szAppRestart = hAppRestart.FirstChild().ToText()->Value();
+      if(szAppRestart!=NULL)
+        m_bAppRestart = atoi(szAppRestart);     
+    }      
+  }
+
+  {    
+    TiXmlHandle hRestartCmdLine = hRoot.FirstChild("RestartCmdLine");
+    if(hRestartCmdLine.FirstChild().ToText()!=NULL)
+    {
+      const char* szRestartCmdLine = hRestartCmdLine.FirstChild().ToText()->Value();
+      if(szRestartCmdLine!=NULL)
+        m_sRestartCmdLine = strconv.utf82t(szRestartCmdLine);     
+    }      
+  }
+
   ParseCrashDescription(m_sErrorReportDirName + _T("\\crashrpt.xml"));
 
   return ParseFileList(hRoot);
@@ -379,20 +400,26 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName)
   if(hRoot.ToElement()==NULL)
     return 1;
 
-  TiXmlHandle hAppName = hRoot.FirstChild("AppName");
-  const char* szAppName = hAppName.FirstChild().ToText()->Value();
-  if(szAppName!=NULL)
-    m_sAppName = strconv.utf82t(szAppName);
+  {
+    TiXmlHandle hAppName = hRoot.FirstChild("AppName");
+    const char* szAppName = hAppName.FirstChild().ToText()->Value();
+    if(szAppName!=NULL)
+      m_sAppName = strconv.utf82t(szAppName);
+  }
 
-  TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
-  const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
-  if(szAppVersion!=NULL)
-    m_sAppVersion = strconv.utf82t(szAppVersion);
+  {
+    TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
+    const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
+    if(szAppVersion!=NULL)
+      m_sAppVersion = strconv.utf82t(szAppVersion);
+  }
 
-  TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
-  const char* szImageName = hAppName.FirstChild().ToText()->Value();
-  if(szImageName!=NULL)
-    m_sImageName = strconv.utf82t(szImageName);
+  {
+    TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
+    const char* szImageName = hImageName.FirstChild().ToText()->Value();
+    if(szImageName!=NULL)
+      m_sImageName = strconv.utf82t(szImageName);
+  }
 
   return 0;
 }

@@ -73,6 +73,8 @@ public:
   BOOL        m_bHttpBinaryEncoding;
   BOOL        m_bSilentMode;
   BOOL        m_bSendErrorReport;
+  BOOL        m_bAppRestart;
+  CString     m_sRestartCmdLine;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;
   MINIDUMP_TYPE m_MinidumpType;
