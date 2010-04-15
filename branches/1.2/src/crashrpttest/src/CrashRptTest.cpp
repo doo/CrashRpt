@@ -119,10 +119,10 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.dwFlags = 0;
   info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
-  //info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
+  info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
-  //info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
+  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
   info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
   info.pszRestartCmdLine = _T("/restart");
     

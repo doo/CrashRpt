@@ -7,10 +7,11 @@
 // Preview mode
 enum PreviewMode
 {
-  PREVIEW_AUTO = -1, // Auto
-  PREVIEW_HEX  = 0,  // Hex
-  PREVIEW_TEXT = 1,  // Text
-  PREVIEW_PNG  = 2   // PNG
+  PREVIEW_AUTO = -1,  // Auto
+  PREVIEW_HEX  = 0,   // Hex
+  PREVIEW_TEXT = 1,   // Text
+  PREVIEW_BITMAP = 2, // Bitmap
+  PREVIEW_PNG  = 3    // PNG
 };
 
 // Used to map file contents into memory
@@ -106,6 +107,11 @@ public:
 
   static DWORD WINAPI TextParsingThread(LPVOID lpParam);
   void ParseText();
+
+  BOOL IsBitmap(FILE* f);
+  BOOL IsPNG(FILE* f);
+
+  BOOL LoadBitmap(CString sFileName);
 
   CString m_sFileName;
   PreviewMode m_PreviewMode;

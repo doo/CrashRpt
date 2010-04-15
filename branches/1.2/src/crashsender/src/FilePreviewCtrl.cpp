@@ -240,18 +240,38 @@ void CFilePreviewCtrl::SetPreviewMode(PreviewMode mode)
 PreviewMode CFilePreviewCtrl::DetectPreviewMode(LPCTSTR szFileName)
 {
   PreviewMode mode = PREVIEW_HEX;
+  FILE* f = NULL;
+  CString sFileName;
+  std::set<CString>::iterator it;
+  std::set<CString> aTextFileExtensions;
+  CString sExtension;
 
-  CString sFileName = szFileName;
+  sFileName = szFileName;
+
+  _TFOPEN_S(f, szFileName, _T("rb"));
+  if(f==NULL)
+    goto cleanup;
+    
+  if(IsBitmap(f))
+  {
+    mode = PREVIEW_BITMAP;
+    goto cleanup;
+  }
+  
+  if(IsPNG(f))
+  {
+    mode = PREVIEW_PNG;
+    goto cleanup;
+  }
+
   int backslash_pos = sFileName.ReverseFind('\\');
   if(backslash_pos>=0)
-    sFileName = sFileName.Mid(backslash_pos+1);
-  CString sExtension;
+    sFileName = sFileName.Mid(backslash_pos+1);  
   int dot_pos = sFileName.ReverseFind('.');
   if(dot_pos>0)
     sExtension = sFileName.Mid(dot_pos+1);
   sExtension.MakeUpper();
-
-  std::set<CString> aTextFileExtensions;
+  
   aTextFileExtensions.insert(_T("TXT"));
   aTextFileExtensions.insert(_T("INI"));
   aTextFileExtensions.insert(_T("LOG"));
@@ -264,13 +284,40 @@ PreviewMode CFilePreviewCtrl::DetectPreviewMode(LPCTSTR szFileName)
   aTextFileExtensions.insert(_T("CPP"));
   aTextFileExtensions.insert(_T("HPP"));
 
-  std::set<CString>::iterator it = aTextFileExtensions.find(sExtension);
+  it = aTextFileExtensions.find(sExtension);
   if(it!=aTextFileExtensions.end())
   {
     mode = PREVIEW_TEXT;
   }
 
+cleanup:
+
+  if(f!=NULL)
+    fclose(f);
+
   return mode;
+}
+
+BOOL CFilePreviewCtrl::IsBitmap(FILE* f)
+{
+  rewind(f);
+  
+  BITMAPFILEHEADER bfh;
+  int n = fread(&bfh, sizeof(bfh), 1, f);
+  if(n!=1)
+    return FALSE;
+
+  if(memcmp(&bfh.bfType, "BM", 2)!=0)
+    return FALSE;
+  
+  return TRUE;  
+}
+
+BOOL CFilePreviewCtrl::IsPNG(FILE* f)
+{
+  rewind(f);
+
+  return FALSE;
 }
 
 DWORD WINAPI CFilePreviewCtrl::TextParsingThread(LPVOID lpParam)
@@ -347,6 +394,33 @@ void CFilePreviewCtrl::ParseText()
   PostMessage(WM_FPC_COMPLETE);
 }
 
+BOOL CFilePreviewCtrl::LoadBitmap(CString sFileName)
+{
+  BOOL bStatus = FALSE;
+  FILE* f = NULL;
+  _TFOPEN_S(f, sFileName, _T("rb"));
+  if(f==NULL) 
+    goto cleanup;
+
+  if(!IsBitmap(f))
+    goto cleanup;
+
+  rewind(f);
+
+  BITMAPFILEHEADER bfh;
+  int n = fread(&bfh, sizeof(bfh), 1, f);
+  if(n!=1)
+    goto cleanup;
+
+  if(memcmp(&bfh.bfType, "BM", 2)!=0)
+    goto cleanup;
+
+
+
+cleanup:
+
+  return bStatus;
+}
 
 void CFilePreviewCtrl::SetEmptyMessage(CString sText)
 {
