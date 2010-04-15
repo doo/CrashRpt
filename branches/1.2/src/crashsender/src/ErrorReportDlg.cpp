@@ -87,14 +87,14 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
   m_link.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
   m_link.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("WhatDoesReportContain")));
-  
+    
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
   m_linkMoreInfo.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("ProvideAdditionalInfo")));
-  
+    
   m_statEmail = GetDlgItem(IDC_STATMAIL);
   m_statEmail.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("YourEmail")));
-
+  
   m_editEmail = GetDlgItem(IDC_EMAIL);
   
   m_statDesc = GetDlgItem(IDC_DESCRIBE);
@@ -104,8 +104,13 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
   m_statIndent =  GetDlgItem(IDC_INDENT);
   
-  m_statConsent = GetDlgItem(IDC_CONSENT);
+  m_chkRestart = GetDlgItem(IDC_RESTART);
+  CString sCaption;
+  sCaption.Format(Utility::GetINIString(_T("MainDlg"), _T("RestartApp")), g_CrashInfo.m_sAppName);
+  m_chkRestart.SetWindowText(sCaption);
 
+  m_statConsent = GetDlgItem(IDC_CONSENT);
+  
   LOGFONT lf;
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 11;
@@ -137,20 +142,27 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_btnCancel = GetDlgItem(IDCANCEL);
   m_btnCancel.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("CloseTheProgram")));
 
-  CRect rc1, rc2, rc3, rc4;
-  m_editEmail.GetWindowRect(&rc1);
-  m_statConsent.GetWindowRect(&rc2);
-  m_nDeltaY = rc2.top-rc1.top;
-  m_linkPrivacyPolicy.GetWindowRect(&rc3);
-  m_statCrashRpt.GetWindowRect(&rc4);
-  m_nDeltaY2 = rc4.top-rc3.top;
-  
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
   lf.lfWeight = FW_NORMAL;
   lf.lfQuality = ANTIALIASED_QUALITY;
   _TCSCPY_S(lf.lfFaceName, 32, _T("Tahoma"));
   m_HeadingFont.CreateFontIndirect(&lf);
+
+  m_Layout.SetContainerWnd(m_hWnd);
+  m_Layout.Insert(m_linkMoreInfo);
+  m_Layout.Insert(m_statIndent);
+  m_Layout.Insert(m_statEmail, TRUE);
+  m_Layout.Insert(m_editEmail, TRUE);
+  m_Layout.Insert(m_statDesc, TRUE);
+  m_Layout.Insert(m_editDesc, TRUE);
+  m_Layout.Insert(m_chkRestart);
+  m_Layout.Insert(m_statConsent);
+  m_Layout.Insert(m_linkPrivacyPolicy);
+  m_Layout.Insert(m_statHorzLine);
+  m_Layout.Insert(m_statCrashRpt, TRUE);
+  m_Layout.Insert(m_btnOk);
+  m_Layout.Insert(m_btnCancel, TRUE);
 
   ShowMoreInfo(FALSE);
 
@@ -177,48 +189,12 @@ void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_statIndent.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-  
-  int k = bShow?1:-1;
 
-  m_statConsent.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_statConsent.MoveWindow(&rc1);
+  m_Layout.Update();
 
-  m_linkPrivacyPolicy.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_linkPrivacyPolicy.MoveWindow(&rc1);
-
-  int nDeltaY = m_nDeltaY;
-  
-  BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty(); 
-  if(!bShow && !bShowPrivacyPolicy)
-    nDeltaY += m_nDeltaY2;
-
-  m_statHorzLine.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_statHorzLine.MoveWindow(&rc1);
-
-  m_statCrashRpt.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_statCrashRpt.MoveWindow(&rc1);
-
-  m_btnOk.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_btnOk.MoveWindow(&rc1);
-
-  m_btnCancel.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_btnCancel.MoveWindow(&rc1);
-
-  GetClientRect(&rc1);
-  rc1.bottom += k*nDeltaY;
-  ResizeClient(rc1.Width(), rc1.Height());
+  //GetClientRect(&rc1);
+  //rc1.bottom += k*nDeltaY;
+  // ResizeClient(rc1.Width(), rc1.Height());
 
   if(bShow)
     m_editEmail.SetFocus();
@@ -310,6 +286,11 @@ LRESULT CErrorReportDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWN
  m_linkMoreInfo.EnableWindow(0);
  ShowMoreInfo(TRUE);
  return 0;
+}
+
+LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  return 0;
 }
 
 LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

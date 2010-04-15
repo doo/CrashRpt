@@ -45,6 +45,95 @@
 
 #define WM_TRAYICON (WM_USER+128)
 
+class CSequenceLayout
+{
+  struct ItemInfo
+  {
+    BOOL m_bSecondary;
+    HWND m_hWnd;
+    RECT m_rcInitial;
+  };
+
+public:
+  
+  CSequenceLayout()
+  {
+    m_hWndContainer = NULL;
+  }
+
+  void SetContainerWnd(HWND hWnd)
+  {
+    m_hWndContainer = hWnd;
+    GetClientRect(m_hWndContainer, &m_rcContainer);
+  }
+
+  void Insert(HWND hWnd, BOOL bSecondary=FALSE)
+  {
+    RECT rc;
+    GetWindowRect(hWnd, &rc);
+    MapWindowPoints(0, GetParent(hWnd), (LPPOINT)&rc, 2);
+    ItemInfo ii;
+    ii.m_hWnd = hWnd;
+    ii.m_bSecondary = bSecondary;
+    ii.m_rcInitial = rc;
+    m_aItems.push_back(ii);
+  }
+  
+  void Update()
+  { 
+    int nDeltaY = 0;
+    
+    size_t i;
+    for(i=0; i<m_aItems.size(); i++)
+    {      
+      ItemInfo ii = m_aItems[i];
+      if(GetWindowLong(ii.m_hWnd, GWL_STYLE)&WS_VISIBLE)
+      {        
+        CWindow wnd = ii.m_hWnd;
+        CRect rc = ii.m_rcInitial;
+        rc.OffsetRect(0, nDeltaY);
+        wnd.MoveWindow(&rc);
+      }
+      else 
+      {
+        if(ii.m_bSecondary)
+          continue;
+
+        int nNext = GetNextPrimaryItem(i+1);
+        if(nNext==-1)
+          continue;
+
+        ItemInfo nextItem = m_aItems[nNext];
+        nDeltaY -= nextItem.m_rcInitial.top - ii.m_rcInitial.top;
+      }    
+    }
+
+    if(m_hWndContainer!=NULL)
+    {
+      CWindow wnd = m_hWndContainer;
+      wnd.ResizeClient(m_rcContainer.Width(), m_rcContainer.Height()+nDeltaY);
+    }
+  }
+
+private:
+
+  int GetNextPrimaryItem(int nStart)
+  {
+    size_t i;
+    for(i=nStart; i<m_aItems.size(); i++)
+    {
+      if(m_aItems[i].m_bSecondary==FALSE)
+        return i;
+    }
+
+    return -1;
+  }
+
+  HWND m_hWndContainer;
+  CRect m_rcContainer;
+  std::vector<ItemInfo> m_aItems;
+};
+
 class CErrorReportDlg : 
   public CDialogImpl<CErrorReportDlg>, 
   public CUpdateUI<CErrorReportDlg>,
@@ -57,21 +146,21 @@ public:
   CStatic m_statIcon;  
   CHyperLink  m_link;           
   CHyperLink m_linkMoreInfo;
+  CStatic m_statIndent;
   CStatic m_statEmail;
   CEdit m_editEmail;
-  CStatic m_statDesc;
-  CStatic m_statIndent;
+  CStatic m_statDesc;  
   CEdit m_editDesc;
-  CButton m_btnOk;
-  CButton m_btnCancel;
-  CStatic m_statHorzLine;
-  CStatic m_statCrashRpt;
+  CButton m_chkRestart;
   CStatic m_statConsent;
   CHyperLink  m_linkPrivacyPolicy;           
-  int m_nDeltaY;
-  int m_nDeltaY2;
+  CStatic m_statHorzLine;
+  CStatic m_statCrashRpt;
+  CButton m_btnOk;
+  CButton m_btnCancel;    
   CFont m_HeadingFont;
   CIcon m_HeadingIcon;
+  CSequenceLayout m_Layout;
 
   CProgressDlg m_dlgProgress;
   HANDLE m_hSenderThread;
@@ -92,8 +181,9 @@ public:
 
     COMMAND_ID_HANDLER(IDC_LINK, OnLinkClick)
     COMMAND_ID_HANDLER(IDC_MOREINFO, OnMoreInfoClick)    
+    COMMAND_ID_HANDLER(IDC_RESTART, OnRestartClick)    
 		COMMAND_ID_HANDLER(IDOK, OnSend)
-		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)    
+		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)        
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -113,6 +203,7 @@ public:
   LRESULT OnLinkClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnRestartClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 
 	void CloseDialog(int nVal);
