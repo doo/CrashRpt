@@ -6,6 +6,13 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.4 ---
+
+The following strings have changed:
+
+ * In [MainDlg] section:
+   - RestartApp - new
+
 --- v.1.2.3 ---
 
 The following strings have changed:
