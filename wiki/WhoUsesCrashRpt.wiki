@@ -17,4 +17,4 @@ Software products that use сrashrpt:
 || || [http://link-dead.net Link-Dead] (devblog http://mm.soldat.pl) ||
 || http://static.greatgamesexperiment.com/userimages/a/aab8e18904b27faf7dfcfaedd3ad9936_sq.gif || *[http://rigsofrods.com Rigs of Rods]* ||
 || || [http://www.curvemeister.com Curvemeister] ||
-|| kJams || http://karaoke.kjams.com/w/skins/common/images/kjams_logo.png ||  http://karaoke.kjams.com/ ||
+|| http://karaoke.kjams.com/w/skins/common/images/kjams_logo.png ||  [http://karaoke.kjams.com/ kJams karaoke] ||
