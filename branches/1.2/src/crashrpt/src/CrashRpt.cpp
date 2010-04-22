@@ -145,6 +145,8 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   MINIDUMP_TYPE miniDumpType = pInfo->uMiniDumpType;
   LPCTSTR ptszErrorReportSaveDir = strconv.w2t((LPWSTR)pInfo->pszErrorReportSaveDir);
   LPCTSTR ptszRestartCmdLine = strconv.w2t((LPWSTR)pInfo->pszRestartCmdLine);
+  LPCTSTR ptszLangFileDir = strconv.w2t((LPWSTR)pInfo->pszLangFileDir);
+  LPCTSTR ptszEmailText = strconv.w2t((LPWSTR)pInfo->pszEmailText);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -160,7 +162,9 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszDebugHelpDLL_file,
     miniDumpType,
     ptszErrorReportSaveDir,
-    ptszRestartCmdLine
+    ptszRestartCmdLine,
+    ptszLangFileDir,
+    ptszEmailText
     );
   
   if(nInitResult!=0)
@@ -199,6 +203,8 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   ii.uMiniDumpType = pInfo->uMiniDumpType;
   ii.pszErrorReportSaveDir = strconv.a2w(pInfo->pszErrorReportSaveDir);
   ii.pszRestartCmdLine = strconv.a2w(pInfo->pszRestartCmdLine);
+  ii.pszLangFileDir = strconv.a2w(pInfo->pszLangFileDir);
+  ii.pszEmailText = strconv.a2w(pInfo->pszEmailText);
 
   return crInstallW(&ii);
 }

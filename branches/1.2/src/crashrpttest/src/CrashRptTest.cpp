@@ -14,8 +14,6 @@ LPVOID g_pCrashRptState = NULL;
 HANDLE g_hWorkingThread = NULL;
 CrashThreadInfo g_CrashThreadInfo;
 
-volatile double d = 0.0f; 
-
 // Helper function that returns path to application directory
 CString GetAppDir()
 {
@@ -120,11 +118,13 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
   info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
+  info.dwFlags |= CR_INST_NO_MINIDUMP;
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
   info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
   info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
   info.pszRestartCmdLine = _T("/restart");
+  //info.pszLangFileDir = _T("D:\\");
     
   CrAutoInstallHelper cr_install_helper(&info);
   ATLASSERT(cr_install_helper.m_nInstallStatus==0); 

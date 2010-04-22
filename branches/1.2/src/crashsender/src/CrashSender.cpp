@@ -58,7 +58,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
   
   // Check window mirroring settings 
-  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
   	SetProcessDefaultLayout(LAYOUT_RTL);  

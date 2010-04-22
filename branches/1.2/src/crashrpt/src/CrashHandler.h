@@ -97,7 +97,9 @@ public:
       LPCTSTR lpcszDebugHelpDLLPath = NULL,
       MINIDUMP_TYPE MiniDumpType = MiniDumpNormal,
       LPCTSTR lpcszErrorReportSaveDir = NULL,
-      LPCTSTR lpcszRestartCmdLine = NULL);
+      LPCTSTR lpcszRestartCmdLine = NULL,
+      LPCTSTR lpcszLangFileDir = NULL,
+      LPCTSTR lpcszEmailText = NULL);
 
   int Destroy();
    
@@ -213,9 +215,10 @@ private:
   std::map<CString, FileItem> m_files;  // Files to add.
   std::map<CString, CString> m_props;   // User-defined properties
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
-  CString m_sTo;                 // Email:To.
+  CString m_sEmailTo;            // Email recipient address.
   int m_nSmtpPort;               // Port for SMTP connection.
-  CString m_sSubject;            // Email:Subject.
+  CString m_sEmailSubject;       // Email subject.
+  CString m_sEmailText;          // Email message text.
   CString m_sUrl;                // URL for sending reports via HTTP.
   UINT m_uPriorities[3];         // Which way to prefer when sending crash report?
   CString m_sAppName;            // Application name.
@@ -228,10 +231,12 @@ private:
   CString m_sPrivacyPolicyURL;   // Privacy policy URL  
   HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
   CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
+  BOOL m_bGenerateMinidump;      // Should we generate minidump file?
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
   BOOL m_bSendErrorReport;       // Should we send error report or just save it  
+  CString m_sLangFileName;       // Language file to use.
 
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.

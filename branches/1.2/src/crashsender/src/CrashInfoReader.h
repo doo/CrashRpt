@@ -58,6 +58,7 @@ class CCrashInfoReader
 {
 public:
 
+  CString     m_sLangFileName;
   CString     m_sDbgHelpPath;
   CString     m_sCrashGUID;
   CString     m_sAppName;
@@ -66,6 +67,7 @@ public:
   CString     m_sEmailSubject;
   CString     m_sEmailFrom;     
   CString     m_sEmailTo;
+  CString     m_sEmailText;
   int         m_nSmtpPort;
   CString     m_sDescription;    
   CString     m_sErrorReportDirName;
@@ -77,6 +79,7 @@ public:
   CString     m_sRestartCmdLine;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;
+  BOOL        m_bGenerateMinidump;
   MINIDUMP_TYPE m_MinidumpType;
   DWORD       m_dwProcessId;
   DWORD       m_dwThreadId;

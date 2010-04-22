@@ -53,13 +53,13 @@ BOOL CErrorReportDlg::OnIdle()
 
 LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
-  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
     Utility::SetLayoutRTL(m_hWnd);
   }
 
-  SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DlgCaption")));
+  SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DlgCaption")));
 
 	// center the dialog on the screen
 	CenterWindow();
@@ -82,23 +82,23 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   }  
 
   CStatic statSubHeader = GetDlgItem(IDC_SUBHEADER);
-  statSubHeader.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SubHeaderText")));
+  statSubHeader.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")));
  
   m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
   m_link.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
-  m_link.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("WhatDoesReportContain")));
+  m_link.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("WhatDoesReportContain")));
     
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
-  m_linkMoreInfo.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("ProvideAdditionalInfo")));
+  m_linkMoreInfo.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("ProvideAdditionalInfo")));
     
   m_statEmail = GetDlgItem(IDC_STATMAIL);
-  m_statEmail.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("YourEmail")));
+  m_statEmail.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("YourEmail")));
   
   m_editEmail = GetDlgItem(IDC_EMAIL);
   
   m_statDesc = GetDlgItem(IDC_DESCRIBE);
-  m_statDesc.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DescribeProblem")));
+  m_statDesc.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DescribeProblem")));
 
   m_editDesc = GetDlgItem(IDC_DESCRIPTION);
 
@@ -106,7 +106,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   
   m_chkRestart = GetDlgItem(IDC_RESTART);
   CString sCaption;
-  sCaption.Format(Utility::GetINIString(_T("MainDlg"), _T("RestartApp")), g_CrashInfo.m_sAppName);
+  sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("RestartApp")), g_CrashInfo.m_sAppName);
   m_chkRestart.SetWindowText(sCaption);
   m_chkRestart.SetCheck(BST_CHECKED);
   m_chkRestart.ShowWindow(g_CrashInfo.m_bAppRestart?SW_SHOW:SW_HIDE);
@@ -124,13 +124,13 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_statConsent.SetFont(hConsentFont);
 
   if(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
-    m_statConsent.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("MyConsent2")));
+    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("MyConsent2")));
   else
-    m_statConsent.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("MyConsent")));
+    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("MyConsent")));
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
-  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("PrivacyPolicy")));
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("PrivacyPolicy")));
   
   BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty();  
   m_linkPrivacyPolicy.ShowWindow(bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
@@ -139,10 +139,10 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_statHorzLine = GetDlgItem(IDC_HORZLINE);  
 
   m_btnOk = GetDlgItem(IDOK);
-  m_btnOk.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SendReport")));
+  m_btnOk.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReport")));
 
   m_btnCancel = GetDlgItem(IDCANCEL);
-  m_btnCancel.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("CloseTheProgram")));
+  m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram")));
 
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
@@ -230,7 +230,7 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
   rcHeading.right -= 10;
 
   CString sHeading;
-  sHeading.Format(Utility::GetINIString(_T("MainDlg"), _T("HeaderText")), g_CrashInfo.m_sAppName);
+  sHeading.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("HeaderText")), g_CrashInfo.m_sAppName);
   dc.SelectFont(m_HeadingFont);
   dc.DrawTextEx(sHeading.GetBuffer(0), sHeading.GetLength(), &rcHeading, 
     DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
@@ -323,14 +323,14 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
        g_CrashInfo.m_sEmailFrom.ReverseFind(_T('.')) < g_CrashInfo.m_sEmailFrom.Find(_T('@'))))
   {
     DWORD dwFlags = 0;
-    CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
       dwFlags = MB_RTLREADING;
   
      // alert user     
      MessageBox(
-       Utility::GetINIString(_T("MainDlg"), _T("InvalidEmailText")), 
-       Utility::GetINIString(_T("MainDlg"), _T("InvalidEmailCaption")), 
+       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("InvalidEmailText")), 
+       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("InvalidEmailCaption")), 
        MB_OK|dwFlags);
      
      // select email

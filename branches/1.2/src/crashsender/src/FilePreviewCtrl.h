@@ -44,6 +44,30 @@ struct LineInfo
   DWORD m_cchLineLength;  
 };
 
+class CDiBitmap
+{
+public:
+
+  CDiBitmap();
+  ~CDiBitmap();
+
+  static BOOL IsBitmap(FILE* f);
+  BOOL Create(int nWidth, int nHeight, int nBitsPerPixel);
+  BOOL Load(CString sFileName);
+  BOOL Resize(CDiBitmap* pDstBitmap);
+  
+private:
+
+  void Init();
+  void  SetBitmapInfo(BITMAPINFO* bmi, int nWidth, int nHeight, int nBitsPerPixel);
+
+  BITMAPINFO m_bmi;       // Bitmap info.
+  HBITMAP m_hBitmap;      // Handle to the bitmap.
+  HBITMAP m_hOldBitmap;	  // Old bitmap 1x1.
+	LPBYTE  m_pbDiBits;     // Buffer for DIB bits.
+  DWORD   m_dwDibSize;    // Size of the DIB data.
+};
+
 #define WM_FPC_COMPLETE  (WM_APP+100)
 
 class CFilePreviewCtrl : public CWindowImpl<CFilePreviewCtrl, CStatic>
@@ -107,12 +131,9 @@ public:
 
   static DWORD WINAPI TextParsingThread(LPVOID lpParam);
   void ParseText();
-
-  BOOL IsBitmap(FILE* f);
+  
   BOOL IsPNG(FILE* f);
-
-  BOOL LoadBitmap(CString sFileName);
-
+  
   CString m_sFileName;
   PreviewMode m_PreviewMode;
   CCritSec m_csLock;
@@ -134,6 +155,7 @@ public:
   std::vector<DWORD> m_aTextLines;
   HANDLE m_hWorkerThread;
   BOOL m_bCancelled;
+  CBitmap m_bmp;
 };
 
 

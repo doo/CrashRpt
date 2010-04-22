@@ -2,6 +2,13 @@
 #include "FilePreviewCtrl.h"
 #include <set>
 
+// DIBSIZE calculates the number of bytes required by an image
+
+#define WIDTHBYTES(bits) ((DWORD)(((bits)+31) & (~31)) / 8)
+#define DIBWIDTHBYTES(bi) (DWORD)WIDTHBYTES((DWORD)(bi).biWidth * (DWORD)(bi).biBitCount)
+#define _DIBSIZE(bi) (DIBWIDTHBYTES(bi) * (DWORD)(bi).biHeight)
+#define DIBSIZE(bi) ((bi).biHeight < 0 ? (-1)*(_DIBSIZE(bi)) : _DIBSIZE(bi))
+
 //-----------------------------------------------------------------------------
 // CFileMemoryMapping implementation
 //-----------------------------------------------------------------------------
@@ -101,6 +108,109 @@ LPBYTE CFileMemoryMapping::CreateView(DWORD dwOffset, DWORD dwLength)
   
   return (pPtr+dwDiff);
 }
+
+CDiBitmap::CDiBitmap()
+{
+  m_hBitmap = NULL;
+  m_hOldBitmap = NULL;
+	m_pbDiBits = NULL;
+  m_dwDibSize = NULL;
+}
+
+CDiBitmap::~CDiBitmap()
+{
+}
+
+BOOL CDiBitmap::IsBitmap(FILE* f)
+{
+  rewind(f);
+  
+  BITMAPFILEHEADER bfh;
+  int n = fread(&bfh, sizeof(bfh), 1, f);
+  if(n!=1)
+    return FALSE;
+
+  if(memcmp(&bfh.bfType, "BM", 2)!=0)
+    return FALSE;
+  
+  return TRUE;  
+}
+
+BOOL CDiBitmap::Create(int nWidth, int nHeight, int nBitsPerPixel)
+{
+  HDC hDesktopDC = GetDC(NULL);
+  HDC hDC = CreateCompatibleDC(hDesktopDC);
+	  
+	SetBitmapInfo(&m_bmi, nWidth, nHeight, nBitsPerPixel);
+	m_hBitmap = CreateDIBSection(hDC, &m_bmi, DIB_RGB_COLORS, (void**)&m_pbDiBits, 0, 0 );
+  m_dwDibSize = DIBSIZE(m_bmi.bmiHeader);
+	
+  DeleteDC(hDC);
+  return TRUE;
+}
+
+BOOL CDiBitmap::Load(CString sFileName)
+{
+  BOOL bStatus = FALSE;
+  FILE* f = NULL;
+  BITMAPFILEHEADER bfh;
+  //BITMAPINFOHEADER bih;
+
+  _TFOPEN_S(f, sFileName, _T("rb"));
+  if(f==NULL) 
+    goto cleanup;
+
+  if(!IsBitmap(f))
+    goto cleanup;
+
+  rewind(f);
+  
+  int n = fread(&bfh, sizeof(bfh), 1, f);
+  if(n!=1)
+    goto cleanup;
+
+  if(memcmp(&bfh.bfType, "BM", 2)!=0)
+    goto cleanup;
+
+  
+  
+cleanup:
+
+  return bStatus;
+}
+
+BOOL CDiBitmap::Resize(CDiBitmap* pDstBitmap)
+{
+  pDstBitmap;
+  return TRUE;
+}
+
+void  CDiBitmap::SetBitmapInfo(BITMAPINFO* bmi, int nWidth, int nHeight, int nBitsPerPixel)
+{
+	BITMAPINFOHEADER* bmih = &(bmi->bmiHeader);
+
+	memset( bmih, 0, sizeof(*bmih));
+
+	bmih->biSize   = sizeof(BITMAPINFOHEADER); 
+	bmih->biWidth  = nWidth;
+	bmih->biHeight = nHeight;
+	bmih->biPlanes = 1; 
+	bmih->biBitCount = (WORD)nBitsPerPixel;
+	bmih->biCompression = BI_RGB;
+
+	if( nBitsPerPixel == 8 )
+	{
+		RGBQUAD* palette = bmi->bmiColors;
+
+		int i;
+		for( i = 0; i < 256; i++ )
+		{
+			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
+			palette[i].rgbReserved = 0;
+		}
+	}
+}
+
 
 //-----------------------------------------------------------------------------
 // CFilePreviewCtrl implementation
@@ -252,7 +362,7 @@ PreviewMode CFilePreviewCtrl::DetectPreviewMode(LPCTSTR szFileName)
   if(f==NULL)
     goto cleanup;
     
-  if(IsBitmap(f))
+  if(CDiBitmap::IsBitmap(f))
   {
     mode = PREVIEW_BITMAP;
     goto cleanup;
@@ -296,21 +406,6 @@ cleanup:
     fclose(f);
 
   return mode;
-}
-
-BOOL CFilePreviewCtrl::IsBitmap(FILE* f)
-{
-  rewind(f);
-  
-  BITMAPFILEHEADER bfh;
-  int n = fread(&bfh, sizeof(bfh), 1, f);
-  if(n!=1)
-    return FALSE;
-
-  if(memcmp(&bfh.bfType, "BM", 2)!=0)
-    return FALSE;
-  
-  return TRUE;  
 }
 
 BOOL CFilePreviewCtrl::IsPNG(FILE* f)
@@ -392,34 +487,6 @@ void CFilePreviewCtrl::ParseText()
   }
 
   PostMessage(WM_FPC_COMPLETE);
-}
-
-BOOL CFilePreviewCtrl::LoadBitmap(CString sFileName)
-{
-  BOOL bStatus = FALSE;
-  FILE* f = NULL;
-  _TFOPEN_S(f, sFileName, _T("rb"));
-  if(f==NULL) 
-    goto cleanup;
-
-  if(!IsBitmap(f))
-    goto cleanup;
-
-  rewind(f);
-
-  BITMAPFILEHEADER bfh;
-  int n = fread(&bfh, sizeof(bfh), 1, f);
-  if(n!=1)
-    goto cleanup;
-
-  if(memcmp(&bfh.bfType, "BM", 2)!=0)
-    goto cleanup;
-
-
-
-cleanup:
-
-  return bStatus;
 }
 
 void CFilePreviewCtrl::SetEmptyMessage(CString sText)

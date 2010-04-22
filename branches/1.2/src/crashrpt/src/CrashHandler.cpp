@@ -76,6 +76,7 @@ CCrashHandler::CCrashHandler()
   m_bHttpBinaryEncoding = FALSE;
   m_bSilentMode = FALSE;
   m_bAppRestart = FALSE;
+  m_bGenerateMinidump = TRUE;
 }
 
 CCrashHandler::~CCrashHandler()
@@ -97,11 +98,14 @@ int CCrashHandler::Init(
   LPCTSTR lpcszDebugHelpDLLPath,
   MINIDUMP_TYPE MiniDumpType,
   LPCTSTR lpcszErrorReportSaveDir,
-  LPCTSTR lpcszRestartCmdLine)
+  LPCTSTR lpcszRestartCmdLine,
+  LPCTSTR lpcszLangFileDir,
+  LPCTSTR lpcszEmailText)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
   // Save minidump type
+  m_bGenerateMinidump = (dwFlags&CR_INST_NO_MINIDUMP)?FALSE:TRUE;
   m_MiniDumpType = MiniDumpType;
 
   // Determine if should work in silent mode. FALSE is the default.
@@ -162,29 +166,32 @@ int CCrashHandler::Init(
   m_sRestartCmdLine = lpcszRestartCmdLine;
 
   // Save Email recipient address
-  m_sTo = lpcszTo;
+  m_sEmailTo = lpcszTo;
   m_nSmtpPort = 25;
   
   // Check for custom SMTP port
-  int pos = m_sTo.ReverseFind(':');
+  int pos = m_sEmailTo.ReverseFind(':');
   if(pos>=0)
   {
-    CString sServer = m_sTo.Mid(0, pos);
-    CString sPort = m_sTo.Mid(pos+1);
-    m_sTo = sServer;
+    CString sServer = m_sEmailTo.Mid(0, pos);
+    CString sPort = m_sEmailTo.Mid(pos+1);
+    m_sEmailTo = sServer;
     m_nSmtpPort = _ttoi(sPort);
   }
 
   // Save E-mail subject
-  m_sSubject = lpcszSubject;
+  m_sEmailSubject = lpcszSubject;
 
   // If the subject is empty...
-  if(m_sSubject.IsEmpty())
+  if(m_sEmailSubject.IsEmpty())
   {
     // Generate the default subject
-    m_sSubject.Format(_T("%s %s Error Report"), m_sAppName, 
+    m_sEmailSubject.Format(_T("%s %s Error Report"), m_sAppName, 
       m_sAppVersion.IsEmpty()?_T("[unknown_ver]"):m_sAppVersion);
   }
+
+  // Save Email text.
+  m_sEmailText = lpcszEmailText;
 
   // Save report sending priorities
   if(puPriorities!=NULL)
@@ -233,10 +240,23 @@ int CCrashHandler::Init(
   // Remove ending backslash if any
   if(m_sPathToCrashSender.Right(1)!='\\')
       m_sPathToCrashSender+="\\";
+  
+  CString sLangFileDir;
+  if(lpcszLangFileDir!=NULL)
+  {
+    sLangFileDir = lpcszLangFileDir;
+    // Append back slash if needed
+    if(sLangFileDir.Right(1)!=_T("\\"))
+      sLangFileDir += _T("\\");    
+  }
+  else
+  {
+    // Look for crashrpt_lang.ini in the same folder as CrashSender.exe..
+    sLangFileDir = m_sPathToCrashSender;
+  }
 
-  // Look for crashrpt_lang.ini in the same folder as CrashSender.exe
-  CString sININame = m_sPathToCrashSender + _T("crashrpt_lang.ini");
-  CString sLangFileVer = Utility::GetINIString(sININame, _T("Settings"), _T("CrashRptVersion"));
+  m_sLangFileName = sLangFileDir + _T("crashrpt_lang.ini");
+  CString sLangFileVer = Utility::GetINIString(m_sLangFileName, _T("Settings"), _T("CrashRptVersion"));
   int lang_file_ver = _ttoi(sLangFileVer);
   if(lang_file_ver!=CRASHRPT_VER)
   {
@@ -1158,11 +1178,15 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add EmailSubject tag
   fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
-    XmlEncodeStr(m_sSubject).c_str());
+    XmlEncodeStr(m_sEmailSubject).c_str());
 
   // Add EmailTo tag
   fprintf(f, "  <EmailTo>%s</EmailTo>\n", 
-    XmlEncodeStr(m_sTo).c_str());
+    XmlEncodeStr(m_sEmailTo).c_str());
+
+  // Add EmailText tag
+  fprintf(f, "  <EmailText>%s</EmailText>\n", 
+    XmlEncodeStr(m_sEmailText).c_str());
 
   // Add SmtpPort tag
   fprintf(f, "  <SmtpPort>%d</SmtpPort>\n", m_nSmtpPort);
@@ -1213,6 +1237,13 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add RestartCmdLine tag
   fprintf(f, "  <RestartCmdLine>%s</RestartCmdLine>\n", 
     XmlEncodeStr(m_sRestartCmdLine).c_str());
+
+  // Add GenerateMinidump tag
+  fprintf(f, "  <GenerateMinidump>%d</GenerateMinidump>\n", m_bGenerateMinidump);
+
+  // Add LangFileName tag
+  fprintf(f, "  <LangFileName>%s</LangFileName>\n", 
+    XmlEncodeStr(m_sLangFileName).c_str());
 
   // Write file list
   fprintf(f, "  <FileList>\n");

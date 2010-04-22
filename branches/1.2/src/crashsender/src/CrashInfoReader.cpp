@@ -78,6 +78,16 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   }
 
   {
+    TiXmlHandle hLangFileName = hRoot.FirstChild("LangFileName");
+    if(hLangFileName.FirstChild().ToText()!=NULL)
+    {
+      const char* szLangFileName = hLangFileName.FirstChild().ToText()->Value();
+      if(szLangFileName!=NULL)
+        m_sLangFileName = strconv.utf82t(szLangFileName);
+    }
+  }
+
+  {
     TiXmlHandle hDbgHelpPath = hRoot.FirstChild("DbgHelpPath");
     if(hDbgHelpPath.FirstChild().ToText()!=NULL)
     {
@@ -85,6 +95,17 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       if(szDbgHelpPath!=NULL)
         m_sDbgHelpPath = strconv.utf82t(szDbgHelpPath);
     }
+  }
+
+  {
+    m_bGenerateMinidump = TRUE;
+    TiXmlHandle hGenerateMinidump = hRoot.FirstChild("GenerateMinidump");
+    if(hGenerateMinidump.FirstChild().ToText()!=NULL)
+    {
+      const char* szGenerateMinidump = hGenerateMinidump.FirstChild().ToText()->Value();
+      if(szGenerateMinidump!=NULL)
+        m_bGenerateMinidump = (MINIDUMP_TYPE)atol(szGenerateMinidump);      
+    }    
   }
 
   {
@@ -139,6 +160,16 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       const char* szEmailSubject = hEmailSubject.FirstChild().ToText()->Value();
       if(szEmailSubject!=NULL)
         m_sEmailSubject = strconv.utf82t(szEmailSubject);
+    }
+  }
+
+  {
+    TiXmlHandle hEmailText = hRoot.FirstChild("EmailText");
+    if(hEmailText.FirstChild().ToText()!=NULL)
+    {
+      const char* szEmailText = hEmailText.FirstChild().ToText()->Value();
+      if(szEmailText!=NULL)
+        m_sEmailText = strconv.utf82t(szEmailText);
     }
   }
 

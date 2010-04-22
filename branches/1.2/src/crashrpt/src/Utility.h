@@ -77,7 +77,7 @@ namespace Utility
 
   // Retrieves a string from INI file.
   CString GetINIString(LPCTSTR pszFileName, LPCTSTR pszSection, LPCTSTR pszName);
-  CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
+  //CString GetINIString(LPCTSTR pszSection, LPCTSTR pszName);
 
   // Mirrors the content of a window.
   void SetLayoutRTL(HWND hWnd);

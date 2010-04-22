@@ -337,6 +337,7 @@ GenerateErrorReport(
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
 #define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
 #define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
+#define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -424,6 +425,9 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_APP_RESTART     
  *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
  *             for the application is taken from \a pszRestartCmdLine parameter.
+ *    <tr><td> \ref CR_INST_NO_MINIDUMP     
+ *        <td> <b>Available since v.1.2.4</b> Specify this parameter if you want minidump file not to be included into crash report. The default
+ *             behavior is to include the minidump file.
  *
  *   </table>
  *
@@ -444,6 +448,13 @@ GenerateErrorReport(
  *   <b> Since v.1.2.4</b>, \a pszRestartCmdLine parameter defines the string that specifies the 
  *   command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). Do not include the name of 
  *   the executable in the command line; it is added automatically. This parameter can be NULL.
+ *
+ *   <b> Since v.1.2.4</b>, \a pszLangFileDir parameter defines the directory where language file (crashrpt_lang.ini)
+ *   is located. If this is NULL, the lang file is assumed to be located in the same dir as CrashSender.exe file.
+ * 
+ *   <b> Since v.1.2.4</b>, \a pszEmailText parameter defines the custom E-mail text that is used when deliverying error report
+ *   as E-mail. If this is NULL, the default E-mail text is used. It is recommended to set this parameter with NULL.
+ *  
  *  
  *  \note
  *
@@ -469,6 +480,8 @@ typedef struct tagCR_INSTALL_INFOW
   MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
   LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
   LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
+  LPCWSTR pszLangFileDir;         //!< Directory name where crashrpt_lang.ini file is located.
+  LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
 }
 CR_INSTALL_INFOW;
 
@@ -496,6 +509,8 @@ typedef struct tagCR_INSTALL_INFOA
   MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
   LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
   LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
+  LPCSTR pszLangFileDir;         //!< Directory name where crashrpt_lang.ini file is located.
+  LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
 }
 CR_INSTALL_INFOA;
 

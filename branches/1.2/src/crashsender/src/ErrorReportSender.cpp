@@ -332,6 +332,12 @@ BOOL CErrorReportSender::CreateMiniDump()
   FileItem fi;
   BOOL bAdd;
 
+  if(g_CrashInfo.m_bGenerateMinidump==FALSE)
+  {
+    m_Assync.SetProgress(_T("Crash dump generation disabled; skipping."), 0, false);
+    return TRUE;
+  }
+
   m_Assync.SetProgress(_T("Creating crash dump file..."), 0, false);
   m_Assync.SetProgress(_T("[creating_dump]"), 0, false);
 
@@ -1034,7 +1040,10 @@ BOOL CErrorReportSender::SendOverSMTP()
   m_EmailMsg.m_nRecipientPort = g_CrashInfo.m_nSmtpPort;
   m_EmailMsg.m_sSubject = g_CrashInfo.m_sEmailSubject;
 
-  m_EmailMsg.m_sText = FormatEmailText();
+  if(g_CrashInfo.m_sEmailText.IsEmpty())
+    m_EmailMsg.m_sText = FormatEmailText();
+  else
+    m_EmailMsg.m_sText = g_CrashInfo.m_sEmailText;
   m_EmailMsg.m_aAttachments.insert(m_sZipName);  
 
   // Create and attach MD5 hash file
@@ -1118,7 +1127,10 @@ BOOL CErrorReportSender::SendOverSMAPI()
   if(pos>=0)
     sFileTitle = sFileTitle.Mid(pos+1);
     
-  m_MapiSender.SetMessage(FormatEmailText());
+  if(g_CrashInfo.m_sEmailText.IsEmpty())
+    m_MapiSender.SetMessage(FormatEmailText());
+  else
+    m_MapiSender.SetMessage(g_CrashInfo.m_sEmailText);
   m_MapiSender.AddAttachment(m_sZipName, sFileTitle);
 
   // Create and attach MD5 hash file

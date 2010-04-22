@@ -263,17 +263,17 @@ int Utility::RecycleFile(CString sFilePath, bool bPermanentDelete)
   return SHFileOperation(&fop); // do it!  
 }
 
-CString Utility::GetINIString(LPCTSTR pszSection, LPCTSTR pszName)
-{
-  static CString sINIFileName = _T("");
-
-  if(sINIFileName.IsEmpty())
-  {
-    sINIFileName = GetModulePath(GetModuleHandle(NULL)) + _T("\\crashrpt_lang.ini");
-  }
-  
-  return GetINIString(sINIFileName, pszSection, pszName);
-}
+//CString Utility::GetINIString(LPCTSTR pszSection, LPCTSTR pszName)
+//{
+//  static CString sINIFileName = _T("");
+//
+//  if(sINIFileName.IsEmpty())
+//  {
+//    sINIFileName = GetModulePath(GetModuleHandle(NULL)) + _T("\\crashrpt_lang.ini");
+//  }
+//  
+//  return GetINIString(sINIFileName, pszSection, pszName);
+//}
 
 CString Utility::GetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszName)
 {  
