@@ -901,6 +901,12 @@ BOOL CErrorReportSender::SendOverHTTP()
 {  
   strconv_t strconv;
 
+  if(g_CrashInfo.m_uPriorities[CR_HTTP]<0)
+  {
+    m_Assync.SetProgress(_T("Sending error report over HTTP is disabled (negative priority); skipping."), 0);
+    return FALSE;
+  }
+
   if(g_CrashInfo.m_sUrl.IsEmpty())
   {
     m_Assync.SetProgress(_T("No URL specified for sending error report over HTTP; skipping."), 0);
@@ -1030,6 +1036,12 @@ BOOL CErrorReportSender::SendOverSMTP()
 {  
   strconv_t strconv;
 
+  if(g_CrashInfo.m_uPriorities[CR_SMTP]<0)
+  {
+    m_Assync.SetProgress(_T("Sending error report over SMTP is disabled (negative priority); skipping."), 0);
+    return FALSE;
+  }
+
   if(g_CrashInfo.m_sEmailTo.IsEmpty())
   {
     m_Assync.SetProgress(_T("No E-mail address is specified for sending error report over SMTP; skipping."), 0);
@@ -1076,6 +1088,12 @@ BOOL CErrorReportSender::SendOverSMTP()
 BOOL CErrorReportSender::SendOverSMAPI()
 {  
   strconv_t strconv;
+
+  if(g_CrashInfo.m_uPriorities[CR_SMAPI]<0)
+  {
+    m_Assync.SetProgress(_T("Sending error report over SMAPI is disabled (negative priority); skipping."), 0);
+    return FALSE;
+  }
 
   if(g_CrashInfo.m_sEmailTo.IsEmpty())
   {

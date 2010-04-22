@@ -385,7 +385,8 @@ GenerateErrorReport(
  *
  *    \a uPriorities is an array that defines the preferred ways of sending error reports. 
  *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
- *         A priority may be an integer number greater or equal to zero.
+ *         A priority is an integer number. The greater positive number defines the greater priority. If the number is negative,
+ *         the respective way is skipped.
  *         The element having index \ref CR_HTTP defines priority for using HTML connection.
  *         The element having index \ref CR_SMTP defines priority for using SMTP connection.
  *         The element having index \ref CR_SMAPI defines priority for using the default mail client.
@@ -455,6 +456,9 @@ GenerateErrorReport(
  *   <b> Since v.1.2.4</b>, \a pszEmailText parameter defines the custom E-mail text that is used when deliverying error report
  *   as E-mail. If this is NULL, the default E-mail text is used. It is recommended to set this parameter with NULL.
  *  
+ *   <b> Since v.1.2.4</b>, \a pszSmtpProxy parameter defines the network address and port formatted as "IP:port" to use as SMTP proxy. Example: "192.168.1.1:2525".
+ *   If this is NULL, the SMTP server address is resolved using the MX record of sender's or recipient's mailbox. You should typically set this parameter with NULL, except in the
+ *   case when your software is a server and custom SMTP configuration is required.
  *  
  *  \note
  *
@@ -482,6 +486,7 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
   LPCWSTR pszLangFileDir;         //!< Directory name where crashrpt_lang.ini file is located.
   LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
+  LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
 }
 CR_INSTALL_INFOW;
 
@@ -511,6 +516,7 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
   LPCSTR pszLangFileDir;         //!< Directory name where crashrpt_lang.ini file is located.
   LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
+  LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
 }
 CR_INSTALL_INFOA;
 

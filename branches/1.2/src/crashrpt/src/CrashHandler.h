@@ -99,7 +99,8 @@ public:
       LPCTSTR lpcszErrorReportSaveDir = NULL,
       LPCTSTR lpcszRestartCmdLine = NULL,
       LPCTSTR lpcszLangFileDir = NULL,
-      LPCTSTR lpcszEmailText = NULL);
+      LPCTSTR lpcszEmailText = NULL,
+      LPCTSTR lpcszSmtpProxy = NULL);
 
   int Destroy();
    
@@ -219,6 +220,8 @@ private:
   int m_nSmtpPort;               // Port for SMTP connection.
   CString m_sEmailSubject;       // Email subject.
   CString m_sEmailText;          // Email message text.
+  CString m_sSmtpProxyServer;    // SMTP proxy server address.
+  int m_nSmtpProxyPort;          // SMTP proxy server port.
   CString m_sUrl;                // URL for sending reports via HTTP.
   UINT m_uPriorities[3];         // Which way to prefer when sending crash report?
   CString m_sAppName;            // Application name.

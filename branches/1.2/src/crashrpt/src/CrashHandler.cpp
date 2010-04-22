@@ -100,7 +100,8 @@ int CCrashHandler::Init(
   LPCTSTR lpcszErrorReportSaveDir,
   LPCTSTR lpcszRestartCmdLine,
   LPCTSTR lpcszLangFileDir,
-  LPCTSTR lpcszEmailText)
+  LPCTSTR lpcszEmailText,
+  LPCTSTR lpcszSmtpProxy)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -177,6 +178,20 @@ int CCrashHandler::Init(
     CString sPort = m_sEmailTo.Mid(pos+1);
     m_sEmailTo = sServer;
     m_nSmtpPort = _ttoi(sPort);
+  }
+
+  if(lpcszSmtpProxy!=NULL)
+  {
+    m_sSmtpProxyServer = lpcszSmtpProxy;  
+    m_nSmtpProxyPort = 25;
+    int pos = m_sSmtpProxyServer.ReverseFind(':');
+    if(pos>=0)
+    {
+      CString sServer = m_sSmtpProxyServer.Mid(0, pos);
+      CString sPort = m_sSmtpProxyServer.Mid(pos+1);
+      m_sSmtpProxyServer = sServer;
+      m_nSmtpProxyPort = _ttoi(sPort);
+    }
   }
 
   // Save E-mail subject

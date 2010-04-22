@@ -147,6 +147,7 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszRestartCmdLine = strconv.w2t((LPWSTR)pInfo->pszRestartCmdLine);
   LPCTSTR ptszLangFileDir = strconv.w2t((LPWSTR)pInfo->pszLangFileDir);
   LPCTSTR ptszEmailText = strconv.w2t((LPWSTR)pInfo->pszEmailText);
+  LPCTSTR ptszSmtpProxy = strconv.w2t((LPWSTR)pInfo->pszSmtpProxy);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -164,7 +165,8 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszErrorReportSaveDir,
     ptszRestartCmdLine,
     ptszLangFileDir,
-    ptszEmailText
+    ptszEmailText,
+    ptszSmtpProxy
     );
   
   if(nInitResult!=0)
@@ -205,6 +207,7 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   ii.pszRestartCmdLine = strconv.a2w(pInfo->pszRestartCmdLine);
   ii.pszLangFileDir = strconv.a2w(pInfo->pszLangFileDir);
   ii.pszEmailText = strconv.a2w(pInfo->pszEmailText);
+  ii.pszSmtpProxy = strconv.a2w(pInfo->pszSmtpProxy);
 
   return crInstallW(&ii);
 }
