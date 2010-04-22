@@ -366,6 +366,27 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }      
   }
 
+  {    
+    TiXmlHandle hSmtpProxyServer = hRoot.FirstChild("SmtpProxyServer");
+    if(hSmtpProxyServer.FirstChild().ToText()!=NULL)
+    {
+      const char* szSmtpProxyServer = hSmtpProxyServer.FirstChild().ToText()->Value();
+      if(szSmtpProxyServer!=NULL)
+        m_sSmtpProxyServer = strconv.utf82t(szSmtpProxyServer);     
+    }      
+  }
+
+  {    
+    m_nSmtpProxyPort = 25;
+    TiXmlHandle hSmtpProxyPort = hRoot.FirstChild("SmtpProxyPort");
+    if(hSmtpProxyPort.FirstChild().ToText()!=NULL)
+    {
+      const char* szSmtpProxyPort = hSmtpProxyPort.FirstChild().ToText()->Value();
+      if(szSmtpProxyPort!=NULL)
+        m_nSmtpProxyPort = atoi(szSmtpProxyPort);     
+    }      
+  }
+
   ParseCrashDescription(m_sErrorReportDirName + _T("\\crashrpt.xml"));
 
   return ParseFileList(hRoot);

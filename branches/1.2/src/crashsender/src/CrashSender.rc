@@ -92,9 +92,9 @@ BEGIN
     LTEXT           "Describe in few words what did you do when the error occurred:",IDC_DESCRIBE,27,118,279,8
     LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,10,184,165,8
     LTEXT           "By clicking the 'Send report' button, I confirm I'm familiar with the contents of the report and accept the terms of the Privacy Policy.",IDC_CONSENT,10,167,292,17
-    CONTROL         "",IDC_INDENT,"Static",SS_BLACKRECT,12,94,2,49
+    CONTROL         "",IDC_INDENT,"Static",SS_BLACKRECT,12,97,2,44
     CONTROL         "Restart the program when when this window is closed",IDC_RESTART,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,150,294,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,152,294,10
 END
 
 IDD_PROGRESSDLG DIALOGEX 0, 0, 266, 112

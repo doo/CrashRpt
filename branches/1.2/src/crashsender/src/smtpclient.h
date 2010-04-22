@@ -48,7 +48,6 @@ public:
   std::set<CString> m_aAttachments;
 };
 
-
 class CSmtpClient
 {
 public:
@@ -56,6 +55,7 @@ public:
   CSmtpClient();
   ~CSmtpClient();
 
+  int SetSmtpProxy(CString sServer, int nPort);
   int SendEmail(CEmailMessage* msg);
   int SendEmailAssync(CEmailMessage* msg,  AssyncNotification* scn);
 
@@ -89,6 +89,10 @@ protected:
     CEmailMessage* m_msg;
     AssyncNotification* m_scn;
   };
+
+  static CString m_sProxyServer;
+  static int m_nProxyPort;
+
 };
 
 

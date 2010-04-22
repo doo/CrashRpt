@@ -1206,6 +1206,13 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add SmtpPort tag
   fprintf(f, "  <SmtpPort>%d</SmtpPort>\n", m_nSmtpPort);
 
+  // Add SmtpProxyServer tag
+  fprintf(f, "  <SmtpProxyServer>%s</SmtpProxyServer>\n", 
+    XmlEncodeStr(m_sSmtpProxyServer).c_str());
+
+  // Add SmtpProxyPort tag
+  fprintf(f, "  <SmtpProxyPort>%d</SmtpProxyPort>\n", m_nSmtpProxyPort);
+
   // Add Url tag
   fprintf(f, "  <Url>%s</Url>\n", 
     XmlEncodeStr(m_sUrl).c_str());

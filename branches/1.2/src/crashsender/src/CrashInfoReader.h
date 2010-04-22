@@ -68,8 +68,10 @@ public:
   CString     m_sEmailFrom;     
   CString     m_sEmailTo;
   CString     m_sEmailText;
-  int         m_nSmtpPort;
+  int         m_nSmtpPort;  
   CString     m_sDescription;    
+  CString     m_sSmtpProxyServer;
+  int     m_nSmtpProxyPort;
   CString     m_sErrorReportDirName;
   CString     m_sUrl;
   BOOL        m_bHttpBinaryEncoding;

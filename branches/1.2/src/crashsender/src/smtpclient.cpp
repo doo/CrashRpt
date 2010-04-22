@@ -41,6 +41,9 @@
 #include "strconv.h"
 #include "Base64.h"
 
+CString CSmtpClient::m_sProxyServer;
+int CSmtpClient::m_nProxyPort = 25;
+
 CSmtpClient::CSmtpClient()
 {
   // Initialize Winsock
@@ -48,6 +51,8 @@ CSmtpClient::CSmtpClient()
   int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
   ATLASSERT(iResult==0); 
   iResult;
+
+  m_nProxyPort = 25;
 }
 
 CSmtpClient::~CSmtpClient()
@@ -55,6 +60,13 @@ CSmtpClient::~CSmtpClient()
   int iResult = WSACleanup();
   iResult;
   ATLASSERT(iResult==0);
+}
+
+int CSmtpClient::SetSmtpProxy(CString sServer, int nPort)
+{
+  m_sProxyServer = sServer;
+  m_nProxyPort = nPort;
+  return 0;
 }
 
 int CSmtpClient::SendEmail(CEmailMessage* msg)
@@ -103,11 +115,18 @@ int CSmtpClient::_SendEmail(CEmailMessage* msg, AssyncNotification* scn)
 
   std::map<WORD, CString> host_list;
 
-  int res = GetSmtpServerName(msg, scn, host_list);
-  if(res!=0)
+  if(!m_sProxyServer.IsEmpty())
   {
-    scn->SetProgress(_T("Error querying DNS record."), 100, false);
-    return 1;
+    host_list[0] = m_sProxyServer;
+  }
+  else
+  {
+    int res = GetSmtpServerName(msg, scn, host_list);
+    if(res!=0)
+    {
+      scn->SetProgress(_T("Error querying DNS record."), 100, false);
+      return 1;
+    }
   }
 
   std::map<WORD, CString>::iterator it;
@@ -156,8 +175,8 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn,
     {
       if(apResult->wType==DNS_TYPE_MX)        
       {
-        host_list[apResult->Data.MX.wPreference] = 
-        CString(apResult->Data.MX.pNameExchange);
+        CString sServerName = CString(apResult->Data.MX.pNameExchange);        
+        host_list[apResult->Data.MX.wPreference] = sServerName;
       }
 
       apResult = apResult->pNext;
@@ -185,7 +204,8 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   int iResult = -1;  
   CString sPostServer;
   CString sServiceName;
-  sServiceName.Format(_T("%d"), msg->m_nRecipientPort);  
+  sServiceName.Format(_T("%d"), 
+    m_sProxyServer.IsEmpty()?msg->m_nRecipientPort:m_nProxyPort);  
   SOCKET sock = INVALID_SOCKET;
   CString sMsg, str;
   std::set<CString>::iterator it;
