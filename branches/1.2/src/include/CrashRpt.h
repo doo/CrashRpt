@@ -92,7 +92,9 @@ extern "C" {
  *  \remarks
  *  The crash callback function is called when crash occurs. This way client application is
  *  notified about the crash.
- *  In crash callback, you can use crAddFile2() to add a custom file to the error report.
+ *
+ *  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
+ *  The application state may be unstable.
  *  
  *  The crash callback function should return \c TRUE to allow generate error report. It should 
  *  return \c FALSE to prevent crash report generation.
@@ -106,6 +108,7 @@ extern "C" {
  *    // add custom log file to crash report
  *    crAddFile2(
  *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
+ *       NULL,
  *       _T("My custom log file"),
  *       0);
  *
@@ -794,12 +797,15 @@ crUninstallFromCurrentThread();
  *    This function is deprecated. It is recommended to use crAddFile2() function instead.
  *
  *    This function can be called anytime after crInstall() to add one or more
- *    files to the generated crash report. However, the recommended way is to 
- *    call this function in crash callback.
+ *    files to the generated crash report. 
+ * 
+ *    When this function is called, the file is marked to be added to the error report, 
+ *    then the function returns control to the caller.
+ *    When crash occurs, all marked files are added to the report. If a file is locked by someone 
+ *    for exclusive access, the file won't be included. In \ref LPGETLOGFILE crash callback, 
+ *    ensure files to be included are not locked.
  *  
- *    \a pszFile should be a valid absolute path of a file to add to crash report. It
- *    is recommended to add small files (several KB in size). If a large file is added,
- *    the crash report sending procedure may fail.
+ *    \a pszFile should be a valid absolute path of a file to add to crash report. 
  *
  *    \a pszDesc is a description of a file. It can be NULL.
  *
@@ -859,9 +865,12 @@ crAddFileA(
  *  \param[in] dwFlags Flags.
  *
  *    This function can be called anytime after crInstall() to add one or more
- *    files to the generated crash report. However, the recommended way is to 
- *    call this function inside of \ref LPGETLOGFILE crash callback.
+ *    files to the generated crash report. 
  *  
+ *    When this function is called, the file is marked to be added to the error report, 
+ *    then the function returns control to the caller.
+ *    When crash occurs, all marked files are added to the report. 
+ *
  *    \a pszFile should be a valid absolute path of a file to add to crash report. It
  *    is recommended to add small files (several KB in size). If a large file is added,
  *    the crash report sending procedure may fail.
@@ -1020,7 +1029,7 @@ crAddPropertyA(
 
 
 // Exception types
-#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception (deprecated name, use SEH exception instead).
+#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< SEH exception (deprecated name, use \ref CR_SEH_EXCEPTION instead).
 #define CR_SEH_EXCEPTION                0    //!< SEH exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
@@ -1081,7 +1090,7 @@ typedef struct tagCR_EXCEPTION_INFO
   WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
   PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
   int exctype;               //!< Exception type.
-  DWORD code;                //!< Code of structured exception.
+  DWORD code;                //!< Code of SEH exception.
   unsigned int fpe_subcode;  //!< Floating point exception subcode.
   const wchar_t* expression; //!< Assertion expression.
   const wchar_t* function;   //!< Function in which assertion happened.
@@ -1144,7 +1153,7 @@ crGenerateErrorReport(
 
 
 /*! \ingroup CrashRptAPI 
- *  \brief Can be used as a structured exception filter.
+ *  \brief Can be used as a SEH exception filter.
  *
  *  \return This function returns \c EXCEPTION_EXECUTE_HANDLER if succeeds, else \c EXCEPTION_CONTINUE_SEARCH.
  *
@@ -1153,7 +1162,7 @@ crGenerateErrorReport(
  *
  *  \remarks
  *     
- *     This function can be called instead of a structured exception filter
+ *     This function can be called instead of a SEH exception filter
  *     inside of __try{}__except(Expression){} statement. The function generates a error report
  *     and returns control to the exception handler block.
  *

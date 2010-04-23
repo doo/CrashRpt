@@ -207,28 +207,11 @@ Discussions </a> group.
 \section showing_appreciation How can I show my appreciation of CrashRpt project?
 
 If you like CrashRpt and use it in your software, you can show your 
-appreciation using any of the following:
-
-\subsection add_project_name Tell Us You Use CrashRpt
+appreciation.
 
 Add your project name and logo to the 
 <a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
 By doing this you make CrashRpt more significant for other users and support 
 further development. 
-
-\subsection donate Make a Donation 
-
-Many open source projects accept donations. You place the 
-Donate button on the project page and then other people can donate some money to 
-your project. The donations help open source projects to evolve, because they 
-encourage developers spend more time improving the project code and introduce new features.
-
-We believe there may be some people who want to support CrashRpt development, 
-so we have created a <a href="http://sourceforge.net/donate/index.php?group_id=279722">Support this Project</a> button. We chose SourceForge.net donation 
-service, because it is trusted, reliable and it allows all project members to be 
-notified about donations status. You can <a href="http://sourceforge.net/donate/index.php?group_id=279722">donate</a> a sum of money (starting from $5) 
-anonymously (or you can write comment if you want your name to appear in the list of supporters). 
-
-<a href="http://sourceforge.net/donate/index.php?group_id=279722">Donate Here!</a> 
 
 */
