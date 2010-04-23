@@ -69,9 +69,9 @@ You can create an issue at our [http://code.google.com/p/crashrpt/issues/list Is
 
 == I found a bug in crashrpt or in `CrashSender.exe` (it crashes itself :)) and want to debug it in Visual C++ to determine the reason of the problem. What to I do? ==
 
-Its easy to run `CrashRpt.dll` code in step-by-step debugging mode. Just trigger an exception in the application. But there may be the problem in Visual C++ Express, because it doesn't allow you to debug after exception have occurred. To workaround this, generate error report manually without exception, using `crGenerateErrorReport()` function. This way you will be able to debug.
+Its easy to run `CrashRpt.dll` code in step-by-step debugging mode. Just trigger an exception in the application. But there may be a problem if Visual C++ doesn't allow you to debug after exception had occurred. To workaround this, generate error report manually without exception, using `crGenerateErrorReport()` function. This way you should be able to debug.
 
-If the code in `CrashRpt.dll` works fine, but CrashSender.exe crashes, you need to attach to CrashSender.exe process when it is launched. In Visual C++ window, open `Debug | Attach to process...` menu and select `CrashSender.exe` in the list of processes. Then you will be able to run the code in step-by-step debugging mode.
+If the code in `CrashRpt.dll` works fine, but `CrashSender.exe` crashes, you need to attach to `CrashSender.exe` process when it is launched. In Visual C++ window, open `Debug | Attach to process...` menu and select `CrashSender.exe` in the list of processes. Then you will be able to run the code in step-by-step debugging mode.
 
 == How do I contribute into crashrpt project development? ==
 
