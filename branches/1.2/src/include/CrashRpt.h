@@ -453,8 +453,8 @@ GenerateErrorReport(
  *   command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). Do not include the name of 
  *   the executable in the command line; it is added automatically. This parameter can be NULL.
  *
- *   <b> Since v.1.2.4</b>, \a pszLangFileDir parameter defines the directory where language file (crashrpt_lang.ini)
- *   is located. If this is NULL, the lang file is assumed to be located in the same dir as CrashSender.exe file.
+ *   <b> Since v.1.2.4</b>, \a pszLangFilePath parameter defines the absolute path (including file name) for language file.
+ *   If this is NULL, the lang file is assumed to be located in the same dir as \b CrashSender.exe file and have the name \b crashrpt_lang.ini.
  * 
  *   <b> Since v.1.2.4</b>, \a pszEmailText parameter defines the custom E-mail text that is used when deliverying error report
  *   as E-mail. If this is NULL, the default E-mail text is used. It is recommended to set this parameter with NULL.
@@ -487,7 +487,7 @@ typedef struct tagCR_INSTALL_INFOW
   MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
   LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
   LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
-  LPCWSTR pszLangFileDir;         //!< Directory name where crashrpt_lang.ini file is located.
+  LPCWSTR pszLangFilePath;        //!< Path to the language file (including file name).
   LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
   LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
 }
@@ -517,7 +517,7 @@ typedef struct tagCR_INSTALL_INFOA
   MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
   LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
   LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
-  LPCSTR pszLangFileDir;         //!< Directory name where crashrpt_lang.ini file is located.
+  LPCSTR pszLangFilePath;        //!< Path to the language file (including file name).
   LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
   LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
 }
@@ -983,7 +983,7 @@ crAddScreenshot(
  *  \remarks 
  *
  *  Use this function to add a string property to the crash description XML file.
- *  User-added properties are listed under \<CustomProperties\> tag of the XML file.
+ *  User-added properties are listed under \<CustomProps\> tag of the XML file.
  *
  *  The following example shows how to add information about the amount of free disk space to the crash
  *  description XML file:

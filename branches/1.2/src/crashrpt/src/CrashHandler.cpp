@@ -99,7 +99,7 @@ int CCrashHandler::Init(
   MINIDUMP_TYPE MiniDumpType,
   LPCTSTR lpcszErrorReportSaveDir,
   LPCTSTR lpcszRestartCmdLine,
-  LPCTSTR lpcszLangFileDir,
+  LPCTSTR lpcszLangFilePath,
   LPCTSTR lpcszEmailText,
   LPCTSTR lpcszSmtpProxy)
 { 
@@ -255,22 +255,19 @@ int CCrashHandler::Init(
   // Remove ending backslash if any
   if(m_sPathToCrashSender.Right(1)!='\\')
       m_sPathToCrashSender+="\\";
-  
-  CString sLangFileDir;
-  if(lpcszLangFileDir!=NULL)
+    
+  // Determine where to look for language file.
+  if(lpcszLangFilePath!=NULL)
   {
-    sLangFileDir = lpcszLangFileDir;
-    // Append back slash if needed
-    if(sLangFileDir.Right(1)!=_T("\\"))
-      sLangFileDir += _T("\\");    
+    // User has provided the custom lang file path.
+    m_sLangFileName = lpcszLangFilePath;
   }
   else
   {
-    // Look for crashrpt_lang.ini in the same folder as CrashSender.exe..
-    sLangFileDir = m_sPathToCrashSender;
+    // Look for crashrpt_lang.ini in the same folder as CrashSender.exe.
+    m_sLangFileName = m_sPathToCrashSender + _T("crashrpt_lang.ini");
   }
-
-  m_sLangFileName = sLangFileDir + _T("crashrpt_lang.ini");
+  
   CString sLangFileVer = Utility::GetINIString(m_sLangFileName, _T("Settings"), _T("CrashRptVersion"));
   int lang_file_ver = _ttoi(sLangFileVer);
   if(lang_file_ver!=CRASHRPT_VER)

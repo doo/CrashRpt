@@ -98,7 +98,7 @@ public:
       MINIDUMP_TYPE MiniDumpType = MiniDumpNormal,
       LPCTSTR lpcszErrorReportSaveDir = NULL,
       LPCTSTR lpcszRestartCmdLine = NULL,
-      LPCTSTR lpcszLangFileDir = NULL,
+      LPCTSTR lpcszLangFilePath = NULL,
       LPCTSTR lpcszEmailText = NULL,
       LPCTSTR lpcszSmtpProxy = NULL);
 
