@@ -38,6 +38,7 @@ BEGIN
         MENUITEM "Auto",                        ID_PREVIEW_AUTO
         MENUITEM "Hex",                         ID_PREVIEW_HEX
         MENUITEM "Text",                        ID_PREVIEW_TEXT
+        MENUITEM "Image",                       ID_PREVIEW_IMAGE
     END
 END
 
@@ -108,6 +109,15 @@ BEGIN
     CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,35,252,49
 END
 
+IDD_RESEND DIALOGEX 0, 0, 286, 182
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Sending Error Reports"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Cancel",IDCANCEL,7,161,50,14
+    CONTROL         "",IDC_LIST1,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,272,127
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -139,6 +149,14 @@ BEGIN
         RIGHTMARGIN, 259
         TOPMARGIN, 7
         BOTTOMMARGIN, 105
+    END
+
+    IDD_RESEND, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 279
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 175
     END
 END
 #endif    // APSTUDIO_INVOKED

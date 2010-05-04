@@ -33,12 +33,14 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "ErrorReportDlg.h"
+#include "ResendDlg.h"
 #include "CrashInfoReader.h"
 #include "strconv.h"
 #include "Utility.h"
 
 CAppModule _Module;
 CErrorReportDlg dlgErrorReport;
+CResendDlg dlgResend;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {
@@ -51,11 +53,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   if(argc!=2)
     return 1; // No arguments passed
   
+  BOOL bResend = FALSE;
+  if(CString(argv[1]).CompareNoCase(_T("/resend"))==0)
+    bResend = TRUE;
+
   // Read crash info
   g_CrashInfo.Init(CString(argv[1]));
-  
-  // Do the rest of the work assynchroniosly
-  g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
+
+  if(!bResend)
+  {
+    // Do the rest of the work assynchroniosly
+    g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
+  }
   
   // Check window mirroring settings 
   CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
@@ -66,12 +75,23 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 
   CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
-  
-	if(dlgErrorReport.Create(NULL) == NULL)
-	{
-		ATLTRACE(_T("Main dialog creation failed!\n"));
-		return 0;
-	}
+    
+  if(!bResend)
+  {
+	  if(dlgErrorReport.Create(NULL) == NULL)
+	  {
+		  ATLTRACE(_T("Main dialog creation failed!\n"));
+		  return 0;
+	  }
+  }
+  else
+  {
+    if(dlgResend.Create(NULL) == NULL)
+	  {
+		  ATLTRACE(_T("Resend dialog creation failed!\n"));
+		  return 0;
+	  }
+  }
   
 	int nRet = theLoop.Run();
 

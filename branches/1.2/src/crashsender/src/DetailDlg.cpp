@@ -225,7 +225,8 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
   CString sAuto = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewAuto"));
   CString sText = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewText"));
   CString sHex = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewHex"));
-  
+  CString sImage = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewImage"));
+
   mii.dwTypeData = sAuto.GetBuffer(0);  
   submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);
   
@@ -235,13 +236,18 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
   mii.dwTypeData = sText.GetBuffer(0);
   submenu.SetMenuItemInfo(ID_PREVIEW_TEXT, FALSE, &mii);
 
+  mii.dwTypeData = sImage.GetBuffer(0);
+  submenu.SetMenuItemInfo(ID_PREVIEW_IMAGE, FALSE, &mii);
+
   UINT uItem = ID_PREVIEW_AUTO;
   if(m_previewMode==PREVIEW_HEX)
     uItem = ID_PREVIEW_HEX;
   else if(m_previewMode==PREVIEW_TEXT)
     uItem = ID_PREVIEW_TEXT;
+  else if(m_previewMode==PREVIEW_IMAGE)
+    uItem = ID_PREVIEW_IMAGE;
 
-  submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, uItem, MF_BYCOMMAND); 
+  submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_IMAGE, uItem, MF_BYCOMMAND); 
 
   submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);
 
@@ -255,6 +261,8 @@ LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*
     mode = PREVIEW_TEXT;
   else if(wID==ID_PREVIEW_HEX)
     mode = PREVIEW_HEX;
+  else if(wID==ID_PREVIEW_IMAGE)
+    mode = PREVIEW_IMAGE;
   m_previewMode = mode;
   m_filePreview.SetPreviewMode(mode);
   return 0;

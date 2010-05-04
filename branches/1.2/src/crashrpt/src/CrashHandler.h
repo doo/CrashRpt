@@ -178,7 +178,7 @@ private:
     EXCEPTION_POINTERS* pExInfo);
   
   // Launches the CrashSender.exe process
-  int LaunchCrashSender(CString sCrashInfoFileName);  
+  int LaunchCrashSender(CString sCmdLineParams, BOOL bWait);  
 
   // Replaces characters that are restricted in XML.
   std::string XmlEncodeStr(CString sText);

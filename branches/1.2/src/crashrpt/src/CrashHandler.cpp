@@ -43,6 +43,7 @@
 #include <psapi.h>
 #include "strconv.h"
 #include <rtcapi.h>
+#include <Shellapi.h>
 
 #ifndef _AddressOfReturnAddress
 
@@ -403,7 +404,10 @@ int CCrashHandler::Init(
   
   // Associate this handler with the caller process
   m_pProcessCrashHandler =  this;
-    
+  
+
+  LaunchCrashSender(_T("/resend"), FALSE);
+
   // OK.
   m_bInitialized = TRUE;
   crSetErrorMsg(_T("Success."));
@@ -441,7 +445,6 @@ int CCrashHandler::Destroy()
   crSetErrorMsg(_T("Success."));
   return 0;
 }
-
 
 // Sets internal pointers to previously used exception handlers to NULL
 void CCrashHandler::InitPrevExceptionHandlerPointers()
@@ -850,7 +853,7 @@ int CCrashHandler::GenerateErrorReport(
   // notify user about crash, compress the report into ZIP archive and send 
   // the error report. 
     
-  result = LaunchCrashSender(sFileName);
+  result = LaunchCrashSender(sFileName, TRUE);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -1288,7 +1291,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 }
 
 // Launches CrashSender.exe process
-int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
+int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait)
 {
   crSetErrorMsg(_T("Success."));
   
@@ -1302,7 +1305,7 @@ int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
   memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
 
   CString sCmdLine;
-  sCmdLine.Format(_T("\"%s\" \"%s\""), m_sPathToCrashSender, sCrashInfoFileName.GetBuffer(0));
+  sCmdLine.Format(_T("\"%s\" \"%s\""), sCmdLineParams, sCmdLineParams.GetBuffer(0));
   BOOL bCreateProcess = CreateProcess(
     m_sPathToCrashSender, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
   if(!bCreateProcess)
@@ -1311,11 +1314,15 @@ int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
     crSetErrorMsg(_T("Error creating CrashSender process."));
     return 1;
   }
+  
 
-  /* Wait until CrashSender finishes with making screenshot, 
-     copying files, creating minidump. */  
+  if(bWait)
+  {
+    /* Wait until CrashSender finishes with making screenshot, 
+      copying files, creating minidump. */  
 
-  WaitForSingleObject(m_hEvent, INFINITE);  
+    WaitForSingleObject(m_hEvent, INFINITE);  
+  }
 
   return 0;
 }
