@@ -13,6 +13,9 @@ The following strings have changed:
  * In [MainDlg] section:
    - RestartApp - new
 
+ * In [DetailDlg] section:
+   - PreviewImage - new
+
 --- v.1.2.3 ---
 
 The following strings have changed:
