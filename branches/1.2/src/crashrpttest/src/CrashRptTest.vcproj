@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRptd.lib"
+				AdditionalDependencies="CrashRptd.lib shell32.lib"
 				OutputFile="..\..\bin\CrashRptTestd.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
@@ -264,7 +264,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRpt.lib"
+				AdditionalDependencies="CrashRpt.lib shell32.lib"
 				OutputFile="..\..\bin\CrashRptTest.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
@@ -449,7 +449,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRptLIB.lib"
+				AdditionalDependencies="CrashRptLIB.lib shell32.lib"
 				OutputFile="..\..\bin\CrashRptTestLIB.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
