@@ -4,7 +4,12 @@
 
 <b>Since v.1.1.3</b> CrashRpt supports multi-lingual user interfaces. You should place a valid
 language file named \b crashrpt_lang.ini to the directory where \b CrashSender.exe file is located in order to make 
-CrashRpt work properly. The language file is a text document in UNICODE format and having INI extension. 
+CrashRpt work properly. 
+
+<b>Since v.1.2.4</b>, you can specify custom language file name by using the 
+\ref CR_INSTALL_INFO::pszLangFilePath structure member.
+
+The language file is a text document in UNICODE format and having INI extension. 
 The language file contains localized strings used by CrashRpt dialogs.
 
 If your software supports several languages, you can distribute several language files with your 

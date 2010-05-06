@@ -316,9 +316,11 @@ If user provides his/her email address, CrashRpt tries to use the address's MX d
 server name and relay the email message to that server.
 
 If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX 
-record of recipent's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+record of recipent's domain. Another way to specify the recipient server address and port is by using 
+\ref CR_INSTALL_INFO::pszSmtpProxy member.
 
-This way may fail if firewall blocks outgoing connections on port 25. 
+Many SMTP servers may block direct access to them to avoid spam (for example Google does so). 
+This way may alsp fail if firewall blocks outgoing connections on port 25. 
 
 \section smapisend Sending Crash Report Using Simple MAPI
 

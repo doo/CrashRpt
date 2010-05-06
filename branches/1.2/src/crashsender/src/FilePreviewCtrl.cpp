@@ -128,7 +128,7 @@ BOOL CImage::IsBitmap(FILE* f)
   rewind(f);
   
   BITMAPFILEHEADER bfh;
-  int n = fread(&bfh, sizeof(bfh), 1, f);
+  size_t n = fread(&bfh, sizeof(bfh), 1, f);
   if(n!=1)
     return FALSE;
 

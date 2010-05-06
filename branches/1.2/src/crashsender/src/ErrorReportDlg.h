@@ -83,8 +83,8 @@ public:
   { 
     int nDeltaY = 0;
     
-    size_t i;
-    for(i=0; i<m_aItems.size(); i++)
+    int i;
+    for(i=0; i<(int)m_aItems.size(); i++)
     {      
       ItemInfo ii = m_aItems[i];
       if(GetWindowLong(ii.m_hWnd, GWL_STYLE)&WS_VISIBLE)
@@ -119,8 +119,8 @@ private:
 
   int GetNextPrimaryItem(int nStart)
   {
-    size_t i;
-    for(i=nStart; i<m_aItems.size(); i++)
+    int i;
+    for(i=nStart; i<(int)m_aItems.size(); i++)
     {
       if(m_aItems[i].m_bSecondary==FALSE)
         return i;

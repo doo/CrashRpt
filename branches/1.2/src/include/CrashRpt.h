@@ -428,7 +428,8 @@ GenerateErrorReport(
  *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
  *    <tr><td> \ref CR_INST_APP_RESTART     
  *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
- *             for the application is taken from \a pszRestartCmdLine parameter.
+ *             for the application is taken from \a pszRestartCmdLine parameter. To avoid cyclic restarts of an application which crashes on startup, 
+ *             the application is restarted only if at least 60 seconds elapsed since its start.
  *    <tr><td> \ref CR_INST_NO_MINIDUMP     
  *        <td> <b>Available since v.1.2.4</b> Specify this parameter if you want minidump file not to be included into crash report. The default
  *             behavior is to include the minidump file.
