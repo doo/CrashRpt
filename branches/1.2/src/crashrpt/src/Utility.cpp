@@ -464,3 +464,13 @@ BOOL Utility::CreateFolder(CString sFolderName)
 
   return TRUE;
 }
+
+ULONG64 Utility::SystemTimeToULONG64( const SYSTEMTIME& st )
+{
+  FILETIME ft ;
+  SystemTimeToFileTime( &st, &ft ) ;
+  ULARGE_INTEGER integer ;
+  integer.LowPart = ft.dwLowDateTime ;
+  integer.HighPart = ft.dwHighDateTime ;
+  return integer.QuadPart ;
+}

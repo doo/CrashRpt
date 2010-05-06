@@ -83,6 +83,16 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	return nRet;
 }
 
+namespace
+{
+  class HiddenException {};
+}
+
+static void throw_hidden_exception()
+{
+  throw HiddenException();
+}
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 	HRESULT hRes = ::CoInitialize(NULL);
@@ -138,6 +148,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   }
 
 #endif //TEST_DEPRECATED_FUNCS
+
+  //throw_hidden_exception();
 
   /* Create another thread */
   g_CrashThreadInfo.m_pCrashRptState = g_pCrashRptState;

@@ -240,7 +240,7 @@ private:
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
   BOOL m_bSendErrorReport;       // Should we send error report or just save it  
   CString m_sLangFileName;       // Language file to use.
-
+  SYSTEMTIME m_AppStartTime;     // The time this application was started.
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.
   DWORD m_dwGuiResources;        // Count of GUI resources in use

@@ -106,6 +106,9 @@ int CCrashHandler::Init(
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
+  // Save application start time
+  GetSystemTime(&m_AppStartTime);
+
   // Save minidump type
   m_bGenerateMinidump = (dwFlags&CR_INST_NO_MINIDUMP)?FALSE:TRUE;
   m_MiniDumpType = MiniDumpType;
@@ -406,7 +409,7 @@ int CCrashHandler::Init(
   m_pProcessCrashHandler =  this;
   
 
-  LaunchCrashSender(_T("/resend"), FALSE);
+  //LaunchCrashSender(_T("/resend"), FALSE);
 
   // OK.
   m_bInitialized = TRUE;
@@ -798,6 +801,10 @@ int CCrashHandler::GenerateErrorReport(
   // Collect miscellaneous crash info (current time etc.) 
   CollectMiscCrashInfo();
 
+  // If error report is being generated manually, disable app restart.
+  if(pExceptionInfo->bManual)
+    m_bAppRestart = FALSE;
+
   // Let client add application-specific files / desktop screenshot 
   // to the report via the crash callback function. 
 
@@ -944,8 +951,24 @@ void CCrashHandler::CollectMiscCrashInfo()
   // Get crash time
   Utility::GetSystemTimeUTC(m_sCrashTime);
 
-  // Get number of GUI resources in use
   HANDLE hCurProcess = GetCurrentProcess();
+
+  // Determine the period of time the process is working.
+  SYSTEMTIME CurTime;
+  GetSystemTime(&CurTime);
+  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
+  ULONG64 uStartTime = Utility::SystemTimeToULONG64(m_AppStartTime);
+  
+  // Check that the application works for at least one minute before crash.
+  // This might help to avoid cyclic error report generation when the applciation
+  // crashes on startup.
+  double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
+  if(dDiffTime<60)
+  {
+    m_bAppRestart = FALSE; // Disable restart.
+  }
+
+  // Get number of GUI resources in use  
   m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
   
   // Determine if GetProcessHandleCount function available

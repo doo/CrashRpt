@@ -103,6 +103,9 @@ namespace Utility
   // Creates a folder. If some intermediate folders in the path do not exist,
   // it creates them.
   BOOL CreateFolder(CString sFolderName);
+
+  // Converts system time to UINT64
+  ULONG64 SystemTimeToULONG64( const SYSTEMTIME& st );
 };
 
 #endif	// _UTILITY_H_
