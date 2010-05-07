@@ -1,5 +1,22 @@
-#summary Release History.
+#summary Release History
 #labels Featured,Phase-Deploy
+
+= crashrpt v1.2.4 =
+
+  * Introduced an ability to restart an application automatically on crash. The  application is restarted only if at least 60 seconds have elapsed since its start. This is done to avoid cyclic restarts of an unstable application which crashes on start up. This is the enhancement requested in issue 11.
+
+  * Introduced an ability to preview graphics files (BMP, PNG) in Details dialog. This is useful if a user would like to preview the desktop screenshot image attached to the error report.
+
+  * An ability to not include minidump file into error report. This implements the enhancement requested in issue 33.
+
+  * An ability to specify custom email text by using `CR_INSTALL_INFO::pszEmailText` member.
+
+  * An ability to specify custom directory and file name for the language file. This will be useful for applications that need to modify UI language on the fly. This is requested in issue 34.
+
+  * An ability to disable particular error report sending transport by specifying a negative priority in `CR_INSTALL_INFO::uPriorities` array.
+
+  * An ability to specify SMTP proxy for built-in SMTP client. This may be useful for server-side software that would need to configure SMTP transport without querying DNS MX (mail exchange) record.
+
 
 = crashrpt v1.2.3 =
 
