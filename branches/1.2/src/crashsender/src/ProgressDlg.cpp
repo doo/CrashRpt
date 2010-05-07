@@ -51,6 +51,7 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   SetIcon(hIcon, TRUE);
 
   m_statText = GetDlgItem(IDC_TEXT);
+  m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CollectingCrashInfo")));        
 
   m_prgProgress = GetDlgItem(IDC_PROGRESS);  
   m_prgProgress.SetRange(0, 100);
