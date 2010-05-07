@@ -1085,9 +1085,10 @@ crAddPropertyA(
  *   \a expression, \a function, \a file and \a line are used when \a exctype is \ref CR_CPP_INVALID_PARAMETER.
  *   These members are typically non-zero when using debug version of CRT.
  *
- *   <b>Since v.1.2.4</b>, \a bManual parameter signals if the error report is generated 
- *   manually or as result of a crash. The value of bManual affects if the application will be
- *   restarted after error report generation (FALSE) or not (TRUE).
+ *   <b>Since v.1.2.4</b>, \a bManual parameter should be equal to TRUE if the report is generated manually. 
+ *   The value of \a bManual parameter affects the automatic application restart behavior. If the application
+ *   restart is requested by the \ref CR_INST_APP_RESTART flag of CR_INSTALL_INFO::dwFlags structure member, and if \a bManual is FALSE, the application will be
+ *   restarted after error report generation. If \a bManual is TRUE, the application won't be restarted.
  */
 
 typedef struct tagCR_EXCEPTION_INFO
@@ -1101,7 +1102,7 @@ typedef struct tagCR_EXCEPTION_INFO
   const wchar_t* function;   //!< Function in which assertion happened.
   const wchar_t* file;       //!< File in which assertion happened.
   unsigned int line;         //!< Line number.
-  BOOL bManual;              //!< The error report is generated manually.
+  BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
 }
 CR_EXCEPTION_INFO;
 
