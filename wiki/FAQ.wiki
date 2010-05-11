@@ -254,9 +254,15 @@ Since v.1.2.2, you can use the 'Export...' button on the Error Report Details di
 
 == Does crashrpt suport a non-GUI (silent) mode? ==
 
-Since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
+Yes, since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
 
 However, it is not recommended to use the non-GUI mode with regular GUI applications which create windows and interact with user.
+
+== Does crashrpt support automatic restart of the application which crashes? ==
+
+Yes, since v.1.2.4, CrashRpt supports automatic application restart. But the restart is performed if two conditions are satisfied: 
+  * If at least 60 seconds have elapsed since the application start. This is done to aviod cyclic restarts in case when crash occurs on application start up.
+  * If the user has provided his consent to restart the app. 
 
 == What is the required way of CRT linkage for crashrpt to work properly? ==
 
@@ -327,10 +333,11 @@ When you are ready for a software release, the following steps must be performed
     * In that directory create a subdirectory for your software release, for example `MyApp v.1.3.5`.
     * Copy all binary files (.EXE, .DLL) from your project output.
     * Copy all program database files (.PDB) from your project output.
+    * Copy your source code files. If you use a version control systems (for example, SVN), create a tag for the current code revision.
 
-It is recommended to direct all project output to bin directory and then just copy entire `bin` directory. These steps should be performed for exactly the same software build that you plan to release. If you rebuild the project after files are copied, you must copy the files again.
+These steps should be performed for exactly the same software build that you plan to release. If you rebuild the project after files are copied, you must copy the files again.
 
-When a crash report comes in, you use the release binaries and debug symbols you saved, along with the minidump included in the crash report, to debug the crash.
+When a crash report comes in, you use the release binaries, source code and debug symbols you saved, along with the minidump included in the crash report, to debug the crash.
 
 == What files should I never distribute with my software release package? ==
 
