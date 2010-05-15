@@ -42,7 +42,7 @@ to a server-side script and send the error report as a script parameter.
 Older versions of CrashRpt used "application/x-www-form-urlencoded" form encoding type in conjunction 
 with Base-64 encoding for file attachment. 
 The legacy way is enabled by default for backwards compatibility, however it is not recommended to use.
-The encoding type application/x-www-form-urlencoded is inefficient for sending large quantities of 
+The encoding type "application/x-www-form-urlencoded" is inefficient for sending large quantities of 
 binary data or text containing non-ASCII characters.
 
 The equivalent HTML form is presented below:

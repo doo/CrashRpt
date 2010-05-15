@@ -78,7 +78,7 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1204
+#define CRASHRPT_VER 1205
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */

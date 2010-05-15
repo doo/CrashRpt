@@ -418,7 +418,7 @@ In Visual C++, there are 6 types of signals:
 
 MSDN says that the \c SIGILL, \c SIGSEGV, and \c SIGTERM signals are not generated under Windows NT and 
 included for ANSI compatiblity. However, if you set the SIGSEGV signal handler in the main thread, it is called by CRT 
-instead of structured exception handler set with \b SetUnhandledExceptionFilter() function and the global
+instead of SEH exception handler set with \b SetUnhandledExceptionFilter() function and the global
 variable \b _pxcptinfoptrs contains a pointer to the exception information. In other threads the exception filter set 
 with \b SetUnhandledExceptionFilter() function is called instead of SIGSEGV handler.
 
@@ -471,7 +471,7 @@ the exception information is retrieved from \b EXCEPTION_POINTERS structure pass
 function parameter.
 
 In __try{}__catch(Expression){} construction you retrieve exception information using \b GetExceptionInformation()
-intrinsic function and pass it to the structured exception filter function as parameter.
+intrinsic function and pass it to the SEH exception filter function as parameter.
 
 In the SIGFPE and SIGSEGV signal handlers you can retrieve the exception information from the \b _pxcptinfoptrs
 global CRT variable that is declared in <signal.h>. This variable is not documented well in MSDN.
@@ -624,7 +624,7 @@ at once. That's why multi-threaded CRT DLL is the recommended way of CRT linkage
 If you plan to use CRT as a static link library (which is not recommended to do) and want to use some crash
 reporting functionality, you have to build the functionality as a static library with /NODEFAULTLIB linker 
 flag and then link this functionality to each EXE and DLL module of your application. You would also have to 
-install the CRT error handlers for each module of your application, while the structured exception handler 
+install the CRT error handlers for each module of your application, while the SEH exception handler 
 would still be installed once.
 
 For additional info about C run-time libraries (CRT), see the <i>C Run-time Libraries (CRT)</i> 

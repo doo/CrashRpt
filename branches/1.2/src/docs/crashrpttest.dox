@@ -28,7 +28,7 @@ two buttons at the bottom that allow to generate the error report manually witho
 
 \section crashcon About Crashcon Demo
 
-\b crashcon demo is a console application (presented below). It generates a Win32 structured 
+\b crashcon demo is a console application (presented below). It generates a SEH 
 exception and shows how CrashRpt intercepts the exception and sends the error
 report to software support team.
 
