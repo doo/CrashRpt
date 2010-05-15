@@ -11,11 +11,12 @@
 We collect information from you when you send us an error report from *SOFTWARE NAME* program. 
 
 The information includes:
-  * Crash descriptor XML file which contains basic information about the crash
+  * Crash description XML file containing the basic information about the crash
   * Crash minidump file which contains technical information about exception in the * SOFTWARE NAME* program
-  * *If your software adds other files, specify them here*
+  * Desktop screenshot image file in PNG format containing the image of the application window or the image of the whole desktop
+  * *If your software adds other files (for example, logs), specify them here*
 
-You may be asked to enter your e-mail address and problem description. This information is also included into the crash descriptor XML.
+You may be asked to enter your e-mail address and short problem description. This information is also included into the crash description XML.
 
 == What do we use your information for? ==
 
