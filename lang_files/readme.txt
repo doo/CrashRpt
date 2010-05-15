@@ -6,6 +6,9 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.5 ---
+
+
 --- v.1.2.4 ---
 
 The following strings have changed:
