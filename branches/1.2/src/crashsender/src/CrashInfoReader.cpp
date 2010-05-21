@@ -47,6 +47,7 @@ CCrashInfoReader g_CrashInfo;
 int CCrashInfoReader::Init(CString sCrashInfoFileName)
 { 
   strconv_t strconv;
+  ErrorReportInfo eri;
 
   TiXmlDocument doc;
   bool bOpen = doc.LoadFile(strconv.t2a(sCrashInfoFileName));
@@ -63,12 +64,12 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     {
       const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
       if(szReportFolder!=NULL)
-        m_sErrorReportDirName = strconv.utf82t(szReportFolder);
+        eri.m_sErrorReportDirName = strconv.utf82t(szReportFolder);
     }
   }
 
   m_bSendRecentReports = FALSE;
-  if(m_sErrorReportDirName.IsEmpty())
+  if(eri.m_sErrorReportDirName.IsEmpty())
   {
     m_bSendRecentReports = TRUE;
 
@@ -87,7 +88,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     {
       const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
       if(szCrashGUID!=NULL)
-        m_sCrashGUID = strconv.utf82t(szCrashGUID);
+        eri.m_sCrashGUID = strconv.utf82t(szCrashGUID);
     }
   }
 

@@ -54,13 +54,19 @@ struct FileItem
   BOOL m_bMakeCopy;
 };
 
+struct ErrorReportInfo
+{
+  CString     m_sErrorReportDirName;
+  CString     m_sCrashGUID;
+  std::map<CString, FileItem>  m_FileItems; 
+};
+
 class CCrashInfoReader
 {
 public:
 
   CString     m_sLangFileName;
-  CString     m_sDbgHelpPath;
-  CString     m_sCrashGUID;
+  CString     m_sDbgHelpPath;  
   CString     m_sAppName;
   CString     m_sAppVersion;
   CString     m_sImageName;
@@ -71,8 +77,7 @@ public:
   int         m_nSmtpPort;  
   CString     m_sDescription;    
   CString     m_sSmtpProxyServer;
-  int         m_nSmtpProxyPort;
-  CString     m_sErrorReportDirName;
+  int         m_nSmtpProxyPort;  
   CString     m_sUrl;
   BOOL        m_bHttpBinaryEncoding;
   BOOL        m_bSilentMode;
@@ -92,7 +97,7 @@ public:
   CRect       m_rcAppWnd;
   BOOL        m_bSendRecentReports;
   CString     m_sUnsentCrashReportsFolder;  
-  std::map<CString, FileItem>  m_FileItems; 
+  std::vector<ErrorReportInfo> m_Reports;
 
   // Gets crash info from internal crash info XML file
   int Init(CString sCrashInfoFile);

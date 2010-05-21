@@ -63,7 +63,7 @@ public:
   void FeedbackReady(int code);
 
   LONG64 GetUncompressedReportSize();
-
+  
 private:
 
   void DoWorkAssync();
