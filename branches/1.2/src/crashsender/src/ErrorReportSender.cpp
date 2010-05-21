@@ -632,33 +632,21 @@ BOOL CErrorReportSender::RestartApp()
   return TRUE;
 }
 
-// This method compresses the files contained in the report and produces ZIP archive.
-BOOL CErrorReportSender::CompressReportFiles()
-{ 
-  BOOL bStatus = FALSE;
-  strconv_t strconv;
-  zipFile hZip = NULL;
-  CString sMsg;
-  LONG64 lTotalSize = 0;
-  LONG64 lTotalCompressed = 0;
-  BYTE buff[1024];
-  DWORD dwBytesRead=0;
-  HANDLE hFile = INVALID_HANDLE_VALUE;
-  std::map<CString, FileItem>::iterator it;
-  LARGE_INTEGER lFileSize;
-  BOOL bGetSize = FALSE;
-    
-  if(m_bExport)
-    m_Assync.SetProgress(_T("[exporting_report]"), 0, false);
-  else
-    m_Assync.SetProgress(_T("[compressing_files]"), 0, false);
-
+LONG64 CErrorReportSender::GetUncompressedReportSize()
+{
   m_Assync.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
-  
+
+  LONG64 lTotalSize = 0;
+  std::map<CString, FileItem>::iterator it;
+  HANDLE hFile = INVALID_HANDLE_VALUE;  
+  CString sMsg;
+  BOOL bGetSize = FALSE;
+  LARGE_INTEGER lFileSize;
+
   for(it=g_CrashInfo.m_FileItems.begin(); it!=g_CrashInfo.m_FileItems.end(); it++)
   {    
     if(m_Assync.IsCancelled())    
-      goto cleanup;
+      return 0;
 
     CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
     hFile = CreateFile(sFileName, 
@@ -684,6 +672,30 @@ BOOL CErrorReportSender::CompressReportFiles()
     hFile = INVALID_HANDLE_VALUE;
   }
 
+  return lTotalSize;
+}
+
+// This method compresses the files contained in the report and produces ZIP archive.
+BOOL CErrorReportSender::CompressReportFiles()
+{ 
+  BOOL bStatus = FALSE;
+  strconv_t strconv;
+  zipFile hZip = NULL;
+  CString sMsg;
+  LONG64 lTotalSize = 0;
+  LONG64 lTotalCompressed = 0;
+  BYTE buff[1024];
+  DWORD dwBytesRead=0;
+  HANDLE hFile = INVALID_HANDLE_VALUE;  
+  std::map<CString, FileItem>::iterator it;
+    
+  if(m_bExport)
+    m_Assync.SetProgress(_T("[exporting_report]"), 0, false);
+  else
+    m_Assync.SetProgress(_T("[compressing_files]"), 0, false);
+  
+  lTotalSize = GetUncompressedReportSize();
+  
   sMsg.Format(_T("Total file size for compression is %I64d"), lTotalSize);
   m_Assync.SetProgress(sMsg, 0, false);
 

@@ -53,14 +53,10 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   if(argc!=2)
     return 1; // No arguments passed
   
-  BOOL bResend = FALSE;
-  if(CString(argv[1]).CompareNoCase(_T("/resend"))==0)
-    bResend = TRUE;
-
   // Read crash info
   g_CrashInfo.Init(CString(argv[1]));
 
-  if(!bResend)
+  if(!g_CrashInfo.m_bSendRecentReports)
   {
     // Do the rest of the work assynchroniosly
     g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
@@ -76,7 +72,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
     
-  if(!bResend)
+  if(!g_CrashInfo.m_bSendRecentReports)
   {
 	  if(dlgErrorReport.Create(NULL) == NULL)
 	  {

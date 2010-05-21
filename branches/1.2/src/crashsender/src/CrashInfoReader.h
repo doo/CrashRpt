@@ -71,7 +71,7 @@ public:
   int         m_nSmtpPort;  
   CString     m_sDescription;    
   CString     m_sSmtpProxyServer;
-  int     m_nSmtpProxyPort;
+  int         m_nSmtpProxyPort;
   CString     m_sErrorReportDirName;
   CString     m_sUrl;
   BOOL        m_bHttpBinaryEncoding;
@@ -81,7 +81,7 @@ public:
   CString     m_sRestartCmdLine;
   UINT        m_uPriorities[3];
   CString     m_sPrivacyPolicyURL;
-  BOOL        m_bGenerateMinidump;
+  BOOL        m_bGenerateMinidump;  
   MINIDUMP_TYPE m_MinidumpType;
   DWORD       m_dwProcessId;
   DWORD       m_dwThreadId;
@@ -90,6 +90,8 @@ public:
   DWORD       m_dwScreenshotFlags;
   CPoint      m_ptCursorPos;
   CRect       m_rcAppWnd;
+  BOOL        m_bSendRecentReports;
+  CString     m_sUnsentCrashReportsFolder;  
   std::map<CString, FileItem>  m_FileItems; 
 
   // Gets crash info from internal crash info XML file

@@ -56,7 +56,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   TiXmlHandle hRoot = doc.FirstChild("CrashRptInternal");
   if(hRoot.ToElement()==NULL)
     return 1;
-
+  
   {
     TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
     if(hReportFolder.FirstChild().ToText()!=NULL)
@@ -66,6 +66,20 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
         m_sErrorReportDirName = strconv.utf82t(szReportFolder);
     }
   }
+
+  m_bSendRecentReports = FALSE;
+  if(m_sErrorReportDirName.IsEmpty())
+  {
+    m_bSendRecentReports = TRUE;
+
+    TiXmlHandle hUnsentCrashReportsFolder = hRoot.FirstChild("UnsentCrashReportsFolder");
+    if(hUnsentCrashReportsFolder.FirstChild().ToText()!=NULL)
+    {
+      const char* szUnsentCrashReportsFolder = hUnsentCrashReportsFolder.FirstChild().ToText()->Value();
+      if(szUnsentCrashReportsFolder!=NULL)
+        m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
+    }
+  }  
   
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
@@ -74,6 +88,16 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
       if(szCrashGUID!=NULL)
         m_sCrashGUID = strconv.utf82t(szCrashGUID);
+    }
+  }
+
+  {
+    TiXmlHandle hAppName = hRoot.FirstChild("AppName");
+    if(hAppName.FirstChild().ToText()!=NULL)
+    {
+      const char* szAppName = hAppName.FirstChild().ToText()->Value();
+      if(szAppName!=NULL)
+        m_sAppName = strconv.utf82t(szAppName);
     }
   }
 

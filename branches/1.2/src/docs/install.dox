@@ -2,7 +2,7 @@
 
 \page getting_started Getting Started
 
-If you have ever tried to determine the reason of a crash on user's machine, 
+If you have ever tried to determine the reason why your program crashes on user's machine, 
 you might know how difficult it is, given user's directions only: "I opened 
 something, then I clicked something and then it stopped working". Most of 
 users won't contact you to tell about the problem and just give up using 

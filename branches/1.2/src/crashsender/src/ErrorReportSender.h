@@ -62,11 +62,13 @@ public:
   void Cancel();
   void FeedbackReady(int code);
 
+  LONG64 GetUncompressedReportSize();
+
 private:
 
   void DoWorkAssync();
   static DWORD WINAPI WorkerThread(LPVOID lpParam);  
-  
+    
   BOOL CollectCrashFiles();
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   BOOL TakeDesktopScreenshot();

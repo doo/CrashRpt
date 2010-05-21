@@ -116,6 +116,8 @@ int CCrashHandler::Init(
   // Determine if should work in silent mode. FALSE is the default.
   m_bSilentMode = (dwFlags&CR_INST_NO_GUI)?TRUE:FALSE;
 
+  m_bSendRecentReports = (dwFlags&CR_INST_SEND_RECENT_REPORTS)?TRUE:FALSE;
+
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
   
@@ -184,10 +186,10 @@ int CCrashHandler::Init(
     m_nSmtpPort = _ttoi(sPort);
   }
 
+  m_nSmtpProxyPort = 25;
   if(lpcszSmtpProxy!=NULL)
   {
-    m_sSmtpProxyServer = lpcszSmtpProxy;  
-    m_nSmtpProxyPort = 25;
+    m_sSmtpProxyServer = lpcszSmtpProxy;      
     int pos = m_sSmtpProxyServer.ReverseFind(':');
     if(pos>=0)
     {
@@ -409,7 +411,14 @@ int CCrashHandler::Init(
   m_pProcessCrashHandler =  this;
   
 
-  //LaunchCrashSender(_T("/resend"), FALSE);
+  // If client wants us to send error reports that were failed to send recently,
+  // launch the CrashSender.exe and make it to send the reports again.
+  if(m_bSendRecentReports)
+  {
+    CString sFileName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID + _T(".xml");
+    CreateInternalCrashInfoFile(sFileName, NULL);
+    LaunchCrashSender(sFileName, FALSE);
+  }
 
   // OK.
   m_bInitialized = TRUE;
@@ -849,7 +858,7 @@ int CCrashHandler::GenerateErrorReport(
   
   // Write internal crash info to file. This info is required by 
   // CrashSender.exe only and will not be sent anywhere. 
-  
+  m_bSendRecentReports = FALSE;
   sFileName = m_sReportFolderName + _T("\\~CrashRptInternal.xml");
   result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs);
   ATLASSERT(result==0);
@@ -1190,13 +1199,30 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add root element
   fprintf(f, "<CrashRptInternal version=\"%d\">\n", CRASHRPT_VER);
 
+  // Add AppName tag
+  fprintf(f, "  <AppName>%s</AppName>\n", 
+    XmlEncodeStr(m_sAppName).c_str());
+
+  // Add AppVersion tag
+  fprintf(f, "  <AppVersion>%s</AppVersion>\n", 
+    XmlEncodeStr(m_sAppVersion).c_str());
+
   // Add CrashGUID tag
   fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
     XmlEncodeStr(m_sCrashGUID).c_str());
 
-  // Add ReportFolder tag
-  fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
-    XmlEncodeStr(m_sReportFolderName).c_str());
+  if(m_bSendRecentReports)
+  {
+    // Add UnsentCrashReportsFolder tag
+    fprintf(f, "  <UnsentCrashReportsFolder>%s</UnsentCrashReportsFolder>\n", 
+      XmlEncodeStr(m_sUnsentCrashReportsFolder).c_str());
+  }
+  else
+  {
+    // Add ReportFolder tag
+    fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
+      XmlEncodeStr(m_sReportFolderName).c_str());
+  }
 
   // Add DbgHelpPath tag
   fprintf(f, "  <DbgHelpPath>%s</DbgHelpPath>\n", 

@@ -63,8 +63,10 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->AddMessageFilter(this);
-
-  ShowWindow(SW_SHOW);
+ 
+  // Show balloon in 3 seconds.
+  m_nTick = 0;
+  SetTimer(0, 3000);
 
   return TRUE;
 }
@@ -75,10 +77,85 @@ LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
   return 0;
 }
 
+LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+  if(lParam==WM_LBUTTONDOWN || lParam==WM_LBUTTONDBLCLK)
+  {
+    KillTimer(0);
+    ShowWindow(SW_SHOW);
+  }
+
+  if(lParam==WM_RBUTTONDOWN)
+  {
+    
+  }
+
+  return 0;
+}
+
 void CResendDlg::CloseDialog(int nVal)
 {
 	DestroyWindow();
+  AddTrayIcon(FALSE);
 	::PostQuitMessage(nVal);
 }
 
+LRESULT CResendDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{  
+  if(m_nTick==0)
+  {
+    // Show tray icon and balloon.
+    AddTrayIcon(TRUE);
 
+    KillTimer(0);
+
+    // Wait for one minute. If user doesn't want to click us, exit.
+    SetTimer(0, 60000);
+  }
+  else if(m_nTick==1)
+  {
+    KillTimer(0);
+
+    CloseDialog(0);
+  }
+
+  m_nTick ++;
+
+  return 0;
+}
+
+void CResendDlg::AddTrayIcon(BOOL bAdd)
+{
+  NOTIFYICONDATA nf;
+	memset(&nf,0,sizeof(NOTIFYICONDATA));
+	nf.cbSize = sizeof(NOTIFYICONDATA);
+	nf.hWnd = m_hWnd;
+	nf.uID = 0;
+
+  if(bAdd) // Add icon to tray
+	{	
+		nf.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP | NIF_INFO ;
+		nf.uCallbackMessage = WM_RESENDTRAYICON;
+		nf.uVersion = NOTIFYICON_VERSION;
+
+		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+    _TCSCPY_S(nf.szTip, 64, 
+      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")));
+	
+    CString sInfo;
+    sInfo.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("BalloonText")), 
+      g_CrashInfo.m_sAppName, g_CrashInfo.m_sAppName);
+    _TCSCPY_S(nf.szInfo, 200, sInfo.GetBuffer(0));
+
+    CString sInfoTitle;
+    sInfoTitle.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("BalloonCaption")), 
+      g_CrashInfo.m_sAppName);
+    _TCSCPY_S(nf.szInfoTitle, 64, sInfoTitle.GetBuffer(0));
+
+		Shell_NotifyIcon(NIM_ADD,&nf);
+	}
+	else // Delete icon
+	{
+		Shell_NotifyIcon(NIM_DELETE,&nf);
+	}	
+}

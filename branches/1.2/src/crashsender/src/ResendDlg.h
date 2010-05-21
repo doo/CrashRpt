@@ -39,6 +39,8 @@
 #include <atlctrls.h>
 #include <atlctrlx.h>
 
+#define WM_RESENDTRAYICON (WM_USER+500)
+
 class CResendDlg : 
   public CDialogImpl<CResendDlg>,   
 	public CMessageFilter  
@@ -51,6 +53,8 @@ public:
 	BEGIN_MSG_MAP(CResendDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_CLOSE, OnClose)
+    MESSAGE_HANDLER(WM_TIMER, OnTimer)
+    MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)
         
 	END_MSG_MAP()
 
@@ -61,6 +65,10 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
 
   void CloseDialog(int nVal);
+  void AddTrayIcon(BOOL bAdd);  
+  int m_nTick;
 };

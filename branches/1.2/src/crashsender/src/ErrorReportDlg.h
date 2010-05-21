@@ -143,7 +143,8 @@ class CErrorReportDlg :
 public:
 	enum { IDD = IDD_MAINDLG };
 
-  CStatic m_statIcon;  
+  CStatic m_statIcon; 
+  CStatic m_statSubHeader;
   CHyperLink  m_link;           
   CHyperLink m_linkMoreInfo;
   CStatic m_statIndent;

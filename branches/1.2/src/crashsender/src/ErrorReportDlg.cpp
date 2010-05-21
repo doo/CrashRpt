@@ -81,9 +81,8 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     m_HeadingIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
   }  
 
-  CStatic statSubHeader = GetDlgItem(IDC_SUBHEADER);
-  statSubHeader.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")));
- 
+  m_statSubHeader = GetDlgItem(IDC_SUBHEADER);
+  
   m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
   m_link.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
   m_link.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("WhatDoesReportContain")));
@@ -256,7 +255,15 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   if(!g_CrashInfo.m_bSilentMode)
+  {
+    LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize()/1024;  
+    CString sTotalSize;
+    sTotalSize.Format(_T("%I64d KB"), lTotalSize);
+    CString sSubHeader;
+    sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
+    m_statSubHeader.SetWindowText(sSubHeader);
     ShowWindow(SW_SHOW);
+  }
   else
     g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
   

@@ -341,6 +341,7 @@ GenerateErrorReport(
 #define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
 #define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
 #define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
+#define CR_INST_SEND_RECENT_REPORTS            0x40000 //!< CrashRpt should resend error reports that it failed to send recently.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -433,6 +434,10 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_NO_MINIDUMP     
  *        <td> <b>Available since v.1.2.4</b> Specify this parameter if you want minidump file not to be included into crash report. The default
  *             behavior is to include the minidump file.
+ *
+ *    <tr><td> \ref CR_INST_SEND_RECENT_REPORTS     
+ *        <td> <b>Available since v.1.2.5</b> Specify this parameter to resend all reports that failed to send recently. Those
+ *             report files are stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
  *
  *   </table>
  *

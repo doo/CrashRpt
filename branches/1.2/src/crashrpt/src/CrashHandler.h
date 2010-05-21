@@ -235,6 +235,7 @@ private:
   HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL
   CString m_sPathToDebugHelpDll; // Path to dbghelp DLL
   BOOL m_bGenerateMinidump;      // Should we generate minidump file?
+  BOOL m_bSendRecentReports;     // Should we send recently generated and unsent reports again?
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type 
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
