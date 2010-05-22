@@ -138,9 +138,10 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
 		nf.uCallbackMessage = WM_RESENDTRAYICON;
 		nf.uVersion = NOTIFYICON_VERSION;
 
+    CString sTip; 
+    sTip.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), g_CrashInfo.m_sAppName);
 		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
-    _TCSCPY_S(nf.szTip, 64, 
-      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")));
+    _TCSCPY_S(nf.szTip, 64, sTip);
 	
     CString sInfo;
     sInfo.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("BalloonText")), 

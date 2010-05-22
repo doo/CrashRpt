@@ -68,7 +68,8 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   SetIcon(::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME)), 0);
 
   // Load heading icon
-  HMODULE hExeModule = LoadLibrary(g_CrashInfo.m_sImageName);
+  int nCurReport = g_CrashInfo.m_nCurrentReport;
+  HMODULE hExeModule = LoadLibrary(g_CrashInfo.m_Reports[nCurReport].m_sImageName);
   if(hExeModule)
   {
     // Use IDR_MAINFRAME icon which is the default one for the crashed application.
@@ -312,22 +313,25 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
   int      nDescLen = ::GetWindowTextLength(hWndDesc);
 
-  LPTSTR lpStr = g_CrashInfo.m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
+  int nCurReport = g_CrashInfo.m_nCurrentReport;
+  LPTSTR lpStr = g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
   ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
-  g_CrashInfo.m_sEmailFrom.ReleaseBuffer();
+  g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom.ReleaseBuffer();
 
-  lpStr = g_CrashInfo.m_sDescription.GetBufferSetLength(nDescLen+1);
+  lpStr = g_CrashInfo.m_Reports[nCurReport].m_sDescription.GetBufferSetLength(nDescLen+1);
   ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
-  g_CrashInfo.m_sDescription.ReleaseBuffer();
+  g_CrashInfo.m_Reports[nCurReport].m_sDescription.ReleaseBuffer();
 
   //
   // If an email address was entered, verify that
   // it [1] contains a @ and [2] the last . comes
   // after the @.
   //
-  if (g_CrashInfo.m_sEmailFrom.GetLength() &&
-      (g_CrashInfo.m_sEmailFrom.Find(_T('@')) < 0 ||
-       g_CrashInfo.m_sEmailFrom.ReverseFind(_T('.')) < g_CrashInfo.m_sEmailFrom.Find(_T('@'))))
+  
+  if (g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom.GetLength() &&
+      (g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom.Find(_T('@')) < 0 ||
+       g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom.ReverseFind(_T('.')) < 
+       g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom.Find(_T('@'))))
   {
     DWORD dwFlags = 0;
     CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
@@ -347,7 +351,7 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   }
 
   // Write user email and problem description to XML
-  g_CrashInfo.AddUserInfoToCrashDescriptionXML(g_CrashInfo.m_sEmailFrom, g_CrashInfo.m_sDescription);
+  g_CrashInfo.AddUserInfoToCrashDescriptionXML(g_CrashInfo.m_Reports[nCurReport].m_sEmailFrom, g_CrashInfo.m_Reports[nCurReport].m_sDescription);
     
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);

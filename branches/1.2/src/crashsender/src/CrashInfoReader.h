@@ -58,6 +58,12 @@ struct ErrorReportInfo
 {
   CString     m_sErrorReportDirName;
   CString     m_sCrashGUID;
+  CString     m_sAppName;
+  CString     m_sAppVersion;
+  CString     m_sImageName;  
+  CString     m_sEmailFrom;     
+  CString     m_sDescription;    
+
   std::map<CString, FileItem>  m_FileItems; 
 };
 
@@ -67,15 +73,11 @@ public:
 
   CString     m_sLangFileName;
   CString     m_sDbgHelpPath;  
-  CString     m_sAppName;
-  CString     m_sAppVersion;
-  CString     m_sImageName;
-  CString     m_sEmailSubject;
-  CString     m_sEmailFrom;     
+  CString     m_sAppName;    
   CString     m_sEmailTo;
-  CString     m_sEmailText;
+  CString     m_sEmailSubject;
+  CString     m_sEmailText;  
   int         m_nSmtpPort;  
-  CString     m_sDescription;    
   CString     m_sSmtpProxyServer;
   int         m_nSmtpProxyPort;  
   CString     m_sUrl;
@@ -96,8 +98,10 @@ public:
   CPoint      m_ptCursorPos;
   CRect       m_rcAppWnd;
   BOOL        m_bSendRecentReports;
-  CString     m_sUnsentCrashReportsFolder;  
+  CString     m_sUnsentCrashReportsFolder;
+
   std::vector<ErrorReportInfo> m_Reports;
+  int m_nCurrentReport;
 
   // Gets crash info from internal crash info XML file
   int Init(CString sCrashInfoFile);
@@ -105,13 +109,15 @@ public:
   BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
   BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
 
+  ErrorReportInfo& GetCurReport(){return m_Reports[m_nCurrentReport];}
+
 private:
 
   // Gets the list of file items 
-  int ParseFileList(TiXmlHandle& hRoot);
+  int ParseFileList(int nReport, TiXmlHandle& hRoot);
 
   // Retrieves some crash info from crash description XML
-  int ParseCrashDescription(CString sFileName);
+  int ParseCrashDescription(int nReport, CString sFileName);
 
 };
 

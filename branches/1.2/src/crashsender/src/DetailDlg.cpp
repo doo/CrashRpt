@@ -83,8 +83,9 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   CString           sSize;
   
   std::map<CString, FileItem>::iterator p;
+  int nCurReport = g_CrashInfo.m_nCurrentReport;
   unsigned i;
-  for (i = 0, p = g_CrashInfo.m_FileItems.begin(); p != g_CrashInfo.m_FileItems.end(); p++, i++)
+  for (i = 0, p = g_CrashInfo.m_Reports[nCurReport].m_FileItems.begin(); p != g_CrashInfo.m_Reports[nCurReport].m_FileItems.end(); p++, i++)
   {     
 	  CString sDestFile = p->first;
     CString sSrcFile = p->second.m_sSrcFile;
@@ -155,10 +156,11 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
   int iItem                     = lpItem->iItem;
   DWORD_PTR dwRet               = 0;
 
-  if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
+  int nCurReport = g_CrashInfo.m_nCurrentReport;
+  if (iItem < 0 || (int)g_CrashInfo.m_Reports[nCurReport].m_FileItems.size() < iItem)
      return 0;
 
-  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
+  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_Reports[nCurReport].m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   CString sFileName = p->second.m_sSrcFile;
@@ -172,10 +174,11 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 void CDetailDlg::SelectItem(int iItem)
 {
   // Sanity check
-  if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
+  int nCurReport = g_CrashInfo.m_nCurrentReport;
+  if (iItem < 0 || (int)g_CrashInfo.m_Reports[nCurReport].m_FileItems.size() < iItem)
       return;
 
-  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
+  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_Reports[nCurReport].m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   m_previewMode = PREVIEW_AUTO;
@@ -190,7 +193,8 @@ LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
 
 LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  CString sFileName = g_CrashInfo.m_sCrashGUID + _T(".zip");
+  int nCurReport = g_CrashInfo.m_nCurrentReport;
+  CString sFileName = g_CrashInfo.m_Reports[nCurReport].m_sCrashGUID + _T(".zip");
 
   CFileDialog dlg(FALSE, _T("*.zip"), sFileName,
       OFN_PATHMUSTEXIST|OFN_OVERWRITEPROMPT,

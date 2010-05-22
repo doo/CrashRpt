@@ -49,6 +49,8 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   strconv_t strconv;
   ErrorReportInfo eri;
 
+  m_nCurrentReport = 0;
+
   TiXmlDocument doc;
   bool bOpen = doc.LoadFile(strconv.t2a(sCrashInfoFileName));
   if(!bOpen)
@@ -412,12 +414,15 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }      
   }
 
-  ParseCrashDescription(m_sErrorReportDirName + _T("\\crashrpt.xml"));
+  m_Reports.push_back(eri);
 
-  return ParseFileList(hRoot);
+  ParseCrashDescription(0, eri.m_sErrorReportDirName + _T("\\crashrpt.xml"));
+  ParseFileList(0, hRoot);
+
+  return 0;
 }
 
-int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
+int CCrashInfoReader::ParseFileList(int nReport, TiXmlHandle& hRoot)
 {
   strconv_t strconv;
    
@@ -455,7 +460,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
       else
         item.m_bMakeCopy = FALSE;
       
-      m_FileItems[sDestFile] = item;
+      m_Reports[nReport].m_FileItems[sDestFile] = item;
     }
 
     fi = fi.ToElement()->NextSibling("FileItem");
@@ -464,7 +469,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
   return 0;
 }
 
-int CCrashInfoReader::ParseCrashDescription(CString sFileName)
+int CCrashInfoReader::ParseCrashDescription(int nReport, CString sFileName)
 {
   strconv_t strconv;
 
@@ -488,14 +493,14 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName)
     TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
     const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
     if(szAppVersion!=NULL)
-      m_sAppVersion = strconv.utf82t(szAppVersion);
+      m_Reports[nReport].m_sAppVersion = strconv.utf82t(szAppVersion);
   }
 
   {
     TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
     const char* szImageName = hImageName.FirstChild().ToText()->Value();
     if(szImageName!=NULL)
-      m_sImageName = strconv.utf82t(szImageName);
+      m_Reports[nReport].m_sImageName = strconv.utf82t(szImageName);
   }
 
   return 0;
@@ -507,7 +512,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
 
   TiXmlDocument doc;
   
-  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
   bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
   if(!bLoad)
     return FALSE;
@@ -544,7 +549,7 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
 
   TiXmlDocument doc;
   
-  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
   bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
   if(!bLoad)
     return FALSE;
@@ -568,7 +573,7 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
     hFileItem.ToElement()->SetAttribute("descrition", strconv.t2utf8(FilesToAdd[i].m_sDesc));
     hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
 
-    m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+    m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
   }
   
   bool bSave = doc.SaveFile(); 
