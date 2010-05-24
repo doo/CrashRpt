@@ -414,12 +414,19 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }      
   }
 
-  m_Reports.push_back(eri);
+  CString sXmlName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  ParseCrashDescription(0, sXmlName);
 
-  ParseCrashDescription(0, eri.m_sErrorReportDirName + _T("\\crashrpt.xml"));
   ParseFileList(0, hRoot);
-
+  
   return 0;
+}
+
+BOOL CCrashInfoReader::GetErrorReportInfo(CString sXmlName, ErrorReportInfo& eri)
+{  
+  
+
+  return TRUE;
 }
 
 int CCrashInfoReader::ParseFileList(int nReport, TiXmlHandle& hRoot)

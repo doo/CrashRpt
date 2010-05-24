@@ -109,6 +109,8 @@ public:
   BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
   BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
 
+  BOOL GetErrorReportInfo(CString sXmlName, ErrorReportInfo& eri);
+
   ErrorReportInfo& GetCurReport(){return m_Reports[m_nCurrentReport];}
 
 private:
