@@ -1,20 +1,11 @@
 #summary The list of software projects using CrashRpt.
 #labels Featured,Phase-Support
 
-We are interested to know how many software products use CrashRpt.
+We are interested to know how many software projects use CrashRpt.
 
 Add a comment to this wiki page and provide any of the following: 
   # your project's name 
   # a hyperlink to your project's logo small image
   # a hyperlink to your project's site
 
-We will be happy to include it to the list. 
 
-Software products that use сrashrpt:
-
-|| *Logo* || *Name/Link* ||
-|| || Connect-Radio and NBOX-Radio || 
-|| || [http://link-dead.net Link-Dead] (devblog http://mm.soldat.pl) ||
-|| http://static.greatgamesexperiment.com/userimages/a/aab8e18904b27faf7dfcfaedd3ad9936_sq.gif || *[http://rigsofrods.com Rigs of Rods]* ||
-|| || [http://www.curvemeister.com Curvemeister] ||
-|| http://karaoke.kjams.com/w/skins/common/images/kjams_logo.png ||  [http://karaoke.kjams.com/ kJams karaoke] ||
