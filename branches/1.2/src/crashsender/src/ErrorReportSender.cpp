@@ -914,7 +914,7 @@ BOOL CErrorReportSender::SendOverHTTP()
 {  
   strconv_t strconv;
 
-  if(g_CrashInfo.m_uPriorities[CR_HTTP]<0)
+  if(g_CrashInfo.m_uPriorities[CR_HTTP]==CR_NEGATIVE_PRIORITY)
   {
     m_Assync.SetProgress(_T("Sending error report over HTTP is disabled (negative priority); skipping."), 0);
     return FALSE;
@@ -1049,7 +1049,7 @@ BOOL CErrorReportSender::SendOverSMTP()
 {  
   strconv_t strconv;
 
-  if(g_CrashInfo.m_uPriorities[CR_SMTP]<0)
+  if(g_CrashInfo.m_uPriorities[CR_SMTP]==CR_NEGATIVE_PRIORITY)
   {
     m_Assync.SetProgress(_T("Sending error report over SMTP is disabled (negative priority); skipping."), 0);
     return FALSE;
@@ -1102,7 +1102,7 @@ BOOL CErrorReportSender::SendOverSMAPI()
 {  
   strconv_t strconv;
 
-  if(g_CrashInfo.m_uPriorities[CR_SMAPI]<0)
+  if(g_CrashInfo.m_uPriorities[CR_SMAPI]==CR_NEGATIVE_PRIORITY)
   {
     m_Assync.SetProgress(_T("Sending error report over SMAPI is disabled (negative priority); skipping."), 0);
     return FALSE;

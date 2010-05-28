@@ -209,7 +209,7 @@ function done($return_status, $message)
 
 function checkOK($field)
 {
-  if (eregi("\\r",$field) || eregi("\\n",$field)) 
+  if (stristr($field, "\\r") || stristr($field, "\\n")) 
   {
     done(450, "Invalid input parameter.");
   }
@@ -234,7 +234,7 @@ if(strlen($md5_hash)!=32)
 
 if(array_key_exists("crashrpt", $_FILES))
 {
-  $tmp_file_name = $_FILES["crashrpt"]["name"];
+  $tmp_file_name = $_FILES["crashrpt"]["tmp_name"];
   checkOK($tmp_file_name);
 
   $base_name = basename($tmp_file_name);

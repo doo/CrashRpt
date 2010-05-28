@@ -317,6 +317,9 @@ GenerateErrorReport(
 #define CR_SMTP 1 //!< Send error report via SMTP connection.
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client).
 
+// Special priority constant that allows to skip some sending attempt.
+#define CR_NEGATIVE_PRIORITY ((UINT)-1)
+
 // Flags for CR_INSTALL_INFO::dwFlags
 #define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install SEH handler (deprecated name, use \ref CR_INST_SEH_EXCEPTION_HANDLER instead.
 #define CR_INST_SEH_EXCEPTION_HANDLER   0x1           //!< Install SEH handler.
@@ -389,8 +392,8 @@ GenerateErrorReport(
  *
  *    \a uPriorities is an array that defines the preferred ways of sending error reports. 
  *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
- *         A priority is an integer number. The greater positive number defines the greater priority. If the number is negative,
- *         the respective way is skipped.
+ *         A priority is a non-negative integer number or special constant \ref CR_NEGATIVE_PRIORITY. The greater positive number defines the greater priority. 
+ *         Specify the \ref CR_NEGATIVE_PRIORITY to skip the given way.
  *         The element having index \ref CR_HTTP defines priority for using HTML connection.
  *         The element having index \ref CR_SMTP defines priority for using SMTP connection.
  *         The element having index \ref CR_SMAPI defines priority for using the default mail client.
