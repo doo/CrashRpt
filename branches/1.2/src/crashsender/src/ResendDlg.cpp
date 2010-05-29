@@ -51,7 +51,10 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     Utility::SetLayoutRTL(m_hWnd);
   }
 
-  SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DlgCaption")));
+  CString sTitle;
+  sTitle.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
+    g_CrashInfo.m_sAppName);
+  SetWindowText(sTitle);
 
 	// center the dialog on the screen
 	CenterWindow();
@@ -63,7 +66,36 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->AddMessageFilter(this);
- 
+
+  m_statText = GetDlgItem(IDC_TEXT);
+  m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ClickForDetails")));
+
+  m_statSize = GetDlgItem(IDC_SELSIZE);
+  m_statSize.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SelectedSize")));
+
+  m_btnSendNow = GetDlgItem(IDOK);
+  m_btnSendNow.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SendNow")));
+
+  m_lnkOtherActions.SubclassWindow(GetDlgItem(IDC_OTHERACTIONS));
+  m_lnkOtherActions.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("OtherActions")));
+
+  // Init list control
+  m_listReports.SubclassWindow(GetDlgItem(IDC_LIST));
+  m_listReports.InsertColumn(0, Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnName")), LVCFMT_LEFT, 200);
+  m_listReports.InsertColumn(1, Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 120);
+  m_listReports.InsertColumn(2, Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 100);
+  m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
+  int i;
+  for(i=0; i<g_CrashInfo.GetReportCount(); i++)
+  {
+    ErrorReportInfo& eri = g_CrashInfo.GetReport(i);
+    int nItem = m_listReports.InsertItem(i, eri.m_sCrashGUID);
+    m_listReports.SetItemText(nItem, 1, eri.m_sSystemTimeUTC);
+    CString sTotalSize;
+    sTotalSize.Format(_T("%I64u KB"), eri.m_uTotalSize/1024);
+    m_listReports.SetItemText(nItem, 2, sTotalSize);
+  }
+
   // Show balloon in 3 seconds.
   m_nTick = 0;
   SetTimer(0, 3000);

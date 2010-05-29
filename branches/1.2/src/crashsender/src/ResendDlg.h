@@ -70,5 +70,12 @@ public:
 
   void CloseDialog(int nVal);
   void AddTrayIcon(BOOL bAdd);  
+  
+  CStatic m_statText;
+  CCheckListViewCtrl m_listReports;
+  CStatic m_statSize;
+  CButton m_btnSendNow;
+  CHyperLink m_lnkOtherActions;
+
   int m_nTick;
 };

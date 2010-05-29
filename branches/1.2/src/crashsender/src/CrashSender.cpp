@@ -53,12 +53,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   if(argc!=2)
     return 1; // No arguments passed
   
+  ATLASSERT(0);
+
   // Read crash info
-  g_CrashInfo.Init(CString(argv[1]));
+  CString sFileName = CString(argv[1]);
+  g_CrashInfo.Init(sFileName);
+
+  // Remove the file containing crash info.
+  Utility::RecycleFile(sFileName, TRUE);
 
   if(!g_CrashInfo.m_bSendRecentReports)
   {
-    // Do the rest of the work assynchroniosly
+    // Do the crash info collection work assynchronously
     g_ErrorReportSender.DoWork(COLLECT_CRASH_INFO);
   }
   
@@ -74,6 +80,9 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
     
   if(!g_CrashInfo.m_bSendRecentReports)
   {
+    if(g_CrashInfo.GetReportCount()==0)
+      return 0; // There are no reports for us to send
+
 	  if(dlgErrorReport.Create(NULL) == NULL)
 	  {
 		  ATLTRACE(_T("Main dialog creation failed!\n"));

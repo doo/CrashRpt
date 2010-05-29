@@ -87,6 +87,7 @@ private:
   BOOL SendOverSMTP();
   BOOL SendOverSMAPI();
 
+  int m_nCurReport;
   HANDLE m_hThread;                   // Handle to the worker thread
   int m_SendAttempt;                  // Number of current sending attempt
   AssyncNotification m_Assync;        // Used for communication with the main thread

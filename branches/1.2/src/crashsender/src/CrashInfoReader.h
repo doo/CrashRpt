@@ -62,7 +62,9 @@ struct ErrorReportInfo
   CString     m_sAppVersion;
   CString     m_sImageName;  
   CString     m_sEmailFrom;     
-  CString     m_sDescription;    
+  CString     m_sDescription; 
+  CString     m_sSystemTimeUTC;
+  ULONG64     m_uTotalSize;
 
   std::map<CString, FileItem>  m_FileItems; 
 };
@@ -99,28 +101,26 @@ public:
   CRect       m_rcAppWnd;
   BOOL        m_bSendRecentReports;
   CString     m_sUnsentCrashReportsFolder;
-
-  std::vector<ErrorReportInfo> m_Reports;
-  int m_nCurrentReport;
-
+    
   // Gets crash info from internal crash info XML file
   int Init(CString sCrashInfoFile);
 
   BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
   BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
 
-  BOOL GetErrorReportInfo(CString sXmlName, ErrorReportInfo& eri);
-
-  ErrorReportInfo& GetCurReport(){return m_Reports[m_nCurrentReport];}
+  ErrorReportInfo& GetReport(int nIndex){ return m_Reports[nIndex]; }
+  int GetReportCount(){ return m_Reports.size(); }
 
 private:
 
   // Gets the list of file items 
-  int ParseFileList(int nReport, TiXmlHandle& hRoot);
+  int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
   // Retrieves some crash info from crash description XML
-  int ParseCrashDescription(int nReport, CString sFileName);
+  int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
 
+  // Array of error reports
+  std::vector<ErrorReportInfo> m_Reports;
 };
 
 // Declare globally available object

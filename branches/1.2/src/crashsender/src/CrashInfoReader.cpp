@@ -48,9 +48,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
 { 
   strconv_t strconv;
   ErrorReportInfo eri;
-
-  m_nCurrentReport = 0;
-
+  
   TiXmlDocument doc;
   bool bOpen = doc.LoadFile(strconv.t2a(sCrashInfoFileName));
   if(!bOpen)
@@ -59,7 +57,22 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   TiXmlHandle hRoot = doc.FirstChild("CrashRptInternal");
   if(hRoot.ToElement()==NULL)
     return 1;
-  
+
+  {
+    m_bSendRecentReports = FALSE;
+    TiXmlHandle hUnsentCrashReportsFolder = hRoot.FirstChild("UnsentCrashReportsFolder");
+    if(hUnsentCrashReportsFolder.FirstChild().ToText()!=NULL)
+    {      
+      const char* szUnsentCrashReportsFolder = hUnsentCrashReportsFolder.FirstChild().ToText()->Value();
+      if(szUnsentCrashReportsFolder!=NULL)
+      {
+        m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
+        m_bSendRecentReports = TRUE;
+      }
+    }
+  }  
+
+  if(!m_bSendRecentReports)
   {
     TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
     if(hReportFolder.FirstChild().ToText()!=NULL)
@@ -69,20 +82,6 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
         eri.m_sErrorReportDirName = strconv.utf82t(szReportFolder);
     }
   }
-
-  m_bSendRecentReports = FALSE;
-  if(eri.m_sErrorReportDirName.IsEmpty())
-  {
-    m_bSendRecentReports = TRUE;
-
-    TiXmlHandle hUnsentCrashReportsFolder = hRoot.FirstChild("UnsentCrashReportsFolder");
-    if(hUnsentCrashReportsFolder.FirstChild().ToText()!=NULL)
-    {
-      const char* szUnsentCrashReportsFolder = hUnsentCrashReportsFolder.FirstChild().ToText()->Value();
-      if(szUnsentCrashReportsFolder!=NULL)
-        m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
-    }
-  }  
   
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
@@ -414,22 +413,47 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }      
   }
 
-  CString sXmlName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
-  ParseCrashDescription(0, sXmlName);
+  if(!m_bSendRecentReports)
+  {    
+    // Get the list of files that should be included to report
+    ParseFileList(hRoot, eri);
 
-  ParseFileList(0, hRoot);
+    // Get some info from crashrpt.xml
+    CString sXmlName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
+    ParseCrashDescription(sXmlName, FALSE, eri);    
+    
+    m_Reports.push_back(eri);
+  }  
+  else
+  {
+    // Look for unsent error reports
+    CString sSearchPattern = m_sUnsentCrashReportsFolder + _T("\\*");
+    CFindFile find;
+    BOOL bFound = find.FindFile(sSearchPattern);
+    while(bFound)
+    {
+      if(find.IsDirectory() && !find.IsDots())
+      {
+        CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
+          find.GetFileName();
+        CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
+        ErrorReportInfo eri;
+        eri.m_sErrorReportDirName = sErrorReportDirName;
+        if(0==ParseCrashDescription(sFileName, TRUE, eri))
+        {
+          eri.m_uTotalSize = 0;
+          m_Reports.push_back(eri);
+        }
+      }
+
+      bFound = find.FindNextFile();
+    }
+  }
   
   return 0;
 }
 
-BOOL CCrashInfoReader::GetErrorReportInfo(CString sXmlName, ErrorReportInfo& eri)
-{  
-  
-
-  return TRUE;
-}
-
-int CCrashInfoReader::ParseFileList(int nReport, TiXmlHandle& hRoot)
+int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
 {
   strconv_t strconv;
    
@@ -467,7 +491,7 @@ int CCrashInfoReader::ParseFileList(int nReport, TiXmlHandle& hRoot)
       else
         item.m_bMakeCopy = FALSE;
       
-      m_Reports[nReport].m_FileItems[sDestFile] = item;
+      eri.m_FileItems[sDestFile] = item;
     }
 
     fi = fi.ToElement()->NextSibling("FileItem");
@@ -476,7 +500,7 @@ int CCrashInfoReader::ParseFileList(int nReport, TiXmlHandle& hRoot)
   return 0;
 }
 
-int CCrashInfoReader::ParseCrashDescription(int nReport, CString sFileName)
+int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri)
 {
   strconv_t strconv;
 
@@ -490,24 +514,80 @@ int CCrashInfoReader::ParseCrashDescription(int nReport, CString sFileName)
     return 1;
 
   {
+    TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
+    if(hCrashGUID.FirstChild().ToText()!=NULL)
+    {
+      const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
+      if(szCrashGUID!=NULL)
+        eri.m_sCrashGUID = strconv.utf82t(szCrashGUID);
+    }
+  }
+
+  {
     TiXmlHandle hAppName = hRoot.FirstChild("AppName");
     const char* szAppName = hAppName.FirstChild().ToText()->Value();
     if(szAppName!=NULL)
-      m_sAppName = strconv.utf82t(szAppName);
+      eri.m_sAppName = strconv.utf82t(szAppName);
   }
 
   {
     TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
     const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
     if(szAppVersion!=NULL)
-      m_Reports[nReport].m_sAppVersion = strconv.utf82t(szAppVersion);
+      eri.m_sAppVersion = strconv.utf82t(szAppVersion);
   }
 
   {
     TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
     const char* szImageName = hImageName.FirstChild().ToText()->Value();
     if(szImageName!=NULL)
-      m_Reports[nReport].m_sImageName = strconv.utf82t(szImageName);
+      eri.m_sImageName = strconv.utf82t(szImageName);
+  }
+
+  {
+    TiXmlHandle hSystemTimeUTC = hRoot.FirstChild("SystemTimeUTC");
+    const char* szSystemTimeUTC = hSystemTimeUTC.FirstChild().ToText()->Value();
+    if(szSystemTimeUTC!=NULL)
+      eri.m_sSystemTimeUTC = strconv.utf82t(szSystemTimeUTC);
+  }
+
+  if(bParseFileItems)
+  {
+    // Get directory name
+    CString sReportDir = sFileName;
+    int pos = sFileName.ReverseFind('\\');
+    if(pos>=0)
+      sReportDir = sFileName.Left(pos);
+    if(sReportDir.Right(1)!=_T("\\"))
+      sReportDir += _T("\\");
+   
+    TiXmlHandle fl = hRoot.FirstChild("FileList");
+    if(fl.ToElement()==0)
+    {    
+      return 1;
+    }
+
+    TiXmlHandle fi = fl.FirstChild("FileItem");
+    while(fi.ToElement()!=0)
+    {
+      const char* pszDestFile = fi.ToElement()->Attribute("name");      
+      const char* pszDesc = fi.ToElement()->Attribute("description");      
+
+      if(pszDestFile!=NULL)
+      {
+	      CString sDestFile = strconv.utf82t(pszDestFile);      
+        FileItem item;
+        item.m_sDestFile = sReportDir + sDestFile;
+        item.m_sSrcFile = sReportDir + sDestFile;
+        if(pszDesc)
+          item.m_sDesc = strconv.utf82t(pszDesc);
+        item.m_bMakeCopy = FALSE;
+        
+        eri.m_FileItems[sDestFile] = item;
+      }
+
+      fi = fi.ToElement()->NextSibling("FileItem");
+    }
   }
 
   return 0;
