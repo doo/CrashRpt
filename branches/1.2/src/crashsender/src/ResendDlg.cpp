@@ -37,6 +37,7 @@
 #include "ResendDlg.h"
 #include "Utility.h"
 #include "strconv.h"
+#include "DetailDlg.h"
 
 BOOL CResendDlg::PreTranslateMessage(MSG* pMsg)
 {
@@ -45,6 +46,8 @@ BOOL CResendDlg::PreTranslateMessage(MSG* pMsg)
 
 LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
+  DlgResize_Init();
+
   CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
@@ -74,26 +77,40 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_statSize.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SelectedSize")));
 
   m_btnSendNow = GetDlgItem(IDOK);
-  m_btnSendNow.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SendNow")));
+  m_btnSendNow.SetWindowText(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SendNow")));
 
   m_lnkOtherActions.SubclassWindow(GetDlgItem(IDC_OTHERACTIONS));
-  m_lnkOtherActions.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("OtherActions")));
+  m_lnkOtherActions.SetLabel(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("OtherActions")));
+  m_lnkOtherActions.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
 
   // Init list control
   m_listReports.SubclassWindow(GetDlgItem(IDC_LIST));
-  m_listReports.InsertColumn(0, Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnName")), LVCFMT_LEFT, 200);
-  m_listReports.InsertColumn(1, Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 120);
-  m_listReports.InsertColumn(2, Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 100);
+  m_listReports.InsertColumn(0, Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnName")), LVCFMT_LEFT, 240);
+  m_listReports.InsertColumn(1, Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 140);
+  m_listReports.InsertColumn(2, Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
   m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
   int i;
   for(i=0; i<g_CrashInfo.GetReportCount(); i++)
   {
     ErrorReportInfo& eri = g_CrashInfo.GetReport(i);
     int nItem = m_listReports.InsertItem(i, eri.m_sCrashGUID);
-    m_listReports.SetItemText(nItem, 1, eri.m_sSystemTimeUTC);
+    
+    SYSTEMTIME st;
+    Utility::UTC2SystemTime(eri.m_sSystemTimeUTC, st);
+    CString sCreationDate;
+    sCreationDate.Format(_T("%04d-%02d-%02d %02d:%02d:%02d"), 
+      st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+    m_listReports.SetItemText(nItem, 1, sCreationDate);
+
     CString sTotalSize;
     sTotalSize.Format(_T("%I64u KB"), eri.m_uTotalSize/1024);
     m_listReports.SetItemText(nItem, 2, sTotalSize);
+    m_listReports.SetCheckState(nItem, TRUE);
   }
 
   // Show balloon in 3 seconds.
@@ -111,15 +128,37 @@ LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-  if(lParam==WM_LBUTTONDOWN || lParam==WM_LBUTTONDBLCLK)
+  if(LOWORD(lParam)==WM_LBUTTONDOWN || 
+    LOWORD(lParam)==WM_LBUTTONDBLCLK ||
+    LOWORD(lParam)==NIN_BALLOONUSERCLICK)
   {
     KillTimer(0);
     ShowWindow(SW_SHOW);
   }
 
-  if(lParam==WM_RBUTTONDOWN)
+  if(LOWORD(lParam)==WM_RBUTTONDOWN)
   {
+    CPoint pt;
+    GetCursorPos(&pt);
+    CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
+    CMenu submenu = menu.GetSubMenu(2);
+
+    strconv_t strconv;
+    CString sShow = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupShow"));
+    CString sExit = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupExit"));
     
+    MENUITEMINFO mii;
+    memset(&mii, 0, sizeof(MENUITEMINFO));
+    mii.cbSize = sizeof(MENUITEMINFO);
+    mii.fMask = MIIM_STRING;
+
+    mii.dwTypeData = sShow.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU3_SHOW, FALSE, &mii);
+
+    mii.dwTypeData = sExit.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU3_EXIT, FALSE, &mii);
+  
+    submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
   }
 
   return 0;
@@ -147,12 +186,88 @@ LRESULT CResendDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
   else if(m_nTick==1)
   {
     KillTimer(0);
-
     CloseDialog(0);
   }
 
   m_nTick ++;
 
+  return 0;
+}
+
+LRESULT CResendDlg::OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  KillTimer(0);
+  ShowWindow(SW_SHOW);
+  return 0;
+}
+
+LRESULT CResendDlg::OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  KillTimer(0);
+  CloseDialog(0);
+
+  return 0;
+}
+
+LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+  NMITEMACTIVATE* pia = (NMITEMACTIVATE*)pnmh;
+  if(pia->iItem>=0)
+  {
+    CDetailDlg dlg;
+    dlg.m_nCurReport = pia->iItem;
+    dlg.DoModal(m_hWnd);
+  }
+  return 0;
+}
+
+LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+
+  return 0;
+}
+
+LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CPoint pt;
+  GetCursorPos(&pt);
+  CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));  
+  CMenu submenu = menu.GetSubMenu(3);
+
+  strconv_t strconv;
+  CString sRemindLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupRemindLater"));
+  CString sNeverRemind = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupNeverRemind"));
+  
+  MENUITEMINFO mii;
+  memset(&mii, 0, sizeof(MENUITEMINFO));
+  mii.cbSize = sizeof(MENUITEMINFO);
+  mii.fMask = MIIM_STRING;
+
+  mii.dwTypeData = sRemindLater.GetBuffer(0);  
+  submenu.SetMenuItemInfo(ID_MENU4_REMINDLATER, FALSE, &mii);
+
+  mii.dwTypeData = sNeverRemind.GetBuffer(0);  
+  submenu.SetMenuItemInfo(ID_MENU4_NEVERREMIND, FALSE, &mii);
+
+  submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
+  return 0;
+}
+
+LRESULT CResendDlg::OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{  
+  g_CrashInfo.SetRemindPolicy(REMIND_LATER);
+
+  KillTimer(0);
+  CloseDialog(0);
+  return 0;
+}
+
+LRESULT CResendDlg::OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  g_CrashInfo.SetRemindPolicy(NEVER_REMIND);
+
+  KillTimer(0);
+  CloseDialog(0);
   return 0;
 }
 

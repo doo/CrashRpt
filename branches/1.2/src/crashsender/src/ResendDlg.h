@@ -43,19 +43,36 @@
 
 class CResendDlg : 
   public CDialogImpl<CResendDlg>,   
-	public CMessageFilter  
+	public CMessageFilter,
+  public CDialogResize<CResendDlg>
 {
 public:
 	enum { IDD = IDD_RESEND };
  
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	
+
+  BEGIN_DLGRESIZE_MAP(CResendDlg)    
+    DLGRESIZE_CONTROL(IDC_TEXT, DLSZ_SIZE_X)    
+    DLGRESIZE_CONTROL(IDC_LIST, DLSZ_SIZE_X|DLSZ_SIZE_Y)    
+    DLGRESIZE_CONTROL(IDC_SELSIZE, DLSZ_SIZE_X|DLSZ_MOVE_Y)    
+    DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_Y)    
+    DLGRESIZE_CONTROL(IDC_OTHERACTIONS, DLSZ_MOVE_Y)    
+  END_DLGRESIZE_MAP()
+
 	BEGIN_MSG_MAP(CResendDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_CLOSE, OnClose)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
     MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)
-        
+    COMMAND_ID_HANDLER(IDOK, OnSendNow)
+    COMMAND_ID_HANDLER(IDC_OTHERACTIONS, OnOtherActions)
+    COMMAND_ID_HANDLER(ID_MENU3_SHOW, OnPopupShow)
+    COMMAND_ID_HANDLER(ID_MENU3_EXIT, OnPopupExit)
+    COMMAND_ID_HANDLER(ID_MENU4_REMINDLATER, OnRemindLater)
+    COMMAND_ID_HANDLER(ID_MENU4_NEVERREMIND, OnNeverRemind)
+    NOTIFY_HANDLER(IDC_LIST, NM_DBLCLK, OnListDblClick);
+    
+    CHAIN_MSG_MAP(CDialogResize<CResendDlg>)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -67,6 +84,13 @@ public:
   LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  LRESULT OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnListDblClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+  LRESULT OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
   void CloseDialog(int nVal);
   void AddTrayIcon(BOOL bAdd);  

@@ -40,6 +40,7 @@
 #include "CrashInfoReader.h"
 #include "strconv.h"
 #include "tinyxml.h"
+#include "Utility.h"
 
 // Define global CCrashInfoReader object
 CCrashInfoReader g_CrashInfo;
@@ -68,6 +69,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       {
         m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
         m_bSendRecentReports = TRUE;
+        m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");
       }
     }
   }  
@@ -440,8 +442,8 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
         ErrorReportInfo eri;
         eri.m_sErrorReportDirName = sErrorReportDirName;
         if(0==ParseCrashDescription(sFileName, TRUE, eri))
-        {
-          eri.m_uTotalSize = 0;
+        {          
+          eri.m_uTotalSize = GetUncompressedReportSize(eri);
           m_Reports.push_back(eri);
         }
       }
@@ -577,17 +579,23 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
       {
 	      CString sDestFile = strconv.utf82t(pszDestFile);      
         FileItem item;
-        item.m_sDestFile = sReportDir + sDestFile;
+        item.m_sDestFile = sDestFile;
         item.m_sSrcFile = sReportDir + sDestFile;
         if(pszDesc)
           item.m_sDesc = strconv.utf82t(pszDesc);
         item.m_bMakeCopy = FALSE;
         
-        eri.m_FileItems[sDestFile] = item;
+        // Check that file really exists
+        DWORD dwAttrs = GetFileAttributes(item.m_sSrcFile);
+        if(dwAttrs!=INVALID_FILE_ATTRIBUTES &&
+           (dwAttrs&FILE_ATTRIBUTE_DIRECTORY)==0)
+        {
+          eri.m_FileItems[sDestFile] = item;
+        }
       }
 
       fi = fi.ToElement()->NextSibling("FileItem");
-    }
+    }    
   }
 
   return 0;
@@ -657,7 +665,7 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   {    
     TiXmlHandle hFileItem = new TiXmlElement("FileItem");
     hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
-    hFileItem.ToElement()->SetAttribute("descrition", strconv.t2utf8(FilesToAdd[i].m_sDesc));
+    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(FilesToAdd[i].m_sDesc));
     hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
 
     m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
@@ -669,4 +677,115 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   return TRUE;
 }
 
+BOOL CCrashInfoReader::GetLastRemindDate(SYSTEMTIME& LastDate)
+{  
+  CString sDate = Utility::GetINIString(m_sINIFile, _T("General"), _T("LastRemindDate"));
+  if(sDate.IsEmpty())
+    return FALSE;
 
+  Utility::UTC2SystemTime(sDate, LastDate);
+  return TRUE;
+}
+
+BOOL CCrashInfoReader::SetLastRemindDateToday()
+{
+  // Get current time
+  CString sTime;
+  Utility::GetSystemTimeUTC(sTime);
+
+  // Write it to INI  
+  Utility::SetINIString(m_sINIFile, _T("General"), _T("LastRemindDate"), sTime);
+
+  return TRUE;
+}
+
+RESEND_POLICY CCrashInfoReader::GetRemindPolicy()
+{  
+  CString sPolicy = Utility::GetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"));
+
+  if(sPolicy.Compare(_T("RemindLater"))==0)
+    return REMIND_LATER;
+  else if(sPolicy.Compare(_T("NeverRemind"))==0)
+    return NEVER_REMIND;
+ 
+  Utility::SetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"), _T("RemindLater"));
+  return REMIND_LATER;
+}
+
+BOOL CCrashInfoReader::SetRemindPolicy(RESEND_POLICY Policy)
+{
+  CString sPolicy;
+  if(Policy==REMIND_LATER)
+    sPolicy = _T("RemindLater");
+  else if(Policy==NEVER_REMIND)
+    sPolicy = _T("NeverRemind");
+
+  Utility::SetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"), sPolicy);
+
+  return TRUE;
+}
+
+BOOL CCrashInfoReader::IsRemindNowOK()
+{
+  if(GetRemindPolicy()!=REMIND_LATER)
+    return FALSE; // User doesn want us to remind him
+
+  // Get last remind date
+  SYSTEMTIME LastRemind;
+  if(!GetLastRemindDate(LastRemind))
+  {
+    // We didn't remind yet, its time!
+    SetLastRemindDateToday();
+    return TRUE;
+  }
+
+  // Determine the period of time elapsed since the last remind.
+  SYSTEMTIME CurTimeUTC, CurTimeLocal;
+  GetSystemTime(&CurTimeUTC);
+  SystemTimeToTzSpecificLocalTime(NULL, &CurTimeUTC, &CurTimeLocal);
+  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTimeLocal);
+  ULONG64 uLastRemindTime = Utility::SystemTimeToULONG64(LastRemind);
+  
+  // Check that at lease one week elapsed
+  double dDiffTime = (double)(uCurTime-uLastRemindTime)*10E-08;
+  if(dDiffTime<7*24*60*60)
+  {
+    return FALSE;
+  }
+
+  // Its time to remind!
+  SetLastRemindDateToday();
+  return TRUE;
+}
+
+LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
+{
+  LONG64 lTotalSize = 0;
+  std::map<CString, FileItem>::iterator it;
+  HANDLE hFile = INVALID_HANDLE_VALUE;  
+  CString sMsg;
+  BOOL bGetSize = FALSE;
+  LARGE_INTEGER lFileSize;
+
+  for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
+  {   
+    CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
+    hFile = CreateFile(sFileName, 
+      GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+    if(hFile==INVALID_HANDLE_VALUE)
+      continue;
+    
+    bGetSize = GetFileSizeEx(hFile, &lFileSize);
+    if(!bGetSize)
+    {
+      CloseHandle(hFile);
+      continue;
+    }
+
+    lTotalSize += lFileSize.QuadPart;
+    CloseHandle(hFile);
+    hFile = INVALID_HANDLE_VALUE;
+  }
+
+  return lTotalSize;
+}

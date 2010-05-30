@@ -80,10 +80,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
     
   if(!g_CrashInfo.m_bSendRecentReports)
   {
-    if(g_CrashInfo.GetReportCount()==0)
-      return 0; // There are no reports for us to send
-
-	  if(dlgErrorReport.Create(NULL) == NULL)
+    if(dlgErrorReport.Create(NULL) == NULL)
 	  {
 		  ATLTRACE(_T("Main dialog creation failed!\n"));
 		  return 0;
@@ -91,6 +88,13 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   }
   else
   {
+    if(g_CrashInfo.GetReportCount()==0)
+      return 0; // There are no reports for us to send
+
+    // Check if it is ok to remind user now
+    if(!g_CrashInfo.IsRemindNowOK())
+      return 0;
+
     if(dlgResend.Create(NULL) == NULL)
 	  {
 		  ATLTRACE(_T("Resend dialog creation failed!\n"));

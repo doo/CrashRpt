@@ -40,6 +40,16 @@ BEGIN
         MENUITEM "Text",                        ID_PREVIEW_TEXT
         MENUITEM "Image",                       ID_PREVIEW_IMAGE
     END
+    POPUP "menu3"
+    BEGIN
+        MENUITEM "Show",                        ID_MENU3_SHOW
+        MENUITEM "Exit",                        ID_MENU3_EXIT
+    END
+    POPUP "menu4"
+    BEGIN
+        MENUITEM "Exit now and remind me later", ID_MENU4_REMINDLATER
+        MENUITEM "Exit now and never remind again", ID_MENU4_NEVERREMIND
+    END
 END
 
 #endif    // Neutral resources
@@ -109,16 +119,16 @@ BEGIN
     CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,35,252,49
 END
 
-IDD_RESEND DIALOGEX 0, 0, 303, 189
+IDD_RESEND DIALOGEX 0, 0, 353, 169
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Sending Error Reports"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Send now",IDOK,7,168,86,14
-    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,289,133
-    CONTROL         "Double-click an item to see details.",IDC_TEXT,"Static",SS_SIMPLE | WS_GROUP,7,7,289,11
-    LTEXT           "Other actions...",IDC_OTHERACTIONS,111,171,98,9
-    LTEXT           "Total size of selected items: 0 KB",IDC_SELSIZE,7,155,289,8
+    DEFPUSHBUTTON   "Send now",IDOK,7,148,86,14
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,339,103
+    CONTROL         "Double-click an item to see details.",IDC_TEXT,"Static",SS_SIMPLE | WS_GROUP,7,7,339,11,WS_EX_TRANSPARENT
+    LTEXT           "Other actions...",IDC_OTHERACTIONS,111,151,98,9
+    LTEXT           "Total size of selected items: 0 KB",IDC_SELSIZE,7,130,339,8
 END
 
 
@@ -157,10 +167,10 @@ BEGIN
     IDD_RESEND, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 296
+        RIGHTMARGIN, 346
         TOPMARGIN, 7
-        BOTTOMMARGIN, 182
-        HORZGUIDE, 175
+        BOTTOMMARGIN, 162
+        HORZGUIDE, 155
     END
 END
 #endif    // APSTUDIO_INVOKED

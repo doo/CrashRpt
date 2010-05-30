@@ -69,6 +69,12 @@ struct ErrorReportInfo
   std::map<CString, FileItem>  m_FileItems; 
 };
 
+enum RESEND_POLICY 
+{
+  REMIND_LATER,
+  NEVER_REMIND
+};
+
 class CCrashInfoReader
 {
 public:
@@ -111,6 +117,12 @@ public:
   ErrorReportInfo& GetReport(int nIndex){ return m_Reports[nIndex]; }
   int GetReportCount(){ return m_Reports.size(); }
 
+  BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
+  BOOL SetLastRemindDateToday();
+  BOOL IsRemindNowOK();
+  RESEND_POLICY GetRemindPolicy();
+  BOOL SetRemindPolicy(RESEND_POLICY Policy);
+
 private:
 
   // Gets the list of file items 
@@ -119,8 +131,12 @@ private:
   // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
 
+  LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
+
   // Array of error reports
   std::vector<ErrorReportInfo> m_Reports;
+
+  CString m_sINIFile; 
 };
 
 // Declare globally available object

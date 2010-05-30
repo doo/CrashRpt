@@ -56,7 +56,6 @@
 #define IDC_CHECK1                      1040
 #define IDC_RESTART                     1040
 #define IDC_OTHERACTIONS                1041
-#define IDC_SIZE                        1042
 #define IDC_SELSIZE                     1042
 #define ID_MENU1_COPYTHISLINE           32772
 #define ID_MENU1_COPYTHEWHOLELOG        32773
@@ -69,6 +68,14 @@
 #define ID_PREVIEW_HEX                  32780
 #define ID_PREVIEW_TEXT                 32781
 #define ID_PREVIEW_IMAGE                32782
+#define ID_Menu                         32784
+#define ID_SHOW                         32785
+#define ID_MENU3_EXIT                   32786
+#define ID_MENU3_SHOW                   32787
+#define ID_MENU4_REMINDMELATER          32788
+#define ID_MENU4_EXITANDNEVERREMINDAGAIN 32789
+#define ID_MENU4_REMINDLATER            32790
+#define ID_MENU4_NEVERREMIND            32791
 #define IDS_CONTENT_TYPE                57346
 #define IDS_HEADER                      57610
 #define IDS_MESSAGE                     57611
@@ -84,7 +91,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        216
-#define _APS_NEXT_COMMAND_VALUE         32784
+#define _APS_NEXT_COMMAND_VALUE         32792
 #define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
