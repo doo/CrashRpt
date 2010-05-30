@@ -8,6 +8,21 @@ a previous version to the latest version.
 
 --- v.1.2.5 ---
 
+ * In [MainDlg] section:
+  - SubHeaderText - modified
+ 
+ * New section [ResendDlg]:
+  - ColumnName
+  - ColumnCreationDate
+  - ColumnSize
+  - ClickForDetails
+  - SelectedSize
+  - SendNow
+  - OtherActions
+  - PopupShow
+  - PopupActions
+  - PopupRemindLater
+  - PopupNeverRemind
 
 --- v.1.2.4 ---
 
