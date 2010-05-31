@@ -494,14 +494,23 @@ ULONG64 Utility::SystemTimeToULONG64( const SYSTEMTIME& st )
 CString Utility::FileSizeToStr(ULONG64 uFileSize)
 {
   CString sFileSize;
-
+    
   if(uFileSize<1024)
-    sFileSize.Format(_T("%I64u bytes"), uFileSize/1024);
+  {
+    float fSizeKbytes = (float)uFileSize/(float)1024;
+    TCHAR szStr[64];
+    _stprintf_s(szStr, 64, _T("%0.1f KB"), fSizeKbytes);    
+    sFileSize = szStr;
+  }
   else if(uFileSize<1024*1024)
-    sFileSize.Format(_T("%I64u KB"), uFileSize/(1024*1024));
+  {
+    sFileSize.Format(_T("%I64u KB"), uFileSize/1024);
+  }
   else
   {
-    sFileSize.Format(_T("%0.1f KB"), (float)uFileSize/(float)(1024*1024));
+    float fSizeMbytes = (float)uFileSize/(float)(1024*1024);
+    TCHAR szStr[64];
+    _stprintf_s(szStr, 64, _T("%0.1f MB"), fSizeMbytes);    
   }
 
   return sFileSize;

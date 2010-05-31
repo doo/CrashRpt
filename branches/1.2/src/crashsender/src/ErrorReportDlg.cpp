@@ -256,9 +256,8 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
 {
   if(!g_CrashInfo.m_bSilentMode)
   {
-    LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize()/1024;  
-    CString sTotalSize;
-    sTotalSize.Format(_T("%I64d KB"), lTotalSize);
+    LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize();  
+    CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
     CString sSubHeader;
     sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
     m_statSubHeader.SetWindowText(sSubHeader);

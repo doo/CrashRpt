@@ -106,8 +106,8 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
       st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
     m_listReports.SetItemText(nItem, 1, sCreationDate);
 
-    CString sTotalSize;
-    sTotalSize.Format(_T("%I64u KB"), eri.m_uTotalSize/1024);
+    CString sTotalSize = Utility::FileSizeToStr(eri.m_uTotalSize);
+    
     m_listReports.SetItemText(nItem, 2, sTotalSize);
     m_listReports.SetCheckState(nItem, TRUE);
   }
