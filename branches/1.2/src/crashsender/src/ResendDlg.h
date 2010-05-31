@@ -63,7 +63,7 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_CLOSE, OnClose)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
-    MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)
+    MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)    
     COMMAND_ID_HANDLER(IDOK, OnSendNow)
     COMMAND_ID_HANDLER(IDC_OTHERACTIONS, OnOtherActions)
     COMMAND_ID_HANDLER(ID_MENU3_SHOW, OnPopupShow)
@@ -80,7 +80,7 @@ public:
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);  
   LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
@@ -99,7 +99,7 @@ public:
   CCheckListViewCtrl m_listReports;
   CStatic m_statSize;
   CButton m_btnSendNow;
-  CHyperLink m_lnkOtherActions;
+  CButton m_btnOtherActions;
 
   int m_nTick;
 };

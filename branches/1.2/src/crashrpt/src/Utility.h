@@ -111,6 +111,8 @@ namespace Utility
 
   // Converts system time to UINT64
   ULONG64 SystemTimeToULONG64( const SYSTEMTIME& st );
+
+  CString FileSizeToStr(ULONG64 uFileSize);
 };
 
 #endif	// _UTILITY_H_

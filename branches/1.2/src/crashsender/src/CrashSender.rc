@@ -127,8 +127,8 @@ BEGIN
     DEFPUSHBUTTON   "Send now",IDOK,7,148,86,14
     CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,339,103
     CONTROL         "Double-click an item to see details.",IDC_TEXT,"Static",SS_SIMPLE | WS_GROUP,7,7,339,11,WS_EX_TRANSPARENT
-    LTEXT           "Other actions...",IDC_OTHERACTIONS,111,151,98,9
     LTEXT           "Total size of selected items: 0 KB",IDC_SELSIZE,7,130,339,8
+    PUSHBUTTON      "Other actions...",IDC_OTHERACTIONS,101,148,86,14
 END
 
 

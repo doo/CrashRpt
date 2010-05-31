@@ -68,6 +68,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       if(szUnsentCrashReportsFolder!=NULL)
       {
         m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
+        Utility::CreateFolder(m_sUnsentCrashReportsFolder);
         m_bSendRecentReports = TRUE;
         m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");
       }
@@ -733,9 +734,7 @@ BOOL CCrashInfoReader::IsRemindNowOK()
   // Get last remind date
   SYSTEMTIME LastRemind;
   if(!GetLastRemindDate(LastRemind))
-  {
-    // We didn't remind yet, its time!
-    SetLastRemindDateToday();
+  {    
     return TRUE;
   }
 
@@ -752,9 +751,7 @@ BOOL CCrashInfoReader::IsRemindNowOK()
   {
     return FALSE;
   }
-
-  // Its time to remind!
-  SetLastRemindDateToday();
+  
   return TRUE;
 }
 

@@ -490,3 +490,19 @@ ULONG64 Utility::SystemTimeToULONG64( const SYSTEMTIME& st )
   integer.HighPart = ft.dwHighDateTime ;
   return integer.QuadPart ;
 }
+
+CString Utility::FileSizeToStr(ULONG64 uFileSize)
+{
+  CString sFileSize;
+
+  if(uFileSize<1024)
+    sFileSize.Format(_T("%I64u bytes"), uFileSize/1024);
+  else if(uFileSize<1024*1024)
+    sFileSize.Format(_T("%I64u KB"), uFileSize/(1024*1024));
+  else
+  {
+    sFileSize.Format(_T("%0.1f KB"), (float)uFileSize/(float)(1024*1024));
+  }
+
+  return sFileSize;
+}

@@ -80,10 +80,9 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_btnSendNow.SetWindowText(Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SendNow")));
 
-  m_lnkOtherActions.SubclassWindow(GetDlgItem(IDC_OTHERACTIONS));
-  m_lnkOtherActions.SetLabel(Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("OtherActions")));
-  m_lnkOtherActions.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
+  m_btnOtherActions = GetDlgItem(IDC_OTHERACTIONS);
+  m_btnOtherActions.SetWindowText(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("OtherActions")));  
 
   // Init list control
   m_listReports.SubclassWindow(GetDlgItem(IDC_LIST));
@@ -118,12 +117,6 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   SetTimer(0, 3000);
 
   return TRUE;
-}
-
-LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-  CloseDialog(0);  
-  return 0;
 }
 
 LRESULT CResendDlg::OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
@@ -222,8 +215,7 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
 }
 
 LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-
+{  
   return 0;
 }
 
@@ -253,8 +245,16 @@ LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
   return 0;
 }
 
+LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  g_CrashInfo.SetLastRemindDateToday();
+  CloseDialog(0);  
+  return 0;
+}
+
 LRESULT CResendDlg::OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
+  g_CrashInfo.SetLastRemindDateToday();
   g_CrashInfo.SetRemindPolicy(REMIND_LATER);
 
   KillTimer(0);
@@ -264,6 +264,7 @@ LRESULT CResendDlg::OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT CResendDlg::OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  g_CrashInfo.SetLastRemindDateToday();
   g_CrashInfo.SetRemindPolicy(NEVER_REMIND);
 
   KillTimer(0);

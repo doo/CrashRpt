@@ -88,6 +88,14 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   }
   else
   {
+    // check if another instance of CrashSender.exe is running
+	  ::CreateMutex( NULL, FALSE,_T("Local\\43773530-129a-4298-88f2-20eea3e4a59b"));
+    if (::GetLastError() == ERROR_ALREADY_EXISTS)
+	  {		
+      // Another CrashSender.exe already tries to resend recent reports; exit.
+		  return 0;
+	  }
+
     if(g_CrashInfo.GetReportCount()==0)
       return 0; // There are no reports for us to send
 
