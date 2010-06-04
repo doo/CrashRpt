@@ -70,6 +70,7 @@ public:
     COMMAND_ID_HANDLER(ID_MENU3_EXIT, OnPopupExit)
     COMMAND_ID_HANDLER(ID_MENU4_REMINDLATER, OnRemindLater)
     COMMAND_ID_HANDLER(ID_MENU4_NEVERREMIND, OnNeverRemind)
+    NOTIFY_HANDLER(IDC_LIST, LVN_ITEMCHANGED, OnListItemChanged);
     NOTIFY_HANDLER(IDC_LIST, NM_DBLCLK, OnListDblClick);
     
     CHAIN_MSG_MAP(CDialogResize<CResendDlg>)
@@ -86,6 +87,7 @@ public:
   LRESULT OnTrayIcon(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   LRESULT OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnListItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
   LRESULT OnListDblClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
   LRESULT OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -93,13 +95,16 @@ public:
   LRESULT OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
   void CloseDialog(int nVal);
-  void AddTrayIcon(BOOL bAdd);  
+  void AddTrayIcon(BOOL bAdd);
+  void UpdateSelectionSize();
   
   CStatic m_statText;
   CCheckListViewCtrl m_listReports;
   CStatic m_statSize;
   CButton m_btnSendNow;
   CButton m_btnOtherActions;
+  CStatic m_statConsent;
+  CHyperLink m_linkPrivacyPolicy;
 
   int m_nTick;
 };

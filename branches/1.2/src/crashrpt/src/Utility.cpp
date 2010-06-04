@@ -495,7 +495,11 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
 {
   CString sFileSize;
     
-  if(uFileSize<1024)
+  if(uFileSize==0)
+  {
+    sFileSize = _T("0 KB");
+  }
+  else if(uFileSize<1024)
   {
     float fSizeKbytes = (float)uFileSize/(float)1024;
     TCHAR szStr[64];
@@ -511,6 +515,7 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
     float fSizeMbytes = (float)uFileSize/(float)(1024*1024);
     TCHAR szStr[64];
     _stprintf_s(szStr, 64, _T("%0.1f MB"), fSizeMbytes);    
+    sFileSize = szStr;
   }
 
   return sFileSize;

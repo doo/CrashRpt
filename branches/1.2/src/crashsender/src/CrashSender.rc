@@ -50,6 +50,11 @@ BEGIN
         MENUITEM "Exit now and remind me later", ID_MENU4_REMINDLATER
         MENUITEM "Exit now and never remind again", ID_MENU4_NEVERREMIND
     END
+    POPUP "menu5"
+    BEGIN
+        MENUITEM "Send report later",           ID_MENU5_SENDREPORTLATER
+        MENUITEM "Close the program",           ID_MENU5_CLOSETHEPROGRAM
+    END
 END
 
 #endif    // Neutral resources
@@ -119,16 +124,20 @@ BEGIN
     CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_NOCOLUMNHEADER | WS_BORDER | WS_TABSTOP,7,35,252,49
 END
 
-IDD_RESEND DIALOGEX 0, 0, 353, 169
+IDD_RESEND DIALOGEX 0, 0, 353, 183
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Sending Error Reports"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "Send now",IDOK,7,148,86,14
-    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,339,103
-    CONTROL         "Double-click an item to see details.",IDC_TEXT,"Static",SS_SIMPLE | WS_GROUP,7,7,339,11,WS_EX_TRANSPARENT
-    LTEXT           "Total size of selected items: 0 KB",IDC_SELSIZE,7,130,339,8
-    PUSHBUTTON      "Other actions...",IDC_OTHERACTIONS,101,148,86,14
+    DEFPUSHBUTTON   "Send now",IDOK,7,162,86,14
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,20,337,89
+    CONTROL         "Double-click an item to see details.",IDC_TEXT,"Static",SS_SIMPLE | WS_GROUP,7,7,337,11,WS_EX_TRANSPARENT
+    LTEXT           "Total size of selected items: 0 KB",IDC_SELSIZE,7,113,337,8
+    PUSHBUTTON      "Other actions...",IDC_OTHERACTIONS,101,162,86,14
+    LTEXT           "By pressing...",IDC_CONSENT,7,129,337,16
+    LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,7,144,125,10
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,158,352,1
+    LTEXT           "CrashRpt",IDC_STATIC,313,154,31,8,WS_DISABLED
 END
 
 
@@ -166,11 +175,11 @@ BEGIN
 
     IDD_RESEND, DIALOG
     BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 346
+        RIGHTMARGIN, 352
+        VERTGUIDE, 7
+        VERTGUIDE, 344
         TOPMARGIN, 7
-        BOTTOMMARGIN, 162
-        HORZGUIDE, 155
+        BOTTOMMARGIN, 176
     END
 END
 #endif    // APSTUDIO_INVOKED

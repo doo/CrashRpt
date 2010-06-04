@@ -106,6 +106,7 @@ public:
   CPoint      m_ptCursorPos;
   CRect       m_rcAppWnd;
   BOOL        m_bSendRecentReports;
+  BOOL        m_bQueueEnabled;
   CString     m_sUnsentCrashReportsFolder;
     
   // Gets crash info from internal crash info XML file

@@ -141,7 +141,10 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_btnOk.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReport")));
 
   m_btnCancel = GetDlgItem(IDCANCEL);
-  m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram")));
+  if(g_CrashInfo.m_bQueueEnabled)
+    m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));
+  else
+    m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram")));
 
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
@@ -246,10 +249,59 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  if(g_CrashInfo.m_bQueueEnabled)
+  {
+    CPoint pt;
+    GetCursorPos(&pt);
+    CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
+    CMenu submenu = menu.GetSubMenu(4);
+
+    strconv_t strconv;
+    CString sSendLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReportLater"));
+    CString sCloseTheProgram = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram"));
+    
+    MENUITEMINFO mii;
+    memset(&mii, 0, sizeof(MENUITEMINFO));
+    mii.cbSize = sizeof(MENUITEMINFO);
+    mii.fMask = MIIM_STRING;
+
+    mii.dwTypeData = sSendLater.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU5_SENDREPORTLATER, FALSE, &mii);
+
+    mii.dwTypeData = sCloseTheProgram.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU5_CLOSETHEPROGRAM, FALSE, &mii);
+  
+    submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
+  }
+  else
+  {
+    // If needed, restart the application
+    g_ErrorReportSender.DoWork(RESTART_APP);
+
+    CloseDialog(wID);  
+  }
+
+	return 0;
+}
+
+LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  g_CrashInfo.SetRemindPolicy(REMIND_LATER);
+  
   // If needed, restart the application
   g_ErrorReportSender.DoWork(RESTART_APP);
-	CloseDialog(wID);  
-	return 0;
+
+  CloseDialog(wID);  
+  return 0;
+}
+
+LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  // If needed, restart the application
+  g_ErrorReportSender.DoWork(RESTART_APP);
+
+  CloseDialog(wID);  
+  return 0;
 }
 
 LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)

@@ -116,7 +116,7 @@ int CCrashHandler::Init(
   // Determine if should work in silent mode. FALSE is the default.
   m_bSilentMode = (dwFlags&CR_INST_NO_GUI)?TRUE:FALSE;
 
-  m_bSendRecentReports = (dwFlags&CR_INST_SEND_RECENT_REPORTS)?TRUE:FALSE;
+  m_bQueueEnabled = m_bSendRecentReports = (dwFlags&CR_INST_SEND_RECENT_REPORTS)?TRUE:FALSE;
 
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
@@ -1223,6 +1223,10 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
     fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
       XmlEncodeStr(m_sReportFolderName).c_str());
   }
+
+  // Add QueueEnabled tag
+  fprintf(f, "  <QueueEnabled>%d</QueueEnabled>\n", 
+    m_bQueueEnabled);
 
   // Add DbgHelpPath tag
   fprintf(f, "  <DbgHelpPath>%s</DbgHelpPath>\n", 

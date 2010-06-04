@@ -82,7 +82,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
   m_btnOtherActions = GetDlgItem(IDC_OTHERACTIONS);
   m_btnOtherActions.SetWindowText(Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("OtherActions")));  
+    g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));  
 
   // Init list control
   m_listReports.SubclassWindow(GetDlgItem(IDC_LIST));
@@ -111,6 +111,29 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     m_listReports.SetItemText(nItem, 2, sTotalSize);
     m_listReports.SetCheckState(nItem, TRUE);
   }
+
+  UpdateSelectionSize();
+
+  m_statConsent = GetDlgItem(IDC_CONSENT);
+
+  LOGFONT lf;
+  memset(&lf, 0, sizeof(LOGFONT));
+  lf.lfHeight = 11;
+  lf.lfWeight = FW_NORMAL;
+  lf.lfQuality = ANTIALIASED_QUALITY;
+  _TCSCPY_S(lf.lfFaceName, 32, _T("Tahoma"));
+  CFontHandle hConsentFont;
+  hConsentFont.CreateFontIndirect(&lf);
+  m_statConsent.SetFont(hConsentFont);
+
+  if(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
+    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent2")));
+  else
+    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent")));
+
+  m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
+  m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("PrivacyPolicy")));
 
   // Show balloon in 3 seconds.
   m_nTick = 0;
@@ -202,6 +225,16 @@ LRESULT CResendDlg::OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   return 0;
 }
 
+LRESULT CResendDlg::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+  NMLISTVIEW* pnmlv = (NMLISTVIEW *)pnmh;
+  if(pnmlv->iItem>=0 && (pnmlv->uChanged&LVIF_STATE))
+  {
+    UpdateSelectionSize();
+  }
+  return 0;
+}
+
 LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
   NMITEMACTIVATE* pia = (NMITEMACTIVATE*)pnmh;
@@ -215,7 +248,8 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
 }
 
 LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{  
+{
+
   return 0;
 }
 
@@ -307,4 +341,27 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
 	{
 		Shell_NotifyIcon(NIM_DELETE,&nf);
 	}	
+}
+
+void CResendDlg::UpdateSelectionSize()
+{
+  int nItemsSelected = 0;
+  ULONG64 uSelectedFilesSize = 0;
+
+  int i;
+  for(i=0; i<m_listReports.GetItemCount(); i++)
+  {
+    if(m_listReports.GetCheckState(i))
+    {
+      nItemsSelected++;
+      uSelectedFilesSize += g_CrashInfo.GetReport(i).m_uTotalSize;
+    }
+  }
+
+  CString sText;
+  sText.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("SelectedSize")), nItemsSelected, 
+    Utility::FileSizeToStr(uSelectedFilesSize).GetBuffer(0));
+  m_statSize.SetWindowText(sText);
+
+  m_btnSendNow.EnableWindow(nItemsSelected>0?TRUE:FALSE);
 }

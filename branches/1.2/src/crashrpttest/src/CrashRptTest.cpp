@@ -133,7 +133,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size
   // Define privacy policy URL.
-  info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
+  //info.pszPrivacyPolicyURL = _T("http://code.google.com/p/crashrpt/wiki/PrivacyPolicyTemplate");
   info.pszErrorReportSaveDir = NULL;    // Save error reports to the default location
   info.pszRestartCmdLine = _T("/restart"); // Command line for automatic app restart.
   //info.pszLangFilePath = _T("D:\\");   // Specify custom dir and name for language file.

@@ -75,6 +75,19 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }
   }  
 
+  {
+    m_bQueueEnabled = FALSE;
+    TiXmlHandle hQueueEnabled = hRoot.FirstChild("QueueEnabled");
+    if(hQueueEnabled.FirstChild().ToText()!=NULL)
+    {      
+      const char* szQueueEnabled = hQueueEnabled.FirstChild().ToText()->Value();
+      if(szQueueEnabled!=NULL)
+      {
+        m_bQueueEnabled = atoi(szQueueEnabled);        
+      }
+    }
+  }  
+
   if(!m_bSendRecentReports)
   {
     TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
