@@ -162,9 +162,9 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_Layout.Insert(m_editDesc, TRUE);
   m_Layout.Insert(m_chkRestart);
   m_Layout.Insert(m_statConsent);
-  m_Layout.Insert(m_linkPrivacyPolicy);
-  m_Layout.Insert(m_statHorzLine);
-  m_Layout.Insert(m_statCrashRpt, TRUE);
+  m_Layout.Insert(m_linkPrivacyPolicy);  
+  m_Layout.Insert(m_statCrashRpt);
+  m_Layout.Insert(m_statHorzLine, TRUE);
   m_Layout.Insert(m_btnOk);
   m_Layout.Insert(m_btnCancel, TRUE);
 

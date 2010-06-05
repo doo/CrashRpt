@@ -136,8 +136,8 @@ BEGIN
     PUSHBUTTON      "Other actions...",IDC_OTHERACTIONS,101,162,86,14
     LTEXT           "By pressing...",IDC_CONSENT,7,129,337,16
     LTEXT           "Privacy Policy",IDC_PRIVACYPOLICY,7,144,125,10
-    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,0,158,352,1
-    LTEXT           "CrashRpt",IDC_STATIC,313,154,31,8,WS_DISABLED
+    CONTROL         "",IDC_LINE,"Static",SS_ETCHEDHORZ,0,158,352,1
+    LTEXT           "CrashRpt",IDC_CRASHRPT,313,154,31,8,WS_DISABLED
 END
 
 

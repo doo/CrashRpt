@@ -85,7 +85,8 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));  
 
   // Init list control
-  m_listReports.SubclassWindow(GetDlgItem(IDC_LIST));
+  m_listReportsSort.SubclassWindow(GetDlgItem(IDC_LIST));  
+  m_listReports.SubclassWindow(m_listReportsSort.m_hWnd);
   m_listReports.InsertColumn(0, Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnName")), LVCFMT_LEFT, 240);
   m_listReports.InsertColumn(1, Utility::GetINIString(
@@ -93,6 +94,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_listReports.InsertColumn(2, Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
   m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
+  m_listReportsSort.SetSortColumn(1); // Sort by creation date
   int i;
   for(i=0; i<g_CrashInfo.GetReportCount(); i++)
   {
