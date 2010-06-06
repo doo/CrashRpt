@@ -111,7 +111,9 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     CString sTotalSize = Utility::FileSizeToStr(eri.m_uTotalSize);
     
     m_listReports.SetItemText(nItem, 2, sTotalSize);
-    m_listReports.SetCheckState(nItem, TRUE);
+    
+    if(eri.m_bSelected)
+      m_listReports.SetCheckState(nItem, TRUE);
   }
 
   UpdateSelectionSize();
@@ -251,6 +253,14 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
 
 LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  int i;
+  for(i=0; i<g_CrashInfo.GetReportCount(); i++)
+  {
+    ErrorReportInfo& eri = g_CrashInfo.GetReport(i);    
+    eri.m_bSelected = m_listReports.GetCheckState(i);
+  }
+
+  CloseDialog(0);
 
   return 0;
 }

@@ -59,8 +59,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   if(hRoot.ToElement()==NULL)
     return 1;
 
-  {
-    m_bSendRecentReports = FALSE;
+  {    
     TiXmlHandle hUnsentCrashReportsFolder = hRoot.FirstChild("UnsentCrashReportsFolder");
     if(hUnsentCrashReportsFolder.FirstChild().ToText()!=NULL)
     {      
@@ -69,11 +68,21 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       {
         m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
         Utility::CreateFolder(m_sUnsentCrashReportsFolder);
-        m_bSendRecentReports = TRUE;
+        
         m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");
       }
     }
   }  
+  
+  {
+    TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
+    if(hReportFolder.FirstChild().ToText()!=NULL)
+    {
+      const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
+      if(szReportFolder!=NULL)
+        eri.m_sErrorReportDirName = strconv.utf82t(szReportFolder);
+    }
+  }
 
   {
     m_bQueueEnabled = FALSE;
@@ -88,17 +97,20 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }
   }  
 
-  if(!m_bSendRecentReports)
   {
-    TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
-    if(hReportFolder.FirstChild().ToText()!=NULL)
-    {
-      const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
-      if(szReportFolder!=NULL)
-        eri.m_sErrorReportDirName = strconv.utf82t(szReportFolder);
+    m_bSendRecentReports = FALSE;
+    TiXmlHandle hSendRecentReports = hRoot.FirstChild("SendRecentReports");
+    if(hSendRecentReports.FirstChild().ToText()!=NULL)
+    {      
+      const char* szSendRecentReports = hSendRecentReports.FirstChild().ToText()->Value();
+      if(szSendRecentReports!=NULL)
+      {
+        m_bSendRecentReports = atoi(szSendRecentReports);        
+      }
     }
-  }
-  
+  }  
+
+
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
     if(hCrashGUID.FirstChild().ToText()!=NULL)
@@ -713,7 +725,7 @@ BOOL CCrashInfoReader::SetLastRemindDateToday()
   return TRUE;
 }
 
-RESEND_POLICY CCrashInfoReader::GetRemindPolicy()
+REMIND_POLICY CCrashInfoReader::GetRemindPolicy()
 {  
   CString sPolicy = Utility::GetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"));
 
@@ -726,7 +738,7 @@ RESEND_POLICY CCrashInfoReader::GetRemindPolicy()
   return REMIND_LATER;
 }
 
-BOOL CCrashInfoReader::SetRemindPolicy(RESEND_POLICY Policy)
+BOOL CCrashInfoReader::SetRemindPolicy(REMIND_POLICY Policy)
 {
   CString sPolicy;
   if(Policy==REMIND_LATER)

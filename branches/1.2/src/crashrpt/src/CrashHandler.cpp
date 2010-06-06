@@ -116,7 +116,8 @@ int CCrashHandler::Init(
   // Determine if should work in silent mode. FALSE is the default.
   m_bSilentMode = (dwFlags&CR_INST_NO_GUI)?TRUE:FALSE;
 
-  m_bQueueEnabled = m_bSendRecentReports = (dwFlags&CR_INST_SEND_RECENT_REPORTS)?TRUE:FALSE;
+  // Set queue mode
+  m_bQueueEnabled = (dwFlags&CR_INST_SEND_RECENT_REPORTS)?TRUE:FALSE;
 
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
@@ -413,10 +414,10 @@ int CCrashHandler::Init(
 
   // If client wants us to send error reports that were failed to send recently,
   // launch the CrashSender.exe and make it to send the reports again.
-  if(m_bSendRecentReports)
+  if(m_bQueueEnabled)
   {
     CString sFileName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID + _T(".xml");
-    CreateInternalCrashInfoFile(sFileName, NULL);
+    CreateInternalCrashInfoFile(sFileName, NULL, TRUE);
     LaunchCrashSender(sFileName, FALSE);
   }
 
@@ -858,9 +859,8 @@ int CCrashHandler::GenerateErrorReport(
   
   // Write internal crash info to file. This info is required by 
   // CrashSender.exe only and will not be sent anywhere. 
-  m_bSendRecentReports = FALSE;
   sFileName = m_sReportFolderName + _T("\\~CrashRptInternal.xml");
-  result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs);
+  result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs, FALSE);
   ATLASSERT(result==0);
   SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
 
@@ -1170,7 +1170,8 @@ int CCrashHandler::CreateCrashDescriptionXML(
   return 0;
 }
 
-int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POINTERS* pExInfo)
+int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, 
+    EXCEPTION_POINTERS* pExInfo, BOOL bSendRecentReports)
 {
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -1211,18 +1212,17 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
     XmlEncodeStr(m_sCrashGUID).c_str());
 
-  if(m_bSendRecentReports)
-  {
-    // Add UnsentCrashReportsFolder tag
-    fprintf(f, "  <UnsentCrashReportsFolder>%s</UnsentCrashReportsFolder>\n", 
-      XmlEncodeStr(m_sUnsentCrashReportsFolder).c_str());
-  }
-  else
-  {
-    // Add ReportFolder tag
-    fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
-      XmlEncodeStr(m_sReportFolderName).c_str());
-  }
+  // Add UnsentCrashReportsFolder tag
+  fprintf(f, "  <UnsentCrashReportsFolder>%s</UnsentCrashReportsFolder>\n", 
+    XmlEncodeStr(m_sUnsentCrashReportsFolder).c_str());
+  
+  // Add ReportFolder tag
+  fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
+    XmlEncodeStr(m_sReportFolderName).c_str());
+  
+  // Add SendRecentReports tag
+  fprintf(f, "  <SendRecentReports>%d</SendRecentReports>\n", 
+    bSendRecentReports);
 
   // Add QueueEnabled tag
   fprintf(f, "  <QueueEnabled>%d</QueueEnabled>\n", 
