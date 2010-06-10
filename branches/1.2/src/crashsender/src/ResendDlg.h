@@ -41,6 +41,41 @@
 
 #define WM_RESENDTRAYICON (WM_USER+500)
 
+class CProgressMultiDlg : 
+  public CDialogImpl<CProgressMultiDlg>,   	
+  public CDialogResize<CProgressMultiDlg>
+{
+public:
+	enum { IDD = IDD_RESEND };
+ 
+  BEGIN_DLGRESIZE_MAP(CProgressMultiDlg)    
+    DLGRESIZE_CONTROL(IDC_PROGRESS, DLSZ_SIZE_X)    
+    DLGRESIZE_CONTROL(IDC_LIST, DLSZ_SIZE_X|DLSZ_SIZE_Y)        
+  END_DLGRESIZE_MAP()
+
+	BEGIN_MSG_MAP(CProgressMultiDlg)
+		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+    MESSAGE_HANDLER(WM_TIMER, OnTimer)
+        
+    CHAIN_MSG_MAP(CDialogResize<CProgressMultiDlg>)
+	END_MSG_MAP()
+
+// Handler prototypes (uncomment arguments if needed):
+//	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+//	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+//	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);    
+  LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  
+  void CloseDialog(int nVal);
+  
+  CProgressBarCtrl m_prgProgress;
+  CStatic m_listLog;  
+ 
+};
+
+
 class CResendDlg : 
   public CDialogImpl<CResendDlg>,   
 	public CMessageFilter,
@@ -110,6 +145,8 @@ public:
   CButton m_btnOtherActions;
   CStatic m_statConsent;
   CHyperLink m_linkPrivacyPolicy;
+
+  CProgressMultiDlg m_dlgProgress;
 
   int m_nTick;
 };

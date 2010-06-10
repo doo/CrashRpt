@@ -39,6 +39,18 @@
 #include "strconv.h"
 #include "DetailDlg.h"
 
+LRESULT CProgressMultiDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{   
+  DlgResize_Init();
+  return 0;
+}
+
+LRESULT CProgressMultiDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{   
+  
+  return 0;
+}
+
 BOOL CResendDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
@@ -90,9 +102,11 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_listReports.InsertColumn(0, Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnName")), LVCFMT_LEFT, 240);
   m_listReports.InsertColumn(1, Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 140);
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 125);
   m_listReports.InsertColumn(2, Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 70);
+  m_listReports.InsertColumn(3, Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnStatus")), LVCFMT_RIGHT, 90);
   m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
   m_listReportsSort.SetSortColumn(1); // Sort by creation date
   int i;
@@ -260,7 +274,6 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     eri.m_bSelected = m_listReports.GetCheckState(i);
   }
 
-  CloseDialog(0);
 
   return 0;
 }
