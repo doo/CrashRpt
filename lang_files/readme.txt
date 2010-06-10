@@ -10,6 +10,8 @@ a previous version to the latest version.
 
  * In [MainDlg] section:
   - SubHeaderText - modified
+  - OtherActions - new
+  - SendReportLater - new
  
  * New section [ResendDlg]:
   - ColumnName
@@ -18,7 +20,6 @@ a previous version to the latest version.
   - ClickForDetails
   - SelectedSize
   - SendNow
-  - OtherActions
   - PopupShow
   - PopupActions
   - PopupRemindLater
