@@ -17,6 +17,7 @@ a previous version to the latest version.
   - ColumnName
   - ColumnCreationDate
   - ColumnSize
+  - ColumnStatus
   - ClickForDetails
   - SelectedSize
   - SendNow
@@ -26,6 +27,10 @@ a previous version to the latest version.
   - PopupActions
   - PopupRemindLater
   - PopupNeverRemind
+  - StatusPending
+  - StatusInProgress
+  - StatusSuccess
+  - StatusFailed
 
 --- v.1.2.4 ---
 
