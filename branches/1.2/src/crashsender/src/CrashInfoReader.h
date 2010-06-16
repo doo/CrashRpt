@@ -142,7 +142,7 @@ public:
   BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
 
   ErrorReportInfo& GetReport(int nIndex){ return m_Reports[nIndex]; }
-  int GetReportCount(){ return m_Reports.size(); }
+  int GetReportCount(){ return (int)m_Reports.size(); }
 
   BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
   BOOL SetLastRemindDateToday();

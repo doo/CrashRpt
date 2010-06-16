@@ -503,7 +503,11 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
   {
     float fSizeKbytes = (float)uFileSize/(float)1024;
     TCHAR szStr[64];
+#if _MSC_VER<1400
+    _stprintf(szStr, _T("%0.1f KB"), fSizeKbytes);    
+#else
     _stprintf_s(szStr, 64, _T("%0.1f KB"), fSizeKbytes);    
+#endif
     sFileSize = szStr;
   }
   else if(uFileSize<1024*1024)
@@ -514,7 +518,11 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
   {
     float fSizeMbytes = (float)uFileSize/(float)(1024*1024);
     TCHAR szStr[64];
+#if _MSC_VER<1400
+    _stprintf(szStr, _T("%0.1f MB"), fSizeMbytes);    
+#else
     _stprintf_s(szStr, 64, _T("%0.1f MB"), fSizeMbytes);    
+#endif
     sFileSize = szStr;
   }
 

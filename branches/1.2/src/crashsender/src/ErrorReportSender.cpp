@@ -748,7 +748,7 @@ BOOL CErrorReportSender::CompressReportFiles()
     zip_fileinfo info;
     info.dosDate = 0;
     info.tmz_date.tm_year = st.wYear;
-    info.tmz_date.tm_mon = st.wMonth;
+    info.tmz_date.tm_mon = st.wMonth-1;
     info.tmz_date.tm_mday = st.wDay;
     info.tmz_date.tm_hour = st.wHour;
     info.tmz_date.tm_min = st.wMinute;
