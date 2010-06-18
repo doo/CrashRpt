@@ -63,7 +63,10 @@ public:
   void FeedbackReady(int code);
 
   LONG64 GetUncompressedReportSize();
-  
+
+  int GetCurReport();
+  BOOL SetCurReport(int nCurReport);
+
 private:
 
   void DoWorkAssync();

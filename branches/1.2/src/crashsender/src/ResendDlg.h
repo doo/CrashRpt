@@ -39,14 +39,23 @@
 #include <atlctrls.h>
 #include <atlctrlx.h>
 
+enum eMailClientConfirm
+{
+  NOT_CONFIRMED_YET,
+  ALLOWED,
+  NOT_ALLOWED
+};
+
 #define WM_RESENDTRAYICON (WM_USER+500)
+
+class CResendDlg;
 
 class CProgressMultiDlg : 
   public CDialogImpl<CProgressMultiDlg>,   	
   public CDialogResize<CProgressMultiDlg>
 {
 public:
-	enum { IDD = IDD_RESEND };
+	enum { IDD = IDD_PROGRESSMULTI };
  
   BEGIN_DLGRESIZE_MAP(CProgressMultiDlg)    
     DLGRESIZE_CONTROL(IDC_PROGRESS, DLSZ_SIZE_X)    
@@ -55,6 +64,7 @@ public:
 
 	BEGIN_MSG_MAP(CProgressMultiDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+    MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
         
     CHAIN_MSG_MAP(CDialogResize<CProgressMultiDlg>)
@@ -67,11 +77,14 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);    
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   
   void CloseDialog(int nVal);
   
   CProgressBarCtrl m_prgProgress;
-  CStatic m_listLog;  
+  CListViewCtrl m_listLog;  
+
+  CResendDlg* m_pParent;
  
 };
 
@@ -96,6 +109,7 @@ public:
     DLGRESIZE_CONTROL(IDC_CRASHRPT, DLSZ_MOVE_X|DLSZ_MOVE_Y)    
     DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_Y)    
     DLGRESIZE_CONTROL(IDC_OTHERACTIONS, DLSZ_MOVE_Y)    
+    DLGRESIZE_CONTROL(IDD_PROGRESSMULTI, DLSZ_MOVE_Y|DLSZ_SIZE_X)    
   END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CResendDlg)
@@ -136,6 +150,7 @@ public:
   void CloseDialog(int nVal);
   void AddTrayIcon(BOOL bAdd);
   void UpdateSelectionSize();
+  BOOL SendNextReport();
   
   CStatic m_statText;
   CCheckListViewCtrl m_listReports;
@@ -149,4 +164,7 @@ public:
   CProgressMultiDlg m_dlgProgress;
 
   int m_nTick;
+  BOOL m_bSendingNow;
+  eMailClientConfirm m_MailClientConfirm;
+  
 };

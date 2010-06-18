@@ -140,7 +140,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_btnOk = GetDlgItem(IDOK);
   m_btnOk.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReport")));
 
-  m_btnCancel = GetDlgItem(IDCANCEL);
+  m_btnCancel = GetDlgItem(IDCANCEL);  
   if(g_CrashInfo.m_bQueueEnabled)
     m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));
   else

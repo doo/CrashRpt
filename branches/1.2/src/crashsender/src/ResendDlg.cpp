@@ -38,16 +38,128 @@
 #include "Utility.h"
 #include "strconv.h"
 #include "DetailDlg.h"
+#include "ErrorReportSender.h"
 
 LRESULT CProgressMultiDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
-  DlgResize_Init();
+  DlgResize_Init(false);
+
+  m_listLog = GetDlgItem(IDC_LIST);
+  m_listLog.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
+  m_listLog.InsertColumn(0, _T("Status"), LVCFMT_LEFT, 2048);
+
+  m_prgProgress = GetDlgItem(IDC_PROGRESS);
+  m_prgProgress.SetRange(0, 100);
+  
+
+  SetTimer(0, 300);
+  
+  return 0;
+}
+
+LRESULT CProgressMultiDlg::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  KillTimer(0);
   return 0;
 }
 
 LRESULT CProgressMultiDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
-  
+  // Get current progress
+  int nProgressPct = 0;
+  std::vector<CString> messages;
+  g_ErrorReportSender.GetStatus(nProgressPct, messages);
+    
+  // Update progress bar
+  m_prgProgress.SetPos(nProgressPct);
+
+  unsigned i;
+  for(i=0; i<messages.size(); i++)
+  {     
+    if(messages[i].CompareNoCase(_T("[status_success]"))==0)
+    { 
+      BOOL bNext = m_pParent->SendNextReport();
+      if(!bNext)
+      {
+        m_pParent->ShowWindow(SW_SHOW);
+      }
+    }
+    else if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
+    { 
+      if(!g_CrashInfo.m_bSilentMode)
+      {        
+        BOOL bNext = m_pParent->SendNextReport();
+        if(!bNext)
+        {
+          m_pParent->ShowWindow(SW_SHOW);
+        }
+      }
+      else
+      {
+        
+      }
+    }
+    else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
+    {       
+      
+      
+    }
+    else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
+    { 
+      
+    }    
+    else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
+    {       
+      KillTimer(1);        
+      if(!g_CrashInfo.m_bSilentMode)
+      {
+        if(m_pParent->m_MailClientConfirm==NOT_CONFIRMED_YET)
+        {
+          m_pParent->ShowWindow(SW_SHOW);
+
+          DWORD dwFlags = 0;
+          CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+          if(sRTL.CompareNoCase(_T("1"))==0)
+            dwFlags = MB_RTLREADING;
+
+          CString sMailClientName;        
+          CMailMsg::DetectMailClient(sMailClientName);
+          CString msg;
+          msg.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
+
+          CString sCaption = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("DlgCaption"));
+          CString sTitle;
+          sTitle.Format(sCaption, g_CrashInfo.m_sAppName);
+          INT_PTR result = MessageBox(msg, 
+            sTitle,
+            MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
+
+
+          if(result==IDOK)
+            m_pParent->m_MailClientConfirm = ALLOWED;
+          else
+            m_pParent->m_MailClientConfirm = NOT_ALLOWED;
+
+          g_ErrorReportSender.FeedbackReady(result==IDOK?0:1);       
+          m_pParent->ShowWindow(SW_HIDE);
+        }
+        else
+        {
+          g_ErrorReportSender.FeedbackReady(m_pParent->m_MailClientConfirm==ALLOWED?0:1);       
+        }
+      }      
+      else
+      { 
+        // In silent mode, assume user provides his/her consent
+        g_ErrorReportSender.FeedbackReady(0);       
+      }        
+    }
+
+    int count = m_listLog.GetItemCount();
+    int indx = m_listLog.InsertItem(count, messages[i]);
+    m_listLog.EnsureVisible(indx, TRUE);
+
+  }
   return 0;
 }
 
@@ -57,9 +169,7 @@ BOOL CResendDlg::PreTranslateMessage(MSG* pMsg)
 }
 
 LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{   
-  DlgResize_Init();
-
+{ 
   CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
@@ -152,6 +262,20 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
   m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("PrivacyPolicy")));
+
+  m_dlgProgress.m_pParent = this;
+  m_dlgProgress.Create(m_hWnd);
+  m_dlgProgress.SetWindowLong(GWL_ID, IDD_PROGRESSMULTI); 
+  
+  CRect rc;
+  m_statSize.GetWindowRect(&rc);
+  ScreenToClient(&rc);
+  m_dlgProgress.SetWindowPos(HWND_TOP, rc.left, rc.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+
+  DlgResize_Init();
+
+  m_bSendingNow = FALSE;
+  m_MailClientConfirm = NOT_CONFIRMED_YET;
 
   // Show balloon in 3 seconds.
   m_nTick = 0;
@@ -267,15 +391,48 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
 
 LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  if(!m_bSendingNow)
+  {
+    m_bSendingNow = TRUE;
+
+    m_statSize.ShowWindow(SW_HIDE);
+    m_statConsent.ShowWindow(SW_HIDE);
+    m_linkPrivacyPolicy.ShowWindow(SW_HIDE);  
+    m_btnOtherActions.ShowWindow(SW_HIDE);
+    m_dlgProgress.ShowWindow(SW_SHOW);  
+    m_btnSendNow.SetWindowText(
+      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
+
+    SendNextReport();
+  }
+  else
+  {
+
+  }
+
+  return 0;
+}
+
+BOOL CResendDlg::SendNextReport()
+{
   int i;
   for(i=0; i<g_CrashInfo.GetReportCount(); i++)
   {
-    ErrorReportInfo& eri = g_CrashInfo.GetReport(i);    
-    eri.m_bSelected = m_listReports.GetCheckState(i);
+    BOOL bSelected = m_listReports.GetCheckState(i);
+
+    // Send the first error report
+    if(bSelected)
+    {
+      m_listReports.SetCheckState(i, 0);
+      m_listReports.EnsureVisible(i, TRUE);
+
+      g_ErrorReportSender.SetCurReport(i);
+      g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
+      return TRUE;
+    }
   }
 
-
-  return 0;
+  return FALSE;
 }
 
 LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

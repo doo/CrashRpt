@@ -61,6 +61,22 @@ CErrorReportSender::~CErrorReportSender()
 {
 }
 
+int CErrorReportSender::GetCurReport()
+{
+  return m_nCurReport;
+}
+
+BOOL CErrorReportSender::SetCurReport(int nCurReport)
+{
+  if(nCurReport<0 || nCurReport>=g_CrashInfo.GetReportCount())
+  {
+    ATLASSERT(0);
+    return FALSE;
+  }
+  m_nCurReport = nCurReport;
+  return TRUE;
+}
+
 // This method does crash files collection and
 // error report sending work
 BOOL CErrorReportSender::DoWork(int action)
