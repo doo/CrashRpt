@@ -50,7 +50,9 @@ LRESULT CProgressMultiDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
   m_prgProgress = GetDlgItem(IDC_PROGRESS);
   m_prgProgress.SetRange(0, 100);
-  
+
+  m_bMouseCaptured = FALSE;
+  m_curSizeNS = ::LoadCursor(NULL, MAKEINTRESOURCE(IDC_SIZENS));
 
   SetTimer(0, 300);
   
@@ -163,6 +165,55 @@ LRESULT CProgressMultiDlg::OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   return 0;
 }
 
+LRESULT CProgressMultiDlg::OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+  int x = LOWORD(lParam);
+  int y = HIWORD(lParam);
+  CPoint ptCursor(x, y);  
+
+  if(ptCursor.y>=0 && ptCursor.y<=7)
+  {
+    m_ptInitial = ptCursor;
+    ::SetCapture(m_hWnd);
+    m_bMouseCaptured = TRUE;
+  }
+
+  return 0;
+}
+
+LRESULT CProgressMultiDlg::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  if(m_bMouseCaptured)
+  {
+    m_bMouseCaptured = FALSE;
+    ::SetCapture(NULL);
+  }
+  return 0;
+}
+
+LRESULT CProgressMultiDlg::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+  int x = LOWORD(lParam);
+  int y = HIWORD(lParam);
+  CPoint ptCursor(x, y);  
+
+  if(ptCursor.y>=0 && ptCursor.y<=7)
+  {
+    SetCursor(m_curSizeNS);
+    if(m_bMouseCaptured)
+    {
+      CPoint offs = ptCursor - m_ptInitial;
+      CRect rcWnd;
+      GetWindowRect(&rcWnd);
+      ScreenToClient(&rcWnd);
+      rcWnd.OffsetRect(offs);
+      MoveWindow(rcWnd);
+    }
+  }  
+
+  return 0;
+}
+
 BOOL CResendDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
@@ -268,9 +319,9 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_dlgProgress.SetWindowLong(GWL_ID, IDD_PROGRESSMULTI); 
   
   CRect rc;
-  m_statSize.GetWindowRect(&rc);
+  m_listReports.GetWindowRect(&rc);
   ScreenToClient(&rc);
-  m_dlgProgress.SetWindowPos(HWND_TOP, rc.left, rc.top, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
+  m_dlgProgress.SetWindowPos(HWND_TOP, rc.left, rc.bottom, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
 
   DlgResize_Init();
 

@@ -66,7 +66,10 @@ public:
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
-        
+    MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+    MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+    MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+
     CHAIN_MSG_MAP(CDialogResize<CProgressMultiDlg>)
 	END_MSG_MAP()
 
@@ -78,11 +81,17 @@ public:
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);    
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
   LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
-  
+  LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+  LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+
   void CloseDialog(int nVal);
   
   CProgressBarCtrl m_prgProgress;
   CListViewCtrl m_listLog;  
+  CCursor m_curSizeNS;
+  BOOL m_bMouseCaptured;
+  CPoint m_ptInitial;
 
   CResendDlg* m_pParent;
  
