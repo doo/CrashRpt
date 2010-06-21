@@ -61,6 +61,8 @@
 #define IDC_SELSIZE                     1042
 #define IDC_LINE                        1043
 #define IDC_STATUS                      1044
+#define IDC_OTHERACTIONS2               1044
+#define IDC_SHOWLOG                     1044
 #define IDC_ACTIONDESC                  1045
 #define IDC_CURRENTACTION               1046
 #define ID_MENU1_COPYTHISLINE           32772

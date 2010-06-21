@@ -102,6 +102,7 @@ private:
   int m_Action;                // Current action
   BOOL m_bExport;
   CString m_sExportFileName;
+  CString m_sLogFile;
 };
 
 extern CErrorReportSender g_ErrorReportSender;

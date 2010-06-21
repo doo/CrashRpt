@@ -119,6 +119,7 @@ public:
     MESSAGE_HANDLER(WM_RESENDTRAYICON, OnTrayIcon)    
     COMMAND_ID_HANDLER(IDOK, OnSendNow)
     COMMAND_ID_HANDLER(IDC_OTHERACTIONS, OnOtherActions)
+    COMMAND_ID_HANDLER(IDC_SHOWLOG, OnShowLog)
     COMMAND_ID_HANDLER(ID_MENU3_SHOW, OnPopupShow)
     COMMAND_ID_HANDLER(ID_MENU3_EXIT, OnPopupExit)
     COMMAND_ID_HANDLER(ID_MENU4_REMINDLATER, OnRemindLater)
@@ -146,6 +147,7 @@ public:
   LRESULT OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnRemindLater(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnNeverRemind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnShowLog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
   void CloseDialog(int nVal);
   void AddTrayIcon(BOOL bAdd);
@@ -158,15 +160,16 @@ public:
   CCheckListViewCtrl m_listReports;
   CSortListViewCtrl m_listReportsSort;
   CStatic m_statSize;
-  CButton m_btnSendNow;
-  CButton m_btnOtherActions;
   CStatic m_statConsent;
   CHyperLink m_linkPrivacyPolicy;
-
+  CButton m_btnSendNow;
+  CButton m_btnOtherActions;
+  CButton m_btnShowLog;
   CActionProgressDlg m_dlgProgress;
 
   int m_nTick;
   BOOL m_bSendingNow;
   eMailClientConfirm m_MailClientConfirm;
+  int m_nCurItem;
   
 };

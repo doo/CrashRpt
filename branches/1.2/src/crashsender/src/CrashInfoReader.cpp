@@ -753,6 +753,8 @@ BOOL CCrashInfoReader::SetRemindPolicy(REMIND_POLICY Policy)
 
 BOOL CCrashInfoReader::IsRemindNowOK()
 {
+  return TRUE; 
+
   if(GetRemindPolicy()!=REMIND_LATER)
     return FALSE; // User doesn want us to remind him
 
