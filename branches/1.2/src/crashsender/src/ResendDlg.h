@@ -50,27 +50,24 @@ enum eMailClientConfirm
 
 class CResendDlg;
 
-class CProgressMultiDlg : 
-  public CDialogImpl<CProgressMultiDlg>,   	
-  public CDialogResize<CProgressMultiDlg>
+class CActionProgressDlg : 
+  public CDialogImpl<CActionProgressDlg>,   	
+  public CDialogResize<CActionProgressDlg>
 {
 public:
-	enum { IDD = IDD_PROGRESSMULTI };
+	enum { IDD = IDD_ACTIONPROGRESS };
  
-  BEGIN_DLGRESIZE_MAP(CProgressMultiDlg)    
+  BEGIN_DLGRESIZE_MAP(CActionProgressDlg)    
+    DLGRESIZE_CONTROL(IDC_CURRENTACTION, DLSZ_SIZE_X)    
     DLGRESIZE_CONTROL(IDC_PROGRESS, DLSZ_SIZE_X)    
-    DLGRESIZE_CONTROL(IDC_LIST, DLSZ_SIZE_X|DLSZ_SIZE_Y)        
+    DLGRESIZE_CONTROL(IDC_ACTIONDESC, DLSZ_SIZE_X)        
   END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CProgressMultiDlg)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
     MESSAGE_HANDLER(WM_DESTROY, OnDestroy)
-    MESSAGE_HANDLER(WM_TIMER, OnTimer)
-    MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
-    MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
-    MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
-
-    CHAIN_MSG_MAP(CDialogResize<CProgressMultiDlg>)
+    
+    CHAIN_MSG_MAP(CDialogResize<CActionProgressDlg>)
 	END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -78,21 +75,15 @@ public:
 //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
-	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);    
-  LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
+	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);      
   LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
-  LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
-  LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
-  LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	    
-
+  
   void CloseDialog(int nVal);
   
+  CStatic m_statCurAction;
+  CStatic m_statActionDesc;
   CProgressBarCtrl m_prgProgress;
-  CListViewCtrl m_listLog;  
-  CCursor m_curSizeNS;
-  BOOL m_bMouseCaptured;
-  CPoint m_ptInitial;
-
+  
   CResendDlg* m_pParent;
  
 };
@@ -160,6 +151,8 @@ public:
   void AddTrayIcon(BOOL bAdd);
   void UpdateSelectionSize();
   BOOL SendNextReport();
+  void DoBalloonTimer();
+  void DoProgressTimer();
   
   CStatic m_statText;
   CCheckListViewCtrl m_listReports;
@@ -170,7 +163,7 @@ public:
   CStatic m_statConsent;
   CHyperLink m_linkPrivacyPolicy;
 
-  CProgressMultiDlg m_dlgProgress;
+  CActionProgressDlg m_dlgProgress;
 
   int m_nTick;
   BOOL m_bSendingNow;
