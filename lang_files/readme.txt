@@ -20,6 +20,7 @@ a previous version to the latest version.
   - ClickForDetails
   - SelectedSize
   - SendNow
+  - ShowLog
   - MyConsent
   - MyConsent2
   - PopupShow
