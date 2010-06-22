@@ -279,6 +279,8 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   
   if(scn->IsCancelled()) {status = 2; goto exit;}
 
+  scn->SetProgress(_T("Waiting for greeting message from SMTP server..."), 1);
+
   res = recv(sock, buf, 1024, 0);
   if(res==SOCKET_ERROR)
   {

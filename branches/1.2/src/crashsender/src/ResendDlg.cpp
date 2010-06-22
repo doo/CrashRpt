@@ -42,9 +42,18 @@
 
 LRESULT CActionProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+  if(sRTL.CompareNoCase(_T("1"))==0)
+  {
+    Utility::SetLayoutRTL(m_hWnd);
+  }
+
   DlgResize_Init(false);
 
   m_statCurAction = GetDlgItem(IDC_CURRENTACTION);
+  m_statCurAction.SetWindowText(
+    Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("CurrentAction")));
+
   m_statActionDesc = GetDlgItem(IDC_ACTIONDESC);
   
   m_prgProgress = GetDlgItem(IDC_PROGRESS);
@@ -109,31 +118,28 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_listReportsSort.SubclassWindow(GetDlgItem(IDC_LIST));  
   m_listReports.SubclassWindow(m_listReportsSort.m_hWnd);
   m_listReports.InsertColumn(0, Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnName")), LVCFMT_LEFT, 240);
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 170);
   m_listReports.InsertColumn(1, Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnCreationDate")), LVCFMT_LEFT, 125);
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
   m_listReports.InsertColumn(2, Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 70);
-  m_listReports.InsertColumn(3, Utility::GetINIString(
-    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnStatus")), LVCFMT_LEFT, 90);
-  m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
-  m_listReportsSort.SetSortColumn(1); // Sort by creation date
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnStatus")), LVCFMT_LEFT, 170);
+  m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT|LVS_EX_DOUBLEBUFFER);
+  m_listReportsSort.SetSortColumn(0); // Sort by creation date
   int i;
   for(i=0; i<g_CrashInfo.GetReportCount(); i++)
   {
     ErrorReportInfo& eri = g_CrashInfo.GetReport(i);
-    int nItem = m_listReports.InsertItem(i, eri.m_sCrashGUID);
-    
+        
     SYSTEMTIME st;
     Utility::UTC2SystemTime(eri.m_sSystemTimeUTC, st);
     CString sCreationDate;
     sCreationDate.Format(_T("%04d-%02d-%02d %02d:%02d:%02d"), 
       st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
-    m_listReports.SetItemText(nItem, 1, sCreationDate);
-
+    int nItem = m_listReports.InsertItem(i, sCreationDate);
+    
     CString sTotalSize = Utility::FileSizeToStr(eri.m_uTotalSize);
     
-    m_listReports.SetItemText(nItem, 2, sTotalSize);
+    m_listReports.SetItemText(nItem, 1, sTotalSize);
     
     if(eri.m_bSelected)
       m_listReports.SetCheckState(nItem, TRUE);
@@ -154,13 +160,20 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_statConsent.SetFont(hConsentFont);
 
   if(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
-    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent2")));
+  {
+    m_statConsent.SetWindowText(
+      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent2")));
+  }
   else
-    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent")));
+  {
+    m_statConsent.SetWindowText(
+      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("MyConsent")));
+  }
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
   m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("PrivacyPolicy")));
+  m_linkPrivacyPolicy.ShowWindow(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty()?SW_HIDE:SW_SHOW);
 
   m_dlgProgress.m_pParent = this;
   m_dlgProgress.Create(m_hWnd);
@@ -243,14 +256,15 @@ LRESULT CResendDlg::OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   return 0;
 }
 
-LRESULT CResendDlg::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
-{
-  if(m_bSendingNow)
-    return 0;
-
+LRESULT CResendDlg::OnListItemChanging(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{  
   NMLISTVIEW* pnmlv = (NMLISTVIEW *)pnmh;
-  if(pnmlv->iItem>=0 && (pnmlv->uChanged&LVIF_STATE))
+  if(pnmlv->iItem>=0 && (pnmlv->uChanged&LVIF_STATE) && 
+    ((pnmlv->uNewState&LVIS_STATEIMAGEMASK)!=(pnmlv->uOldState&LVIS_STATEIMAGEMASK)))
   {
+    if(m_bSendingNow)
+      return TRUE;
+
     UpdateSelectionSize();
   }
   return 0;
@@ -283,19 +297,24 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
       if(bSelected)
       {
         g_CrashInfo.GetReport(i).m_DeliveryStatus = PENDING;     
-        m_listReports.SetItemText(i, 3, _T("Pending"));
+        m_listReports.SetItemText(i, 2, 
+          Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusPending")));
       }
       else
-        m_listReports.SetItemText(i, 3, _T(""));
+        m_listReports.SetItemText(i, 2, _T(""));
     }
 
     m_bSendingNow = TRUE;
+    m_bErrors = FALSE;
+    
+    m_statText.SetWindowText(
+      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryingReports")));
 
-    m_listReports.SetExtendedListViewStyle(0, LVS_EX_CHECKBOXES);
     m_statSize.ShowWindow(SW_HIDE);
     m_statConsent.ShowWindow(SW_HIDE);
     m_linkPrivacyPolicy.ShowWindow(SW_HIDE);  
     m_btnOtherActions.ShowWindow(SW_HIDE);
+    m_btnShowLog.ShowWindow(SW_HIDE);
     m_dlgProgress.ShowWindow(SW_SHOW);  
     m_btnSendNow.SetWindowText(
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
@@ -306,7 +325,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
   }
   else
   {
-
+    g_ErrorReportSender.Cancel();
   }
 
   return 0;
@@ -314,11 +333,13 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT CResendDlg::OnShowLog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-
+  return 0;
 }
 
 BOOL CResendDlg::SendNextReport()
 {
+  m_listReports.SetItemState(m_nCurItem, 0, LVIS_SELECTED);
+
   int i;
   for(i=0; i<g_CrashInfo.GetReportCount(); i++)
   {
@@ -326,8 +347,10 @@ BOOL CResendDlg::SendNextReport()
     if(g_CrashInfo.GetReport(i).m_DeliveryStatus == PENDING)
     {
       g_CrashInfo.GetReport(i).m_DeliveryStatus=INPROGRESS;
-      m_listReports.SetItemText(i, 3, _T("In progress..."));
+      m_listReports.SetItemText(i, 2, 
+        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusInProgress")));
       m_listReports.EnsureVisible(i, TRUE);
+      m_listReports.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
 
       m_nCurItem = i;
       g_ErrorReportSender.SetCurReport(i);
@@ -341,7 +364,7 @@ BOOL CResendDlg::SendNextReport()
   m_btnSendNow.EnableWindow(1);
   m_btnOtherActions.ShowWindow(SW_SHOW);
   m_btnShowLog.ShowWindow(SW_SHOW);
-  m_listReports.SetExtendedListViewStyle(LVS_EX_CHECKBOXES, LVS_EX_CHECKBOXES);
+  //m_listReports.SetExtendedListViewStyle(LVS_EX_CHECKBOXES, LVS_EX_CHECKBOXES);
   m_statSize.ShowWindow(SW_SHOW);
   m_statConsent.ShowWindow(SW_SHOW);
   m_linkPrivacyPolicy.ShowWindow(SW_SHOW);  
@@ -362,7 +385,22 @@ BOOL CResendDlg::SendNextReport()
       m_listReports.SetCheckState(i, FALSE);
   }
 
-  MessageBox(_T("Some error reports couldn't be sent. "), _T("Sending Error Reports"), MB_OK|MB_ICONINFORMATION);
+  if(m_bErrors)
+  {
+    DWORD dwFlags = 0;
+    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+    if(sRTL.CompareNoCase(_T("1"))==0)
+      dwFlags = MB_RTLREADING;
+  
+    CString sCaption;
+    sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
+      g_CrashInfo.m_sAppName);
+
+    MessageBox(
+      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryFailed")), 
+      sCaption, 
+      MB_OK|MB_ICONINFORMATION|dwFlags);
+  }
 
   return FALSE;
 }
@@ -528,13 +566,16 @@ void CResendDlg::DoProgressTimer()
 
     if(messages[i].CompareNoCase(_T("[status_success]"))==0)
     {
-      m_listReports.SetItemText(m_nCurItem, 3, _T("Succeeded"));
+      m_listReports.SetItemText(m_nCurItem, 2, 
+        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusSucceeded")));
 
       SendNextReport();
     }
     else if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
     {
-      m_listReports.SetItemText(m_nCurItem, 3, _T("Failed"));
+      m_bErrors = TRUE;
+      m_listReports.SetItemText(m_nCurItem, 2, 
+        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusFailed")));
       SendNextReport();
     }
     else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
@@ -543,7 +584,10 @@ void CResendDlg::DoProgressTimer()
     }
     else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)    
     { 
-      m_listReports.SetItemText(m_nCurItem, 3, _T("Cancelled"));
+      m_bErrors = TRUE;
+      m_listReports.SetItemText(m_nCurItem, 2, 
+        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusFailed")));
+      g_ErrorReportSender.Cancel();
       SendNextReport();      
     }        
     else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
