@@ -110,7 +110,7 @@ public:
     DLGRESIZE_CONTROL(IDOK, DLSZ_MOVE_Y)    
     DLGRESIZE_CONTROL(IDC_OTHERACTIONS, DLSZ_MOVE_Y)    
     DLGRESIZE_CONTROL(IDC_SHOWLOG, DLSZ_MOVE_Y)    
-    DLGRESIZE_CONTROL(IDD_PROGRESSMULTI, DLSZ_MOVE_Y|DLSZ_SIZE_X)    
+    DLGRESIZE_CONTROL(IDD_ACTIONPROGRESS, DLSZ_MOVE_Y|DLSZ_SIZE_X)    
   END_DLGRESIZE_MAP()
 
 	BEGIN_MSG_MAP(CResendDlg)
@@ -125,8 +125,9 @@ public:
     COMMAND_ID_HANDLER(ID_MENU3_EXIT, OnPopupExit)
     COMMAND_ID_HANDLER(ID_MENU4_REMINDLATER, OnRemindLater)
     COMMAND_ID_HANDLER(ID_MENU4_NEVERREMIND, OnNeverRemind)
-    NOTIFY_HANDLER(IDC_LIST, LVN_ITEMCHANGING, OnListItemChanging);
-    NOTIFY_HANDLER(IDC_LIST, NM_DBLCLK, OnListDblClick);
+    NOTIFY_HANDLER(IDC_LIST, LVN_ITEMCHANGING, OnListItemChanging)
+    NOTIFY_HANDLER(IDC_LIST, LVN_ITEMCHANGED, OnListItemChanged)
+    NOTIFY_HANDLER(IDC_LIST, NM_DBLCLK, OnListDblClick)
     
     CHAIN_MSG_MAP(CDialogResize<CResendDlg>)
 	END_MSG_MAP()
@@ -143,6 +144,7 @@ public:
   LRESULT OnPopupShow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnPopupExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnListItemChanging(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+  LRESULT OnListItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
   LRESULT OnListDblClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
   LRESULT OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

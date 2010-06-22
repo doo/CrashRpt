@@ -112,6 +112,8 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));  
 
   m_btnShowLog = GetDlgItem(IDC_SHOWLOG);
+  m_btnShowLog.SetWindowText(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ShowLog")));
   m_btnShowLog.ShowWindow(SW_HIDE);
 
   // Init list control
@@ -263,8 +265,17 @@ LRESULT CResendDlg::OnListItemChanging(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHa
     ((pnmlv->uNewState&LVIS_STATEIMAGEMASK)!=(pnmlv->uOldState&LVIS_STATEIMAGEMASK)))
   {
     if(m_bSendingNow)
-      return TRUE;
+      return TRUE;    
+  }
+  return 0;
+}
 
+LRESULT CResendDlg::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{  
+  NMLISTVIEW* pnmlv = (NMLISTVIEW *)pnmh;
+  if(pnmlv->iItem>=0 && (pnmlv->uChanged&LVIF_STATE) && 
+    ((pnmlv->uNewState&LVIS_STATEIMAGEMASK)!=(pnmlv->uOldState&LVIS_STATEIMAGEMASK)))
+  {    
     UpdateSelectionSize();
   }
   return 0;
