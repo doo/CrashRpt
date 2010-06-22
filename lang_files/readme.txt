@@ -14,7 +14,6 @@ a previous version to the latest version.
   - SendReportLater - new
  
  * New section [ResendDlg]:
-  - ColumnName
   - ColumnCreationDate
   - ColumnSize
   - ColumnStatus
@@ -31,6 +30,9 @@ a previous version to the latest version.
   - StatusInProgress
   - StatusSuccess
   - StatusFailed
+  - CurrentAction
+  - DeliveryingReports 
+  - DeliveryFailed
 
 --- v.1.2.4 ---
 
