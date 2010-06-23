@@ -202,6 +202,8 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 
   m_fileLog = NULL;
 
+  m_ActionOnClose = EXIT;
+
   return TRUE;
 }
 
@@ -335,6 +337,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     m_bSendingNow = TRUE;
     m_bCancelled = FALSE;
     m_bErrors = FALSE;
+    m_ActionOnClose = HIDE;
     
     m_statText.SetWindowText(
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryingReports")));
@@ -348,7 +351,8 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     m_btnSendNow.SetWindowText(
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
 
-    SetTimer(1, 250);
+    SetTimer(1, 250); // Update this dialog every 250 ms
+    SetTimer(2, 3000); // Hide this dialog in 3 sec.
     
     // Open log file
     Utility::RecycleFile(m_sLogFile, TRUE);
@@ -370,6 +374,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
   {
     m_bCancelled = TRUE;
     m_btnSendNow.EnableWindow(0);
+    KillTimer(2); // Don't hide window 
     g_ErrorReportSender.Cancel();
   }
 
@@ -433,6 +438,9 @@ BOOL CResendDlg::SendNextReport()
   m_fileLog = NULL;
 
   m_bSendingNow = FALSE;
+  m_ActionOnClose = EXIT;
+  KillTimer(1);
+  KillTimer(2);
   ShowWindow(SW_SHOW);
   m_btnSendNow.EnableWindow(1);
   m_btnOtherActions.ShowWindow(SW_SHOW);
@@ -469,24 +477,26 @@ BOOL CResendDlg::SendNextReport()
 
 
   DWORD dwFlags = 0;
-    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
-    if(sRTL.CompareNoCase(_T("1"))==0)
-      dwFlags = MB_RTLREADING;
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
+  if(sRTL.CompareNoCase(_T("1"))==0)
+    dwFlags = MB_RTLREADING;
   
-    CString sCaption;
-    sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
-      g_CrashInfo.m_sAppName);
+  CString sCaption;
+  sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
+    g_CrashInfo.m_sAppName);
 
   if(m_bErrors)
   {
-    MessageBox(
+    ::MessageBox(
+      m_hWnd,
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryFailed")), 
       sCaption, 
       MB_OK|MB_ICONINFORMATION|dwFlags);
   }
   else if(IsWindowVisible())
   {
-    MessageBox(
+    ::MessageBox(
+      m_hWnd,
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliverySucceeded")), 
       sCaption, 
       MB_OK|MB_ICONINFORMATION|dwFlags);
@@ -523,8 +533,19 @@ LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  g_CrashInfo.SetLastRemindDateToday();
-  CloseDialog(0);  
+  if(m_ActionOnClose==EXIT)
+  {
+    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+    g_CrashInfo.SetLastRemindDateToday();
+	  CloseDialog(0);
+    return 0;
+  }
+  else if(m_ActionOnClose==HIDE)
+  {
+    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 	  
+    return 0;
+  }
+
   return 0;
 }
 
@@ -616,6 +637,8 @@ LRESULT CResendDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
     DoBalloonTimer();
   else if(wParam==1)
     DoProgressTimer();
+  else if(wParam==2)
+    DoHideWindowTimer();
   
   return 0;
 }
@@ -739,4 +762,13 @@ void CResendDlg::DoProgressTimer()
       }        
     }    
   }
+}
+
+void CResendDlg::DoHideWindowTimer()
+{
+  if(!g_CrashInfo.m_bSilentMode)
+  {
+    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+  }
+  KillTimer(2);
 }

@@ -161,6 +161,7 @@ public:
   BOOL SendNextReport();
   void DoBalloonTimer();
   void DoProgressTimer();
+  void DoHideWindowTimer();
   int FindListItemByReportIndex(int nReport);
   
   CStatic m_statText;
@@ -183,4 +184,6 @@ public:
   eMailClientConfirm m_MailClientConfirm;  
   CString m_sLogFile;
   FILE* m_fileLog;
+
+  enum eActionOnClose {HIDE, EXIT} m_ActionOnClose;
 };
