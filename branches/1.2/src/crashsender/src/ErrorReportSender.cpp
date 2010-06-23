@@ -910,13 +910,15 @@ BOOL CErrorReportSender::SendReport()
   {
     m_Assync.SetProgress(_T("[status_success]"), 0);
     if(g_CrashInfo.m_bSendErrorReport)
-    {
+    {  
+      g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = DELIVERED;
       // Move report files to Recycle Bin      
       Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, false);
     }
   }
   else
   {
+    g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = FAILED;
     CString str;
     str.Format(_T("The error report is saved to '%s'"), m_sZipName);
     m_Assync.SetProgress(str, 0);    
@@ -1209,7 +1211,6 @@ BOOL CErrorReportSender::SendOverSMAPI()
   
   return bSend;
 }
-
 
 
 

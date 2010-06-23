@@ -217,7 +217,7 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
   {
     CString sExportFileName = dlg.m_szFileName;
     g_ErrorReportSender.SetExportFlag(TRUE, sExportFileName);
-    g_ErrorReportSender.DoWork(COMPRESS_REPORT);
+    g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
   }
 
   return 0;

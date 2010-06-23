@@ -38,14 +38,17 @@
 #pragma once
 #include <atlctrls.h>
 #include <atlctrlx.h>
+#include "ProgressDlg.h"
 
+// Mail client launch confirmation status
 enum eMailClientConfirm
 {
-  NOT_CONFIRMED_YET,
-  ALLOWED,
-  NOT_ALLOWED
+  NOT_CONFIRMED_YET, // User didn't confirm yet
+  ALLOWED,           // User allowed mail client launch
+  NOT_ALLOWED        // User didn't allow mail client launch
 };
 
+// Notification code of tray icon
 #define WM_RESENDTRAYICON (WM_USER+500)
 
 class CResendDlg;
@@ -158,6 +161,7 @@ public:
   BOOL SendNextReport();
   void DoBalloonTimer();
   void DoProgressTimer();
+  int FindListItemByReportIndex(int nReport);
   
   CStatic m_statText;
   CCheckListViewCtrl m_listReports;
@@ -168,12 +172,15 @@ public:
   CButton m_btnSendNow;
   CButton m_btnOtherActions;
   CButton m_btnShowLog;
-  CActionProgressDlg m_dlgProgress;
+  CActionProgressDlg m_dlgActionProgress;
+  CProgressDlg m_dlgProgress;
 
   int m_nTick;
   BOOL m_bSendingNow;
+  BOOL m_bCancelled;
   BOOL m_bErrors;
-  int m_nCurItem;  
-  eMailClientConfirm m_MailClientConfirm;
-  
+  int m_nCurReport;  
+  eMailClientConfirm m_MailClientConfirm;  
+  CString m_sLogFile;
+  FILE* m_fileLog;
 };

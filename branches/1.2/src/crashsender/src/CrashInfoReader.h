@@ -57,12 +57,10 @@ struct FileItem
 
 // Error report delivery status
 enum DELIVERY_STATUS
-{
-  SKIP       = 0,  // Skip this report
-  PENDING    = 1,  // Status pending
-  INPROGRESS = 2,  // Currently deliverying
-  DELIVERED  = 3,  // Error report was delivered ok
-  FAILED     = 4   // Error report delivery failed
+{  
+  PENDING    = 0,  // Status pending  
+  DELIVERED  = 1,  // Error report was delivered ok
+  FAILED     = 2   // Error report delivery failed
 };
 
 // Error report info
@@ -71,7 +69,7 @@ struct ErrorReportInfo
   ErrorReportInfo()
   {
     m_bSelected = TRUE;
-    m_DeliveryStatus = SKIP;
+    m_DeliveryStatus = PENDING;
     m_uTotalSize = 0;
   }
 

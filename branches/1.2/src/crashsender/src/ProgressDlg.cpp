@@ -117,7 +117,7 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
   return 0;
 }
 
-void CProgressDlg::Start(BOOL bCollectInfo)
+void CProgressDlg::Start(BOOL bCollectInfo, BOOL bMakeVisible)
 { 
   if(bCollectInfo)
   {
@@ -137,7 +137,7 @@ void CProgressDlg::Start(BOOL bCollectInfo)
   // Center the dialog on the screen
 	CenterWindow();
 
-  if(!g_CrashInfo.m_bSilentMode)
+  if(!g_CrashInfo.m_bSilentMode && bMakeVisible)
   {
     ShowWindow(SW_SHOW); 
     SetFocus();    
@@ -151,6 +151,12 @@ void CProgressDlg::Start(BOOL bCollectInfo)
   SetTimer(0, 200); // Update this dialog each 200 ms.
 
   m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
+}
+
+void CProgressDlg::Stop()
+{
+  KillTimer(0);
+  KillTimer(1);
 }
 
 LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)

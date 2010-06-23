@@ -67,6 +67,8 @@ public:
   int GetCurReport();
   BOOL SetCurReport(int nCurReport);
 
+  BOOL SetLogFile(LPCTSTR szFileName);
+
 private:
 
   void DoWorkAssync();
@@ -101,8 +103,7 @@ private:
   CString m_sZipName;                 // Name of the ZIP archive to send
   int m_Action;                // Current action
   BOOL m_bExport;
-  CString m_sExportFileName;
-  CString m_sLogFile;
+  CString m_sExportFileName;  
 };
 
 extern CErrorReportSender g_ErrorReportSender;
