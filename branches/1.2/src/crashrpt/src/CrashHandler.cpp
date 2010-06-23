@@ -1421,7 +1421,7 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT terminate() call handler
@@ -1444,7 +1444,7 @@ void __cdecl CCrashHandler::TerminateHandler()
   }
 
   // Terminate program
-  exit(1); 
+  ExitProcess(1); 
 }
 
 // CRT unexpected() call handler
@@ -1467,7 +1467,7 @@ void __cdecl CCrashHandler::UnexpectedHandler()
   }
 
   // Terminate program
-  exit(1); 
+  ExitProcess(1); 
 }
 
 // CRT Pure virtual method call handler
@@ -1491,7 +1491,7 @@ void __cdecl CCrashHandler::PureCallHandler()
   }
 
   // Terminate program
-  exit(1); 
+  ExitProcess(1); 
 }
 #endif
 
@@ -1518,7 +1518,8 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  exit(1); // Terminate program 
+  // Terminate program
+  ExitProcess(1); 
 }
 #endif 
 
@@ -1553,7 +1554,8 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-   exit(1); // Terminate program
+   // Terminate program
+   ExitProcess(1); 
  }
 #endif
 
@@ -1578,7 +1580,8 @@ int __cdecl CCrashHandler::NewHandler(size_t)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-   exit(1); // Terminate program
+  // Terminate program
+  ExitProcess(1); 
 }
 #endif //_MSC_VER>=1300
 
@@ -1602,7 +1605,7 @@ void CCrashHandler::SigabrtHandler(int)
   }
  
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT SIGFPE signal handler
@@ -1627,7 +1630,7 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT sigill signal handler
@@ -1650,7 +1653,7 @@ void CCrashHandler::SigillHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT sigint signal handler
@@ -1673,7 +1676,7 @@ void CCrashHandler::SigintHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT SIGSEGV signal handler
@@ -1697,7 +1700,7 @@ void CCrashHandler::SigsegvHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT SIGTERM signal handler
@@ -1720,7 +1723,7 @@ void CCrashHandler::SigtermHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 
