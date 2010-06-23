@@ -69,7 +69,7 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
         m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
         Utility::CreateFolder(m_sUnsentCrashReportsFolder);
         
-        m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");
+        m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");        
       }
     }
   }  

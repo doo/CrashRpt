@@ -118,7 +118,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   //info.pszAppVersion = _T("1.2.5");     // Define application version.
   info.pszEmailSubject = _T("Error from CrashRptTests"); // Define subject for email.
   info.pszEmailTo = _T("test@hotmail.com");   // Define E-mail recipient address.
-  info.pszUrl = _T("http://myappcom.com:1234/crashrpt.php"); // URL for sending reports over HTTP.
+  //info.pszUrl = _T("http://myappcom.com:1234/crashrpt.php"); // URL for sending reports over HTTP.
+  info.pszUrl = _T("http://localhost/crashrpt.php"); // URL for sending reports over HTTP.
   info.pfnCrashCallback = CrashCallback; // Define crash callback function   
   // Define sending priorities 
   info.uPriorities[CR_HTTP] = 3;         // Use HTTP the first

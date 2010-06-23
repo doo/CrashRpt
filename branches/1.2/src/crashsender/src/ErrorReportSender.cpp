@@ -906,6 +906,9 @@ BOOL CErrorReportSender::SendReport()
     }
   }
 
+  // Remove compressed error report file
+  Utility::RecycleFile(m_sZipName, true);
+
   if(status==0)
   {
     m_Assync.SetProgress(_T("[status_success]"), 0);
@@ -913,15 +916,12 @@ BOOL CErrorReportSender::SendReport()
     {  
       g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = DELIVERED;
       // Move report files to Recycle Bin      
-      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, false);
+      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);
     }
   }
   else
   {
-    g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = FAILED;
-    CString str;
-    str.Format(_T("The error report is saved to '%s'"), m_sZipName);
-    m_Assync.SetProgress(str, 0);    
+    g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = FAILED;    
     m_Assync.SetProgress(_T("[status_failed]"), 0);    
   }
 

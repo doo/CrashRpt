@@ -1339,6 +1339,9 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName,
 
   fclose(f);
 
+  // Make the file hidden.
+  SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
+
   crSetErrorMsg(_T("Success."));
   return 0;
 }

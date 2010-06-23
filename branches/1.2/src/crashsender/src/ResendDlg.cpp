@@ -125,7 +125,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnSize")), LVCFMT_RIGHT, 90);
   m_listReports.InsertColumn(2, Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("ColumnStatus")), LVCFMT_LEFT, 170);
-  m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT|LVS_EX_DOUBLEBUFFER);
+  m_listReports.ModifyStyleEx(0, LVS_EX_FULLROWSELECT);
   m_listReportsSort.SetSortColumn(0); // Sort by creation date
   int i;
   for(i=0; i<g_CrashInfo.GetReportCount(); i++)
@@ -487,19 +487,22 @@ BOOL CResendDlg::SendNextReport()
 
   if(m_bErrors)
   {
-    ::MessageBox(
-      m_hWnd,
+    MessageBox(      
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryFailed")), 
       sCaption, 
-      MB_OK|MB_ICONINFORMATION|dwFlags);
+      MB_OK|MB_ICONINFORMATION|dwFlags);    
   }
-  else if(IsWindowVisible())
+  else 
   {
-    ::MessageBox(
-      m_hWnd,
-      Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliverySucceeded")), 
-      sCaption, 
-      MB_OK|MB_ICONINFORMATION|dwFlags);
+    if(IsWindowVisible())
+    {
+      MessageBox(      
+        Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliverySucceeded")), 
+        sCaption, 
+        MB_OK|MB_ICONINFORMATION|dwFlags);
+    }
+
+    SendMessage(WM_CLOSE);
   }
 
   return FALSE;
@@ -513,8 +516,10 @@ LRESULT CResendDlg::OnOtherActions(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
   CMenu submenu = menu.GetSubMenu(3);
 
   strconv_t strconv;
-  CString sRemindLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupRemindLater"));
-  CString sNeverRemind = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupNeverRemind"));
+  CString sRemindLater = Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupRemindLater"));
+  CString sNeverRemind = Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("PopupNeverRemind"));
   
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(MENUITEMINFO));
@@ -535,7 +540,7 @@ LRESULT CResendDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 {
   if(m_ActionOnClose==EXIT)
   {
-    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+    //AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND);     
     g_CrashInfo.SetLastRemindDateToday();
 	  CloseDialog(0);
     return 0;
@@ -723,6 +728,7 @@ void CResendDlg::DoProgressTimer()
         {
           BOOL bVisible = IsWindowVisible();
           ShowWindow(SW_SHOW);
+          RedrawWindow();
 
           DWORD dwFlags = 0;
           CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
@@ -768,7 +774,7 @@ void CResendDlg::DoHideWindowTimer()
 {
   if(!g_CrashInfo.m_bSilentMode)
   {
-    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND); 
+    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND);     
   }
   KillTimer(2);
 }
