@@ -33,6 +33,7 @@ a previous version to the latest version.
   - StatusFailed
   - CurrentAction
   - DeliveryingReports 
+  - DeliverySucceeded
   - DeliveryFailed
 
 --- v.1.2.4 ---
