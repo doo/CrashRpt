@@ -117,7 +117,7 @@ int CCrashHandler::Init(
   m_bSilentMode = (dwFlags&CR_INST_NO_GUI)?TRUE:FALSE;
 
   // Set queue mode
-  m_bQueueEnabled = (dwFlags&CR_INST_SEND_RECENT_REPORTS)?TRUE:FALSE;
+  m_bQueueEnabled = (dwFlags&CR_INST_SEND_QUEUED_REPORTS)?TRUE:FALSE;
 
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;

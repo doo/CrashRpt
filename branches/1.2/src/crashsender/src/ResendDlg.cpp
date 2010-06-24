@@ -195,14 +195,22 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_bSendingNow = FALSE;
   m_bCancelled = FALSE;
   m_MailClientConfirm = NOT_CONFIRMED_YET;
-  
-  // Show balloon in 3 seconds.
-  m_nTick = 0;
-  SetTimer(0, 3000);
-
+    
   m_fileLog = NULL;
 
   m_ActionOnClose = EXIT;
+
+  if(g_CrashInfo.m_bSilentMode)
+  {
+    BOOL bHandled;
+    OnSendNow(0, 0, 0, bHandled);
+  }
+  else
+  {
+    // Show balloon in 3 seconds.
+    m_nTick = 0;
+    SetTimer(0, 3000);
+  }
 
   return TRUE;
 }
@@ -301,7 +309,7 @@ LRESULT CResendDlg::OnListDblClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
   NMITEMACTIVATE* pia = (NMITEMACTIVATE*)pnmh;
   if(pia->iItem>=0)
   {
-    int nReport = m_listReports.GetItemData(pia->iItem);
+    int nReport = (int)m_listReports.GetItemData(pia->iItem);
 
     m_dlgProgress.Start(FALSE, FALSE);
 
@@ -324,7 +332,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
       BOOL bSelected = m_listReports.GetCheckState(i);
       if(bSelected)
       {
-        int nReport = m_listReports.GetItemData(i);
+        int nReport = (int)m_listReports.GetItemData(i);
 
         g_CrashInfo.GetReport(nReport).m_DeliveryStatus = PENDING;     
         m_listReports.SetItemText(i, 2, 
@@ -361,12 +369,12 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     sCurTime.Replace(':', '-');
     m_sLogFile.Format(_T("%s\\CrashRpt-Log-%s.txt"), 
       g_CrashInfo.m_sUnsentCrashReportsFolder, sCurTime);
-
 #if _MSC_VER<1400
     m_fileLog = _tfopen(m_sLogFile, _T("wt"));
 #else
     _tfopen_s(&m_fileLog, m_sLogFile.GetBuffer(0), _T("wt"));
 #endif
+    fprintf(m_fileLog, "%c%c%c", 0xEF, 0xBB, 0xBF); // UTF-8 signature
 
     SendNextReport();
   }
@@ -375,7 +383,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     m_bCancelled = TRUE;
     m_btnSendNow.EnableWindow(0);
     KillTimer(2); // Don't hide window 
-    g_ErrorReportSender.Cancel();
+    g_ErrorReportSender.Cancel();    
   }
 
   return 0;
@@ -394,7 +402,7 @@ int CResendDlg::FindListItemByReportIndex(int nReport)
   int i;
   for(i=0; i<m_listReports.GetItemCount(); i++)
   {
-    int nData = m_listReports.GetItemData(i);
+    int nData = (int)m_listReports.GetItemData(i);
     if(nData==nReport)
       return i;
   }
@@ -415,7 +423,7 @@ BOOL CResendDlg::SendNextReport()
       BOOL bSelected = m_listReports.GetCheckState(i);    
       if(bSelected)
       {
-        int nReport = m_listReports.GetItemData(i);
+        int nReport = (int)m_listReports.GetItemData(i);
         
         DELIVERY_STATUS status = g_CrashInfo.GetReport(nReport).m_DeliveryStatus;
         if(status!=PENDING)
@@ -462,7 +470,7 @@ BOOL CResendDlg::SendNextReport()
     BOOL bSelected = m_listReports.GetCheckState(i);  
     if(bSelected)
     {
-      int nReport = m_listReports.GetItemData(i);
+      int nReport = (int)m_listReports.GetItemData(i);
         
       DELIVERY_STATUS status = g_CrashInfo.GetReport(nReport).m_DeliveryStatus;
       if(status==PENDING)
@@ -486,7 +494,7 @@ BOOL CResendDlg::SendNextReport()
   sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), 
     g_CrashInfo.m_sAppName);
 
-  if(m_bErrors)
+  if(m_bErrors && !g_CrashInfo.m_bSilentMode)
   {
     ShowWindow(SW_SHOW);
     SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
@@ -500,7 +508,7 @@ BOOL CResendDlg::SendNextReport()
       MB_OK|MB_ICONINFORMATION|dwFlags);  
     
   }
-  else 
+  else if(!m_bErrors)
   {
     if(IsWindowVisible())
     {
@@ -629,7 +637,7 @@ void CResendDlg::UpdateSelectionSize()
   {
     if(m_listReports.GetCheckState(i))
     {
-      int nReport = m_listReports.GetItemData(i);
+      int nReport = (int)m_listReports.GetItemData(i);
 
       nItemsSelected++;
       uSelectedFilesSize += g_CrashInfo.GetReport(nReport).m_uTotalSize;
@@ -696,8 +704,10 @@ void CResendDlg::DoProgressTimer()
 
     if(m_fileLog)
     {
-      _ftprintf_s(m_fileLog, messages[i].GetBuffer(0));
-      _ftprintf_s(m_fileLog, _T("\n"));
+      strconv_t strconv;
+      LPCSTR szLine = strconv.t2utf8(messages[i]);
+      fprintf(m_fileLog, szLine);
+      fprintf(m_fileLog, "\n");
     }
 
 
@@ -721,11 +731,11 @@ void CResendDlg::DoProgressTimer()
     }
     else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)    
     { 
-      m_bErrors = TRUE;
+      /*m_bErrors = TRUE;
       m_listReports.SetItemText(nCurItem, 2, 
         Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusFailed")));
       
-      SendNextReport();      
+      SendNextReport();      */
     }        
     else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
     {       
@@ -735,7 +745,11 @@ void CResendDlg::DoProgressTimer()
         if(m_MailClientConfirm==NOT_CONFIRMED_YET)
         {
           BOOL bVisible = IsWindowVisible();
-          ShowWindow(SW_SHOW);          
+          ShowWindow(SW_SHOW);
+          SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+          SetFocus();  
+          RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);
+          m_listReports.RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);  
 
           DWORD dwFlags = 0;
           CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));

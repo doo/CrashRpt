@@ -250,6 +250,14 @@ if(array_key_exists("crashrpt", $_FILES))
   $tmp_file_name = $_FILES["crashrpt"]["tmp_name"];
   checkOK($tmp_file_name);
 
+  // Check that decoded data have correct MD5 hash
+  $my_md5_hash = strtolower(md5_file($tmp_file_name));
+  $their_md5_hash = strtolower($md5_hash);
+  if($my_md5_hash!=$their_md5_hash)
+  {
+    done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
+  }
+
   if(!empty($crash_guid))
   { 
     // If crash GUID presents, use it as file name
@@ -282,6 +290,14 @@ else
   // Decode file data
   $file_data = base64_decode($encoded_data);
 
+  // Check that decoded data have correct MD5 hash
+  $my_md5_hash = strtolower(md5($file_data));
+  $their_md5_hash = strtolower($md5_hash);
+  if($my_md5_hash!=$their_md5_hash)
+  {
+    done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
+  }
+
   if(!empty($crash_guid))
   { 
     // If crash GUID presents, use it as file name
@@ -293,7 +309,7 @@ else
     $date_time = date(DATE_RFC822);
     $file_name = $file_root.md5($file_data.$date_time).".zip";
   }
-
+  
   // Write decoded data to file
   $f = fopen($file_name, "w");
   if($f==FALSE)
@@ -303,17 +319,6 @@ else
          
   fwrite($f, $file_data);
   fclose($f);
-}
-
-// Check that decoded data have correct MD5 hash
-$my_md5_hash = strtolower(md5_file($file_name));
-$their_md5_hash = strtolower($md5_hash);
-if($my_md5_hash!=$their_md5_hash)
-{
-  // Remove invalid file
-  unlink($file_name); 
- 
-  done(451, "MD5 hash is invalid (yours is ".$their_md5_hash.", but mine is ".$my_md5_hash.")");
 }
 
 // OK.

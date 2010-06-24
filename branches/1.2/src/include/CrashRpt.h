@@ -341,10 +341,10 @@ GenerateErrorReport(
 
 #define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
-#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
+#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally (queue for later delivery).
 #define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
 #define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
-#define CR_INST_SEND_RECENT_REPORTS            0x40000 //!< CrashRpt should resend error reports that it failed to send recently.
+#define CR_INST_SEND_QUEUED_REPORTS            0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -428,8 +428,9 @@ GenerateErrorReport(
  *             is supported for backwards compatibility and not recommended to use.
  *             For additional information, see \ref sending_error_reports.
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
- *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report, just save it locally'. 
- *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
+ *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report immediately on crash, just save it locally'. 
+ *             Use this if you have direct access to the machine where crash happens and do not need 
+ *             to send report over the Internet.
  *    <tr><td> \ref CR_INST_APP_RESTART     
  *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
  *             for the application is taken from \a pszRestartCmdLine parameter. To avoid cyclic restarts of an application which crashes on startup, 
@@ -438,9 +439,11 @@ GenerateErrorReport(
  *        <td> <b>Available since v.1.2.4</b> Specify this parameter if you want minidump file not to be included into crash report. The default
  *             behavior is to include the minidump file.
  *
- *    <tr><td> \ref CR_INST_SEND_RECENT_REPORTS     
- *        <td> <b>Available since v.1.2.5</b> Specify this parameter to resend all reports that failed to send recently. Those
- *             report files are stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
+ *    <tr><td> \ref CR_INST_SEND_QUEUED_REPORTS     
+ *        <td> <b>Available since v.1.2.5</b> Specify this parameter to send all queued reports. Those
+ *             report files are by default stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
+ *             If this is specified, CrashRpt checks if it's time to remind user about recent errors in the application and offers to send
+ *             all queued error reports.
  *
  *   </table>
  *

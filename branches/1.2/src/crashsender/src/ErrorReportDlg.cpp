@@ -300,6 +300,9 @@ LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, 
   // If needed, restart the application
   g_ErrorReportSender.DoWork(RESTART_APP);
 
+  // Remove the error report files
+  Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);
+
   CloseDialog(wID);  
   return 0;
 }
