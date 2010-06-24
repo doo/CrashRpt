@@ -385,6 +385,7 @@ LRESULT CResendDlg::OnShowLog(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 {
   HINSTANCE hInst = ShellExecute(m_hWnd, _T("open"), m_sLogFile, NULL, NULL, SW_SHOW);
   ATLASSERT((int)hInst>32);
+  hInst;
   return 0;
 }
 
@@ -441,7 +442,7 @@ BOOL CResendDlg::SendNextReport()
   m_ActionOnClose = EXIT;
   KillTimer(1);
   KillTimer(2);
-  ShowWindow(SW_SHOW);
+
   m_btnSendNow.EnableWindow(1);
   m_btnOtherActions.ShowWindow(SW_SHOW);
   m_btnShowLog.ShowWindow(SW_SHOW);  
@@ -487,10 +488,17 @@ BOOL CResendDlg::SendNextReport()
 
   if(m_bErrors)
   {
+    ShowWindow(SW_SHOW);
+    SetWindowPos(HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+    SetFocus();  
+    RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);
+    m_listReports.RedrawWindow(0, 0, RDW_ERASE|RDW_FRAME|RDW_INVALIDATE);  
+  
     MessageBox(      
       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DeliveryFailed")), 
       sCaption, 
-      MB_OK|MB_ICONINFORMATION|dwFlags);    
+      MB_OK|MB_ICONINFORMATION|dwFlags);  
+    
   }
   else 
   {
@@ -727,8 +735,7 @@ void CResendDlg::DoProgressTimer()
         if(m_MailClientConfirm==NOT_CONFIRMED_YET)
         {
           BOOL bVisible = IsWindowVisible();
-          ShowWindow(SW_SHOW);
-          RedrawWindow();
+          ShowWindow(SW_SHOW);          
 
           DWORD dwFlags = 0;
           CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
@@ -746,7 +753,8 @@ void CResendDlg::DoProgressTimer()
           INT_PTR result = MessageBox(msg, 
             sTitle,
             MB_OKCANCEL|MB_ICONQUESTION|dwFlags);
-
+  
+          RedrawWindow();
 
           if(result==IDOK)
             m_MailClientConfirm = ALLOWED;
@@ -774,7 +782,7 @@ void CResendDlg::DoHideWindowTimer()
 {
   if(!g_CrashInfo.m_bSilentMode)
   {
-    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND);     
+    AnimateWindow(m_hWnd, 200, AW_HIDE|AW_BLEND);         
   }
   KillTimer(2);
 }

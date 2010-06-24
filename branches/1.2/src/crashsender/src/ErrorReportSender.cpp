@@ -110,6 +110,12 @@ void CErrorReportSender::DoWorkAssync()
 {
   m_Assync.Reset();
 
+  CString sMsg;
+  sMsg.Format(_T("=== Performing actions with error report: '%s' ==="), 
+    g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName);
+
+  m_Assync.SetProgress(sMsg, 0, false);
+
   if(m_Action&COLLECT_CRASH_INFO)
   {
     m_Assync.SetProgress(_T("Start collecting information about the crash..."), 0, false);

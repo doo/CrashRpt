@@ -124,7 +124,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   // Define sending priorities 
   info.uPriorities[CR_HTTP] = 3;         // Use HTTP the first
   info.uPriorities[CR_SMTP] = 2;         // Use SMTP the second
-  info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY;        // Use Simple MAPI the last   
+  info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last   
   info.dwFlags = 0;                    
   info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers
   info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
