@@ -164,11 +164,11 @@ int CCrashHandler::Init(
 
   m_bSendErrorReport = (dwFlags&CR_INST_DONT_SEND_REPORT)?FALSE:TRUE;
 
-  if(!m_bSilentMode && !m_bSendErrorReport)
+  /*if(!m_bSilentMode && !m_bSendErrorReport)
   {    
     crSetErrorMsg(_T("Can't disable error sending when in GUI mode (incompatible flags specified)."));
     return 1;
-  }
+  }*/
 
   m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
   m_sRestartCmdLine = lpcszRestartCmdLine;

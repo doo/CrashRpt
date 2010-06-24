@@ -852,17 +852,6 @@ BOOL CErrorReportSender::SendReport()
 {
   int status = 1;
 
-  if(!g_CrashInfo.m_bSendErrorReport)
-  {
-    m_Assync.SetProgress(_T("Error report sending disabled."), 0);
-
-    // Move report files to Recycle Bin      
-    Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);
-
-    m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
-    return FALSE;
-  }
-
   m_Assync.SetProgress(_T("[sending_report]"), 0);
 
   std::multimap<int, int> order;
@@ -918,12 +907,9 @@ BOOL CErrorReportSender::SendReport()
   if(status==0)
   {
     m_Assync.SetProgress(_T("[status_success]"), 0);
-    if(g_CrashInfo.m_bSendErrorReport)
-    {  
-      g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = DELIVERED;
-      // Move report files to Recycle Bin      
-      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);
-    }
+    g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = DELIVERED;
+    // Move report files to Recycle Bin      
+    Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);    
   }
   else
   {

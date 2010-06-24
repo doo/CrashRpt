@@ -130,7 +130,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.dwFlags |= CR_INST_APP_RESTART;   // Restart the application.  
   //info.dwFlags |= CR_INST_NO_MINIDUMP; // Do not include minidump.
   info.dwFlags |= CR_INST_NO_GUI;   // Don't display GUI.
-  //info.dwFlags |= CR_INST_DONT_SEND_REPORT; // Don't send report immediately, just queue for delivery.
+  info.dwFlags |= CR_INST_DONT_SEND_REPORT; // Don't send report immediately, just queue for delivery.
   info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS; // Send reports that were failed to send recently.
   info.pszDebugHelpDLL = NULL;           // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;   // Define minidump size

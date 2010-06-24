@@ -727,6 +727,7 @@ void CResendDlg::DoProgressTimer()
     }
     else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
     {
+      m_bErrors = TRUE;
       SendNextReport();
     }
     else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)    

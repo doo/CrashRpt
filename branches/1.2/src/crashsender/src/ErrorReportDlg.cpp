@@ -308,18 +308,27 @@ LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, 
 }
 
 LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
+{  
   if(!g_CrashInfo.m_bSilentMode)
   {
-    LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize();  
-    CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
-    CString sSubHeader;
-    sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
-    m_statSubHeader.SetWindowText(sSubHeader);
-    ShowWindow(SW_SHOW);
+    if(g_CrashInfo.m_bSendErrorReport)
+    {
+      LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize();  
+      CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
+      CString sSubHeader;
+      sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
+      m_statSubHeader.SetWindowText(sSubHeader);
+      ShowWindow(SW_SHOW);
+    }
+    else
+    {
+      SendMessage(WM_CLOSE);
+    }
   }
-  else
-    g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
+  else if(g_CrashInfo.m_bSendErrorReport)
+  {
+    g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);    
+  }
   
   return 0;
 }
