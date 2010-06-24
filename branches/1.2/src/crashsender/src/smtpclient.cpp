@@ -169,6 +169,8 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn,
   int r = DnsQuery(sServer, DNS_TYPE_MX, DNS_QUERY_STANDARD, 
     NULL, (PDNS_RECORD*)&apResult, NULL);
   
+  PDNS_RECORD pRecOrig = apResult;
+
   if(r==0)
   {
     while(apResult!=NULL)
@@ -182,8 +184,10 @@ int CSmtpClient::GetSmtpServerName(CEmailMessage* msg, AssyncNotification* scn,
       apResult = apResult->pNext;
     }
 
+    DnsRecordListFree(pRecOrig, DnsFreeRecordList);
+
     return 0;
-  }
+  } 
 
   sStatusMsg.Format(_T("DNS query failed with code %d"), r);
   scn->SetProgress(sStatusMsg, 2);
