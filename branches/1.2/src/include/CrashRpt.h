@@ -341,7 +341,7 @@ GenerateErrorReport(
 
 #define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
-#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally (queue for later delivery).
+#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally.
 #define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
 #define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
 #define CR_INST_SEND_QUEUED_REPORTS            0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.

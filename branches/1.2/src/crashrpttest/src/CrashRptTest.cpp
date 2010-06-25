@@ -121,7 +121,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.pszUrl = _T("http://localhost:80/crashrpt.php"); // URL for sending reports over HTTP.
   info.pfnCrashCallback = CrashCallback; // Define crash callback function   
   // Define sending priorities 
-  info.uPriorities[CR_HTTP] = 3;         // Use HTTP the first
+  info.uPriorities[CR_HTTP] = CR_NEGATIVE_PRIORITY;         // Use HTTP the first
   info.uPriorities[CR_SMTP] = 2;         // Use SMTP the second
   info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last   
   info.dwFlags = 0;                    
@@ -131,7 +131,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   //info.dwFlags |= CR_INST_NO_MINIDUMP;            // Do not include minidump.
   //info.dwFlags |= CR_INST_NO_GUI;                 // Don't display GUI.
   //info.dwFlags |= CR_INST_DONT_SEND_REPORT;       // Don't send report immediately, just queue for delivery.
-  //info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS;    // Send reports that were failed to send recently.
+  info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS;    // Send reports that were failed to send recently.
   info.pszDebugHelpDLL = NULL;                    // Search for dbghelp.dll using default search sequence
   info.uMiniDumpType = MiniDumpNormal;            // Define minidump size
   // Define privacy policy URL.
