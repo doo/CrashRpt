@@ -258,7 +258,7 @@ void CResendDlg::CloseDialog(int nVal)
 	DestroyWindow();
   AddTrayIcon(FALSE);
 
-  Utility::RecycleFile(m_sLogFile, TRUE);
+  Utility::RecycleFile(m_sLogFile, true);
 
 	::PostQuitMessage(nVal);
 }
@@ -363,7 +363,7 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
     SetTimer(2, 3000); // Hide this dialog in 3 sec.
     
     // Open log file
-    Utility::RecycleFile(m_sLogFile, TRUE);
+    Utility::RecycleFile(m_sLogFile, true);
     CString sCurTime;
     Utility::GetSystemTimeUTC(sCurTime);
     sCurTime.Replace(':', '-');
@@ -434,7 +434,7 @@ BOOL CResendDlg::SendNextReport()
           Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusInProgress")));
         m_listReports.EnsureVisible(i, TRUE);
         m_listReports.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
-              
+        
         g_ErrorReportSender.SetCurReport(nReport);
         g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);      
         return TRUE;

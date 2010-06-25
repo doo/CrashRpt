@@ -104,17 +104,31 @@ DWORD WINAPI CErrorReportSender::WorkerThread(LPVOID lpParam)
   return 0;
 }
 
+void CErrorReportSender::UnblockParentProcess()
+{
+  // Notify the parent process that we have finished with minidump,
+  // so the parent process is able to unblock and terminate itself.
+  CString sEventName;
+  
+  sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.GetReport(0).m_sCrashGUID);
+  HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+  if(hEvent!=NULL)
+    SetEvent(hEvent);
+}
+
 // This method collects required crash files (minidump, screenshot etc.)
 // and then sends the error report over the Internet.
 void CErrorReportSender::DoWorkAssync()
 {
   m_Assync.Reset();
-
-  CString sMsg;
-  sMsg.Format(_T("=== Performing actions with error report: '%s' ==="), 
-    g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName);
-
-  m_Assync.SetProgress(sMsg, 0, false);
+  
+  if(g_CrashInfo.m_bSendRecentReports)
+  {
+    CString sMsg;
+    sMsg.Format(_T(">>> Performing actions with error report: '%s'"), 
+                g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName);
+    m_Assync.SetProgress(sMsg, 0, false);
+  }
 
   if(m_Action&COLLECT_CRASH_INFO)
   {
@@ -124,7 +138,10 @@ void CErrorReportSender::DoWorkAssync()
     TakeDesktopScreenshot();
 
     if(m_Assync.IsCancelled())
-    {
+    {      
+      UnblockParentProcess();
+      // Delete report files
+      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);  
       m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
       return;
     }
@@ -133,25 +150,25 @@ void CErrorReportSender::DoWorkAssync()
     CreateMiniDump();
 
     if(m_Assync.IsCancelled())
-    {
+    {      
+      UnblockParentProcess();
+      // Delete report files
+      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);  
       m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
       return;
     }
 
     // Notify the parent process that we have finished with minidump,
     // so the parent process is able to unblock and terminate itself.
-    CString sEventName;
-    
-    sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.GetReport(0).m_sCrashGUID);
-    HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
-    if(hEvent!=NULL)
-      SetEvent(hEvent);
+    UnblockParentProcess();
     
     // Copy user-provided files.
     CollectCrashFiles();
 
     if(m_Assync.IsCancelled())
-    {
+    {      
+      // Delete report files
+      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);  
       m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
       return;
     }
@@ -908,13 +925,20 @@ BOOL CErrorReportSender::SendReport()
   {
     m_Assync.SetProgress(_T("[status_success]"), 0);
     g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = DELIVERED;
-    // Move report files to Recycle Bin      
+    // Delete report files
     Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);    
   }
   else
   {
     g_CrashInfo.GetReport(m_nCurReport).m_DeliveryStatus = FAILED;    
     m_Assync.SetProgress(_T("[status_failed]"), 0);    
+
+    // Check if we should store files for later delivery or we should remove them
+    if(!g_CrashInfo.m_bQueueEnabled)
+    {
+      // Delete report files
+      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);    
+    }
   }
 
   m_Assync.SetCompleted(status);

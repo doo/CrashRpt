@@ -52,7 +52,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   // Read the crash info passed by CrashRpt.dll to CrashSender.exe 
   if(argc!=2)
     return 1; // No arguments passed
-  
+
   // Read crash info
   CString sFileName = CString(argv[1]);
   g_CrashInfo.Init(sFileName);
@@ -110,7 +110,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
   
 	int nRet = theLoop.Run();
 
-  // Wait until the worker thread is exited
+  // Wait until the worker thread is exited  
   g_ErrorReportSender.WaitForCompletion();
 
 	_Module.RemoveMessageLoop();

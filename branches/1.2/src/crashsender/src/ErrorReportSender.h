@@ -77,17 +77,18 @@ private:
   BOOL CollectCrashFiles();
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   BOOL TakeDesktopScreenshot();
-  BOOL CreateMiniDump();
+  BOOL CreateMiniDump();  
   static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
   BOOL RestartApp();
   BOOL CompressReportFiles();
+  void UnblockParentProcess();
     
   BOOL SendReport();
   BOOL SendOverHTTP();
-  int CErrorReportSender::Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
+  int Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
   CString FormatEmailText();
   BOOL SendOverSMTP();
   BOOL SendOverSMAPI();

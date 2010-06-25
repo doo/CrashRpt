@@ -278,6 +278,10 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
     // If needed, restart the application
     g_ErrorReportSender.DoWork(RESTART_APP);
 
+    // Remove report files
+    Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);
+
+    // Close dialog
     CloseDialog(wID);  
   }
 
@@ -309,7 +313,7 @@ LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, 
 
 LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {  
-  if(!g_CrashInfo.m_bSilentMode)
+  if(!g_CrashInfo.m_bSilentMode) // If in GUI mode
   {
     if(g_CrashInfo.m_bSendErrorReport)
     {
@@ -325,16 +329,23 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
       SendMessage(WM_CLOSE);
     }
   }
-  else if(g_CrashInfo.m_bSendErrorReport)
+  else // If in silent mode
   {
-    g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);    
+    if(g_CrashInfo.m_bSendErrorReport)
+    {
+      g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);    
+    }
+    else
+    {
+      SendMessage(WM_CLOSE);
+    }
   }
   
   return 0;
 }
 
 LRESULT CErrorReportDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
+{  
   CreateTrayIcon(FALSE, m_hWnd);
   CloseDialog(0);  
   return 0;
