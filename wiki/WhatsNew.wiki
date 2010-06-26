@@ -5,17 +5,17 @@
 
 CrashRpt v1.2.5 introduces queued error report delivery and fixes some detected issues. Below the complete list of changes is presented. 
 
-  * Introduced an ability to send error reports queued for delivery (issue 33). New flag CR_INST_SEND_QUEUED_REPORTS.
+  * Introduced an ability to send error reports queued for delivery (issue 33). New flag `CR_INST_SEND_QUEUED_REPORTS`.
 
   * Fixed: zipped file timestamps are incorrect (issue 40).
 
-  * Fixed: Release buffer from DnsQuery (issue 42).
+  * Fixed: Release buffer from `DnsQuery` (issue 42).
 
-  * Fixed: exit(1) in different thread may cause crashes (issue 43).
+  * Fixed: `exit(1)` in different thread may cause crashes (issue 43).
 
-  * Fixed: A bug in CScreenCapture multiple monitors
+  * Fixed: A bug in `CScreenCapture` multiple monitors
 
-  * Fixed: Issue with g_CrashInfo.m_uPriorities. Introduced CR_NEGATIVE_PRIORITY constant.
+  * Fixed: Issue with `g_CrashInfo.m_uPriorities`. Introduced `CR_NEGATIVE_PRIORITY` constant.
 
   * Refactored php example of how to receive error reports by HTTP.
 
