@@ -64,8 +64,7 @@ CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
 CCrashHandler::CCrashHandler()
 {
-  m_bInitialized = FALSE;
-  
+  m_bInitialized = FALSE;  
   InitPrevExceptionHandlerPointers();
   m_lpfnCallback = NULL;
   memset(&m_uPriorities, 0, 3*sizeof(UINT));
