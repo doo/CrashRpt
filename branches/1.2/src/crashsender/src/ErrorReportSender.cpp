@@ -963,6 +963,9 @@ BOOL CErrorReportSender::SendOverHTTP()
     return FALSE;
   }
 
+  m_Assync.SetProgress(_T("Sending error report over HTTP..."), 0);
+  m_Assync.SetProgress(_T("Preparing HTTP request data..."), 0);
+
   CHttpRequest request;
   request.m_sUrl = g_CrashInfo.m_sUrl;  
     
@@ -986,6 +989,8 @@ BOOL CErrorReportSender::SendOverHTTP()
   }
   else
   {
+    m_Assync.SetProgress(_T("Base-64 encoding file attachment, please wait..."), 1);
+
     std::string sEncodedData;
     int nRet = Base64EncodeAttachment(m_sZipName, sEncodedData);
     if(nRet!=0)

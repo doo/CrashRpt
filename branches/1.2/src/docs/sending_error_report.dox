@@ -263,6 +263,13 @@ if(array_key_exists("crashguid", $_POST))
 // Get file attachment
 if(array_key_exists("crashrpt", $_FILES))
 {
+  // Check upload error code
+  $error_code = $_FILES["crashrpt"]["error"];
+  if($error_code!=0)
+  {
+    done(450, "File upload failed with code $error_code.");
+  }
+
   // Get temporary name uploaded file is stored currently
   $tmp_file_name = $_FILES["crashrpt"]["tmp_name"];
   checkOK($tmp_file_name);

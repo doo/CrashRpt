@@ -126,7 +126,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
   info.uPriorities[CR_SMAPI] = 1;        // Use Simple MAPI the last.  
   info.dwFlags = 0;                    
   info.dwFlags |= CR_INST_ALL_EXCEPTION_HANDLERS; // Install all available exception handlers.
-  //info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
+  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;   // Use binary encoding for HTTP uploads (recommended).  
   info.dwFlags |= CR_INST_APP_RESTART;            // Restart the application on crash.  
   //info.dwFlags |= CR_INST_NO_MINIDUMP;            // Do not include minidump.
   //info.dwFlags |= CR_INST_NO_GUI;                 // Don't display GUI.
