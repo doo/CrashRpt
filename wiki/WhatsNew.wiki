@@ -1,6 +1,26 @@
 #summary Release History
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.2.5 =
+
+CrashRpt v1.2.5 introduces queued error report delivery and fixes some detected issues. Below the complete list of changes is presented. 
+
+  * Introduced an ability to send error reports queued for delivery (issue 33). New flag CR_INST_SEND_QUEUED_REPORTS.
+
+  * Fixed: zipped file timestamps are incorrect (issue 40).
+
+  * Fixed: Release buffer from DnsQuery (issue 42).
+
+  * Fixed: exit(1) in different thread may cause crashes (issue 43).
+
+  * Fixed: A bug in CScreenCapture multiple monitors
+
+  * Fixed: Issue with g_CrashInfo.m_uPriorities. Introduced CR_NEGATIVE_PRIORITY constant.
+
+  * Refactored php example of how to receive error reports by HTTP.
+
+  * Extended documentation. 
+
 = crashrpt v1.2.4 =
 
   * Introduced an ability to restart an application automatically on crash. The  application is restarted only if at least 60 seconds have elapsed since its start. This is done to avoid cyclic restarts of an unstable application which crashes on start up. This is the enhancement requested in issue 11.
