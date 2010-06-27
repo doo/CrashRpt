@@ -332,14 +332,13 @@ LRESULT CResendDlg::OnSendNow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
       BOOL bSelected = m_listReports.GetCheckState(i);
       if(bSelected)
       {
-        int nReport = (int)m_listReports.GetItemData(i);
-
-        g_CrashInfo.GetReport(nReport).m_DeliveryStatus = PENDING;     
-        m_listReports.SetItemText(i, 2, 
-          Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusPending")));
-      }
-      else
-        m_listReports.SetItemText(i, 2, _T(""));
+        int nReport = (int)m_listReports.GetItemData(i);        
+        if(g_CrashInfo.GetReport(nReport).m_DeliveryStatus == PENDING)
+        {
+          m_listReports.SetItemText(i, 2, 
+            Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("StatusPending")));
+        }
+      }      
     }
 
     m_bSendingNow = TRUE;
