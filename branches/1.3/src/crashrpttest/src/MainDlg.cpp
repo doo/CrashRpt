@@ -45,7 +45,18 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
 	UIAddChildWindowContainer(m_hWnd);
 
+  if(m_bRestarted)
+  {
+    PostMessage(WM_POSTCREATE);    
+  }
+
 	return TRUE;
+}
+
+LRESULT CMainDlg::OnPostCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T("The application was restarted after crash."), _T("Restarted"), MB_OK);
+  return 0;
 }
 
 LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

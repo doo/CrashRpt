@@ -31,6 +31,7 @@ void test_generate_report()
   ei.exctype = CR_SEH_EXCEPTION;
   ei.code = 0x1234;
   ei.pexcptrs = NULL;
+  ei.bManual = TRUE; // Signal the report is being generated manually.
 
   int nResult = crGenerateErrorReport(&ei);
   if(nResult!=0)

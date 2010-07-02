@@ -41,22 +41,26 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 {
   DlgResize_Init();
 
-  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
     Utility::SetLayoutRTL(m_hWnd);
   }
 
-  SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DlgCaption")));
+  SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("DlgCaption")));
 
   m_previewMode = PREVIEW_AUTO;
   m_filePreview.SubclassWindow(GetDlgItem(IDC_PREVIEW));
   m_filePreview.SetBytesPerLine(10);
-  m_filePreview.SetEmptyMessage(Utility::GetINIString(_T("DetailDlg"), _T("NoDataToDisplay")));
+  m_filePreview.SetEmptyMessage(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("NoDataToDisplay")));
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
-  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("DetailDlg"), _T("PrivacyPolicy")));
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("PrivacyPolicy")));
 
   if(!g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
     m_linkPrivacyPolicy.ShowWindow(SW_SHOW);
@@ -64,15 +68,20 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     m_linkPrivacyPolicy.ShowWindow(SW_HIDE);
 
   CStatic statHeader = GetDlgItem(IDC_HEADERTEXT);
-  statHeader.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("DoubleClickAnItem")));  
+  statHeader.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("DoubleClickAnItem")));  
 
   m_list = GetDlgItem(IDC_FILE_LIST);
   m_list.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
 
-  m_list.InsertColumn(0, Utility::GetINIString(_T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 130);
-  m_list.InsertColumn(1, Utility::GetINIString(_T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 110);
-  m_list.InsertColumn(2, Utility::GetINIString(_T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 90);
-  m_list.InsertColumn(3, Utility::GetINIString(_T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
+  m_list.InsertColumn(0, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 130);
+  m_list.InsertColumn(1, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 110);
+  m_list.InsertColumn(2, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 90);
+  m_list.InsertColumn(3, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
+    _T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
 
   m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
   m_list.SetImageList(m_iconList, LVSIL_SMALL);
@@ -84,7 +93,8 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   
   std::map<CString, FileItem>::iterator p;
   unsigned i;
-  for (i = 0, p = g_CrashInfo.m_FileItems.begin(); p != g_CrashInfo.m_FileItems.end(); p++, i++)
+  for (i = 0, p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); 
+    p != g_CrashInfo.GetReport(m_nCurReport).m_FileItems.end(); p++, i++)
   {     
 	  CString sDestFile = p->first;
     CString sSrcFile = p->second.m_sSrcFile;
@@ -111,7 +121,10 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     if (INVALID_HANDLE_VALUE != hFind)
     {
       FindClose(hFind);
-      sSize.Format(TEXT("%d KB"), findFileData.nFileSizeLow/1024);
+      ULARGE_INTEGER lFileSize;
+      lFileSize.LowPart = findFileData.nFileSizeLow;
+      lFileSize.HighPart = findFileData.nFileSizeHigh;
+      sSize = Utility::FileSizeToStr(lFileSize.QuadPart);
       m_list.SetItemText(nItem, 3, sSize);
     }    
   }
@@ -119,13 +132,16 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
 
   m_statPreview = GetDlgItem(IDC_PREVIEWTEXT);
-  m_statPreview.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Preview")));  
+  m_statPreview.SetWindowText(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Preview")));  
 
   m_btnClose = GetDlgItem(IDOK);
-  m_btnClose.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Close")));  
+  m_btnClose.SetWindowText(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Close")));  
 
   m_btnExport = GetDlgItem(IDC_EXPORT);
-  m_btnExport.SetWindowText(Utility::GetINIString(_T("DetailDlg"), _T("Export")));  
+  m_btnExport.SetWindowText(Utility::GetINIString(
+    g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Export")));  
 
   
 
@@ -154,11 +170,11 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
   LPNMLISTVIEW lpItem           = (LPNMLISTVIEW)pnmh; 
   int iItem                     = lpItem->iItem;
   DWORD_PTR dwRet               = 0;
-
-  if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
+  
+  if (iItem < 0 || (int)g_CrashInfo.GetReport(m_nCurReport).m_FileItems.size() < iItem)
      return 0;
 
-  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
+  std::map<CString, FileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   CString sFileName = p->second.m_sSrcFile;
@@ -171,11 +187,11 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
 
 void CDetailDlg::SelectItem(int iItem)
 {
-  // Sanity check
-  if (iItem < 0 || (int)g_CrashInfo.m_FileItems.size() < iItem)
+  // Sanity check  
+  if (iItem < 0 || (int)g_CrashInfo.GetReport(m_nCurReport).m_FileItems.size() < iItem)
       return;
 
-  std::map<CString, FileItem>::iterator p = g_CrashInfo.m_FileItems.begin();
+  std::map<CString, FileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   m_previewMode = PREVIEW_AUTO;
@@ -190,7 +206,7 @@ LRESULT CDetailDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, B
 
 LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  CString sFileName = g_CrashInfo.m_sCrashGUID + _T(".zip");
+  CString sFileName = g_CrashInfo.GetReport(m_nCurReport).m_sCrashGUID + _T(".zip");
 
   CFileDialog dlg(FALSE, _T("*.zip"), sFileName,
       OFN_PATHMUSTEXIST|OFN_OVERWRITEPROMPT,
@@ -201,7 +217,7 @@ LRESULT CDetailDlg::OnExport(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
   {
     CString sExportFileName = dlg.m_szFileName;
     g_ErrorReportSender.SetExportFlag(TRUE, sExportFileName);
-    g_ErrorReportSender.DoWork(COMPRESS_REPORT);
+    g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
   }
 
   return 0;
@@ -222,10 +238,11 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
   mii.fMask = MIIM_STRING;
   
   strconv_t strconv;
-  CString sAuto = Utility::GetINIString(_T("DetailDlg"), _T("PreviewAuto"));
-  CString sText = Utility::GetINIString(_T("DetailDlg"), _T("PreviewText"));
-  CString sHex = Utility::GetINIString(_T("DetailDlg"), _T("PreviewHex"));
-  
+  CString sAuto = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewAuto"));
+  CString sText = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewText"));
+  CString sHex = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewHex"));
+  CString sImage = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewImage"));
+
   mii.dwTypeData = sAuto.GetBuffer(0);  
   submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);
   
@@ -235,13 +252,18 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
   mii.dwTypeData = sText.GetBuffer(0);
   submenu.SetMenuItemInfo(ID_PREVIEW_TEXT, FALSE, &mii);
 
+  mii.dwTypeData = sImage.GetBuffer(0);
+  submenu.SetMenuItemInfo(ID_PREVIEW_IMAGE, FALSE, &mii);
+
   UINT uItem = ID_PREVIEW_AUTO;
   if(m_previewMode==PREVIEW_HEX)
     uItem = ID_PREVIEW_HEX;
   else if(m_previewMode==PREVIEW_TEXT)
     uItem = ID_PREVIEW_TEXT;
+  else if(m_previewMode==PREVIEW_IMAGE)
+    uItem = ID_PREVIEW_IMAGE;
 
-  submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, uItem, MF_BYCOMMAND); 
+  submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_IMAGE, uItem, MF_BYCOMMAND); 
 
   submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);
 
@@ -255,6 +277,8 @@ LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*
     mode = PREVIEW_TEXT;
   else if(wID==ID_PREVIEW_HEX)
     mode = PREVIEW_HEX;
+  else if(wID==ID_PREVIEW_IMAGE)
+    mode = PREVIEW_IMAGE;
   m_previewMode = mode;
   m_filePreview.SetPreviewMode(mode);
   return 0;

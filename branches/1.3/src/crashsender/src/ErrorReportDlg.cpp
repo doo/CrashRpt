@@ -53,13 +53,13 @@ BOOL CErrorReportDlg::OnIdle()
 
 LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
-  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
     Utility::SetLayoutRTL(m_hWnd);
   }
 
-  SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DlgCaption")));
+  SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DlgCaption")));
 
 	// center the dialog on the screen
 	CenterWindow();
@@ -68,7 +68,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   SetIcon(::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME)), 0);
 
   // Load heading icon
-  HMODULE hExeModule = LoadLibrary(g_CrashInfo.m_sImageName);
+  HMODULE hExeModule = LoadLibrary(g_CrashInfo.GetReport(0).m_sImageName);
   if(hExeModule)
   {
     // Use IDR_MAINFRAME icon which is the default one for the crashed application.
@@ -81,31 +81,37 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
     m_HeadingIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
   }  
 
-  CStatic statSubHeader = GetDlgItem(IDC_SUBHEADER);
-  statSubHeader.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SubHeaderText")));
- 
+  m_statSubHeader = GetDlgItem(IDC_SUBHEADER);
+  
   m_link.SubclassWindow(GetDlgItem(IDC_LINK));   
   m_link.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
-  m_link.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("WhatDoesReportContain")));
-  
+  m_link.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("WhatDoesReportContain")));
+    
   m_linkMoreInfo.SubclassWindow(GetDlgItem(IDC_MOREINFO));
   m_linkMoreInfo.SetHyperLinkExtendedStyle(HLINK_COMMANDBUTTON);
-  m_linkMoreInfo.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("ProvideAdditionalInfo")));
-  
+  m_linkMoreInfo.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("ProvideAdditionalInfo")));
+    
   m_statEmail = GetDlgItem(IDC_STATMAIL);
-  m_statEmail.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("YourEmail")));
-
+  m_statEmail.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("YourEmail")));
+  
   m_editEmail = GetDlgItem(IDC_EMAIL);
   
   m_statDesc = GetDlgItem(IDC_DESCRIBE);
-  m_statDesc.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("DescribeProblem")));
+  m_statDesc.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DescribeProblem")));
 
   m_editDesc = GetDlgItem(IDC_DESCRIPTION);
 
   m_statIndent =  GetDlgItem(IDC_INDENT);
   
-  m_statConsent = GetDlgItem(IDC_CONSENT);
+  m_chkRestart = GetDlgItem(IDC_RESTART);
+  CString sCaption;
+  sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("RestartApp")), g_CrashInfo.m_sAppName);
+  m_chkRestart.SetWindowText(sCaption);
+  m_chkRestart.SetCheck(BST_CHECKED);
+  m_chkRestart.ShowWindow(g_CrashInfo.m_bAppRestart?SW_SHOW:SW_HIDE);
 
+  m_statConsent = GetDlgItem(IDC_CONSENT);
+  
   LOGFONT lf;
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 11;
@@ -117,13 +123,13 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_statConsent.SetFont(hConsentFont);
 
   if(g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty())
-    m_statConsent.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("MyConsent2")));
+    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("MyConsent2")));
   else
-    m_statConsent.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("MyConsent")));
+    m_statConsent.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("MyConsent")));
 
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
-  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(_T("MainDlg"), _T("PrivacyPolicy")));
+  m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("PrivacyPolicy")));
   
   BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty();  
   m_linkPrivacyPolicy.ShowWindow(bShowPrivacyPolicy?SW_SHOW:SW_HIDE);
@@ -132,25 +138,35 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_statHorzLine = GetDlgItem(IDC_HORZLINE);  
 
   m_btnOk = GetDlgItem(IDOK);
-  m_btnOk.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("SendReport")));
+  m_btnOk.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReport")));
 
-  m_btnCancel = GetDlgItem(IDCANCEL);
-  m_btnCancel.SetWindowText(Utility::GetINIString(_T("MainDlg"), _T("CloseTheProgram")));
+  m_btnCancel = GetDlgItem(IDCANCEL);  
+  if(g_CrashInfo.m_bQueueEnabled)
+    m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));
+  else
+    m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram")));
 
-  CRect rc1, rc2, rc3, rc4;
-  m_editEmail.GetWindowRect(&rc1);
-  m_statConsent.GetWindowRect(&rc2);
-  m_nDeltaY = rc2.top-rc1.top;
-  m_linkPrivacyPolicy.GetWindowRect(&rc3);
-  m_statCrashRpt.GetWindowRect(&rc4);
-  m_nDeltaY2 = rc4.top-rc3.top;
-  
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
   lf.lfWeight = FW_NORMAL;
   lf.lfQuality = ANTIALIASED_QUALITY;
   _TCSCPY_S(lf.lfFaceName, 32, _T("Tahoma"));
   m_HeadingFont.CreateFontIndirect(&lf);
+
+  m_Layout.SetContainerWnd(m_hWnd);
+  m_Layout.Insert(m_linkMoreInfo);
+  m_Layout.Insert(m_statIndent);
+  m_Layout.Insert(m_statEmail, TRUE);
+  m_Layout.Insert(m_editEmail, TRUE);
+  m_Layout.Insert(m_statDesc, TRUE);
+  m_Layout.Insert(m_editDesc, TRUE);
+  m_Layout.Insert(m_chkRestart);
+  m_Layout.Insert(m_statConsent);
+  m_Layout.Insert(m_linkPrivacyPolicy);  
+  m_Layout.Insert(m_statCrashRpt);
+  m_Layout.Insert(m_statHorzLine, TRUE);
+  m_Layout.Insert(m_btnOk);
+  m_Layout.Insert(m_btnCancel, TRUE);
 
   ShowMoreInfo(FALSE);
 
@@ -177,48 +193,12 @@ void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
   m_statDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_editDesc.ShowWindow(bShow?SW_SHOW:SW_HIDE);
   m_statIndent.ShowWindow(bShow?SW_SHOW:SW_HIDE);
-  
-  int k = bShow?1:-1;
 
-  m_statConsent.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_statConsent.MoveWindow(&rc1);
+  m_Layout.Update();
 
-  m_linkPrivacyPolicy.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*m_nDeltaY);
-  m_linkPrivacyPolicy.MoveWindow(&rc1);
-
-  int nDeltaY = m_nDeltaY;
-  
-  BOOL bShowPrivacyPolicy = !g_CrashInfo.m_sPrivacyPolicyURL.IsEmpty(); 
-  if(!bShow && !bShowPrivacyPolicy)
-    nDeltaY += m_nDeltaY2;
-
-  m_statHorzLine.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_statHorzLine.MoveWindow(&rc1);
-
-  m_statCrashRpt.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_statCrashRpt.MoveWindow(&rc1);
-
-  m_btnOk.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_btnOk.MoveWindow(&rc1);
-
-  m_btnCancel.GetWindowRect(&rc1);
-  ::MapWindowPoints(0, m_hWnd, (LPPOINT)&rc1, 2);
-  rc1.OffsetRect(0, k*nDeltaY);
-  m_btnCancel.MoveWindow(&rc1);
-
-  GetClientRect(&rc1);
-  rc1.bottom += k*nDeltaY;
-  ResizeClient(rc1.Width(), rc1.Height());
+  //GetClientRect(&rc1);
+  //rc1.bottom += k*nDeltaY;
+  // ResizeClient(rc1.Width(), rc1.Height());
 
   if(bShow)
     m_editEmail.SetFocus();
@@ -252,7 +232,7 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
   rcHeading.right -= 10;
 
   CString sHeading;
-  sHeading.Format(Utility::GetINIString(_T("MainDlg"), _T("HeaderText")), g_CrashInfo.m_sAppName);
+  sHeading.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("HeaderText")), g_CrashInfo.m_sAppName);
   dc.SelectFont(m_HeadingFont);
   dc.DrawTextEx(sHeading.GetBuffer(0), sHeading.GetLength(), &rcHeading, 
     DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);  
@@ -269,24 +249,103 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  // Notify the sender thread that user has declined to send report
-  g_ErrorReportSender.FeedbackReady(1);
-	CloseDialog(wID);  
+  if(g_CrashInfo.m_bQueueEnabled)
+  {
+    CPoint pt;
+    GetCursorPos(&pt);
+    CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
+    CMenu submenu = menu.GetSubMenu(4);
+
+    strconv_t strconv;
+    CString sSendLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReportLater"));
+    CString sCloseTheProgram = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram"));
+    
+    MENUITEMINFO mii;
+    memset(&mii, 0, sizeof(MENUITEMINFO));
+    mii.cbSize = sizeof(MENUITEMINFO);
+    mii.fMask = MIIM_STRING;
+
+    mii.dwTypeData = sSendLater.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU5_SENDREPORTLATER, FALSE, &mii);
+
+    mii.dwTypeData = sCloseTheProgram.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU5_CLOSETHEPROGRAM, FALSE, &mii);
+  
+    submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
+  }
+  else
+  {
+    // If needed, restart the application
+    g_ErrorReportSender.DoWork(RESTART_APP);
+
+    // Remove report files
+    Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);
+
+    // Close dialog
+    CloseDialog(wID);  
+  }
+
 	return 0;
 }
 
-LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  if(!g_CrashInfo.m_bSilentMode)
-    ShowWindow(SW_SHOW);
-  else
-    g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
+  g_CrashInfo.SetRemindPolicy(REMIND_LATER);
+  
+  // If needed, restart the application
+  g_ErrorReportSender.DoWork(RESTART_APP);
+
+  CloseDialog(wID);  
+  return 0;
+}
+
+LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  // If needed, restart the application
+  g_ErrorReportSender.DoWork(RESTART_APP);
+
+  // Remove the error report files
+  Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);
+
+  CloseDialog(wID);  
+  return 0;
+}
+
+LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{  
+  if(!g_CrashInfo.m_bSilentMode) // If in GUI mode
+  {
+    if(g_CrashInfo.m_bSendErrorReport)
+    {
+      LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize();  
+      CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
+      CString sSubHeader;
+      sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
+      m_statSubHeader.SetWindowText(sSubHeader);
+      ShowWindow(SW_SHOW);
+    }
+    else
+    {
+      SendMessage(WM_CLOSE);
+    }
+  }
+  else // If in silent mode
+  {
+    if(g_CrashInfo.m_bSendErrorReport)
+    {
+      g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);    
+    }
+    else
+    {
+      SendMessage(WM_CLOSE);
+    }
+  }
   
   return 0;
 }
 
 LRESULT CErrorReportDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
+{  
   CreateTrayIcon(FALSE, m_hWnd);
   CloseDialog(0);  
   return 0;
@@ -301,6 +360,7 @@ void CErrorReportDlg::CloseDialog(int nVal)
 LRESULT CErrorReportDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   CDetailDlg dlg;
+  dlg.m_nCurReport = 0;
   dlg.DoModal();
   return 0;
 }
@@ -312,39 +372,49 @@ LRESULT CErrorReportDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWN
  return 0;
 }
 
+LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  BOOL bRestart = m_chkRestart.GetCheck()==BST_CHECKED?TRUE:FALSE;
+  g_CrashInfo.m_bAppRestart = bRestart;
+
+  return 0;
+}
+
 LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
   HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
   HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
   int      nEmailLen = ::GetWindowTextLength(hWndEmail);
   int      nDescLen = ::GetWindowTextLength(hWndDesc);
-
-  LPTSTR lpStr = g_CrashInfo.m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
+  
+  LPTSTR lpStr = g_CrashInfo.GetReport(0).m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
   ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
-  g_CrashInfo.m_sEmailFrom.ReleaseBuffer();
+  g_CrashInfo.GetReport(0).m_sEmailFrom.ReleaseBuffer();
 
-  lpStr = g_CrashInfo.m_sDescription.GetBufferSetLength(nDescLen+1);
+  lpStr = g_CrashInfo.GetReport(0).m_sDescription.GetBufferSetLength(nDescLen+1);
   ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
-  g_CrashInfo.m_sDescription.ReleaseBuffer();
+  g_CrashInfo.GetReport(0).m_sDescription.ReleaseBuffer();
 
   //
   // If an email address was entered, verify that
   // it [1] contains a @ and [2] the last . comes
   // after the @.
   //
-  if (g_CrashInfo.m_sEmailFrom.GetLength() &&
-      (g_CrashInfo.m_sEmailFrom.Find(_T('@')) < 0 ||
-       g_CrashInfo.m_sEmailFrom.ReverseFind(_T('.')) < g_CrashInfo.m_sEmailFrom.Find(_T('@'))))
+  
+  if (g_CrashInfo.GetReport(0).m_sEmailFrom.GetLength() &&
+      (g_CrashInfo.GetReport(0).m_sEmailFrom.Find(_T('@')) < 0 ||
+       g_CrashInfo.GetReport(0).m_sEmailFrom.ReverseFind(_T('.')) < 
+       g_CrashInfo.GetReport(0).m_sEmailFrom.Find(_T('@'))))
   {
     DWORD dwFlags = 0;
-    CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+    CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
     if(sRTL.CompareNoCase(_T("1"))==0)
       dwFlags = MB_RTLREADING;
   
      // alert user     
      MessageBox(
-       Utility::GetINIString(_T("MainDlg"), _T("InvalidEmailText")), 
-       Utility::GetINIString(_T("MainDlg"), _T("InvalidEmailCaption")), 
+       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("InvalidEmailText")), 
+       Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("InvalidEmailCaption")), 
        MB_OK|dwFlags);
      
      // select email
@@ -354,12 +424,13 @@ LRESULT CErrorReportDlg::OnSend(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
   }
 
   // Write user email and problem description to XML
-  g_CrashInfo.AddUserInfoToCrashDescriptionXML(g_CrashInfo.m_sEmailFrom, g_CrashInfo.m_sDescription);
+  g_CrashInfo.AddUserInfoToCrashDescriptionXML(
+    g_CrashInfo.GetReport(0).m_sEmailFrom, g_CrashInfo.GetReport(0).m_sDescription);
     
   ShowWindow(SW_HIDE);
   CreateTrayIcon(true, m_hWnd);
   g_ErrorReportSender.SetExportFlag(FALSE, _T(""));
-  g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);
+  g_ErrorReportSender.DoWork(COMPRESS_REPORT|RESTART_APP|SEND_REPORT);
   m_dlgProgress.Start(FALSE);    
   SetTimer(0, 500);
   

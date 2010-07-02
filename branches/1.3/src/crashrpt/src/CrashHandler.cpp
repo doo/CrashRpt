@@ -43,6 +43,7 @@
 #include <psapi.h>
 #include "strconv.h"
 #include <rtcapi.h>
+#include <Shellapi.h>
 
 #ifndef _AddressOfReturnAddress
 
@@ -63,8 +64,7 @@ CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
 CCrashHandler::CCrashHandler()
 {
-  m_bInitialized = FALSE;
-  
+  m_bInitialized = FALSE;  
   InitPrevExceptionHandlerPointers();
   m_lpfnCallback = NULL;
   memset(&m_uPriorities, 0, 3*sizeof(UINT));
@@ -75,6 +75,8 @@ CCrashHandler::CCrashHandler()
   m_dwScreenshotFlags = 0;
   m_bHttpBinaryEncoding = FALSE;
   m_bSilentMode = FALSE;
+  m_bAppRestart = FALSE;
+  m_bGenerateMinidump = TRUE;
 }
 
 CCrashHandler::~CCrashHandler()
@@ -95,15 +97,26 @@ int CCrashHandler::Init(
   LPCTSTR lpcszPrivacyPolicyURL,
   LPCTSTR lpcszDebugHelpDLLPath,
   MINIDUMP_TYPE MiniDumpType,
-  LPCTSTR lpcszErrorReportSaveDir)
+  LPCTSTR lpcszErrorReportSaveDir,
+  LPCTSTR lpcszRestartCmdLine,
+  LPCTSTR lpcszLangFilePath,
+  LPCTSTR lpcszEmailText,
+  LPCTSTR lpcszSmtpProxy)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
+  // Save application start time
+  GetSystemTime(&m_AppStartTime);
+
   // Save minidump type
+  m_bGenerateMinidump = (dwFlags&CR_INST_NO_MINIDUMP)?FALSE:TRUE;
   m_MiniDumpType = MiniDumpType;
 
   // Determine if should work in silent mode. FALSE is the default.
   m_bSilentMode = (dwFlags&CR_INST_NO_GUI)?TRUE:FALSE;
+
+  // Set queue mode
+  m_bQueueEnabled = (dwFlags&CR_INST_SEND_QUEUED_REPORTS)?TRUE:FALSE;
 
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
@@ -150,36 +163,56 @@ int CCrashHandler::Init(
 
   m_bSendErrorReport = (dwFlags&CR_INST_DONT_SEND_REPORT)?FALSE:TRUE;
 
-  if(!m_bSilentMode && !m_bSendErrorReport)
+  /*if(!m_bSilentMode && !m_bSendErrorReport)
   {    
     crSetErrorMsg(_T("Can't disable error sending when in GUI mode (incompatible flags specified)."));
     return 1;
-  }
+  }*/
+
+  m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
+  m_sRestartCmdLine = lpcszRestartCmdLine;
 
   // Save Email recipient address
-  m_sTo = lpcszTo;
+  m_sEmailTo = lpcszTo;
   m_nSmtpPort = 25;
   
   // Check for custom SMTP port
-  int pos = m_sTo.ReverseFind(':');
+  int pos = m_sEmailTo.ReverseFind(':');
   if(pos>=0)
   {
-    CString sServer = m_sTo.Mid(0, pos);
-    CString sPort = m_sTo.Mid(pos+1);
-    m_sTo = sServer;
+    CString sServer = m_sEmailTo.Mid(0, pos);
+    CString sPort = m_sEmailTo.Mid(pos+1);
+    m_sEmailTo = sServer;
     m_nSmtpPort = _ttoi(sPort);
   }
 
+  m_nSmtpProxyPort = 25;
+  if(lpcszSmtpProxy!=NULL)
+  {
+    m_sSmtpProxyServer = lpcszSmtpProxy;      
+    int pos = m_sSmtpProxyServer.ReverseFind(':');
+    if(pos>=0)
+    {
+      CString sServer = m_sSmtpProxyServer.Mid(0, pos);
+      CString sPort = m_sSmtpProxyServer.Mid(pos+1);
+      m_sSmtpProxyServer = sServer;
+      m_nSmtpProxyPort = _ttoi(sPort);
+    }
+  }
+
   // Save E-mail subject
-  m_sSubject = lpcszSubject;
+  m_sEmailSubject = lpcszSubject;
 
   // If the subject is empty...
-  if(m_sSubject.IsEmpty())
+  if(m_sEmailSubject.IsEmpty())
   {
     // Generate the default subject
-    m_sSubject.Format(_T("%s %s Error Report"), m_sAppName, 
+    m_sEmailSubject.Format(_T("%s %s Error Report"), m_sAppName, 
       m_sAppVersion.IsEmpty()?_T("[unknown_ver]"):m_sAppVersion);
   }
+
+  // Save Email text.
+  m_sEmailText = lpcszEmailText;
 
   // Save report sending priorities
   if(puPriorities!=NULL)
@@ -228,10 +261,20 @@ int CCrashHandler::Init(
   // Remove ending backslash if any
   if(m_sPathToCrashSender.Right(1)!='\\')
       m_sPathToCrashSender+="\\";
-
-  // Look for crashrpt_lang.ini in the same folder as CrashSender.exe
-  CString sININame = m_sPathToCrashSender + _T("crashrpt_lang.ini");
-  CString sLangFileVer = Utility::GetINIString(sININame, _T("Settings"), _T("CrashRptVersion"));
+    
+  // Determine where to look for language file.
+  if(lpcszLangFilePath!=NULL)
+  {
+    // User has provided the custom lang file path.
+    m_sLangFileName = lpcszLangFilePath;
+  }
+  else
+  {
+    // Look for crashrpt_lang.ini in the same folder as CrashSender.exe.
+    m_sLangFileName = m_sPathToCrashSender + _T("crashrpt_lang.ini");
+  }
+  
+  CString sLangFileVer = Utility::GetINIString(m_sLangFileName, _T("Settings"), _T("CrashRptVersion"));
   int lang_file_ver = _ttoi(sLangFileVer);
   if(lang_file_ver!=CRASHRPT_VER)
   {
@@ -366,7 +409,17 @@ int CCrashHandler::Init(
   
   // Associate this handler with the caller process
   m_pProcessCrashHandler =  this;
-    
+  
+
+  // If client wants us to send error reports that were failed to send recently,
+  // launch the CrashSender.exe and make it to send the reports again.
+  if(m_bQueueEnabled)
+  {
+    CString sFileName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID + _T(".xml");
+    CreateInternalCrashInfoFile(sFileName, NULL, TRUE);
+    LaunchCrashSender(sFileName, FALSE);
+  }
+
   // OK.
   m_bInitialized = TRUE;
   crSetErrorMsg(_T("Success."));
@@ -404,7 +457,6 @@ int CCrashHandler::Destroy()
   crSetErrorMsg(_T("Success."));
   return 0;
 }
-
 
 // Sets internal pointers to previously used exception handlers to NULL
 void CCrashHandler::InitPrevExceptionHandlerPointers()
@@ -758,6 +810,10 @@ int CCrashHandler::GenerateErrorReport(
   // Collect miscellaneous crash info (current time etc.) 
   CollectMiscCrashInfo();
 
+  // If error report is being generated manually, disable app restart.
+  if(pExceptionInfo->bManual)
+    m_bAppRestart = FALSE;
+
   // Let client add application-specific files / desktop screenshot 
   // to the report via the crash callback function. 
 
@@ -802,9 +858,8 @@ int CCrashHandler::GenerateErrorReport(
   
   // Write internal crash info to file. This info is required by 
   // CrashSender.exe only and will not be sent anywhere. 
-  
   sFileName = m_sReportFolderName + _T("\\~CrashRptInternal.xml");
-  result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs);
+  result = CreateInternalCrashInfoFile(sFileName, pExceptionInfo->pexcptrs, FALSE);
   ATLASSERT(result==0);
   SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
 
@@ -813,7 +868,7 @@ int CCrashHandler::GenerateErrorReport(
   // notify user about crash, compress the report into ZIP archive and send 
   // the error report. 
     
-  result = LaunchCrashSender(sFileName);
+  result = LaunchCrashSender(sFileName, TRUE);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -904,8 +959,24 @@ void CCrashHandler::CollectMiscCrashInfo()
   // Get crash time
   Utility::GetSystemTimeUTC(m_sCrashTime);
 
-  // Get number of GUI resources in use
   HANDLE hCurProcess = GetCurrentProcess();
+
+  // Determine the period of time the process is working.
+  SYSTEMTIME CurTime;
+  GetSystemTime(&CurTime);
+  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
+  ULONG64 uStartTime = Utility::SystemTimeToULONG64(m_AppStartTime);
+  
+  // Check that the application works for at least one minute before crash.
+  // This might help to avoid cyclic error report generation when the applciation
+  // crashes on startup.
+  double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
+  if(dDiffTime<60)
+  {
+    m_bAppRestart = FALSE; // Disable restart.
+  }
+
+  // Get number of GUI resources in use  
   m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
   
   // Determine if GetProcessHandleCount function available
@@ -1098,7 +1169,8 @@ int CCrashHandler::CreateCrashDescriptionXML(
   return 0;
 }
 
-int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POINTERS* pExInfo)
+int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, 
+    EXCEPTION_POINTERS* pExInfo, BOOL bSendRecentReports)
 {
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -1127,13 +1199,33 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add root element
   fprintf(f, "<CrashRptInternal version=\"%d\">\n", CRASHRPT_VER);
 
+  // Add AppName tag
+  fprintf(f, "  <AppName>%s</AppName>\n", 
+    XmlEncodeStr(m_sAppName).c_str());
+
+  // Add AppVersion tag
+  fprintf(f, "  <AppVersion>%s</AppVersion>\n", 
+    XmlEncodeStr(m_sAppVersion).c_str());
+
   // Add CrashGUID tag
   fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
     XmlEncodeStr(m_sCrashGUID).c_str());
 
+  // Add UnsentCrashReportsFolder tag
+  fprintf(f, "  <UnsentCrashReportsFolder>%s</UnsentCrashReportsFolder>\n", 
+    XmlEncodeStr(m_sUnsentCrashReportsFolder).c_str());
+  
   // Add ReportFolder tag
   fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
     XmlEncodeStr(m_sReportFolderName).c_str());
+  
+  // Add SendRecentReports tag
+  fprintf(f, "  <SendRecentReports>%d</SendRecentReports>\n", 
+    bSendRecentReports);
+
+  // Add QueueEnabled tag
+  fprintf(f, "  <QueueEnabled>%d</QueueEnabled>\n", 
+    m_bQueueEnabled);
 
   // Add DbgHelpPath tag
   fprintf(f, "  <DbgHelpPath>%s</DbgHelpPath>\n", 
@@ -1153,14 +1245,25 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   // Add EmailSubject tag
   fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
-    XmlEncodeStr(m_sSubject).c_str());
+    XmlEncodeStr(m_sEmailSubject).c_str());
 
   // Add EmailTo tag
   fprintf(f, "  <EmailTo>%s</EmailTo>\n", 
-    XmlEncodeStr(m_sTo).c_str());
+    XmlEncodeStr(m_sEmailTo).c_str());
+
+  // Add EmailText tag
+  fprintf(f, "  <EmailText>%s</EmailText>\n", 
+    XmlEncodeStr(m_sEmailText).c_str());
 
   // Add SmtpPort tag
   fprintf(f, "  <SmtpPort>%d</SmtpPort>\n", m_nSmtpPort);
+
+  // Add SmtpProxyServer tag
+  fprintf(f, "  <SmtpProxyServer>%s</SmtpProxyServer>\n", 
+    XmlEncodeStr(m_sSmtpProxyServer).c_str());
+
+  // Add SmtpProxyPort tag
+  fprintf(f, "  <SmtpProxyPort>%d</SmtpProxyPort>\n", m_nSmtpProxyPort);
 
   // Add Url tag
   fprintf(f, "  <Url>%s</Url>\n", 
@@ -1202,6 +1305,20 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
   // Add SendErrorReport tag
   fprintf(f, "  <SendErrorReport>%d</SendErrorReport>\n", m_bSendErrorReport);
 
+  // Add AppRestart tag
+  fprintf(f, "  <AppRestart>%d</AppRestart>\n", m_bAppRestart);
+
+  // Add RestartCmdLine tag
+  fprintf(f, "  <RestartCmdLine>%s</RestartCmdLine>\n", 
+    XmlEncodeStr(m_sRestartCmdLine).c_str());
+
+  // Add GenerateMinidump tag
+  fprintf(f, "  <GenerateMinidump>%d</GenerateMinidump>\n", m_bGenerateMinidump);
+
+  // Add LangFileName tag
+  fprintf(f, "  <LangFileName>%s</LangFileName>\n", 
+    XmlEncodeStr(m_sLangFileName).c_str());
+
   // Write file list
   fprintf(f, "  <FileList>\n");
    
@@ -1221,12 +1338,15 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName, EXCEPTION_POIN
 
   fclose(f);
 
+  // Make the file hidden.
+  SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
+
   crSetErrorMsg(_T("Success."));
   return 0;
 }
 
 // Launches CrashSender.exe process
-int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
+int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait)
 {
   crSetErrorMsg(_T("Success."));
   
@@ -1240,7 +1360,7 @@ int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
   memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
 
   CString sCmdLine;
-  sCmdLine.Format(_T("\"%s\" \"%s\""), m_sPathToCrashSender, sCrashInfoFileName.GetBuffer(0));
+  sCmdLine.Format(_T("\"%s\" \"%s\""), sCmdLineParams, sCmdLineParams.GetBuffer(0));
   BOOL bCreateProcess = CreateProcess(
     m_sPathToCrashSender, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
   if(!bCreateProcess)
@@ -1249,11 +1369,15 @@ int CCrashHandler::LaunchCrashSender(CString sCrashInfoFileName)
     crSetErrorMsg(_T("Error creating CrashSender process."));
     return 1;
   }
+  
 
-  /* Wait until CrashSender finishes with making screenshot, 
-     copying files, creating minidump. */  
+  if(bWait)
+  {
+    /* Wait until CrashSender finishes with making screenshot, 
+      copying files, creating minidump. */  
 
-  WaitForSingleObject(m_hEvent, INFINITE);  
+    WaitForSingleObject(m_hEvent, INFINITE);  
+  }
 
   return 0;
 }
@@ -1296,7 +1420,7 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT terminate() call handler
@@ -1319,7 +1443,7 @@ void __cdecl CCrashHandler::TerminateHandler()
   }
 
   // Terminate program
-  exit(1); 
+  ExitProcess(1); 
 }
 
 // CRT unexpected() call handler
@@ -1342,7 +1466,7 @@ void __cdecl CCrashHandler::UnexpectedHandler()
   }
 
   // Terminate program
-  exit(1); 
+  ExitProcess(1); 
 }
 
 // CRT Pure virtual method call handler
@@ -1366,7 +1490,7 @@ void __cdecl CCrashHandler::PureCallHandler()
   }
 
   // Terminate program
-  exit(1); 
+  ExitProcess(1); 
 }
 #endif
 
@@ -1393,7 +1517,8 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  exit(1); // Terminate program 
+  // Terminate program
+  ExitProcess(1); 
 }
 #endif 
 
@@ -1428,7 +1553,8 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-   exit(1); // Terminate program
+   // Terminate program
+   ExitProcess(1); 
  }
 #endif
 
@@ -1453,7 +1579,8 @@ int __cdecl CCrashHandler::NewHandler(size_t)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-   exit(1); // Terminate program
+  // Terminate program
+  ExitProcess(1); 
 }
 #endif //_MSC_VER>=1300
 
@@ -1477,7 +1604,7 @@ void CCrashHandler::SigabrtHandler(int)
   }
  
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT SIGFPE signal handler
@@ -1502,7 +1629,7 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT sigill signal handler
@@ -1525,7 +1652,7 @@ void CCrashHandler::SigillHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT sigint signal handler
@@ -1548,7 +1675,7 @@ void CCrashHandler::SigintHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT SIGSEGV signal handler
@@ -1572,7 +1699,7 @@ void CCrashHandler::SigsegvHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 // CRT SIGTERM signal handler
@@ -1595,7 +1722,7 @@ void CCrashHandler::SigtermHandler(int)
   }
 
   // Terminate program
-  exit(1);
+  ExitProcess(1); 
 }
 
 

@@ -78,7 +78,7 @@ extern "C" {
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1203
+#define CRASHRPT_VER 1205
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -92,7 +92,9 @@ extern "C" {
  *  \remarks
  *  The crash callback function is called when crash occurs. This way client application is
  *  notified about the crash.
- *  In crash callback, you can use crAddFile2() to add a custom file to the error report.
+ *
+ *  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
+ *  The application state may be unstable.
  *  
  *  The crash callback function should return \c TRUE to allow generate error report. It should 
  *  return \c FALSE to prevent crash report generation.
@@ -106,6 +108,7 @@ extern "C" {
  *    // add custom log file to crash report
  *    crAddFile2(
  *       _T("C:\\Documents and Settings\\Application Data\\UserName\\MyApp\\Logs\\MyLog.txt"), 
+ *       NULL,
  *       _T("My custom log file"),
  *       0);
  *
@@ -314,6 +317,9 @@ GenerateErrorReport(
 #define CR_SMTP 1 //!< Send error report via SMTP connection.
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client).
 
+//! Special priority constant that allows to skip certain delivery method.
+#define CR_NEGATIVE_PRIORITY ((UINT)-1)
+
 // Flags for CR_INSTALL_INFO::dwFlags
 #define CR_INST_STRUCTURED_EXCEPTION_HANDLER   0x1    //!< Install SEH handler (deprecated name, use \ref CR_INST_SEH_EXCEPTION_HANDLER instead.
 #define CR_INST_SEH_EXCEPTION_HANDLER   0x1           //!< Install SEH handler.
@@ -335,7 +341,10 @@ GenerateErrorReport(
 
 #define CR_INST_NO_GUI                         0x2000 //!< Do not show GUI, send report silently (use for non-GUI apps only).
 #define CR_INST_HTTP_BINARY_ENCODING           0x4000 //!< Use multi-part HTTP uploads with binary attachment encoding.
-#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Save error reports locally, do not send them.
+#define CR_INST_DONT_SEND_REPORT               0x8000 //!< Don't send error report immediately, just save it locally.
+#define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
+#define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
+#define CR_INST_SEND_QUEUED_REPORTS            0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -383,7 +392,8 @@ GenerateErrorReport(
  *
  *    \a uPriorities is an array that defines the preferred ways of sending error reports. 
  *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
- *         A priority may be an integer number greater or equal to zero.
+ *         A priority is a non-negative integer number or special constant \ref CR_NEGATIVE_PRIORITY. The greater positive number defines the greater priority. 
+ *         Specify the \ref CR_NEGATIVE_PRIORITY to skip the given way.
  *         The element having index \ref CR_HTTP defines priority for using HTML connection.
  *         The element having index \ref CR_SMTP defines priority for using SMTP connection.
  *         The element having index \ref CR_SMAPI defines priority for using the default mail client.
@@ -418,8 +428,22 @@ GenerateErrorReport(
  *             is supported for backwards compatibility and not recommended to use.
  *             For additional information, see \ref sending_error_reports.
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
- *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report, just save it locally'. 
- *             Use this if you have direct access to the machine where crash happens and do not need to send report over the Internet.  
+ *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report immediately on crash, just save it locally'. 
+ *             Use this if you have direct access to the machine where crash happens and do not need 
+ *             to send report over the Internet.
+ *    <tr><td> \ref CR_INST_APP_RESTART     
+ *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
+ *             for the application is taken from \a pszRestartCmdLine parameter. To avoid cyclic restarts of an application which crashes on startup, 
+ *             the application is restarted only if at least 60 seconds elapsed since its start.
+ *    <tr><td> \ref CR_INST_NO_MINIDUMP     
+ *        <td> <b>Available since v.1.2.4</b> Specify this parameter if you want minidump file not to be included into crash report. The default
+ *             behavior is to include the minidump file.
+ *
+ *    <tr><td> \ref CR_INST_SEND_QUEUED_REPORTS     
+ *        <td> <b>Available since v.1.2.5</b> Specify this parameter to send all queued reports. Those
+ *             report files are by default stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
+ *             If this is specified, CrashRpt checks if it's time to remind user about recent errors in the application and offers to send
+ *             all queued error reports.
  *
  *   </table>
  *
@@ -437,6 +461,20 @@ GenerateErrorReport(
  *   <b>Since v.1.2.2</b>, \a pszErrorReportSaveDir parameter defines the directory where to save the error reports. 
  *   If this is NULL, the default directory is used (%%LOCAL_APP_DATA%\\CrashRpt\\UnsentCrashReports\\%%AppName%%_%%AppVersion%).
  *
+ *   <b> Since v.1.2.4</b>, \a pszRestartCmdLine parameter defines the string that specifies the 
+ *   command-line arguments for the application when it is restarted (when using \ref CR_INST_APP_RESTART flag). Do not include the name of 
+ *   the executable in the command line; it is added automatically. This parameter can be NULL.
+ *
+ *   <b> Since v.1.2.4</b>, \a pszLangFilePath parameter defines the absolute path (including file name) for language file.
+ *   If this is NULL, the lang file is assumed to be located in the same dir as \b CrashSender.exe file and have the name \b crashrpt_lang.ini.
+ * 
+ *   <b> Since v.1.2.4</b>, \a pszEmailText parameter defines the custom E-mail text that is used when deliverying error report
+ *   as E-mail. If this is NULL, the default E-mail text is used. It is recommended to set this parameter with NULL.
+ *  
+ *   <b> Since v.1.2.4</b>, \a pszSmtpProxy parameter defines the network address and port formatted as "IP:port" to use as SMTP proxy. Example: "192.168.1.1:2525".
+ *   If this is NULL, the SMTP server address is resolved using the MX record of sender's or recipient's mailbox. You should typically set this parameter with NULL, except in the
+ *   case when your software is a server and custom SMTP configuration is required.
+ *  
  *  \note
  *
  *    \ref CR_INSTALL_INFOW and \ref CR_INSTALL_INFOA structures are wide-character and multi-byte character 
@@ -460,6 +498,10 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
   MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
   LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
+  LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
+  LPCWSTR pszLangFilePath;        //!< Path to the language file (including file name).
+  LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
+  LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
 }
 CR_INSTALL_INFOW;
 
@@ -486,6 +528,10 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
   MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
   LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
+  LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
+  LPCSTR pszLangFilePath;        //!< Path to the language file (including file name).
+  LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
+  LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
 }
 CR_INSTALL_INFOA;
 
@@ -763,12 +809,15 @@ crUninstallFromCurrentThread();
  *    This function is deprecated. It is recommended to use crAddFile2() function instead.
  *
  *    This function can be called anytime after crInstall() to add one or more
- *    files to the generated crash report. However, the recommended way is to 
- *    call this function in crash callback.
+ *    files to the generated crash report. 
+ * 
+ *    When this function is called, the file is marked to be added to the error report, 
+ *    then the function returns control to the caller.
+ *    When crash occurs, all marked files are added to the report. If a file is locked by someone 
+ *    for exclusive access, the file won't be included. In \ref LPGETLOGFILE crash callback, 
+ *    ensure files to be included are not locked.
  *  
- *    \a pszFile should be a valid absolute path of a file to add to crash report. It
- *    is recommended to add small files (several KB in size). If a large file is added,
- *    the crash report sending procedure may fail.
+ *    \a pszFile should be a valid absolute path of a file to add to crash report. 
  *
  *    \a pszDesc is a description of a file. It can be NULL.
  *
@@ -828,9 +877,12 @@ crAddFileA(
  *  \param[in] dwFlags Flags.
  *
  *    This function can be called anytime after crInstall() to add one or more
- *    files to the generated crash report. However, the recommended way is to 
- *    call this function inside of \ref LPGETLOGFILE crash callback.
+ *    files to the generated crash report. 
  *  
+ *    When this function is called, the file is marked to be added to the error report, 
+ *    then the function returns control to the caller.
+ *    When crash occurs, all marked files are added to the report. 
+ *
  *    \a pszFile should be a valid absolute path of a file to add to crash report. It
  *    is recommended to add small files (several KB in size). If a large file is added,
  *    the crash report sending procedure may fail.
@@ -943,7 +995,7 @@ crAddScreenshot(
  *  \remarks 
  *
  *  Use this function to add a string property to the crash description XML file.
- *  User-added properties are listed under \<CustomProperties\> tag of the XML file.
+ *  User-added properties are listed under \<CustomProps\> tag of the XML file.
  *
  *  The following example shows how to add information about the amount of free disk space to the crash
  *  description XML file:
@@ -989,7 +1041,7 @@ crAddPropertyA(
 
 
 // Exception types
-#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< WIN32 structured exception (deprecated name, use SEH exception instead).
+#define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< SEH exception (deprecated name, use \ref CR_SEH_EXCEPTION instead).
 #define CR_SEH_EXCEPTION                0    //!< SEH exception.
 #define CR_CPP_TERMINATE_CALL           1    //!< C++ terminate() call.
 #define CR_CPP_UNEXPECTED_CALL          2    //!< C++ unexpected() call.
@@ -1043,6 +1095,11 @@ crAddPropertyA(
  * 
  *   \a expression, \a function, \a file and \a line are used when \a exctype is \ref CR_CPP_INVALID_PARAMETER.
  *   These members are typically non-zero when using debug version of CRT.
+ *
+ *   <b>Since v.1.2.4</b>, \a bManual parameter should be equal to TRUE if the report is generated manually. 
+ *   The value of \a bManual parameter affects the automatic application restart behavior. If the application
+ *   restart is requested by the \ref CR_INST_APP_RESTART flag of CR_INSTALL_INFO::dwFlags structure member, and if \a bManual is FALSE, the application will be
+ *   restarted after error report generation. If \a bManual is TRUE, the application won't be restarted.
  */
 
 typedef struct tagCR_EXCEPTION_INFO
@@ -1050,12 +1107,13 @@ typedef struct tagCR_EXCEPTION_INFO
   WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
   PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
   int exctype;               //!< Exception type.
-  DWORD code;                //!< Code of structured exception.
+  DWORD code;                //!< Code of SEH exception.
   unsigned int fpe_subcode;  //!< Floating point exception subcode.
   const wchar_t* expression; //!< Assertion expression.
   const wchar_t* function;   //!< Function in which assertion happened.
   const wchar_t* file;       //!< File in which assertion happened.
   unsigned int line;         //!< Line number.
+  BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
 }
 CR_EXCEPTION_INFO;
 
@@ -1113,7 +1171,7 @@ crGenerateErrorReport(
 
 
 /*! \ingroup CrashRptAPI 
- *  \brief Can be used as a structured exception filter.
+ *  \brief Can be used as a SEH exception filter.
  *
  *  \return This function returns \c EXCEPTION_EXECUTE_HANDLER if succeeds, else \c EXCEPTION_CONTINUE_SEARCH.
  *
@@ -1122,7 +1180,7 @@ crGenerateErrorReport(
  *
  *  \remarks
  *     
- *     This function can be called instead of a structured exception filter
+ *     This function can be called instead of a SEH exception filter
  *     inside of __try{}__except(Expression){} statement. The function generates a error report
  *     and returns control to the exception handler block.
  *

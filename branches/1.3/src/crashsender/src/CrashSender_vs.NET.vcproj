@@ -238,6 +238,9 @@
 				RelativePath=".\ProgressDlg.cpp">
 			</File>
 			<File
+				RelativePath=".\ResendDlg.cpp">
+			</File>
+			<File
 				RelativePath=".\ScreenCap.cpp">
 			</File>
 			<File
@@ -408,6 +411,9 @@
 			</File>
 			<File
 				RelativePath=".\ProgressDlg.h">
+			</File>
+			<File
+				RelativePath=".\ResendDlg.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">

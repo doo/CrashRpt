@@ -39,7 +39,7 @@
 LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
   // Check if current UI language is an RTL language
-  CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+  CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
     // Mirror this window
@@ -51,6 +51,7 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   SetIcon(hIcon, TRUE);
 
   m_statText = GetDlgItem(IDC_TEXT);
+  m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CollectingCrashInfo")));        
 
   m_prgProgress = GetDlgItem(IDC_PROGRESS);  
   m_prgProgress.SetRange(0, 100);
@@ -61,7 +62,7 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   m_listView.InsertColumn(0, _T("Status"), LVCFMT_LEFT, 2048);
   
   m_btnCancel = GetDlgItem(IDCANCEL);
-  m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
+  m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
 
   m_ActionOnCancel = DONT_CLOSE;
   m_ActionOnClose = CLOSE_MYSELF;
@@ -116,18 +117,18 @@ LRESULT CProgressDlg::OnCancel(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
   return 0;
 }
 
-void CProgressDlg::Start(BOOL bCollectInfo)
+void CProgressDlg::Start(BOOL bCollectInfo, BOOL bMakeVisible)
 { 
   if(bCollectInfo)
   {
     CString sCaption;
-    sCaption.Format(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption2")), g_CrashInfo.m_sAppName);
+    sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("DlgCaption2")), g_CrashInfo.m_sAppName);
     SetWindowText(sCaption);    
   }
   else
   {
     CString sCaption;
-    sCaption.Format(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption")), g_CrashInfo.m_sAppName);
+    sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("DlgCaption")), g_CrashInfo.m_sAppName);
     SetWindowText(sCaption);    
   }
 
@@ -136,7 +137,7 @@ void CProgressDlg::Start(BOOL bCollectInfo)
   // Center the dialog on the screen
 	CenterWindow();
 
-  if(!g_CrashInfo.m_bSilentMode)
+  if(!g_CrashInfo.m_bSilentMode && bMakeVisible)
   {
     ShowWindow(SW_SHOW); 
     SetFocus();    
@@ -149,7 +150,13 @@ void CProgressDlg::Start(BOOL bCollectInfo)
 
   SetTimer(0, 200); // Update this dialog each 200 ms.
 
-  m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
+  m_ActionOnCancel = DONT_CLOSE;
+}
+
+void CProgressDlg::Stop()
+{
+  KillTimer(0);
+  KillTimer(1);
 }
 
 LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -175,7 +182,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       { 
         m_ActionOnCancel = DONT_CLOSE;
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CollectingCrashInfo")));        
+        m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CollectingCrashInfo")));        
       }
       else if(messages[i].CompareNoCase(_T("[copying_files]"))==0)
       { 
@@ -199,12 +206,12 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         m_ActionOnCancel = DONT_CLOSE;
         m_ActionOnClose = DONT_CLOSE;
         CString sCaption;
-        sCaption.Format(Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaptionExport")), g_CrashInfo.m_sAppName);
+        sCaption.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("DlgCaptionExport")), g_CrashInfo.m_sAppName);
         SetWindowText(sCaption);    
         
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompressingFiles")));        
+        m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CompressingFiles")));        
 
-        m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
+        m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
 
         ShowWindow(SW_SHOW);
       }
@@ -217,33 +224,33 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       { 
         m_ActionOnCancel = CLOSE_MYSELF;
         m_ActionOnClose = CLOSE_MYSELF;
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("ExportedWithErrors")));        
+        m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("ExportedWithErrors")));        
         m_btnCancel.EnableWindow(1);
-        m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
+        m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Close")));
       }
       else if(messages[i].CompareNoCase(_T("[compressing_files]"))==0)
       {         
         m_ActionOnCancel = DONT_CLOSE; 
         m_ActionOnClose = CLOSE_MYSELF;
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompressingFiles")));        
-        m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancel")));
+        m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CompressingFiles")));        
+        m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
       }      
       else if(messages[i].CompareNoCase(_T("[status_success]"))==0)
-      { 
+      {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;        
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
         HWND hWndParent = ::GetParent(m_hWnd);        
         ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
       else if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
-      { 
+      {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
         KillTimer(1);
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("CompletedWithErrors")));
+        m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CompletedWithErrors")));
                 
         m_btnCancel.EnableWindow(1);
-        m_btnCancel.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Close")));
+        m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Close")));
 
         if(!g_CrashInfo.m_bSilentMode)
           ShowWindow(SW_SHOW);        
@@ -254,7 +261,7 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         }
       }
       else if(messages[i].CompareNoCase(_T("[exit_silently]"))==0)
-      { 
+      {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
         m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
         KillTimer(1);        
@@ -263,13 +270,13 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       }
       else if(messages[i].CompareNoCase(_T("[cancelled_by_user]"))==0)
       { 
-        m_statText.SetWindowText(Utility::GetINIString(_T("ProgressDlg"), _T("Cancelling")));
+        m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancelling")));
       }
       else if(messages[i].CompareNoCase(_T("[sending_attempt]"))==0)
       {
         attempt ++;      
         CString str;
-        str.Format(Utility::GetINIString(_T("ProgressDlg"), _T("StatusText")), attempt);
+        str.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("StatusText")), attempt);
         m_statText.SetWindowText(str);
       }
       else if(messages[i].CompareNoCase(_T("[confirm_launch_email_client]"))==0)
@@ -280,16 +287,16 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
           ShowWindow(SW_SHOW);
 
           DWORD dwFlags = 0;
-          CString sRTL = Utility::GetINIString(_T("Settings"), _T("RTLReading"));
+          CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
           if(sRTL.CompareNoCase(_T("1"))==0)
             dwFlags = MB_RTLREADING;
 
           CString sMailClientName;        
           CMailMsg::DetectMailClient(sMailClientName);
           CString msg;
-          msg.Format(Utility::GetINIString(_T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
+          msg.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("ConfirmLaunchEmailClient")), sMailClientName);
 
-          CString sCaption = Utility::GetINIString(_T("ProgressDlg"), _T("DlgCaption"));
+          CString sCaption = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("DlgCaption"));
           CString sTitle;
           sTitle.Format(sCaption, g_CrashInfo.m_sAppName);
           INT_PTR result = MessageBox(msg, 
@@ -339,8 +346,8 @@ LRESULT CProgressDlg::OnListRClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandle
     submenu.EnableMenuItem(ID_MENU1_COPYSEL, MF_BYCOMMAND|MF_GRAYED);
   }
 
-  CString sCopySelLines = Utility::GetINIString(_T("ProgressDlg"), _T("CopySelectedLines"));
-  CString sCopyWholeLog = Utility::GetINIString(_T("ProgressDlg"), _T("CopyTheWholeLog"));
+  CString sCopySelLines = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CopySelectedLines"));
+  CString sCopyWholeLog = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CopyTheWholeLog"));
 
   MENUITEMINFO mii;
   memset(&mii, 0, sizeof(MENUITEMINFO));

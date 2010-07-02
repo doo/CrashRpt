@@ -52,6 +52,7 @@ public:
   CStatic m_statPreview;
   CFilePreviewCtrl m_filePreview;
   PreviewMode m_previewMode;
+  int m_nCurReport;
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)    
     DLGRESIZE_CONTROL(IDC_FILE_LIST, DLSZ_SIZE_X)
@@ -68,7 +69,7 @@ public:
 		COMMAND_ID_HANDLER(IDOK, OnOK)
     COMMAND_ID_HANDLER(IDCANCEL, OnOK)
     COMMAND_ID_HANDLER(IDC_EXPORT, OnExport)
-    COMMAND_RANGE_HANDLER(ID_PREVIEW_AUTO, ID_PREVIEW_TEXT, OnPreviewModeChanged)
+    COMMAND_RANGE_HANDLER(ID_PREVIEW_AUTO, ID_PREVIEW_IMAGE, OnPreviewModeChanged)
     NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick)
 
     CHAIN_MSG_MAP(CDialogResize<CDetailDlg>)

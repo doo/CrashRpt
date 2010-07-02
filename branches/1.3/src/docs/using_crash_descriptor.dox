@@ -13,20 +13,20 @@ A typical crash description is presented below.
 
 \code
 
-<?xml version="1.0" encoding="utf-8" ?>
-<CrashRpt version="1201">
+<?xml version="1.0" encoding="UTF-8" ?>
+<CrashRpt version="1205">
   <CrashGUID>374db652-d268-4b0b-94dc-c014150c8cfe</CrashGUID>
   <AppName>CrashRpt Tests</AppName>
-  <AppVersion>1.2.1</AppVersion>
+  <AppVersion>1.2.5</AppVersion>
   <ImageName>D:\Projects\CrashRpt\src\bin\CrashRptTestd.exe</ImageName>
   <OperatingSystem>Windows 7 Ultimate Build 7100</OperatingSystem>
-  <SystemTimeUTC>2009-12-19T08:21:49Z</SystemTimeUTC>
+  <SystemTimeUTC>2010-05-15T08:21:49Z</SystemTimeUTC>
   <ExceptionType>11</ExceptionType>
   <GUIResourceCount>51</GUIResourceCount>
   <OpenHandleCount>71</OpenHandleCount>
   <MemoryUsageKbytes>8144</MemoryUsageKbytes>
   <CustomProps>
-    <Prop name="MyCustomStatus" value="May be better..."/>
+    <Prop name="VideoCard" value="nVidia GeForce 9800 GTX+"/>
   </CustomProps>
   <FileList>
     <FileItem name="crashdump.dmp" description="Crash Dump" />
@@ -71,7 +71,7 @@ to contact user and request additional info about error.
 
 \c ExceptionType is an integer that means the type of error (see \ref CR_EXCEPTION_INFO structure documentation):
 
-- 0 Win32 structured exception.
+- 0 SEH exception.
 - 1 C++ terminate() call.
 - 2 C++ unexpected() call.
 - 3 C++ pure virtual function call.
@@ -89,7 +89,7 @@ The exception type can be used to divide error reports into some categories.
 
 There are additional elements that appear sometimes, depending on \c ExceptionType.
 
-\c ExceptionCode is the structured exception code. It presents when \c ExceptionType is 0.
+\c ExceptionCode is the SEH exception code. It presents when \c ExceptionType is 0.
 
 \c FPESubcode is the floating point exception subcode. It presents when \c ExceptionType is 8.
 For information on floating point exception subcodes, see documentation of \b signal() function

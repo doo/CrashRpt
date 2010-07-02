@@ -7,10 +7,10 @@
 // Preview mode
 enum PreviewMode
 {
-  PREVIEW_AUTO = -1, // Auto
-  PREVIEW_HEX  = 0,  // Hex
-  PREVIEW_TEXT = 1,  // Text
-  PREVIEW_PNG  = 2   // PNG
+  PREVIEW_AUTO = -1,  // Auto
+  PREVIEW_HEX  = 0,   // Hex
+  PREVIEW_TEXT = 1,   // Text
+  PREVIEW_IMAGE = 2   // Image  
 };
 
 // Used to map file contents into memory
@@ -41,6 +41,35 @@ struct LineInfo
 {
   DWORD m_dwOffsetInFile;
   DWORD m_cchLineLength;  
+};
+
+class CImage
+{
+public:
+
+  CImage();
+  ~CImage();
+    
+  void Destroy();
+
+  static BOOL IsBitmap(FILE* f);
+  static BOOL IsPNG(FILE* f);
+  static BOOL IsImageFile(CString sFileName);
+
+  BOOL Load(CString sFileName);
+  void Cancel();
+  BOOL IsValid();  
+  void Draw(HDC hDC, LPRECT prcDraw);
+  
+private:
+  
+  BOOL LoadBitmapFromBMPFile(LPTSTR szFileName);
+  BOOL LoadBitmapFromPNGFile(LPTSTR szFileName);
+
+  CCritSec m_csLock;      // Critical section
+  HBITMAP m_hBitmap;      // Handle to the bitmap.  
+  HPALETTE m_hPalette;    // Palette
+  BOOL m_bLoadCancelled;
 };
 
 #define WM_FPC_COMPLETE  (WM_APP+100)
@@ -99,14 +128,18 @@ public:
 
   void SetupScrollbars();
   CString FormatHexLine(LPBYTE pData, int nBytesInLine, ULONG64 uLineOffset);
-  void DrawLine(HDC hdc, DWORD nLineNo);
+  void DrawHexLine(HDC hdc, DWORD nLineNo);
   void DrawTextLine(HDC hdc, DWORD nLineNo);  
   void DoPaintEmpty(HDC hDC);
+  void DoPaintText(HDC hDC);
+  void DoPaintBitmap(HDC hDC);
   void DoPaint(HDC hDC);
 
-  static DWORD WINAPI TextParsingThread(LPVOID lpParam);
+  static DWORD WINAPI WorkerThread(LPVOID lpParam);
+  void DoInWorkerThread();
   void ParseText();
-
+  void LoadBitmap();
+    
   CString m_sFileName;
   PreviewMode m_PreviewMode;
   CCritSec m_csLock;
@@ -125,9 +158,10 @@ public:
 	int m_nHScrollMax;        // Max horizontal scroll position.
 	int m_nVScrollPos;        // Vertical scrolling position.
 	int m_nVScrollMax;        // Maximum vertical scrolling position.  
-  std::vector<DWORD> m_aTextLines;
-  HANDLE m_hWorkerThread;
-  BOOL m_bCancelled;
+  std::vector<DWORD> m_aTextLines; // The array of lines of text file.
+  HANDLE m_hWorkerThread;   // Handle to the worker thread.
+  BOOL m_bCancelled;        // Is worker thread cancelled?
+  CImage m_bmp;          // Stores the bitmap
 };
 
 

@@ -40,6 +40,7 @@
 #include "CrashInfoReader.h"
 #include "strconv.h"
 #include "tinyxml.h"
+#include "Utility.h"
 
 // Define global CCrashInfoReader object
 CCrashInfoReader g_CrashInfo;
@@ -47,7 +48,8 @@ CCrashInfoReader g_CrashInfo;
 int CCrashInfoReader::Init(CString sCrashInfoFileName)
 { 
   strconv_t strconv;
-
+  ErrorReportInfo eri;
+  
   TiXmlDocument doc;
   bool bOpen = doc.LoadFile(strconv.t2a(sCrashInfoFileName));
   if(!bOpen)
@@ -57,23 +59,85 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   if(hRoot.ToElement()==NULL)
     return 1;
 
+  {    
+    TiXmlHandle hUnsentCrashReportsFolder = hRoot.FirstChild("UnsentCrashReportsFolder");
+    if(hUnsentCrashReportsFolder.FirstChild().ToText()!=NULL)
+    {      
+      const char* szUnsentCrashReportsFolder = hUnsentCrashReportsFolder.FirstChild().ToText()->Value();
+      if(szUnsentCrashReportsFolder!=NULL)
+      {
+        m_sUnsentCrashReportsFolder = strconv.utf82t(szUnsentCrashReportsFolder);
+        Utility::CreateFolder(m_sUnsentCrashReportsFolder);
+        
+        m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");        
+      }
+    }
+  }  
+  
   {
     TiXmlHandle hReportFolder = hRoot.FirstChild("ReportFolder");
     if(hReportFolder.FirstChild().ToText()!=NULL)
     {
       const char* szReportFolder = hReportFolder.FirstChild().ToText()->Value();
       if(szReportFolder!=NULL)
-        m_sErrorReportDirName = strconv.utf82t(szReportFolder);
+        eri.m_sErrorReportDirName = strconv.utf82t(szReportFolder);
     }
   }
-  
+
+  {
+    m_bQueueEnabled = FALSE;
+    TiXmlHandle hQueueEnabled = hRoot.FirstChild("QueueEnabled");
+    if(hQueueEnabled.FirstChild().ToText()!=NULL)
+    {      
+      const char* szQueueEnabled = hQueueEnabled.FirstChild().ToText()->Value();
+      if(szQueueEnabled!=NULL)
+      {
+        m_bQueueEnabled = atoi(szQueueEnabled);        
+      }
+    }
+  }  
+
+  {
+    m_bSendRecentReports = FALSE;
+    TiXmlHandle hSendRecentReports = hRoot.FirstChild("SendRecentReports");
+    if(hSendRecentReports.FirstChild().ToText()!=NULL)
+    {      
+      const char* szSendRecentReports = hSendRecentReports.FirstChild().ToText()->Value();
+      if(szSendRecentReports!=NULL)
+      {
+        m_bSendRecentReports = atoi(szSendRecentReports);        
+      }
+    }
+  }  
+
+
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
     if(hCrashGUID.FirstChild().ToText()!=NULL)
     {
       const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
       if(szCrashGUID!=NULL)
-        m_sCrashGUID = strconv.utf82t(szCrashGUID);
+        eri.m_sCrashGUID = strconv.utf82t(szCrashGUID);
+    }
+  }
+
+  {
+    TiXmlHandle hAppName = hRoot.FirstChild("AppName");
+    if(hAppName.FirstChild().ToText()!=NULL)
+    {
+      const char* szAppName = hAppName.FirstChild().ToText()->Value();
+      if(szAppName!=NULL)
+        m_sAppName = strconv.utf82t(szAppName);
+    }
+  }
+
+  {
+    TiXmlHandle hLangFileName = hRoot.FirstChild("LangFileName");
+    if(hLangFileName.FirstChild().ToText()!=NULL)
+    {
+      const char* szLangFileName = hLangFileName.FirstChild().ToText()->Value();
+      if(szLangFileName!=NULL)
+        m_sLangFileName = strconv.utf82t(szLangFileName);
     }
   }
 
@@ -85,6 +149,17 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       if(szDbgHelpPath!=NULL)
         m_sDbgHelpPath = strconv.utf82t(szDbgHelpPath);
     }
+  }
+
+  {
+    m_bGenerateMinidump = TRUE;
+    TiXmlHandle hGenerateMinidump = hRoot.FirstChild("GenerateMinidump");
+    if(hGenerateMinidump.FirstChild().ToText()!=NULL)
+    {
+      const char* szGenerateMinidump = hGenerateMinidump.FirstChild().ToText()->Value();
+      if(szGenerateMinidump!=NULL)
+        m_bGenerateMinidump = (MINIDUMP_TYPE)atol(szGenerateMinidump);      
+    }    
   }
 
   {
@@ -139,6 +214,16 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       const char* szEmailSubject = hEmailSubject.FirstChild().ToText()->Value();
       if(szEmailSubject!=NULL)
         m_sEmailSubject = strconv.utf82t(szEmailSubject);
+    }
+  }
+
+  {
+    TiXmlHandle hEmailText = hRoot.FirstChild("EmailText");
+    if(hEmailText.FirstChild().ToText()!=NULL)
+    {
+      const char* szEmailText = hEmailText.FirstChild().ToText()->Value();
+      if(szEmailText!=NULL)
+        m_sEmailText = strconv.utf82t(szEmailText);
     }
   }
 
@@ -314,12 +399,89 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }      
   }
 
-  ParseCrashDescription(m_sErrorReportDirName + _T("\\crashrpt.xml"));
+  {
+    m_bAppRestart = FALSE;    
+    TiXmlHandle hAppRestart = hRoot.FirstChild("AppRestart");
+    if(hAppRestart.FirstChild().ToText()!=NULL)
+    {
+      const char* szAppRestart = hAppRestart.FirstChild().ToText()->Value();
+      if(szAppRestart!=NULL)
+        m_bAppRestart = atoi(szAppRestart);     
+    }      
+  }
 
-  return ParseFileList(hRoot);
+  {    
+    TiXmlHandle hRestartCmdLine = hRoot.FirstChild("RestartCmdLine");
+    if(hRestartCmdLine.FirstChild().ToText()!=NULL)
+    {
+      const char* szRestartCmdLine = hRestartCmdLine.FirstChild().ToText()->Value();
+      if(szRestartCmdLine!=NULL)
+        m_sRestartCmdLine = strconv.utf82t(szRestartCmdLine);     
+    }      
+  }
+
+  {    
+    TiXmlHandle hSmtpProxyServer = hRoot.FirstChild("SmtpProxyServer");
+    if(hSmtpProxyServer.FirstChild().ToText()!=NULL)
+    {
+      const char* szSmtpProxyServer = hSmtpProxyServer.FirstChild().ToText()->Value();
+      if(szSmtpProxyServer!=NULL)
+        m_sSmtpProxyServer = strconv.utf82t(szSmtpProxyServer);     
+    }      
+  }
+
+  {    
+    m_nSmtpProxyPort = 25;
+    TiXmlHandle hSmtpProxyPort = hRoot.FirstChild("SmtpProxyPort");
+    if(hSmtpProxyPort.FirstChild().ToText()!=NULL)
+    {
+      const char* szSmtpProxyPort = hSmtpProxyPort.FirstChild().ToText()->Value();
+      if(szSmtpProxyPort!=NULL)
+        m_nSmtpProxyPort = atoi(szSmtpProxyPort);     
+    }      
+  }
+
+  if(!m_bSendRecentReports)
+  {    
+    // Get the list of files that should be included to report
+    ParseFileList(hRoot, eri);
+
+    // Get some info from crashrpt.xml
+    CString sXmlName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
+    ParseCrashDescription(sXmlName, FALSE, eri);    
+    
+    m_Reports.push_back(eri);
+  }  
+  else
+  {
+    // Look for unsent error reports
+    CString sSearchPattern = m_sUnsentCrashReportsFolder + _T("\\*");
+    CFindFile find;
+    BOOL bFound = find.FindFile(sSearchPattern);
+    while(bFound)
+    {
+      if(find.IsDirectory() && !find.IsDots())
+      {
+        CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
+          find.GetFileName();
+        CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
+        ErrorReportInfo eri;
+        eri.m_sErrorReportDirName = sErrorReportDirName;
+        if(0==ParseCrashDescription(sFileName, TRUE, eri))
+        {          
+          eri.m_uTotalSize = GetUncompressedReportSize(eri);
+          m_Reports.push_back(eri);
+        }
+      }
+
+      bFound = find.FindNextFile();
+    }
+  }
+  
+  return 0;
 }
 
-int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
+int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
 {
   strconv_t strconv;
    
@@ -357,7 +519,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
       else
         item.m_bMakeCopy = FALSE;
       
-      m_FileItems[sDestFile] = item;
+      eri.m_FileItems[sDestFile] = item;
     }
 
     fi = fi.ToElement()->NextSibling("FileItem");
@@ -366,7 +528,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot)
   return 0;
 }
 
-int CCrashInfoReader::ParseCrashDescription(CString sFileName)
+int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri)
 {
   strconv_t strconv;
 
@@ -379,20 +541,88 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName)
   if(hRoot.ToElement()==NULL)
     return 1;
 
-  TiXmlHandle hAppName = hRoot.FirstChild("AppName");
-  const char* szAppName = hAppName.FirstChild().ToText()->Value();
-  if(szAppName!=NULL)
-    m_sAppName = strconv.utf82t(szAppName);
+  {
+    TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
+    if(hCrashGUID.FirstChild().ToText()!=NULL)
+    {
+      const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
+      if(szCrashGUID!=NULL)
+        eri.m_sCrashGUID = strconv.utf82t(szCrashGUID);
+    }
+  }
 
-  TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
-  const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
-  if(szAppVersion!=NULL)
-    m_sAppVersion = strconv.utf82t(szAppVersion);
+  {
+    TiXmlHandle hAppName = hRoot.FirstChild("AppName");
+    const char* szAppName = hAppName.FirstChild().ToText()->Value();
+    if(szAppName!=NULL)
+      eri.m_sAppName = strconv.utf82t(szAppName);
+  }
 
-  TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
-  const char* szImageName = hAppName.FirstChild().ToText()->Value();
-  if(szImageName!=NULL)
-    m_sImageName = strconv.utf82t(szImageName);
+  {
+    TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
+    const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
+    if(szAppVersion!=NULL)
+      eri.m_sAppVersion = strconv.utf82t(szAppVersion);
+  }
+
+  {
+    TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
+    const char* szImageName = hImageName.FirstChild().ToText()->Value();
+    if(szImageName!=NULL)
+      eri.m_sImageName = strconv.utf82t(szImageName);
+  }
+
+  {
+    TiXmlHandle hSystemTimeUTC = hRoot.FirstChild("SystemTimeUTC");
+    const char* szSystemTimeUTC = hSystemTimeUTC.FirstChild().ToText()->Value();
+    if(szSystemTimeUTC!=NULL)
+      eri.m_sSystemTimeUTC = strconv.utf82t(szSystemTimeUTC);
+  }
+
+  if(bParseFileItems)
+  {
+    // Get directory name
+    CString sReportDir = sFileName;
+    int pos = sFileName.ReverseFind('\\');
+    if(pos>=0)
+      sReportDir = sFileName.Left(pos);
+    if(sReportDir.Right(1)!=_T("\\"))
+      sReportDir += _T("\\");
+   
+    TiXmlHandle fl = hRoot.FirstChild("FileList");
+    if(fl.ToElement()==0)
+    {    
+      return 1;
+    }
+
+    TiXmlHandle fi = fl.FirstChild("FileItem");
+    while(fi.ToElement()!=0)
+    {
+      const char* pszDestFile = fi.ToElement()->Attribute("name");      
+      const char* pszDesc = fi.ToElement()->Attribute("description");      
+
+      if(pszDestFile!=NULL)
+      {
+	      CString sDestFile = strconv.utf82t(pszDestFile);      
+        FileItem item;
+        item.m_sDestFile = sDestFile;
+        item.m_sSrcFile = sReportDir + sDestFile;
+        if(pszDesc)
+          item.m_sDesc = strconv.utf82t(pszDesc);
+        item.m_bMakeCopy = FALSE;
+        
+        // Check that file really exists
+        DWORD dwAttrs = GetFileAttributes(item.m_sSrcFile);
+        if(dwAttrs!=INVALID_FILE_ATTRIBUTES &&
+           (dwAttrs&FILE_ATTRIBUTE_DIRECTORY)==0)
+        {
+          eri.m_FileItems[sDestFile] = item;
+        }
+      }
+
+      fi = fi.ToElement()->NextSibling("FileItem");
+    }    
+  }
 
   return 0;
 }
@@ -403,7 +633,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
 
   TiXmlDocument doc;
   
-  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
   bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
   if(!bLoad)
     return FALSE;
@@ -440,7 +670,7 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
 
   TiXmlDocument doc;
   
-  CString sFileName = g_CrashInfo.m_sErrorReportDirName + _T("\\crashrpt.xml");
+  CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
   bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
   if(!bLoad)
     return FALSE;
@@ -461,10 +691,10 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   {    
     TiXmlHandle hFileItem = new TiXmlElement("FileItem");
     hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
-    hFileItem.ToElement()->SetAttribute("descrition", strconv.t2utf8(FilesToAdd[i].m_sDesc));
+    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(FilesToAdd[i].m_sDesc));
     hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
 
-    m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+    m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
   }
   
   bool bSave = doc.SaveFile(); 
@@ -473,4 +703,111 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   return TRUE;
 }
 
+BOOL CCrashInfoReader::GetLastRemindDate(SYSTEMTIME& LastDate)
+{  
+  CString sDate = Utility::GetINIString(m_sINIFile, _T("General"), _T("LastRemindDate"));
+  if(sDate.IsEmpty())
+    return FALSE;
 
+  Utility::UTC2SystemTime(sDate, LastDate);
+  return TRUE;
+}
+
+BOOL CCrashInfoReader::SetLastRemindDateToday()
+{
+  // Get current time
+  CString sTime;
+  Utility::GetSystemTimeUTC(sTime);
+
+  // Write it to INI  
+  Utility::SetINIString(m_sINIFile, _T("General"), _T("LastRemindDate"), sTime);
+
+  return TRUE;
+}
+
+REMIND_POLICY CCrashInfoReader::GetRemindPolicy()
+{  
+  CString sPolicy = Utility::GetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"));
+
+  if(sPolicy.Compare(_T("RemindLater"))==0)
+    return REMIND_LATER;
+  else if(sPolicy.Compare(_T("NeverRemind"))==0)
+    return NEVER_REMIND;
+ 
+  Utility::SetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"), _T("RemindLater"));
+  return REMIND_LATER;
+}
+
+BOOL CCrashInfoReader::SetRemindPolicy(REMIND_POLICY Policy)
+{
+  CString sPolicy;
+  if(Policy==REMIND_LATER)
+    sPolicy = _T("RemindLater");
+  else if(Policy==NEVER_REMIND)
+    sPolicy = _T("NeverRemind");
+
+  Utility::SetINIString(m_sINIFile, _T("General"), _T("RemindPolicy"), sPolicy);
+
+  return TRUE;
+}
+
+BOOL CCrashInfoReader::IsRemindNowOK()
+{
+  if(GetRemindPolicy()!=REMIND_LATER)
+    return FALSE; // User doesn want us to remind him
+
+  // Get last remind date
+  SYSTEMTIME LastRemind;
+  if(!GetLastRemindDate(LastRemind))
+  {    
+    return TRUE;
+  }
+
+  // Determine the period of time elapsed since the last remind.
+  SYSTEMTIME CurTimeUTC, CurTimeLocal;
+  GetSystemTime(&CurTimeUTC);
+  SystemTimeToTzSpecificLocalTime(NULL, &CurTimeUTC, &CurTimeLocal);
+  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTimeLocal);
+  ULONG64 uLastRemindTime = Utility::SystemTimeToULONG64(LastRemind);
+  
+  // Check that at lease one week elapsed
+  double dDiffTime = (double)(uCurTime-uLastRemindTime)*10E-08;
+  if(dDiffTime<7*24*60*60)
+  {
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
+LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
+{
+  LONG64 lTotalSize = 0;
+  std::map<CString, FileItem>::iterator it;
+  HANDLE hFile = INVALID_HANDLE_VALUE;  
+  CString sMsg;
+  BOOL bGetSize = FALSE;
+  LARGE_INTEGER lFileSize;
+
+  for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
+  {   
+    CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
+    hFile = CreateFile(sFileName, 
+      GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
+    if(hFile==INVALID_HANDLE_VALUE)
+      continue;
+    
+    bGetSize = GetFileSizeEx(hFile, &lFileSize);
+    if(!bGetSize)
+    {
+      CloseHandle(hFile);
+      continue;
+    }
+
+    lTotalSize += lFileSize.QuadPart;
+    CloseHandle(hFile);
+    hFile = INVALID_HANDLE_VALUE;
+  }
+
+  return lTotalSize;
+}

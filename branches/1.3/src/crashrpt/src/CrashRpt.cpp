@@ -144,6 +144,10 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszDebugHelpDLL_file = strconv.w2t((LPWSTR)pInfo->pszDebugHelpDLL);
   MINIDUMP_TYPE miniDumpType = pInfo->uMiniDumpType;
   LPCTSTR ptszErrorReportSaveDir = strconv.w2t((LPWSTR)pInfo->pszErrorReportSaveDir);
+  LPCTSTR ptszRestartCmdLine = strconv.w2t((LPWSTR)pInfo->pszRestartCmdLine);
+  LPCTSTR ptszLangFilePath = strconv.w2t((LPWSTR)pInfo->pszLangFilePath);
+  LPCTSTR ptszEmailText = strconv.w2t((LPWSTR)pInfo->pszEmailText);
+  LPCTSTR ptszSmtpProxy = strconv.w2t((LPWSTR)pInfo->pszSmtpProxy);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -158,7 +162,11 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszPrivacyPolicyURL,
     ptszDebugHelpDLL_file,
     miniDumpType,
-    ptszErrorReportSaveDir
+    ptszErrorReportSaveDir,
+    ptszRestartCmdLine,
+    ptszLangFilePath,
+    ptszEmailText,
+    ptszSmtpProxy
     );
   
   if(nInitResult!=0)
@@ -196,6 +204,10 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   ii.pszDebugHelpDLL = strconv.a2w(pInfo->pszDebugHelpDLL);
   ii.uMiniDumpType = pInfo->uMiniDumpType;
   ii.pszErrorReportSaveDir = strconv.a2w(pInfo->pszErrorReportSaveDir);
+  ii.pszRestartCmdLine = strconv.a2w(pInfo->pszRestartCmdLine);
+  ii.pszLangFilePath = strconv.a2w(pInfo->pszLangFilePath);
+  ii.pszEmailText = strconv.a2w(pInfo->pszEmailText);
+  ii.pszSmtpProxy = strconv.a2w(pInfo->pszSmtpProxy);
 
   return crInstallW(&ii);
 }
