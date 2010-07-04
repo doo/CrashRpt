@@ -1,7 +1,7 @@
 /*! \file   CrashRptProbe.h
  *  \brief  Defines the interface for the CrashRptProbe.DLL.
- *  \date   2009
- *  \author zexspectrum@gmail.com
+ *  \date   2009-2010
+ *  \author zexspectrum
  */
 
 #ifndef __CRASHRPT_PROBE_H__
@@ -32,15 +32,13 @@ extern "C" {
 #endif
 
 #ifndef CRASHRPTPROBE_LIB // If CrashRptProbe is used as DLL
-#define CRASHRPTPROBE_DECLSPEC_DLLEXPORT __declspec(dllexport) 
 #define CRASHRPTPROBE_DECLSPEC_DLLIMPORT __declspec(dllimport) 
 #else // If CrashRpt is used as static library
-#define CRASHRPTPROBE_DECLSPEC_DLLEXPORT 
 #define CRASHRPTPROBE_DECLSPEC_DLLIMPORT
 #endif
 
 #ifdef CRASHRPTPROBE_EXPORTS
-#define CRASHRPTPROBE_API CRASHRPTPROBE_DECLSPEC_DLLEXPORT WINAPI
+#define CRASHRPTPROBE_API WINAPI
 #else
 #define CRASHRPTPROBE_API CRASHRPTPROBE_DECLSPEC_DLLIMPORT WINAPI
 #endif

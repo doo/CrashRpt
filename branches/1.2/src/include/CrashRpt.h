@@ -32,7 +32,7 @@
 
 /*! \file   CrashRpt.h
  *  \brief  Defines the interface for the CrashRpt.DLL.
- *  \date   2003-2009
+ *  \date   2003-2010
  *  \author Michael Carruth 
  *  \author zeXspectrum 
  */
@@ -63,22 +63,20 @@ extern "C" {
 
 
 #ifndef CRASHRPT_LIB // If CrashRpt is used as DLL
-#define CRASHRPT_DECLSPEC_DLLEXPORT __declspec(dllexport) 
 #define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 
 #else // If CrashRpt is used as static library
-#define CRASHRPT_DECLSPEC_DLLEXPORT 
 #define CRASHRPT_DECLSPEC_DLLIMPORT
 #endif
 
 // This is needed for exporting/importing functions from/to CrashRpt.dll
 #ifdef CRASHRPT_EXPORTS
- #define CRASHRPTAPI CRASHRPT_DECLSPEC_DLLEXPORT WINAPI 
+ #define CRASHRPTAPI WINAPI 
 #else 
  #define CRASHRPTAPI CRASHRPT_DECLSPEC_DLLIMPORT WINAPI
 #endif
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1205
+#define CRASHRPT_VER 1206
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */
@@ -606,8 +604,8 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      CrAutoInstallHelper
  */
 
-int
-CRASHRPTAPI 
+int 
+CRASHRPTAPI
 crInstallW(
   __in PCR_INSTALL_INFOW pInfo
 );

@@ -259,6 +259,8 @@ private:
   HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe.
 
   BOOL m_bInitialized;           // Flag telling if this object was initialized.  
+
+  static int m_nCrashCounter;
 };
 
 #endif	// !_CRASHHANDLER_H_

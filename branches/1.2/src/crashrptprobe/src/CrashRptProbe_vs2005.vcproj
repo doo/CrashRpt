@@ -69,6 +69,7 @@
 				OutputFile="$(OutDir)\$(ProjectName)d.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\zlib\lib"
+				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="..\..\lib\$(TargetName).lib"
@@ -151,6 +152,7 @@
 				OutputFile="..\..\bin\CrashRptProbed.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\zlib\lib"
+				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="..\..\lib\$(TargetName).lib"
@@ -229,6 +231,7 @@
 				OutputFile="..\..\bin\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"
+				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -310,6 +313,7 @@
 				OutputFile="..\..\bin\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"
+				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -455,6 +459,7 @@
 				OutputFile="..\..\bin\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"
+				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -502,6 +507,10 @@
 			</File>
 			<File
 				RelativePath=".\CrashRptProbe.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CrashRptProbe.def"
 				>
 			</File>
 			<File

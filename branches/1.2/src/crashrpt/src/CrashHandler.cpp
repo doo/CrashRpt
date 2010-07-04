@@ -61,6 +61,7 @@ EXTERNC void * _ReturnAddress(void);
 #endif 
 
 CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
+int CCrashHandler::m_nCrashCounter = 0;
 
 CCrashHandler::CCrashHandler()
 {
@@ -1404,11 +1405,13 @@ std::string CCrashHandler::XmlEncodeStr(CString sText)
 
 // Structured exception handler
 LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
-{  
-  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
+{ 
+  ATLASSERT(m_nCrashCounter==0); 
 
-  if(pCrashHandler!=NULL)
+  CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
+  ATLASSERT(pCrashHandler!=NULL);  
+
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1419,8 +1422,13 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
+
+  // Unreacheable code
+  return EXCEPTION_EXECUTE_HANDLER;
 }
 
 // CRT terminate() call handler
@@ -1428,10 +1436,12 @@ void __cdecl CCrashHandler::TerminateHandler()
 {
   // Abnormal program termination (terminate() function was called)
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1442,19 +1452,23 @@ void __cdecl CCrashHandler::TerminateHandler()
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT unexpected() call handler
 void __cdecl CCrashHandler::UnexpectedHandler()
 {
   // Unexpected error (unexpected() function was called)
-  
+
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   { 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1465,8 +1479,10 @@ void __cdecl CCrashHandler::UnexpectedHandler()
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT Pure virtual method call handler
@@ -1474,11 +1490,13 @@ void __cdecl CCrashHandler::UnexpectedHandler()
 void __cdecl CCrashHandler::PureCallHandler()
 {
   // Pure virtual function call
+
+  ATLASSERT(m_nCrashCounter==0); 
     
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1489,8 +1507,10 @@ void __cdecl CCrashHandler::PureCallHandler()
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 #endif
 
@@ -1500,13 +1520,15 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
 {
   // Security error (buffer overrun).
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   code;
   x;
   
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1517,8 +1539,10 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 #endif 
 
@@ -1534,11 +1558,13 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
    pReserved;
 
    // Invalid parameter exception
+
+   ATLASSERT(m_nCrashCounter==0); 
    
    CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
    ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   { 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1553,8 +1579,10 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-   // Terminate program
-   ExitProcess(1); 
+   m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
  }
 #endif
 
@@ -1563,11 +1591,13 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
 int __cdecl CCrashHandler::NewHandler(size_t)
 {
   // 'new' operator memory allocation exception
-   
+
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1579,8 +1609,13 @@ int __cdecl CCrashHandler::NewHandler(size_t)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
+
+  // Unreacheable code
+  return 0;
 }
 #endif //_MSC_VER>=1300
 
@@ -1589,10 +1624,12 @@ void CCrashHandler::SigabrtHandler(int)
 {
   // Caught SIGABRT C++ signal
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1603,8 +1640,10 @@ void CCrashHandler::SigabrtHandler(int)
     pCrashHandler->GenerateErrorReport(&ei);
   }
  
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT SIGFPE signal handler
@@ -1612,10 +1651,12 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
 {
   // Floating point exception (SIGFPE)
  
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1628,8 +1669,10 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT sigill signal handler
@@ -1637,10 +1680,12 @@ void CCrashHandler::SigillHandler(int)
 {
   // Illegal instruction (SIGILL)
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1651,8 +1696,10 @@ void CCrashHandler::SigillHandler(int)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT sigint signal handler
@@ -1660,10 +1707,12 @@ void CCrashHandler::SigintHandler(int)
 {
   // Interruption (SIGINT)
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   { 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1674,8 +1723,10 @@ void CCrashHandler::SigintHandler(int)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT SIGSEGV signal handler
@@ -1683,10 +1734,12 @@ void CCrashHandler::SigsegvHandler(int)
 {
   // Invalid storage access (SIGSEGV)
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
   
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
     // Fill in exception info
     CR_EXCEPTION_INFO ei;
@@ -1698,8 +1751,10 @@ void CCrashHandler::SigsegvHandler(int)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT SIGTERM signal handler
@@ -1707,10 +1762,12 @@ void CCrashHandler::SigtermHandler(int)
 {
   // Termination request (SIGTERM)
 
+  ATLASSERT(m_nCrashCounter==0); 
+
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(pCrashHandler!=NULL)
+  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1721,8 +1778,10 @@ void CCrashHandler::SigtermHandler(int)
     pCrashHandler->GenerateErrorReport(&ei);
   }
 
-  // Terminate program
-  ExitProcess(1); 
+  m_nCrashCounter++; // Increment crash counter
+
+  // Terminate process
+  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 
