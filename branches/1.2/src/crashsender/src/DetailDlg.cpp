@@ -75,11 +75,9 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_list.SetExtendedListViewStyle(LVS_EX_FULLROWSELECT);
 
   m_list.InsertColumn(0, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-    _T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 130);
+    _T("DetailDlg"), _T("FieldName")), LVCFMT_LEFT, 150);
   m_list.InsertColumn(1, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-    _T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 110);
-  m_list.InsertColumn(2, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
-    _T("DetailDlg"), _T("FieldType")), LVCFMT_LEFT, 90);
+    _T("DetailDlg"), _T("FieldDescription")), LVCFMT_LEFT, 180);
   m_list.InsertColumn(3, Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
     _T("DetailDlg"), _T("FieldSize")), LVCFMT_RIGHT, 60);
 
@@ -114,8 +112,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     int nItem = m_list.InsertItem(i, sDestFile, iImage);
     
 	  CString sFileType = sfi.szTypeName;
-    m_list.SetItemText(nItem, 1, sFileDesc);
-    m_list.SetItemText(nItem, 2, sFileType);
+    m_list.SetItemText(nItem, 1, sFileDesc);    
 
     hFind = FindFirstFile(sSrcFile, &findFileData);
     if (INVALID_HANDLE_VALUE != hFind)
@@ -125,7 +122,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
       lFileSize.LowPart = findFileData.nFileSizeLow;
       lFileSize.HighPart = findFileData.nFileSizeHigh;
       sSize = Utility::FileSizeToStr(lFileSize.QuadPart);
-      m_list.SetItemText(nItem, 3, sSize);
+      m_list.SetItemText(nItem, 2, sSize);
     }    
   }
 

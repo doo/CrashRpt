@@ -162,8 +162,7 @@ cleanup:
   return status;
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpOpenErrorReportW(
   LPCWSTR pszFileName,
   LPCWSTR pszMd5Hash,
@@ -408,8 +407,7 @@ exit:
   return status;
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpOpenErrorReportA(
   LPCSTR pszFileName,
   LPCSTR pszMd5Hash,
@@ -426,8 +424,7 @@ crpOpenErrorReportA(
     pHandle);  
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpCloseErrorReport(
   CrpHandle handle)
 {
@@ -467,8 +464,7 @@ int ParseDynTableId(CString sTableId, int& index)
   return -1;
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpGetPropertyW(
   CrpHandle hReport,
   LPCWSTR lpszTableId, 
@@ -1097,8 +1093,7 @@ crpGetPropertyW(
   return 0;
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpGetPropertyA(
   CrpHandle hReport,
   LPCSTR lpszTableId,
@@ -1135,8 +1130,7 @@ crpGetPropertyA(
   return result;
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpExtractFileW(
   CrpHandle hReport,
   LPCWSTR lpszFileName,
@@ -1188,8 +1182,7 @@ crpExtractFileW(
   return 0;
 }
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpExtractFileA(
   CrpHandle hReport,
   LPCSTR lpszFileName,
@@ -1203,8 +1196,7 @@ crpExtractFileA(
   return crpExtractFileW(hReport, pwszFileName, pwszFileSaveAs, bOverwriteExisting);
 }
 
-int 
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpGetLastErrorMsgW(
   LPWSTR pszBuffer, 
   UINT uBuffSize)
@@ -1237,8 +1229,7 @@ crpGetLastErrorMsgW(
   return size;
 }
 
-int 
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize)

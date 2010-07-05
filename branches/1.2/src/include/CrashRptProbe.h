@@ -8,7 +8,9 @@
 #define __CRASHRPT_PROBE_H__
 
 #ifdef __cplusplus
-extern "C" {
+#define CRASHRPTPROBE_EXTERNC extern "C"
+#else
+#define CRASHRPTPROBE_EXTERNC
 #endif
 
 // Define SAL macros to be empty if some old Visual Studio used
@@ -31,17 +33,7 @@ extern "C" {
   #define __out_ecount_z(x)
 #endif
 
-#ifndef CRASHRPTPROBE_LIB // If CrashRptProbe is used as DLL
-#define CRASHRPTPROBE_DECLSPEC_DLLIMPORT __declspec(dllimport) 
-#else // If CrashRpt is used as static library
-#define CRASHRPTPROBE_DECLSPEC_DLLIMPORT
-#endif
-
-#ifdef CRASHRPTPROBE_EXPORTS
-#define CRASHRPTPROBE_API WINAPI
-#else
-#define CRASHRPTPROBE_API CRASHRPTPROBE_DECLSPEC_DLLIMPORT WINAPI
-#endif
+#define CRASHRPTPROBE_API(rettype) CRASHRPTPROBE_EXTERNC rettype WINAPI
 
 //! Handle to an opened error report.
 typedef int CrpHandle;
@@ -111,8 +103,7 @@ typedef int CrpHandle;
  *    crpCloseErrorReport()
  */
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpOpenErrorReportW(
   __in LPCWSTR pszFileName,
   __in_opt LPCWSTR pszMd5Hash,
@@ -126,8 +117,7 @@ crpOpenErrorReportW(
  *
  */
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpOpenErrorReportA(
   __in LPCSTR pszFileName,
   __in_opt LPCSTR pszMd5Hash,
@@ -162,8 +152,7 @@ crpOpenErrorReportA(
  *    crpOpenErrorReport(), crpOpenErrorReportW(), crpOpenErrorReportA(), crpGetLastErrorMsg()
  */
 
-int
-CRASHRPTPROBE_API 
+CRASHRPTPROBE_API(int) 
 crpCloseErrorReport(
   CrpHandle hReport  
 );
@@ -301,8 +290,7 @@ crpCloseErrorReport(
  *    crpGetPropertyW(), crpGetPropertyA(), crpOpenErrorReport(), crpGetLastErrorMsg()
  */ 
 
-int
-CRASHRPTPROBE_API 
+CRASHRPTPROBE_API(int) 
 crpGetPropertyW(
   CrpHandle hReport,
   LPCWSTR lpszTableId,
@@ -318,8 +306,7 @@ crpGetPropertyW(
  *
  */
 
-int
-CRASHRPTPROBE_API 
+CRASHRPTPROBE_API(int) 
 crpGetPropertyA(
   CrpHandle hReport,
   LPCSTR lpszTableId,
@@ -371,8 +358,7 @@ crpGetPropertyA(
  *    crpExtractFileA(), crpExtractFileW(), crpExtractFile()
  */
 
-int
-CRASHRPTPROBE_API 
+CRASHRPTPROBE_API(int) 
 crpExtractFileW(
   CrpHandle hReport,
   LPCWSTR lpszFileName,
@@ -384,8 +370,7 @@ crpExtractFileW(
  *  \copydoc crpExtractFileW() 
  */
 
-int
-CRASHRPTPROBE_API 
+CRASHRPTPROBE_API(int) 
 crpExtractFileA(
   CrpHandle hReport,
   LPCSTR lpszFileName,
@@ -436,8 +421,7 @@ crpExtractFileA(
  *  \sa crpGetLastErrorMsgA(), crpGetLastErrorMsgW(), crpGetLastErrorMsg()
  */
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpGetLastErrorMsgW(
   __out_ecount(cchBuffSize) LPTSTR pszBuffer, 
   __in UINT cchBuffSize);
@@ -447,8 +431,7 @@ crpGetLastErrorMsgW(
  *
  */
 
-int
-CRASHRPTPROBE_API
+CRASHRPTPROBE_API(int)
 crpGetLastErrorMsgA(
   __out_ecount(cchBuffSize) LPSTR pszBuffer, 
   __in UINT cchBuffSize);
@@ -463,8 +446,6 @@ crpGetLastErrorMsgA(
 #define crpGetLastErrorMsg crpGetLastErrorMsgA
 #endif //UNICODE
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif __CRASHRPT_PROBE_H__
+

@@ -44,7 +44,7 @@
 CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
-LPVOID CRASHRPTAPI InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWSTR pszEmailSubject)
+CRASHRPTAPI(LPVOID) InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWSTR pszEmailSubject)
 {
   CR_INSTALL_INFOW info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
@@ -58,7 +58,7 @@ LPVOID CRASHRPTAPI InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWST
   return NULL;
 }
 
-LPVOID CRASHRPTAPI InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR pszEmailSubject)
+CRASHRPTAPI(LPVOID) InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR pszEmailSubject)
 {
   strconv_t strconv;
   LPCWSTR lpwszEmailTo = strconv.a2w(pszEmailTo);
@@ -67,19 +67,19 @@ LPVOID CRASHRPTAPI InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR 
   return InstallW(pfnCallback, lpwszEmailTo, lpwszEmailSubject);
 }
 
-void CRASHRPTAPI Uninstall(LPVOID lpState)
+CRASHRPTAPI(void) Uninstall(LPVOID lpState)
 {
   lpState;
   crUninstall();  
 }
 
-void CRASHRPTAPI AddFileW(LPVOID lpState, LPCWSTR lpFile, LPCWSTR lpDesc)
+CRASHRPTAPI(void) AddFileW(LPVOID lpState, LPCWSTR lpFile, LPCWSTR lpDesc)
 { 
   lpState;
   crAddFileW(lpFile, lpDesc);
 }
 
-void CRASHRPTAPI AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
+CRASHRPTAPI(void) AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
 {
   strconv_t strconv;
   LPCWSTR lpwszFile = strconv.a2w(lpFile);
@@ -87,7 +87,7 @@ void CRASHRPTAPI AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
   AddFileW(lpState, lpwszFile, lpwszDesc);
 }
 
-void CRASHRPTAPI GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
+CRASHRPTAPI(void) GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
 {
   lpState;
 
@@ -100,7 +100,7 @@ void CRASHRPTAPI GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo
   crGenerateErrorReport(&ei);
 }
 
-int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
+CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -179,7 +179,7 @@ int CRASHRPTAPI crInstallW(CR_INSTALL_INFOW* pInfo)
   return 0;
 }
 
-int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
+CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
 {
   if(pInfo==NULL)
     return crInstallW((CR_INSTALL_INFOW*)NULL);
@@ -212,7 +212,7 @@ int CRASHRPTAPI crInstallA(CR_INSTALL_INFOA* pInfo)
   return crInstallW(&ii);
 }
 
-int CRASHRPTAPI crUninstall()
+CRASHRPTAPI(int) crUninstall()
 {
   crSetErrorMsg(_T("Success."));
 
@@ -241,7 +241,8 @@ int CRASHRPTAPI crUninstall()
 }
 
 // Sets C++ exception handlers for the calling thread
-int CRASHRPTAPI crInstallToCurrentThread2(DWORD dwFlags)
+CRASHRPTAPI(int) 
+crInstallToCurrentThread2(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Success."));
 
@@ -264,7 +265,8 @@ int CRASHRPTAPI crInstallToCurrentThread2(DWORD dwFlags)
 }
 
 // Unsets C++ exception handlers from the calling thread
-int CRASHRPTAPI crUninstallFromCurrentThread()
+CRASHRPTAPI(int) 
+crUninstallFromCurrentThread()
 {
   crSetErrorMsg(_T("Success."));
 
@@ -287,29 +289,25 @@ int CRASHRPTAPI crUninstallFromCurrentThread()
 }
 
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crInstallToCurrentThread()
 {
   return crInstallToCurrentThread2(0);
 }
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crAddFileW(PCWSTR pszFile, PCWSTR pszDesc)
 {
   return crAddFile2W(pszFile, NULL, pszDesc, 0);
 }
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crAddFileA(PCSTR pszFile, PCSTR pszDesc)
 {
   return crAddFile2A(pszFile, NULL, pszDesc, 0);
 }
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
 {
   crSetErrorMsg(_T("Success."));
@@ -341,8 +339,7 @@ crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
   return 0;
 }
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc, DWORD dwFlags)
 {
   // Convert parameters to wide char
@@ -365,8 +362,7 @@ crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc, DWORD dwFlags)
   return crAddFile2W(pwszFile, pwszDestFile, pwszDesc, dwFlags);
 }
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crAddScreenshot(
    DWORD dwFlags
    )
@@ -386,8 +382,7 @@ crAddScreenshot(
   return pCrashHandler->AddScreenshot(dwFlags);
 }
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crAddPropertyW(
    LPCWSTR pszPropName,
    LPCWSTR pszPropValue
@@ -420,8 +415,7 @@ crAddPropertyW(
   return 0;
 }
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crAddPropertyA(
    LPCSTR pszPropName,
    LPCSTR pszPropValue
@@ -432,8 +426,8 @@ crAddPropertyA(
   return crAddPropertyW(strconv.a2w(pszPropName), strconv.a2w(pszPropValue));
 }
 
-int 
-CRASHRPTAPI crGenerateErrorReport(
+CRASHRPTAPI(int) 
+crGenerateErrorReport(
   CR_EXCEPTION_INFO* pExceptionInfo)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -461,8 +455,7 @@ CRASHRPTAPI crGenerateErrorReport(
   return pCrashHandler->GenerateErrorReport(pExceptionInfo);  
 }
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
 {
   if(pszBuffer==NULL || uBuffSize==0)
@@ -493,8 +486,7 @@ crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
   return size;
 }
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crGetLastErrorMsgA(LPSTR pszBuffer, UINT uBuffSize)
 {  
   if(pszBuffer==NULL)
@@ -525,8 +517,7 @@ int crSetErrorMsg(PTSTR pszErrorMsg)
 }
 
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crExceptionFilter(unsigned int code, struct _EXCEPTION_POINTERS* ep)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -653,8 +644,7 @@ void test_buffer_overrun(const char *str)
 #pragma warning(default : 4996)  
 
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int) 
 crEmulateCrash(unsigned ExceptionType)
 {
   crSetErrorMsg(_T("Unspecified error."));

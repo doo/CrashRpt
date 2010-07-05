@@ -305,7 +305,7 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
-				ModuleDefinitionFile="CrashRpt.def"
+				ModuleDefinitionFile="CrashRptd.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				OptimizeForWindows98="1"
@@ -413,7 +413,7 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
-				ModuleDefinitionFile="CrashRpt.def"
+				ModuleDefinitionFile="CrashRptd.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				OptimizeForWindows98="1"
@@ -745,10 +745,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\CrashRpt.def"
-				>
 			</File>
 			<File
 				RelativePath="StdAfx.cpp"

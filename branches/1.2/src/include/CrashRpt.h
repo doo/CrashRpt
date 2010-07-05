@@ -43,10 +43,6 @@
 #include <windows.h>
 #include <dbghelp.h>
 
-#ifdef __cplusplus // Use undecorated names
-extern "C" {
-#endif
-
 // Define SAL macros to be empty if some old Visual Studio used
 #ifndef __reserved
   #define __reserved
@@ -61,19 +57,13 @@ extern "C" {
   #define __out_ecount_z(x)
 #endif
 
-
-#ifndef CRASHRPT_LIB // If CrashRpt is used as DLL
-#define CRASHRPT_DECLSPEC_DLLIMPORT __declspec(dllimport) 
-#else // If CrashRpt is used as static library
-#define CRASHRPT_DECLSPEC_DLLIMPORT
+#ifdef __cplusplus
+#define CRASHRPT_EXTERNC extern "C"
+#else
+#define CRASHRPT_EXTERNC
 #endif
 
-// This is needed for exporting/importing functions from/to CrashRpt.dll
-#ifdef CRASHRPT_EXPORTS
- #define CRASHRPTAPI WINAPI 
-#else 
- #define CRASHRPTAPI CRASHRPT_DECLSPEC_DLLIMPORT WINAPI
-#endif
+#define CRASHRPTAPI(rettype) CRASHRPT_EXTERNC rettype WINAPI
 
 //! Current CrashRpt version
 #define CRASHRPT_VER 1206
@@ -158,8 +148,7 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
  * 
  */
 
-LPVOID 
-CRASHRPTAPI 
+CRASHRPTAPI(LPVOID)
 InstallW(
    __in_opt LPGETLOGFILE pfnCallback,
    LPCWSTR pszEmailTo,    
@@ -170,8 +159,7 @@ InstallW(
  *  \copydoc InstallW()
  */
 
-LPVOID 
-CRASHRPTAPI 
+CRASHRPTAPI(LPVOID)
 InstallA(
    __in_opt LPGETLOGFILE pfnCallback,
    LPCSTR pszEmailTo,    
@@ -206,8 +194,7 @@ InstallA(
  *    The \a lpState parameter is unused and should be NULL.
  */
 
-void 
-CRASHRPTAPI 
+CRASHRPTAPI(void)
 Uninstall(
    __reserved LPVOID lpState                            
    );
@@ -243,8 +230,7 @@ Uninstall(
  *
  */
 
-void 
-CRASHRPTAPI 
+CRASHRPTAPI(void)
 AddFileW(
    __reserved LPVOID lpState,                         
    LPCWSTR pszFile,                         
@@ -256,8 +242,7 @@ AddFileW(
  *  \copydoc AddFileW()
  */
 
-void 
-CRASHRPTAPI 
+CRASHRPTAPI(void)
 AddFileA(
    __reserved LPVOID lpState,                         
    LPCSTR pszFile,                         
@@ -301,8 +286,7 @@ AddFileA(
  *
  */
 
-void 
-CRASHRPTAPI 
+CRASHRPTAPI(void)
 GenerateErrorReport(
    __reserved LPVOID lpState,
    PEXCEPTION_POINTERS pExInfo
@@ -604,8 +588,7 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
  *      CrAutoInstallHelper
  */
 
-int 
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crInstallW(
   __in PCR_INSTALL_INFOW pInfo
 );
@@ -614,8 +597,7 @@ crInstallW(
  *  \copydoc crInstallW()
  */
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crInstallA(
   __in PCR_INSTALL_INFOA pInfo
 );
@@ -650,8 +632,7 @@ crInstallA(
  *      CrAutoInstallHelper
  */
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crUninstall();
 
 
@@ -713,8 +694,7 @@ crUninstall();
  *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crInstallToCurrentThread();
 
 /*! \ingroup CrashRptAPI
@@ -764,8 +744,7 @@ crInstallToCurrentThread();
  *    crInstallToCurrentThread()
  */
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crInstallToCurrentThread2(DWORD dwFlags);
 
 /*! \ingroup CrashRptAPI  
@@ -791,8 +770,7 @@ crInstallToCurrentThread2(DWORD dwFlags);
  *       crUninstallFromCurrentThread(), CrThreadAutoInstallHelper
  */
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crUninstallFromCurrentThread();
 
 /*! \ingroup DeprecatedAPI  
@@ -828,8 +806,7 @@ crUninstallFromCurrentThread();
  *  \sa crAddFileW(), crAddFileA(), crAddFile()
  */
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crAddFileW(
    LPCWSTR pszFile,
    LPCWSTR pszDesc 
@@ -840,8 +817,7 @@ crAddFileW(
  */
 
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crAddFileA(
    LPCSTR pszFile,
    LPCSTR pszDesc 
@@ -912,8 +888,7 @@ crAddFileA(
  *  \sa crAddFile2W(), crAddFile2A(), crAddFile2()
  */
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crAddFile2W(
    LPCWSTR pszFile,
    LPCWSTR pszDestFile,
@@ -925,8 +900,7 @@ crAddFile2W(
  *  \copydoc crAddFile2W()
  */
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crAddFile2A(
    LPCSTR pszFile,
    LPCSTR pszDestFile,
@@ -976,8 +950,7 @@ crAddFile2A(
  *   crAddFile2()
  */
 
-int
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crAddScreenshot(
    DWORD dwFlags
    );
@@ -1009,8 +982,7 @@ crAddScreenshot(
  *   crAddFile2(), crAddScreenshot()
  */
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crAddPropertyW(
    LPCWSTR pszPropName,
    LPCWSTR pszPropValue
@@ -1020,8 +992,7 @@ crAddPropertyW(
  *  \copydoc crAddPropertyW()
  */
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crAddPropertyA(
    LPCSTR pszPropName,
    LPCSTR pszPropValue
@@ -1161,8 +1132,7 @@ typedef CR_EXCEPTION_INFO *PCR_EXCEPTION_INFO;
  *    \endcode
  */
 
-int 
-CRASHRPTAPI 
+CRASHRPTAPI(int)
 crGenerateErrorReport(   
    __in_opt CR_EXCEPTION_INFO* pExceptionInfo
    );
@@ -1206,8 +1176,7 @@ crGenerateErrorReport(
  *     \endcode 
  */
 
-int 
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crExceptionFilter(
   unsigned int code, 
   __in_opt struct _EXCEPTION_POINTERS* ep);
@@ -1264,8 +1233,7 @@ crExceptionFilter(
  *
  */
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crEmulateCrash(
   unsigned ExceptionType);
 
@@ -1303,8 +1271,7 @@ crEmulateCrash(
  *  \sa crGetLastErrorMsgA(), crGetLastErrorMsgW(), crGetLastErrorMsg()
  */
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crGetLastErrorMsgW(
   __out_ecount_z(uBuffSize) LPWSTR pszBuffer, 
   UINT uBuffSize);
@@ -1314,8 +1281,7 @@ crGetLastErrorMsgW(
  *
  */
 
-int
-CRASHRPTAPI
+CRASHRPTAPI(int)
 crGetLastErrorMsgA(
   __out_ecount_z(uBuffSize) LPSTR pszBuffer, 
   UINT uBuffSize);
@@ -1329,11 +1295,6 @@ crGetLastErrorMsgA(
 #else
 #define crGetLastErrorMsg crGetLastErrorMsgA
 #endif //UNICODE
-
-
-#ifdef __cplusplus
-}
-#endif
 
 
 //// Helper wrapper classes
