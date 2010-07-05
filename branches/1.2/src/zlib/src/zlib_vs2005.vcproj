@@ -20,7 +20,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\lib"
+			OutputDirectory="$(SolutionDir)zlib\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\zlibd.lib"
+				OutputFile="$(OutDir)\zlibd.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

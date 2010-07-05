@@ -20,7 +20,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\lib"
+			OutputDirectory="$(SolutionDir)minizip\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\minizipd.lib"
+				OutputFile="$(OutDir)\minizipd.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

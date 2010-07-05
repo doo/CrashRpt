@@ -19,7 +19,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -78,7 +78,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptd.lib shell32.lib"
-				OutputFile="..\..\bin\CrashRptTestd.exe"
+				OutputFile="$(OutDir)\CrashRptTestd.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
