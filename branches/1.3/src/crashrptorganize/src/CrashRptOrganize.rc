@@ -82,14 +82,15 @@ IDR_MAINFRAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
-        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&New Database...\tCtrl+N",    ID_FILE_NEW
+        MENUITEM "&Open Database...\tCtrl+O",   ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "Close Database",              ID_FILE_CLOSEDATABASE
+        MENUITEM SEPARATOR
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
-        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
-        MENUITEM "P&rint Setup...",             ID_FILE_PRINT_SETUP
+        MENUITEM "Import Error Reports...",     ID_FILE_IMPORTERRORREPORTS
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
@@ -113,6 +114,7 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
+        MENUITEM "User Manual (HTML)",          ID_HELP_USERMANUAL
         MENUITEM "&About CrashRptOrganize...",  ID_APP_ABOUT
     END
 END
@@ -138,8 +140,8 @@ CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,69,50,50,14
-    ICON            IDR_MAINFRAME,IDC_STATIC,7,22,21,20
-    LTEXT           "CrashRptOrganize",IDC_STATIC,40,27,140,8
+    ICON            IDR_MAINFRAME,IDC_STATIC,51,18,21,20
+    LTEXT           "CrashRptOrganize",IDC_STATIC,79,22,58,8
 END
 
 

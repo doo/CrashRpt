@@ -206,6 +206,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DbManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -240,6 +244,10 @@
 			</File>
 			<File
 				RelativePath=".\CrashRptOrganizeView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DbManager.h"
 				>
 			</File>
 			<File

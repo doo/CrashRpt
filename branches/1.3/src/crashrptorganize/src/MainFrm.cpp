@@ -83,7 +83,7 @@ LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 	CCrashRptOrganizeView* pView = new CCrashRptOrganizeView;
 	pView->Create(m_view, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, _T("Document"));
-
+  
 	// TODO: add code to initialize document
 
 	return 0;
