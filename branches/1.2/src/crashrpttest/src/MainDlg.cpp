@@ -32,10 +32,25 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
 	SetIcon(hIconSmall, FALSE);
 
-#if ( _MSC_VER<1400 )
-  ::EnableWindow(GetDlgItem(IDC_MAIN_INVPAR), 0);
-  ::EnableWindow(GetDlgItem(IDC_THREAD_INVPAR), 0);
-#endif
+  m_cboThread = GetDlgItem(IDC_THREAD);
+  m_cboThread.InsertString(0, _T("Main thread"));
+  m_cboThread.InsertString(1, _T("Worker thread"));
+  m_cboThread.SetCurSel(0);
+
+  m_cboExcType = GetDlgItem(IDC_EXCTYPE);
+  m_cboExcType.InsertString(0, _T("SEH exception"));
+  m_cboExcType.InsertString(1, _T("CRT terminate"));
+  m_cboExcType.InsertString(2, _T("CRT unexpected"));
+  m_cboExcType.InsertString(3, _T("CRT new operator fault"));
+  m_cboExcType.InsertString(4, _T("CRT buffer overrun"));
+  m_cboExcType.InsertString(5, _T("CRT typed exception (throw)"));
+  m_cboExcType.InsertString(6, _T("CRT SIGABRT signal"));
+  m_cboExcType.InsertString(7, _T("CRT SIGTERM signal"));
+  m_cboExcType.InsertString(8, _T("CRT SIGILL signal"));
+  m_cboExcType.InsertString(9, _T("CRT SIGINT signal"));
+  m_cboExcType.InsertString(10, _T("CRT SIGSEGV signal"));
+  m_cboExcType.InsertString(11, _T("Manually generated error report"));
+  m_cboExcType.SetCurSel(0);
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();

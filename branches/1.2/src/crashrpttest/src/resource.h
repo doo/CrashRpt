@@ -41,6 +41,15 @@
 #define IDC_EXCTYPE                     1043
 #define IDC_BUTTON1                     1044
 #define IDC_CRASH                       1044
+#define IDC_EXCTYPE2                    1045
+#define IDC_RADIO1                      1046
+#define IDC_RADIO2                      1047
+#define IDC_RADIO3                      1048
+#define IDC_EDIT1                       1049
+#define IDC_EDIT2                       1050
+#define IDC_EDIT3                       1051
+#define IDC_CHECK2                      1052
+#define IDC_EDIT4                       1053
 
 // Next default values for new objects
 // 
@@ -48,7 +57,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        201
 #define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1045
+#define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -4,6 +4,7 @@ erase /A H *.suo
 erase *.ncb
 erase *.opt
 erase *.ilk
+erase *.sdf
 
 erase bin\*.pdb
 erase bin\*.ilk

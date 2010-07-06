@@ -44,4 +44,7 @@ public:
 
 	void CloseDialog(int nVal);
   BOOL m_bRestarted;
+
+  CComboBox m_cboThread;
+  CComboBox m_cboExcType;
 };
