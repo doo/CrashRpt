@@ -682,32 +682,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
     {
       hKey = HKEY_CURRENT_USER;
       nSkip = 17;
-    }
-    else if(sSubKey.Left(18).Compare(_T("HKEY_CLASSES_ROOT\\"))==0)
-    {
-      nSkip = 5;
-      hKey = HKEY_CLASSES_ROOT;
-    }
-    else if(sSubKey.Left(5).Compare(_T("HKEY_CURRENT_CONFIG\\"))==0)
-    {
-      nSkip = 5;
-      hKey = HKEY_CURRENT_CONFIG;
-    }
-    else if(sSubKey.Left(5).Compare(_T("HKEY_DYN_DATA\\"))==0)
-    {
-      nSkip = 5;
-      hKey = HKEY_DYN_DATA;
-    }
-    else if(sSubKey.Left(5).Compare(_T("HKEY_PERFORMANCE_DATA\\"))==0)
-    {
-      nSkip = 5;
-      hKey = HKEY_PERFORMANCE_DATA;
-    }
-    else if(sSubKey.Left(11).Compare(_T("HKEY_USERS\\"))==0)
-    {
-      nSkip = 11;
-      hKey = HKEY_USERS;
-    }
+    }    
     else 
     {
       return 1; // Invalid key.
@@ -732,31 +707,132 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
     int pos = sSubKey.Find('\\');
     CString sKey = sSubKey;
     if(pos>0)
-    {
       sKey = sSubKey.Mid(0, pos);
-      LPCSTR szKey = strconv.t2a(sKey);
+    LPCSTR szKey = strconv.t2a(sKey);
+    
+    TiXmlHandle key_node = elem->FirstChild(szKey);
+    if(key_node.ToElement()==NULL)
+    {
+      key_node = new TiXmlElement("k");
+      elem->LinkEndChild(key_node.ToNode());
+      key_node.ToElement()->SetAttribute("name", szKey);
+    }
 
-      if(ERROR_SUCCESS==RegOpenKeyEx(hParentKey, sKey, 0, GENERIC_READ, &hKey))
+    if(ERROR_SUCCESS==RegOpenKeyEx(hParentKey, sKey, 0, GENERIC_READ, &hKey))
+    {
+      if(pos>0)
       {
-        TiXmlHandle key_node = elem->FirstChild(szKey);
-        if(key_node.ToElement()==NULL)
-        {
-          key_node = new TiXmlElement("k");
-          elem->LinkEndChild(key_node.ToNode());
-          key_node.ToElement()->SetAttribute("name", szKey);
-        }
-
-        // Dump key values        
-
-        if(pos>0)
-        {
-          sSubKey = sSubKey.Mid(pos+1);
-          DumpRegKey(hKey, sSubKey, key_node.ToElement());
-        }
-
-        RegCloseKey(hKey);
+        sSubKey = sSubKey.Mid(pos+1);
+        DumpRegKey(hKey, sSubKey, key_node.ToElement());
       }
-    }    
+      else
+      {
+        DWORD dwSubKeys = 0;
+        DWORD dwMaxSubKey = 0;
+        DWORD dwValues = 0;
+        DWORD dwMaxValueNameLen = 0;
+        DWORD dwMaxValueLen = 0;
+        LONG lResult = RegQueryInfoKey(hKey, NULL, 0, 0, &dwSubKeys, &dwMaxSubKey, 
+          0, &dwValues, &dwMaxValueNameLen, &dwMaxValueLen, NULL, NULL); 
+        if(lResult==ERROR_SUCCESS)
+        {
+          // Enumerate and dump subkeys          
+          int i;
+          for(i=0; i<(int)dwSubKeys; i++)
+          { 
+            LPWSTR szName = new WCHAR[dwMaxSubKey];
+            DWORD dwLen = dwMaxSubKey;
+            lResult = RegEnumKeyEx(hKey, i, szName, &dwLen, 0, NULL, 0, NULL);
+            if(lResult==ERROR_SUCCESS)
+            {
+              DumpRegKey(hKey, CString(szName), key_node.ToElement());
+            }
+
+            delete [] szName;
+          }         
+
+          // Dump key values 
+          for(i=0; i<(int)dwValues; i++)
+          { 
+            LPWSTR szName = new WCHAR[dwMaxValueNameLen];
+            LPBYTE pData = new BYTE[dwMaxValueLen];
+            DWORD dwNameLen = dwMaxValueNameLen;
+            DWORD dwValueLen = dwMaxValueLen;
+            DWORD dwType = 0;
+
+            lResult = RegEnumValue(hKey, i, szName, &dwNameLen, 0, &dwType, pData, &dwValueLen);
+            if(lResult==ERROR_SUCCESS)
+            {
+              TiXmlHandle val_node = key_node.ToElement()->FirstChild(strconv.w2a(szName));
+              if(val_node.ToElement()==NULL)
+              {
+                val_node = new TiXmlElement("v");
+                key_node.ToElement()->LinkEndChild(val_node.ToNode());
+                val_node.ToElement()->SetAttribute("name", strconv.w2a(szName));
+
+                LPSTR szType = NULL;
+                if(dwType==REG_BINARY)
+                  szType = "REG_BINARY";
+                else if(dwType==REG_DWORD)
+                  szType = "REG_DWORD";
+                else if(dwType==REG_EXPAND_SZ)
+                  szType = "REG_EXPAND_SZ";
+                else if(dwType==REG_MULTI_SZ)
+                  szType = "REG_MULTI_SZ";
+                else if(dwType==REG_QWORD)
+                  szType = "REG_QWORD";
+                else if(dwType==REG_SZ)
+                  szType = "REG_SZ";
+                else 
+                  szType = "Unknown type";                
+                
+                val_node.ToElement()->SetAttribute("type", szType);
+                
+
+              }
+
+              if(dwType==REG_BINARY)
+              {
+                std::string str;
+                int i;
+                for(i=0; i<dwValueLen; i++)
+                {
+                  char num[10];
+                  sprintf_s(num, 10, "%02X", pData[i]);
+                  str += num;
+                  str += " ";
+                }
+                
+                val_node.ToElement()->SetAttribute("value", str.c_str());
+              }
+              else if(dwType==REG_DWORD)
+              {
+                LPDWORD pdwValue = (LPDWORD)pData;
+                char str[64];
+                sprintf_s(str, 64, "0x%x (%lu)", *pdwValue, *pdwValue);                
+                val_node.ToElement()->SetAttribute("value", str);
+              }
+              else if(dwType==REG_SZ)
+              {
+                val_node.ToElement()->SetAttribute("value", (char*)pData);
+              }
+
+            }
+
+            delete [] szName;
+            delete [] pData;
+          }         
+        }
+      }
+
+      RegCloseKey(hKey);
+    }
+    else
+    {      
+      CString sErrMsg = Utility::FormatErrorMsg(GetLastError());
+      LPCSTR szErrMsg = strconv.t2a(sErrMsg);
+      key_node.ToElement()->SetAttribute("error", szErrMsg);
+    }
   }
 
   return 0;
