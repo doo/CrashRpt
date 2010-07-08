@@ -645,7 +645,7 @@ void test_buffer_overrun(const char *str)
 
 
 CRASHRPTAPI(int) 
-crEmulateCrash(unsigned ExceptionType)
+crEmulateCrash(unsigned ExceptionType) throw (...)
 {
   crSetErrorMsg(_T("Unspecified error."));
 
@@ -743,6 +743,12 @@ crEmulateCrash(unsigned ExceptionType)
     {
       // Raise noncontinuable software exception
       RaiseException(123, EXCEPTION_NONCONTINUABLE, 0, NULL);        
+    }
+    break;
+  case CR_THROW: 
+    {
+      // Throw typed C++ exception.
+      throw 13;
     }
     break;
   default:

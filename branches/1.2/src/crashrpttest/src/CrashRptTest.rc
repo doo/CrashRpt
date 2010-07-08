@@ -70,30 +70,18 @@ BEGIN
     LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,51,22,114,8
 END
 
-IDD_MAINDLG DIALOGEX 0, 0, 298, 263
+IDD_MAINDLG DIALOGEX 0, 0, 298, 191
 STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
 CAPTION "CrashRptTest"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    PUSHBUTTON      "Quit",IDOK,152,241,60,14
-    COMBOBOX        IDC_THREAD,7,21,284,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Thread:",IDC_STATIC,7,9,26,8
-    COMBOBOX        IDC_EXCTYPE,7,54,284,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Exception type:",IDC_STATIC,7,43,50,8
-    DEFPUSHBUTTON   "Crash!",IDC_CRASH,77,241,60,14
-    CONTROL         "Use crInstall/crUninstall",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,7,82,91,10
-    CONTROL         "Use deprecated funcs",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,99,82,86,10
-    CONTROL         "Do not install exc. handlers",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,190,82,101,10
-    EDITTEXT        IDC_EDIT1,59,107,114,13,ES_AUTOHSCROLL
-    LTEXT           "E-mail recipient:",IDC_STATIC,7,109,50,8
-    EDITTEXT        IDC_EDIT2,7,156,236,13,ES_AUTOHSCROLL
-    LTEXT           "E-mail subject:",IDC_STATIC,7,125,46,8
-    EDITTEXT        IDC_EDIT3,59,124,114,13,ES_AUTOHSCROLL
-    LTEXT           "Use SMTP proxy (host:port):",IDC_STATIC,6,142,90,8
-    CONTROL         "Generate minidump",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,176,77,10
-    COMBOBOX        IDC_EXCTYPE2,83,175,75,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_EDIT4,7,207,284,13,ES_AUTOHSCROLL
-    LTEXT           "URL for deliverying error reports over HTTP  (http://host:[port]/crashrpt.php):",IDC_STATIC,7,194,242,8
+    PUSHBUTTON      "Quit",IDCANCEL,152,169,60,14
+    COMBOBOX        IDC_THREAD,7,54,284,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Thread:",IDC_STATIC,7,41,26,8
+    COMBOBOX        IDC_EXCTYPE,7,94,284,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Exception type:",IDC_STATIC,7,83,50,8
+    DEFPUSHBUTTON   "Crash!",IDOK,77,169,60,14
+    LTEXT           "Select a thread and exception type and press the ""Crash"" button.",IDC_STATIC,7,7,284,21
 END
 
 
@@ -118,8 +106,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 291
         TOPMARGIN, 7
-        BOTTOMMARGIN, 255
-        HORZGUIDE, 87
+        BOTTOMMARGIN, 183
     END
 END
 #endif    // APSTUDIO_INVOKED

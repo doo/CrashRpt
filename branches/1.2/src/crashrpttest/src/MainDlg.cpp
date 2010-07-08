@@ -9,6 +9,8 @@
 #include "CrashThread.h"
 #include <assert.h>
 
+#define MANUAL_REPORT 128
+
 BOOL CMainDlg::PreTranslateMessage(MSG* pMsg)
 {
 	return CWindow::IsDialogMessage(pMsg);
@@ -32,24 +34,65 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 		IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
 	SetIcon(hIconSmall, FALSE);
 
+  int nItem = 0;
+
   m_cboThread = GetDlgItem(IDC_THREAD);
-  m_cboThread.InsertString(0, _T("Main thread"));
-  m_cboThread.InsertString(1, _T("Worker thread"));
+
+  nItem = m_cboThread.AddString(_T("Main thread"));
+  m_cboThread.SetItemData(nItem, 0);
+  
+  nItem = m_cboThread.AddString(_T("Worker thread"));
+  m_cboThread.SetItemData(nItem, 1);
+
   m_cboThread.SetCurSel(0);
 
   m_cboExcType = GetDlgItem(IDC_EXCTYPE);
-  m_cboExcType.InsertString(0, _T("SEH exception"));
-  m_cboExcType.InsertString(1, _T("CRT terminate"));
-  m_cboExcType.InsertString(2, _T("CRT unexpected"));
-  m_cboExcType.InsertString(3, _T("CRT new operator fault"));
-  m_cboExcType.InsertString(4, _T("CRT buffer overrun"));
-  m_cboExcType.InsertString(5, _T("CRT typed exception (throw)"));
-  m_cboExcType.InsertString(6, _T("CRT SIGABRT signal"));
-  m_cboExcType.InsertString(7, _T("CRT SIGTERM signal"));
-  m_cboExcType.InsertString(8, _T("CRT SIGILL signal"));
-  m_cboExcType.InsertString(9, _T("CRT SIGINT signal"));
-  m_cboExcType.InsertString(10, _T("CRT SIGSEGV signal"));
-  m_cboExcType.InsertString(11, _T("Manually generated error report"));
+  
+  nItem = m_cboExcType.AddString(_T("SEH exception"));
+  m_cboExcType.SetItemData(nItem, CR_SEH_EXCEPTION);
+
+  nItem = m_cboExcType.AddString(_T("terminate"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_TERMINATE_CALL);
+
+  nItem = m_cboExcType.AddString(_T("unexpected"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_UNEXPECTED_CALL);
+
+  nItem = m_cboExcType.AddString(_T("pure virtual method call"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_PURE_CALL);
+
+  nItem = m_cboExcType.AddString(_T("new operator fault"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_NEW_OPERATOR_ERROR);
+
+  nItem = m_cboExcType.AddString(_T("buffer overrun"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SECURITY_ERROR);
+
+  nItem = m_cboExcType.AddString(_T("invalid parameter"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_INVALID_PARAMETER);
+
+  nItem = m_cboExcType.AddString(_T("SIGABRT"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SIGABRT);
+
+  nItem = m_cboExcType.AddString(_T("SIGFPE"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SIGFPE);
+
+  nItem = m_cboExcType.AddString(_T("SIGILL"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SIGILL);
+
+  nItem = m_cboExcType.AddString(_T("SIGINT"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SIGINT);
+
+  nItem = m_cboExcType.AddString(_T("SIGSEGV"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SIGSEGV);
+
+  nItem = m_cboExcType.AddString(_T("SIGTERM"));
+  m_cboExcType.SetItemData(nItem, CR_CPP_SIGTERM);
+
+  nItem = m_cboExcType.AddString(_T("throw C++ typed exception"));
+  m_cboExcType.SetItemData(nItem, CR_THROW);
+
+  nItem = m_cboExcType.AddString(_T("Manual report"));
+  m_cboExcType.SetItemData(nItem, MANUAL_REPORT);
+
   m_cboExcType.SetCurSel(0);
 
 	// register object for message filtering and idle updates
@@ -74,10 +117,9 @@ LRESULT CMainDlg::OnPostCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
   return 0;
 }
 
-LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT CMainDlg::OnOK(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	// TODO: Add validation code 
-	CloseDialog(wID);
+	DoCrash();
 	return 0;
 }
 
@@ -93,87 +135,39 @@ void CMainDlg::CloseDialog(int nVal)
 	::PostQuitMessage(nVal);
 }
 
-LRESULT CMainDlg::OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+void CMainDlg::DoCrash()
 {
-  int type = 0;
+  int nSel = m_cboThread.GetCurSel();
+  int nThread = m_cboThread.GetItemData(nSel);
 
-  switch(wID)
-  {
-  case IDC_MAIN_NOEXC: return 0;
-  case IDC_MAIN_WIN32: type = CR_SEH_EXCEPTION; break;                              
-  case IDC_MAIN_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
-  case IDC_MAIN_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
-  case IDC_MAIN_PURECALL: type = CR_CPP_PURE_CALL; break;
-  case IDC_MAIN_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
-#if _MSC_VER>=1400
-  case IDC_MAIN_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;  
-#endif
-  case IDC_MAIN_SECURITY: type = CR_CPP_SECURITY_ERROR; break;  
-  case IDC_MAIN_SIGABRT: type = CR_CPP_SIGABRT; break;
-  case IDC_MAIN_SIGFPE: type = CR_CPP_SIGFPE; break;
-  case IDC_MAIN_SIGILL: type = CR_CPP_SIGILL; break;
-  case IDC_MAIN_SIGINT: type = CR_CPP_SIGINT; break;
-  case IDC_MAIN_SIGSEGV: type = CR_CPP_SIGSEGV; break;
-  case IDC_MAIN_SIGTERM: type = CR_CPP_SIGTERM; break;
-  case IDC_MAIN_SEH: type = CR_NONCONTINUABLE_EXCEPTION; break;
-  case IDC_MAIN_MANUALREPORT:
+  nSel = m_cboExcType.GetCurSel();
+  int nExcType = m_cboExcType.GetItemData(nSel);
+  
+  if(nThread==0) // The main thread
+  {    
+    if(nExcType==MANUAL_REPORT)
     {
-      test_generate_report();
-      return 0;
-    };
-  default: ATLASSERT(0); break;
-  }
-
-  if(type!=CR_NONCONTINUABLE_EXCEPTION)
-  {
-    int nResult = crEmulateCrash(type);
-    if(nResult!=0)
-    {
-      TCHAR szErrorMsg[256];
-      CString sError = _T("Error creating exception situation!\nErrorMsg:");
-      crGetLastErrorMsg(szErrorMsg, 256);
-      sError+=szErrorMsg;
-      MessageBox(sError);
+        test_generate_report();
+        return;
     }
+    else
+    {
+      int nResult = crEmulateCrash(nExcType);
+      if(nResult!=0)
+      {
+        TCHAR szErrorMsg[256];
+        CString sError = _T("Error creating exception situation!\nErrorMsg:");
+        crGetLastErrorMsg(szErrorMsg, 256);
+        sError+=szErrorMsg;
+        MessageBox(sError);
+      }
+    }  
   }
-  else
+  else // Worker thread
   {
-    test_seh();
+    extern CrashThreadInfo g_CrashThreadInfo;
+    g_CrashThreadInfo.m_ExceptionType = nExcType;
+    SetEvent(g_CrashThreadInfo.m_hWakeUpEvent); // wake up the working thread
   }
-
-  return 0;
 }
 
-LRESULT CMainDlg::OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-  int type = 0;
-
-  switch(wID)
-  {
-  case IDC_THREAD_NOEXC: return 0;
-  case IDC_THREAD_WIN32: type = CR_SEH_EXCEPTION; break;                              
-  case IDC_THREAD_TERM: type = CR_CPP_TERMINATE_CALL; break;                              
-  case IDC_THREAD_UNEXP: type = CR_CPP_UNEXPECTED_CALL; break;                              
-  case IDC_THREAD_PURECALL: type = CR_CPP_PURE_CALL; break;
-  case IDC_THREAD_NEW: type = CR_CPP_NEW_OPERATOR_ERROR; break;
-#if _MSC_VER>=1400
-  case IDC_THREAD_INVPAR: type = CR_CPP_INVALID_PARAMETER; break;
-#endif
-  case IDC_THREAD_SECURITY: type = CR_CPP_SECURITY_ERROR; break;
-  case IDC_THREAD_SIGABRT: type = CR_CPP_SIGABRT; break;
-  case IDC_THREAD_SIGFPE: type = CR_CPP_SIGFPE; break;
-  case IDC_THREAD_SIGILL: type = CR_CPP_SIGILL; break;
-  case IDC_THREAD_SIGINT: type = CR_CPP_SIGINT; break;
-  case IDC_THREAD_SIGSEGV: type = CR_CPP_SIGSEGV; break;
-  case IDC_THREAD_SIGTERM: type = CR_CPP_SIGTERM; break;
-  case IDC_THREAD_SEH: type = CR_NONCONTINUABLE_EXCEPTION; break; 
-  case IDC_THREAD_MANUALREPORT: type = 128; break;
-  default: assert(0); break;
-  }
-
-  extern CrashThreadInfo g_CrashThreadInfo;
-  g_CrashThreadInfo.m_ExceptionType = type;
-  SetEvent(g_CrashThreadInfo.m_hWakeUpEvent); // wake up the working thread
-
-  return 0;
-}

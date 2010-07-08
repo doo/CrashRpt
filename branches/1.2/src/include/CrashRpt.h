@@ -1182,6 +1182,7 @@ crExceptionFilter(
   __in_opt struct _EXCEPTION_POINTERS* ep);
 
 #define CR_NONCONTINUABLE_EXCEPTION  32  //!< Non continuable sofware exception. 
+#define CR_THROW                     33  //!< Throw C++ typed exception.
 
 /*! \ingroup CrashRptAPI  
  *  \brief Emulates a predefined crash situation.
@@ -1218,6 +1219,7 @@ crExceptionFilter(
  *    - \ref CR_CPP_SIGTERM This raises SIGTERM signal (program termination request).
  *    - \ref CR_NONCONTINUABLE_EXCEPTION This raises a noncontinuable software exception (expected result 
  *         is the same as in \ref CR_SEH_EXCEPTION).
+ *    - \ref CR_THROW This throws a C++ typed exception (expected result is the same as in \ref CR_CPP_TERMINATE_CALL).
  *
  *  The \ref CR_SEH_EXCEPTION uses null pointer write operation to cause the access violation.
  *
@@ -1235,7 +1237,7 @@ crExceptionFilter(
 
 CRASHRPTAPI(int)
 crEmulateCrash(
-  unsigned ExceptionType);
+  unsigned ExceptionType) throw (...);
 
 
 

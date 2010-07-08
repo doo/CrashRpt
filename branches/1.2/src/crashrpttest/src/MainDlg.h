@@ -23,9 +23,6 @@ public:
     MESSAGE_HANDLER(WM_POSTCREATE, OnPostCreate)		
 		COMMAND_ID_HANDLER(IDOK, OnOK)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
-
-    COMMAND_RANGE_HANDLER(IDC_MAIN_WIN32, IDC_MAIN_MANUALREPORT, OnExceptionInMainThread)
-    COMMAND_RANGE_HANDLER(IDC_THREAD_WIN32, IDC_THREAD_MANUALREPORT, OnExceptionInWorkingThread)
    
   END_MSG_MAP()
 
@@ -38,11 +35,9 @@ public:
   LRESULT OnPostCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-
-  LRESULT OnExceptionInMainThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-  LRESULT OnExceptionInWorkingThread(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-
+  
 	void CloseDialog(int nVal);
+  void DoCrash();
   BOOL m_bRestarted;
 
   CComboBox m_cboThread;
