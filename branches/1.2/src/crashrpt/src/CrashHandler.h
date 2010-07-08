@@ -113,6 +113,8 @@ public:
   // Adds desktop screenshot on crash
   int AddScreenshot(DWORD dwFlags);
 
+  int AddRegKey(CString sDstFileName, CString sRegKeyList, DWORD dwFlags);
+
   // Generates error report
   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
      

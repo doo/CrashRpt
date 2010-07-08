@@ -998,6 +998,65 @@ crAddPropertyA(
    LPCSTR pszPropValue
    );
 
+/*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
+ *  \ingroup CrashRptAPI
+ */
+#ifdef UNICODE
+#define crAddProperty crAddPropertyW
+#else
+#define crAddProperty crAddPropertyA
+#endif //UNICODE
+
+/*! \ingroup CrashRptAPI  
+ *  \brief Adds a registry key dump to the crash report.
+ * 
+ *  \return This function returns zero if succeeded.
+ *
+ *  \param[in] pszDstFileName   Name of the destination file, required.
+ *  \param[in] pszRegKeyList    The list of registry keys to include, required.
+ *  \param[in] dwFlags          Flags.
+ *  
+ *  \remarks 
+ *
+ *  Use this function to add a dump of one or more Windows registry keys into the crash report.
+ *
+ *  The \a pszRegKeyList parameter must be a double-zero terminated string. Separate the keys in
+ *  this string with zero symbols (see the example below).
+ * 
+ *  The content of the keys specified by the \a pszRegKeyList parameter will be stored in XML
+ *  format and include into the error report as \a pszDstFileName file.
+ *
+ *  The \a dwFlags parameter is reserved for future use and should be set to zero.
+ *
+ *  The following example shows how to add two registry keys:
+ *  \code
+ *  
+ *  LPCTSTR szKeyList = _T("HKCU\\Software\\MyApp\0HKLM\\Software\\MyApp\0\0");
+ *  crAddRegKeys(_T(""), szKeyList);
+ *
+ *  \endcode
+ *
+ *  \sa
+ *   crAddFile2(), crAddScreenshot(), crAddProperty()
+ */
+
+CRASHRPTAPI(int)
+crAddRegKeyW(
+   LPCWSTR pszDstFileName,
+   LPCWSTR pszRegKeyList,
+   DWORD dwFlags
+   );
+
+/*! \ingroup CrashRptAPI
+ *  \copydoc crAddRegKeyW()
+ */
+
+CRASHRPTAPI(int)
+crAddRegKeyA(
+   LPCSTR pszDstFileName,
+   LPCSTR pszRegKeyList,
+   DWORD dwFlags
+   );
 
 /*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
  *  \ingroup CrashRptAPI

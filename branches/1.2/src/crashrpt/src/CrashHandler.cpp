@@ -890,6 +890,11 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
+int CCrashHandler::AddRegKey(CString sDstFileName, CString sRegKeyList, DWORD dwFlags)
+{
+  return 0;
+}
+
 void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode, 
   EXCEPTION_POINTERS** ppExceptionPointers)
 {

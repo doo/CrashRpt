@@ -426,6 +426,52 @@ crAddPropertyA(
   return crAddPropertyW(strconv.a2w(pszPropName), strconv.a2w(pszPropValue));
 }
 
+CRASHRPTAPI(int)
+crAddRegKeyW(
+   LPCWSTR pszDstFileName,
+   LPCWSTR pszRegKeyList,
+   DWORD dwFlags
+   )
+{
+  crSetErrorMsg(_T("Unspecified error."));
+
+  strconv_t strconv;
+  LPCTSTR pszDstFileNameT = strconv.w2t(pszDstFileName);
+  LPCTSTR pszRegKeyListT = strconv.w2t(pszRegKeyList);
+
+  CCrashHandler *pCrashHandler = 
+    CCrashHandler::GetCurrentProcessCrashHandler();
+
+  if(pCrashHandler==NULL)
+  {
+    ATLASSERT(pCrashHandler!=NULL);
+    crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+    return 1; // No handler installed for current process?
+  }
+
+  int nResult = pCrashHandler->AddRegKey(CString(pszDstFileNameT), CString(pszRegKeyListT), dwFlags);
+  if(nResult!=0)
+  {    
+    crSetErrorMsg(_T("Invalid parameter or key doesn't exist."));
+    return 2; // Failed to add the property
+  }
+  
+  crSetErrorMsg(_T("Success."));
+  return 0;
+}
+
+CRASHRPTAPI(int)
+crAddRegKeyA(
+   LPCSTR pszDstFileName,
+   LPCSTR pszRegKeyList,
+   DWORD dwFlags
+   )
+{
+  // This is just a wrapper for wide-char function version
+  strconv_t strconv;
+  return crAddPropertyW(strconv.a2w(pszDstFileName), strconv.a2w(pszRegKeyList));
+}
+
 CRASHRPTAPI(int) 
 crGenerateErrorReport(
   CR_EXCEPTION_INFO* pExceptionInfo)

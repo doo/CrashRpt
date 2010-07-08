@@ -26,5 +26,7 @@ EXPORTS
    crEmulateCrash      @22
    crGetLastErrorMsgW  @23
    crGetLastErrorMsgA  @24
+   crAddRegKeyW        @25
+   crAddRegKeyA        @26
    
 
