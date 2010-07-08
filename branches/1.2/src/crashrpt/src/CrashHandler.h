@@ -113,7 +113,7 @@ public:
   // Adds desktop screenshot on crash
   int AddScreenshot(DWORD dwFlags);
 
-  int AddRegKey(CString sDstFileName, CString sRegKeyList, DWORD dwFlags);
+  int AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKeyList, DWORD dwFlags);
 
   // Generates error report
   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
@@ -217,6 +217,7 @@ private:
 
   std::map<CString, FileItem> m_files;  // Files to be added to crash report.
   std::map<CString, CString> m_props;   // User-defined properties
+  std::map<CString, CString> m_RegKeys; // Registry keys to include.
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
   CString m_sEmailTo;            // Email recipient address.
   int m_nSmtpPort;               // Port for SMTP connection.

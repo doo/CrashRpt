@@ -37,6 +37,7 @@
 #include "MailMsg.h"
 #include "smtpclient.h"
 #include "HttpRequestSender.h"
+#include "tinyxml.h"
 
 enum ActionType  
 {
@@ -76,6 +77,8 @@ private:
     
   BOOL CollectCrashFiles();
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
+  int DumpRegKey(CString sRegKey, CString sDestFile);
+  int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
   BOOL TakeDesktopScreenshot();
   BOOL CreateMiniDump();  
   static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,

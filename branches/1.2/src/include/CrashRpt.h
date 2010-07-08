@@ -1012,8 +1012,8 @@ crAddPropertyA(
  * 
  *  \return This function returns zero if succeeded.
  *
- *  \param[in] pszDstFileName   Name of the destination file, required.
  *  \param[in] pszRegKeyList    The list of registry keys to include, required.
+ *  \param[in] pszDstFileName   Name of the destination file, required. 
  *  \param[in] dwFlags          Flags.
  *  
  *  \remarks 
@@ -1041,9 +1041,9 @@ crAddPropertyA(
  */
 
 CRASHRPTAPI(int)
-crAddRegKeyW(
-   LPCWSTR pszDstFileName,
+crAddRegKeyW(   
    LPCWSTR pszRegKeyList,
+   LPCWSTR pszDstFileName,
    DWORD dwFlags
    );
 
@@ -1052,9 +1052,9 @@ crAddRegKeyW(
  */
 
 CRASHRPTAPI(int)
-crAddRegKeyA(
-   LPCSTR pszDstFileName,
+crAddRegKeyA(   
    LPCSTR pszRegKeyList,
+   LPCSTR pszDstFileName,
    DWORD dwFlags
    );
 
@@ -1062,9 +1062,9 @@ crAddRegKeyA(
  *  \ingroup CrashRptAPI
  */
 #ifdef UNICODE
-#define crAddProperty crAddPropertyW
+#define crAddRegKey crAddRegKeyW
 #else
-#define crAddProperty crAddPropertyA
+#define crAddRegKey crAddRegKeyA
 #endif //UNICODE
 
 

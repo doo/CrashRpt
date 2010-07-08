@@ -87,6 +87,7 @@ struct ErrorReportInfo
  
   // The list of files that are included into this report.
   std::map<CString, FileItem>  m_FileItems; 
+  std::map<CString, CString> m_RegKeys;
 };
 
 // Remind policy.
@@ -154,6 +155,8 @@ private:
 
   // Gets the list of file items 
   int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
+
+  int ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
   // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  

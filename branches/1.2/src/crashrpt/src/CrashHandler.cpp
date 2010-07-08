@@ -890,8 +890,38 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
-int CCrashHandler::AddRegKey(CString sDstFileName, CString sRegKeyList, DWORD dwFlags)
+int CCrashHandler::AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKeyList, DWORD dwFlags)
 {
+  dwFlags;
+
+  if(szDstFileName==NULL ||
+     szRegKeyList==NULL)
+  {
+    // Invalid param
+    return 1;
+  }
+
+  int prev = 0;
+  int pos = 0;
+  for(;;)
+  {    
+    if(szRegKeyList[pos]==0 && szRegKeyList[pos+1]==0)
+    {
+      // String separator reached.
+      CString sRegKey = CString(szRegKeyList+prev, pos-prev);
+      sRegKey.TrimLeft(_T(" \t"));
+      sRegKey.TrimRight(_T(" \t"));
+      m_RegKeys[sRegKey] = CString(szDstFileName);
+
+      prev = pos;
+    }   
+
+    if(szRegKeyList[pos]==0 && szRegKeyList[pos+1]==0)
+      break; // Double-zero string terminator reached
+
+    pos++;
+  }    
+
   return 0;
 }
 
@@ -1339,6 +1369,19 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName,
   }
 
   fprintf(f, "  </FileList>\n");
+
+  // Write included reg keys list
+  fprintf(f, "  <RegKeyList>\n");
+   
+  std::map<CString, CString>::iterator rit;
+  for(rit=m_RegKeys.begin(); rit!=m_RegKeys.end(); rit++)
+  {
+    fprintf(f, "    <RegKey name=\"%s\" destfile=\"%s\" />\n",
+      XmlEncodeStr(rit->first).c_str(), 
+      XmlEncodeStr(rit->second).c_str());    
+  }
+
+  fprintf(f, "  </RegKeyList>\n");
   
   fprintf(f, "</CrashRptInternal>\n");
 

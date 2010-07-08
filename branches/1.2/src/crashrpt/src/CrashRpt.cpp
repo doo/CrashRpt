@@ -427,9 +427,9 @@ crAddPropertyA(
 }
 
 CRASHRPTAPI(int)
-crAddRegKeyW(
-   LPCWSTR pszDstFileName,
+crAddRegKeyW(   
    LPCWSTR pszRegKeyList,
+   LPCWSTR pszDstFileName,
    DWORD dwFlags
    )
 {
@@ -449,7 +449,7 @@ crAddRegKeyW(
     return 1; // No handler installed for current process?
   }
 
-  int nResult = pCrashHandler->AddRegKey(CString(pszDstFileNameT), CString(pszRegKeyListT), dwFlags);
+  int nResult = pCrashHandler->AddRegKey(pszRegKeyListT, pszDstFileName, dwFlags);
   if(nResult!=0)
   {    
     crSetErrorMsg(_T("Invalid parameter or key doesn't exist."));
@@ -461,15 +461,15 @@ crAddRegKeyW(
 }
 
 CRASHRPTAPI(int)
-crAddRegKeyA(
-   LPCSTR pszDstFileName,
+crAddRegKeyA(   
    LPCSTR pszRegKeyList,
+   LPCSTR pszDstFileName,
    DWORD dwFlags
    )
 {
   // This is just a wrapper for wide-char function version
   strconv_t strconv;
-  return crAddPropertyW(strconv.a2w(pszDstFileName), strconv.a2w(pszRegKeyList));
+  return crAddRegKeyW(strconv.a2w(pszDstFileName), strconv.a2w(pszRegKeyList), dwFlags);
 }
 
 CRASHRPTAPI(int) 

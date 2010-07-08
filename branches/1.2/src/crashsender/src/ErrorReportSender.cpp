@@ -507,6 +507,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
   DWORD dwBytesWritten=0;
   BOOL bRead = FALSE;
   BOOL bWrite = FALSE;
+  std::map<CString, CString>::iterator rit;
 
   // Copy application-defined files that should be copied on crash
   m_Assync.SetProgress(_T("[copying_files]"), 0, false);
@@ -585,6 +586,27 @@ BOOL CErrorReportSender::CollectCrashFiles()
     }
   }
 
+  // Create dump of registry keys
+
+  ErrorReportInfo& eri = g_CrashInfo.GetReport(m_nCurReport);  
+  for(rit=eri.m_RegKeys.begin(); rit!=eri.m_RegKeys.end(); rit++)
+  {
+    CString sFileName = eri.m_sErrorReportDirName + _T("\\") + rit->second;
+
+    str.Format(_T("Dumping registry key '%s' to file '%s' "), rit->first, sFileName);
+    m_Assync.SetProgress(str, 0, false);    
+
+    DumpRegKey(rit->first, sFileName);
+    FileItem fi;
+    fi.m_sSrcFile = sFileName;
+    fi.m_sDestFile = rit->second;
+    fi.m_sDesc = _T("Registry Key Dump");
+    fi.m_bMakeCopy = FALSE;
+    std::vector<FileItem> file_list;
+    file_list.push_back(fi);
+    g_CrashInfo.AddFilesToCrashDescriptionXML(file_list);
+  }
+
   // Success
   bStatus = TRUE;
 
@@ -598,6 +620,145 @@ cleanup:
 
   m_Assync.SetProgress(_T("Finished copying files."), 100, false);
   
+  return 0;
+}
+
+int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
+{
+  strconv_t strconv;
+  TiXmlDocument document; 
+
+  // Load document if file already exists
+  // otherwise create new document.
+  
+  LPCSTR szDestFile = strconv.t2a(sDestFile);
+
+  FILE* f = NULL;
+  _tfopen_s(&f, sDestFile, _T("rt"));
+  if(f!=NULL)
+  {    
+    fclose(f);
+    document.LoadFile(szDestFile);
+  }
+
+  TiXmlHandle hdoc(&document);
+  
+  TiXmlElement* registry = document.RootElement();
+
+  if(registry==NULL)
+  {
+    registry = new TiXmlElement("registry");
+    document.LinkEndChild(registry);
+  }
+
+  TiXmlNode* declaration = hdoc.Child(0).ToNode();
+  if(declaration==NULL || declaration->Type()!=TiXmlNode::DECLARATION)
+  {
+    TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
+    document.InsertBeforeChild(registry, *decl);
+  }   
+
+  DumpRegKey(NULL, sRegKey, registry);
+
+  bool bSave = document.SaveFile(szDestFile);
+
+  return (bSave==true)?0:1;
+}
+
+int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElement* elem)
+{
+  strconv_t strconv;
+  HKEY hKey = NULL;  
+
+  if(hParentKey==NULL)
+  {    
+    int nSkip = 0;
+    if(sSubKey.Left(19).Compare(_T("HKEY_LOCAL_MACHINE\\"))==0)
+    {
+      hKey = HKEY_LOCAL_MACHINE;
+      nSkip = 18;
+    }
+    else if(sSubKey.Left(18).Compare(_T("HKEY_CURRENT_USER\\"))==0)
+    {
+      hKey = HKEY_CURRENT_USER;
+      nSkip = 17;
+    }
+    else if(sSubKey.Left(18).Compare(_T("HKEY_CLASSES_ROOT\\"))==0)
+    {
+      nSkip = 5;
+      hKey = HKEY_CLASSES_ROOT;
+    }
+    else if(sSubKey.Left(5).Compare(_T("HKEY_CURRENT_CONFIG\\"))==0)
+    {
+      nSkip = 5;
+      hKey = HKEY_CURRENT_CONFIG;
+    }
+    else if(sSubKey.Left(5).Compare(_T("HKEY_DYN_DATA\\"))==0)
+    {
+      nSkip = 5;
+      hKey = HKEY_DYN_DATA;
+    }
+    else if(sSubKey.Left(5).Compare(_T("HKEY_PERFORMANCE_DATA\\"))==0)
+    {
+      nSkip = 5;
+      hKey = HKEY_PERFORMANCE_DATA;
+    }
+    else if(sSubKey.Left(11).Compare(_T("HKEY_USERS\\"))==0)
+    {
+      nSkip = 11;
+      hKey = HKEY_USERS;
+    }
+    else 
+    {
+      return 1; // Invalid key.
+    }
+
+    CString sKey = sSubKey.Mid(0, nSkip);
+    LPCSTR szKey = strconv.t2a(sKey);
+    sSubKey = sSubKey.Mid(nSkip+1);
+
+    TiXmlHandle key_node = elem->FirstChild(szKey);
+    if(key_node.ToElement()==NULL)
+    {
+      key_node = new TiXmlElement("k");
+      elem->LinkEndChild(key_node.ToNode());
+      key_node.ToElement()->SetAttribute("name", szKey);
+    }
+
+    DumpRegKey(hKey, sSubKey, key_node.ToElement());
+  }
+  else
+  {
+    int pos = sSubKey.Find('\\');
+    CString sKey = sSubKey;
+    if(pos>0)
+    {
+      sKey = sSubKey.Mid(0, pos);
+      LPCSTR szKey = strconv.t2a(sKey);
+
+      if(ERROR_SUCCESS==RegOpenKeyEx(hParentKey, sKey, 0, GENERIC_READ, &hKey))
+      {
+        TiXmlHandle key_node = elem->FirstChild(szKey);
+        if(key_node.ToElement()==NULL)
+        {
+          key_node = new TiXmlElement("k");
+          elem->LinkEndChild(key_node.ToNode());
+          key_node.ToElement()->SetAttribute("name", szKey);
+        }
+
+        // Dump key values        
+
+        if(pos>0)
+        {
+          sSubKey = sSubKey.Mid(pos+1);
+          DumpRegKey(hKey, sSubKey, key_node.ToElement());
+        }
+
+        RegCloseKey(hKey);
+      }
+    }    
+  }
+
   return 0;
 }
 

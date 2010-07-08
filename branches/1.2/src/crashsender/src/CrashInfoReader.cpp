@@ -446,6 +446,8 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     // Get the list of files that should be included to report
     ParseFileList(hRoot, eri);
 
+    ParseRegKeyList(hRoot, eri);
+
     // Get some info from crashrpt.xml
     CString sXmlName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
     ParseCrashDescription(sXmlName, FALSE, eri);    
@@ -523,6 +525,36 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
     }
 
     fi = fi.ToElement()->NextSibling("FileItem");
+  }
+
+  return 0;
+}
+
+int CCrashInfoReader::ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
+{
+  strconv_t strconv;
+   
+  TiXmlHandle fl = hRoot.FirstChild("RegKeyList");
+  if(fl.ToElement()==0)
+  {    
+    return 1;
+  }
+
+  TiXmlHandle fi = fl.FirstChild("RegKey");
+  while(fi.ToElement()!=0)
+  {
+    const char* pszDestFile = fi.ToElement()->Attribute("destfile");
+    const char* pszRegKey = fi.ToElement()->Attribute("name");
+    
+    if(pszDestFile!=NULL && pszRegKey!=NULL)
+    {
+	    CString sDestFile = strconv.utf82t(pszDestFile);      
+      CString sRegKey = strconv.utf82t(pszRegKey);
+      
+      eri.m_RegKeys[sRegKey] = sDestFile;
+    }
+
+    fi = fi.ToElement()->NextSibling("RegKey");
   }
 
   return 0;
