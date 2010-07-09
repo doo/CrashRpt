@@ -48,8 +48,12 @@ BOOL WINAPI CrashCallback(LPVOID lpvState)
   nResult = crAddProperty(_T("VideoCard"),_T("nVidia GeForce 9800"));
   ATLASSERT(nResult==0);
 
-  nResult = crAddRegKey(_T("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\0\0"),_T("regkey.txt"), 0);
+  nResult = crAddRegKey(_T("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"), _T("regkey.xml"), 0);
   ATLASSERT(nResult==0);
+
+  nResult = crAddRegKey(_T("HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings"), _T("regkey.xml"), 0);
+  ATLASSERT(nResult==0);
+  
 #endif
 
   return TRUE;

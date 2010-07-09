@@ -449,7 +449,7 @@ crAddRegKeyW(
     return 1; // No handler installed for current process?
   }
 
-  int nResult = pCrashHandler->AddRegKey(pszRegKeyListT, pszDstFileName, dwFlags);
+  int nResult = pCrashHandler->AddRegKey(pszRegKeyListT, pszDstFileNameT, dwFlags);
   if(nResult!=0)
   {    
     crSetErrorMsg(_T("Invalid parameter or key doesn't exist."));

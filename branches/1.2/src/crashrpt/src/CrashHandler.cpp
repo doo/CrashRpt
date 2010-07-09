@@ -890,37 +890,28 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
-int CCrashHandler::AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKeyList, DWORD dwFlags)
+int CCrashHandler::AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKey, DWORD dwFlags)
 {
   dwFlags;
 
   if(szDstFileName==NULL ||
-     szRegKeyList==NULL)
+     szRegKey==NULL)
   {
     // Invalid param
     return 1;
   }
 
-  int prev = 0;
-  int pos = 0;
-  for(;;)
-  {    
-    if(szRegKeyList[pos]==0 && szRegKeyList[pos+1]==0)
-    {
-      // String separator reached.
-      CString sRegKey = CString(szRegKeyList+prev, pos-prev);
-      sRegKey.TrimLeft(_T(" \t"));
-      sRegKey.TrimRight(_T(" \t"));
-      m_RegKeys[sRegKey] = CString(szDstFileName);
+  CString sDstFileName = CString(szDstFileName);
+  if(sDstFileName.Find(_T("\\"))>=0 ||
+     sDstFileName.Find(_T("\r"))>=0 ||
+     sDstFileName.Find(_T("\n"))>=0 ||
+     sDstFileName.Find(_T("\t"))>=0)
+  {
+    // Inacceptable character found.
+    return 1;
+  }
 
-      prev = pos;
-    }   
-
-    if(szRegKeyList[pos]==0 && szRegKeyList[pos+1]==0)
-      break; // Double-zero string terminator reached
-
-    pos++;
-  }    
+  m_RegKeys[CString(szRegKey)] = sDstFileName;
 
   return 0;
 }

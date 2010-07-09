@@ -689,7 +689,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
     }
 
     CString sKey = sSubKey.Mid(0, nSkip);
-    LPCSTR szKey = strconv.t2a(sKey);
+    LPCSTR szKey = strconv.t2utf8(sKey);
     sSubKey = sSubKey.Mid(nSkip+1);
 
     TiXmlHandle key_node = elem->FirstChild(szKey);
@@ -708,7 +708,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
     CString sKey = sSubKey;
     if(pos>0)
       sKey = sSubKey.Mid(0, pos);
-    LPCSTR szKey = strconv.t2a(sKey);
+    LPCSTR szKey = strconv.t2utf8(sKey);
     
     TiXmlHandle key_node = elem->FirstChild(szKey);
     if(key_node.ToElement()==NULL)
@@ -763,44 +763,48 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
             lResult = RegEnumValue(hKey, i, szName, &dwNameLen, 0, &dwType, pData, &dwValueLen);
             if(lResult==ERROR_SUCCESS)
             {
-              TiXmlHandle val_node = key_node.ToElement()->FirstChild(strconv.w2a(szName));
+              TiXmlHandle val_node = key_node.ToElement()->FirstChild(strconv.w2utf8(szName));
               if(val_node.ToElement()==NULL)
               {
                 val_node = new TiXmlElement("v");
                 key_node.ToElement()->LinkEndChild(val_node.ToNode());
-                val_node.ToElement()->SetAttribute("name", strconv.w2a(szName));
-
-                LPSTR szType = NULL;
-                if(dwType==REG_BINARY)
-                  szType = "REG_BINARY";
-                else if(dwType==REG_DWORD)
-                  szType = "REG_DWORD";
-                else if(dwType==REG_EXPAND_SZ)
-                  szType = "REG_EXPAND_SZ";
-                else if(dwType==REG_MULTI_SZ)
-                  szType = "REG_MULTI_SZ";
-                else if(dwType==REG_QWORD)
-                  szType = "REG_QWORD";
-                else if(dwType==REG_SZ)
-                  szType = "REG_SZ";
-                else 
-                  szType = "Unknown type";                
-                
-                val_node.ToElement()->SetAttribute("type", szType);
-                
-
               }
+                
+              val_node.ToElement()->SetAttribute("name", strconv.w2utf8(szName));
+
+              char str[128];
+              LPSTR szType = NULL;
+              if(dwType==REG_BINARY)
+                szType = "REG_BINARY";
+              else if(dwType==REG_DWORD)
+                szType = "REG_DWORD";
+              else if(dwType==REG_EXPAND_SZ)
+                szType = "REG_EXPAND_SZ";
+              else if(dwType==REG_MULTI_SZ)
+                szType = "REG_MULTI_SZ";
+              else if(dwType==REG_QWORD)
+                szType = "REG_QWORD";
+              else if(dwType==REG_SZ)
+                szType = "REG_SZ";
+              else 
+              {
+                sprintf_s(str, 128, "Unknown type (0x%08x)", dwType);
+                szType = str;                
+              }
+                
+              val_node.ToElement()->SetAttribute("type", szType);              
 
               if(dwType==REG_BINARY)
               {
                 std::string str;
                 int i;
-                for(i=0; i<dwValueLen; i++)
+                for(i=0; i<(int)dwValueLen; i++)
                 {
                   char num[10];
                   sprintf_s(num, 10, "%02X", pData[i]);
                   str += num;
-                  str += " ";
+                  if(i<(int)dwValueLen)
+                    str += " ";
                 }
                 
                 val_node.ToElement()->SetAttribute("value", str.c_str());
@@ -809,14 +813,48 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
               {
                 LPDWORD pdwValue = (LPDWORD)pData;
                 char str[64];
-                sprintf_s(str, 64, "0x%x (%lu)", *pdwValue, *pdwValue);                
+                sprintf_s(str, 64, "0x%08x (%lu)", *pdwValue, *pdwValue);                
                 val_node.ToElement()->SetAttribute("value", str);
               }
-              else if(dwType==REG_SZ)
+              else if(dwType==REG_SZ || dwType==REG_EXPAND_SZ)
               {
-                val_node.ToElement()->SetAttribute("value", (char*)pData);
-              }
+                LPCSTR szValue = strconv.t2utf8((LPCTSTR)pData);
+                val_node.ToElement()->SetAttribute("value", szValue);
 
+                /*if(dwType==REG_EXPAND_SZ)
+                {
+                  DWORD dwDstBuffSize = ExpandEnvironmentStrings((LPCTSTR)pData, NULL, 0);
+                  LPTSTR szExpanded = new TCHAR[dwDstBuffSize];
+                  ExpandEnvironmentStrings((LPCTSTR)pData, szExpanded, dwDstBuffSize);                  
+                  val_node.ToElement()->SetAttribute("expanded", strconv.t2utf8(szExpanded));
+                  delete [] szExpanded;
+                }*/
+              }
+              else if(dwType==REG_MULTI_SZ)
+              {                
+                LPCTSTR szValues = (LPCTSTR)pData;
+                int prev = 0;
+                int pos = 0;
+                for(;;)
+                {
+                  if(szValues[pos]==0)
+                  {
+                    CString sValue = CString(szValues+prev, pos-prev);
+                    LPCSTR szValue = strconv.t2utf8(sValue);
+
+                    TiXmlHandle str_node = new TiXmlElement("str");
+                    val_node.ToElement()->LinkEndChild(str_node.ToNode());                    
+                    str_node.ToElement()->SetAttribute("value", szValue);              
+
+                    prev = pos+1;
+                  }
+
+                  if(szValues[pos]==0 && szValues[pos+1]==0)
+                    break; // Double-null
+
+                  pos++;
+                }                     
+              }
             }
 
             delete [] szName;

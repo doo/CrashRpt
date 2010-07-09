@@ -1012,27 +1012,26 @@ crAddPropertyA(
  * 
  *  \return This function returns zero if succeeded.
  *
- *  \param[in] pszRegKeyList    The list of registry keys to include, required.
+ *  \param[in] pszRegKey        Registry key to dump, required.
  *  \param[in] pszDstFileName   Name of the destination file, required. 
  *  \param[in] dwFlags          Flags.
  *  
  *  \remarks 
  *
- *  Use this function to add a dump of one or more Windows registry keys into the crash report.
+ *  Use this function to add a dump of a Windows registry key into the crash report.
  *
- *  The \a pszRegKeyList parameter must be a double-zero terminated string. Separate the keys in
- *  this string with zero symbols (see the example below).
+ *  The \a pszRegKey parameter must be the name of the registry key. 
  * 
- *  The content of the keys specified by the \a pszRegKeyList parameter will be stored in XML
- *  format and include into the error report as \a pszDstFileName file.
+ *  The content of the key specified by the \a pszRegKey parameter will be stored in XML
+ *  format and included into the error report as \a pszDstFileName file. 
  *
  *  The \a dwFlags parameter is reserved for future use and should be set to zero.
  *
- *  The following example shows how to add two registry keys:
+ *  The following example shows how to dump two registry keys to regkey.xml file:
  *  \code
  *  
- *  LPCTSTR szKeyList = _T("HKCU\\Software\\MyApp\0HKLM\\Software\\MyApp\0\0");
- *  crAddRegKeys(_T(""), szKeyList);
+ *  crAddRegKeys(_T("HKEY_CURRENT_USER\\Software\\MyApp"), _T("regkey.xml"));
+ *  crAddRegKeys(_T("HKEY_LOCAL_MACHINE\\Software\\MyApp"), _T("regkey.xml"));
  *
  *  \endcode
  *

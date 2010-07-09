@@ -113,7 +113,8 @@ public:
   // Adds desktop screenshot on crash
   int AddScreenshot(DWORD dwFlags);
 
-  int AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKeyList, DWORD dwFlags);
+  // Adds a registry key 
+  int AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKey, DWORD dwFlags);
 
   // Generates error report
   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
