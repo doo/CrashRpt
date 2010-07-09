@@ -1018,11 +1018,11 @@ crAddPropertyA(
  *  
  *  \remarks 
  *
- *  Use this function to add a dump of a Windows registry key into the crash report.
+ *  Use this function to add a dump of a Windows registry key into the crash report. This function
+ *  is available since v.1.2.6.
  *
  *  The \a pszRegKey parameter must be the name of the registry key. 
- * 
- *  The content of the key specified by the \a pszRegKey parameter will be stored in XML
+ *  The content of the key specified by the \a pszRegKey parameter will be stored in human-readable XML
  *  format and included into the error report as \a pszDstFileName file. 
  *
  *  The \a dwFlags parameter is reserved for future use and should be set to zero.
@@ -1030,8 +1030,8 @@ crAddPropertyA(
  *  The following example shows how to dump two registry keys to regkey.xml file:
  *  \code
  *  
- *  crAddRegKeys(_T("HKEY_CURRENT_USER\\Software\\MyApp"), _T("regkey.xml"));
- *  crAddRegKeys(_T("HKEY_LOCAL_MACHINE\\Software\\MyApp"), _T("regkey.xml"));
+ *  crAddRegKey(_T("HKEY_CURRENT_USER\\Software\\MyApp"), _T("regkey.xml"));
+ *  crAddRegKey(_T("HKEY_LOCAL_MACHINE\\Software\\MyApp"), _T("regkey.xml"));
  *
  *  \endcode
  *
@@ -1041,7 +1041,7 @@ crAddPropertyA(
 
 CRASHRPTAPI(int)
 crAddRegKeyW(   
-   LPCWSTR pszRegKeyList,
+   LPCWSTR pszRegKey,
    LPCWSTR pszDstFileName,
    DWORD dwFlags
    );
@@ -1052,12 +1052,12 @@ crAddRegKeyW(
 
 CRASHRPTAPI(int)
 crAddRegKeyA(   
-   LPCSTR pszRegKeyList,
+   LPCSTR pszRegKey,
    LPCSTR pszDstFileName,
    DWORD dwFlags
    );
 
-/*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
+/*! \brief Character set-independent mapping of crAddRegKeyW() and crAddRegKeyA() functions. 
  *  \ingroup CrashRptAPI
  */
 #ifdef UNICODE

@@ -93,6 +93,11 @@ with the contents of the error report and accepts the terms of the Privacy Polic
 
 You can make a snapshot of user's virtual screen or a snapshot of your main window using crAddScreenshot() function. 
 
+\section adding_a_reg_key Adding a Registry Key
+
+Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
+analysis. Since v.1.2.6, you can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
+
 \section debugging_a_remote_logics_error Debugging a Remote Logics Error
 
 Sometimes it is required to remotely debug some application logics error. Such an error,
