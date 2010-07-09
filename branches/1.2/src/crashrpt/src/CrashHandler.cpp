@@ -890,7 +890,7 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
-int CCrashHandler::AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKey, DWORD dwFlags)
+int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags)
 {
   dwFlags;
 

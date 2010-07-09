@@ -576,8 +576,8 @@ BOOL CErrorReportSender::CollectCrashFiles()
         m_Assync.SetProgress(nProgress, false);
       }
 
-      if(lTotalWritten.QuadPart!=lFileSize.QuadPart)
-        goto cleanup; // Error copying file
+      //if(lTotalWritten.QuadPart!=lFileSize.QuadPart)
+      //  goto cleanup; // Error copying file
 
       CloseHandle(hSrcFile);
       hSrcFile = INVALID_HANDLE_VALUE;
@@ -589,8 +589,16 @@ BOOL CErrorReportSender::CollectCrashFiles()
   // Create dump of registry keys
 
   ErrorReportInfo& eri = g_CrashInfo.GetReport(m_nCurReport);  
+  if(eri.m_RegKeys.size()!=0)
+  {
+    m_Assync.SetProgress(_T("Dumping registry keys..."), 0, false);    
+  }
+  
   for(rit=eri.m_RegKeys.begin(); rit!=eri.m_RegKeys.end(); rit++)
   {
+    if(m_Assync.IsCancelled())
+      goto cleanup;
+
     CString sFileName = eri.m_sErrorReportDirName + _T("\\") + rit->second;
 
     str.Format(_T("Dumping registry key '%s' to file '%s' "), rit->first, sFileName);
@@ -634,7 +642,11 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
   LPCSTR szDestFile = strconv.t2a(sDestFile);
 
   FILE* f = NULL;
+#if _MSC_VER<1400
+  f = _tfopen(sDestFile, _T("rt"));
+#else
   _tfopen_s(&f, sDestFile, _T("rt"));
+#endif
   if(f!=NULL)
   {    
     fclose(f);
@@ -788,7 +800,11 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
                 szType = "REG_SZ";
               else 
               {
+#if _MSC_VER<1400
+                sprintf(str, "Unknown type (0x%08x)", dwType);
+#else
                 sprintf_s(str, 128, "Unknown type (0x%08x)", dwType);
+#endif
                 szType = str;                
               }
                 
@@ -801,7 +817,11 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
                 for(i=0; i<(int)dwValueLen; i++)
                 {
                   char num[10];
+#if _MSC_VER<1400
+                  sprintf(num, "%02X", pData[i]);
+#else
                   sprintf_s(num, 10, "%02X", pData[i]);
+#endif
                   str += num;
                   if(i<(int)dwValueLen)
                     str += " ";
@@ -813,7 +833,11 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
               {
                 LPDWORD pdwValue = (LPDWORD)pData;
                 char str[64];
+#if _MSC_VER<1400
+                sprintf(str, "0x%08x (%lu)", *pdwValue, *pdwValue);                
+#else
                 sprintf_s(str, 64, "0x%08x (%lu)", *pdwValue, *pdwValue);                
+#endif
                 val_node.ToElement()->SetAttribute("value", str);
               }
               else if(dwType==REG_SZ || dwType==REG_EXPAND_SZ)
@@ -868,7 +892,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
     else
     {      
       CString sErrMsg = Utility::FormatErrorMsg(GetLastError());
-      LPCSTR szErrMsg = strconv.t2a(sErrMsg);
+      LPCSTR szErrMsg = strconv.t2utf8(sErrMsg);
       key_node.ToElement()->SetAttribute("error", szErrMsg);
     }
   }

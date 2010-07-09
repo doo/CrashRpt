@@ -114,7 +114,7 @@ public:
   int AddScreenshot(DWORD dwFlags);
 
   // Adds a registry key 
-  int AddRegKey(LPCTSTR szDstFileName, LPCTSTR szRegKey, DWORD dwFlags);
+  int AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags);
 
   // Generates error report
   int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);

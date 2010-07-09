@@ -138,10 +138,10 @@ void CMainDlg::CloseDialog(int nVal)
 void CMainDlg::DoCrash()
 {
   int nSel = m_cboThread.GetCurSel();
-  int nThread = m_cboThread.GetItemData(nSel);
+  int nThread = (int)m_cboThread.GetItemData(nSel);
 
   nSel = m_cboExcType.GetCurSel();
-  int nExcType = m_cboExcType.GetItemData(nSel);
+  int nExcType = (int)m_cboExcType.GetItemData(nSel);
   
   if(nThread==0) // The main thread
   {    

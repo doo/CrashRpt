@@ -720,7 +720,10 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> Files
   
   unsigned i;
   for(i=0; i<FilesToAdd.size(); i++)
-  {    
+  { 
+    if(m_Reports[0].m_FileItems.find(FilesToAdd[i].m_sDestFile)!=m_Reports[0].m_FileItems.end())
+      continue; // Such file item already exists, skip
+
     TiXmlHandle hFileItem = new TiXmlElement("FileItem");
     hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
     hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(FilesToAdd[i].m_sDesc));

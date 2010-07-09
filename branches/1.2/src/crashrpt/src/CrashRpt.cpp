@@ -428,7 +428,7 @@ crAddPropertyA(
 
 CRASHRPTAPI(int)
 crAddRegKeyW(   
-   LPCWSTR pszRegKeyList,
+   LPCWSTR pszRegKey,
    LPCWSTR pszDstFileName,
    DWORD dwFlags
    )
@@ -436,9 +436,9 @@ crAddRegKeyW(
   crSetErrorMsg(_T("Unspecified error."));
 
   strconv_t strconv;
+  LPCTSTR pszRegKeyT = strconv.w2t(pszRegKey);
   LPCTSTR pszDstFileNameT = strconv.w2t(pszDstFileName);
-  LPCTSTR pszRegKeyListT = strconv.w2t(pszRegKeyList);
-
+  
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
 
@@ -449,7 +449,7 @@ crAddRegKeyW(
     return 1; // No handler installed for current process?
   }
 
-  int nResult = pCrashHandler->AddRegKey(pszRegKeyListT, pszDstFileNameT, dwFlags);
+  int nResult = pCrashHandler->AddRegKey(pszRegKeyT, pszDstFileNameT, dwFlags);
   if(nResult!=0)
   {    
     crSetErrorMsg(_T("Invalid parameter or key doesn't exist."));
