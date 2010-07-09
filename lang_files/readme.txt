@@ -6,6 +6,11 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.6 ---
+
+ * In [DetailDlg]
+  - Type - removed
+
 --- v.1.2.5 ---
 
  * In [MainDlg] section:
