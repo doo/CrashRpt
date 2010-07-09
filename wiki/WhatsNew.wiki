@@ -1,6 +1,22 @@
 #summary Release History
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.2.6 =
+
+CrashRpt v1.2.6 introduces support of Visual Studio 2010, an ability to add a dump of a registry key and fixes some detected issues. Below the complete list of changes is presented. 
+
+  * Added project files for Visual Studio 2010 (issue 35).
+
+  * New API function `crAddRegKey`.
+
+  * Using `.def` files to undecorate API function names.
+
+  * Extended `crEmulateCrash()`, new constant `CR_THROW` -- tests how a thrown C++   exception is intercepted (issue 35).
+
+  * Fixed: `exit(1)` in different thread may cause crashes (issue 43). Now using `TerminateProcess()` instead of `exit()` or `ExitProcess()`.
+
+  * Fixed: Error report is sent twice if crashes in a DLL (issue 44). Using crash counter variable to avoid multiple crash report generation.
+
 = crashrpt v1.2.5 =
 
 CrashRpt v1.2.5 introduces queued error report delivery and fixes some detected issues. Below the complete list of changes is presented. 
