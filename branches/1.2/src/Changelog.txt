@@ -1,5 +1,20 @@
 ======= Change History ========
 
+--- Ver. 1.2.6 ---
+
+- Added project files for Visual Studio 2010 (issue 35).
+
+- Using .def files to undecorate API function names.
+
+- Extended crEmulateCrash(), new constant CR_THROW -- tests how a thrown C++
+  exception is intercepted (issue 35).
+
+- Fixed: exit(1) in different thread may cause crashes (issue 43). Now using 
+  TerminateProcess() instead of exit() or ExitProcess().
+
+- Fixed: Error report is sent twice if crashes in a DLL (issue 44). Using crash
+  counter variable to avoid multiple crash report generation.
+
 --- Ver. 1.2.5 ---
 
 - Introduced an ability to send error reports queued for delivery (issue 33).
