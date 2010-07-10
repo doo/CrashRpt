@@ -7,7 +7,7 @@ CrashRpt v1.2.6 introduces support of Visual Studio 2010, an ability to add a du
 
   * Added project files for Visual Studio 2010 (issue 35).
 
-  * New API function `crAddRegKey`.
+  * New API function `crAddRegKey` allowing to add a registry key dump to the error report.
 
   * Using `.def` files to undecorate API function names.
 
@@ -16,6 +16,8 @@ CrashRpt v1.2.6 introduces support of Visual Studio 2010, an ability to add a du
   * Fixed: `exit(1)` in different thread may cause crashes (issue 43). Now using `TerminateProcess()` instead of `exit()` or `ExitProcess()`.
 
   * Fixed: Error report is sent twice if crashes in a DLL (issue 44). Using crash counter variable to avoid multiple crash report generation.
+
+  * Removed 'Type' column from Error Report Details dialog.
 
 = crashrpt v1.2.5 =
 
