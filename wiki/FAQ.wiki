@@ -27,7 +27,7 @@ Generally, CrashRpt may use the following libraries:
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
-If you have ever tried to determine the reason of a crash on user's machine, you might know how difficult it is, given user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you and tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situtations. That's why it is important to use special tools to report errors automatically.
+If you have ever tried to determine the reason of a crash on user's machine, you might know how difficult it is, given user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you to tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situtations. That's why it is important to use special tools to report errors automatically.
 
 == What are the main features of crashrpt? ==
 
@@ -81,7 +81,7 @@ First of all create a topic in our [http://groups.google.com/group/crashrpt Disc
 
 If you like CrashRpt and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make CrashRpt more significant for other users and also support further development.
 
-== Are there  any analogous software for crash reporting? ==
+== Are there any analogous software for crash reporting? ==
 
 Yes, they are listed in the table below:
 
@@ -98,15 +98,17 @@ Yes, they are listed in the table below:
 
 == What Visual C++ versions can I use crashrpt in? ==
 
-Since v1.1b of CrashRpt you can use CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Visual C++ 6.0 is not supported anymore.
+Since v1.1b of CrashRpt you can compile CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Since v1.2.6, you can compile CrashRpt in Visual C++ 2010. Visual C++ 6.0 is not supported anymore.
 
-Since v1.1.1 of CrashRpt you can compile and use CrashRpt in Visual C++ Express Edition (EVC++ 2005 and EVC++ 2008). For additional info on compiling CrashRpt in VC++ Express, see below.
+Since v1.1.1 of CrashRpt you can compile and compile CrashRpt in Visual C++ Express Edition. For additional info on compiling CrashRpt in VC++ Express, see below.
 
-== How do I compile crashrpt in Visual C++ Express? ==
+== How do I compile crashrpt in Visual C++ Express Edition? ==
 
 In order to compile CrashRpt in Visual C++ Express Edition, you have to download and install `Microsoft Windows Server 2003 SP1 Platform SDK`, for example from [http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en this place].
 
-In VC++ Express window, open `Tools->Options...->Projects and Solutions->VC++ Directories`. In the 'Show directories for' combo, select 'Include files' and then add `[Platform_SDK_Folder]\Include\atl` path to the list of include directories. 
+In VC++ Express window, open menu `Tools->Options...->Projects and Solutions->VC++ Directories`. In the 'Show directories for' combo, select 'Include files' and then add `[Platform_SDK_Folder]\Include\atl` path to the list of include directories ([Plaform_SDK_Folder] should be replaced with actual folder name). 
+
+Note: In VC++ 2010 Express, there is no usual VC++ Directories page. Instead, open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. In the `Include Directories` field, add `[Platform_SDK_Folder]\Include\atl` path. 
 
 That's all. Now you are be able to compile CrashRpt.
 
@@ -117,6 +119,10 @@ This is because CrashRpt depends on WTL library, which in turn depends on Micros
 ATL library is a part of Visual Studio SDKs. The latest version at the moment is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows SDK and the latest version (at the moment) of Windows SDK is v6.0. However, Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of commercial Visual Studio having ATL. The dependency on ATL introduces a lot of problems for WTL, so in the future WTL developers might remove this dependency at all (if possible).
 
 For additional info on using WTL with VC++ Express, see this [http://www.codeproject.com/KB/wtl/WTLExpress.aspx article].
+
+== Where do I look for VC++ Directories in Visual C++ 2010? ==
+
+In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. In the `Include Directories` field, add `[Platform_SDK_Folder]\Include\atl` path. 
 
 == What platforms crashrpt can be compiled for? ==
 
@@ -171,13 +177,11 @@ You also need to add `CrashRpt.lib` to the list of input libraries for your proj
 
 Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process.
 
-It is enough to set exception handlers in the process once. No need to set handlers in each DLL's `DllMain()` function, because handlers work on per-process basis.
-
 == My software is not an EXE, but DLL. Can I use crashrpt in such case? ==
 
-It would be better if the client process take care of exception handling instead of your DLL.
+It would be better if the client process (EXE) take care of exception handling instead of your DLL.
 
-Well, you can install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
+You may try to install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
 
 == How do I use crashrpt across process boundaries? == 
 
@@ -210,6 +214,10 @@ But there is one thing to take in account. By enabling screenshot capture, you s
 One way to add application-defined info to the error report is adding a custom file. But sometimes you may want to extend the crash description XML file by adding a custom named literal property to the XML file. You can do this through the `crAddProperty()` function.
 
 For example, you may need to add the info about amount of free disk space on a specific disk drive at the moment of crash, or about the version of the graphics card driver installed on user's machine.
+
+== Why would I want to add a registry key dump to the crash report? ==
+
+If your application stores its settings as a registry key under `HKEY_CURRENT_USER` or `HKEY_LOCAL_MACHINE`, you may want to add the dump of the key to the crash report. Since v.1.2.6, you can do this with the help of the `crAddRegKey()` function.
 
 == I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
@@ -264,9 +272,9 @@ Yes, since v.1.2.4, CrashRpt supports automatic application restart. But the res
   * If at least 60 seconds have elapsed since the application start. This is done to aviod cyclic restarts in case when crash occurs on application start up.
   * If the user has provided his consent to restart the app. 
 
-== What is the required way of CRT linkage for crashrpt to work properly? ==
+== What is the recommended way of CRT linkage for crashrpt to work properly? ==
 
-It is important that you configure your project to use C runtime libraries (CRT) as `Multi-threaded DLL (/MD)` for Release configuration. This is the way recommended in MSDN. And current version of CrashRpt won't work properly if CRT is used in different way.
+It is recommended that you configure your project to use C runtime libraries (CRT) as `Multi-threaded DLL (/MD)` for `Release` configuration. This is the way recommended in MSDN. 
 
 In the Solution Explorer window, right-click your project and open project Properties. Then choose `Configuration Properties->C/C++->Code Generation`. In the `Runtime Library` field, choose `Multi-threaded DLL (/MD)`.
 
@@ -281,6 +289,8 @@ For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but so
 == What do I do if my project uses CRT as a static library? ==
 
 You can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
+
+Actually, it is recommended that you configure your project to use C runtime libraries (CRT) as `Multi-threaded DLL (/MD)` for `Release` configuration. This is the way recommended in MSDN. And you may have troubles if CRT is used in different way. Below is explained why CRT DLL is better than the static LIB.
 
 Each module (EXE, DLL) in your project is linked to CRT (C runtime libraries). You may link CRT as multi-threaded static library or as multi-threaded dynamic link library (DLL). When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
 
@@ -371,10 +381,11 @@ Not depending on version, it is recommended that you distribute the following fi
     * `CrashRpt.dll` 
     * `CrashSender.exe` 
     * `dbghelp.dll` 
+    * `crashrpt_lang.ini`
     
 It is recommended that you place these files to the directory where your application executable file is located.
 
-The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll` (Microsoft Debug Help Library) is the module CrashRpt depends on. 
+The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll` (Microsoft Debug Help Library) is the module CrashRpt depends on. `crashrpt_lang.ini` is the language file.
 
 == I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
@@ -384,9 +395,7 @@ It is recommended that you distribute `dbghelp.dll` with your software, because 
 
 == I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
-No, this is impossible.
-
-Architecture of CrashRpt requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
+No, this is impossible. Architecture of CrashRpt requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
 
 = Error Reports Creation and Delivery = 
 
@@ -406,10 +415,6 @@ When crash occurs, CrashRpt runs another process named `CrashSender.exe`. The pa
 
 CrashRpt saves the error report files to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. 
 
-In CrashRpt v1.1b, crash report files are not removed, even if they had been sent to the recipient successfuly.
-
-Since CrashRpt v1.1.1, crash report files are removed to the Recycle Bin after they had been sent to the recipient successfuly.
-
 == What is the Privacy Policy? Where can I find a template for the Privacy Policy? ==
 
 Since v.1.1.2, you can use a privacy policy which describes what user information your software collects on crash. You provide the URL of your privacy policy document, which you may publish on your web site or distribute with your software. 
@@ -427,7 +432,7 @@ If one of these ways fails, CrashRpt tries others in turn. You can define the pr
 
 == Are there any crash report size limitations? ==
 
-Yes, they are. Currently the crash report should be as small as possible (several hundreds of Kbytes). This is because of size limitations of email attachments and  limitations of base64-encoded HTTP request. If the error report is larger than the limit, it is possible that the error report won't be delivered to the software support team.
+Yes, they are. Although CrashRpt supports large error reports, the crash report should be as small as possible. If you use E-mail for error reports delivery, there may be mail size limits on the SMTP server. If the error report is larger than the limit, it is possible that the error report will be rejected. If you use HTTP for error report delivery, there may also be POST data size limits on the web-server. You should check your web-server settings to figure out the maximum error report size.
 
 == How does crashrpt send me error reports using HTTP connection? ==
 
