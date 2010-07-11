@@ -484,7 +484,7 @@ Since CrashRpt v1.1.1., when you receive error reports using email, the MD5 hash
 
 == How do I use an error report for debugging a crash? ==
 
-A crash report is a small ZIP file (usually less than 100 KB in size) containing several files, such as crash minidump (crashdump.dmp), crash description XML (crashrpt.xml), and optional application-specific files, e.g. , application log files.
+A crash report is a ZIP file containing several files, such as crash minidump (crashdump.dmp), crash description XML (crashrpt.xml), and optional application-specific files, e.g. , application log files.
 
 The crash description is an XML file that contains the basic information about the crash,
 for example exception type, operating system name, application name and version.
