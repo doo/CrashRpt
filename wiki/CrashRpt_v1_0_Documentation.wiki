@@ -42,7 +42,7 @@ Download and unzip the source code attached to this article. Open the complete.d
 Notes:
 
   # CrashRpt library uses the WTL for its GUI components, so WTL must be installed and properly configured in order to build the CrashRpt library. You can download the WTL [http://www.microsoft.com/downloads/details.aspx?FamilyID=128e26ee-2112-4cf7-b28e-7727d9a1f288&DisplayLang=en here]. If you're new to the WTL then CodeProject has some article [http://www.codeproject.com/wtl here], and there is a good starting guide [http://www.clipcode.net/content/wtl_guide/chapter1.htm here].
-  # CrashRpt library uses Microsoft's Debug Help library (dbghelp.dll). The proper h and lib files must be installed and properly configured in order to build the CrashRpt library. These files are available in the Debugging SDK, which can be downloaded [http://www.microsoft.com/ddk/debugging/default.asp here] (be sure to select the SDK setup option). 
+  # CrashRpt library uses Microsoft's Debug Help library (dbghelp.dll). The proper h and lib files must be installed and properly configured in order to build the CrashRpt library. These files are available in the Debugging SDK, which can be downloaded [http://www.microsoft.com/whdc/devtools/debugging/default.mspx here] (be sure to select the SDK setup option). 
 
 After the build completes, you should end up with the following:
 
@@ -275,7 +275,7 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt_v1_0_Documentation/screen8.
 
 The crash dump file is a minidump created with the help of the DbgHelp DLL's `MiniDumpWriteDump` function. The minidump contains various information about the state of the application when the error occurred including the call stack, local variables, and loaded modules. For more on creating minidumps, check out [http://www.codeproject.com/script/Submit/postmortemdebug_standalone1.asp Andy Pennell's article].
 
-You can view minidump files in VS.NET or the [http://www.microsoft.com/ddk/debugging/default.asp WinDbg debugger]. Because WinDbg is free, I'll use it in the following example. You can download WinDbg from [http://www.microsoft.com/ddk/debugging/default.asp here]. I'm using version 6.1.0017.0 in the example.
+You can view minidump files in VS.NET or the [http://www.microsoft.com/whdc/devtools/debugging/default.mspx WinDbg debugger]. Because WinDbg is free, I'll use it in the following example. You can download WinDbg from [http://www.microsoft.com/whdc/devtools/debugging/default.mspx here]. I'm using version 6.1.0017.0 in the example.
 
 The sample application included with this article does nothing but generate a null pointer exception. I'll use the sample to generate a crash and demonstrate how to use the resulting minidump.
 
@@ -339,7 +339,7 @@ References
 
 For additional information about topics directly related to this article, see the links below:
 
-  * [http://www.microsoft.com/ddk/debugging/ Debugging Tools for Windows.]
+  * [http://www.microsoft.com/whdc/devtools/debugging/default.mspx Debugging Tools for Windows.]
   * [http://www.microsoft.com/downloads/details.aspx?FamilyID=128e26ee-2112-4cf7-b28e-7727d9a1f288&DisplayLang=en WTL Download.]
   * [http://www.zlib.org/ ZLib Compression Library.]
   * [http://www.codeproject.com/KB/debug/postmortemdebug_standalone1.asp Reading Minidump Files with VS.NET].
