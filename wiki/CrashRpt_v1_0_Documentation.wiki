@@ -1,5 +1,5 @@
 #summary CrashRpt v1.0 Documentation (obsolete).
-#labels Phase-Deploy
+#labels Phase-Deploy,Deprecated
 
 ----
 *NOTE: The latest documentation is available at [http://crashrpt.sourceforge.net Online Documentation]*.
