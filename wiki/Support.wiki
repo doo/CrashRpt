@@ -11,10 +11,6 @@
 </tr>
 </table>
 
-You might also want to see...
-
-  * WhatsNew
-  * WhoUsesCrashRpt
-  
+ 
  
  
