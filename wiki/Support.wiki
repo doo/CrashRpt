@@ -1,21 +1,13 @@
 #summary User Support Resources
 
-<table border="0">
+<table border="0" cellpadding="10" cellspacing="10">
 <tr>
-<td valign="center">
-== [http://crashrpt.sourceforge.net Online Documentation] == 
-</td>
-<td valign="center">
-The main source of CrashRpt documentation. Describes how to compile the library and use it in your project.
-</td>
+<td><h1>[http://crashrpt.sourceforge.net Online Documentation]</h1></td>
+<td>The main source of CrashRpt documentation. Describes how to compile the library and use it in your project</td>
 </tr>
 <tr>
-<td valign="center">
-== [FAQ] == 
-</td>
-<td valign="center">
-Read this for varius information about library usage and for troubleshooting.
-</td>
+<td><h1>[FAQ]</h1></td>
+<td>Read this for troubleshooting</td>
 </tr>
 </table>
 
