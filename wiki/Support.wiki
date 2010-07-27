@@ -7,7 +7,7 @@
 </tr>
 <tr>
 <td><h2>[FAQ]</h2></td>
-<td>Read this quick start and for troubleshooting</td>
+<td>Read this for quick start and for troubleshooting</td>
 </tr>
 </table>
 
