@@ -148,7 +148,7 @@ If your software supports several languages, you can distribute several language
 
 == How do I contribute a language file? ==
 
-If there is no language file for your favourite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
+If there is no language file for your favorite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
 
 For instructions, see ContributingLanguageFiles page.
 
@@ -160,7 +160,7 @@ CrashRpt consists of two core modules: `CrashRpt.dll` and `CrashSender.exe`.
 
 It is unsafe to do complex operations in the crashed program which may be unstable. CrashRpt is separated into these modules to be able to close the application which have crashed and to continue sending the error report in `CrashSender.exe` in background. 
 
-Typically a process (executable file) loads `CrashRpt.dll` into its address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process. Client application uses CrashRpt API functions to set exception handlers in the process once, typically in its `main()` function. In a multi-theraded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
+Typically a process (executable file) loads `CrashRpt.dll` into its address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process. Client application uses CrashRpt API functions to set exception handlers in the process once, typically in its `main()` function. In a multi-threaded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
 
 == What .h file should I include in my code and what .lib file should I link my code to? ==
 
@@ -185,13 +185,13 @@ You may try to install exception handlers in your `DllMain()` function, but typi
 
 == How do I use crashrpt across process boundaries? == 
 
-Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently CrashRpt doesn't support such possiblity. 
+Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently CrashRpt doesn't support such possibility. 
 
-== How do I use crashrpt in a mutli-threaded application? ==
+== How do I use crashrpt in a multi-threaded application? ==
 
 You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
-== Does usign crashrpt affects the performance of my application? ==
+== Does using crashrpt affects performance of my application? ==
 
 No, using CrashRpt doesn't affect performance of your application. CrashRpt doesn't perform any tasks in background and doesn't use additional memory. CrashRpt code is executed just when an exception is raised.
 
@@ -201,17 +201,17 @@ No, actually not. In order to use CrashRpt, you enable program database generati
 
 == How do I use crashrpt API functions that have character set dependent arguments? ==
 
-All CrashRpt functions using character set dependent arguments have two versions of function name (multibyte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multibyte character set.
+All CrashRpt functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
 
 == Why would I want to add a custom file to the error report? == 
 
 If your application creates and maintains a log file where operations and errors are written, then such log file might be helpful for crash analysis and should be added to the error report. 
 
-== Why would I want to add a screenshot to the error report? ==
+== Why would I want to add a screen shot to the error report? ==
 
-It may be useful to have a screenshot of user's desktop at the moment of crash. This may help to see which button user clicked before the crash, and to see the desktop state. Sometimes it may be enough to see only the region of the desktop occupied by your application and not the rest of desktop.
+It may be useful to have a screen shot of user's desktop at the moment of crash. This may help to see which button user clicked before the crash, and to see the desktop state. Sometimes it may be enough to see only the region of the desktop occupied by your application and not the rest of desktop.
 
-But there is one thing to take in account. By enabling screenshot capture, you should be careful about user's privacy. Some parts of the desktop screenshot may contain private or user identifying information: folder names, wallpapers, photos, text fragments and so on. That's why you should always provide a link to your Privacy Policy page describing what information you collect on crash and what purposes you use it for. For example, see PrivacyPolicyTemplate.
+But there is one thing to take in account. By enabling screen shot capture, you should be careful about user's privacy. Some parts of the desktop screen shot may contain private or user identifying information: folder names, wallpapers, photos, text fragments and so on. That's why you should always provide a link to your Privacy Policy page describing what information you collect on crash and what purposes you use it for. For example, see PrivacyPolicyTemplate.
 
 == Why would I want to add a custom text property to the crash description XML? ==
 
@@ -264,7 +264,7 @@ However, my CrashRpt usage experience shows most users do not enter anything mea
 
 Since v.1.2.2, you can use the 'Export...' button on the Error Report Details dialog to save a local copy of the error report. 
 
-== Does crashrpt suport a non-GUI (silent) mode? ==
+== Does crashrpt support a non-GUI (silent) mode? ==
 
 Yes, since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
 
@@ -273,7 +273,7 @@ However, it is not recommended to use the non-GUI mode with regular GUI applicat
 == Does crashrpt support automatic restart of the application that crashes? ==
 
 Yes, since v.1.2.4, CrashRpt supports automatic application restart. But the restart is performed if two conditions are satisfied: 
-  * If at least 60 seconds have elapsed since the application start. This is done to aviod cyclic restarts in case when crash occurs on application start up.
+  * If at least 60 seconds have elapsed since the application start. This is done to avoid cyclic restarts in case when crash occurs on application start up.
   * If the user has provided his consent to restart the app. 
 
 == What is the recommended way of CRT linkage for crashrpt to work properly? ==
@@ -298,7 +298,7 @@ Actually, it is recommended that you configure your project to use C runtime lib
 
 Each module (EXE, DLL) in your project is linked to CRT (C runtime libraries). You may link CRT as multi-threaded static library or as multi-threaded dynamic link library (DLL). When you set CRT error handlers, such as pure call handler or invalid parameter handler, they will work for the CRT the caller module is linked to and won't intercept exceptions in different CRT modules (if exist).
 
-Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multithreaded CRT DLL is the recommended way of CRT linkage.
+Several project modules may share single CRT DLL. This reduces to minimum the overall size of linked CRT code. And all exceptions within that CRT DLL can be handled at once. That's why multi-threaded CRT DLL is the recommended way of CRT linkage.
 
 If your project uses CRT as a static link library (which is not recommended to do) and  you want to use some crash reporting functionality, you would have to compile the functionality as static a lib with `/NODEFAULTLIB` linker option. Then you would have to install CRT error handlers for _EACH_ module that your program loads into its address space. 
 
@@ -315,7 +315,7 @@ To get the most out of the crash minidump, the debugger needs your application's
 
 These steps should be done for all projects in your solution that support program database (EXE, DLL).
 
-== Shoud I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
+== Shod I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
 
 This is not necessary, because a minidump file itself contains the list of loaded modules of your application and their actual load addresses. 
 
@@ -333,7 +333,7 @@ When you install crash reporting support to your program, it is important to tes
 
 == Do program optimizations (/O compiler switch) affect the minidump generation? ==
 
-Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete (e.g., see issue 25). Hovewer, this is not the reason to turn the optimizations off. Instead, you can manage some error log file which is not affected by optimizations.
+Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete (e.g., see issue 25). However, this is not the reason to turn the optimizations off. Instead, you can manage some error log file which is not affected by optimizations.
 
 == What is the minidump type? What minidump type should I use? ==
 
@@ -355,7 +355,7 @@ When a crash report comes in, you use the release binaries, source code and debu
 
 == I use a packer for my EXE or DLL (e.g. PECompact, UPX and so on). How does this affect the way I read the generated minidump file? ==
 
-You can use a compression utility for redusing the size of your executable or DLL, but be careful of the following. 
+You can use a compression utility for reducing the size of your executable or DLL, but be careful of the following. 
 
 In order to read the minidump, you need to save a local copy of the uncompressed EXE (DLL) file and a PDB file generated for that EXE (DLL). You also need to have the source code that you used when building the EXE (DLL). These should be enough to read the minidump generated by the compressed version of your EXE. 
 
@@ -454,13 +454,13 @@ See CrashRpt project documentation for more information.
 
 == How does crashrpt send me error reports using SMTP connection? ==
 
-CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP connection without any user interaction. The error report is sent as an E-mail multi-part message with attachments.
+CrashRpt has a simple built-in SMTP client. It can try to send an error report to recipient using SMTP connection without any user interaction. The error report is sent as an E-mail multi-part message with attachments.
 
 This way `CrashSender.exe` creates SMTP connection with a mail server (port 25) and sends crash reports without additional user interaction. There are two SMTP servers that can be used to relay email: sender's mailbox and recipient's mailbox. 
 
 If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP server name and relay the email message to that server.
 
-If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX record of recipent's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX record of recipient's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
 
 This way won't work when firewall is enabled and port 25 is closed for outbound traffic (SMTP client won't be able to even connect). Since many organizations and even home users have firewalls that silently block port 25, this way fails for many users. 
 
@@ -478,7 +478,7 @@ When all attempts fail, `CrashSender.exe` saves error report files to the `LOCAL
 
 When software release is made and CrashRpt support is enabled in your software, sooner or later you start receiving crash reports.
 
-Count of received crash reports may depend on robustness of your software to various exceptional situations and on how much your software popular. So it's nothing unusual if you receive hundreds of error reports a day. If there are many incoming error reports, you can monitor and analyse them for the first few days after release, and prepare a hot fix release.
+Count of received crash reports may depend on robustness of your software to various exceptional situations and on how much your software popular. So it's nothing unusual if you receive hundreds of error reports a day. If there are many incoming error reports, you can monitor and analyze them for the first few days after release, and prepare a hot fix release.
 
 The purpose of an error report is to help you determine the reason of the problem and try to fix it. The keyword is 'try', because in most cases you can't fix crash reports as you usually do with normal bugs. You usually can't reproduce the error on your machine, so you can't guarantee it is fixed. So the only way to check is to make fixes in parts of code that could cause the crash most probably and to release a new version of software.
 
@@ -499,7 +499,7 @@ A crash report is a ZIP file containing several files, such as crash minidump (c
 The crash description is an XML file that contains the basic information about the crash,
 for example exception type, operating system name, application name and version.
  
-The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each excecution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studio or in `WinDbg` program and see the place of your code where exception had occurred. 
+The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each execution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studio or in `WinDbg` program and see the place of your code where exception had occurred. 
 
 See CrashRpt documentation more information.
 
@@ -517,7 +517,7 @@ A crash description XML contains `CrashGUID` tag. The crash GUID is an unique id
 
 == How do I determine the name and version of the application that generated the error report?  ==
 
-The crash description XML file contains `AppName` and `AppVersion` tags. You use them to determine what application sent you the report. You are typically interested in analysing error reports from the latest version of your software and ignore reports from older versions.
+The crash description XML file contains `AppName` and `AppVersion` tags. You use them to determine what application sent you the report. You are typically interested in analyzing error reports from the latest version of your software and ignore reports from older versions.
 
 == How do I determine the OS version for the error report? ==
 
@@ -525,7 +525,7 @@ A crash description XML contains `OperatingSystem` tag which is the friendly nam
 
 == What is an `ExceptionType` tag in the crash description XML? ==
 
-The exception type shows what exception handler cathed the exception. For example, type 0 means that the SEH exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
+The exception type shows what exception handler caught the exception. For example, type 0 means that the SEH exception was intercepted by the unhandled exception filter set with `SetUnhandledExceptionFilter()` function. The exception type can be used to divide exceptions in some categories. 
 
 See the documentation for more information about exception type.
 
@@ -533,7 +533,7 @@ See the documentation for more information about exception type.
 
 In order to open the crash minidump, copy it to the directory where the binaries (EXE, DLLs) and program database files (PDB) are locally stored. You copy the minidump to this folder to ensure the debugger finds the program database files and binaries. 
 
-Then double-click on the minidump file name. This should open it using an associated program (for example, Visual Studio). When minidump file is loaded in Visual Studio, press F5 to run it. If debug symbols are loaded successfuly, you are now able to see the place in your source code where exception had occurred.
+Then double-click on the minidump file name. This should open it using an associated program (for example, Visual Studio). When minidump file is loaded in Visual Studio, press F5 to run it. If debug symbols are loaded successfully, you are now able to see the place in your source code where exception had occurred.
 
 Alternatively, you can open the minidump file using `WinDbg` program from `Microsoft Debugging Tools`. It is freely distributed.
 
@@ -545,7 +545,7 @@ You do not need to identify matching PDB yourself. Symbol handler will do that f
 
 == If I've saved all the source code, should building from the source recreate the correct PDBs and use them for reading the minidump? ==
 
-No, the recreated PDB files will not be the same as the original ones. The recreated PDB files won't have matching timestamp (or GUID in a never versions of dbghelp). The building environment may also be different, so generated binaries may be different.
+No, the recreated PDB files will not be the same as the original ones. The recreated PDB files won't have matching time stamp (or GUID in a never versions of dbghelp). The building environment may also be different, so generated binaries may be different.
 
 The recommended way is to save the original PDB files (that were produced when building the project), binary files (EXE and DLL) along with the source code. 
 
@@ -557,7 +557,7 @@ Sometimes you can't determine the location of the crash and the error message is
 
   * You have wrong or missing PDB files. Open the Modules window and check the symbol status for modules of your program. If the status is 'Not loaded' than you have missing PDB. Or maybe correct PDB files weren't saved locally before software release. In such case you won't be able to properly read any of received crash reports.
 
-  * If symbols for some modules of your program are loaded, and you have the error, than there were no debugging symbols generated for the module where crash had occured. Check that you set `Program Database (/Zi)` compiler flag for all modules of your application.
+  * If symbols for some modules of your program are loaded, and you have the error, than there were no debugging symbols generated for the module where crash had occurred. Check that you set `Program Database (/Zi)` compiler flag for all modules of your application.
 
 == How do I automate crash report processing? ==
 
