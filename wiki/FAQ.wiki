@@ -27,15 +27,15 @@ Generally, CrashRpt may use the following libraries:
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
-If you have ever tried to determine the reason of a crash on user's machine, you might know how difficult it is, given user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you to tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situtations. That's why it is important to use special tools to report errors automatically.
+If you have ever tried to determine the reason of a crash on user's machine, you might know how difficult it is when you have user's directions only: "I opened something, then I clicked something and then it stopped working". Most of users won't contact you to tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situations. That's why it is important to use special tools to report errors automatically.
 
 == What are the main features of crashrpt? ==
 
-CrashRpt is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. CrashRpt is able to intercept a SEH exception, typed C++ exception or C run-time error.
+  * CrashRpt is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. CrashRpt is able to intercept unhandled SEH exceptions, typed C++ exceptions and C run-time error.
 
-CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable for developers not having servers for storing error reports. To send reports over E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+  * CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable for developers not having servers for storing error reports. To send reports over E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 
-CrashRpt also has a tool for error reports' post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
+  * CrashRpt has a tool for error reports' post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
 == What programming languages can I use crashrpt in? ==
 
@@ -98,9 +98,9 @@ Yes, they are listed in the table below:
 
 == What Visual C++ versions can I use crashrpt in? ==
 
-Since v1.1b of CrashRpt you can compile CrashRpt in Visual C++ .NET 2003, Visual C++ 2005 and Visual C++ 2008. Since v1.2.6, you can compile CrashRpt in Visual C++ 2010. Visual C++ 6.0 is not supported anymore.
+You can compile CrashRpt in Visual C++ .NET 2003, Visual C++ 2005, Visual C++ 2008 and in Visual C++ 2010. Visual C++ 6.0 is not supported.
 
-Since v1.1.1 of CrashRpt you can compile and compile CrashRpt in Visual C++ Express Edition. For additional info on compiling CrashRpt in VC++ Express, see below.
+You can also compile CrashRpt in Visual C++ Express Edition. For additional info on compiling CrashRpt in VC++ Express, see below.
 
 == How do I compile crashrpt in Visual C++ Express Edition? ==
 
