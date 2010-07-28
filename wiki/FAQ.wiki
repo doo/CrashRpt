@@ -191,7 +191,7 @@ Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine ho
 
 You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
-== Does using crashrpt affects performance of my application? ==
+== Does using crashrpt affect performance of my application? ==
 
 No, using CrashRpt doesn't affect performance of your application. CrashRpt doesn't perform any tasks in background and doesn't use additional memory. CrashRpt code is executed just when an exception is raised.
 
@@ -315,7 +315,7 @@ To get the most out of the crash minidump, the debugger needs your application's
 
 These steps should be done for all projects in your solution that support program database (EXE, DLL).
 
-== Shod I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
+== Should I use rebase.exe to set preferred load address for modules of my application to be able read minidumps later? ==
 
 This is not necessary, because a minidump file itself contains the list of loaded modules of your application and their actual load addresses. 
 
