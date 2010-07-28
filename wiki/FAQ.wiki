@@ -191,6 +191,10 @@ Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine ho
 
 You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
+== Does usign crashrpt affects the performance of my application? ==
+
+No, using CrashRpt doesn't affect performance of your application. CrashRpt doesn't perform any tasks in background and doesn't use additional memory. CrashRpt code is executed just when an exception is raised.
+
 == Does using crashrpt make it easier for somebody to reverse engineer my code? ==
 
 No, actually not. In order to use CrashRpt, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using CrashRpt doesn't affect the difficulty of reverse engineering your code. 
