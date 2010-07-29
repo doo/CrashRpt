@@ -9,7 +9,11 @@ CrashRpt library is an open source error handling, reporting and processing tool
 
 == What license does crashrpt use? ==
 
-CrashRpt is distributed under the New BSD License. For the license text, please see [http://crashrpt.sourceforge.net/License.txt here].
+CrashRpt is distributed under the New BSD License. For the license text, please see [http://crashrpt.sourceforge.net/License.txt here]. 
+
+== Can I use crashrpt in a commercial application? ==
+
+Yes, feel free to use CrashRpt in your commercial application. This is permited by the [http://crashrpt.sourceforge.net/License.txt New BSD licence]. 
 
 == What third-party libraries does crashrpt use internally? ==
 
@@ -40,6 +44,10 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 == What programming languages can I use crashrpt in? ==
 
 You can use CrashRpt in C++ programs created using Visual C++. You can not use it in .NET or in Visual Basic. 
+
+== Can I use crashrpt in an MFC-based application? ATL/WTL-based application? WinAPI application? ==
+
+Yes, you can use CrashRpt in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
 
 == What is an exception? ==
 
