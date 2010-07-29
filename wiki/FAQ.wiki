@@ -102,6 +102,10 @@ You can compile CrashRpt in Visual C++ .NET 2003, Visual C++ 2005, Visual C++ 20
 
 You can also compile CrashRpt in Visual C++ Express Edition. For additional info on compiling CrashRpt in VC++ Express, see below.
 
+== What Windows versions crashrpt can work in? ==
+
+CrashRpt supports Windows 2000/XP/2003/Vista and Windows 7. 
+
 == How do I compile crashrpt in Visual C++ Express Edition? ==
 
 In order to compile CrashRpt in Visual C++ Express Edition, you have to download and install `Microsoft Windows Server 2003 SP1 Platform SDK`, for example from [http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en this place].
@@ -122,7 +126,7 @@ For additional info on using WTL with VC++ Express, see this [http://www.codepro
 
 == Where do I look for VC++ Directories in Visual C++ 2010? ==
 
-In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. In the `Include Directories` field, add `[Platform_SDK_Folder]\Include\atl` path. 
+In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. 
 
 == What platforms crashrpt can be compiled for? ==
 
@@ -130,13 +134,15 @@ Since v1.2.1, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) 
 
 == Where do I look for crashrpt documentation? ==
 
-In the newest version of CrashRpt, the documentation is included into the CrashRpt release package. To open the documentation, click the `index.html` in the top level directory of the CrashRpt package. Online documentation for the latest CrashRpt version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
+The documentation is usually included into the CrashRpt archive. To open the documentation, click the `index.html` in the top level directory of the CrashRpt archive.
 
-In an older version, CrashRpt v1.0, the documentation can be found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
+Online documentation for the latest CrashRpt version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
+
+For the users of obsolete CrashRpt v1.0, the documentation can be also found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
 
 == How do I properly install crashrpt? ==
 
-This depends on CrashRpt version you use. Typically, you download and unzip CrashRpt archive and then follow installation instructions listed in the documentation.
+This depends on CrashRpt version you use. Typically, you download and unzip CrashRpt archive to some folder and then follow installation instructions listed in the documentation.
 
 == How does crashrpt support multi-lingual user interface? ==
 
@@ -177,9 +183,9 @@ You also need to add `CrashRpt.lib` to the list of input libraries for your proj
 
 Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process.
 
-== My software is not an EXE, but DLL. Can I use crashrpt in such case? ==
+== My software is not an EXE, but DLL (e.g. a plugin for another software). Can I use crashrpt in such case? ==
 
-It would be better if the client process (EXE) take care of exception handling instead of your DLL.
+Generally, it is not recommended to use CrashRpt if your software is a plugin DLL. It would be better if the client process (EXE) take care of exception handling instead of your DLL. 
 
 You may try to install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
 
@@ -199,11 +205,11 @@ No, using CrashRpt doesn't affect performance of your application. CrashRpt does
 
 No, actually not. In order to use CrashRpt, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using CrashRpt doesn't affect the difficulty of reverse engineering your code. 
 
-== How do I use crashrpt API functions that have character set dependent arguments? ==
+== Do crashrpt API functions support UNICODE character set? multi-byte character set (MBCS)? ==
 
-All CrashRpt functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
+Yes, all CrashRpt functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
 
-== Why would I want to add a custom file to the error report? == 
+== Why would I want to add a custom file (e.g., a log file) to the error report? == 
 
 If your application creates and maintains a log file where operations and errors are written, then such log file might be helpful for crash analysis and should be added to the error report. 
 
@@ -218,6 +224,10 @@ But there is one thing to take in account. By enabling screen shot capture, you 
 One way to add application-defined info to the error report is adding a custom file. But sometimes you may want to extend the crash description XML file by adding a custom named literal property to the XML file. You can do this through the `crAddProperty()` function.
 
 For example, you may need to add the info about amount of free disk space on a specific disk drive at the moment of crash, or about the version of the graphics card driver installed on user's machine.
+
+== We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
+
+We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a used-defined file to the crash report.
 
 == Why would I want to add a registry key dump to the crash report? ==
 
@@ -246,19 +256,17 @@ The following code example shows how to do this (code provided by tdev):
   crAddProperty("SystemGUID", guid);
 }}}
 
-== We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
-
-We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a used-defined file to the crash report.
-
 == Why would I want to generate error report without crash? ==
 
 Sometimes it may be required to remotely debug some application logics error. Such an error, for example, infinite loop in a worker thread, may not cause program crash. To collect the information about such error, a software developer might provide an ability to generate error report manually on user demand, for example on a key combination press. 
 
+== My software's worker thread hangs up on users machine (but no crash happens). How do I debug the problem? ==
+
+To collect information about such error, you may provide an ability to generate error report manually, for example on a key combination press. When the key combination is pressed, generate error report manually using `crGenerateErrorReport()` function.  
+
 == I would like to force the user to enter a description of what happened just before the crash. What do I do? ==
 
-The user has an ability to enter the description of the problem in the main dialog (see the second link "Provide additional information (recommended)"). 
-
-However, my CrashRpt usage experience shows most users do not enter anything meaningful into this field, some users just enter trash.
+The user has an ability to enter the description of the problem in the Error Report dialog by clicking the link "Provide additional information (recommended)". However, my CrashRpt usage experience shows most users do not enter anything meaningful into this field.
 
 == What do I do to save a local copy of an error report to my disk? ==
 
@@ -268,7 +276,7 @@ Since v.1.2.2, you can use the 'Export...' button on the Error Report Details di
 
 Yes, since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
 
-However, it is not recommended to use the non-GUI mode with regular GUI applications which create windows and interact with user.
+However, it is not recommended to use the non-GUI mode with regular GUI applications that create windows and interact with user.
 
 == Does crashrpt support automatic restart of the application that crashes? ==
 
@@ -304,7 +312,7 @@ If your project uses CRT as a static link library (which is not recommended to d
 
 == Can I compile crashrpt as a static library? ==
 
-It is not recommended to use CRT as a statically linked library. However, you can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
+It is not recommended to use CRT as a statically linked library. However, if you do, you can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
 
 == Why should I enable Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag? ==
 
@@ -431,6 +439,10 @@ Since v.1.1.2, you can use a privacy policy which describes what user informatio
 
 If you need a template you may use this one: PrivacyPolicyTemplate.
 
+== I don't want to provide the Privacy Policy. What do I do? ==
+
+Just set the privacy policy link with NULL. This will hide the Privacy Policy link.
+
 == How does crashrpt deliver me error reports from end users? ==
 
 CrashRpt sends error reports back to your software support team using any of the following ways:
@@ -470,7 +482,9 @@ CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to
 
 == What does crashrpt do when all attempts to send error report fail? == 
 
-When all attempts fail, `CrashSender.exe` saves error report files to the `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder and shows the status notification window. 
+This depends on how you have configured CrashRpt.
+
+CrashRpt can queue error reports for later submission (by default the report files are stored in `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. Alternatively, if queue is disabled, CrashRpt erases the error report files when delivery fails. 
 
 = Using Error Reports =
 
@@ -537,6 +551,10 @@ Then double-click on the minidump file name. This should open it using an associ
 
 Alternatively, you can open the minidump file using `WinDbg` program from `Microsoft Debugging Tools`. It is freely distributed.
 
+== Can I open crash reports with WinDbg? ==
+
+Yes, you can open crash reports with WinDbg program that is a part of Debugging Tools for Windows.
+
 == How do I identify if the symbol files fit to a certain executable? ==
 
 Symbol files are identified by timestamps (in older versions of PDB) or by GUIDs (in newer versions of PDB). 
@@ -586,3 +604,7 @@ crprober depends on `dbghelp.dll` (Microsoft Debug Help Library). I'm not sure i
 The `CrashRptProbe API` is the application programming interface for processing error reports generated by crashrpt. The API includes several functions you can use in your own error report processing tool. The API is used internally by the `crprober.exe` tool.
 
 The error report processing functionality is encapsulated inside of `CrashRptProbe.dll`. Internally `CrashRptProbe.dll` uses functions provided by `dbghelp.dll` (Microsoft Debug Help Library) for loading the minidump file contained in the report.
+
+== What .h file should I include and what .lib file should I link in order to use CrashRptProbe API? ==
+
+You should include `CrashRptProbe.h` and link `CrashRptProbe.lib`.
