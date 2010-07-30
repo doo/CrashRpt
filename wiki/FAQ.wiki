@@ -10,14 +10,6 @@ CrashRpt library is an open source error handling, reporting and processing tool
 
 CrashRpt is distributed under the [http://crashrpt.sourceforge.net/License.txt New BSD License].  
 
-== Can I use crashrpt in a commercial application? ==
-
-According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use CrashRpt in any application, but you should mention somehow (in documentation or in About dialog) that CrashRpt library is used.
-
-== Should I give credits if my application uses crashrpt? ==
-
-The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application making use of the code should give credits where applicable (in About box, in documentation or somewhere else).  
-
 == What third-party libraries does crashrpt use internally? ==
 
 This depends on what CrashRpt version you use. See the documentation distributed with your version of CrashRpt.
@@ -43,6 +35,14 @@ If you have ever tried to determine the reason of a crash on user's machine, you
   * CrashRpt can send error reports not only using HTTP, but also using E-mail. This is suitable for developers not having servers for storing error reports. To send reports over E-mail, user machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 
   * CrashRpt has a tool for error reports' post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
+
+== Can I use crashrpt in a commercial application? ==
+
+According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use CrashRpt in any application, but you should mention somehow (in documentation or in About dialog) that CrashRpt library is used.
+
+== Should I give credits if my application uses crashrpt? ==
+
+The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application making use of the code should give credits where applicable (in About box, in documentation or somewhere else).  
 
 == What programming languages can I use crashrpt in? ==
 
