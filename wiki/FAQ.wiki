@@ -97,13 +97,13 @@ If you like CrashRpt and use it in your software product, you can show your appr
 
 Yes, they are listed in the table below:
 
-|| *Name* || *Description* || *Link* ||
-|| google-breakpad || An open-source multi-platform crash reporting system || http://code.google.com/p/google-breakpad/ ||
-|| Mozilla Firefox Crash Reporting System || Used in Mozilla Firefox browser || https://developer.mozilla.org/en/Crash_reporting ||
-|| Windows Error Reporting || Embed into Windows Vista and later || http://msdn.microsoft.com/en-us/isv/bb190483.aspx ||
-|| `BugCollect.com` || Web-based crash reporting system || http://bugcollect.com ||
-|| `BugTrap` || Crash reporting system for C++ and .NET || http://www.codeproject.com/KB/applications/BugTrap.aspx ||
-|| `XCrashReport` || XCrashReport : Exception Handling and Crash Reporting  || http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx ||
+|| *Name* || *Description* || 
+|| [http://code.google.com/p/google-breakpad/ google-breakpad] || An open-source multi-platform crash reporting system ||
+|| [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Used in Mozilla Firefox browser || 
+|| [http://msdn.microsoft.com/en-us/isv/bb190483.aspx Windows Error Reporting] || Embed into Windows Vista and later || 
+|| [http://bugcollect.com BugCollect.com] || Web-based crash reporting system || 
+|| [http://bugcollect.com BugTrap] || Crash reporting system for C++ and .NET || 
+|| [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || XCrashReport : Exception Handling and Crash Reporting  || 
 
 == What Windows versions crashrpt can work in? ==
 
