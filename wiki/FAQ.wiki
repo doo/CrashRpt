@@ -14,7 +14,7 @@ CrashRpt is distributed under the [http://crashrpt.sourceforge.net/License.txt N
 
 According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use CrashRpt in any application, but you should mention somehow (in documentation or in About dialog) that CrashRpt library is used.
 
-== Should I give credits if my application uses crashrpt?
+== Should I give credits if my application uses crashrpt? ==
 
 The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application making use of the code should give credits where applicable (in About box, in documentation or somewhere else).  
 
