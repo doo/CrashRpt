@@ -4,7 +4,7 @@
 
 == What is crashrpt? ==
 
-CrashRpt library is an open source error handling, reporting and processing tool for applications created in Microsoft Visual C++ and running under Windows. 
+CrashRpt library is an open source error handling, reporting and processing tool for applications created in Microsoft Visual C++ and running in Windows. 
 
 == What license does crashrpt use? ==
 
@@ -18,7 +18,7 @@ Generally, CrashRpt may use the following third-party libraries:
 
 || *Name* || *License* || *Usage Purpose* ||
 || [http://sourceforge.net/projects/wtl/ WTL] || [http://opensource.org/licenses/ms-pl.html Microsoft Permissive License] || Used for GUI management || 
-|| [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Debug Help Library] || TODO || Used for creating and reading crash minidumps ||
+|| [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Debug Help Library] || [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Software License Terms for Microsoft Debugging Tools for Windows] || Used for creating and reading crash minidumps ||
 || [http://www.grinninglizard.com/tinyxml/ TinyXml] || [http://en.wikipedia.org/wiki/TinyXML licence of zlib/libpng] || Used for creating and editing XML files || 
 || [http://www.zlib.net/ ZLib] || [http://www.gzip.org/zlib/zlib_license.html zlib license] || File compression functionality ||  
 || [http://www.codeproject.com/KB/files/zip_utils.aspx zip utils] || [http://creativecommons.org/licenses/publicdomain/ Public Domain Dedication] || ZIP file management ||
