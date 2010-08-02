@@ -321,7 +321,13 @@ If your project uses CRT as a static link library (which is not recommended to d
 
 == Can I compile crashrpt as a static library? ==
 
-It is not recommended to use CRT as a statically linked library. However, if you do, you can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
+You can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
+
+== What is `Release LIB` build configuration? ==
+
+The `Release LIB` configuration is an addition to the standard Debug and Release build configurations. Typically, you do not compile CrashRpt in this configuration. However, it may be useful if you use static CRT linkage.
+
+In the `Release LIB` configuration, the build generates `CrashSender.exe` executable file and `CrashRptLIB.lib` static library. In this configuration, `CrashSender.exe` and `CrashRptLIB.lib` use static linkage to CRT.   
 
 == Why should I enable Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag? ==
 
