@@ -608,7 +608,9 @@ You can write some C++ program or for example Python script that would parse out
 
 == Is it possible to use crprober under Linux? with Wine? ==
 
-crprober depends on `dbghelp.dll` (Microsoft Debug Help Library). I'm not sure if you can make it work under Linux/Wine. You can try and tell us if this work. However, I would recommend to use it under the native Windows.
+I would not recommend to use `crprober.exe` in an operating system other than Windows because of license `dbghelp.dll` uses.
+
+The `crprober.exe` tool depends on `dbghelp.dll` (Microsoft Debug Help Library), which is licensed using [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Software License Terms for Microsoft Debugging Tools for Windows]. This license doesn't allow to distribute `dbghelp.dll` "to run on a platform other than the Windows platform". 
 
 == What is crashrptprobe API? ==
 
