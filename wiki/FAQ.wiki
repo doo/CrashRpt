@@ -319,10 +319,6 @@ Several project modules may share single CRT DLL. This reduces to minimum the ov
 
 If your project uses CRT as a static link library (which is not recommended to do) and  you want to use some crash reporting functionality, you would have to compile the functionality as static a lib with `/NODEFAULTLIB` linker option. Then you would have to install CRT error handlers for _EACH_ module that your program loads into its address space. 
 
-== Can I compile crashrpt as a static library? ==
-
-You can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
-
 == What is `Release LIB` build configuration? ==
 
 The `Release LIB` configuration is an addition to the standard Debug and Release build configurations. Typically, you do not compile CrashRpt in this configuration. However, it may be useful if you use static CRT linkage.
