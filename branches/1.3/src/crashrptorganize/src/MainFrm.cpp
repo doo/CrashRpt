@@ -8,6 +8,7 @@
 #include "aboutdlg.h"
 #include "CrashRptOrganizeView.h"
 #include "MainFrm.h"
+#include "DbManager.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
@@ -57,6 +58,9 @@ LRESULT CMainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	CMenuHandle menuMain = m_CmdBar.GetMenu();
 	m_view.SetWindowMenu(menuMain.GetSubMenu(WINDOW_MENU_POSITION));
 
+  g_pDbMgr = new CDbManager();
+  g_pDbMgr->CreateDatabase(CString("db.sqlite"), FALSE);
+
 	return 0;
 }
 
@@ -67,6 +71,9 @@ LRESULT CMainFrame::OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	ATLASSERT(pLoop != NULL);
 	pLoop->RemoveMessageFilter(this);
 	pLoop->RemoveIdleHandler(this);
+
+  delete g_pDbMgr;
+  g_pDbMgr = NULL;
 
 	bHandled = FALSE;
 	return 1;

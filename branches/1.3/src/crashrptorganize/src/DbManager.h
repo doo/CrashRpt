@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "sqlite3.h"
 
 class CDbManager
 {
@@ -13,7 +14,12 @@ public:
 
 private:
 
+  BOOL ExecDDLQuery(char* szQuery);
+  BOOL ImportErrorReport(CString sFileName);
 
+  sqlite3* m_pDb;
+  std::string m_sLastError;
 };
 
+extern CDbManager* g_pDbMgr;
 
