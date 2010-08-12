@@ -441,7 +441,7 @@ crpExtractFileA(
 int
 CRASHRPTPROBE_API
 crpGetLastErrorMsgW(
-  __out_ecount(cchBuffSize) LPTSTR pszBuffer, 
+  __out_ecount(cchBuffSize) LPWSTR pszBuffer, 
   __in UINT cchBuffSize);
 
 /*! \ingroup CrashRptProbeAPI

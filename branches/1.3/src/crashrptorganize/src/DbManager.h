@@ -18,7 +18,8 @@ private:
   BOOL ImportErrorReport(CString sFileName);
 
   sqlite3* m_pDb;
-  std::string m_sLastError;
+  CString m_sLastError;
+  CString m_sSymSearchPath; 
 };
 
 extern CDbManager* g_pDbMgr;

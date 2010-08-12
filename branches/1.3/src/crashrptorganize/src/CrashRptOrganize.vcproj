@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\wtl;..\..\sqlite\src;..\..\crashrpt\src"
+				AdditionalIncludeDirectories="..\..\wtl;..\..\sqlite\src;..\..\crashrpt\src;..\..\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -71,9 +71,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sqlited.lib"
+				AdditionalDependencies="sqlited.lib CrashRptProbed.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\sqlite\lib"
+				AdditionalLibraryDirectories="..\..\sqlite\lib;..\..\lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ErrorReport.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -250,6 +254,10 @@
 			</File>
 			<File
 				RelativePath=".\DbManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ErrorReport.h"
 				>
 			</File>
 			<File

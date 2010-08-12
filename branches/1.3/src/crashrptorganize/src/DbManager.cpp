@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DbManager.h"
 #include "strconv.h"
+#include "CrashRptProbe.h"
 
 // Global pointer to DbMgr
 CDbManager* g_pDbMgr = NULL;
@@ -40,7 +41,7 @@ BOOL CDbManager::CreateDatabase(CString sFileName, BOOL bOpenExisting)
   if(!ExecDDLQuery(szStmtGeneralInfo))
     goto cleanup;
 
-  char* szInsert1 = "INSERT INTO TABLE GeneralInfo VALUES ( %Q );"
+  char* szInsert1 = "INSERT INTO TABLE GeneralInfo VALUES ( %Q );";
 
   char* szStmtErrorReports = 
     "CREATE TABLE ErrorReports ( \
@@ -99,5 +100,7 @@ BOOL CDbManager::ExecDDLQuery(char* szQuery)
 
 BOOL CDbManager::ImportErrorReport(CString sFileName)
 {
+  
+
   return TRUE;
 }
