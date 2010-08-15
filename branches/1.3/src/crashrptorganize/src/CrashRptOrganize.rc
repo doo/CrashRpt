@@ -13,6 +13,60 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_NEWDATABASE DIALOGEX 0, 0, 242, 120
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create New Database"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Create Now",IDOK,68,99,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,123,99,50,14
+    EDITTEXT        IDC_EDIT1,7,22,180,13,ES_AUTOHSCROLL
+    LTEXT           "Destination folder:",IDC_STATIC,7,7,60,8
+    PUSHBUTTON      "Browse...",IDC_BROWSE,189,21,46,14
+    LTEXT           "Database name:",IDC_STATIC,7,47,54,8
+    EDITTEXT        IDC_DBNAME,7,62,180,13,ES_AUTOHSCROLL
+    CONTROL         "Create new folder for database.",IDC_NEWFOLDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,79,149,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_NEWDATABASE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 235
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 113
+        HORZGUIDE, 28
+        HORZGUIDE, 68
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
 // English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)

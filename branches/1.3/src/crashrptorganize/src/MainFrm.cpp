@@ -9,6 +9,7 @@
 #include "CrashRptOrganizeView.h"
 #include "MainFrm.h"
 #include "DbManager.h"
+#include "CreateDatabaseDlg.h"
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
@@ -87,6 +88,9 @@ LRESULT CMainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT CMainFrame::OnFileNew(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  CCreateDatabaseDlg dlgCreateDb;
+  dlgCreateDb.DoModal();
+
 	CCrashRptOrganizeView* pView = new CCrashRptOrganizeView;
 	pView->Create(m_view, rcDefault, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 0);
 	m_view.AddPage(pView->m_hWnd, _T("Document"));

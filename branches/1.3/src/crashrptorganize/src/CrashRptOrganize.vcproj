@@ -4,6 +4,7 @@
 	Version="8,00"
 	Name="CrashRptOrganize"
 	ProjectGUID="{333DF5AA-7B17-46C9-BECA-D97BDA2DB9DF}"
+	RootNamespace="CrashRptOrganize"
 	>
 	<Platforms>
 		<Platform
@@ -72,6 +73,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="sqlited.lib CrashRptProbed.lib"
+				OutputFile="..\..\bin\CrashRptProbed.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\sqlite\lib;..\..\lib"
 				GenerateDebugInformation="true"
@@ -208,6 +210,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CreateDatabaseDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DbManager.cpp"
 				>
 			</File>
@@ -250,6 +256,10 @@
 			</File>
 			<File
 				RelativePath=".\CrashRptOrganizeView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CreateDatabaseDlg.h"
 				>
 			</File>
 			<File
