@@ -416,6 +416,10 @@ It is recommended that you place these files to the directory where your applica
 
 The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll` (Microsoft Debug Help Library) is the module CrashRpt depends on. `crashrpt_lang.ini` is the language file.
 
+== What version of dbghelp.dll should I distribute? ==
+
+You can distribute the version of `dbghelp.dll` that is shipped with CrashRpt archive. Or you can distribute `dbghelp.dll` from Debugging Tools for Windows.
+
 == I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
 It is recommended that you distribute `dbghelp.dll` with your software, because some end-user machines may not have `dbghelp.dll` installed or `dbghelp.dll`'s version may be different on different user machines. You may ignore distribution of `dbghelp.dll` at your own risk. 
@@ -558,9 +562,9 @@ Then double-click on the minidump file name. This should open it using an associ
 
 Alternatively, you can open the minidump file using `WinDbg` program from `Microsoft Debugging Tools`. It is freely distributed.
 
-== Can I open crash reports with WinDbg? ==
+== Can I open crash reports with `WinDbg`? ==
 
-Yes, you can open crash reports with WinDbg program that is a part of Debugging Tools for Windows.
+Yes, you can open crash reports with `WinDbg` program that is a part of Debugging Tools for Windows.
 
 == How do I identify if the symbol files fit to a certain executable? ==
 
