@@ -422,24 +422,24 @@ CString Utility::GetProductVersion(CString sModuleName)
   CString sProductVer; 
 
   DWORD dwBuffSize = GetFileVersionInfoSize(sModuleName, 0);
-  LPBYTE pBuff = new BYTE[dwBuffSize];
-    
+  LPBYTE pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);
+      
   if(0!=GetFileVersionInfo(sModuleName, 0, dwBuffSize, pBuff))
   {
     VS_FIXEDFILEINFO* fi = NULL;
     UINT uLen = 0;
     VerQueryValue(pBuff, _T("\\"), (LPVOID*)&fi, &uLen);
 
-    WORD dwVerMajor = (WORD)(fi->dwProductVersionMS>>16);
-    WORD dwVerMinor = (WORD)(fi->dwProductVersionMS&0xFF);
-    WORD dwPatchLevel = (WORD)(fi->dwProductVersionLS>>16);
-    WORD dwVerBuild = (WORD)(fi->dwProductVersionLS&0xFF);
+    WORD dwVerMajor = HIWORD(fi->dwProductVersionMS);
+    WORD dwVerMinor = LOWORD(fi->dwProductVersionMS);
+    WORD dwPatchLevel = HIWORD(fi->dwProductVersionLS);
+    WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
 
     sProductVer.Format(_T("%u.%u.%u.%u"), 
-      dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);
-  }
+      dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);    
+  } 
 
-  delete [] pBuff;
+  GlobalFree((HGLOBAL)pBuff);
 
   return sProductVer;
 }

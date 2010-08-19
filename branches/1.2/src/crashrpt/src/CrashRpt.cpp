@@ -437,8 +437,8 @@ crAddRegKeyW(
 
   strconv_t strconv;
   LPCTSTR pszRegKeyT = strconv.w2t(pszRegKey);
-  LPCTSTR pszDstFileNameT = strconv.w2t(pszDstFileName);
-  
+  LPCTSTR pszDstFileNameT = strconv.w2t(pszDstFileName);  
+
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
 
@@ -462,14 +462,14 @@ crAddRegKeyW(
 
 CRASHRPTAPI(int)
 crAddRegKeyA(   
-   LPCSTR pszRegKeyList,
+   LPCSTR pszRegKey,
    LPCSTR pszDstFileName,
    DWORD dwFlags
    )
 {
   // This is just a wrapper for wide-char function version
   strconv_t strconv;
-  return crAddRegKeyW(strconv.a2w(pszDstFileName), strconv.a2w(pszRegKeyList), dwFlags);
+  return crAddRegKeyW(strconv.a2w(pszRegKey), strconv.a2w(pszDstFileName), dwFlags);
 }
 
 CRASHRPTAPI(int) 
