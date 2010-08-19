@@ -150,6 +150,10 @@ int CCrashHandler::Init(
   if(m_sAppVersion.IsEmpty())
   {
     m_sAppVersion = Utility::GetProductVersion(m_sImageName);
+    if(m_sAppVersion.IsEmpty())
+    {
+      m_sAppVersion = _T("UndefinedVersion");
+    }
   }
 
   // Save URL to send reports via HTTP

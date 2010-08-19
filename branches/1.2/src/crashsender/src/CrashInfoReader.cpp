@@ -592,9 +592,13 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
 
   {
     TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
-    const char* szAppVersion = hAppVersion.FirstChild().ToText()->Value();
-    if(szAppVersion!=NULL)
-      eri.m_sAppVersion = strconv.utf82t(szAppVersion);
+    TiXmlText* pText = hAppVersion.FirstChild().ToText();
+    if(pText!=NULL)
+    {
+      const char* szAppVersion = pText->Value();
+      if(szAppVersion!=NULL)
+        eri.m_sAppVersion = strconv.utf82t(szAppVersion);
+    }
   }
 
   {
