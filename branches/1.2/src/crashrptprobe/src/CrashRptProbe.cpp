@@ -277,6 +277,7 @@ crpOpenErrorReportW(
     if(zr!=0)
     {
       crpSetErrorMsg(_T("Error extracting ZIP item."));
+      Utility::RecycleFile(sTempFile, TRUE);
       goto exit; // Can't unzip ZIP element
     }
 
@@ -296,6 +297,7 @@ crpOpenErrorReportW(
     zr = UnzipFile(report_data.m_hZip, szDmpFileName, strconv.t2a(sTempFile));
     if(zr!=0)
     {
+      Utility::RecycleFile(sTempFile, TRUE);
       crpSetErrorMsg(_T("Error extracting ZIP item."));
       goto exit; // Can't unzip ZIP element
     }
@@ -319,6 +321,7 @@ crpOpenErrorReportW(
       if(nLoad!=0)
       {
         crpSetErrorMsg(_T("Error opening minidump file."));
+        Utility::RecycleFile(report_data.m_sMiniDumpTempName, TRUE);
         goto exit; 
       }
 
@@ -398,6 +401,7 @@ exit:
   {
     delete report_data.m_pDescReader;
     delete report_data.m_pDmpReader;
+    Utility::RecycleFile(report_data.m_sMiniDumpTempName, TRUE);
 
     if(report_data.m_hZip!=0) 
       unzClose(report_data.m_hZip);
@@ -440,6 +444,7 @@ crpCloseErrorReport(
 
   delete it->second.m_pDescReader;
   delete it->second.m_pDmpReader;
+  Utility::RecycleFile(it->second.m_sMiniDumpTempName, TRUE);
 
   if(it->second.m_hZip)
     unzClose(it->second.m_hZip);
@@ -926,6 +931,22 @@ crpGetPropertyW(
       }
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("%d"), pDmpReader->GetModuleRowIdByAddress(pDmpReader->m_DumpData.m_uExceptionAddress)); 
       pszPropVal = szBuff;
+    }
+    else if(sColumnId.Compare(CRP_COL_EXCEPTION_THREAD_STACK_MD5)==0)
+    {  
+      if(!pDmpReader->m_bReadExceptionStream)
+      {
+        crpSetErrorMsg(_T("There is no stack trace information in minidump file."));
+        return -3;
+      }
+      int nThreadROWID = pDmpReader->GetThreadRowIdByThreadId(pDmpReader->m_DumpData.m_uExceptionThreadId);
+      if(nThreadROWID>=0)
+      {
+        pDmpReader->StackWalk(pDmpReader->m_DumpData.m_Threads[nThreadROWID].m_dwThreadId);
+        CString sMD5 = pDmpReader->m_DumpData.m_Threads[nThreadROWID].m_sStackTraceMD5;        
+        _STPRINTF_S(szBuff, BUFF_SIZE, _T("%s"), sMD5.GetBuffer(0));         
+      }
+      pszPropVal = szBuff;      
     }
     else
     {
