@@ -48,6 +48,7 @@ struct MdmpThread
   DWORD m_dwThreadId;        // Thread ID.
   CONTEXT* m_pThreadContext; // Thread context
   BOOL m_bStackWalk;         // Was stack trace retrieved for this thread?
+  CString m_sStackTraceMD5;
   std::vector<MdmpStackFrame> m_StackTrace; // Stack trace for this thread.
 };
 

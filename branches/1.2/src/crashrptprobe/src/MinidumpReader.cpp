@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "Utility.h"
 #include "strconv.h"
+#include "md5.h"
 
 CMiniDumpReader* g_pMiniDumpReader = NULL;
 
@@ -105,7 +106,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   DWORD dwOptions = SymGetOptions();
   dwOptions |= ( 
     //SYMOPT_DEFERRED_LOADS | // Symbols are not loaded until a reference is made requiring the symbols be loaded.
-    SYMOPT_EXACT_SYMBOLS  | // Do not load an unmatched .pdb file. 
+    SYMOPT_EXACT_SYMBOLS  |   // Do not load an unmatched .pdb file. 
     SYMOPT_FAIL_CRITICAL_ERRORS | // Do not display system dialog boxes when there is a media failure such as no media in a drive.
     SYMOPT_UNDNAME // All symbols are presented in undecorated form. 
     );
@@ -147,7 +148,9 @@ void CMiniDumpReader::Close()
 CString CMiniDumpReader::GetMinidumpString(LPVOID start_addr, RVA rva)
 {
   MINIDUMP_STRING* pms = (MINIDUMP_STRING*)((LPBYTE)start_addr+rva);
-  return CString(pms->Buffer, pms->Length);
+  //CString sModule = CString(pms->Buffer, pms->Length);
+  CString sModule = pms->Buffer;  
+  return sModule;
 }
 
 int CMiniDumpReader::ReadSysInfoStream()
@@ -557,7 +560,82 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
     m_DumpData.m_Threads[nThreadIndex].m_StackTrace.push_back(stack_frame);
   }
 
+
+  CString sStackTrace;
+  UINT i;
+  for(i=0; i<m_DumpData.m_Threads[nThreadIndex].m_StackTrace.size(); i++)
+  {
+    MdmpStackFrame& frame = m_DumpData.m_Threads[nThreadIndex].m_StackTrace[i];
+    
+    if(frame.m_sSymbolName.IsEmpty())
+      continue;
+
+    CString sModuleName;
+    CString sAddrPCOffset;
+    CString sSymbolName;            
+    CString sOffsInSymbol;
+    CString sSourceFile;
+    CString sSourceLine;
+
+    if(frame.m_nModuleRowID>=0)
+    {
+      sModuleName = m_DumpData.m_Modules[frame.m_nModuleRowID].m_sModuleName;
+    }           
+    
+    sSymbolName = frame.m_sSymbolName;
+    sAddrPCOffset.Format(_T("0x%I64x"), frame.m_dwAddrPCOffset);
+    sSourceFile = frame.m_sSrcFileName;
+    sSourceLine.Format(_T("%d"), frame.m_nSrcLineNumber);
+    sOffsInSymbol.Format(_T("0x%I64x"), frame.m_dw64OffsInSymbol);
+
+    CString str;
+    str = sModuleName;
+    if(!str.IsEmpty())
+      str += _T("!");
+
+    if(sSymbolName.IsEmpty())
+      str += sAddrPCOffset;  
+    else
+    {
+      str += sSymbolName;
+      str += _T("+");
+      str += sOffsInSymbol;
+    }
+
+    if(!sSourceFile.IsEmpty())
+    {
+      size_t pos = sSourceFile.ReverseFind('\\');
+      if(pos>=0)
+        sSourceFile = sSourceFile.Mid(pos+1);
+      str += _T(" [ ");
+      str += sSourceFile;
+      str += _T(": ");
+      str += sSourceLine;
+      str += _T(" ] ");
+    } 
+
+    sStackTrace += str; 
+    sStackTrace += _T("\n");
+  }
+
+  strconv_t strconv;
+  LPCSTR szStackTrace = strconv.t2utf8(sStackTrace);
+  MD5 md5;
+  MD5_CTX md5_ctx;
+  unsigned char md5_hash[16];
+  md5.MD5Init(&md5_ctx);  
+  md5.MD5Update(&md5_ctx, (unsigned char*)szStackTrace, (unsigned int)strlen(szStackTrace));  
+  md5.MD5Final(md5_hash, &md5_ctx);
+
+  for(i=0; i<16; i++)
+  {
+    CString number;
+    number.Format(_T("%02x"), md5_hash[i]);
+    m_DumpData.m_Threads[nThreadIndex].m_sStackTraceMD5 += number;
+  } 
+
   m_DumpData.m_Threads[nThreadIndex].m_bStackWalk = TRUE;
+  
 
   return 0;
 }
