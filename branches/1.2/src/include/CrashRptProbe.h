@@ -211,7 +211,8 @@ crpCloseErrorReport(
 #define CRP_COL_OS_VER_CSD       _T("OSVerCSD")        //!< Column: The latest service pack installed.
 #define CRP_COL_EXCPTRS_EXCEPTION_CODE _T("ExptrsExceptionCode")  //!< Column: Code of the structured exception.
 #define CRP_COL_EXCEPTION_ADDRESS _T("ExceptionAddress")          //!< Column: Exception address.
-#define CRP_COL_EXCEPTION_THREAD_ROWID _T("ExceptionThreadROWID") //!< Column: ROWID in \ref CRP_TBL_MDMP_THREADS of the thread in which exception occurred. 
+#define CRP_COL_EXCEPTION_THREAD_ROWID _T("ExceptionThreadROWID") //!< Column: ROWID in \ref CRP_TBL_MDMP_THREADS of the thread in which exception occurred.
+#define CRP_COL_EXCEPTION_THREAD_STACK_MD5  _T("ExceptionThreadStackMD5") //!< Column: MD5 hash of the stack trace of the thread where exception occurred.
 #define CRP_COL_EXCEPTION_MODULE_ROWID _T("ExceptionModuleROWID") //!< Column: ROWID in \ref CRP_TBL_MDMP_MODULES of the module in which exception occurred.
 
 // Column IDs of the CRP_MDMP_MODULES table
@@ -423,7 +424,7 @@ crpExtractFileA(
 
 CRASHRPTPROBE_API(int)
 crpGetLastErrorMsgW(
-  __out_ecount(cchBuffSize) LPTSTR pszBuffer, 
+  __out_ecount(cchBuffSize) LPWSTR pszBuffer, 
   __in UINT cchBuffSize);
 
 /*! \ingroup CrashRptProbeAPI
