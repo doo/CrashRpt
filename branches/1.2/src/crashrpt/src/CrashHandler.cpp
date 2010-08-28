@@ -65,19 +65,30 @@ int CCrashHandler::m_nCrashCounter = 0;
 
 CCrashHandler::CCrashHandler()
 {
-  m_bInitialized = FALSE;  
   InitPrevExceptionHandlerPointers();
+
   m_lpfnCallback = NULL;
-  memset(&m_uPriorities, 0, 3*sizeof(UINT));
-  m_hDbgHelpDll = 0;
+  m_nSmtpPort = 25;
+  m_nSmtpProxyPort = 2525;
+  memset(&m_uPriorities, 0, 3*sizeof(UINT));  
+  m_hDbgHelpDll = NULL;
+  m_bGenerateMinidump = TRUE;
+  m_bQueueEnabled = FALSE;
   m_MiniDumpType = MiniDumpNormal;
-  m_hEvent = NULL;
+  m_bSilentMode = FALSE;
+  m_bHttpBinaryEncoding = FALSE;
+  m_bSendErrorReport = TRUE;
+  memset(&m_AppStartTime, 0, sizeof(SYSTEMTIME));
+  m_bOSIs64Bit = FALSE;
+  m_dwGuiResources = 0;
+  m_dwProcessHandleCount = 0;
   m_bAddScreenshot = FALSE;
   m_dwScreenshotFlags = 0;
-  m_bHttpBinaryEncoding = FALSE;
-  m_bSilentMode = FALSE;
+  memset(&m_rcAppWnd, 0, sizeof(RECT));
+  m_ptCursorPos.SetPoint(0, 0);
+  m_hEvent = NULL;  
   m_bAppRestart = FALSE;
-  m_bGenerateMinidump = TRUE;
+  m_bInitialized = FALSE;  
 }
 
 CCrashHandler::~CCrashHandler()
@@ -365,6 +376,12 @@ int CCrashHandler::Init(
     crSetErrorMsg(_T("Couldn't get operating system's friendly name."));
     return 1; 
   }
+
+  // Determine if Windows is 64-bit.
+  m_bOSIs64Bit = Utility::IsOS64Bit();
+
+  // Get geographic location.
+  Utility::GetGeoLocation(m_sGeoLocation);
 
   if(lpcszErrorReportSaveDir==NULL)
   {
@@ -1088,11 +1105,18 @@ int CCrashHandler::CreateCrashDescriptionXML(
   // Write operating system friendly name  
   fprintf(f, "  <OperatingSystem>%s</OperatingSystem>\n", 
     XmlEncodeStr(m_sOSName.GetBuffer(0)).c_str());
-  
+
+  // Write OSIs64Bit tag
+  fprintf(f, "  <OSIs64Bit>%d</OSIs64Bit>\n", m_bOSIs64Bit);  
+
+  // Write user's geographic location in RFC1766 compliant form
+  fprintf(f, "  <GeoLocation>%s</GeoLocation>\n", 
+    XmlEncodeStr(m_sGeoLocation.GetBuffer(0)).c_str());  
+
   // Write system time in UTC format
   fprintf(f, "  <SystemTimeUTC>%s</SystemTimeUTC>\n", 
     XmlEncodeStr(m_sCrashTime.GetBuffer(0)).c_str());
-  
+    
   // Write exception type
   fprintf(f, "  <ExceptionType>%d</ExceptionType>\n", 
     pExceptionInfo->exctype);
@@ -1152,7 +1176,7 @@ int CCrashHandler::CreateCrashDescriptionXML(
   // Write memory usage info
   fprintf(f, "  <MemoryUsageKbytes>%s</MemoryUsageKbytes>\n", 
     XmlEncodeStr(m_sMemUsage.GetBuffer(0)).c_str());  
-
+  
   // Write list of custom user-added properties
   fprintf(f, "  <CustomProps>\n");
   

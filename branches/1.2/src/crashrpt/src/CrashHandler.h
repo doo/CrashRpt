@@ -248,9 +248,11 @@ private:
   SYSTEMTIME m_AppStartTime;     // The time this application was started.
   CString m_sCrashTime;          // Crash time in UTC format
   CString m_sOSName;             // Operating system name.
+  BOOL    m_bOSIs64Bit;          // Is operating system 64-bit (TRUE) or 32-bit (FALSE)?
   DWORD m_dwGuiResources;        // Count of GUI resources in use.
   DWORD m_dwProcessHandleCount;  // Count of opened handles.
   CString m_sMemUsage;           // Memory usage.
+  CString m_sGeoLocation;        // Current geographic location abbreviation.
 
   BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
   DWORD m_dwScreenshotFlags;     // Screenshot flags.

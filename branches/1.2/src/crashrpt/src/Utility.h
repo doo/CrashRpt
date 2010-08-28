@@ -69,6 +69,12 @@ namespace Utility
   // Returns friendly name of operating system (name, version, service pack)
   int GetOSFriendlyName(CString& sOSName);  
 
+  // Returns TRUE if Windows is 64-bit
+  BOOL IsOS64Bit();  
+
+  // Retrieves current geographic location
+  int GetGeoLocation(CString& sGeoLocation);
+
   // Returns path to a special folder (for example %LOCAL_APP_DATA%)
   int GetSpecialFolder(int csidl, CString& sFolderPath);
 

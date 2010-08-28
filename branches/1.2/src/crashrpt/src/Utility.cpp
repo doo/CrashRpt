@@ -231,6 +231,63 @@ int Utility::GetOSFriendlyName(CString& sOSName)
   return 1;
 }
 
+BOOL Utility::IsOS64Bit()
+{
+#ifdef _WIN64
+  // 64-bit applications always run under 64-bit Windows
+  return TRUE;
+#endif
+
+  // Check for 32-bit applications
+
+  typedef BOOL (WINAPI *PFNISWOW64PROCESS)(HANDLE, PBOOL);
+
+  HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
+  PFNISWOW64PROCESS pfnIsWow64Process = 
+    (PFNISWOW64PROCESS)GetProcAddress(hKernel32, "IsWow64Process");
+  if(pfnIsWow64Process==NULL)
+  {
+    // If there is no IsWow64Process() API, than Windows is 32-bit for sure
+    FreeLibrary(hKernel32);
+    return FALSE;
+  }
+
+  BOOL b64Bit = FALSE;
+  pfnIsWow64Process(GetCurrentProcess(), &b64Bit);
+  FreeLibrary(hKernel32);
+
+  return b64Bit;
+}
+
+int Utility::GetGeoLocation(CString& sGeoLocation)
+{
+  sGeoLocation = _T("");
+  
+  typedef GEOID (WINAPI *PFNGETUSERGEOID)(GEOCLASS);
+
+  HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
+  PFNGETUSERGEOID pfnGetUserGeoID = 
+    (PFNGETUSERGEOID)GetProcAddress(hKernel32, "GetUserGeoID");
+  if(pfnGetUserGeoID==NULL)
+    return -1;
+
+  GEOID GeoLocation = GetUserGeoID(GEOCLASS_NATION);
+  if(GeoLocation!=GEOID_NOT_AVAILABLE)
+  { 
+    TCHAR szGeoInfo[1024] = _T("");    
+    int n = GetGeoInfo(GeoLocation, GEO_RFC1766, szGeoInfo, 1024, 0);
+    if(n!=0)
+    {
+      sGeoLocation = szGeoInfo;
+      FreeLibrary(hKernel32);
+      return 0;
+    }
+  }
+  
+  FreeLibrary(hKernel32);
+  return -1;
+}
+
 int Utility::GetSpecialFolder(int csidl, CString& sFolderPath)
 {
   sFolderPath.Empty();
