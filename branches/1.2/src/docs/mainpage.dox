@@ -2,15 +2,14 @@
 
 \mainpage CrashRpt Documentation
 
-If you have ever tried to determine the reason of a your program's crash on user's machine, 
-you might know how difficult it is. Some users won't contact you while others 
+If you have ever tried to determine the reason of your program's crash on a end user's machine, 
+you might know how difficult it is. Some users won't contact you to tell about the problem. Others 
 might not have technical knowledge. These factors make debugging remote crashes 
 almost impossible. That's why it is important to use special tools to report 
 errors automatically. 
 
-CrashRpt library is an open source error handling, reporting and 
-post-processing tool for applications created in Microsoft Visual C++ and running 
-in Windows. 
+<b>CrashRpt</b> library is an open source error handling, reporting and 
+postprocessing tool for Visual C++ applications running in Windows. 
 
 \section toc Table of Contents
 
