@@ -218,6 +218,10 @@ No, actually not. In order to use CrashRpt, you enable program database generati
 
 Yes, all CrashRpt functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
 
+== I need to modify some crashrpt configuration info (i.e. uPriorities) based on information collected after `crInstall()`. What is the best way ?==
+
+I would recommend to hardcode the info you pass to `crInstall()` function, that means not reading it from an INI file or from another source. However, if you strongly wish to modify this info, call `crInstall()` _after_ reading the info from the INI files/another source. INI file reading functionality is not likely to crash, I suppose. Currently, there are no ways to modify the CrashRpt configuration info after calling `crInstall()`.
+
 == Why would I want to add a custom file (e.g., a log file) to the error report? == 
 
 If your application creates and maintains a log file where operations and errors are written, then such log file might be helpful for crash analysis and should be added to the error report. 
