@@ -35,7 +35,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng", "libpng\src\libpng
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "minizip", "minizip\src\minizip.vcproj", "{C610F50E-1013-46F0-AE20-4E918654B40F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "Tests\Tests.vcproj", "{C6941433-40EA-4307-A0A2-39BFB844367E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "..\..\..\HeadTrackingDemo\checkout\Tests\Tests.vcproj", "{B7867098-A184-4F2B-A66E-2BE299E083C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -155,15 +155,15 @@ Global
 		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release|Win32.Build.0 = Release|Win32
 		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release|x64.ActiveCfg = Release|x64
 		{C610F50E-1013-46F0-AE20-4E918654B40F}.Release|x64.Build.0 = Release|x64
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Debug|Win32.ActiveCfg = Debug|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Debug|Win32.Build.0 = Debug|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Debug|x64.ActiveCfg = Debug|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Release LIB|Win32.ActiveCfg = Release|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Release LIB|Win32.Build.0 = Release|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Release LIB|x64.ActiveCfg = Release|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Release|Win32.ActiveCfg = Release|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Release|Win32.Build.0 = Release|Win32
-		{C6941433-40EA-4307-A0A2-39BFB844367E}.Release|x64.ActiveCfg = Release|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Debug|Win32.Build.0 = Debug|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Debug|x64.ActiveCfg = Debug|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Release LIB|Win32.ActiveCfg = Release|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Release LIB|Win32.Build.0 = Release|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Release LIB|x64.ActiveCfg = Release|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Release|Win32.ActiveCfg = Release|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Release|Win32.Build.0 = Release|Win32
+		{B7867098-A184-4F2B-A66E-2BE299E083C8}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
