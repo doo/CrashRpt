@@ -192,6 +192,8 @@ crpCloseErrorReport(
 #define CRP_COL_MEMORY_USAGE_KBYTES _T("MemoryUsageKbytes")  //!<  Column: Memory usage at the moment of crash (in KB).
 #define CRP_COL_GUI_RESOURCE_COUNT _T("GUIResourceCount")    //!<  Column: Count of used GUI resources at the moment of crash.
 #define CRP_COL_OPEN_HANDLE_COUNT  _T("OpenHandleCount")     //!<  Column: Count of open handles at the moment of crash.
+#define CRP_COL_OS_IS_64BIT  _T("OSIs64Bit")                 //!<  Column: Operating system is 64-bit.
+#define CRP_COL_GEO_LOCATION _T("GeoLocation")               //!<  Column: Geographic location of the error report sender.
 
 // Column IDs of the CRP_XMLDESC_FILE_ITEMS table
 #define CRP_COL_FILE_ITEM_NAME   _T("FileItemName")    //!< Column: File list: Name of the file contained in the report.

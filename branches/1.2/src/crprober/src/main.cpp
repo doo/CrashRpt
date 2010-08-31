@@ -598,6 +598,18 @@ int output_document(CrpHandle hReport, FILE* f)
   
   doc.PutRecord(_T("OS version (from minidump)"), sOsVer.c_str());
   
+  // Print OSIs64Bit
+  tstring sOSIs64Bit;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_OS_IS_64BIT, sOSIs64Bit);
+  if(result==0)
+    doc.PutRecord(_T("OS is 64-bit"), sOSIs64Bit.c_str());
+
+  // Print GeoLocation
+  tstring sGeoLocation;
+  result = get_prop(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_GEO_LOCATION, sGeoLocation);
+  if(result==0)
+    doc.PutRecord(_T("Geographic location"), sGeoLocation.c_str());
+
   // Print SystemType
   tstring sSystemType;
   result = get_prop(hReport, CRP_TBL_MDMP_MISC, CRP_COL_PRODUCT_TYPE, sSystemType);
