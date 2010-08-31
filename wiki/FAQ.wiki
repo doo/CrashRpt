@@ -220,7 +220,9 @@ Yes, all CrashRpt functions using character set dependent arguments have two ver
 
 == I need to modify some crashrpt configuration info (i.e. uPriorities) based on information collected after `crInstall()`. What is the best way ?==
 
-I would recommend to hardcode the info you pass to `crInstall()` function, that means not reading it from an INI file or from another source. However, if you strongly wish to modify this info, call `crInstall()` _after_ reading the info from the INI files/another source. INI file reading functionality is not likely to crash, I suppose. Currently, there are no ways to modify the CrashRpt configuration info after calling `crInstall()`.
+Currently, there are no ways to modify the CrashRpt configuration info after calling `crInstall()`. I would recommend to hardcode the info you pass to `crInstall()` function, that means not reading it from an INI file or from another source. 
+
+However, if you strongly wish to read crashrpt configuration info from an external file, call `crInstall()` _after_ reading the info from that file. Simple file reading functionality is not likely to crash, I suppose. So the probability you miss a crash while reading the file is small. 
 
 == Why would I want to add a custom file (e.g., a log file) to the error report? == 
 
