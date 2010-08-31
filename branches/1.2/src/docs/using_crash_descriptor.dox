@@ -14,12 +14,14 @@ A typical crash description is presented below.
 \code
 
 <?xml version="1.0" encoding="UTF-8" ?>
-<CrashRpt version="1205">
+<CrashRpt version="1207">
   <CrashGUID>374db652-d268-4b0b-94dc-c014150c8cfe</CrashGUID>
   <AppName>CrashRpt Tests</AppName>
-  <AppVersion>1.2.5</AppVersion>
+  <AppVersion>1.2.7</AppVersion>
   <ImageName>D:\Projects\CrashRpt\src\bin\CrashRptTestd.exe</ImageName>
   <OperatingSystem>Windows 7 Ultimate Build 7100</OperatingSystem>
+  <OSIs64Bit>1</OSIs64Bit>
+  <GeoLocation>en-us</GeoLocation>
   <SystemTimeUTC>2010-05-15T08:21:49Z</SystemTimeUTC>
   <ExceptionType>11</ExceptionType>
   <GUIResourceCount>51</GUIResourceCount>
@@ -58,6 +60,10 @@ The element  \c ImageName is path to the executable image of your software.
 
 \c OperatingSystem is the friendly name of end user's operating system, including name, build number
 and service pack. It is useful information because many errors are OS-specific.
+
+\c OSIs64Bit signals if user's operating system is 64-bit (equals to 1) or 32-bit (equals to 0).
+
+\c GeoLocation represents user's geographic location in an RFC 1766 compliant form.
 
 \c SystemTimeUTC is the time in UTC format when crash had occurred. This value can be used to
 order crash reports by creation time.
