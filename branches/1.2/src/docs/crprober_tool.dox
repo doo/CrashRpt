@@ -146,8 +146,9 @@ the extension to determine the error report messages on the fly and extract emai
 MD5 files) to some folder.
 
 When you have ZIP and MD5 files stored in the directory, you may want to process them all at once. You may want to
-process reports from the latest version of your application, ignoring all others. You also may want to copy
-processed reports to some other directory, leaving not processed reports where they are.
+process reports from the latest version of your application, ignoring all others. You may want to group
+similar error reports, for example, by stack trace of the exception thread. You also may want to copy
+processed reports to some other directory, leaving not processed (or corrupted) reports where they are.
 You can automate this task using a batch (BAT) script. 
 
 Below an example batch script is presented. 
@@ -159,8 +160,7 @@ Keep this empty to accept all appnames.
 Keep this empty to accept all app versions.
 - The script searches for symbol files in \a SYM_SEARCH_DIRS. This may be semicolon-separated list of directories.
 - The script saves processed reports and output text files to \a SAVE_RESULTS_TO_DIR directory.
-
-
+ 
 \code
 
 @echo off
@@ -203,14 +203,25 @@ exit
 
 :appversion_ok
 
+  set stack_md5=NoExceptionInfo
+  crprober.exe /f %1 /o "temp.txt" /sym %SYM_SEARCH_DIRS%  /get MdmpMisc ExceptionThreadStackMD5 0
+  if not %errorlevel%==0 goto save_results
+  set /p stack_md5=<temp.txt
+  erase temp.txt
+
+:save_results
+
+  mkdir %SAVE_RESULTS_TO_DIR%%stack_md5%
+  
+
   rem Process report and write results to text file
   crprober.exe /f %1 /o %1.txt /sym %SYM_SEARCH_DIRS% 
   echo Return code=%errorlevel%
   if not %errorlevel%==0 goto failed
 
 :ok
-  move %1 %SAVE_RESULTS_TO_DIR%
-  move %1.txt %SAVE_RESULTS_TO_DIR%
+  move %1 %SAVE_RESULTS_TO_DIR%%stack_md5%
+  move %1.txt %SAVE_RESULTS_TO_DIR%%stack_md5%
   goto done
 
 :failed
