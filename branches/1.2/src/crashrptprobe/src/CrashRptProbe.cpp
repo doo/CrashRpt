@@ -936,7 +936,7 @@ crpGetPropertyW(
     {  
       if(!pDmpReader->m_bReadExceptionStream)
       {
-        crpSetErrorMsg(_T("There is no stack trace information in minidump file."));
+        crpSetErrorMsg(_T("There is no exception information in minidump file."));
         return -3;
       }
       int nThreadROWID = pDmpReader->GetThreadRowIdByThreadId(pDmpReader->m_DumpData.m_uExceptionThreadId);
