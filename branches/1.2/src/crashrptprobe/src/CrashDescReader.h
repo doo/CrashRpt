@@ -21,7 +21,9 @@ public:
   CString m_sAppVersion;
   CString m_sImageName;
   CString m_sOperatingSystem;
+  BOOL    m_bOSIs64Bit;
   CString m_sSystemTimeUTC;
+  CString m_sGeoLocation;
   
   DWORD m_dwExceptionType;
   DWORD m_dwExceptionCode;

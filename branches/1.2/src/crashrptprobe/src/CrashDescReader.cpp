@@ -133,6 +133,33 @@ int CCrashDescReader::Load(CString sFileName)
     }
   }
 
+  // Get GeoLocation
+  TiXmlHandle hGeoLocation = hRoot.ToElement()->FirstChild("GeoLocation");
+  if(hGeoLocation.ToElement())
+  {    
+    TiXmlText* pTextElem = hGeoLocation.FirstChild().Text();     
+    if(pTextElem)
+    {
+      const char* text = pTextElem->Value();
+      if(text)
+        m_sGeoLocation = strconv.utf82t(text);        
+    }
+  }
+
+  // Get OSIs64Bit
+  m_bOSIs64Bit = FALSE;
+  TiXmlHandle hOSIs64Bit = hRoot.ToElement()->FirstChild("OSIs64Bit");
+  if(hOSIs64Bit.ToElement())
+  {    
+    TiXmlText* pTextElem = hOSIs64Bit.FirstChild().Text();     
+    if(pTextElem)
+    {
+      const char* text = pTextElem->Value();
+      if(text)
+        m_bOSIs64Bit = atoi(text);        
+    }
+  }
+
   // Get SystemTimeUTC
   TiXmlHandle hSystemTimeUTC = hRoot.ToElement()->FirstChild("SystemTimeUTC");
   if(hSystemTimeUTC.ToElement())

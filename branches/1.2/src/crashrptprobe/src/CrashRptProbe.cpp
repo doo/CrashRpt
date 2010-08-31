@@ -722,6 +722,26 @@ crpGetPropertyW(
       }
       pszPropVal = strconv.t2w(pDescReader->m_sMemoryUsageKbytes);    
     }
+    else if(sColumnId.Compare(CRP_COL_OS_IS_64BIT)==0)
+    {
+      // We do not support this property for older versions of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion<1207)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
+      _STPRINTF_S(szBuff, BUFF_SIZE, L"%d", pDescReader->m_bOSIs64Bit);    
+    }
+    else if(sColumnId.Compare(CRP_COL_GEO_LOCATION)==0)
+    {
+      // We do not support this property for older versions of CrashRpt
+      if(pDescReader->m_dwGeneratorVersion<1207)
+      {
+        crpSetErrorMsg(_T("Invalid column ID is specified."));
+        return -3;
+      }
+      pszPropVal = strconv.t2w(pDescReader->m_sGeoLocation);    
+    }
     else
     {
       crpSetErrorMsg(_T("Invalid column ID specified."));
