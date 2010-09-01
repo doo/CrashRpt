@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -1480,6 +1480,8 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {
+    m_nCrashCounter++; // Increment crash counter
+
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
     ei.cb = sizeof(CR_EXCEPTION_INFO);
@@ -1487,9 +1489,7 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
     ei.pexcptrs = pExceptionPtrs;
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  m_nCrashCounter++; // Increment crash counter
+  } 
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1509,7 +1509,9 @@ void __cdecl CCrashHandler::TerminateHandler()
   ATLASSERT(pCrashHandler!=NULL);
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
-  {    
+  {
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1517,9 +1519,7 @@ void __cdecl CCrashHandler::TerminateHandler()
     ei.exctype = CR_CPP_TERMINATE_CALL;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  m_nCrashCounter++; // Increment crash counter
+  }  
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1536,7 +1536,9 @@ void __cdecl CCrashHandler::UnexpectedHandler()
   ATLASSERT(pCrashHandler!=NULL);
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
-  { 
+  {
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1544,9 +1546,7 @@ void __cdecl CCrashHandler::UnexpectedHandler()
     ei.exctype = CR_CPP_UNEXPECTED_CALL;
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  m_nCrashCounter++; // Increment crash counter
+  }  
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1564,7 +1564,9 @@ void __cdecl CCrashHandler::PureCallHandler()
   ATLASSERT(pCrashHandler!=NULL);
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
-  {    
+  {
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1572,9 +1574,7 @@ void __cdecl CCrashHandler::PureCallHandler()
     ei.exctype = CR_CPP_PURE_CALL;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-  m_nCrashCounter++; // Increment crash counter
+  }  
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1597,6 +1597,8 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1605,8 +1607,6 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
     
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1632,7 +1632,9 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
    ATLASSERT(pCrashHandler!=NULL);
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
-  { 
+  {
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1644,9 +1646,7 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
     ei.line = line;    
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }
-
-   m_nCrashCounter++; // Increment crash counter
+  }   
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1666,6 +1666,8 @@ int __cdecl CCrashHandler::NewHandler(size_t)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1675,8 +1677,6 @@ int __cdecl CCrashHandler::NewHandler(size_t)
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1698,6 +1698,8 @@ void CCrashHandler::SigabrtHandler(int)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1707,8 +1709,6 @@ void CCrashHandler::SigabrtHandler(int)
     pCrashHandler->GenerateErrorReport(&ei);
   }
  
-  m_nCrashCounter++; // Increment crash counter
-
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
 }
@@ -1725,6 +1725,8 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1735,8 +1737,6 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1754,6 +1754,8 @@ void CCrashHandler::SigillHandler(int)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1762,8 +1764,6 @@ void CCrashHandler::SigillHandler(int)
     
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1781,6 +1781,8 @@ void CCrashHandler::SigintHandler(int)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   { 
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1789,8 +1791,6 @@ void CCrashHandler::SigintHandler(int)
 
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1808,6 +1808,8 @@ void CCrashHandler::SigsegvHandler(int)
   
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {     
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1817,8 +1819,6 @@ void CCrashHandler::SigsegvHandler(int)
         
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
@@ -1836,6 +1836,8 @@ void CCrashHandler::SigtermHandler(int)
 
   if(m_nCrashCounter==0 && pCrashHandler!=NULL)
   {    
+    m_nCrashCounter++; // Increment crash counter
+
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1844,8 +1846,6 @@ void CCrashHandler::SigtermHandler(int)
     
     pCrashHandler->GenerateErrorReport(&ei);
   }
-
-  m_nCrashCounter++; // Increment crash counter
 
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
