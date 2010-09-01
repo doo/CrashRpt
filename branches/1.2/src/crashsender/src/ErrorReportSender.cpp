@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -372,7 +372,7 @@ BOOL CErrorReportSender::CreateMiniDump()
     m_sErrorReportDirName + _T("\\crashdump.dmp");
   std::vector<FileItem> files_to_add;
   FileItem fi;
-  BOOL bAdd;
+  BOOL bAdd = FALSE;
 
   if(g_CrashInfo.m_bGenerateMinidump==FALSE)
   {
@@ -410,8 +410,11 @@ BOOL CErrorReportSender::CreateMiniDump()
 
   if(hFile==INVALID_HANDLE_VALUE)
   {
-    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
-    m_Assync.SetProgress(_T("Couldn't create dump file."), 0, false);
+    DWORD dwError = GetLastError();
+    CString sMsg;    
+    sMsg.Format(_T("Couldn't create minidump file: %s"), 
+      Utility::FormatErrorMsg(dwError));
+    m_Assync.SetProgress(sMsg, 0, false);
     return FALSE;
   }
 
