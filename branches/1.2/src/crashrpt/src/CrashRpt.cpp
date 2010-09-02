@@ -102,8 +102,8 @@ CRASHRPTAPI(void) GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInf
 
 CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
 {
+  int nStatus = -1;
   crSetErrorMsg(_T("Success."));
-
   strconv_t strconv;
 
   // Validate input parameters.
@@ -112,26 +112,28 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
   {    
     ATLASSERT(pInfo != NULL);        
     crSetErrorMsg(_T("pInfo is NULL or pInfo->cb member is not valid."));
-    return 1; 
+    nStatus = 1;
+    goto cleanup;
   }
 
   // Check if crInstall() already was called for current process.
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
 
-  if(pCrashHandler!=NULL)
-  {
-    ATLASSERT(pCrashHandler==NULL);
-    crSetErrorMsg(_T("Can't install crash handlers to the same process twice."));
-    return 2; 
+  if(pCrashHandler!=NULL && 
+     pCrashHandler->IsInitialized())
+  {    
+    crSetErrorMsg(_T("Can't install crash handler to the same process twice."));
+    nStatus = 2; 
+    goto cleanup;
   }
   
   pCrashHandler = new CCrashHandler();
   if(pCrashHandler==NULL)
-  {
-    ATLASSERT(pCrashHandler!=NULL);
+  {    
     crSetErrorMsg(_T("Error allocating memory for crash handler."));
-    return 3; 
+    nStatus = 3; 
+    goto cleanup;
   }
 
   LPCTSTR ptszAppName = strconv.w2t((LPWSTR)pInfo->pszAppName);
@@ -172,11 +174,16 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
   if(nInitResult!=0)
   {
     ATLASSERT(nInitResult==0);        
-    return 4;
+    nStatus = 4;
+    goto cleanup;
   }
 
-  // OK.  
-  return 0;
+  // OK.
+  nStatus = 0;
+
+cleanup:
+  
+  return nStatus;
 }
 
 CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
@@ -219,7 +226,8 @@ CRASHRPTAPI(int) crUninstall()
   CCrashHandler *pCrashHandler = 
     CCrashHandler::GetCurrentProcessCrashHandler();
   
-  if(pCrashHandler==NULL)
+  if(pCrashHandler==NULL ||
+     !pCrashHandler->IsInitialized())
   {    
     ATLASSERT(pCrashHandler!=NULL);
     crSetErrorMsg(_T("Crash handler wasn't preiviously installed for this process."));

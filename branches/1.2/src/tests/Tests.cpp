@@ -8,24 +8,34 @@ int main()
 {
   printf("Running tests...\n");
 
+  // Walk through all registered test and run each one
   std::map<std::string, PFNTEST>::iterator iter;
+  int n = 1;
   for(iter=g_pTestList->begin(); iter!=g_pTestList->end(); iter++)
   {
-    printf("Running test %s of %d...\n", iter->first.c_str(), g_pTestList->size());
+    printf("Running test %s (%d of %d)...\n", iter->first.c_str(), n, g_pTestList->size());
+    n++;
     iter->second();
   }
 
   printf("\n=== Summary ===\n\n");
-  size_t i;
-  for(i=0; i<g_pErrorList->size(); i++)
+  
+  // Print all errors (if exist)
+  if(g_pErrorList!=NULL)
   {
-    printf("Error %d: %s\n", i, (*g_pErrorList)[i].c_str());
+    size_t i;
+    for(i=0; i<g_pErrorList->size(); i++)
+    {
+      printf("Error %d: %s\n", i, (*g_pErrorList)[i].c_str());
+    }
   }
-  printf("Test count: %d\n", g_pTestList->size());
-  printf("Tests passed: %d\n", g_pTestList->size()-g_pErrorList->size());
-  printf("Tests failed: %d\n", g_pErrorList->size());
 
+  printf("   Test count: %d\n", g_pTestList->size());
+  size_t nErrorCount = g_pErrorList!=NULL?g_pErrorList->size():0;
+  printf(" Tests passed: %d\n", g_pTestList->size()-nErrorCount);
+  printf(" Tests failed: %d\n", nErrorCount);
 
+  // Wait for key press
   _getch();
 
   return 0;

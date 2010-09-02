@@ -163,7 +163,10 @@ int CCrashHandler::Init(
     m_sAppVersion = Utility::GetProductVersion(m_sImageName);
     if(m_sAppVersion.IsEmpty())
     {
-      m_sAppVersion = _T("UndefinedVersion");
+      // If product version missing, return error.
+      ATLASSERT(!m_sAppVersion.IsEmpty());
+      crSetErrorMsg(_T("Application version is not specified."));
+      return 1;
     }
   }
 
@@ -364,7 +367,7 @@ int CCrashHandler::Init(
   m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
   if(m_hEvent==NULL)
   {
-    ATLASSERT(0);
+    ATLASSERT(m_hEvent!=NULL);
     crSetErrorMsg(_T("Couldn't create synchronization event."));
     return 1; 
   }
@@ -448,13 +451,18 @@ int CCrashHandler::Init(
   return 0;
 }
 
+BOOL CCrashHandler::IsInitialized()
+{
+  return m_bInitialized;
+}
+
 int CCrashHandler::Destroy()
 {
   crSetErrorMsg(_T("Unspecified error."));
 
   if(!m_bInitialized)
   {
-    crSetErrorMsg(_T("Can't destroy not initialized handler."));
+    crSetErrorMsg(_T("Can't destroy not initialized crash handler."));
     return 1;
   }  
 
