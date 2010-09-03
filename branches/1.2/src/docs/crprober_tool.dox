@@ -147,38 +147,48 @@ MD5 files) to some folder.
 
 When you have ZIP and MD5 files stored in the directory, you may want to process them all at once. You may want to
 process reports from the latest version of your application, ignoring all others. You may want to group
-similar error reports, for example, by stack trace of the exception thread. You also may want to copy
-processed reports to some other directory, leaving not processed (or corrupted) reports where they are.
+similar error reports, for example, by stack trace of the exception thread. You may want to copy
+processed reports to some other directory, leaving not processed reports where they are. You also may want 
+to move corrupted error reports to some folder, to move error reports not having exception information to another folder,
+and error reports not having symbols loading for any stack frame to the third folder.
 You can automate this task using a batch (BAT) script. 
 
 Below an example batch script is presented. 
-- The script processes the files matching the pattern defined by \a INPUT_FILE_PATTERN variable. For example,
-"*.zip" pattern means to process all ZIP files in the current directory.
-- The script accepts only the reports having application name as defined by \a ACCEPTABLE_APPNAME variable. 
+- The script recursively searches \a INPUT_DIR folder and processes files matching the pattern defined by \a INPUT_FILE_PATTERN variable. For example,
+"*.zip" pattern means to process all ZIP files in a directory.
+- The script accepts only reports having application name as defined by \a ACCEPTABLE_APPNAME variable. 
 Keep this empty to accept all appnames.
-- The script accepts only the reports having application version as defined by \a ACCEPTABLE_APPVERSION variable. 
+- The script accepts only reports having application version as defined by \a ACCEPTABLE_APPVERSION variable. 
 Keep this empty to accept all app versions.
 - The script searches for symbol files in \a SYM_SEARCH_DIRS. This may be semicolon-separated list of directories.
-- The script saves processed reports and output text files to \a SAVE_RESULTS_TO_DIR directory.
+- The script saves processed reports and output text files to \a SAVE_RESULTS_TO_DIR directory. It groups error
+  reports by similar stack traces, placing them to a single subfolder. Error reports not having exception information 
+  are placed into NoExceptionInfo subfolder, and error reports not having symbols loaded for any stack trace are placed
+  to  NoSymbolsLoaded subfolder.
+- The script moves corrupted error reports to the folder defined by \a SAVE_INVALID_REPORTS_TO_DIR parameter.
  
 \code
 
 @echo off
 rem Process a group of ZIP error report files
 
+set INPUT_DIR="E:\ErrorReports"
 set INPUT_FILE_PATTERN="*.zip"
 set ACCEPTABLE_APPNAME="CrashRpt Tests"
 set ACCEPTABLE_APPVERSION="1.2.0"
 set SYM_SEARCH_DIRS="D:\Projects\CrashRpt\CrashRptSaved\1.2.0"
-set SAVE_RESULTS_TO_DIR="valid_reports/"
+set SAVE_RESULTS_TO_DIR="valid_reports\"
+set SAVE_INVALID_REPORTS_TO_DIR="invalid_reports\"
 
 mkdir %SAVE_RESULTS_TO_DIR%
 
-for %%f in ( %INPUT_FILE_PATTERN% ) do call :process_report "%%f"
+for /R %INPUT_DIR% %%f in ( %INPUT_FILE_PATTERN% ) do call :process_report "%%f"
 erase temp.txt
 exit 
 
 :process_report
+
+  echo Processing file: %1
 
   if %ACCEPTABLE_APPNAME%=="" goto appname_ok
   rem Get application name from the crash report file and write it to "temp.txt"
@@ -209,6 +219,8 @@ exit
   set /p stack_md5=<temp.txt
   erase temp.txt
 
+  if %stack_md5%=="" set stack_md5=NoSymbolsLoaded
+
 :save_results
 
   mkdir %SAVE_RESULTS_TO_DIR%%stack_md5%
@@ -226,7 +238,9 @@ exit
 
 :failed
 
-
+ mkdir %SAVE_INVALID_REPORTS_TO_DIR
+ move %1 %SAVE_INVALID_REPORTS_TO_DIR
+ 
 :done
   
 rem Return from subroutine
