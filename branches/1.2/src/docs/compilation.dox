@@ -3,22 +3,25 @@
 \page compiling_crashrpt Compiling CrashRpt
 
 By default, CrashRpt release package already contains binary files 
-compiled with Visual Studio 2005 in its \c bin directory. However, 
-it is strongly recommended that you compile CrashRpt yourself using 
+compiled with Visual Studio 2005 in its \c bin directory. These 
+files are provided for demonstration purposes only. 
+It is strongly recommended that you compile CrashRpt yourself using 
 your version of Visual Studio. This is needed to ensure CrashRpt 
 uses the same version of C run-time libraries (CRT) as your 
 application does.
 
 \section building_solution Building Solution
 
-You can compile CrashRpt in <b>Visual C++ .NET 2003</b>, <b>Visual C++ 2005</b> and later versions, and in <b>Visual C++ Express</b>.
+You can compile CrashRpt in <b>Visual C++ 2003</b>
+and later versions, and in <b>Visual C++ Express</b>.
 
 Open one of solution files available in the top level directory of 
-CrashRpt package, depending on your version of Visual Studio:
- - <b>CrashRpt_vs.NET.sln</b> if you use Visual C++ .NET 2003 
+CrashRpt archive, depending on your version of Visual Studio:
+ - <b>CrashRpt_vs2003.sln</b> if you use Visual C++ 2003 
  - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express 
-    or later versions of Visual C++ (2008, 2010). Visual Studio will convert project 
-    files to the right format if you use a later version of Visual C++.
+    or Visual C++ 2008 or Visual C++ 2008 Express. Visual Studio will convert project 
+    files to the right format.
+ - <b>CrashRpt_vs2010.sln</b> if you use Visual C++ 2010 or Visual C++ 2010 Express.
 
 There are several projects in CrashRpt solution.
 
@@ -45,7 +48,9 @@ There are several projects in CrashRpt solution.
 
 - \b crprober is a console tool for error reports processing.
 
-To build solution, choose the Release build configuration and press 
+- \b Tests project contains automated tests.
+
+To build the solution, choose the \b Release build configuration and press 
 F7 to start building process.
 
 \section compiling_x64_platform Compilation for 64-bit (x64) Platform
