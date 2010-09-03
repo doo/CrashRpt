@@ -618,21 +618,24 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
     sStackTrace += _T("\n");
   }
 
-  strconv_t strconv;
-  LPCSTR szStackTrace = strconv.t2utf8(sStackTrace);
-  MD5 md5;
-  MD5_CTX md5_ctx;
-  unsigned char md5_hash[16];
-  md5.MD5Init(&md5_ctx);  
-  md5.MD5Update(&md5_ctx, (unsigned char*)szStackTrace, (unsigned int)strlen(szStackTrace));  
-  md5.MD5Final(md5_hash, &md5_ctx);
-
-  for(i=0; i<16; i++)
+  if(!sStackTrace.IsEmpty())
   {
-    CString number;
-    number.Format(_T("%02x"), md5_hash[i]);
-    m_DumpData.m_Threads[nThreadIndex].m_sStackTraceMD5 += number;
-  } 
+    strconv_t strconv;
+    LPCSTR szStackTrace = strconv.t2utf8(sStackTrace);
+    MD5 md5;
+    MD5_CTX md5_ctx;
+    unsigned char md5_hash[16];
+    md5.MD5Init(&md5_ctx);  
+    md5.MD5Update(&md5_ctx, (unsigned char*)szStackTrace, (unsigned int)strlen(szStackTrace));  
+    md5.MD5Final(md5_hash, &md5_ctx);
+
+    for(i=0; i<16; i++)
+    {
+      CString number;
+      number.Format(_T("%02x"), md5_hash[i]);
+      m_DumpData.m_Threads[nThreadIndex].m_sStackTraceMD5 += number;
+    }
+  }
 
   m_DumpData.m_Threads[nThreadIndex].m_bStackWalk = TRUE;
   
