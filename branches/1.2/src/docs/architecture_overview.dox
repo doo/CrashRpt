@@ -2,6 +2,40 @@
 
 \page architecture_overview Architecture Overview
 
+\section crashrpt_mission CrashRpt Mission
+
+<i> The mission</i> is to provide a set of tools for:
+ - handling exceptions (critical errors) in a client software
+ - automatically collecting necessary error info and generating error reports 
+ - deliverying error reports over the internet
+ - and simplify error report postprocessing
+
+\section crashrpt_stackholders CrashRpt Stakeholders
+
+<i>Stakeholders</i> are the individuals or groups that have their concerns in CrashRpt architecture:
+ - Developers that are interested in improving their software by analyzing user
+   feedback on critical errors
+ - Software end-users that are interested in better quality of programs
+   they install and use
+ - CrashRpt development team members that are interested in providing a set of convenient
+   crash reporting tools that are widely used
+
+\section nonfunctional_requirements Non-functional Requirements
+
+\b Usability. CrashRpt end-users should be provided with a user-friendly, clean and
+   intuitive GUI. GUI should be localizable to end-user's favourite language.
+
+\b Compatibility. CrashRpt should support Windows operating system. 32-bit and 64-bit platforms
+   should be supported. Visual C++ development environment should be supported.
+
+\b Rubustness. CrashRpt should provide crash reporting services not depending of client
+   application state. Client application may be instable, heap-corrupted, stack-corrupted and so on.
+
+\b Testability. The main features should be covered by automated tests to 
+   guarantee expected behavior.
+
+\section crashrpt_structure CrashRpt Structure Overview
+
 CrashRpt consists of two kinds of functionality: error reporting functionality 
 and error report analyzis functionality. Error reporting functionality is distributed with
 a client software and responsible for handling exceptions in the client software and 
@@ -12,7 +46,7 @@ at the side of the developer and not distributed with the client software.
 
 \image html architecture.png "CrashRpt Architecture"
 
-\section error_reporting_functionality Error Reporting Functionality
+\subsection error_reporting_functionality Error Reporting Functionality
 
 Error reporting functionality consists of two core modules: \b CrashRpt.dll and \b CrashSender.exe.
 - \b CrashRpt.dll contains functionality for handling exceptions in the client software.
@@ -42,7 +76,7 @@ CRT invokes Dr. Watson directly instead of calling unhandled exception filter. T
 is done because of security reasons and Microsoft doesn't plan to change this behavior.
 
 
-\section error_report_analyzis_functionality Error Report Analyzis Functionality
+\subsection error_report_analyzis_functionality Error Report Analyzis Functionality
 
 Error report analyzis functionality consists of two modules:
 
