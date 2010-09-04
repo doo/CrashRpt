@@ -61,7 +61,6 @@ EXTERNC void * _ReturnAddress(void);
 #endif 
 
 CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
-int CCrashHandler::m_nCrashCounter = 0;
 
 CCrashHandler::CCrashHandler()
 {
@@ -294,7 +293,7 @@ int CCrashHandler::Init(
     crSetErrorMsg(_T("CrashSender.exe is not found in the specified path."));
     return 1;
   }
-      
+  
   // Determine where to look for language file.
   if(lpcszLangFilePath!=NULL)
   {
@@ -307,6 +306,8 @@ int CCrashHandler::Init(
     m_sLangFileName = m_sPathToCrashSender + _T("crashrpt_lang.ini");
   }
   
+  m_sPathToCrashSender += sCrashSenderName;
+
   CString sLangFileVer = Utility::GetINIString(m_sLangFileName, _T("Settings"), _T("CrashRptVersion"));
   int lang_file_ver = _ttoi(sLangFileVer);
   if(lang_file_ver!=CRASHRPT_VER)
@@ -358,6 +359,8 @@ int CCrashHandler::Init(
     if(m_sPathToDebugHelpDll.Right(1)!='\\')
       m_sPathToDebugHelpDll+="\\";
   }
+
+  m_sPathToDebugHelpDll += sDebugHelpDLL_name;
 
   if(m_hDbgHelpDll!=NULL)
     FreeLibrary(m_hDbgHelpDll);
@@ -1524,17 +1527,25 @@ std::string CCrashHandler::XmlEncodeStr(CString sText)
   return std::string(strconv.t2a(sResult));
 }
 
+void CCrashHandler::CrashLock(BOOL bLock)
+{
+  if(bLock)
+    m_csCrashLock.Lock();
+  else
+    m_csCrashLock.Unlock();
+}
+
 // Structured exception handler
 LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 { 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);  
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     CR_EXCEPTION_INFO ei;
     memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
@@ -1557,14 +1568,14 @@ void __cdecl CCrashHandler::TerminateHandler()
 {
   // Abnormal program termination (terminate() function was called)
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1584,14 +1595,14 @@ void __cdecl CCrashHandler::UnexpectedHandler()
 {
   // Unexpected error (unexpected() function was called)
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1612,14 +1623,14 @@ void __cdecl CCrashHandler::PureCallHandler()
 {
   // Pure virtual function call
 
-  ATLASSERT(m_nCrashCounter==0); 
-    
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1649,9 +1660,11 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {    
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1680,14 +1693,14 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
 
    // Invalid parameter exception
 
-   ATLASSERT(m_nCrashCounter==0); 
-   
    CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
    ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1713,14 +1726,14 @@ int __cdecl CCrashHandler::NewHandler(size_t)
 {
   // 'new' operator memory allocation exception
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {     
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1745,14 +1758,14 @@ void CCrashHandler::SigabrtHandler(int)
 {
   // Caught SIGABRT C++ signal
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {     
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1772,14 +1785,14 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
 {
   // Floating point exception (SIGFPE)
  
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {     
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1801,14 +1814,14 @@ void CCrashHandler::SigillHandler(int)
 {
   // Illegal instruction (SIGILL)
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {    
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1828,14 +1841,14 @@ void CCrashHandler::SigintHandler(int)
 {
   // Interruption (SIGINT)
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   { 
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1855,14 +1868,14 @@ void CCrashHandler::SigsegvHandler(int)
 {
   // Invalid storage access (SIGSEGV)
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
   
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {     
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in exception info
     CR_EXCEPTION_INFO ei;
@@ -1883,14 +1896,14 @@ void CCrashHandler::SigtermHandler(int)
 {
   // Termination request (SIGTERM)
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);
 
-  if(m_nCrashCounter==0 && pCrashHandler!=NULL)
+  if(pCrashHandler!=NULL)
   {    
-    m_nCrashCounter++; // Increment crash counter
+    // Acquire lock to avoid other threads (if exist) to crash while we are 
+    // inside. We do not unlock, because process is to be terminated.
+    pCrashHandler->CrashLock(TRUE);
 
     // Fill in the exception info
     CR_EXCEPTION_INFO ei;
@@ -1904,5 +1917,4 @@ void CCrashHandler::SigtermHandler(int)
   // Terminate process
   TerminateProcess(GetCurrentProcess(), 1);
 }
-
 

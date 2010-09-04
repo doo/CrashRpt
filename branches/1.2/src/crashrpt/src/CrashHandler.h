@@ -192,6 +192,8 @@ private:
   // Sets internal pointers to exception handlers to NULL.
   void InitPrevExceptionHandlerPointers();
 
+  void CrashLock(BOOL bLock);
+
   /* Private member variables. */
 
   static CCrashHandler* m_pProcessCrashHandler; // Singleton of the CCrashHandler class.
@@ -269,7 +271,8 @@ private:
 
   BOOL m_bInitialized;           // Flag telling if this object was initialized.  
 
-  static int m_nCrashCounter;
+  CCritSec m_csCrashLock;        // Critical section used to synchronize access on crash 
+
 };
 
 #endif	// !_CRASHHANDLER_H_

@@ -653,3 +653,65 @@ void Test_crInstallToCurrentThread()
   int nUnResult = crUninstall();
   TEST_ASSERT(nUnResult==0);
 }
+
+// This test runs several threads and installs/uninstalls exception handlers in
+// them concurrently. 
+REGISTER_TEST(Test_crInstallToCurrentThread_concurrent);
+
+DWORD WINAPI ThreadProc3(LPVOID lpParam)
+{ 
+  int i;
+  for(i=0; i<100; i++)
+  {
+    // Install thread exception handlers - should succeed
+    int nResult = crInstallToCurrentThread();
+    TEST_ASSERT(nResult==0);
+      
+    // Do something else
+    int a = 5 + 10;
+    int b = 10*16;
+
+    Sleep(10);
+
+    // Uninstall - should succeed
+    int nUnResult2 = crUninstallFromCurrentThread();
+    TEST_ASSERT(nUnResult2==0);
+  }
+
+  __TEST_CLEANUP__;
+
+  crUninstallFromCurrentThread();
+  return 0;
+}
+
+void Test_crInstallToCurrentThread_concurrent()
+{ 
+  // Install crash handler for the main thread
+
+  CR_INSTALL_INFO info;
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));
+  info.cb = sizeof(CR_INSTALL_INFO);
+  info.pszAppVersion = _T("1.0.0"); // Specify app version, otherwise it will fail.
+
+  int nInstResult = crInstall(&info);
+  TEST_ASSERT(nInstResult==0);
+    
+  // Run a worker thread
+  HANDLE hThread = CreateThread(NULL, 0, ThreadProc3, NULL, 0, NULL);
+
+  // Run another worker thread
+  HANDLE hThread2 = CreateThread(NULL, 0, ThreadProc3, NULL, 0, NULL);
+
+  // Run the third worker thread
+  HANDLE hThread3 = CreateThread(NULL, 0, ThreadProc3, NULL, 0, NULL);
+
+  // Wait until threads exit
+  WaitForSingleObject(hThread, INFINITE);
+  WaitForSingleObject(hThread2, INFINITE);
+  WaitForSingleObject(hThread3, INFINITE);
+
+  __TEST_CLEANUP__;  
+
+  // Uninstall
+  crUninstall();  
+}
