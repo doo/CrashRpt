@@ -1302,7 +1302,7 @@ crEmulateCrash(
 /*! \ingroup CrashRptAPI 
  *  \brief Gets the last CrashRpt error message.
  *
- *  \return This function returns length of error message in characters.
+ *  \return This function returns length of error message in characters. If output buffer is invalid, returns a negative number.
  *
  *  \param[out] pszBuffer Pointer to the buffer.
  *  \param[in]  uBuffSize Size of buffer in characters.

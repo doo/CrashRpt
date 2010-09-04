@@ -516,6 +516,15 @@ CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
   return m_pProcessCrashHandler;
 }
 
+void CCrashHandler::ReleaseCurrentProcessCrashHandler()
+{
+  if(m_pProcessCrashHandler!=NULL)
+  {
+    delete m_pProcessCrashHandler;
+    m_pProcessCrashHandler = NULL;
+  }
+}
+
 int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -765,9 +774,9 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
 
   if (result!=0 && (dwFlags&CR_AF_MISSING_FILE_OK)==0)
   {
-   ATLASSERT(0);
-   crSetErrorMsg(_T("Couldn't stat file. File may not exist."));
-   return 1;
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't stat file. File may not exist."));
+    return 1;
   }
 
   // Add file to file list.
@@ -940,8 +949,39 @@ int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFl
     return 1;
   }
 
+  HKEY hKey = NULL;
+  CString sKey = szRegKey;  
+  int nSkip = 0;
+  if(sKey.Left(19).Compare(_T("HKEY_LOCAL_MACHINE\\"))==0)
+  {
+    hKey = HKEY_LOCAL_MACHINE;
+    nSkip = 18;
+  }
+  else if(sKey.Left(18).Compare(_T("HKEY_CURRENT_USER\\"))==0)
+  {
+    hKey = HKEY_CURRENT_USER;
+    nSkip = 17;
+  }    
+  else 
+  {
+    return 1; // Invalid key.
+  }
+
+  CString sSubKey = sKey.Mid(nSkip+1);  
+  if(sSubKey.IsEmpty())
+    return 2; // Empty subkey not allowed
+
+  HKEY hKeyResult = NULL;
+  LRESULT lResult = RegOpenKeyEx(hKey, sSubKey, 0, KEY_READ, &hKeyResult);
+  if(lResult!=ERROR_SUCCESS)
+  {
+    return 3; // Invalid key.
+  }
+  RegCloseKey(hKeyResult);
+
   m_RegKeys[CString(szRegKey)] = sDstFileName;
 
+  // OK
   return 0;
 }
 

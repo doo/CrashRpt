@@ -30,4 +30,6 @@ if(!(expr)) { printf("!!!Error in test: "__FUNCTION__ " Expr: " #expr "\n"); \
 std::string assertion = "Error in test: "__FUNCTION__ " Expr: " #expr;\
   if(g_pErrorList==NULL) g_pErrorList = new std::vector<std::string>;\
 g_pErrorList->push_back(assertion);\
-return; }
+goto test_cleanup; }
+
+#define __TEST_CLEANUP__ test_cleanup:

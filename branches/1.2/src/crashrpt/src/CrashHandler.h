@@ -132,6 +132,7 @@ public:
   // Returns the crash handler object if such object was 
   // created for the current process
   static CCrashHandler* GetCurrentProcessCrashHandler();
+  static void ReleaseCurrentProcessCrashHandler();
 
 private:
 

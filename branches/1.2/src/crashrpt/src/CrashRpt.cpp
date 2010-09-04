@@ -105,6 +105,7 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
   int nStatus = -1;
   crSetErrorMsg(_T("Success."));
   strconv_t strconv;
+  CCrashHandler *pCrashHandler = NULL;
 
   // Validate input parameters.
   if(pInfo==NULL || 
@@ -117,10 +118,9 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
   }
 
   // Check if crInstall() already was called for current process.
-  CCrashHandler *pCrashHandler = 
-    CCrashHandler::GetCurrentProcessCrashHandler();
+  pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
 
-  if(pCrashHandler!=NULL && 
+  if(pCrashHandler!=NULL &&
      pCrashHandler->IsInitialized())
   {    
     crSetErrorMsg(_T("Can't install crash handler to the same process twice."));
@@ -128,14 +128,17 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
     goto cleanup;
   }
   
-  pCrashHandler = new CCrashHandler();
   if(pCrashHandler==NULL)
-  {    
-    crSetErrorMsg(_T("Error allocating memory for crash handler."));
-    nStatus = 3; 
-    goto cleanup;
+  {
+    pCrashHandler = new CCrashHandler();
+    if(pCrashHandler==NULL)
+    {    
+      crSetErrorMsg(_T("Error allocating memory for crash handler."));
+      nStatus = 3; 
+      goto cleanup;
+    }
   }
-
+  
   LPCTSTR ptszAppName = strconv.w2t((LPWSTR)pInfo->pszAppName);
   LPCTSTR ptszAppVersion = strconv.w2t((LPWSTR)pInfo->pszAppVersion);
   LPCTSTR ptszCrashSenderPath = strconv.w2t((LPWSTR)pInfo->pszCrashSenderPath);
@@ -183,6 +186,16 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
 
 cleanup:
   
+  if(nStatus!=0) // If failed
+  {
+    if(pCrashHandler!=NULL && 
+       !pCrashHandler->IsInitialized())
+    {
+      // Release crash handler object
+      CCrashHandler::ReleaseCurrentProcessCrashHandler();
+    }
+  }
+
   return nStatus;
 }
 
@@ -354,18 +367,9 @@ crAddFile2A(PCSTR pszFile, PCSTR pszDestFile, PCSTR pszDesc, DWORD dwFlags)
 
   strconv_t strconv;
 
-  LPCWSTR pwszFile = NULL;
-  LPCWSTR pwszDestFile = NULL;
-  LPCWSTR pwszDesc = NULL;
-  
-  if(pszFile)
-    pwszFile = strconv.a2w(pszFile);
-  
-  if(pszDestFile)
-    pwszDestFile = strconv.a2w(pszDestFile);
-  
-  if(pszDesc)
-    pwszDesc = strconv.a2w(pszDesc);    
+  LPCWSTR pwszFile = strconv.a2w(pszFile);
+  LPCWSTR pwszDestFile = strconv.a2w(pszDestFile);
+  LPCWSTR pwszDesc = strconv.a2w(pszDesc);    
   
   return crAddFile2W(pwszFile, pwszDestFile, pwszDesc, dwFlags);
 }
@@ -543,7 +547,7 @@ crGetLastErrorMsgW(LPWSTR pszBuffer, UINT uBuffSize)
 CRASHRPTAPI(int) 
 crGetLastErrorMsgA(LPSTR pszBuffer, UINT uBuffSize)
 {  
-  if(pszBuffer==NULL)
+  if(pszBuffer==NULL || uBuffSize==0)
     return -1;
 
   strconv_t strconv;

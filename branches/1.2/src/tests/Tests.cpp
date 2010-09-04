@@ -13,7 +13,7 @@ int main()
   int n = 1;
   for(iter=g_pTestList->begin(); iter!=g_pTestList->end(); iter++)
   {
-    printf("Running test %s (%d of %d)...\n", iter->first.c_str(), n, g_pTestList->size());
+    printf("Running test %d of %d : %s ...\n", n, g_pTestList->size(), iter->first.c_str());
     n++;
     iter->second();
   }
