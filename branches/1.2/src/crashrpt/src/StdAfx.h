@@ -8,7 +8,7 @@
 // Change these values to use different versions
 #define WINVER		0x0501
 #define _WIN32_WINNT	0x0501
-#define _WIN32_IE	0x0501
+#define _WIN32_IE	0x0600
 #define _RICHEDIT_VER	0x0200
 
 #include <atldef.h>
@@ -52,9 +52,12 @@ extern CAppModule _Module;
 
 #include <new.h>
 #include <map>
+#include <set>
+#include <vector>
 #include <stdlib.h>
 #include <string>
 #include <dbghelp.h>
+#include <shlobj.h>
 
 #if _MSC_VER<1400
 #define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy(strDestination, strSource)

@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbed.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\zlib\lib"
@@ -227,7 +227,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib"
+				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="..\..\bin\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"

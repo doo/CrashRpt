@@ -83,3 +83,11 @@ rmdir /S /Q "crprober\src\Release LIB"
 rmdir /S /Q crprober\src\x64
 erase /A H crprober\src\*.user
 erase crprober\src\*.aps
+
+rmdir /S /Q tests\Debug
+rmdir /S /Q tests\Release
+rmdir /S /Q "tests\Release LIB"
+rmdir /S /Q tests\x64
+erase /A H tests\*.user
+erase tests\*.aps
+

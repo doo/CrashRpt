@@ -38,7 +38,7 @@
 #ifndef _UTILITY_H_
 #define _UTILITY_H_
 
-#include <shlobj.h>
+#include "stdafx.h"
 
 namespace Utility  
 {
@@ -53,6 +53,8 @@ namespace Utility
 
   // Returns path to directory where EXE or DLL module is located.
   CString GetModulePath(HMODULE hModule);
+
+  std::set<CString> GetModulePathCandidates(CString sModuleName);
 
   // Returns the absolute path and name of the module
   CString GetModuleName(HMODULE hModule);

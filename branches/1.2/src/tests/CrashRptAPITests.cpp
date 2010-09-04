@@ -110,6 +110,80 @@ void Test_crInstallA_twice()
   TEST_ASSERT(nUninstallResult==0); 
 }
 
+// Test the case when CrashRpt.dll and CrashSender.exe are located in
+// a different folder (not the same where process executable is located).
+// This test also checks that crInstall and crUninstall function names
+// are undecorated.
+REGISTER_TEST(Test_crInstall_in_different_folder);
+void Test_crInstall_in_different_folder()
+{ 
+  CString sAppDataFolder;
+  CString sExeFolder;
+  CString sTmpFolder;
+  HMODULE hCrashRpt = NULL;
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Copy CrashRpt.dll and CrashSender.exe into that folder
+  sExeFolder = Utility::GetModulePath(NULL);
+
+#ifdef _DEBUG
+  BOOL bCopy = CopyFile(sExeFolder+_T("\\CrashRptd.dll"), sTmpFolder+_T("\\CrashRptd.dll"), TRUE);
+  TEST_ASSERT(bCopy);
+  BOOL bCopy2 = CopyFile(sExeFolder+_T("\\CrashSenderd.exe"), sTmpFolder+_T("\\CrashSenderd.exe"), TRUE);
+  TEST_ASSERT(bCopy2);
+#else
+  BOOL bCopy = CopyFile(sExeFolder+_T("\\CrashRpt.dll"), sTmpFolder+_T("\\CrashRpt.dll"), TRUE);
+  TEST_ASSERT(bCopy);
+  BOOL bCopy2 = CopyFile(sExeFolder+_T("\\CrashSender.exe"), sTmpFolder+_T("\\CrashSender.exe"), TRUE);
+  TEST_ASSERT(bCopy2);
+#endif
+
+  BOOL bCopy3 = CopyFile(sExeFolder+_T("\\crashrpt_lang.ini"), sTmpFolder+_T("\\crashrpt_lang.ini"), TRUE);
+  TEST_ASSERT(bCopy3);
+  
+  // Load CrashRpt.dll dynamically
+#ifdef _DEBUG
+  hCrashRpt = LoadLibrary(sTmpFolder+_T("\\CrashRptd.dll"));
+  TEST_ASSERT(hCrashRpt!=NULL);
+#else
+  hCrashRpt = LoadLibrary(sTmpFolder+_T("\\CrashRpt.dll"));
+  TEST_ASSERT(hCrashRpt!=NULL);
+#endif
+  
+
+  // Install crash handler
+  CR_INSTALL_INFO infoW;
+  memset(&infoW, 0, sizeof(CR_INSTALL_INFOW));
+  infoW.cb = sizeof(CR_INSTALL_INFOW);
+  infoW.pszAppVersion = _T("1.0.0"); // Specify app version, otherwise it will fail.
+  
+  typedef int (WINAPI *PFNCRINSTALLW)(PCR_INSTALL_INFOW);
+  PFNCRINSTALLW pfncrInstallW = (PFNCRINSTALLW)GetProcAddress(hCrashRpt, "crInstallW");
+  TEST_ASSERT(pfncrInstallW!=NULL);
+
+  typedef int (WINAPI *PFNCRUNINSTALL)();
+  PFNCRUNINSTALL pfncrUninstall = (PFNCRUNINSTALL)GetProcAddress(hCrashRpt, "crUninstall");
+  TEST_ASSERT(pfncrUninstall!=NULL);
+
+  // Install should succeed
+  int nInstallResult = pfncrInstallW(&infoW);
+  TEST_ASSERT(nInstallResult==0);
+  
+  __TEST_CLEANUP__
+
+  crUninstall();
+    
+  FreeLibrary(hCrashRpt);
+
+  // Delete temporary folder
+  Utility::RecycleFile(sTmpFolder, TRUE);
+}
+
 REGISTER_TEST(Test_crUninstall);
 void Test_crUninstall()
 {   

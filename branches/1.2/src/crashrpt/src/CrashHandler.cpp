@@ -133,17 +133,8 @@ int CCrashHandler::Init(
   // Save user supplied callback
   m_lpfnCallback = lpfnCallback;
   
-  // Get handle to the EXE module used to create this process
-  HMODULE hExeModule = GetModuleHandle(NULL);
-  if(hExeModule==NULL)
-  {
-    ATLASSERT(hExeModule!=NULL);
-    crSetErrorMsg(_T("Couldn't get module handle for the executable."));
-    return 1;
-  }
-
   // Save EXE image name
-  m_sImageName = Utility::GetModuleName(hExeModule);
+  m_sImageName = Utility::GetModuleName(NULL);
 
   // Save application name
   m_sAppName = lpcszAppName;
@@ -163,8 +154,7 @@ int CCrashHandler::Init(
     m_sAppVersion = Utility::GetProductVersion(m_sImageName);
     if(m_sAppVersion.IsEmpty())
     {
-      // If product version missing, return error.
-      ATLASSERT(!m_sAppVersion.IsEmpty());
+      // If product version missing, return error.      
       crSetErrorMsg(_T("Application version is not specified."));
       return 1;
     }
@@ -255,32 +245,56 @@ int CCrashHandler::Init(
 #else //!CRASHRPT_LIB
   pszCrashRptModule = NULL;
 #endif
-
-  // Get handle to the CrashRpt module that is loaded by the current process
-  HMODULE hCrashRptModule = GetModuleHandle(pszCrashRptModule);
-  if(hCrashRptModule==NULL)
-  {
-    ATLASSERT(hCrashRptModule!=NULL);
-    crSetErrorMsg(_T("Couldn't get handle to CrashRpt.dll."));
-    return 1;
-  }  
   
+  std::set<CString> asPathToCrashSenderCandidates;
+
   // Save path to CrashSender.exe
   if(lpcszCrashSenderPath==NULL)
   {
     // By default assume that CrashSender.exe is located in the same dir as CrashRpt.dll
-    m_sPathToCrashSender = Utility::GetModulePath(hCrashRptModule);   
+    asPathToCrashSenderCandidates = Utility::GetModulePathCandidates(pszCrashRptModule);   
   }
   else
   {
     // Save user-specified path
-    m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
+    // Remove ending backslash if any
+    CString sPathToCrashSender = CString(lpcszCrashSenderPath);
+    asPathToCrashSenderCandidates.insert(sPathToCrashSender);    
   }
 
-  // Remove ending backslash if any
-  if(m_sPathToCrashSender.Right(1)!='\\')
-      m_sPathToCrashSender+="\\";
+  // Get CrashSender EXE name
+  CString sCrashSenderName;
+
+#ifdef _DEBUG
+  sCrashSenderName = _T("CrashSenderd.exe");
+#else
+  sCrashSenderName = _T("CrashSender.exe");
+#endif //_DEBUG
+
+  // Check that CrashSender.exe file exists
+  std::set<CString>::iterator it;
+  for(it=asPathToCrashSenderCandidates.begin(); it!=asPathToCrashSenderCandidates.end(); it++)
+  {
+    CString sPathToCrashSender = *it;  
+    if(sPathToCrashSender.Right(1)!='\\')
+        sPathToCrashSender+="\\";    
     
+    HANDLE hFile = CreateFile(sPathToCrashSender+sCrashSenderName, FILE_GENERIC_READ, 
+      FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);  
+    if(hFile!=INVALID_HANDLE_VALUE)
+    {
+      m_sPathToCrashSender = sPathToCrashSender;
+      CloseHandle(hFile);
+      break;
+    }
+  }
+
+  if(m_sPathToCrashSender.IsEmpty())
+  {
+    crSetErrorMsg(_T("CrashSender.exe is not found in the specified path."));
+    return 1;
+  }
+      
   // Determine where to look for language file.
   if(lpcszLangFilePath!=NULL)
   {
@@ -296,62 +310,57 @@ int CCrashHandler::Init(
   CString sLangFileVer = Utility::GetINIString(m_sLangFileName, _T("Settings"), _T("CrashRptVersion"));
   int lang_file_ver = _ttoi(sLangFileVer);
   if(lang_file_ver!=CRASHRPT_VER)
-  {
-    ATLASSERT(lang_file_ver==CRASHRPT_VER);
+  {    
     crSetErrorMsg(_T("Missing language file or wrong language file version."));
     return 1; // Language INI file has wrong version!
   }
-
-  // Get CrashSender EXE name
-  CString sCrashSenderName;
-
-#ifdef _DEBUG
-  sCrashSenderName = _T("CrashSenderd.exe");
-#else
-  sCrashSenderName = _T("CrashSender.exe");
-#endif //_DEBUG
-
-  m_sPathToCrashSender+=sCrashSenderName;   
-
-  // Check that CrashSender.exe file exists
-  HANDLE hFile = CreateFile(m_sPathToCrashSender, FILE_GENERIC_READ, 
-    FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);  
-  if(hFile==INVALID_HANDLE_VALUE)
-  {
-    ATLASSERT(hFile!=INVALID_HANDLE_VALUE);
-    crSetErrorMsg(_T("Couldn't locate CrashSender.exe in specified directory."));
-    return 1; // CrashSender not found!
-  }
-  CloseHandle(hFile);
-
+  
+  std::set<CString> asPathToDbgHelpCandidates;
   if(lpcszDebugHelpDLLPath==NULL)
   {
-    // By default assume that debughlp.dll is located in the same dir as CrashRpt.dll
-    m_sPathToDebugHelpDll = Utility::GetModulePath(hCrashRptModule);   
+    // By default assume that debughlp.dll is located in the same dir as CrashRpt.dll    
+    asPathToDbgHelpCandidates = Utility::GetModulePathCandidates(pszCrashRptModule);       
   }
   else
-    m_sPathToDebugHelpDll = CString(lpcszDebugHelpDLLPath);    
+  {
+    CString sPathToDebugHelpDll = CString(lpcszDebugHelpDLLPath);    
+    asPathToDbgHelpCandidates.insert(sPathToDebugHelpDll);
+  }  
 
-  if(m_sPathToDebugHelpDll.Right(1)!='\\')
-    m_sPathToDebugHelpDll+="\\";
+  const CString sDebugHelpDLL_name = "dbghelp.dll";  
 
-  const CString sDebugHelpDLL_name = "dbghelp.dll";
-  m_sPathToDebugHelpDll+=sDebugHelpDLL_name;
+  for(it=asPathToDbgHelpCandidates.begin(); it!=asPathToDbgHelpCandidates.end(); it++)
+  {
+    CString sPathToDebugHelpDll = *it;
+    if(sPathToDebugHelpDll.Right(1)!='\\')
+      sPathToDebugHelpDll+="\\";
 
-  m_hDbgHelpDll = LoadLibrary(m_sPathToDebugHelpDll);
+    m_hDbgHelpDll = LoadLibrary(sPathToDebugHelpDll+sDebugHelpDLL_name);    
+    
+    if(m_hDbgHelpDll!=NULL)
+    {
+      m_sPathToDebugHelpDll = sPathToDebugHelpDll;      
+      break;
+    }
+  }
+  
   if(!m_hDbgHelpDll)
   {
     //try again ... fallback to dbghelp.dll in path
     m_hDbgHelpDll = LoadLibrary(sDebugHelpDLL_name);
     if(!m_hDbgHelpDll)
-    {
-      ATLASSERT(m_hDbgHelpDll);
+    {     
       crSetErrorMsg(_T("Couldn't load dbghelp.dll."));      
       return 1;
     }
+
+    m_sPathToDebugHelpDll = Utility::GetModulePath(m_hDbgHelpDll);
+    if(m_sPathToDebugHelpDll.Right(1)!='\\')
+      m_sPathToDebugHelpDll+="\\";
   }
 
-  FreeLibrary(m_hDbgHelpDll);
+  if(m_hDbgHelpDll!=NULL)
+    FreeLibrary(m_hDbgHelpDll);
 
   // Generate unique GUID for this crash report.
   if(0!=Utility::GenerateGUID(m_sCrashGUID))
@@ -512,7 +521,7 @@ void CCrashHandler::InitPrevExceptionHandlerPointers()
 }
 
 CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
-{  
+{   
   return m_pProcessCrashHandler;
 }
 
@@ -663,8 +672,7 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
 
   if(it!=m_ThreadExceptionHandlers.end())
   {
-    // handlers are already set for the thread
-    ATLASSERT(0);
+    // handlers are already set for the thread    
     crSetErrorMsg(_T("Can't install handlers for current thread twice."));
     return 1; // failed
   }
@@ -732,8 +740,7 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
 
   if(it==m_ThreadExceptionHandlers.end())
   {
-    // No exception handlers were installed for the caller thread?
-    ATLASSERT(0);
+    // No exception handlers were installed for the caller thread?    
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current thread."));
     return 1;
   }
@@ -773,8 +780,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
   int result = _tstat(pszFile, &st);
 
   if (result!=0 && (dwFlags&CR_AF_MISSING_FILE_OK)==0)
-  {
-    ATLASSERT(0);
+  {    
     crSetErrorMsg(_T("Couldn't stat file. File may not exist."));
     return 1;
   }

@@ -110,8 +110,7 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
   // Validate input parameters.
   if(pInfo==NULL || 
      pInfo->cb!=sizeof(CR_INSTALL_INFOW))     
-  {    
-    ATLASSERT(pInfo != NULL);        
+  {     
     crSetErrorMsg(_T("pInfo is NULL or pInfo->cb member is not valid."));
     nStatus = 1;
     goto cleanup;
@@ -175,8 +174,7 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
     );
   
   if(nInitResult!=0)
-  {
-    ATLASSERT(nInitResult==0);        
+  {    
     nStatus = 4;
     goto cleanup;
   }
@@ -241,8 +239,7 @@ CRASHRPTAPI(int) crUninstall()
   
   if(pCrashHandler==NULL ||
      !pCrashHandler->IsInitialized())
-  {    
-    ATLASSERT(pCrashHandler!=NULL);
+  {     
     crSetErrorMsg(_T("Crash handler wasn't preiviously installed for this process."));
     return 1; 
   }
@@ -271,8 +268,7 @@ crInstallToCurrentThread2(DWORD dwFlags)
     CCrashHandler::GetCurrentProcessCrashHandler();
   
   if(pCrashHandler==NULL)
-  {
-    ATLASSERT(pCrashHandler!=NULL);
+  {    
     crSetErrorMsg(_T("Crash handler was already installed for current thread."));
     return 1; 
   }
@@ -339,8 +335,7 @@ crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
     CCrashHandler::GetCurrentProcessCrashHandler();
 
   if(pCrashHandler==NULL)
-  {
-    ATLASSERT(pCrashHandler!=NULL);
+  {    
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
     return 1; // No handler installed for current process?
   }
@@ -351,9 +346,9 @@ crAddFile2W(PCWSTR pszFile, PCWSTR pszDestFile, PCWSTR pszDesc, DWORD dwFlags)
 
   int nAddResult = pCrashHandler->AddFile(lptszFile, lptszDestFile, lptszDesc, dwFlags);
   if(nAddResult!=0)
-  {
-    ATLASSERT(nAddResult==0);
-    return 2; // Couldn't add file?
+  {    
+    // Couldn't add file
+    return 2; 
   }
 
   // OK.
@@ -410,8 +405,7 @@ crAddPropertyW(
     CCrashHandler::GetCurrentProcessCrashHandler();
 
   if(pCrashHandler==NULL)
-  {
-    ATLASSERT(pCrashHandler!=NULL);
+  {   
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
     return 1; // No handler installed for current process?
   }
@@ -455,8 +449,7 @@ crAddRegKeyW(
     CCrashHandler::GetCurrentProcessCrashHandler();
 
   if(pCrashHandler==NULL)
-  {
-    ATLASSERT(pCrashHandler!=NULL);
+  {    
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
     return 1; // No handler installed for current process?
   }
@@ -811,8 +804,7 @@ crEmulateCrash(unsigned ExceptionType) throw (...)
     break;
   default:
     {
-      crSetErrorMsg(_T("Unknown exception type specified."));    
-      ATLASSERT(0); // unknown type?
+      crSetErrorMsg(_T("Unknown exception type specified."));          
     }
     break;
   }

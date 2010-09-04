@@ -42,6 +42,7 @@
 #include "atldlgs.h"
 #include <shellapi.h>
 #include "strconv.h"
+#include "Psapi.h"
 
 CString Utility::getAppName()
 {
@@ -73,6 +74,32 @@ CString Utility::GetModulePath(HMODULE hModule)
 	*(_tcsrchr(buf,'\\'))=0; // remove executable name
 	string.ReleaseBuffer();
 	return string;
+}
+
+std::set<CString> Utility::GetModulePathCandidates(CString sModuleName)
+{
+  std::set<CString> list;
+
+  HANDLE hProcess = GetCurrentProcess();
+  DWORD dwNeeded = 0;
+  EnumProcessModules(hProcess, NULL, 0, &dwNeeded);
+  if(dwNeeded!=0)
+  {
+    HMODULE* ahModules = (HMODULE*)new BYTE[dwNeeded];
+    EnumProcessModules(hProcess, ahModules, dwNeeded, &dwNeeded);
+
+    int i;
+    for(i=0; i<(int)(dwNeeded/sizeof(HMODULE));i++)
+    {
+      CString sModulePath = Utility::GetModulePath(ahModules[i]);
+      sModulePath.MakeLower();
+      list.insert(sModulePath);
+    }
+
+    delete [] ahModules;
+  }
+
+  return list;
 }
 
 int Utility::getTempDirectory(CString& strTemp)
