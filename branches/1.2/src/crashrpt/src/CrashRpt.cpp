@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -380,8 +380,7 @@ crAddScreenshot(
     CCrashHandler::GetCurrentProcessCrashHandler();
 
   if(pCrashHandler==NULL)
-  {
-    ATLASSERT(pCrashHandler!=NULL);
+  {    
     crSetErrorMsg(_T("Crash handler wasn't previously installed for current thread."));
     return 1; // Invalid parameter?
   }
@@ -486,9 +485,7 @@ crGenerateErrorReport(
   if(pExceptionInfo==NULL || 
      pExceptionInfo->cb!=sizeof(CR_EXCEPTION_INFO))
   {
-    crSetErrorMsg(_T("Exception info is NULL or invalid."));
-    ATLASSERT(pExceptionInfo!=NULL);
-    ATLASSERT(pExceptionInfo->cb==sizeof(CR_EXCEPTION_INFO));
+    crSetErrorMsg(_T("Exception info is NULL or invalid."));    
     return 1;
   }
 

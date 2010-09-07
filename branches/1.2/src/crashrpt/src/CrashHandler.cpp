@@ -830,9 +830,14 @@ int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
 }
 
 int CCrashHandler::AddScreenshot(DWORD dwFlags)
-{  
+{ 
+  if(dwFlags!=CR_AS_VIRTUAL_SCREEN &&
+     dwFlags!=CR_AS_MAIN_WINDOW)
+     return 1; // Invalid input parameter
+
   m_bAddScreenshot = TRUE;
   m_dwScreenshotFlags = dwFlags;
+
   crSetErrorMsg(_T("Success."));
   return 0;
 }

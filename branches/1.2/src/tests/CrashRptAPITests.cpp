@@ -4,6 +4,55 @@
 #include "Utility.h"
 #include "strconv.h"
 
+REGISTER_TEST(Test_InstallW);
+void Test_InstallW()
+{   
+  // Test InstallW 
+  
+  // Should succeed
+  LPVOID pState = InstallW(NULL, L"example@example.com", L"Error report");
+  TEST_ASSERT(pState==NULL);
+
+  // Call twice - should fail
+  InstallW(NULL, L"example@example.com", L"Error report");
+  
+  __TEST_CLEANUP__;
+
+  Uninstall(NULL);
+}
+
+REGISTER_TEST(Test_InstallA);
+void Test_InstallA()
+{   
+  // Test InstallA 
+  
+  // Should succeed
+  LPVOID pState = InstallA(NULL, "example@example.com", "Error report");
+  TEST_ASSERT(pState==NULL);
+
+  // Call twice - should fail
+  InstallA(NULL, "example@example.com", "Error report");
+  
+  __TEST_CLEANUP__;
+
+  Uninstall(NULL);
+}
+
+REGISTER_TEST(Test_AddFile);
+void Test_AddFile()
+{   
+  LPVOID pState = InstallW(NULL, L"example@example.com", L"Error report");
+  TEST_ASSERT(pState==NULL);
+
+  AddFileW(NULL, L"abc.log", L"Log!");
+
+  AddFileA(NULL, "abc.log", "Log!");
+  
+  __TEST_CLEANUP__;
+
+  Uninstall(NULL);
+}
+
 REGISTER_TEST(Test_crInstall_null);
 void Test_crInstall_null()
 {   
@@ -335,6 +384,40 @@ void Test_crAddPropertyW()
   TEST_ASSERT(nUninstallResult==0); 
 }
 
+REGISTER_TEST(Test_crAddScreenshot);
+void Test_crAddScreenshot()
+{   
+  // Should fail, because crInstall() should be called first
+  int nResult = crAddScreenshot(CR_AS_VIRTUAL_SCREEN);
+  TEST_ASSERT(nResult!=0);
+
+  // Install crash handler
+  CR_INSTALL_INFOW infoW;
+  memset(&infoW, 0, sizeof(CR_INSTALL_INFOW));
+  infoW.cb = sizeof(CR_INSTALL_INFOW);
+  infoW.pszAppVersion = L"1.0.0"; // Specify app version, otherwise it will fail.
+
+  int nInstallResult = crInstallW(&infoW);
+  TEST_ASSERT(nInstallResult==0);
+  
+  // Should succeed
+  int nResult2 = crAddScreenshot(CR_AS_VIRTUAL_SCREEN);
+  TEST_ASSERT(nResult2==0);
+
+  // Call twice - should succeed
+  int nResult3 = crAddScreenshot(CR_AS_MAIN_WINDOW);
+  TEST_ASSERT(nResult3==0);
+
+  // Call with invalid param - should fail
+  int nResult4 = crAddScreenshot(100);
+  TEST_ASSERT(nResult4!=0);
+
+  __TEST_CLEANUP__;
+
+  // Uninstall
+  crUninstall();  
+}
+
 REGISTER_TEST(Test_crAddRegKeyA);
 void Test_crAddRegKeyA()
 {   
@@ -585,7 +668,7 @@ void Test_crEmulateCrash()
   int nResult2 = crEmulateCrash(CR_THROW+1);
   TEST_ASSERT(nResult2!=0);
 
-  __TEST_CLEANUP__;  
+  __TEST_CLEANUP__;    
 }
 
 REGISTER_TEST(Test_crInstallToCurrentThread);
@@ -714,4 +797,121 @@ void Test_crInstallToCurrentThread_concurrent()
 
   // Uninstall
   crUninstall();  
+}
+
+REGISTER_TEST(Test_crGenerateErrorReport);
+void Test_crGenerateErrorReport()
+{ 
+  CString sAppDataFolder;
+  CString sExeFolder;
+  CString sTmpFolder;
+  HMODULE hCrashRpt = NULL;
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Install crash handler for the main thread
+
+  CR_INSTALL_INFO info;
+  memset(&info, 0, sizeof(CR_INSTALL_INFO));
+  info.cb = sizeof(CR_INSTALL_INFO);
+  info.pszAppVersion = _T("1.0.0"); // Specify app version, otherwise it will fail.
+  info.dwFlags = CR_INST_NO_GUI|CR_INST_DONT_SEND_REPORT;
+  info.pszErrorReportSaveDir = sTmpFolder;
+  int nInstResult = crInstall(&info);
+  TEST_ASSERT(nInstResult==0);
+  
+  // Call with NULL parameter - should fail
+  int nResult = crGenerateErrorReport(NULL);
+  TEST_ASSERT(nResult!=0);
+  
+  // Call with valid parameter - should succeed
+  CR_EXCEPTION_INFO exc;
+  memset(&exc, 0, sizeof(CR_EXCEPTION_INFO));
+  exc.cb = sizeof(CR_EXCEPTION_INFO);
+  int nResult2 = crGenerateErrorReport(&exc);
+  TEST_ASSERT(nResult2==0);
+
+  // Check that a folder with crash report files exists
+  WIN32_FIND_DATA fd;
+  HANDLE hFind = FindFirstFile(sTmpFolder+_T("\\*"), &fd);
+  FindClose(hFind);
+  TEST_ASSERT(hFind!=INVALID_HANDLE_VALUE && hFind!=NULL);
+
+  __TEST_CLEANUP__;  
+
+  // Uninstall
+  crUninstall();  
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE);
+}
+
+// Test that API function names are undecorated
+REGISTER_TEST(Test_undecorated_func_names);
+void Test_undecorated_func_names()
+{
+  HMODULE hCrashRpt = NULL;
+    
+    // Load CrashRpt.dll dynamically
+#ifdef _DEBUG
+  hCrashRpt = LoadLibrary(_T("CrashRptd.dll"));
+#else
+  hCrashRpt = LoadLibrary(_T("CrashRpt.dll"));
+#endif
+  TEST_ASSERT(hCrashRpt!=NULL);
+
+  typedef int (WINAPI *PFNCRINSTALLA)(PCR_INSTALL_INFOA);
+  PFNCRINSTALLA pfncrInstallA = (PFNCRINSTALLA)GetProcAddress(hCrashRpt, "crInstallA");
+  TEST_ASSERT(pfncrInstallA!=NULL);
+
+  typedef int (WINAPI *PFNCRINSTALLW)(PCR_INSTALL_INFOW);
+  PFNCRINSTALLW pfncrInstallW = (PFNCRINSTALLW)GetProcAddress(hCrashRpt, "crInstallW");
+  TEST_ASSERT(pfncrInstallW!=NULL);
+
+  typedef int (WINAPI *PFNCRUNINSTALL)();
+  PFNCRUNINSTALL pfncrUninstall = (PFNCRUNINSTALL)GetProcAddress(hCrashRpt, "crUninstall");
+  TEST_ASSERT(pfncrUninstall!=NULL);
+
+  typedef int (WINAPI *PFNCRINSTALLTOCURRENTTHREAD)();
+  PFNCRINSTALLTOCURRENTTHREAD pfncrInstallToCurrentThread = 
+    (PFNCRINSTALLTOCURRENTTHREAD)GetProcAddress(hCrashRpt, "crInstallToCurrentThread");
+  TEST_ASSERT(pfncrInstallToCurrentThread!=NULL);
+
+  typedef int (WINAPI *PFNCRINSTALLTOCURRENTTHREAD2)();
+  PFNCRINSTALLTOCURRENTTHREAD2 pfncrInstallToCurrentThread2 = 
+    (PFNCRINSTALLTOCURRENTTHREAD2)GetProcAddress(hCrashRpt, "crInstallToCurrentThread2");
+  TEST_ASSERT(pfncrInstallToCurrentThread2!=NULL);
+
+  typedef int (WINAPI *PFNCRUNINSTALLFROMCURRENTTHREAD)();
+  PFNCRUNINSTALLFROMCURRENTTHREAD pfncrUninstallFromCurrentThread = 
+    (PFNCRINSTALLTOCURRENTTHREAD)GetProcAddress(hCrashRpt, "crUninstallFromCurrentThread");
+  TEST_ASSERT(pfncrUninstallFromCurrentThread!=NULL);
+
+  typedef int (WINAPI *PFNCRADDFILEW)(LPCWSTR, LPCWSTR);
+  PFNCRADDFILEW pfncrAddFileW = 
+    (PFNCRADDFILEW)GetProcAddress(hCrashRpt, "crAddFileW");
+  TEST_ASSERT(pfncrAddFileW!=NULL);
+
+  typedef int (WINAPI *PFNCRADDFILEA)(LPCSTR, LPCSTR);
+  PFNCRADDFILEA pfncrAddFileA = 
+    (PFNCRADDFILEA)GetProcAddress(hCrashRpt, "crAddFileA");
+  TEST_ASSERT(pfncrAddFileA!=NULL);
+  
+  typedef int (WINAPI *PFNCRADDFILE2W)(LPCWSTR, LPCWSTR);
+  PFNCRADDFILE2W pfncrAddFile2W = 
+    (PFNCRADDFILE2W)GetProcAddress(hCrashRpt, "crAddFile2W");
+  TEST_ASSERT(pfncrAddFile2W!=NULL);
+
+  typedef int (WINAPI *PFNCRADDFILE2A)(LPCSTR, LPCSTR);
+  PFNCRADDFILE2A pfncrAddFile2A = 
+    (PFNCRADDFILE2A)GetProcAddress(hCrashRpt, "crAddFile2A");
+  TEST_ASSERT(pfncrAddFile2A!=NULL);
+
+  __TEST_CLEANUP__
+    
+  FreeLibrary(hCrashRpt);
 }
