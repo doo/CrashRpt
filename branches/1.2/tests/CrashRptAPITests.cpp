@@ -618,10 +618,6 @@ DWORD WINAPI ThreadProc1(LPVOID lpParam)
  
   int* pnResult = (int*)lpParam;
   *pnResult = cr_thread_install.m_nInstallStatus;
-
-  // Do something else
-  int a = 5 + 10;
-  int b = 10*16;
   
   return 0;
 }
@@ -658,7 +654,7 @@ void Test_crEmulateCrash()
   CString sTmpFolder;
   
   // Test it with invalid argument - should fail
-  int nResult = crEmulateCrash(-1);
+  int nResult = crEmulateCrash((UINT)-1);
   TEST_ASSERT(nResult!=0);
   
   // Test it with invalid argument - should fail
@@ -692,7 +688,7 @@ void Test_crEmulateCrash()
 
 REGISTER_TEST(Test_crInstallToCurrentThread);
 
-DWORD WINAPI ThreadProc2(LPVOID lpParam)
+DWORD WINAPI ThreadProc2(LPVOID /*lpParam*/)
 {  
   // Uninstall before install - should fail
   int nUnResult = crUninstallFromCurrentThread();
@@ -705,10 +701,6 @@ DWORD WINAPI ThreadProc2(LPVOID lpParam)
   // Install thread exception handlers the second time - should fail
   int nResult2 = crInstallToCurrentThread();
   TEST_ASSERT(nResult2!=0);
-
-  // Do something else
-  int a = 5 + 10;
-  int b = 10*16;
 
   __TEST_CLEANUP__;
 
@@ -759,7 +751,7 @@ void Test_crInstallToCurrentThread()
 // them concurrently. 
 REGISTER_TEST(Test_crInstallToCurrentThread_concurrent);
 
-DWORD WINAPI ThreadProc3(LPVOID lpParam)
+DWORD WINAPI ThreadProc3(LPVOID /*lpParam*/)
 { 
   int i;
   for(i=0; i<100; i++)
@@ -768,10 +760,6 @@ DWORD WINAPI ThreadProc3(LPVOID lpParam)
     int nResult = crInstallToCurrentThread();
     TEST_ASSERT(nResult==0);
       
-    // Do something else
-    int a = 5 + 10;
-    int b = 10*16;
-
     Sleep(10);
 
     // Uninstall - should succeed
@@ -823,7 +811,6 @@ void Test_crGenerateErrorReport()
   CString sAppDataFolder;
   CString sExeFolder;
   CString sTmpFolder;
-  HMODULE hCrashRpt = NULL;
 
   // Create a temporary folder  
   Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
