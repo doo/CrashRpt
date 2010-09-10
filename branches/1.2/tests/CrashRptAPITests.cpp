@@ -114,8 +114,7 @@ void Test_crInstallW_zero_info()
 
   __TEST_CLEANUP__
 
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crInstallA_zero_info);
@@ -133,8 +132,7 @@ void Test_crInstallA_zero_info()
 
   __TEST_CLEANUP__
 
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crInstallA_twice);
@@ -155,8 +153,8 @@ void Test_crInstallA_twice()
 
   __TEST_CLEANUP__
 
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();
+  
 }
 
 // Test the case when CrashRpt.dll and CrashSender.exe are located in
@@ -281,8 +279,7 @@ void Test_crAddFileA()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crAddFileW);
@@ -318,8 +315,7 @@ void Test_crAddFileW()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crAddPropertyA);
@@ -349,8 +345,8 @@ void Test_crAddPropertyA()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();
+  
 }
 
 REGISTER_TEST(Test_crAddPropertyW);
@@ -380,8 +376,8 @@ void Test_crAddPropertyW()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();
+  
 }
 
 REGISTER_TEST(Test_crAddScreenshot);
@@ -457,8 +453,7 @@ void Test_crAddRegKeyA()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crAddRegKeyW);
@@ -500,8 +495,7 @@ void Test_crAddRegKeyW()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crGetLastErrorMsgA);
@@ -548,8 +542,7 @@ void Test_crGetLastErrorMsgA()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();  
 }
 
 REGISTER_TEST(Test_crGetLastErrorMsgW);
@@ -596,8 +589,8 @@ void Test_crGetLastErrorMsgW()
   __TEST_CLEANUP__;
 
   // Uninstall
-  int nUninstallResult = crUninstall();
-  TEST_ASSERT(nUninstallResult==0); 
+  crUninstall();
+  
 }
 
 REGISTER_TEST(Test_CrAutoInstallHelper);
@@ -694,8 +687,8 @@ DWORD WINAPI ThreadProc2(LPVOID lpParam)
   __TEST_CLEANUP__;
 
   // Uninstall - should succeed
-  int nUnResult2 = crUninstallFromCurrentThread();
-  TEST_ASSERT(nUnResult2==0);
+  crUninstallFromCurrentThread();
+  
 
   return 0;
 }
@@ -733,8 +726,7 @@ void Test_crInstallToCurrentThread()
   __TEST_CLEANUP__;  
 
   // Uninstall should succeed
-  int nUnResult = crUninstall();
-  TEST_ASSERT(nUnResult==0);
+  crUninstall();  
 }
 
 // This test runs several threads and installs/uninstalls exception handlers in

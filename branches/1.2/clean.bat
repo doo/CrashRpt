@@ -18,41 +18,43 @@ erase lib\*d.lib
 erase lib\*.exp
 erase lib\*LIB.lib
 
-rmdir /S /Q crashcon\src\Debug
-rmdir /S /Q crashcon\src\Release
-rmdir /S /Q "crashcon\src\Release LIB"
-rmdir /S /Q crashcon\src\x64
-erase /A H crashcon\src\*.user
-erase crashcon\src\*.aps
+rmdir /S /Q thirdparty/lib
 
-rmdir /S /Q crashrpt\src\Debug
-rmdir /S /Q crashrpt\src\Release
-rmdir /S /Q crashrpt\src\x64
-erase /A H crashrpt\src\*.user
-erase crashrpt\src\*.aps
+rmdir /S /Q reporting\crashcon\Debug
+rmdir /S /Q reporting\crashcon\Release
+rmdir /S /Q "reporting\crashcon\Release LIB"
+rmdir /S /Q reporting\crashcon\x64
+erase /A H reporting\crashcon\*.user
+erase reporting\crashcon\*.aps
 
-rmdir /S /Q CrashRptTest\src\Debug
-rmdir /S /Q CrashRptTest\src\Release
-rmdir /S /Q "CrashRptTest\src\Release LIB"
-rmdir /S /Q CrashRptTest\src\x64
-erase /A H CrashRptTest\src\*.user
-erase CrashRptTest\src\*.aps
+rmdir /S /Q reporting\crashrpt\Debug
+rmdir /S /Q reporting\crashrpt\Release
+rmdir /S /Q reporting\crashrpt\x64
+erase /A H reporting\crashrpt\*.user
+erase reporting\crashrpt\*.aps
 
-rmdir /S /Q CrashSender\src\Debug
-rmdir /S /Q CrashSender\src\Release
-rmdir /S /Q "CrashRptTest\src\Release LIB"
-rmdir /S /Q CrashSender\src\x64
-erase /A H CrashSender\src\*.user
-erase CrashSender\src\*.aps
-erase CrashSender\src\*.aps
+rmdir /S /Q reporting\CrashRptTest\Debug
+rmdir /S /Q reporting\CrashRptTest\Release
+rmdir /S /Q "reporting\CrashRptTest\Release LIB"
+rmdir /S /Q reporting\CrashRptTest\x64
+erase /A H reporting\CrashRptTest\*.user
+erase reporting\CrashRptTest\*.aps
 
-rmdir /S /Q zlib\src\Debug
-rmdir /S /Q zlib\src\Release
-rmdir /S /Q "CrashRptTest\src\Release LIB"
-rmdir /S /Q zlib\src\x64
-rmdir /S /Q zlib\lib
-erase /A H zlib\src\*.user
-erase zlib\src\*.aps
+rmdir /S /Q reporting\CrashSender\Debug
+rmdir /S /Q reporting\CrashSender\Release
+rmdir /S /Q "reporting\CrashRptTest\Release LIB"
+rmdir /S /Q reporting\CrashSender\x64
+erase /A H reporting\CrashSender\*.user
+erase reporting\CrashSender\*.aps
+erase reporting\CrashSender\*.aps
+
+rmdir /S /Q thirdparty\zlib\Debug
+rmdir /S /Q thirdparty\zlib\Release
+rmdir /S /Q "thirdparty\zlib\Release LIB"
+rmdir /S /Q thirdparty\zlib\x64
+rmdir /S /Q thirdparty\zlib\lib
+erase /A H thirdparty\zlib\*.user
+erase thirdparty\zlib\*.aps
 
 rmdir /S /Q libpng\src\Debug
 rmdir /S /Q libpng\src\Release

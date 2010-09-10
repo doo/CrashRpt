@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\minizip\src;..\..\zlib\src;..\..\wtl"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\reporting\crashrpt;..\..\reporting\crashsender"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\wtl"
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -68,7 +68,7 @@
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbed.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\minizip\lib;..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib"
 				ModuleDefinitionFile="CrashRptProbed.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -510,50 +510,10 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\crashsender\src\md5.cpp"
+				RelativePath="..\..\reporting\crashsender\md5.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release LIB|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release LIB|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -618,22 +578,14 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\crashrpt\src\Utility.cpp"
+				RelativePath="..\..\reporting\crashrpt\Utility.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
+						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
 			</File>
@@ -641,50 +593,10 @@
 				Name="tinyxml"
 				>
 				<File
-					RelativePath="..\..\tinyxml\tinystr.cpp"
+					RelativePath="..\..\thirdparty\tinyxml\tinystr.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -693,50 +605,10 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\tinyxml\tinyxml.cpp"
+					RelativePath="..\..\thirdparty\tinyxml\tinyxml.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -745,50 +617,10 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\tinyxml\tinyxmlerror.cpp"
+					RelativePath="..\..\thirdparty\tinyxml\tinyxmlerror.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -797,50 +629,10 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\tinyxml\tinyxmlparser.cpp"
+					RelativePath="..\..\thirdparty\tinyxml\tinyxmlparser.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|x64"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -883,11 +675,11 @@
 				Name="tinyxml"
 				>
 				<File
-					RelativePath="..\..\tinyxml\tinystr.h"
+					RelativePath="..\..\thirdparty\tinyxml\tinystr.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\tinyxml\tinyxml.h"
+					RelativePath="..\..\thirdparty\tinyxml\tinyxml.h"
 					>
 				</File>
 			</Filter>

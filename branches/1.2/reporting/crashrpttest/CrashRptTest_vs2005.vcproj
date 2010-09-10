@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -70,7 +70,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\wtl"
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -109,7 +109,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -586,10 +586,6 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
 			<File
-				RelativePath=".\AboutDlg.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\CrashRptTest.cpp"
 				>
 			</File>
@@ -658,10 +654,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
-			<File
-				RelativePath=".\AboutDlg.h"
-				>
-			</File>
 			<File
 				RelativePath=".\CrashThread.h"
 				>

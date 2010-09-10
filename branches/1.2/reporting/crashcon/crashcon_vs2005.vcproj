@@ -300,7 +300,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration

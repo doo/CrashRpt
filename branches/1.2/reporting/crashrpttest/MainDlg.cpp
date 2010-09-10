@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "resource.h"
-#include "aboutdlg.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
 #include <assert.h>
