@@ -81,6 +81,7 @@ CCrashHandler::CCrashHandler()
   m_bOSIs64Bit = FALSE;
   m_dwGuiResources = 0;
   m_dwProcessHandleCount = 0;
+  m_bTerminateProcess = TRUE;
   m_bAddScreenshot = FALSE;
   m_dwScreenshotFlags = 0;
   memset(&m_rcAppWnd, 0, sizeof(RECT));
@@ -179,6 +180,8 @@ int CCrashHandler::Init(
 
   m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
   m_sRestartCmdLine = lpcszRestartCmdLine;
+
+  m_bTerminateProcess = !(dwFlags&0x80000);
 
   // Save Email recipient address
   m_sEmailTo = lpcszTo;
@@ -1540,6 +1543,11 @@ void CCrashHandler::CrashLock(BOOL bLock)
     m_csCrashLock.Unlock();
 }
 
+BOOL CCrashHandler::ShouldTerminateProcess()
+{
+  return m_bTerminateProcess;
+}
+
 // Structured exception handler
 LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 { 
@@ -1549,7 +1557,7 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
   if(pCrashHandler!=NULL)
   {
     // Acquire lock to avoid other threads (if exist) to crash while we are 
-    // inside. We do not unlock, because process is to be terminated.
+    // inside. 
     pCrashHandler->CrashLock(TRUE);
 
     CR_EXCEPTION_INFO ei;
@@ -1559,12 +1567,17 @@ LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
     ei.pexcptrs = pExceptionPtrs;
 
     pCrashHandler->GenerateErrorReport(&ei);
-  } 
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
 
-  // Unreacheable code
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }    
+  }   
+
+  // Unreacheable code  
   return EXCEPTION_EXECUTE_HANDLER;
 }
 
@@ -1589,10 +1602,15 @@ void __cdecl CCrashHandler::TerminateHandler()
     ei.exctype = CR_CPP_TERMINATE_CALL;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }  
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    } 
+  }    
 }
 
 // CRT unexpected() call handler
@@ -1616,10 +1634,16 @@ void __cdecl CCrashHandler::UnexpectedHandler()
     ei.exctype = CR_CPP_UNEXPECTED_CALL;
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }  
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }  
+  
 }
 
 // CRT Pure virtual method call handler
@@ -1644,10 +1668,16 @@ void __cdecl CCrashHandler::PureCallHandler()
     ei.exctype = CR_CPP_PURE_CALL;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }  
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+
+  }  
 }
 #endif
 
@@ -1678,10 +1708,16 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
     ei.exctype = CR_CPP_SECURITY_ERROR;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+
+  }
 }
 #endif 
 
@@ -1718,10 +1754,15 @@ void __cdecl CCrashHandler::InvalidParameterHandler(
     ei.line = line;    
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }   
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }   
  }
 #endif
 
@@ -1748,10 +1789,15 @@ int __cdecl CCrashHandler::NewHandler(size_t)
     ei.pexcptrs = NULL;    
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }
 
   // Unreacheable code
   return 0;
@@ -1779,10 +1825,15 @@ void CCrashHandler::SigabrtHandler(int)
     ei.exctype = CR_CPP_SIGABRT;    
 
     pCrashHandler->GenerateErrorReport(&ei);
+
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
   }
- 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
 }
 
 // CRT SIGFPE signal handler
@@ -1808,10 +1859,15 @@ void CCrashHandler::SigfpeHandler(int /*code*/, int subcode)
     ei.fpe_subcode = subcode;
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }
 }
 
 // CRT sigill signal handler
@@ -1835,10 +1891,15 @@ void CCrashHandler::SigillHandler(int)
     ei.exctype = CR_CPP_SIGILL;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }
 }
 
 // CRT sigint signal handler
@@ -1862,10 +1923,15 @@ void CCrashHandler::SigintHandler(int)
     ei.exctype = CR_CPP_SIGINT;
 
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }
 }
 
 // CRT SIGSEGV signal handler
@@ -1890,10 +1956,15 @@ void CCrashHandler::SigsegvHandler(int)
     ei.pexcptrs = (PEXCEPTION_POINTERS)_pxcptinfoptrs;
         
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }
 }
 
 // CRT SIGTERM signal handler
@@ -1917,9 +1988,15 @@ void CCrashHandler::SigtermHandler(int)
     ei.exctype = CR_CPP_SIGTERM;
     
     pCrashHandler->GenerateErrorReport(&ei);
-  }
 
-  // Terminate process
-  TerminateProcess(GetCurrentProcess(), 1);
+    pCrashHandler->CrashLock(FALSE);
+
+    if(pCrashHandler->ShouldTerminateProcess())
+    {
+      // Terminate process
+      TerminateProcess(GetCurrentProcess(), 1);
+    }
+  }
 }
+
 
