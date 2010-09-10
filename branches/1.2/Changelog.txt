@@ -2,6 +2,11 @@
 
 --- Ver. 1.2.6 ---
 
+- Reorganized directory structure to better reflect architecture.
+- 
+
+--- Ver. 1.2.6 ---
+
 - Added project files for Visual Studio 2010 (issue 35).
 
 - Using .def files to undecorate API function names.

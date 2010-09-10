@@ -18,7 +18,7 @@ erase lib\*d.lib
 erase lib\*.exp
 erase lib\*LIB.lib
 
-rmdir /S /Q thirdparty/lib
+rmdir /S /Q thirdparty\lib
 
 rmdir /S /Q reporting\crashcon\Debug
 rmdir /S /Q reporting\crashcon\Release
