@@ -207,8 +207,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory="Release"
+			OutputDirectory="$(SolutionDir)bin"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
@@ -239,7 +239,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\src\;..\..\tinyxml;..\..\zlib\src;..\..\include;..\..\minizip\src;..\..\libpng\src;..\..\wtl;..\..\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -255,7 +255,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\wtl"
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -263,9 +263,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib"
-				OutputFile="..\..\bin\CrashSender.exe"
+				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
 				SubSystem="2"
@@ -294,6 +294,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
 			/>
 		</Configuration>
 		<Configuration
@@ -829,12 +830,28 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\thirdparty\tinyxml\tinyxml.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -853,12 +870,28 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\thirdparty\tinyxml\tinyxmlparser.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						>
 						<Tool
 							Name="VCCLCompilerTool"

@@ -19,8 +19,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="$(SolutionDir)bin"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -52,7 +52,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\include;..\..\tinyxml;..\..\zlib\src;..\..\zip_utils;..\..\libpng\src;..\..\wtl"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\libpng;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -77,7 +77,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\wtl"
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -85,13 +85,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib version.lib shell32.lib Comdlg32.lib gdi32.lib psapi.lib"
-				OutputFile="..\..\bin\CrashRpt.dll"
+				OutputFile="$(OutDir)\CrashRpt.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="../../zlib/lib"
 				ModuleDefinitionFile="CrashRpt.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\Bin\CrashRpt.pdb"
 				OptimizeReferences="2"
 				OptimizeForWindows98="0"
 				ImportLibrary="..\..\lib\CrashRpt.lib"
