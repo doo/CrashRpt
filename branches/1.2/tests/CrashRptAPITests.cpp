@@ -4,6 +4,8 @@
 #include "Utility.h"
 #include "strconv.h"
 
+REGISTER_TEST_SUITE( CrashRptAPITests , "CrashRpt API function tests");
+
 REGISTER_TEST(Test_InstallW);
 void Test_InstallW()
 {   
@@ -660,26 +662,6 @@ void Test_crEmulateCrash()
   // Test it with invalid argument - should fail
   int nResult2 = crEmulateCrash(CR_THROW+1);
   TEST_ASSERT(nResult2!=0);
-
-  // Create a temporary folder  
-  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
-  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
-  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
-  TEST_ASSERT(bCreate);
-
-  // Install crash handler for the main thread
-  CR_INSTALL_INFO info;
-  memset(&info, 0, sizeof(CR_INSTALL_INFO));
-  info.cb = sizeof(CR_INSTALL_INFO);
-  info.pszAppVersion = _T("1.0.0"); // Specify app version, otherwise it will fail.
-  info.dwFlags = CR_INST_NO_GUI|CR_INST_DONT_SEND_REPORT;
-  info.dwFlags |= 0x80000; // Do not terminate process on crash (undocumented flag).
-  info.pszErrorReportSaveDir = sTmpFolder;
-  int nInstResult = crInstall(&info);
-  TEST_ASSERT(nInstResult==0);
-  
-  int nResult3 = crEmulateCrash(CR_NONCONTINUABLE_EXCEPTION);
-  TEST_ASSERT(nResult3!=0);
 
   __TEST_CLEANUP__;    
   

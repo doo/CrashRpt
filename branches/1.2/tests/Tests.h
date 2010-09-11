@@ -3,8 +3,26 @@
 
 typedef void (__cdecl *PFNTEST)();
 
+extern std::map<std::string, std::string>* g_pTestSuiteList;
 extern std::map<std::string, PFNTEST>* g_pTestList;
 extern std::vector<std::string>* g_pErrorList;
+
+class CTestSuiteRegistrator
+{
+public:
+  CTestSuiteRegistrator(LPCSTR szTestSuiteName, LPCSTR szDesc)
+  {
+    if(g_pTestSuiteList==NULL)
+    {
+      g_pTestSuiteList = new std::map<std::string, std::string>;
+    }
+    std::string sSuiteName = std::string(szTestSuiteName);
+    (*g_pTestSuiteList)[sSuiteName] = szDesc;
+  }
+};
+
+#define REGISTER_TEST_SUITE(szSuite, szDesc)\
+  CTestSuiteRegistrator __testSuite##szSuite ( #szSuite , szDesc );
 
 class CTestRegistrator
 {

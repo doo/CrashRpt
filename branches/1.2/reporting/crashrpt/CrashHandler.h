@@ -133,9 +133,7 @@ public:
   // created for the current process
   static CCrashHandler* GetCurrentProcessCrashHandler();
   static void ReleaseCurrentProcessCrashHandler();
-
-  BOOL ShouldTerminateProcess();
-
+  
 private:
 
   /* Exception handler functions. */
@@ -260,7 +258,6 @@ private:
   DWORD m_dwProcessHandleCount;  // Count of opened handles.
   CString m_sMemUsage;           // Memory usage.
   CString m_sGeoLocation;        // Current geographic location abbreviation.
-  BOOL m_bTerminateProcess;  // Should we terminate process after crash report is generated?
   BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
   DWORD m_dwScreenshotFlags;     // Screenshot flags.
   CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).

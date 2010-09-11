@@ -1,12 +1,33 @@
 #include "stdafx.h"
 #include "Tests.h"
+#include "CrashRpt.h"
 
+std::map<std::string, std::string>* g_pTestSuiteList = NULL;
 std::map<std::string, PFNTEST>* g_pTestList = NULL;
 std::vector<std::string>* g_pErrorList = NULL;
 
 int main()
 {
-  printf("Running tests...\n");
+  printf("\n=== Automated tests for CrashRpt v.%d.%d.%d===\n\n",
+    CRASHRPT_VER/1000,
+    (CRASHRPT_VER%1000)/100,
+    (CRASHRPT_VER%1000)%100);
+
+  printf("The list of avaliable test suites:\n");
+
+  // Print the list of test suites
+  std::map<std::string, std::string>::iterator siter;  
+  for(siter=g_pTestSuiteList->begin(); siter!=g_pTestSuiteList->end(); siter++)
+  {
+    printf(" - %s : %s\n", siter->first.c_str(), siter->second.c_str());    
+  }
+
+  printf("\nEnter which test suites to run (separate names by space) or enter '*' to run all test suites.\n");
+  printf("Your choice > ");
+  char szSuiteList[1024];
+  scanf("%s", &szSuiteList);
+
+  printf("\nRunning tests...\n");
 
   // Walk through all registered test and run each one
   std::map<std::string, PFNTEST>::iterator iter;
@@ -37,6 +58,16 @@ int main()
 
   // Wait for key press
   _getch();
+
+  // Clean up
+  if(g_pTestSuiteList!=NULL)
+    delete g_pTestSuiteList;
+
+  if(g_pTestList!=NULL)
+    delete g_pTestList;
+
+  if(g_pErrorList)
+    delete g_pErrorList;
 
   return 0;
 }
