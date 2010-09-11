@@ -678,12 +678,15 @@ void Test_crEmulateCrash()
   int nInstResult = crInstall(&info);
   TEST_ASSERT(nInstResult==0);
   
-  int nResult3 = crEmulateCrash(CR_THROW);
+  int nResult3 = crEmulateCrash(CR_NONCONTINUABLE_EXCEPTION);
   TEST_ASSERT(nResult3!=0);
 
   __TEST_CLEANUP__;    
-
+  
   crUninstall();
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE);
 }
 
 REGISTER_TEST(Test_crInstallToCurrentThread);
