@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -42,9 +42,9 @@
 #include "dbghelp.h"
 
 // The structure describing file item.
-struct FileItem
+struct ERIFileItem
 {
-  FileItem()
+  ERIFileItem()
   {
     m_bMakeCopy = FALSE;
   }
@@ -86,7 +86,7 @@ struct ErrorReportInfo
   DELIVERY_STATUS m_DeliveryStatus;  // Delivery status.
  
   // The list of files that are included into this report.
-  std::map<CString, FileItem>  m_FileItems; 
+  std::map<CString, ERIFileItem>  m_FileItems; 
   std::map<CString, CString> m_RegKeys;
 };
 
@@ -139,8 +139,11 @@ public:
   // Gets crash info from internal crash info XML file
   int Init(CString sCrashInfoFile);
 
+  // Retrieves some crash info from crash description XML
+  int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
+
   BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
-  BOOL AddFilesToCrashDescriptionXML(std::vector<FileItem>);
+  BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
 
   ErrorReportInfo& GetReport(int nIndex){ return m_Reports[nIndex]; }
   int GetReportCount(){ return (int)m_Reports.size(); }
@@ -157,10 +160,7 @@ private:
   int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
   int ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
-
-  // Retrieves some crash info from crash description XML
-  int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
-
+  
   // Calculates size of an uncompressed error report.
   LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
 

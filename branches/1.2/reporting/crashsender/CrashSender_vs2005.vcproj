@@ -969,10 +969,6 @@
 				RelativePath=".\stdafx.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\crashrpt\src\Utility.h"
-				>
-			</File>
 			<Filter
 				Name="tinyxml"
 				>

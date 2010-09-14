@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -38,6 +38,7 @@
 #include "smtpclient.h"
 #include "HttpRequestSender.h"
 #include "tinyxml.h"
+#include "CrashInfoReader.h"
 
 enum ActionType  
 {
@@ -63,14 +64,12 @@ public:
   void Cancel();
   void FeedbackReady(int code);
 
-  LONG64 GetUncompressedReportSize();
+  LONG64 GetUncompressedReportSize(ErrorReportInfo& eri);
 
   int GetCurReport();
   BOOL SetCurReport(int nCurReport);
 
   BOOL SetLogFile(LPCTSTR szFileName);
-
-private:
 
   void DoWorkAssync();
   static DWORD WINAPI WorkerThread(LPVOID lpParam);  
@@ -86,7 +85,7 @@ private:
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
   BOOL RestartApp();
-  BOOL CompressReportFiles();
+  BOOL CompressReportFiles(ErrorReportInfo& eri);
   void UnblockParentProcess();
     
   BOOL SendReport();

@@ -42,7 +42,7 @@ erase reporting\CrashRptTest\*.aps
 
 rmdir /S /Q reporting\CrashSender\Debug
 rmdir /S /Q reporting\CrashSender\Release
-rmdir /S /Q "reporting\CrashRptTest\Release LIB"
+rmdir /S /Q "reporting\CrashSender\Release LIB"
 rmdir /S /Q reporting\CrashSender\x64
 erase /A H reporting\CrashSender\*.user
 erase reporting\CrashSender\*.aps
@@ -52,39 +52,36 @@ rmdir /S /Q thirdparty\zlib\Debug
 rmdir /S /Q thirdparty\zlib\Release
 rmdir /S /Q "thirdparty\zlib\Release LIB"
 rmdir /S /Q thirdparty\zlib\x64
-rmdir /S /Q thirdparty\zlib\lib
 erase /A H thirdparty\zlib\*.user
 erase thirdparty\zlib\*.aps
 
-rmdir /S /Q libpng\src\Debug
-rmdir /S /Q libpng\src\Release
-rmdir /S /Q "libpng\src\Release LIB"
-rmdir /S /Q libpng\src\x64
-rmdir /S /Q libpng\lib
-erase /A H libpng\src\*.user
-erase libpng\src\*.aps
+rmdir /S /Q thirdparty\libpng\Debug
+rmdir /S /Q thirdparty\libpng\Release
+rmdir /S /Q "thirdparty\libpng\Release LIB"
+rmdir /S /Q thirdparty\libpng\x64
+erase /A H thirdparty\libpng\*.user
+erase thirdparty\libpng\*.aps
 
-rmdir /S /Q minizip\src\Debug
-rmdir /S /Q minizip\src\Release
-rmdir /S /Q "minizip\src\Release LIB"
-rmdir /S /Q minizip\src\x64
-rmdir /S /Q minizip\lib
-erase /A H minizip\src\*.user
-erase minizip\src\*.aps
+rmdir /S /Q thirdparty\minizip\Debug
+rmdir /S /Q thirdparty\minizip\Release
+rmdir /S /Q "thirdparty\minizip\Release LIB"
+rmdir /S /Q thirdparty\minizip\x64
+erase /A H thirdparty\minizip\*.user
+erase thirdparty\minizip\*.aps
 
-rmdir /S /Q CrashRptProbe\src\Debug
-rmdir /S /Q CrashRptProbe\src\Release
-rmdir /S /Q "CrashRptProbe\src\Release LIB"
-rmdir /S /Q CrashRptProbe\src\x64
-erase /A H CrashRptProbe\src\*.user
-erase CrashRptProbe\src\*.aps
+rmdir /S /Q processing\CrashRptProbe\Debug
+rmdir /S /Q processing\CrashRptProbe\Release
+rmdir /S /Q "processing\CrashRptProbe\Release LIB"
+rmdir /S /Q processing\CrashRptProbe\x64
+erase /A H processing\CrashRptProbe\*.user
+erase processing\CrashRptProbe\*.aps
 
-rmdir /S /Q crprober\src\Debug
-rmdir /S /Q crprober\src\Release
-rmdir /S /Q "crprober\src\Release LIB"
-rmdir /S /Q crprober\src\x64
-erase /A H crprober\src\*.user
-erase crprober\src\*.aps
+rmdir /S /Q processing\crprober\Debug
+rmdir /S /Q processing\crprober\Release
+rmdir /S /Q processing\"crprober\Release LIB"
+rmdir /S /Q processing\crprober\x64
+erase /A H processing\crprober\*.user
+erase processing\crprober\*.aps
 
 rmdir /S /Q tests\Debug
 rmdir /S /Q tests\Release

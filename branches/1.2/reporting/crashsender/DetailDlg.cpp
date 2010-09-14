@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -89,7 +89,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   HANDLE            hFind          = NULL;
   CString           sSize;
   
-  std::map<CString, FileItem>::iterator p;
+  std::map<CString, ERIFileItem>::iterator p;
   unsigned i;
   for (i = 0, p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); 
     p != g_CrashInfo.GetReport(m_nCurReport).m_FileItems.end(); p++, i++)
@@ -171,7 +171,7 @@ LRESULT CDetailDlg::OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHand
   if (iItem < 0 || (int)g_CrashInfo.GetReport(m_nCurReport).m_FileItems.size() < iItem)
      return 0;
 
-  std::map<CString, FileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
+  std::map<CString, ERIFileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   CString sFileName = p->second.m_sSrcFile;
@@ -188,7 +188,7 @@ void CDetailDlg::SelectItem(int iItem)
   if (iItem < 0 || (int)g_CrashInfo.GetReport(m_nCurReport).m_FileItems.size() < iItem)
       return;
 
-  std::map<CString, FileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
+  std::map<CString, ERIFileItem>::iterator p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin();
   for (int i = 0; i < iItem; i++, p++);
 
   m_previewMode = PREVIEW_AUTO;

@@ -696,10 +696,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\crashsender\src\md5.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MinidumpReader.h"
 				>
 			</File>

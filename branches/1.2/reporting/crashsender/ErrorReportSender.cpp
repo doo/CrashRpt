@@ -179,7 +179,7 @@ void CErrorReportSender::DoWorkAssync()
   if(m_Action&COMPRESS_REPORT)
   { 
     // Compress error report files
-    CompressReportFiles();
+    CompressReportFiles(g_CrashInfo.GetReport(m_nCurReport));
   }
 
   if(m_Action&RESTART_APP)
@@ -282,13 +282,13 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   }
 
   // Prepare the list of screenshot files we will add to the error report
-  std::vector<FileItem> FilesToAdd;
+  std::vector<ERIFileItem> FilesToAdd;
   size_t i;
   for(i=0; i<screenshot_names.size(); i++)
   {
     CString sDestFile;
     sDestFile.Format(_T("screenshot%d.png"), i); 
-    FileItem fi;
+    ERIFileItem fi;
     fi.m_sSrcFile = screenshot_names[i];
     fi.m_sDestFile = sDestFile;
     fi.m_sDesc = _T("Desktop Screenshot");    
@@ -370,8 +370,8 @@ BOOL CErrorReportSender::CreateMiniDump()
   MINIDUMP_CALLBACK_INFORMATION mci;
   CString sMinidumpFile = g_CrashInfo.GetReport(m_nCurReport).
     m_sErrorReportDirName + _T("\\crashdump.dmp");
-  std::vector<FileItem> files_to_add;
-  FileItem fi;
+  std::vector<ERIFileItem> files_to_add;
+  ERIFileItem fi;
   BOOL bAdd = FALSE;
 
   if(g_CrashInfo.m_bGenerateMinidump==FALSE)
@@ -515,7 +515,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
   // Copy application-defined files that should be copied on crash
   m_Assync.SetProgress(_T("[copying_files]"), 0, false);
 
-  std::map<CString, FileItem>::iterator it;
+  std::map<CString, ERIFileItem>::iterator it;
   for(it=g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); it!=g_CrashInfo.GetReport(m_nCurReport).m_FileItems.end(); it++)
   {
     if(m_Assync.IsCancelled())
@@ -608,12 +608,12 @@ BOOL CErrorReportSender::CollectCrashFiles()
     m_Assync.SetProgress(str, 0, false);    
 
     DumpRegKey(rit->first, sFileName);
-    FileItem fi;
+    ERIFileItem fi;
     fi.m_sSrcFile = sFileName;
     fi.m_sDestFile = rit->second;
     fi.m_sDesc = _T("Registry Key Dump");
     fi.m_bMakeCopy = FALSE;
-    std::vector<FileItem> file_list;
+    std::vector<ERIFileItem> file_list;
     file_list.push_back(fi);
     g_CrashInfo.AddFilesToCrashDescriptionXML(file_list);
   }
@@ -977,18 +977,18 @@ BOOL CErrorReportSender::RestartApp()
   return TRUE;
 }
 
-LONG64 CErrorReportSender::GetUncompressedReportSize()
+LONG64 CErrorReportSender::GetUncompressedReportSize(ErrorReportInfo& eri)
 {
   m_Assync.SetProgress(_T("Calculating total size of files to compress..."), 0, false);
 
   LONG64 lTotalSize = 0;
-  std::map<CString, FileItem>::iterator it;
+  std::map<CString, ERIFileItem>::iterator it;
   HANDLE hFile = INVALID_HANDLE_VALUE;  
   CString sMsg;
   BOOL bGetSize = FALSE;
   LARGE_INTEGER lFileSize;
 
-  for(it=g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); it!=g_CrashInfo.GetReport(m_nCurReport).m_FileItems.end(); it++)
+  for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
   {    
     if(m_Assync.IsCancelled())    
       return 0;
@@ -1021,7 +1021,7 @@ LONG64 CErrorReportSender::GetUncompressedReportSize()
 }
 
 // This method compresses the files contained in the report and produces ZIP archive.
-BOOL CErrorReportSender::CompressReportFiles()
+BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
 { 
   BOOL bStatus = FALSE;
   strconv_t strconv;
@@ -1032,14 +1032,14 @@ BOOL CErrorReportSender::CompressReportFiles()
   BYTE buff[1024];
   DWORD dwBytesRead=0;
   HANDLE hFile = INVALID_HANDLE_VALUE;  
-  std::map<CString, FileItem>::iterator it;
+  std::map<CString, ERIFileItem>::iterator it;
     
   if(m_bExport)
     m_Assync.SetProgress(_T("[exporting_report]"), 0, false);
   else
     m_Assync.SetProgress(_T("[compressing_files]"), 0, false);
   
-  lTotalSize = GetUncompressedReportSize();
+  lTotalSize = GetUncompressedReportSize(eri);
   
   sMsg.Format(_T("Total file size for compression is %I64d"), lTotalSize);
   m_Assync.SetProgress(sMsg, 0, false);
@@ -1047,7 +1047,7 @@ BOOL CErrorReportSender::CompressReportFiles()
   if(m_bExport)
     m_sZipName = m_sExportFileName;  
   else
-    m_sZipName = g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName + _T(".zip");  
+    m_sZipName = eri.m_sErrorReportDirName + _T(".zip");  
     
   sMsg.Format(_T("Creating ZIP archive file %s"), m_sZipName);
   m_Assync.SetProgress(sMsg, 1, false);
@@ -1059,7 +1059,7 @@ BOOL CErrorReportSender::CompressReportFiles()
     goto cleanup;
   }
 
-  for(it=g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); it!=g_CrashInfo.GetReport(m_nCurReport).m_FileItems.end(); it++)
+  for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
   { 
     if(m_Assync.IsCancelled())    
       goto cleanup;

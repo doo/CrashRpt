@@ -133,8 +133,6 @@ public:
   // created for the current process
   static CCrashHandler* GetCurrentProcessCrashHandler();
   static void ReleaseCurrentProcessCrashHandler();
-  
-private:
 
   /* Exception handler functions. */
 

@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -504,7 +504,7 @@ int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
     if(pszDestFile!=NULL)
     {
 	    CString sDestFile = strconv.utf82t(pszDestFile);      
-      FileItem item;
+      ERIFileItem item;
       item.m_sDestFile = sDestFile;
       if(pszSrcFile)
         item.m_sSrcFile = strconv.utf82t(pszSrcFile);
@@ -640,7 +640,7 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
       if(pszDestFile!=NULL)
       {
 	      CString sDestFile = strconv.utf82t(pszDestFile);      
-        FileItem item;
+        ERIFileItem item;
         item.m_sDestFile = sDestFile;
         item.m_sSrcFile = sReportDir + sDestFile;
         if(pszDesc)
@@ -700,7 +700,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
   return TRUE;
 }
 
-BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<FileItem> FilesToAdd)
+BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> FilesToAdd)
 {
   strconv_t strconv;
 
@@ -822,7 +822,7 @@ BOOL CCrashInfoReader::IsRemindNowOK()
 LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
 {
   LONG64 lTotalSize = 0;
-  std::map<CString, FileItem>::iterator it;
+  std::map<CString, ERIFileItem>::iterator it;
   HANDLE hFile = INVALID_HANDLE_VALUE;  
   CString sMsg;
   BOOL bGetSize = FALSE;

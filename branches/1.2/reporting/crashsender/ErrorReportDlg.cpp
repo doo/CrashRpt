@@ -1,7 +1,7 @@
 /************************************************************************************* 
   This file is a part of CrashRpt library.
 
-  CrashRpt is Copyright (c) 2003, Michael Carruth
+  Copyright (c) 2003, Michael Carruth
   All rights reserved.
  
   Redistribution and use in source and binary forms, with or without modification, 
@@ -317,7 +317,7 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
   {
     if(g_CrashInfo.m_bSendErrorReport)
     {
-      LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize();  
+      LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize(g_CrashInfo.GetReport(0));  
       CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
       CString sSubHeader;
       sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
