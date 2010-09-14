@@ -61,6 +61,9 @@ BOOL CreateErrorReport(CString sTmpFolder, CString& sErrorReportName)
   if(nInstallResult!=0)
     goto cleanup;
 
+  crAddScreenshot(CR_AS_VIRTUAL_SCREEN);
+  crAddPropertyW(L"CustomProp", L"Property Value");
+
   CR_EXCEPTION_INFO ei;
   memset(&ei, 0, sizeof(CR_EXCEPTION_INFO));
   ei.cb = sizeof(ei);
@@ -154,6 +157,10 @@ void Test_crpOpenErrorReportW()
   int nOpenResult4 = crpOpenErrorReportW(szReportName, szInvalidMD5, NULL, 0, &hReport);
   TEST_ASSERT(nOpenResult4!=0);
 
+  // Open not existing file - should fail  
+  int nOpenResult5 = crpOpenErrorReportW(L"NotExisting.zip", NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult5!=0);
+
   __TEST_CLEANUP__;
   
   crpCloseErrorReport(hReport);
@@ -165,25 +172,218 @@ void Test_crpOpenErrorReportW()
 REGISTER_TEST(Test_crpOpenErrorReportA);
 void Test_crpOpenErrorReportA()
 {   
+  CString sAppDataFolder;
+  CString sExeFolder;
+  CString sTmpFolder;
+  CString sErrorReportName;
+  strconv_t strconv;
+  CrpHandle hReport = 0;
+  CErrorReportSender ers;
+  CString sMD5Hash;
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Create error report ZIP
+  BOOL bCreateReport = CreateErrorReport(sTmpFolder, sErrorReportName);
+  TEST_ASSERT(bCreateReport);
+
+  // Open NULL report - should fail
+  int nOpenResult = crpOpenErrorReportA(NULL, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult!=0);
+
+  // Open report - should succeed
+  LPCSTR szReportName = strconv.t2a(sErrorReportName);
+  int nOpenResult2 = crpOpenErrorReportA(szReportName, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult2==0 && hReport!=0);
+
+  // Close report - should succeed
+  int nCloseResult = crpCloseErrorReport(hReport);
+  TEST_ASSERT(nCloseResult==0);
+  hReport = 0;
+
+  // Calc MD5 hash
+  int nMD5 = ers.CalcFileMD5Hash(sErrorReportName, sMD5Hash);  
+  TEST_ASSERT(nMD5==0);
+
+  // Open report and check MD5 - should succeed
+  LPCSTR szMD5Hash = strconv.t2a(sMD5Hash);
+  int nOpenResult3 = crpOpenErrorReportA(szReportName, szMD5Hash, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult3==0 && hReport!=0);
+
+  // Close report - should succeed
+  int nCloseResult2 = crpCloseErrorReport(hReport);
+  TEST_ASSERT(nCloseResult2==0);
+  hReport = 0;
+
+  // Open report with incorrect MD5 - should fail
+  LPCSTR szInvalidMD5 = "1234567890123456";
+  int nOpenResult4 = crpOpenErrorReportA(szReportName, szInvalidMD5, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult4!=0);
+
+  // Open not existing file - should fail  
+  int nOpenResult5 = crpOpenErrorReportW(L"NotExisting.zip", NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult5!=0);
+
   __TEST_CLEANUP__;
+  
+  crpCloseErrorReport(hReport);
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE);
 }
 
 REGISTER_TEST(Test_crpCloseErrorReport);
 void Test_crpCloseErrorReport()
-{   
+{ 
+  CrpHandle hReport = 3;
+
+  // Close invalid report - should fail
+  int nCloseResult = crpCloseErrorReport(hReport);
+  TEST_ASSERT(nCloseResult!=0);
+  
   __TEST_CLEANUP__;
 }
 
 REGISTER_TEST(Test_crpExtractFileW);
 void Test_crpExtractFileW()
 {   
+  CString sAppDataFolder;  
+  CString sTmpFolder;
+  CString sErrorReportName;
+  strconv_t strconv;
+  CrpHandle hReport = 0;
+  CErrorReportSender ers;
+  CString sMD5Hash;
+  const int BUFF_SIZE = 1024;
+  WCHAR szBuffer[BUFF_SIZE];
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Create error report ZIP
+  BOOL bCreateReport = CreateErrorReport(sTmpFolder, sErrorReportName);
+  TEST_ASSERT(bCreateReport);
+  
+  // Open report - should succeed
+  LPCWSTR szReportName = strconv.t2w(sErrorReportName);
+  int nOpenResult = crpOpenErrorReportW(szReportName, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult==0 && hReport!=0);
+
+  // Enumerate files contained in error report and extract each one
+
+  int nRowCount = crpGetPropertyW(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_META_ROW_COUNT, 0, NULL, 0, NULL); 
+  TEST_ASSERT(nRowCount>0);
+
+  int i;
+  for(i=0; i<nRowCount; i++)
+  {
+    // Get file name
+    int nResult = crpGetPropertyW(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_COL_FILE_ITEM_NAME, i, szBuffer, BUFF_SIZE, NULL);
+    TEST_ASSERT(nResult==0);
+
+    CString sDstFile = sTmpFolder + _T("\\") + CString(szBuffer);
+    strconv_t strconv;
+    LPCWSTR szDstFile = strconv.t2w(sDstFile);
+
+    // Extract file - should succeed
+    int nExtract = crpExtractFileW(hReport, szBuffer, szDstFile, FALSE);
+    TEST_ASSERT(nExtract==0);
+
+    // Extract file the second time - should fail, because it already exists
+    int nExtract2 = crpExtractFileW(hReport, szBuffer, szDstFile, FALSE);
+    TEST_ASSERT(nExtract2!=0);
+
+    // Extract file the second time and overwrite existing - should succeed
+    int nExtract3 = crpExtractFileW(hReport, szBuffer, szDstFile, TRUE);
+    TEST_ASSERT(nExtract3==0);
+
+    // Extract file that doesnt exist - should fail
+    int nExtract4 = crpExtractFileW(hReport, L"NotExisting.txt", szDstFile, TRUE);
+    TEST_ASSERT(nExtract4!=0);
+  }   
+
   __TEST_CLEANUP__;
+  
+  crpCloseErrorReport(hReport);
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE);  
 }
 
 REGISTER_TEST(Test_crpExtractFileA);
 void Test_crpExtractFileA()
-{   
+{ 
+  CString sAppDataFolder;  
+  CString sTmpFolder;
+  CString sErrorReportName;
+  strconv_t strconv;
+  CrpHandle hReport = 0;
+  CErrorReportSender ers;
+  CString sMD5Hash;
+  const int BUFF_SIZE = 1024;
+  char szBuffer[BUFF_SIZE];
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Create error report ZIP
+  BOOL bCreateReport = CreateErrorReport(sTmpFolder, sErrorReportName);
+  TEST_ASSERT(bCreateReport);
+  
+  // Open report - should succeed
+  LPCSTR szReportName = strconv.t2a(sErrorReportName);
+  int nOpenResult = crpOpenErrorReportA(szReportName, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult==0 && hReport!=0);
+
+  // Enumerate files contained in error report and extract each one
+
+  int nRowCount = crpGetPropertyA(hReport, "XmlDescFileItems", "RowCount", 0, NULL, 0, NULL); 
+  TEST_ASSERT(nRowCount>0);
+
+  int i;
+  for(i=0; i<nRowCount; i++)
+  {
+    // Get file name
+    int nResult = crpGetPropertyA(hReport, "XmlDescFileItems", "FileItemName", i, szBuffer, BUFF_SIZE, NULL);
+    TEST_ASSERT(nResult==0);
+
+    CString sDstFile = sTmpFolder + _T("\\") + CString(szBuffer);
+    strconv_t strconv;
+    LPCSTR szDstFile = strconv.t2a(sDstFile);
+
+    // Extract file - should succeed
+    int nExtract = crpExtractFileA(hReport, szBuffer, szDstFile, FALSE);
+    TEST_ASSERT(nExtract==0);
+
+    // Extract file the second time - should fail, because it already exists
+    int nExtract2 = crpExtractFileA(hReport, szBuffer, szDstFile, FALSE);
+    TEST_ASSERT(nExtract2!=0);
+
+    // Extract file the second time and overwrite existing - should succeed
+    int nExtract3 = crpExtractFileA(hReport, szBuffer, szDstFile, TRUE);
+    TEST_ASSERT(nExtract3==0);
+
+    // Extract file that doesnt exist - should fail
+    int nExtract4 = crpExtractFileA(hReport, "NotExisting.txt", szDstFile, TRUE);
+    TEST_ASSERT(nExtract4!=0);
+  }   
+
   __TEST_CLEANUP__;
+  
+  crpCloseErrorReport(hReport);
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE); 
 }
 
 REGISTER_TEST(Test_crpGetLastErrorW);
