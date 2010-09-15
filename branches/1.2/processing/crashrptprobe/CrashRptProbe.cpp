@@ -1308,7 +1308,7 @@ crpGetLastErrorMsgA(
   LPSTR pszBuffer, 
   UINT uBuffSize)
 {  
-  if(pszBuffer==NULL)
+  if(pszBuffer==NULL || uBuffSize==0)
     return -1;
 
   strconv_t strconv;

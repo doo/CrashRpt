@@ -1,4 +1,4 @@
-REM Delete all tempoary files 
+REM Delete all temporary files 
 
 erase /A H *.suo
 erase *.ncb

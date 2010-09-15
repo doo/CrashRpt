@@ -296,6 +296,10 @@ void Test_crpExtractFileW()
     int nExtract = crpExtractFileW(hReport, szBuffer, szDstFile, FALSE);
     TEST_ASSERT(nExtract==0);
 
+    // Check that file exists
+    DWORD dwAttrs = GetFileAttributesW(szDstFile);
+    TEST_ASSERT(dwAttrs!=INVALID_FILE_ATTRIBUTES);
+
     // Extract file the second time - should fail, because it already exists
     int nExtract2 = crpExtractFileW(hReport, szBuffer, szDstFile, FALSE);
     TEST_ASSERT(nExtract2!=0);
@@ -303,6 +307,10 @@ void Test_crpExtractFileW()
     // Extract file the second time and overwrite existing - should succeed
     int nExtract3 = crpExtractFileW(hReport, szBuffer, szDstFile, TRUE);
     TEST_ASSERT(nExtract3==0);
+
+    // Check that file exists
+    DWORD dwAttrs2 = GetFileAttributesW(szDstFile);
+    TEST_ASSERT(dwAttrs2!=INVALID_FILE_ATTRIBUTES);
 
     // Extract file that doesnt exist - should fail
     int nExtract4 = crpExtractFileW(hReport, L"NotExisting.txt", szDstFile, TRUE);
@@ -365,6 +373,10 @@ void Test_crpExtractFileA()
     int nExtract = crpExtractFileA(hReport, szBuffer, szDstFile, FALSE);
     TEST_ASSERT(nExtract==0);
 
+    // Check that file exists
+    DWORD dwAttrs = GetFileAttributesA(szDstFile);
+    TEST_ASSERT(dwAttrs!=INVALID_FILE_ATTRIBUTES);
+
     // Extract file the second time - should fail, because it already exists
     int nExtract2 = crpExtractFileA(hReport, szBuffer, szDstFile, FALSE);
     TEST_ASSERT(nExtract2!=0);
@@ -372,6 +384,10 @@ void Test_crpExtractFileA()
     // Extract file the second time and overwrite existing - should succeed
     int nExtract3 = crpExtractFileA(hReport, szBuffer, szDstFile, TRUE);
     TEST_ASSERT(nExtract3==0);
+
+    // Check that file exists
+    DWORD dwAttrs2 = GetFileAttributesA(szDstFile);
+    TEST_ASSERT(dwAttrs2!=INVALID_FILE_ATTRIBUTES);
 
     // Extract file that doesnt exist - should fail
     int nExtract4 = crpExtractFileA(hReport, "NotExisting.txt", szDstFile, TRUE);
@@ -389,19 +405,225 @@ void Test_crpExtractFileA()
 REGISTER_TEST(Test_crpGetLastErrorW);
 void Test_crpGetLastErrorW()
 {   
+  // Get error message
+  WCHAR szErrMsg[256] = L"";
+  int nResult = crpGetLastErrorMsgW(szErrMsg, 256);
+  TEST_ASSERT(nResult>0);
+
+  // Get error message to NULL buffer - must fail  
+  int nResult2 = crpGetLastErrorMsgW(NULL, 256);
+  TEST_ASSERT(nResult2<0);
+
+  // Get error message to a buffer, but zero length - must fail  
+  WCHAR szErrMsg2[256] = L"";
+  int nResult3 = crpGetLastErrorMsgW(szErrMsg2, 0);
+  TEST_ASSERT(nResult3<0);
+
+  // Get error message to a single-char buffer, must trunkate message and succeed
+  WCHAR szErrMsg3[1] = L"";
+  int nResult4 = crpGetLastErrorMsgW(szErrMsg3, 1);
+  TEST_ASSERT(nResult4>0);
+
+  // Get error message to a small buffer, must trunkate message and succeed
+  WCHAR szErrMsg6[2] = L"";
+  int nResult6 = crpGetLastErrorMsgW(szErrMsg6, 2);
+  TEST_ASSERT(nResult6>0);
+
   __TEST_CLEANUP__;
+  
 }
 
 REGISTER_TEST(Test_crpGetLastErrorA);
 void Test_crpGetLastErrorA()
 {   
+  // Get error message
+  char szErrMsg[256] = "";
+  int nResult = crpGetLastErrorMsgA(szErrMsg, 256);
+  TEST_ASSERT(nResult>0);
+
+  // Get error message to NULL buffer - must fail  
+  int nResult2 = crpGetLastErrorMsgA(NULL, 256);
+  TEST_ASSERT(nResult2<0);
+
+  // Get error message to a buffer, but zero length - must fail  
+  char szErrMsg2[256] = "";
+  int nResult3 = crpGetLastErrorMsgA(szErrMsg2, 0);
+  TEST_ASSERT(nResult3<0);
+
+  // Get error message to a single-char buffer, must trunkate message and succeed
+  char szErrMsg3[1] = "";
+  int nResult4 = crpGetLastErrorMsgA(szErrMsg3, 1);
+  TEST_ASSERT(nResult4>0);
+
+  // Get error message to a small buffer, must trunkate message and succeed
+  char szErrMsg6[2] = "";
+  int nResult6 = crpGetLastErrorMsgA(szErrMsg6, 2);
+  TEST_ASSERT(nResult6>0);
+
   __TEST_CLEANUP__;
+  
 }
 
 REGISTER_TEST(Test_crpGetPropertyW);
 void Test_crpGetPropertyW()
 {   
+  CString sAppDataFolder;  
+  CString sTmpFolder;
+  CString sErrorReportName;
+  strconv_t strconv;
+  CrpHandle hReport = 0;
+  CErrorReportSender ers;
+  CString sMD5Hash;
+  const int BUFF_SIZE = 1024;
+  WCHAR szBuffer[BUFF_SIZE];
+  ULONG uCount = 0;
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Create error report ZIP
+  BOOL bCreateReport = CreateErrorReport(sTmpFolder, sErrorReportName);
+  TEST_ASSERT(bCreateReport);
+  
+  // Get property from unopened report - should fail
+  int nResult = crpGetPropertyW(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_NAME, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult!=0 && uCount==0);
+
+  // Open report - should succeed
+  LPCWSTR szReportName = strconv.t2w(sErrorReportName);
+  int nOpenResult = crpOpenErrorReportW(szReportName, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult==0 && hReport!=0);
+
+  // Get property from opened report - should succeed
+  int nResult2 = crpGetPropertyW(hReport, CRP_TBL_XMLDESC_MISC, CRP_COL_APP_NAME, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult2==0 && uCount>0);
+
   __TEST_CLEANUP__;
+  
+  crpCloseErrorReport(hReport);
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE); 
 }
 
+REGISTER_TEST(Test_crpGetPropertyA);
+void Test_crpGetPropertyA()
+{   
+  CString sAppDataFolder;  
+  CString sTmpFolder;
+  CString sErrorReportName;
+  strconv_t strconv;
+  CrpHandle hReport = 0;
+  CErrorReportSender ers;
+  CString sMD5Hash;
+  const int BUFF_SIZE = 1024;
+  char szBuffer[BUFF_SIZE];
+  ULONG uCount = 0;
 
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Create error report ZIP
+  BOOL bCreateReport = CreateErrorReport(sTmpFolder, sErrorReportName);
+  TEST_ASSERT(bCreateReport);
+  
+  // Get property from unopened report - should fail
+  int nResult = crpGetPropertyA(hReport, "XmlDescMisc", "AppName", 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult!=0 && uCount==0);
+
+  // Open report - should succeed
+  LPCSTR szReportName = strconv.t2a(sErrorReportName);
+  int nOpenResult = crpOpenErrorReportA(szReportName, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult==0 && hReport!=0);
+
+  // Get property from opened report - should succeed
+  int nResult2 = crpGetPropertyA(hReport, "XmlDescMisc", "AppName", 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult2==0 && uCount>0);
+
+  __TEST_CLEANUP__;
+  
+  crpCloseErrorReport(hReport);
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE); 
+}
+
+REGISTER_TEST(Test_crpGetProperty);
+void Test_crpGetProperty()
+{   
+  CString sAppDataFolder;  
+  CString sTmpFolder;
+  CString sErrorReportName;
+  strconv_t strconv;
+  CrpHandle hReport = 0;  
+  const int BUFF_SIZE = 1024;
+  TCHAR szBuffer[BUFF_SIZE];
+  ULONG uCount = 0;
+
+  // Create a temporary folder  
+  Utility::GetSpecialFolder(CSIDL_APPDATA, sAppDataFolder);
+  sTmpFolder = sAppDataFolder+_T("\\CrashRpt");
+  BOOL bCreate = Utility::CreateFolder(sTmpFolder);
+  TEST_ASSERT(bCreate);
+
+  // Create error report ZIP
+  BOOL bCreateReport = CreateErrorReport(sTmpFolder, sErrorReportName);
+  TEST_ASSERT(bCreateReport);
+    
+  // Open report - should succeed
+  LPCSTR szReportName = strconv.t2a(sErrorReportName);
+  int nOpenResult = crpOpenErrorReportA(szReportName, NULL, NULL, 0, &hReport);
+  TEST_ASSERT(nOpenResult==0 && hReport!=0);
+  
+  // Get row count in CRP_TBL_XMLDESC_MISC table - should return 1 (this table always has single row)
+  int nResult = crpGetProperty(hReport, CRP_TBL_XMLDESC_MISC, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult==1 && uCount==0);
+
+  // Get row count in CRP_TBL_XMLDESC_FILE_ITEMS table - should return >0 
+  int nResult2 = crpGetProperty(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult2>1 && uCount==0);
+
+  // Get row count in CRP_TBL_XMLDESC_FILE_ITEMS table - should return >0 
+  int nResult3 = crpGetProperty(hReport, CRP_TBL_XMLDESC_FILE_ITEMS, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult3>1 && uCount==0);
+
+  // Get row count in CRP_TBL_XMLDESC_CUSTOM_PROPS table - should return 1 (added one custom property) 
+  int nResult4 = crpGetProperty(hReport, CRP_TBL_XMLDESC_CUSTOM_PROPS, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult4==1 && uCount==0);
+
+  // Get row count in CRP_TBL_MDMP_MISC table - should return 1 (always has one row) 
+  int nResult5 = crpGetProperty(hReport, CRP_TBL_MDMP_MISC, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult5==1 && uCount==0);
+  
+  // Get row count in CRP_TBL_MDMP_MODULES table - should return >0 
+  int nResult6 = crpGetProperty(hReport, CRP_TBL_MDMP_MODULES, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult6>0 && uCount==0);
+
+  // Get row count in CRP_TBL_MDMP_THREADS table - should return >0 
+  int nResult7 = crpGetProperty(hReport, CRP_TBL_MDMP_THREADS, CRP_META_ROW_COUNT, 
+    0, szBuffer, BUFF_SIZE, &uCount);
+  TEST_ASSERT(nResult7>0 && uCount==0);
+
+  __TEST_CLEANUP__;
+  
+  crpCloseErrorReport(hReport);
+
+  // Delete tmp folder
+  Utility::RecycleFile(sTmpFolder, TRUE); 
+}
