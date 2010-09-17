@@ -34,6 +34,7 @@
 #include "FilePreviewCtrl.h"
 #include <set>
 #include "png.h"
+#include "strconv.h"
 
 #pragma warning(disable:4611)
 // DIBSIZE calculates the number of bytes required by an image
@@ -315,11 +316,6 @@ BOOL CImage::LoadBitmapFromBMPFile(LPTSTR szFileName)
   return TRUE;
 }
 
-//void png_error_fn(png_struct *png_ptr, char *message)
-//{	
-//	longjmp(png_ptr->jmpbuf, 1);
-//}
-
 BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
 {
   BOOL bStatus = FALSE;
@@ -516,6 +512,7 @@ CFilePreviewCtrl::CFilePreviewCtrl()
   m_hWorkerThread = NULL;
   m_bCancelled = FALSE;
   m_PreviewMode = PREVIEW_HEX;
+  m_TextEncoding = ENC_ASCII;
 }
 
 CFilePreviewCtrl::~CFilePreviewCtrl()
@@ -606,6 +603,7 @@ BOOL CFilePreviewCtrl::SetFile(LPCTSTR szFileName, PreviewMode mode)
   }
   else if(m_PreviewMode==PREVIEW_TEXT)
   {       
+    m_TextEncoding = DetectTextEncoding(m_sFileName);
     m_bCancelled = FALSE;
     m_hWorkerThread = CreateThread(NULL, 0, WorkerThread, this, 0, NULL);
     ::SetTimer(m_hWnd, 0, 250, NULL);
@@ -677,11 +675,43 @@ PreviewMode CFilePreviewCtrl::DetectPreviewMode(LPCTSTR szFileName)
   }
 
 cleanup:
-
   
   return mode;
 }
 
+TextEncoding CFilePreviewCtrl::DetectTextEncoding(LPCTSTR szFileName)
+{
+  TextEncoding enc = ENC_ASCII;
+  
+  FILE* f = NULL;
+
+#if _MSC_VER<1400
+  f = _tfopen(szFileName, _T("rb"));
+#else
+  _tfopen_s(&f, szFileName, _T("rb"));
+#endif
+
+  if(f==NULL)
+    goto cleanup;   
+
+  BYTE signature[3];
+  size_t nRead = fread(signature, 1, 3, f);
+  if(nRead!=3)
+    goto cleanup;
+
+  // Compare with UTF-8 signature
+  if(signature[0]==0xEF && 
+    signature[1]==0xBB && 
+    signature[2]==0xBF 
+    )
+  {
+    enc = ENC_UTF8;
+  }
+
+cleanup:
+  
+  return enc;
+}
 
 DWORD WINAPI CFilePreviewCtrl::WorkerThread(LPVOID lpParam)
 {
@@ -707,8 +737,17 @@ void CFilePreviewCtrl::ParseText()
 
   if(dwFileSize!=0)
   {
-      CAutoLock lock(&m_csLock);        
-      m_aTextLines.push_back(0);
+      CAutoLock lock(&m_csLock);
+      if(m_PreviewMode==PREVIEW_TEXT && m_TextEncoding==ENC_UTF8)
+      {
+        // Skip UTF-8 signature
+        dwOffset+=3;
+        m_aTextLines.push_back(3);
+      }
+      else
+      {
+        m_aTextLines.push_back(0);
+      }
   }
 
   for(;;)
@@ -913,7 +952,7 @@ void CFilePreviewCtrl::DrawTextLine(HDC hdc, DWORD nLineNo)
   
   //get data from our file mapping
 	LPBYTE ptr = m_fm.CreateView(dwOffset, dwLength);
-
+  
   //draw this line to the screen
   CRect rcText;
   rcText.left = -(int)(m_nHScrollPos * m_xChar);
@@ -926,9 +965,19 @@ void CFilePreviewCtrl::DrawTextLine(HDC hdc, DWORD nLineNo)
   params.iTabLength = m_xChar*m_cchTabLength;
 
   DWORD dwFlags = DT_LEFT|DT_TOP|DT_SINGLELINE|DT_NOPREFIX|DT_EXPANDTABS;
-	  
-  DrawTextExA(hdc, (char*)ptr, dwLength-1,  &rcText, 
-    dwFlags, &params);
+	
+  if(m_TextEncoding==ENC_UTF8)
+  {
+    // Decode line
+    strconv_t strconv;
+    LPCWSTR szLine = strconv.utf82w((char*)ptr, dwLength-1);
+    DrawTextExW(hdc, (LPWSTR)szLine, -1,  &rcText, dwFlags, &params);
+  }
+  else
+  {
+    DrawTextExA(hdc, (char*)ptr, dwLength-1,  &rcText, 
+      dwFlags, &params);
+  }
 }
 
 void CFilePreviewCtrl::DoPaintEmpty(HDC hDC)
@@ -1116,9 +1165,7 @@ LRESULT CFilePreviewCtrl::OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPara
 	SCROLLINFO info;
 	int nVScrollInc;
 	int  nOldVScrollPos = m_nVScrollPos;
-		
-	//HideCaret();
-
+	
 	switch (LOWORD(wParam))
 	{
 	case SB_TOP:
@@ -1228,6 +1275,12 @@ LRESULT CFilePreviewCtrl::OnComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
   return 0;
 }
 
+LRESULT CFilePreviewCtrl::OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  SetFocus();
+  return 0;
+}
+
 LRESULT CFilePreviewCtrl::OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   NMHDR nmhdr;
@@ -1237,5 +1290,24 @@ LRESULT CFilePreviewCtrl::OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
   HWND hWndParent = GetParent();
   ::SendMessage(hWndParent, WM_NOTIFY, 0, (LPARAM)&nmhdr);
+  return 0;
+}
+
+LRESULT CFilePreviewCtrl::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  if(m_PreviewMode!=PREVIEW_TEXT)
+    return 0;
+
+  int nDistance =  GET_WHEEL_DELTA_WPARAM(wParam);
+  int nLinesPerDelta = m_nVScrollMax/m_nMaxLinesPerPage;
+
+  SCROLLINFO info;
+  info.cbSize = sizeof(SCROLLINFO);
+  GetScrollInfo(SB_VERT, &info);
+	info.fMask = SIF_POS;
+	info.nPos -=nDistance*nLinesPerDelta;
+  SetScrollInfo(SB_VERT, &info, TRUE);
+
+  SendMessage(WM_VSCROLL, MAKEWPARAM(SB_THUMBPOSITION, info.nPos), 0);
   return 0;
 }

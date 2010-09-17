@@ -42,7 +42,15 @@ enum PreviewMode
   PREVIEW_AUTO = -1,  // Auto
   PREVIEW_HEX  = 0,   // Hex
   PREVIEW_TEXT = 1,   // Text
-  PREVIEW_IMAGE = 2   // Image  
+  PREVIEW_IMAGE = 2   // Image    
+};
+
+// Text encoding
+enum TextEncoding
+{
+  ENC_AUTO = -1, // Auto
+  ENC_ASCII = 0, // ASCII
+  ENC_UTF8  = 1  // UTF-8
 };
 
 // Used to map file contents into memory
@@ -118,9 +126,9 @@ public:
   BEGIN_MSG_MAP(CFilePreviewCtrl)  
     if (uMsg == WM_NCHITTEST || 
         uMsg == WM_NCLBUTTONDOWN || 
+        uMsg == WM_NCLBUTTONDBLCLK ||
         uMsg == WM_NCMBUTTONDOWN ||
-        uMsg == WM_NCXBUTTONDOWN ||
-        uMsg == WM_NCLBUTTONDBLCLK)
+        uMsg == WM_NCXBUTTONDOWN)
     {
       // This is to enable scroll bar messages
       bHandled = TRUE;
@@ -136,7 +144,9 @@ public:
     MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
     MESSAGE_HANDLER(WM_TIMER, OnTimer)
     MESSAGE_HANDLER(WM_FPC_COMPLETE, OnComplete)
+    MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
     MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
+    MESSAGE_HANDLER(WM_MOUSEWHEEL, OnMouseWheel)
   END_MSG_MAP()
 
   LPCTSTR GetFile();
@@ -147,6 +157,7 @@ public:
   BOOL SetBytesPerLine(int nBytesPerLine);
 
   PreviewMode DetectPreviewMode(LPCTSTR szFileName);
+  TextEncoding DetectTextEncoding(LPCTSTR szFileName);
 
   LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -156,7 +167,9 @@ public:
   LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnTimer(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnComplete(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+  LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+  LRESULT OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
   void SetupScrollbars();
   CString FormatHexLine(LPBYTE pData, int nBytesInLine, ULONG64 uLineOffset);
@@ -174,6 +187,7 @@ public:
     
   CString m_sFileName;
   PreviewMode m_PreviewMode;
+  TextEncoding m_TextEncoding;
   CCritSec m_csLock;
   CFileMemoryMapping m_fm;  // File mapping object.  
   HFONT m_hFont;            // Font in use.  
