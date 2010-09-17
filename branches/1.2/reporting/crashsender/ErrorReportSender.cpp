@@ -642,18 +642,15 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
   // Load document if file already exists
   // otherwise create new document.
   
-  LPCSTR szDestFile = strconv.t2a(sDestFile);
-
   FILE* f = NULL;
 #if _MSC_VER<1400
-  f = _tfopen(sDestFile, _T("rt"));
+  f = _tfopen(sDestFile, _T("rb"));
 #else
-  _tfopen_s(&f, sDestFile, _T("rt"));
+  _tfopen_s(&f, sDestFile, _T("rb"));
 #endif
   if(f!=NULL)
-  {    
-    fclose(f);
-    document.LoadFile(szDestFile);
+  { 
+    document.LoadFile(f);
   }
 
   TiXmlHandle hdoc(&document);
@@ -675,7 +672,18 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
 
   DumpRegKey(NULL, sRegKey, registry);
 
-  bool bSave = document.SaveFile(szDestFile);
+  if(f==NULL)
+  {
+#if _MSC_VER<1400
+  f = _tfopen(sDestFile, _T("wb"));
+#else
+  _tfopen_s(&f, sDestFile, _T("wb"));
+#endif
+  }
+
+  bool bSave = document.SaveFile(f);
+
+  fclose(f);
 
   return (bSave==true)?0:1;
 }
@@ -963,8 +971,16 @@ BOOL CErrorReportSender::RestartApp()
   memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
 
   CString sCmdLine;
-  sCmdLine.Format(_T("\"%s\" \"%s\""), g_CrashInfo.GetReport(m_nCurReport).m_sImageName, 
-    g_CrashInfo.m_sRestartCmdLine.GetBuffer(0));
+  if(g_CrashInfo.m_sRestartCmdLine.IsEmpty())
+  {
+    // Format this way to avoid first empty parameter
+    sCmdLine.Format(_T("\"%s\""), g_CrashInfo.GetReport(m_nCurReport).m_sImageName);
+  }
+  else
+  {
+    sCmdLine.Format(_T("\"%s\" \"%s\""), g_CrashInfo.GetReport(m_nCurReport).m_sImageName, 
+      g_CrashInfo.m_sRestartCmdLine.GetBuffer(0));
+  }
   BOOL bCreateProcess = CreateProcess(
     g_CrashInfo.GetReport(m_nCurReport).m_sImageName, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
   if(!bCreateProcess)

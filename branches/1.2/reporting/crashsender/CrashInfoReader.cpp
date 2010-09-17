@@ -50,14 +50,30 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
   strconv_t strconv;
   ErrorReportInfo eri;
   
+  FILE* f = NULL; 
+#if _MSC_VER<1400
+  f = _tfopen(sCrashInfoFileName, _T("rb"));
+#else
+  _tfopen_s(&f, sCrashInfoFileName, _T("rb"));
+#endif
+
+  if(f==NULL)
+    return 1; 
+
   TiXmlDocument doc;
-  bool bOpen = doc.LoadFile(strconv.t2a(sCrashInfoFileName));
+  bool bOpen = doc.LoadFile(f);
   if(!bOpen)
+  {
+    fclose(f);
     return 1;
+  }    
 
   TiXmlHandle hRoot = doc.FirstChild("CrashRptInternal");
   if(hRoot.ToElement()==NULL)
+  {
+    fclose(f);
     return 1;
+  }
 
   {    
     TiXmlHandle hUnsentCrashReportsFolder = hRoot.FirstChild("UnsentCrashReportsFolder");
@@ -479,7 +495,8 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
       bFound = find.FindNextFile();
     }
   }
-  
+
+  fclose(f);  
   return 0;
 }
 
@@ -564,14 +581,27 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
 {
   strconv_t strconv;
 
+  FILE* f = NULL; 
+#if _MSC_VER<1400
+  f = _tfopen(sFileName, _T("rb"));
+#else
+  _tfopen_s(&f, sFileName, _T("rb"));
+#endif
+
+  if(f==NULL)
+    return 1;
+
   TiXmlDocument doc;
-  bool bOpen = doc.LoadFile(strconv.t2a(sFileName));
+  bool bOpen = doc.LoadFile(f);
   if(!bOpen)
     return 1;
 
   TiXmlHandle hRoot = doc.FirstChild("CrashRpt");
   if(hRoot.ToElement()==NULL)
+  {
+    fclose(f);
     return 1;
+  }
 
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
@@ -628,6 +658,7 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
     TiXmlHandle fl = hRoot.FirstChild("FileList");
     if(fl.ToElement()==0)
     {    
+      fclose(f);
       return 1;
     }
 
@@ -660,6 +691,7 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
     }    
   }
 
+  fclose(f);
   return 0;
 }
 
@@ -670,13 +702,30 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
   TiXmlDocument doc;
   
   CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
-  bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
-  if(!bLoad)
+
+   FILE* f = NULL; 
+#if _MSC_VER<1400
+  f = _tfopen(sFileName, _T("rb"));
+#else
+  _tfopen_s(&f, sFileName, _T("rb"));
+#endif
+  
+  if(f==NULL)
     return FALSE;
+
+  bool bLoad = doc.LoadFile(f);
+  if(!bLoad)
+  {
+    fclose(f);
+    return FALSE;
+  }
 
   TiXmlNode* root = doc.FirstChild("CrashRpt");
   if(!root)
+  {
+    fclose(f);
     return FALSE;
+  }
 
   // Write user e-mail
 
@@ -695,6 +744,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
   desc->LinkEndChild(desc_text);              
 
   bool bSave = doc.SaveFile(); 
+  fclose(f);
   if(!bSave)
     return FALSE;
   return TRUE;
@@ -707,13 +757,30 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> Fi
   TiXmlDocument doc;
   
   CString sFileName = g_CrashInfo.m_Reports[0].m_sErrorReportDirName + _T("\\crashrpt.xml");
-  bool bLoad = doc.LoadFile(strconv.t2a(sFileName.GetBuffer(0)));
-  if(!bLoad)
+
+  FILE* f = NULL; 
+#if _MSC_VER<1400
+  f = _tfopen(sFileName, _T("rb"));
+#else
+  _tfopen_s(&f, sFileName, _T("rb"));
+#endif
+  
+  if(f==NULL)
     return FALSE;
+
+  bool bLoad = doc.LoadFile(f);
+  if(!bLoad)
+  {
+    fclose(f);
+    return FALSE;
+  }
 
   TiXmlNode* root = doc.FirstChild("CrashRpt");
   if(!root)
+  {
+    fclose(f);
     return FALSE;
+  }
   
   TiXmlHandle hFileItems = root->FirstChild("FileList");
   if(hFileItems.ToElement()==NULL)
@@ -739,6 +806,7 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> Fi
   bool bSave = doc.SaveFile(); 
   if(!bSave)
     return FALSE;
+  fclose(f);
   return TRUE;
 }
 

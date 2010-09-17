@@ -70,13 +70,11 @@ int CCrashDescReader::Load(CString sFileName)
   if(f==NULL)
     return -1; // File can't be opened
 
-  fclose(f);
-
-  // Open XML document
-  LPCSTR szFileName = strconv.t2a(sFileName.GetBuffer(0));
-  bool bLoaded = doc.LoadFile(szFileName);
+  // Open XML document  
+  bool bLoaded = doc.LoadFile(f);
   if(!bLoaded)
   {
+    fclose(f);
     return -2; // XML is corrupted
   }
   
@@ -87,6 +85,7 @@ int CCrashDescReader::Load(CString sFileName)
   {
     if(LoadXmlv10(hDoc)==0)
     {
+      fclose(f);
       return 0;
     }  
 
@@ -418,7 +417,9 @@ int CCrashDescReader::Load(CString sFileName)
     }
   }
 
-  // OK
+  fclose(f);
+
+  // OK  
   m_bLoaded = true;
   return 0;
 }
