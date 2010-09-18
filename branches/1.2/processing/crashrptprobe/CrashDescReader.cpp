@@ -62,9 +62,9 @@ int CCrashDescReader::Load(CString sFileName)
 
   // Check that the file exists
 #if _MSC_VER<1400
-  f = _tfopen(sFileName, _T("rt"));
+  f = _tfopen(sFileName, _T("rb"));
 #else
-  _tfopen_s(&f, sFileName, _T("rt"));
+  _tfopen_s(&f, sFileName, _T("rb"));
 #endif
   
   if(f==NULL)

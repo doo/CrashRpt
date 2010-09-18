@@ -1295,16 +1295,18 @@ LRESULT CFilePreviewCtrl::OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT CFilePreviewCtrl::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  if(m_PreviewMode!=PREVIEW_TEXT)
+  if(m_PreviewMode!=PREVIEW_TEXT && 
+    m_PreviewMode!=PREVIEW_HEX)
     return 0;
 
-  int nDistance =  GET_WHEEL_DELTA_WPARAM(wParam);
+  int nDistance =  GET_WHEEL_DELTA_WPARAM(wParam)/WHEEL_DELTA;
   int nLinesPerDelta = m_nVScrollMax/m_nMaxLinesPerPage;
 
   SCROLLINFO info;
+  memset(&info, 0, sizeof(SCROLLINFO));
   info.cbSize = sizeof(SCROLLINFO);
-  GetScrollInfo(SB_VERT, &info);
-	info.fMask = SIF_POS;
+  info.fMask = SIF_ALL;
+  GetScrollInfo(SB_VERT, &info);	
 	info.nPos -=nDistance*nLinesPerDelta;
   SetScrollInfo(SB_VERT, &info, TRUE);
 
