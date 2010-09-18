@@ -527,7 +527,7 @@ LPCTSTR CFilePreviewCtrl::GetFile()
   return m_sFileName;
 }
 
-BOOL CFilePreviewCtrl::SetFile(LPCTSTR szFileName, PreviewMode mode)
+BOOL CFilePreviewCtrl::SetFile(LPCTSTR szFileName, PreviewMode mode, TextEncoding enc)
 {
   // If we are currently processing some file in background,
   // stop the worker thread
@@ -603,7 +603,11 @@ BOOL CFilePreviewCtrl::SetFile(LPCTSTR szFileName, PreviewMode mode)
   }
   else if(m_PreviewMode==PREVIEW_TEXT)
   {       
-    m_TextEncoding = DetectTextEncoding(m_sFileName);
+    if(enc==ENC_AUTO)
+      m_TextEncoding = DetectTextEncoding(m_sFileName);
+    else
+      m_TextEncoding = enc;
+
     m_bCancelled = FALSE;
     m_hWorkerThread = CreateThread(NULL, 0, WorkerThread, this, 0, NULL);
     ::SetTimer(m_hWnd, 0, 250, NULL);

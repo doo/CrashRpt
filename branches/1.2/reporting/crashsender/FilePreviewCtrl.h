@@ -150,7 +150,7 @@ public:
   END_MSG_MAP()
 
   LPCTSTR GetFile();
-  BOOL SetFile(LPCTSTR szFileName, PreviewMode mode=PREVIEW_AUTO);
+  BOOL SetFile(LPCTSTR szFileName, PreviewMode mode=PREVIEW_AUTO, TextEncoding enc = ENC_AUTO);
   PreviewMode GetPreviewMode();
   void SetPreviewMode(PreviewMode mode);
   void SetEmptyMessage(CString sText);

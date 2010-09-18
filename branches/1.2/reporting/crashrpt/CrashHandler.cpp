@@ -1313,6 +1313,9 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName,
     return 1; // Couldn't create file
   }
   
+  // UTF-8 signature
+  fprintf(f, "%c%c%c", 0xEF, 0xBB, 0xBF); 
+
   // Add <?xml version="1.0" encoding="utf-8" ?> element
   fprintf(f, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 
