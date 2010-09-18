@@ -39,6 +39,14 @@ BEGIN
         MENUITEM "Hex",                         ID_PREVIEW_HEX
         MENUITEM "Text",                        ID_PREVIEW_TEXT
         MENUITEM "Image",                       ID_PREVIEW_IMAGE
+        MENUITEM SEPARATOR
+        POPUP "Encoding"
+        BEGIN
+            MENUITEM "Auto",                        ID_ENCODING_AUTO
+            MENUITEM "ASCII",                       ID_ENCODING_ASCII
+            MENUITEM "UTF-8",                       ID_ENCODING_UTF8
+            MENUITEM "UTF-16",                      ID_ENCODING_UTF16
+        END
     END
     POPUP "menu3"
     BEGIN
