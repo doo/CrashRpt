@@ -714,16 +714,15 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
     return FALSE;
 
   bool bLoad = doc.LoadFile(f);
+  fclose(f);
   if(!bLoad)
-  {
-    fclose(f);
+  {    
     return FALSE;
   }
 
   TiXmlNode* root = doc.FirstChild("CrashRpt");
   if(!root)
-  {
-    fclose(f);
+  {    
     return FALSE;
   }
 
@@ -743,7 +742,16 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
   TiXmlText* desc_text = new TiXmlText(strconv.t2utf8(sDesc));
   desc->LinkEndChild(desc_text);              
 
-  bool bSave = doc.SaveFile(); 
+#if _MSC_VER<1400
+  f = _tfopen(sFileName, _T("w"));
+#else
+  _tfopen_s(&f, sFileName, _T("w"));
+#endif
+
+  if(f==NULL)
+    return FALSE;
+
+  bool bSave = doc.SaveFile(f); 
   fclose(f);
   if(!bSave)
     return FALSE;
@@ -751,7 +759,7 @@ BOOL CCrashInfoReader::AddUserInfoToCrashDescriptionXML(CString sEmail, CString 
 }
 
 BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> FilesToAdd)
-{
+{   
   strconv_t strconv;
 
   TiXmlDocument doc;
@@ -766,19 +774,20 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> Fi
 #endif
   
   if(f==NULL)
+  {    
     return FALSE;
+  }
 
-  bool bLoad = doc.LoadFile(f);
+  bool bLoad = doc.LoadFile(f);  
+  fclose(f);
   if(!bLoad)
-  {
-    fclose(f);
+  { 
     return FALSE;
   }
 
   TiXmlNode* root = doc.FirstChild("CrashRpt");
   if(!root)
-  {
-    fclose(f);
+  { 
     return FALSE;
   }
   
@@ -802,8 +811,17 @@ BOOL CCrashInfoReader::AddFilesToCrashDescriptionXML(std::vector<ERIFileItem> Fi
 
     m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
   }
-  
-  bool bSave = doc.SaveFile(); 
+
+#if _MSC_VER<1400
+  f = _tfopen(sFileName, _T("w"));
+#else
+  _tfopen_s(&f, sFileName, _T("w"));
+#endif
+
+  if(f==NULL)
+    return FALSE;
+
+  bool bSave = doc.SaveFile(f); 
   if(!bSave)
     return FALSE;
   fclose(f);
