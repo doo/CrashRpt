@@ -367,8 +367,7 @@ BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT Callb
   
 // This method creates minidump of the process
 BOOL CErrorReportSender::CreateMiniDump()
-{ 
-  ATLASSERT(0);
+{   
   BOOL bStatus = FALSE;
   HMODULE hDbgHelp = NULL;
   HANDLE hFile = NULL;
@@ -670,7 +669,7 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
   }
 
   TiXmlNode* declaration = hdoc.Child(0).ToNode();
-  if(declaration==NULL || declaration->Type()!=TiXmlNode::DECLARATION)
+  if(declaration==NULL || declaration->Type()!=TiXmlNode::TINYXML_DECLARATION)
   {
     TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
     document.InsertBeforeChild(registry, *decl);
