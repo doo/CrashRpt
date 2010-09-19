@@ -1886,8 +1886,7 @@ void CCrashHandler::SigsegvHandler(int)
   // Invalid storage access (SIGSEGV)
 
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
-  ATLASSERT(pCrashHandler!=NULL);
-  
+   
   if(pCrashHandler!=NULL)
   {     
     // Acquire lock to avoid other threads (if exist) to crash while we are 

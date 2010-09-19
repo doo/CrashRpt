@@ -36,6 +36,7 @@
 typedef void (__cdecl *PFNTEST)();
 
 extern std::map<std::string, std::string>* g_pTestSuiteList;
+extern std::string sCurTestSuite;
 extern std::map<std::string, PFNTEST>* g_pTestList;
 extern std::vector<std::string>* g_pErrorList;
 
@@ -50,6 +51,8 @@ public:
     }
     std::string sSuiteName = std::string(szTestSuiteName);
     (*g_pTestSuiteList)[sSuiteName] = szDesc;
+
+    sCurTestSuite = szTestSuiteName;
   }
 };
 
@@ -65,7 +68,9 @@ public:
     {
       g_pTestList = new std::map<std::string, PFNTEST>;
     }
-    std::string sName = std::string(szTestName);
+    std::string sName = sCurTestSuite;
+    sName += "::";
+    sName += std::string(szTestName);
     (*g_pTestList)[sName] = pfnTest;
   }
 };

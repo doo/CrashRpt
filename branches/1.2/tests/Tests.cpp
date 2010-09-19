@@ -35,12 +35,50 @@
 #include "CrashRpt.h"
 
 std::map<std::string, std::string>* g_pTestSuiteList = NULL;
+std::string sCurTestSuite;
 std::map<std::string, PFNTEST>* g_pTestList = NULL;
 std::vector<std::string>* g_pErrorList = NULL;
 
+// Helper function that removes spaces from the beginning and end of the string
+void trim2(std::string& str, char* szTrim=" \t\n")
+{
+  std::string::size_type pos = str.find_last_not_of(szTrim);
+  if(pos != std::string::npos) {
+    str.erase(pos + 1);
+    pos = str.find_first_not_of(szTrim);
+    if(pos != std::string::npos) str.erase(0, pos);
+  }
+  else str.erase(str.begin(), str.end());
+}
+
+// Helper function that splits a string into list of tokens
+std::vector<std::string> explode(std::string str, std::string separators = " \t")
+{
+  std::vector<std::string> aTokens;
+
+  size_t pos = 0;
+  for(;;)
+  {
+    pos = str.find_first_of(separators, 0);
+    
+    std::string sToken = str.substr(0, pos);
+    if(pos!=std::string::npos)
+      str = str.substr(pos+1);
+    
+    trim2(sToken);
+    if(sToken.length()>0)
+      aTokens.push_back(sToken);
+
+    if(pos==std::string::npos)
+      break;    
+  }
+
+  return aTokens;
+}
+
 int main()
 {
-  printf("\n=== Automated tests for CrashRpt v.%d.%d.%d===\n\n",
+  printf("\n=== Automated tests for CrashRpt v.%d.%d.%d ===\n\n",
     CRASHRPT_VER/1000,
     (CRASHRPT_VER%1000)/100,
     (CRASHRPT_VER%1000)%100);
@@ -54,10 +92,47 @@ int main()
     printf(" - %s : %s\n", siter->first.c_str(), siter->second.c_str());    
   }
 
-  printf("\nEnter which test suites to run (separate names by space) or enter '*' to run all test suites.\n");
+  printf("\nEnter which test suites to run (separate names by space) or enter empty line to run all test suites.\n");
   printf("Your choice > ");
   char szSuiteList[1024]="";
-  scanf("%s", &szSuiteList);
+  gets_s(szSuiteList, 1024);  
+
+  // Create list of test suites to run
+  std::string sSuiteList = szSuiteList;
+  std::vector<std::string> aTokens = explode(sSuiteList);
+  std::set<std::string> aTestSuitesToRun;
+  size_t i;
+  for(i=0; i<aTokens.size(); i++) 
+    aTestSuitesToRun.insert(aTokens[i]);
+  
+  // Determine how many tests to run
+  size_t nTestsToRun = 0;
+  if(aTestSuitesToRun.size()==0)
+  {
+    nTestsToRun = g_pTestList->size();
+  }
+  else
+  {    
+    std::map<std::string, PFNTEST>::iterator iter;
+    for(iter=g_pTestList->begin(); iter!=g_pTestList->end(); iter++)
+    {
+      std::string sName = iter->first;
+      size_t pos = sName.find(':');
+      std::string sTestSuite = sName.substr(0, pos);    
+      std::set<std::string>::iterator sit = 
+        aTestSuitesToRun.find(sTestSuite);
+      if(sit!=aTestSuitesToRun.end())
+      {
+        nTestsToRun++;        
+      }      
+    }
+  }
+  
+  if(nTestsToRun==0)
+  {
+    printf("\nNo tests selected, exiting.\n");
+    return 0;
+  }
 
   printf("\nRunning tests...\n");
 
@@ -66,9 +141,17 @@ int main()
   int n = 1;
   for(iter=g_pTestList->begin(); iter!=g_pTestList->end(); iter++)
   {
-    printf("Running test %d of %d : %s ...\n", n, g_pTestList->size(), iter->first.c_str());
-    n++;
-    iter->second();
+    std::string sName = iter->first;
+    size_t pos = sName.find(':');
+    std::string sTestSuite = sName.substr(0, pos);    
+    std::set<std::string>::iterator sit = 
+      aTestSuitesToRun.find(sTestSuite);
+    if(aTestSuitesToRun.size()==0 || sit!=aTestSuitesToRun.end())
+    {
+      printf("- %d/%d: %s ...\n", n, nTestsToRun, iter->first.c_str());
+      n++;
+      iter->second();
+    }          
   }
 
   printf("\n=== Summary ===\n\n");
@@ -83,9 +166,9 @@ int main()
     }
   }
 
-  printf("   Test count: %d\n", g_pTestList->size());
+  printf("\n   Test count: %d\n", nTestsToRun);
   size_t nErrorCount = g_pErrorList!=NULL?g_pErrorList->size():0;
-  printf(" Tests passed: %d\n", g_pTestList->size()-nErrorCount);
+  printf(" Tests passed: %d\n", nTestsToRun-nErrorCount);
   printf(" Tests failed: %d\n", nErrorCount);
 
   // Wait for key press

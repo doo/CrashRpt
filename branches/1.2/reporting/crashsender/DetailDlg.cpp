@@ -239,6 +239,7 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
   CString sText = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewText"));
   CString sHex = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewHex"));
   CString sImage = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("PreviewImage"));
+  CString sEncoding = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Encoding"));
 
   mii.dwTypeData = sAuto.GetBuffer(0);  
   submenu.SetMenuItemInfo(ID_PREVIEW_AUTO, FALSE, &mii);

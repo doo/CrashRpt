@@ -141,7 +141,7 @@ int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
   return 0;
 }
 
-int UnzipFile(unzFile hZip, const char* szFileName, const char* szOutFileName)
+int UnzipFile(unzFile hZip, const char* szFileName, const TCHAR* szOutFileName)
 {
   int status = -1;
   int zr=0;
@@ -159,9 +159,9 @@ int UnzipFile(unzFile hZip, const char* szFileName, const char* szOutFileName)
     goto cleanup;
 
 #if _MSC_VER>=1400
-  fopen_s(&f, szOutFileName, "wb");
+  _tfopen_s(&f, szOutFileName, _T("wb"));
 #else
-  f = fopen(szOutFileName, "wb");
+  f = _tfopen(szOutFileName, _T("wb"));
 #endif
 
   if(f==NULL)
@@ -240,7 +240,7 @@ crpOpenErrorReportW(
   }
 
   // Open ZIP archive
-  report_data.m_hZip = unzOpen(strconv.w2a(pszFileName));
+  report_data.m_hZip = unzOpen((const char*)pszFileName);
   if(report_data.m_hZip==NULL)
   {
     crpSetErrorMsg(_T("Error opening ZIP archive."));
@@ -248,11 +248,11 @@ crpOpenErrorReportW(
   }
 
   // Look for v1.1 crash description XML
-  xml_find_res = unzLocateFile(report_data.m_hZip, "crashrpt.xml", 1);
+  xml_find_res = unzLocateFile(report_data.m_hZip, (const char*)"crashrpt.xml", 1);
   zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szXmlFileName, 1024, NULL, 0, NULL, 0);
   
   // Look for v1.1 crash dump 
-  dmp_find_res = unzLocateFile(report_data.m_hZip, "crashdump.dmp", 1);
+  dmp_find_res = unzLocateFile(report_data.m_hZip, (const char*)"crashdump.dmp", 1);
   zr = unzGetCurrentFileInfo(report_data.m_hZip, NULL, szDmpFileName, 1024, NULL, 0, NULL, 0);
   
   // If xml and dmp still not found, assume it is v1.0
@@ -306,7 +306,7 @@ crpOpenErrorReportW(
   if(xml_find_res==UNZ_OK)
   {
     CString sTempFile = Utility::getTempFileName();
-    zr = UnzipFile(report_data.m_hZip, szXmlFileName, strconv.t2a(sTempFile));
+    zr = UnzipFile(report_data.m_hZip, szXmlFileName, sTempFile);
     if(zr!=0)
     {
       crpSetErrorMsg(_T("Error extracting ZIP item."));
@@ -327,7 +327,7 @@ crpOpenErrorReportW(
   if(dmp_find_res==UNZ_OK)
   {
     CString sTempFile = Utility::getTempFileName();
-    zr = UnzipFile(report_data.m_hZip, szDmpFileName, strconv.t2a(sTempFile));
+    zr = UnzipFile(report_data.m_hZip, szDmpFileName, sTempFile);
     if(zr!=0)
     {
       Utility::RecycleFile(sTempFile, TRUE);
@@ -1245,7 +1245,7 @@ crpExtractFileW(
     }
   }
 
-  zr = UnzipFile(hZip, strconv.w2a(lpszFileName), strconv.w2a(lpszFileSaveAs));
+  zr = UnzipFile(hZip, strconv.w2a(lpszFileName), strconv.w2t(lpszFileSaveAs));
   if(zr!=UNZ_OK)
   {
     crpSetErrorMsg(_T("Error extracting the specified zip item."));

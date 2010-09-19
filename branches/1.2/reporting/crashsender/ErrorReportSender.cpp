@@ -179,7 +179,12 @@ void CErrorReportSender::DoWorkAssync()
   if(m_Action&COMPRESS_REPORT)
   { 
     // Compress error report files
-    CompressReportFiles(g_CrashInfo.GetReport(m_nCurReport));
+    BOOL bCompress = CompressReportFiles(g_CrashInfo.GetReport(m_nCurReport));
+    if(!bCompress)
+    {
+      m_Assync.SetProgress(_T("[status_failed]"), 100, false);
+      return; // Error compressing files
+    }
   }
 
   if(m_Action&RESTART_APP)
@@ -363,6 +368,7 @@ BOOL CErrorReportSender::OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT Callb
 // This method creates minidump of the process
 BOOL CErrorReportSender::CreateMiniDump()
 { 
+  ATLASSERT(0);
   BOOL bStatus = FALSE;
   HMODULE hDbgHelp = NULL;
   HANDLE hFile = NULL;
@@ -1057,7 +1063,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
   
   lTotalSize = GetUncompressedReportSize(eri);
   
-  sMsg.Format(_T("Total file size for compression is %I64d"), lTotalSize);
+  sMsg.Format(_T("Total file size for compression is %I64d bytes"), lTotalSize);
   m_Assync.SetProgress(sMsg, 0, false);
 
   if(m_bExport)
@@ -1068,7 +1074,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
   sMsg.Format(_T("Creating ZIP archive file %s"), m_sZipName);
   m_Assync.SetProgress(sMsg, 1, false);
 
-  hZip = zipOpen(strconv.t2a(m_sZipName.GetBuffer(0)), APPEND_STATUS_CREATE);
+  hZip = zipOpen((const char*)m_sZipName.GetBuffer(0), APPEND_STATUS_CREATE);
   if(hZip==NULL)
   {
     m_Assync.SetProgress(_T("Failed to create ZIP file."), 100, true);
@@ -1113,7 +1119,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
     info.external_fa = FILE_ATTRIBUTE_NORMAL;
     info.internal_fa = FILE_ATTRIBUTE_NORMAL;
 
-    int n = zipOpenNewFileInZip( hZip, strconv.t2a(sDstFileName), &info,
+    int n = zipOpenNewFileInZip( hZip, (const char*)strconv.t2a(sDstFileName.GetBuffer(0)), &info,
               NULL, 0, NULL, 0, strconv.t2a(sDesc), Z_DEFLATED, Z_DEFAULT_COMPRESSION);
     if(n!=0)
     {
