@@ -118,6 +118,7 @@ public:
   BOOL        m_bHttpBinaryEncoding;  // Should we use binary transfer encoding (HTTP).
   BOOL        m_bSilentMode;          // Should we show GUI?
   BOOL        m_bSendErrorReport;     // Should we send error report now?
+  BOOL        m_bStoreZIPArchives;    // Should we store zipped error report files?
   BOOL        m_bSendRecentReports;   // Should we send recent reports now?
   BOOL        m_bAppRestart;          // Should we restart the application?
   CString     m_sRestartCmdLine;      // Command line for app restart.

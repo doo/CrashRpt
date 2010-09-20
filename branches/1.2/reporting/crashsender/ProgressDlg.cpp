@@ -235,6 +235,16 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
         m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CompressingFiles")));        
         m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
       }      
+      else if(messages[i].CompareNoCase(_T("[end_compressing_files]"))==0)
+      { 
+        if(!g_CrashInfo.m_bSendErrorReport && g_CrashInfo.m_bStoreZIPArchives)
+        {
+          m_ActionOnCancel = CLOSE_MYSELF;
+          m_ActionOnClose = CLOSE_MYSELF;
+          HWND hWndParent = ::GetParent(m_hWnd);        
+          ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
+        }
+      }
       else if(messages[i].CompareNoCase(_T("[status_success]"))==0)
       {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;        

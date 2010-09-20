@@ -126,6 +126,19 @@ int CCrashInfoReader::Init(CString sCrashInfoFileName)
     }
   }  
 
+  {
+    m_bStoreZIPArchives = FALSE;
+    TiXmlHandle hStoreZIPArchives = hRoot.FirstChild("StoreZIPArchives");
+    if(hStoreZIPArchives.FirstChild().ToText()!=NULL)
+    {      
+      const char* szStoreZIPArchives = hStoreZIPArchives.FirstChild().ToText()->Value();
+      if(szStoreZIPArchives!=NULL)
+      {
+        m_bStoreZIPArchives = atoi(szStoreZIPArchives);        
+      }
+    }
+  }  
+
 
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");

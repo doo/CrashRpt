@@ -315,28 +315,38 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
 {  
   if(!g_CrashInfo.m_bSilentMode) // If in GUI mode
   {
-    if(g_CrashInfo.m_bSendErrorReport)
+    if(g_CrashInfo.m_bSendErrorReport) // If we should send error report now
     {
+      // Show Error Report dialog
       LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize(g_CrashInfo.GetReport(0));  
       CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
       CString sSubHeader;
       sSubHeader.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SubHeaderText")), sTotalSize);
       m_statSubHeader.SetWindowText(sSubHeader);
       ShowWindow(SW_SHOW);
-    }
-    else
+    } 
+    else // If we shouldn't send error report now
     {
+      if(g_CrashInfo.m_bStoreZIPArchives) // If we should generate ZIP archive
+      {
+        // Compress error report files
+        g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
+      }
+
+      // Exit
       SendMessage(WM_CLOSE);
     }
   }
   else // If in silent mode
   {
-    if(g_CrashInfo.m_bSendErrorReport)
+    if(g_CrashInfo.m_bSendErrorReport) // If we should send error report now
     {
+      // Compress report files and send the report
       g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);    
     }
-    else
+    else // If we shouldn't send error report now
     {
+      // Exit
       SendMessage(WM_CLOSE);
     }
   }

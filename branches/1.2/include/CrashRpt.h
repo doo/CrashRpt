@@ -327,6 +327,7 @@ GenerateErrorReport(
 #define CR_INST_APP_RESTART                    0x10000 //!< Restart the application on crash.
 #define CR_INST_NO_MINIDUMP                    0x20000 //!< Do not include minidump file to crash report.
 #define CR_INST_SEND_QUEUED_REPORTS            0x40000 //!< CrashRpt should send error reports that are waiting to be delivered.
+#define CR_INST_STORE_ZIP_ARCHIVES             0x80000 //!< CrashRpt should store both uncompressed error report files and ZIP archives.
 
 /*! \ingroup CrashRptStructs
  *  \struct CR_INSTALL_INFOW()
@@ -412,7 +413,8 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
  *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report immediately on crash, just save it locally'. 
  *             Use this if you have direct access to the machine where crash happens and do not need 
- *             to send report over the Internet.
+ *             to send report over the Internet. You can use this in couple with \ref CR_INST_STORE_ZIP_ARCHIVES to store zipped error reports
+ *             along with uncompressed error report files.
  *    <tr><td> \ref CR_INST_APP_RESTART     
  *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
  *             for the application is taken from \a pszRestartCmdLine parameter. To avoid cyclic restarts of an application which crashes on startup, 
@@ -426,6 +428,11 @@ GenerateErrorReport(
  *             report files are by default stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
  *             If this is specified, CrashRpt checks if it's time to remind user about recent errors in the application and offers to send
  *             all queued error reports.
+ *
+ *    <tr><td> \ref CR_INST_STORE_ZIP_ARCHIVES     
+ *        <td> <b>Available since v.1.2.7</b> This parameter can be used in couple with CR_INST_DONT_SEND_REPORT to store not only uncompressed
+ *             error report files, but also ZIP archives. By default (if this flag omitted) CrashRpt stores all error report files
+ *             in uncompressed state.
  *
  *   </table>
  *

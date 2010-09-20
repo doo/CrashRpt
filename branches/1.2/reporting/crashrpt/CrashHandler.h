@@ -247,6 +247,7 @@ public:
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
   BOOL m_bSendErrorReport;       // Should we send error report or just save it  
+  BOOL m_bStoreZIPArchives;      // Store compressed error report files as ZIP archives?
   CString m_sLangFileName;       // Language file to use.
   SYSTEMTIME m_AppStartTime;     // The time this application was started.
   CString m_sCrashTime;          // Crash time in UTC format

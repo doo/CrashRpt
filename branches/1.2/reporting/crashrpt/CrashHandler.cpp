@@ -77,6 +77,7 @@ CCrashHandler::CCrashHandler()
   m_bSilentMode = FALSE;
   m_bHttpBinaryEncoding = FALSE;
   m_bSendErrorReport = TRUE;
+  m_bStoreZIPArchives = FALSE;
   memset(&m_AppStartTime, 0, sizeof(SYSTEMTIME));
   m_bOSIs64Bit = FALSE;
   m_dwGuiResources = 0;
@@ -170,6 +171,17 @@ int CCrashHandler::Init(
   m_bHttpBinaryEncoding = (dwFlags&CR_INST_HTTP_BINARY_ENCODING)?TRUE:FALSE;
 
   m_bSendErrorReport = (dwFlags&CR_INST_DONT_SEND_REPORT)?FALSE:TRUE;
+
+  // If this is TRUE, ZIP archives will be also stored along with uncompressed
+  // files. 
+  m_bStoreZIPArchives = (dwFlags&CR_INST_STORE_ZIP_ARCHIVES)?TRUE:FALSE;
+
+  // Check that we store ZIP archives only when error reports are not being sent.
+  if(m_bSendErrorReport && m_bStoreZIPArchives)
+  {
+    crSetErrorMsg(_T("The flag CR_INST_STORE_ZIP_ARCHIVES should be used with CR_INST_DONT_SEND_REPORT flag."));
+    return 1;
+  }
 
   /*if(!m_bSilentMode && !m_bSendErrorReport)
   {    
@@ -1427,6 +1439,9 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName,
 
   // Add SendErrorReport tag
   fprintf(f, "  <SendErrorReport>%d</SendErrorReport>\n", m_bSendErrorReport);
+
+  // Add StoreZIPArchives tag
+  fprintf(f, "  <StoreZIPArchives>%d</StoreZIPArchives>\n", m_bStoreZIPArchives);
 
   // Add AppRestart tag
   fprintf(f, "  <AppRestart>%d</AppRestart>\n", m_bAppRestart);
