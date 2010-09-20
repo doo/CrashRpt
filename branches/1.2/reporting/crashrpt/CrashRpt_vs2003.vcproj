@@ -68,14 +68,14 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="Release"
 			ConfigurationType="2"
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\zlib\src;..\..\tinyxml;..\..\libpng\src;..\..\wtl"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\zlib;..\..\thirdparty\tinyxml;..\..\thirdparty\libpng;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
@@ -88,15 +88,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Rpcrt4.lib comsuppw.lib dbghelp.lib version.lib libpng.lib psapi.lib"
-				OutputFile="..\..\bin\CrashRpt.dll"
+				OutputFile="$(OutDir)\CrashRpt.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib"
 				ModuleDefinitionFile="CrashRpt.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="..\..\lib\CrashRpt.lib"
+				ImportLibrary="$(OutDir)\lib\CrashRpt.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -108,7 +108,7 @@
 				Name="VCPreLinkEventTool"/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\wtl"/>
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool

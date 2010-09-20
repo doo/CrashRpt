@@ -11,7 +11,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -37,9 +37,11 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="..\..\bin\crashcon.exe"
+				AdditionalDependencies="CrashRpt.lib"
+				OutputFile="$(OutDir)\crashcon.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="FALSE"
 				ProgramDatabaseFile=""
 				SubSystem="1"
@@ -51,7 +53,7 @@
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 
 "/>
 			<Tool
@@ -119,7 +121,7 @@
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 
 "/>
 			<Tool

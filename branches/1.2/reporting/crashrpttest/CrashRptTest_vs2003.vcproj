@@ -80,14 +80,14 @@ copy dummy.ini ..\..\bin
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="Release"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\wtl"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"
@@ -100,7 +100,7 @@ copy dummy.ini ..\..\bin
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRpt.lib"
-				OutputFile="..\..\bin\CrashRptTest.exe"
+				OutputFile="$(OutDir)\bin\CrashRptTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib"
 				SubSystem="2"
@@ -118,7 +118,7 @@ copy dummy.ini ..\..\bin
 				ProxyFileName="CrashRptTest_p.c"/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 copy dummy.log ..\..\bin
 copy dummy.ini ..\..\bin
 "/>
@@ -130,7 +130,7 @@ copy dummy.ini ..\..\bin
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\wtl"/>
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool

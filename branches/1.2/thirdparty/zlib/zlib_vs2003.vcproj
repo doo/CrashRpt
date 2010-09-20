@@ -55,7 +55,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)thirdparty\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
@@ -73,7 +73,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\zlib.lib"/>
+				OutputFile="$(OutDir)\zlib.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

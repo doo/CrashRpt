@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRptd.lib CrashRptProbed.lib Rpcrt4.lib version.lib zlibd.lib minizipd.lib libpngd.lib  psapi.lib Wininet.lib"
+				AdditionalDependencies="CrashRptd.lib CrashRptProbed.lib Rpcrt4.lib version.lib zlibd.lib minizipd.lib libpngd.lib  psapi.lib Wininet.lib Dnsapi.lib WS2_32.lib"
 				OutputFile="..\bin\Testsd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\lib;..\thirdparty\lib"
@@ -70,7 +70,7 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\include;..\crashrpt\src;..\wtl"
+				AdditionalIncludeDirectories="..\include;..\reporting\crashrpt;..\thirdparty\wtl;..\reporting\crashsender;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\tinyxml;..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="3"
@@ -81,7 +81,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRpt.lib Rpcrt4.lib version.lib"
+				AdditionalDependencies="CrashRpt.lib Rpcrt4.lib version.lib WS2_32.lib wininet.lib Dnsapi.lib psapi.lib"
 				OutputFile="..\bin\Tests.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\lib"
@@ -150,6 +150,12 @@
 				</File>
 				<File
 					RelativePath="..\reporting\crashsender\base64.cpp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\reporting\crashrpt\CrashHandler.cpp">
@@ -171,6 +177,12 @@
 				</File>
 				<File
 					RelativePath="..\reporting\crashsender\md5.cpp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\reporting\crashsender\ScreenCap.cpp">
@@ -180,15 +192,39 @@
 				</File>
 				<File
 					RelativePath="..\thirdparty\tinyxml\tinystr.cpp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\thirdparty\tinyxml\tinyxml.cpp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\thirdparty\tinyxml\tinyxmlerror.cpp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\thirdparty\tinyxml\tinyxmlparser.cpp">
+					<FileConfiguration
+						Name="Release|Win32">
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\reporting\crashrpt\Utility.cpp">
