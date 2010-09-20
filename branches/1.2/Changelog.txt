@@ -2,8 +2,45 @@
 
 --- Ver. 1.2.6 ---
 
+- Added Tests project that implements automated tests for CrashRpt and 
+  CrashRptProbe functionality. 
+
 - Reorganized directory structure to better reflect architecture.
-- 
+
+- Updated tinyxml, minizip and zlib files to the latest available versions.
+
+- Refactored scripts/postprocess.bat. It now better groups similar error reports.
+
+- New tag GeoLocation - user's geographic location like 'en-us' is now recorded inside of
+  crash description XML.
+
+- New tag OSIs64Bit - detects if user's OS is 64-bit and records this inside of
+  crash description XML.
+
+- New columns CRP_COL_OS_IS_64BIT and CRP_COL_GEO_LOCATION for CRP_TBL_XMLDESC_MISC table.
+
+- New column CRP_COL_EXCEPTION_THREAD_STACK_MD5 for CRP_TBL_MDMP_MISC table.
+
+- Fixed issue with Chineese symbols in app name (issue 54). 
+
+- Improved CFilePreviewCtrl to support UTF-8 and UTF-16 encoding (issue 56).
+
+- Using critical section to avoid access to CCrashHandler from several crashed threads (issue 52).
+
+- Fixed: Leaving pszRestartCmdLine NULL, gives new application instance blank first argument (issue 50).
+
+- Fixed incorrect argument order in crAddRegKeyA (issue 49).
+
+- Added new flag CR_INST_STORE_ZIP_ARCHIVES that allows to store ZIP archives along with uncompressed
+  error report files (issue 53).
+
+- Fixed: Version info caused crash (issue 48).
+
+- Improved documentation (section Architecture Overview).
+
+- Improved documentation (section Using Crash Minidump) (issue 45).
+
+- Fixed DNS access problem for SMTP proxy (issue 51).
 
 --- Ver. 1.2.6 ---
 
