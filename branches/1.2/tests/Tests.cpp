@@ -95,7 +95,11 @@ int main()
   printf("\nEnter which test suites to run (separate names by space) or enter empty line to run all test suites.\n");
   printf("Your choice > ");
   char szSuiteList[1024]="";
+#if _MSC_VER>=1400
   gets_s(szSuiteList, 1024);  
+#else
+  gets(szSuiteList);  
+#endif
 
   // Create list of test suites to run
   std::string sSuiteList = szSuiteList;

@@ -44,6 +44,7 @@
 #include "ScreenCap.h"
 #include "base64.h"
 #include <sys/stat.h>
+#include "dbghelp.h"
 
 // Globally accessible object
 CErrorReportSender g_ErrorReportSender;

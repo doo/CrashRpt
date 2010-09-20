@@ -47,7 +47,7 @@
 #include <ws2tcpip.h>
 
 #include <atldef.h>
-#if ( _ATL_VER < 0x0800 )
+#if ( _ATL_VER < 0x0710 )
 #define _WTL_SUPPORT_SDK_ATL3 // Support of VC++ Express 2005 and ATL 3.0
 #endif
 

@@ -1680,8 +1680,6 @@ void __cdecl CCrashHandler::SecurityHandler(int code, void *x)
 {
   // Security error (buffer overrun).
 
-  ATLASSERT(m_nCrashCounter==0); 
-
   code;
   x;
   

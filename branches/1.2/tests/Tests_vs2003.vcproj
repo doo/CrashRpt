@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;..\crashrpt\src;..\wtl"
+				AdditionalIncludeDirectories="..\include;..\reporting\crashsender;..\reporting\crashrpt;..\thirdparty\tinyxml;..\thirdparty\wtl;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,10 +33,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRptd.lib Rpcrt4.lib version.lib"
+				AdditionalDependencies="CrashRptd.lib CrashRptProbed.lib Rpcrt4.lib version.lib zlibd.lib minizipd.lib libpngd.lib  psapi.lib Wininet.lib"
 				OutputFile="..\bin\Testsd.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\lib"
+				AdditionalLibraryDirectories="..\lib;..\thirdparty\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				TargetMachine="1"/>
@@ -123,6 +123,9 @@
 				RelativePath=".\CrashRptAPITests.cpp">
 			</File>
 			<File
+				RelativePath=".\CrashRptProbeAPITests.cpp">
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -143,7 +146,52 @@
 			<Filter
 				Name="Testable">
 				<File
-					RelativePath="..\crashrpt\src\Utility.cpp">
+					RelativePath="..\reporting\crashsender\AssyncNotification.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\base64.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashrpt\CrashHandler.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\CrashInfoReader.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashrpt\CrashRpt.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\ErrorReportSender.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\HttpRequestSender.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\MailMsg.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\md5.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\ScreenCap.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashsender\smtpclient.cpp">
+				</File>
+				<File
+					RelativePath="..\thirdparty\tinyxml\tinystr.cpp">
+				</File>
+				<File
+					RelativePath="..\thirdparty\tinyxml\tinyxml.cpp">
+				</File>
+				<File
+					RelativePath="..\thirdparty\tinyxml\tinyxmlerror.cpp">
+				</File>
+				<File
+					RelativePath="..\thirdparty\tinyxml\tinyxmlparser.cpp">
+				</File>
+				<File
+					RelativePath="..\reporting\crashrpt\Utility.cpp">
 				</File>
 			</Filter>
 		</Filter>
@@ -157,12 +205,6 @@
 			<File
 				RelativePath=".\Tests.h">
 			</File>
-			<Filter
-				Name="Testable">
-				<File
-					RelativePath="..\crashrpt\src\Utility.h">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

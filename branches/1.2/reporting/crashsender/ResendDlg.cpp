@@ -39,6 +39,7 @@
 #include "strconv.h"
 #include "DetailDlg.h"
 #include "ErrorReportSender.h"
+#include "shellapi.h"
 
 LRESULT CActionProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   

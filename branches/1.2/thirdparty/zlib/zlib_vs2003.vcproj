@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)thirdparty\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1">
@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\zlibd.lib"/>
+				OutputFile="$(OutDir)\zlibd.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -153,7 +153,10 @@
 				RelativePath=".\deflate.c">
 			</File>
 			<File
-				RelativePath=".\gzio.c">
+				RelativePath=".\gzread.c">
+			</File>
+			<File
+				RelativePath=".\gzwrite.c">
 			</File>
 			<File
 				RelativePath=".\infback.c">
