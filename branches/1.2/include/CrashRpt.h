@@ -349,7 +349,7 @@ GenerateErrorReport(
  *       "name@example.com". If this equals to NULL, the crash report won't be sent using E-mail client.
  *       Keep this NULL if you plan to use large error reports (more than several MB in size), because
  *       large emails may be rejected by the mail server.
- *       To define a custom port for SMTP connection, use the following address format: "http://user@example.com:port",
+ *       To define a custom port for SMTP connection, use the following address format: "user@example.com:port",
  *       where \a port is the placeholder for the port number. 
  *
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
