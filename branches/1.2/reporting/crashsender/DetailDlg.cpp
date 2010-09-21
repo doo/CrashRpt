@@ -192,6 +192,7 @@ void CDetailDlg::SelectItem(int iItem)
   for (int i = 0; i < iItem; i++, p++);
 
   m_previewMode = PREVIEW_AUTO;
+  m_textEncoding = ENC_AUTO;
   m_filePreview.SetFile(p->second.m_sSrcFile, m_previewMode);
 }
 
@@ -263,6 +264,33 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
 
   submenu.CheckMenuRadioItem(ID_PREVIEW_AUTO, ID_PREVIEW_IMAGE, uItem, MF_BYCOMMAND); 
 
+  if(m_filePreview.GetPreviewMode()!=PREVIEW_TEXT)
+  {
+    submenu.DeleteMenu(5, MF_BYPOSITION);
+    submenu.DeleteMenu(4, MF_BYPOSITION);
+  }
+  else
+  {
+    CMenuHandle TextEncMenu = submenu.GetSubMenu(5);
+    mii.dwTypeData = sEncoding.GetBuffer(0);
+    submenu.SetMenuItemInfo(5, TRUE, &mii);
+
+    
+    UINT uItem = ID_ENCODING_AUTO;
+    if(m_textEncoding==ENC_AUTO)
+      uItem = ID_ENCODING_AUTO;
+    else if(m_textEncoding==ENC_ASCII)
+      uItem = ID_ENCODING_ASCII;
+    else if(m_textEncoding==ENC_UTF8)
+      uItem = ID_ENCODING_UTF8;
+    else if(m_textEncoding==ENC_UTF16_LE)
+      uItem = ID_ENCODING_UTF16;
+    else if(m_textEncoding==ENC_UTF16_BE)
+      uItem = ID_ENCODING_UTF16BE;
+    
+    TextEncMenu.CheckMenuRadioItem(ID_ENCODING_AUTO, ID_ENCODING_UTF16BE, uItem, MF_BYCOMMAND); 
+  }
+
   submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);
 
   return 0;
@@ -278,6 +306,25 @@ LRESULT CDetailDlg::OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*
   else if(wID==ID_PREVIEW_IMAGE)
     mode = PREVIEW_IMAGE;
   m_previewMode = mode;
+  m_textEncoding = ENC_AUTO;
   m_filePreview.SetPreviewMode(mode);
+  return 0;
+}
+
+LRESULT CDetailDlg::OnTextEncodingChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  TextEncoding enc = ENC_AUTO;
+  if(wID==ID_ENCODING_AUTO)
+    enc = ENC_AUTO; 
+  else if(wID==ID_ENCODING_ASCII)
+    enc = ENC_ASCII; 
+  else if(wID==ID_ENCODING_UTF8)
+    enc = ENC_UTF8; 
+  else if(wID==ID_ENCODING_UTF16)
+    enc = ENC_UTF16_LE; 
+  else if(wID==ID_ENCODING_UTF16BE)
+    enc = ENC_UTF16_BE; 
+  m_textEncoding = enc;
+  m_filePreview.SetTextEncoding(enc);
   return 0;
 }

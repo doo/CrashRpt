@@ -513,6 +513,7 @@ CFilePreviewCtrl::CFilePreviewCtrl()
   m_bCancelled = FALSE;
   m_PreviewMode = PREVIEW_HEX;
   m_TextEncoding = ENC_ASCII;
+  m_nEncSignatureLen = 0;
 }
 
 CFilePreviewCtrl::~CFilePreviewCtrl()
@@ -604,9 +605,16 @@ BOOL CFilePreviewCtrl::SetFile(LPCTSTR szFileName, PreviewMode mode, TextEncodin
   else if(m_PreviewMode==PREVIEW_TEXT)
   {       
     if(enc==ENC_AUTO)
-      m_TextEncoding = DetectTextEncoding(m_sFileName);
+      m_TextEncoding = DetectTextEncoding(m_sFileName, m_nEncSignatureLen);
     else
+    {
       m_TextEncoding = enc;
+      // Determine the length of the signature.
+      int nSignatureLen = 0;
+      TextEncoding enc2 = DetectTextEncoding(m_sFileName, nSignatureLen);
+      if(enc==enc2)
+        m_nEncSignatureLen = nSignatureLen;
+    }
 
     m_bCancelled = FALSE;
     m_hWorkerThread = CreateThread(NULL, 0, WorkerThread, this, 0, NULL);
@@ -634,6 +642,16 @@ PreviewMode CFilePreviewCtrl::GetPreviewMode()
 void CFilePreviewCtrl::SetPreviewMode(PreviewMode mode)
 {
   SetFile(m_sFileName, mode);
+}
+
+TextEncoding CFilePreviewCtrl::GetTextEncoding()
+{
+  return m_TextEncoding;
+}
+
+void CFilePreviewCtrl::SetTextEncoding(TextEncoding enc)
+{
+  SetFile(m_sFileName, m_PreviewMode, enc);
 }
 
 PreviewMode CFilePreviewCtrl::DetectPreviewMode(LPCTSTR szFileName)
@@ -683,9 +701,10 @@ cleanup:
   return mode;
 }
 
-TextEncoding CFilePreviewCtrl::DetectTextEncoding(LPCTSTR szFileName)
+TextEncoding CFilePreviewCtrl::DetectTextEncoding(LPCTSTR szFileName, int& nSignatureLen)
 {
   TextEncoding enc = ENC_ASCII;
+  nSignatureLen = 0;
   
   FILE* f = NULL;
 
@@ -698,22 +717,53 @@ TextEncoding CFilePreviewCtrl::DetectTextEncoding(LPCTSTR szFileName)
   if(f==NULL)
     goto cleanup;   
 
-  BYTE signature[3];
-  size_t nRead = fread(signature, 1, 3, f);
+  BYTE signature2[2];
+  size_t nRead = fread(signature2, 1, 2, f);
+  if(nRead!=2)
+    goto cleanup;
+
+  // Compare with UTF-16 LE signature
+  if(signature2[0]==0xFF && 
+    signature2[1]==0xFE 
+    )
+  {
+    enc = ENC_UTF16_LE;
+    nSignatureLen = 2;
+    goto cleanup;
+  }
+
+  // Compare with UTF-16 BE signature
+  if(signature2[0]==0xFE && 
+    signature2[1]==0xFF 
+    )
+  {
+    enc = ENC_UTF16_BE;
+    nSignatureLen = 2;
+    goto cleanup;
+  }
+
+  rewind(f);
+
+  BYTE signature3[3];
+  nRead = fread(signature3, 1, 3, f);
   if(nRead!=3)
     goto cleanup;
 
   // Compare with UTF-8 signature
-  if(signature[0]==0xEF && 
-    signature[1]==0xBB && 
-    signature[2]==0xBF 
+  if(signature3[0]==0xEF && 
+    signature3[1]==0xBB && 
+    signature3[2]==0xBF 
     )
   {
     enc = ENC_UTF8;
+    nSignatureLen = 3;
+    goto cleanup;
   }
 
 cleanup:
-  
+
+  fclose(f);
+
   return enc;
 }
 
@@ -732,6 +782,11 @@ void CFilePreviewCtrl::DoInWorkerThread()
     LoadBitmap();
 }
 
+WCHAR swap_bytes(WCHAR src_char)
+{
+  return (WCHAR)MAKEWORD((src_char>>8), (src_char&0xFF));
+}
+
 void CFilePreviewCtrl::ParseText()
 {
   DWORD dwFileSize = (DWORD)m_fm.GetSize();
@@ -742,16 +797,17 @@ void CFilePreviewCtrl::ParseText()
   if(dwFileSize!=0)
   {
       CAutoLock lock(&m_csLock);
-      if(m_PreviewMode==PREVIEW_TEXT && m_TextEncoding==ENC_UTF8)
-      {
-        // Skip UTF-8 signature
-        dwOffset+=3;
-        m_aTextLines.push_back(3);
+      if(m_PreviewMode==PREVIEW_TEXT)
+      { 
+        dwOffset+=m_nEncSignatureLen;
+        m_aTextLines.push_back(dwOffset);
       }
       else
       {
         m_aTextLines.push_back(0);
       }
+
+      m_uNumLines++;
   }
 
   for(;;)
@@ -772,7 +828,7 @@ void CFilePreviewCtrl::ParseText()
     LPBYTE ptr = m_fm.CreateView(dwOffset, dwLength);
 
     UINT i;
-    for(i=0; i<dwLength; i++)
+    for(i=0; i<dwLength; )
     {
       {
         CAutoLock lock(&m_csLock);        
@@ -780,24 +836,55 @@ void CFilePreviewCtrl::ParseText()
           break;
       }
 
-      char c = ((char*)ptr)[i];
-
-      if(c=='\t')
+      if(m_TextEncoding==ENC_UTF16_LE || m_TextEncoding==ENC_UTF16_BE)
       {
-        nTabs++;
+        WCHAR src_char = ((WCHAR*)ptr)[i/2];
+
+        WCHAR c = m_TextEncoding==ENC_UTF16_LE?src_char:swap_bytes(src_char);
+
+        if(c=='\t')
+        {
+          nTabs++;
+        }
+        else if(c=='\n')
+        {
+          CAutoLock lock(&m_csLock);        
+          m_aTextLines.push_back(dwOffset+i+2);
+          int cchLineLength = dwOffset+i+2-dwPrevOffset;
+          if(nTabs!=0)
+            cchLineLength += nTabs*(m_cchTabLength-1);
+
+          m_nMaxDisplayWidth = max(m_nMaxDisplayWidth, cchLineLength);
+          m_uNumLines++;
+          dwPrevOffset = dwOffset+i+2;        
+          nTabs = 0;
+        }
+
+        i+=2;
       }
-      else if(c=='\n')
+      else
       {
-        CAutoLock lock(&m_csLock);        
-        m_aTextLines.push_back(dwOffset+i+1);
-        int cchLineLength = dwOffset+i+1-dwPrevOffset;
-        if(nTabs!=0)
-          cchLineLength += nTabs*(m_cchTabLength-1);
+        char c = ((char*)ptr)[i];      
 
-        m_nMaxDisplayWidth = max(m_nMaxDisplayWidth, cchLineLength);
-        m_uNumLines++;
-        dwPrevOffset = dwOffset+i+1;        
-        nTabs = 0;
+        if(c=='\t')
+        {
+          nTabs++;
+        }
+        else if(c=='\n')
+        {
+          CAutoLock lock(&m_csLock);        
+          m_aTextLines.push_back(dwOffset+i+1);
+          int cchLineLength = dwOffset+i+1-dwPrevOffset;
+          if(nTabs!=0)
+            cchLineLength += nTabs*(m_cchTabLength-1);
+
+          m_nMaxDisplayWidth = max(m_nMaxDisplayWidth, cchLineLength);
+          m_uNumLines++;
+          dwPrevOffset = dwOffset+i+1;        
+          nTabs = 0;
+        }
+
+        i++;
       }
     }
 
@@ -977,7 +1064,19 @@ void CFilePreviewCtrl::DrawTextLine(HDC hdc, DWORD nLineNo)
     LPCWSTR szLine = strconv.utf82w((char*)ptr, dwLength-1);
     DrawTextExW(hdc, (LPWSTR)szLine, -1,  &rcText, dwFlags, &params);
   }
-  else
+  else if(m_TextEncoding==ENC_UTF16_LE)
+  {
+    DrawTextExW(hdc, (WCHAR*)ptr, dwLength/2-1,  &rcText, 
+      dwFlags, &params);   
+  }
+  else if(m_TextEncoding==ENC_UTF16_BE)
+  {
+    // Decode line
+    strconv_t strconv;
+    LPCWSTR szLine = strconv.w2w_be((WCHAR*)ptr, dwLength/2-1);
+    DrawTextExW(hdc, (LPWSTR)szLine, -1,  &rcText, dwFlags, &params);
+  }
+  else // ASCII
   {
     DrawTextExA(hdc, (char*)ptr, dwLength-1,  &rcText, 
       dwFlags, &params);
@@ -1016,11 +1115,10 @@ void CFilePreviewCtrl::DoPaintText(HDC hDC)
 
 	int iPaintBeg = max(0, m_nVScrollPos);			//only update the lines that 
 	int iPaintEnd = (int)min(m_uNumLines, m_nVScrollPos + rcClient.bottom / m_yChar);		//need updating!!!!!!!!!!!!!
-	
-  
+	  
 	if(rcClient.bottom % m_yChar) iPaintEnd++;
-	if(iPaintEnd > m_uNumLines) iPaintEnd--;
-	
+	if(iPaintEnd > m_uNumLines) iPaintEnd--;	
+
 	//
 	//	Only paint what needs to be!
 	//
@@ -1304,7 +1402,7 @@ LRESULT CFilePreviewCtrl::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lP
     return 0;
 
   int nDistance =  GET_WHEEL_DELTA_WPARAM(wParam)/WHEEL_DELTA;
-  int nLinesPerDelta = m_nVScrollMax/m_nMaxLinesPerPage;
+  int nLinesPerDelta = m_nMaxLinesPerPage!=0?m_nVScrollMax/m_nMaxLinesPerPage:0;
 
   SCROLLINFO info;
   memset(&info, 0, sizeof(SCROLLINFO));

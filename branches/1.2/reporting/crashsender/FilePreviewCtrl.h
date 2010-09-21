@@ -50,7 +50,9 @@ enum TextEncoding
 {
   ENC_AUTO = -1, // Auto
   ENC_ASCII = 0, // ASCII
-  ENC_UTF8  = 1  // UTF-8
+  ENC_UTF8  = 1, // UTF-8
+  ENC_UTF16_LE = 2, // UTF-16 little endian
+  ENC_UTF16_BE = 3  // UTF-16 big endian
 };
 
 // Used to map file contents into memory
@@ -153,12 +155,14 @@ public:
   BOOL SetFile(LPCTSTR szFileName, PreviewMode mode=PREVIEW_AUTO, TextEncoding enc = ENC_AUTO);
   PreviewMode GetPreviewMode();
   void SetPreviewMode(PreviewMode mode);
+  TextEncoding GetTextEncoding();
+  void SetTextEncoding(TextEncoding enc);
   void SetEmptyMessage(CString sText);
   BOOL SetBytesPerLine(int nBytesPerLine);
 
   PreviewMode DetectPreviewMode(LPCTSTR szFileName);
-  TextEncoding DetectTextEncoding(LPCTSTR szFileName);
-
+  TextEncoding DetectTextEncoding(LPCTSTR szFileName, int& nSignatureLen);
+  
   LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
   LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 	LRESULT OnPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -185,29 +189,30 @@ public:
   void ParseText();
   void LoadBitmap();
     
-  CString m_sFileName;
-  PreviewMode m_PreviewMode;
-  TextEncoding m_TextEncoding;
-  CCritSec m_csLock;
-  CFileMemoryMapping m_fm;  // File mapping object.  
-  HFONT m_hFont;            // Font in use.  
-  int m_xChar;              // Size of character in x direction.
-  int m_yChar;              // Size of character in y direction.
-  int m_nMaxColsPerPage;    // Maximum columns per page.
-  int m_nMaxLinesPerPage;   // Maximum count of lines per one page.
+  CString m_sFileName;         // File name.
+  PreviewMode m_PreviewMode;   // File preview mode.
+  TextEncoding m_TextEncoding; // Text encoding (if in text preview mode).
+  int m_nEncSignatureLen;      // Length of the text encoding signature. 
+  CCritSec m_csLock;           // Sync object.
+  CFileMemoryMapping m_fm;     // File mapping object.  
+  HFONT m_hFont;               // Font in use.  
+  int m_xChar;                 // Size of character in x direction.
+  int m_yChar;                 // Size of character in y direction.
+  int m_nMaxColsPerPage;       // Maximum columns per page.
+  int m_nMaxLinesPerPage;      // Maximum count of lines per one page.
 	int m_nMaxDisplayWidth;   
-	ULONG64 m_uNumLines;      // Number of lines in the file.	
-  int m_nBytesPerLine;      // Count of displayed bytes per line.
+	ULONG64 m_uNumLines;         // Number of lines in the file.	
+  int m_nBytesPerLine;         // Count of displayed bytes per line.
   int m_cchTabLength;
-  CString m_sEmptyMsg;      // Text to display when file is empty
-  int m_nHScrollPos;        // Horizontal scroll position.
-	int m_nHScrollMax;        // Max horizontal scroll position.
-	int m_nVScrollPos;        // Vertical scrolling position.
-	int m_nVScrollMax;        // Maximum vertical scrolling position.  
+  CString m_sEmptyMsg;         // Text to display when file is empty
+  int m_nHScrollPos;           // Horizontal scroll position.
+	int m_nHScrollMax;           // Max horizontal scroll position.
+	int m_nVScrollPos;           // Vertical scrolling position.
+	int m_nVScrollMax;           // Maximum vertical scrolling position.  
   std::vector<DWORD> m_aTextLines; // The array of lines of text file.
-  HANDLE m_hWorkerThread;   // Handle to the worker thread.
-  BOOL m_bCancelled;        // Is worker thread cancelled?
-  CImage m_bmp;          // Stores the bitmap
+  HANDLE m_hWorkerThread;      // Handle to the worker thread.
+  BOOL m_bCancelled;           // Is worker thread cancelled?
+  CImage m_bmp;                // Stores the bitmap.
 };
 
 

@@ -95,6 +95,26 @@ public:
     return (LPCSTR)pBuffer;
   }
 
+  // Converts UNICODE little endian string to UNICODE big endian 
+  LPCWSTR w2w_be(LPCWSTR lpsz, UINT cch)
+  {
+    if(lpsz==NULL)
+      return NULL;
+    
+    WCHAR* pBuffer = new WCHAR[cch+1];    
+    UINT i;
+    for(i=0; i<cch; i++)
+    {
+      // Swap bytes
+      pBuffer[i] = (WCHAR)MAKEWORD((lpsz[i]>>8), (lpsz[i]&0xFF));
+    }
+
+    pBuffer[cch] = 0; // Zero terminator
+
+    m_ConvertedStrings.push_back((void*)pBuffer);
+    return (LPCWSTR)pBuffer;
+  }
+
   LPCSTR a2utf8(LPCSTR lpsz)
   {
     if(lpsz==NULL)

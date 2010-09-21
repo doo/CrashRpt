@@ -52,6 +52,7 @@ public:
   CStatic m_statPreview;
   CFilePreviewCtrl m_filePreview;
   PreviewMode m_previewMode;
+  TextEncoding m_textEncoding;
   int m_nCurReport;
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)    
@@ -70,6 +71,7 @@ public:
     COMMAND_ID_HANDLER(IDCANCEL, OnOK)
     COMMAND_ID_HANDLER(IDC_EXPORT, OnExport)
     COMMAND_RANGE_HANDLER(ID_PREVIEW_AUTO, ID_PREVIEW_IMAGE, OnPreviewModeChanged)
+    COMMAND_RANGE_HANDLER(ID_ENCODING_AUTO, ID_ENCODING_UTF16BE, OnTextEncodingChanged)
     NOTIFY_HANDLER(IDC_PREVIEW, NM_RCLICK, OnPreviewRClick)
 
     CHAIN_MSG_MAP(CDialogResize<CDetailDlg>)
@@ -85,6 +87,7 @@ public:
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnExport(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnPreviewModeChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
+  LRESULT OnTextEncodingChanged(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
   LRESULT OnItemDblClicked(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
   LRESULT OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);

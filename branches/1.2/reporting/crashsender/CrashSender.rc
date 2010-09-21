@@ -46,6 +46,7 @@ BEGIN
             MENUITEM "ASCII",                       ID_ENCODING_ASCII
             MENUITEM "UTF-8",                       ID_ENCODING_UTF8
             MENUITEM "UTF-16",                      ID_ENCODING_UTF16
+            MENUITEM "UTF-16BE",                    ID_ENCODING_UTF16BE
         END
     END
     POPUP "menu3"

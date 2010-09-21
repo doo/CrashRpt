@@ -121,7 +121,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\include;..\thirdparty\wtl;..\reporting\crashrpt;..\reporting\CrashSender;..\thirdparty\tinyxml;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
