@@ -23,7 +23,8 @@
 
 - Fixed issue with Chineese symbols in app name (issue 54). 
 
-- Improved CFilePreviewCtrl to support UTF-8 and UTF-16 encoding (issue 56).
+- Improved CFilePreviewCtrl to support UTF-8 and UTF-16 encoding (issue 56). Also improved
+  WM_MOUSEWHEEL message handling (scrolling preview by mouse wheel).
 
 - Using critical section to avoid access to CCrashHandler from several crashed threads (issue 52).
 
