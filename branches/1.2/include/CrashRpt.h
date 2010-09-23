@@ -365,13 +365,12 @@ GenerateErrorReport(
  *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *       The crash sender process is responsible for letting end user know about the crash and 
  *       sending the error report.
- *       This parameter can be NULL. If NULL, it is assumed that CrashRpt.exe is located in
+ *       If this is NULL, it is assumed that CrashSender.exe is located in
  *       the same directory as CrashRpt.dll.
  *
  *    \a pfnCrashCallback is a pointer to the LPGETLOGFILE() crash callback function. The crash callback function is
- *         called by CrashRpt when crash occurs and allows user to add custom files to the 
- *         error report or perform other actions. This parameter can be NULL.
- *         If NULL, crash callback is not called.
+ *         called by CrashRpt when crash occurs and allows user to be notified.
+ *         If this is NULL, crash callback is not called.
  *
  *    \a uPriorities is an array that defines the preferred ways of sending error reports. 
  *         The available ways are: HTTP connection, SMTP connection or simple MAPI (default mail client).
@@ -413,7 +412,7 @@ GenerateErrorReport(
  *    <tr><td> \ref CR_INST_DONT_SEND_REPORT     
  *        <td> <b>Available since v.1.2.2</b> This parameter means 'do not send error report immediately on crash, just save it locally'. 
  *             Use this if you have direct access to the machine where crash happens and do not need 
- *             to send report over the Internet. You can use this in couple with \ref CR_INST_STORE_ZIP_ARCHIVES to store zipped error reports
+ *             to send report over the Internet. You can use this in couple with \ref CR_INST_STORE_ZIP_ARCHIVES flag to store zipped error reports
  *             along with uncompressed error report files.
  *    <tr><td> \ref CR_INST_APP_RESTART     
  *        <td> <b>Available since v.1.2.4</b> This parameter allows to automatically restart the application on crash. The command line
@@ -430,7 +429,7 @@ GenerateErrorReport(
  *             all queued error reports.
  *
  *    <tr><td> \ref CR_INST_STORE_ZIP_ARCHIVES     
- *        <td> <b>Available since v.1.2.7</b> This parameter can be used in couple with CR_INST_DONT_SEND_REPORT to store not only uncompressed
+ *        <td> <b>Available since v.1.2.7</b> This parameter can be used in couple with \ref CR_INST_DONT_SEND_REPORT flag to store not only uncompressed
  *             error report files, but also ZIP archives. By default (if this flag omitted) CrashRpt stores all error report files
  *             in uncompressed state.
  *
