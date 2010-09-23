@@ -375,5 +375,10 @@ This requires some user interaction.
 
 This way has the lowest priority by default.
 
+<b>Does crashrpt support bidirectional communication (the user gets an email with updates on his issue)?</b>
+
+We currently do not support bidirectional communication, because this would require some 
+complex server-side functionality. You can add such integration on your server for users of your 
+software if you wish. 
 
 */

@@ -161,4 +161,64 @@ text error message of the last called function, use crGetLastErrorMsg().
 - \ref CrashRptWrappers
 - \ref DeprecatedAPI 
 
+<b>I need to modify some crashrpt configuration info (i.e. uPriorities) based on information 
+collected after crInstall(). What is the best way ?</b>
+
+Currently, there are no ways to modify the CrashRpt configuration info after calling crInstall(). 
+I would recommend to hardcode the info you pass to crInstall() function, that means not reading 
+it from an INI file or from another source.
+
+However, if you strongly wish to read crashrpt configuration info from an external file, call 
+crInstall() after reading the info from that file. Simple file reading functionality is not 
+likely to crash, I suppose. So the probability you miss a crash while reading the file is small. 
+
+<b>We ship a software (game etc.) and certain crashes only happen on certain hardware. So we 
+need some sort of functionality that gathers GPU/CPU/general hardware information upon crash 
+report generation. What do we do?</b>
+
+We introduced a function crAddProperty() specially for purposes of extending the crash description 
+XML as you wish. You can also use the crAddFile2() function, which allows to add a used-defined 
+file to the crash report. 
+
+<b>I want to uniquely identify the installation by what the error reports are sent. What do I do?</b>
+
+In CrashRpt v.1.2.1, we introduced a function crAddProperty() specially for purposes of extending 
+the crash description XML as you wish. You can create the installation GUID in your program, store 
+it in the registry or in a file and pass this GUID to the crAddProperty() function, so the named 
+property will be added to the crashrpt.xml and you will be able to identify the installation and 
+associate the bugs together.
+
+The following code example shows how to do this (code provided by tdev):
+
+\code
+  // ... upon program start, check if GUID is not existing, if not create one:
+  GUID *g = new GUID();
+  CoCreateGuid(g);
+  
+  char buf[120];
+  sprintf( buf, "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+    g->Data1, g->Data2, g->Data3, UINT(g->Data4[0]), UINT(g->Data4[1]), UINT(g->Data4[2]), 
+    UINT(g->Data4[3]), UINT(g->Data4[4]), UINT(g->Data4[5]), UINT(g->Data4[6]), UINT(g->Data4[7]));
+  delete g;
+  std::string guid = std::string(buf);
+
+  //... later, add it to the crashreport:
+  crAddProperty("SystemGUID", guid);
+\endcode
+
+<b>My software's worker thread hangs up on users machine (but no crash happens). How do I debug the 
+problem?</b>
+
+To collect information about such error, you may provide an ability to generate error report 
+manually, for example on a key combination press. When the key combination is pressed, generate 
+error report manually using crGenerateErrorReport() function.
+
+<b>What is the minidump type? What minidump type should I use?</b>
+
+The minidump type defines what information is contained in the minidump. The default minidump 
+type is <b>MinidumpNormal</b>. However, the MinidumpNormal contains only essential info required 
+to recover the stack traces for each thread. To recover the state of global variables, other 
+minidump types should be used. For additional info, see the 
+<a href="http://www.debuginfo.com/articles/effminidumps.html">Effective Minidumps</a> article. 
+
 */

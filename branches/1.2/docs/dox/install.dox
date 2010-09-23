@@ -191,27 +191,55 @@ Internally, CrashRpt uses the following third-party libraries:
 </table>
 
 
-\section faq Frequently Asked Questions
+<b>Where do I look for answers to frequently asked questions about CrashRpt?</b>
 
-You can find a lot of information about CrashRpt in 
+You can find a lot of information about CrashRpt in our
 <a href="http://code.google.com/p/crashrpt/wiki/FAQ">online FAQ</a>
 
-\section bugrpt Reporting a Bug/Requesting New Feature
+<b>How do I report a bug or request a new feature?</b>
 
-If you detect an issue or want to request a feature, please create an issue at the
+If you detect an issue or want to request a new feature, please create an issue at the
 <a href="http://code.google.com/p/crashrpt/issues/list">Issues</a> page.
 
 If you would like to contribute or ask a question, create a topic in our <a href="http://groups.google.com/group/crashrpt">
 Discussions </a> group.
 
-\section showing_appreciation How can I show my appreciation of CrashRpt project?
+<b>I found a bug in crashrpt or in CrashSender.exe (it crashes itself :)) and want to debug 
+it in Visual C++ to determine the reason of the problem. What to I do?</b>
+
+Its easy to run CrashRpt.dll code in step-by-step debugging mode. Just trigger an exception 
+in the application. But there may be a problem if Visual C++ doesn't allow you to debug after 
+exception had occurred. To workaround this, generate error report manually without exception, 
+using crGenerateErrorReport() function. This way you should be able to debug.
+
+If the code in CrashRpt.dll works fine, but CrashSender.exe crashes, you need to attach to 
+CrashSender.exe process when it is launched. In Visual C++ window, open Debug | Attach to process... 
+menu and select CrashSender.exe in the list of processes. Then you will be able to run the code 
+in step-by-step debugging mode. 
+
+<b>Can I use crashrpt in an MFC-based application? ATL/WTL-based application? WinAPI application?</b>
+
+Yes, you can use CrashRpt in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI. 
+
+<b>Can I use crashrpt in a commercial application?</b>
+
+According to New BSD licence, you can freely use CrashRpt in any application.
+
+<b>Should I give credits if my application uses crashrpt?</b>
+
+The New BSD License clearly states that an application that distributes CrashRpt 
+in compiled (binary) form must reproduce the copyright notice, the list of conditions 
+and the disclaimer in the documentation and/or other materials provided with the 
+distribution. 
+
+<b>How do I show my appreciation of CrashRpt project?</b>
 
 If you like CrashRpt and use it in your software, you can show your 
-appreciation.
-
-Add your project name and logo to the 
+appreciation by adding your project name and logo to the 
 <a href="http://code.google.com/p/crashrpt/wiki/WhoUsesCrashRpt">WhoUsesCrashRpt</a> page. 
 By doing this you make CrashRpt more significant for other users and support 
 further development. 
+
+
 
 */

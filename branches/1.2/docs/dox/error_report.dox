@@ -87,4 +87,16 @@ If user wants to postpone the delivery, he/she presses the "Other actions..." bu
 "Remind me later" from the context menu, or just closes the window. If user doesn't want to send error
 reports later, he/she clicks the "Never remind" context menu item.
 
+<b>What do I do to save a local copy of an error report to my disk?</b>
+
+Since v.1.2.2, you can use the 'Export...' button on the Error Report Details dialog to save a 
+local copy of the error report. 
+
+<b>I would like to force the user to enter a description of what happened just before the crash. 
+What do I do?</b>
+
+The user has an ability to enter the description of the problem in the Error Report dialog by 
+clicking the link "Provide additional information (recommended)". However, my CrashRpt usage 
+experience shows most users do not enter anything meaningful into this field. 
+
 */
