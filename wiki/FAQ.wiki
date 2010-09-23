@@ -538,6 +538,12 @@ See CrashRpt documentation more information.
 
 We currently do not support bidirectional communication, because this would require some complex server-side functionality. You can add such integration on your server for users of your software yourself if you wish. 
 
+== I want the user to directly send me the stack trace, w/o me need to postprocess anything with that on my side. Does crashrpt support this somehow? == 
+
+No, CrashRpt can't generate readable stack traces on the side of the user. It supports developer-side error report processing.
+
+User-side error report processing would require you to distribute your PDB files with your software. Typically you do not distribute PDB files, because it makes someone easier to reverse-engineer your program. Our approach is developer-side post-processing. This means users send you error reports and you post-process them on your machine, where PDB files, binaries and source code is located. 
+
 == How do I open a crash description XML file? ==
 
 You can use notepad, another text editor or your web browser.
