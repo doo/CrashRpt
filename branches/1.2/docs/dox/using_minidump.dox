@@ -43,7 +43,7 @@ the following steps to create such minidump:
   - Then I go to the <i>bin</i> directory. I see that the Visual Studio created several
     EXE, DLL and PDB files for me. Then I close Visual Studio window.
   - Next I save the binary files, debugging information and source code to some directory as described in 
-    \ref preparing_to_release. I just copy the <i>bin</i> directory to <i>D:\\Projects\\CrashRptSaved</i> directory
+    \ref preparing_to_software_release. I just copy the <i>bin</i> directory to <i>D:\\Projects\\CrashRptSaved</i> directory
     and (because I use SVN to store my code) make SVN checkout to <i>D:\\Projects\\CrashRptSaved\\src</i> directory.
   - Next I go to the <i>bin</i> directory again and run the \b CrashRptTest.exe. When dialog appears, I click the
     "Crash" button. When <i>Error Report</i> dialog appears, I click the "What does this error report contains?"
@@ -73,27 +73,28 @@ A new Visual Studio window will appear. In the Visual Studio window, you should 
 
 In the Visual Studio window, open menu <i>Debug->Start debugging</i> (or press F5) to load the minidump data.
 When minidump is loaded, you will see the dialog containing information about the exception, such as exception
-address, module name, exception code and textual description:
+address, module name, exception code and its textual description (see the figure below). Press the 'Break'
+button to continue.
 
 \image html vs_unhandled_exception.png "Unhandled Exception Message"
  
 In the <i>Output</i> window, you should be able to see the log of minidump loading progress. If you do not see 
-the <i>Output window</i>, open menu <i>View</i> and click the <i>Output</i> menu item. In the output window,
-you can see which symbol files are loaded for each module. 
+the <i>Output window</i>, open menu <i>View</i> and click the <i>Output</i> menu item. In the <i>Output</i> window,
+you can see what symbol files are loaded for each module. 
 
 \image html output_window.png "Output Window"
 
 Now look at the <i>Modules</i> window. If you do not see such window, open menu <i>Debug->Windows</i> and select 
 the <i>Modules</i> menu item. Click the <i>Symbol Status</i> column header twice to order modules by symbol 
-load status in descending order. Now you should be you able to see that symbols are loaded for 
-CrashRptTest.exe and CrashRpt.dll modules. 
+load status in descending order. Now you should be able to see that symbols are loaded for 
+<b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules. 
 
 \image html modules.png "Modules: Symbols load status for each module"
    
 As the debug symbols seem to be loaded successfully for main modules of the application, in the code window 
 you should be able to see the place in your source code where the exception occurred. I see that the crash 
 occurred in file <i>CrashRpt.cpp</i> at line 706 inside of crEmulateCrash() function because of assigning a null pointer 
-variable with a value. 
+variable with the value 0. 
 
 You can see values of local variables by moving the mouse cursor over the variable name. The value (if known)
 is displayed in a tooltip window. Not all variable's values can be recovered, this depends on the minidump
@@ -105,21 +106,21 @@ If the reason of the crash is clear, you can even want to edit the source code r
 But I wouldn't recommend to do this, because the code you are browsing is a 'snapshot', not a working copy. 
 And there is a bug in Visual Studio 2005 that makes a filename lowercase when you save the changes. 
 
-To better understand the reason of the crash, I would like to see what class or function called the 
+In order to better understand the reason of the crash, I would like to know what C++ class or function called the 
 crEmulateCrash() function and for what purpose. I can do this with the help of the <i>Call stack</i> window 
 (see the figure below). If the Stack trace window is hidden, open menu <i>Debug->Windows</i> and select the 
 'Stack trace' menu item.
 
 \image html call_stack.png "Call Stack"
 
-Each line (also called a <i>stack frame</i>) of the stack trace contains the name of module where crash occurred, the name of symbol 
+Each line (also called a <i>stack frame</i>) of the stack trace contains the name of module the code belongs to, the name of symbol 
 (function or class), offset from beginning of symbol code, source file and line number. Moving down the stack,
 I see that crEmulateCrash() was called by the <b>CMainDlg::DoCrash()</b> class method, which, in turn was called by 
 the <b>CMainDlg::OnOK()</b> method as the result of button click.  
 
 Typically, the program has several execution threads. You can switch between threads using the 
 <i>Threads</i> tab and browse the stack for each thread. I see that there are two threads in the application: 
-<b>__tMainCRTStartup</b> and <b>CrashThread</b>. The exception occured in the main thread, the second thread 
+<b>__tmainCRTStartup</b> and <b>CrashThread</b>. The exception occured in the main thread, the second thread 
 didn't crash.
 
 \image html threads.png "Threads Window"
@@ -129,33 +130,55 @@ you to save the solution, click the 'No' button.
 
 \section troubleshooting_pdb Troubleshooting
 
-Sometimes you can't determine the location of the crash and the error message is displayed
-'No symbols loaded for any stack frame'. This may be because of the following reasons.
+The case described above is the easiest one, because Visual Studio located all binaries, PDB files and source files 
+automatically. But in general, there may be some problems with reading minidumps, when Visual Studio can't locate such
+files. 
 
-- Debugger may not locate the correct PDB and binary files. Try to open Tools->Options->Debugging->Symbols
-  and enter the path to the directory where your PDB files are located (see the figure below for example). Then reopen the minidump.
+In order to locate matching binaries, PDB files and source code files, Visual Studio uses the absolute paths embedded
+into the minidump file at the time of linking. So, when you do not delete/move/modify the files you used to build the
+solution, Visual Studio can locate them automatically. But, if you delete/move or modify those files, Visual Studio
+won't be able to locate them. In order to illustrate such case, I will remove the entire <i>D:\\Projects\\CrashRpt\\dmptest</i> 
+folder that contained CrashRpt source code I used in compilation, resulting binaries and PDB files. 
+Then I open the minidump again and see the message 'No symbols are loaded for any stack frame. The source
+code can't be displayed' (see the figure below).  
+
+\image html no_symbols_loaded.png "No symbols are loaded"
+
+Also look at the <i>Modules</i> window - symbol status for CrashRptTest.exe and CrashRpt.dll modules shows that 
+there were no matching binaries found. In order to fix this, you should specify symbol search path
+manually. Open <i>Tools->Options->Debugging->Symbols</i> and enter the path to the directory where your PDB files 
+are located (see the figure below for example). 
 
 \image html symbols_load_paths.png "Where to load symbols from"
 
-- You may have wrong or missing PDB files. Open the Modules window (presented below) and check the symbol status
-  for modules of your program. If the status is 'No symbols loaded.' than you have missing PDB. 
-  Or maybe correct PDB files weren't saved locally before software release.
-  In such case you won't be able to properly read any of received crash reports.
+Now reload the minidump (stop the debugging and start it again). You see that the stack trace is now recovered
+correctly. But there is still one problem - the correct source code files are not displayed. 
+In the <i>Call Stack</i> window, doble-click the topmost stack frame. A dialog titled 'Find Source: crasrpt.cpp'
+will appear. In this dialog, browse to the <i>D:\\Projects\\CrashRptSaved\\src\\reporting\\crashrpt</i> folder. Now
+the correct source file should be displayed in Visual Studio source code window.
 
+At this point, you should be able to read the minidump correctly. If there are still problems, follow the 
+instructions below:                        
 
-- If symbols for some modules of your program are loaded, and you have the error, than
+- Maybe correct matching binaries and/or PDB files weren't saved. Ensure you save excatly the same binaries 
+  and PDB files that were generated during the linking process.
+
+- If symbols for some modules of your program are loaded, and you are still unable to read the stack trace, than
   there were no debugging symbols generated for the module where crash had occurred. Check that
   you set Program Database (/Zi) compiler flag and Generate Debug Info (/DEBUG) linker flag 
-  for all modules of your application. For additional info, see \ref prgdb                   
+  for all modules of your application. For additional info, see \ref prgdb.
+
+- If the stack trace is not as accurate as you expect, the reason may be code optimizations.
+  However, this is not the reason to turn the optimizations off. Instead, you can manage some 
+  error log file which is not affected by optimizations. 
 
 \section opening_minidump_in_windbg Opening Minidump in WinDbg
 
-You can use \b WinDbg program from <b>Microsoft Debugging Tools for Windows</b> framework for opening 
-crash minidumps. It is freely distributed. However, if you have Visual Studio installed,
-it may be more convenient for you to use Visual Studio.
+You can use \b WinDbg program from <b>Microsoft Debugging Tools for Windows</b> for opening 
+crash minidumps. It is freely distributed. 
 
 Let's show how to use WinDbg using an example. Run the sample CrashRptTest application that presents in
-CrashRpt package, and then click on any button to generate an exception. Then extract the crashdump.dmp file 
+CrashRpt package, and then click the button to generate an exception. Then extract the crashdump.dmp file 
 from the crash report, launch WinDbg, and open the crash dump by pressing CTRL+D.
 
 Next, you need to set the symbol path for WinDbg with the .sympath command. Switch 
@@ -185,12 +208,6 @@ If everything is configured correctly, you should now be able to walk the call s
 see local variables, and loaded modules. You can even have WinDbg highlight the offending 
 line of code by double clicking the CrashRptTest frame in the Call Stack window (ALT+6). 
 Note: The exact line number may be a little off due to linker optimizations.
-
-<b>Do program optimizations (/O compiler switch) affect the minidump generation?</b>
-
-Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete. 
-However, this is not the reason to turn the optimizations off. Instead, you can manage some 
-error log file which is not affected by optimizations. 
 
 <b>If I've saved all the source code, should building from the source recreate the correct 
 PDBs to be able to use them for reading the minidump?</b>
