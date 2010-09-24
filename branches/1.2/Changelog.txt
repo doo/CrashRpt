@@ -17,6 +17,8 @@
 - New tag OSIs64Bit - detects if user's OS is 64-bit and records this inside of
   crash description XML.
 
+- Improved the way crprober.exe cleans up its temporary files.
+
 - New columns CRP_COL_OS_IS_64BIT and CRP_COL_GEO_LOCATION for CRP_TBL_XMLDESC_MISC table.
 
 - New column CRP_COL_EXCEPTION_THREAD_STACK_MD5 for CRP_TBL_MDMP_MISC table.
