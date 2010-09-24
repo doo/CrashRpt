@@ -26,8 +26,7 @@ CrashRpt archive, depending on your version of Visual Studio:
 There are several projects in CrashRpt solution.
 
 - \b CrashRpt project contains 
-  API implementation and provides functionality for intercepting exceptions
-  and generating error reports.
+  API implementation and provides functionality for intercepting exceptions.
 
 - \b CrashSender project contains functionality 
   for displaying GUI, sending the error report and showing error report sending progress.
@@ -56,7 +55,7 @@ F7 to start building process.
 \section compiling_x64_platform Compilation for 64-bit (x64) Platform
 
 <b>Since v.1.2.1</b>, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
-Visual C++ 2005 or later is required. 
+Visual C++ 2005 or later is required to compile for x64 plaform. 
 You can choose the current platform by opening menu Build->Configuration Manager... 
 and by selecting the desired platform in the 'Active solution platform:' combo box.
 

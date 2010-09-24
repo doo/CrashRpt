@@ -109,7 +109,7 @@ And there is a bug in Visual Studio 2005 that makes a filename lowercase when yo
 In order to better understand the reason of the crash, I would like to know what C++ class or function called the 
 crEmulateCrash() function and for what purpose. I can do this with the help of the <i>Call stack</i> window 
 (see the figure below). If the Stack trace window is hidden, open menu <i>Debug->Windows</i> and select the 
-'Stack trace' menu item.
+'Call Stack' menu item.
 
 \image html call_stack.png "Call Stack"
 
@@ -144,7 +144,7 @@ code can't be displayed' (see the figure below).
 
 \image html no_symbols_loaded.png "No symbols are loaded"
 
-Also look at the <i>Modules</i> window - symbol status for CrashRptTest.exe and CrashRpt.dll modules shows that 
+Also look at the <i>Modules</i> window - symbol status for <b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules shows that 
 there were no matching binaries found. In order to fix this, you should specify symbol search path
 manually. Open <i>Tools->Options->Debugging->Symbols</i> and enter the path to the directory where your PDB files 
 are located (see the figure below for example). 
@@ -153,7 +153,7 @@ are located (see the figure below for example).
 
 Now reload the minidump (stop the debugging and start it again). You see that the stack trace is now recovered
 correctly. But there is still one problem - the correct source code files are not displayed. 
-In the <i>Call Stack</i> window, doble-click the topmost stack frame. A dialog titled 'Find Source: crasrpt.cpp'
+In the <i>Call Stack</i> window, doble-click the topmost stack frame. A dialog titled 'Find Source: crashrpt.cpp'
 will appear. In this dialog, browse to the <i>D:\\Projects\\CrashRptSaved\\src\\reporting\\crashrpt</i> folder. Now
 the correct source file should be displayed in Visual Studio source code window.
 
