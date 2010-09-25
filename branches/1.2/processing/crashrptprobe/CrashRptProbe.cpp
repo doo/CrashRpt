@@ -1290,15 +1290,17 @@ crpGetLastErrorMsgW(
     // No error message for current thread.
     CString sErrorMsg = _T("No error.");
     LPCWSTR pwszErrorMsg = strconv.t2w(sErrorMsg.GetBuffer(0));
-	  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
-    int size =  sErrorMsg.GetLength();
+	  int size = min(wcslen(pwszErrorMsg), uBuffSize-1);
+    WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
+    pszBuffer[uBuffSize-1] = 0;    
     g_cs.Unlock();
     return size;
   }
   
   LPCWSTR pwszErrorMsg = strconv.t2w(it->second.GetBuffer(0));
-  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, uBuffSize-1);
-  int size = it->second.GetLength();
+  int size = min(wcslen(pwszErrorMsg), uBuffSize-1);
+  WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, size);
+  pszBuffer[uBuffSize-1] = 0;  
   g_cs.Unlock();
   return size;
 }

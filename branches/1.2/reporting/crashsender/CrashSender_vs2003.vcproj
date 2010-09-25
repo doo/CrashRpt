@@ -52,7 +52,8 @@
 				InterfaceIdentifierFileName="CrashSender_i.c"
 				ProxyFileName="CrashSender_p.c"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -113,7 +114,8 @@
 				InterfaceIdentifierFileName="CrashSender_i.c"
 				ProxyFileName="CrashSender_p.c"/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

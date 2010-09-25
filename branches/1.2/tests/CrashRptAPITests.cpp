@@ -566,7 +566,7 @@ void Test_crGetLastErrorMsgA()
   // Get error message to a single-char buffer, must trunkate message and succeed
   char szErrMsg5[1] = "";
   int nResult5 = crGetLastErrorMsgA(szErrMsg5, 1);
-  TEST_ASSERT(nResult5>0);
+  TEST_ASSERT(nResult5==0);
 
   // Get error message to a small buffer, must trunkate message and succeed
   char szErrMsg6[2] = "";
@@ -613,7 +613,7 @@ void Test_crGetLastErrorMsgW()
   // Get error message to a single-char buffer, must trunkate message and succeed
   WCHAR szErrMsg5[1] = L"";
   int nResult5 = crGetLastErrorMsgW(szErrMsg5, 1);
-  TEST_ASSERT(nResult5>0);
+  TEST_ASSERT(nResult5==0);
 
   // Get error message to a small buffer, must trunkate message and succeed
   WCHAR szErrMsg6[2] = L"";
