@@ -1459,7 +1459,12 @@ BOOL CErrorReportSender::SendOverSMTP()
     fclose(f);
     m_EmailMsg.m_aAttachments.insert(sTmpFileName);  
   }
-  
+
+  // Set SMTP proxy server (if specified)
+  if ( !g_CrashInfo.m_sSmtpProxyServer.IsEmpty())
+    m_SmtpClient.SetSmtpProxy( g_CrashInfo.m_sSmtpProxyServer, g_CrashInfo.m_nSmtpProxyPort);
+
+  // Send mail
   int res = m_SmtpClient.SendEmailAssync(&m_EmailMsg, &m_Assync); 
   return (res==0);
 }

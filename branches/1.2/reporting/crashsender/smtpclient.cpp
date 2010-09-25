@@ -509,12 +509,9 @@ int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessag
 
 int CSmtpClient::CheckAttachmentOK(CString sFileName)
 {
-  strconv_t strconv;
+  struct _stat st;  
 
-  struct _stat st;
-  LPCSTR lpszFileNameA = strconv.t2a(sFileName.GetBuffer(0));
-
-  int nResult = _stat(lpszFileNameA, &st);
+  int nResult = _tstat(sFileName, &st);
   if(nResult != 0)
     return 1;  // File not found.
 
@@ -524,14 +521,12 @@ int CSmtpClient::CheckAttachmentOK(CString sFileName)
 int CSmtpClient::Base64EncodeAttachment(CString sFileName, 
 										std::string& sEncodedFileData)
 {
-  strconv_t strconv;
-  
+  strconv_t strconv;  
   int uFileSize = 0;
   BYTE* uchFileData = NULL;  
-  struct _stat st;
-  LPCSTR lpszFileNameA = strconv.t2a(sFileName.GetBuffer(0));
+  struct _stat st;  
 
-  int nResult = _stat(lpszFileNameA, &st);
+  int nResult = _tstat(sFileName, &st);
   if(nResult != 0)
     return 1;  // File not found.
   
