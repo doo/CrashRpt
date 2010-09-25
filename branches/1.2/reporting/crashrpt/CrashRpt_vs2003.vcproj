@@ -92,11 +92,11 @@
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib"
 				ModuleDefinitionFile="CrashRpt.def"
-				GenerateDebugInformation="FALSE"
+				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)\lib\CrashRpt.lib"
+				ImportLibrary="$(SolutionDir)\lib\CrashRpt.lib"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

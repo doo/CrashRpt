@@ -103,6 +103,7 @@ copy dummy.ini ..\..\bin
 				OutputFile="$(OutDir)\bin\CrashRptTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
