@@ -537,7 +537,7 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
   // Read file data to buffer.
   FILE* f = NULL;
 #if _MSC_VER<1400
-  f = fopen(lpszFileNameA, "rb");
+  f = _tfopen(sFileName, _T("rb"));
 #else
   /*errno_t err = */_tfopen_s(&f, sFileName, _T("rb"));  
 #endif 

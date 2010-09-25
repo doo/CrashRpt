@@ -97,26 +97,26 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)thirdaprty\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\zlib\src"
+				AdditionalIncludeDirectories="..\..\thirdparty\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"
-				DisableSpecificWarnings="4133;4996"/>
+				DisableSpecificWarnings="4133;4996;4244"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\lib\minizip.lib"/>
+				OutputFile="$(OutDir)\minizip.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool

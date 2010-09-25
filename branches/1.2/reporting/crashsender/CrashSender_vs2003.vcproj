@@ -136,7 +136,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="FALSE"
@@ -144,7 +144,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\crashrpt\src\; ..\..\tinyxml;..\..\zlib\src;..\..\minizip\src;..\..\wtl;..\..\libpng\src;..\..\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="0"
@@ -155,10 +155,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib libpng.lib version.lib rpcrt4.lib"
-				OutputFile="..\..\bin\CrashSender.exe"
+				AdditionalDependencies="WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib libpng.lib version.lib rpcrt4.lib psapi.lib"
+				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\libpng\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -182,7 +182,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\wtl"/>
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"/>
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool

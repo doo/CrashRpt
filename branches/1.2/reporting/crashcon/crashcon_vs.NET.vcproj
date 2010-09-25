@@ -145,7 +145,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -171,7 +171,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptLIB.lib"
-				OutputFile="..\..\bin\crashconLIB.exe"
+				OutputFile="$(OutDir)\crashconLIB.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\lib"
@@ -186,7 +186,7 @@
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 
 "/>
 			<Tool
