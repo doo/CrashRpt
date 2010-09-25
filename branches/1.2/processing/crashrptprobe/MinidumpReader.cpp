@@ -638,7 +638,7 @@ int CMiniDumpReader::StackWalk(DWORD dwThreadId)
     {
       size_t pos = sSourceFile.ReverseFind('\\');
       if(pos>=0)
-        sSourceFile = sSourceFile.Mid(pos+1);
+        sSourceFile = sSourceFile.Mid((int)pos+1);
       str += _T(" [ ");
       str += sSourceFile;
       str += _T(": ");
