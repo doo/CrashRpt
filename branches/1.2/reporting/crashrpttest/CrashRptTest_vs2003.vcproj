@@ -164,9 +164,10 @@ copy dummy.ini ..\..\bin
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptLIB.lib"
-				OutputFile="$(OutDir)\CrashRptTestLIB.exe"
+				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\lib"
+				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
