@@ -31,10 +31,7 @@
 ***************************************************************************************/
 
 #pragma once
-#include <set>
-#include <map>
-#include <vector>
-#include <string>
+#include "stdafx.h"
 #include "AssyncNotification.h"
 
 class CEmailMessage

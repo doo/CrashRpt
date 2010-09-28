@@ -36,10 +36,8 @@
 // Date: 2010
 
 #pragma once
-#include <map>
-#include <vector>
+#include "stdafx.h"
 #include "tinyxml.h"
-#include "dbghelp.h"
 
 // The structure describing file item.
 struct ERIFileItem

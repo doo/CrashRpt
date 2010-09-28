@@ -37,10 +37,8 @@
 
 #pragma once
 #include "stdafx.h"
-#include <string>
-#include <map>
 #include "AssyncNotification.h"
-#include <wininet.h>
+
 
 struct CHttpRequestFile
 {  

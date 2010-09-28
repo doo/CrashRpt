@@ -36,7 +36,7 @@
 // Date: 2009
 
 #pragma once
-#include <vector>
+#include "stdafx.h"
 
 struct AssyncNotification
 {

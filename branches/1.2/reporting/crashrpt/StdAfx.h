@@ -27,7 +27,8 @@
 #include <atlbase.h>
 
 // Support for VS2005 Express & SDK ATL
-#ifdef _WTL_SUPPORT_SDK_ATL3
+#if defined(_WTL_SUPPORT_SDK_ATL3) && !defined(_WTLSUP2_INCLUDED)
+#define _WTLSUP2_INCLUDED
   namespace ATL
   {
 	inline void * __stdcall __AllocStdCallThunk()
@@ -58,6 +59,9 @@ extern CAppModule _Module;
 #include <string>
 #include <dbghelp.h>
 #include <shlobj.h>
+#include <Psapi.h>
+#include <time.h>
+#include <shellapi.h>
 
 #if _MSC_VER<1400
 #define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy(strDestination, strSource)

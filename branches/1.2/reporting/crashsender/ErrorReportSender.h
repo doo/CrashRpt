@@ -31,8 +31,6 @@
 ***************************************************************************************/
 
 #pragma once
-#include <vector>
-#include <dbghelp.h>
 #include "AssyncNotification.h"
 #include "MailMsg.h"
 #include "smtpclient.h"

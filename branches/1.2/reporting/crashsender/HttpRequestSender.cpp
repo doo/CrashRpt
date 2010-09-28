@@ -32,11 +32,8 @@
 
 #include "stdafx.h"
 #include "HttpRequestSender.h"
-#include <wininet.h>
-#include <sys/stat.h>
 #include "base64.h"
 #include "md5.h"
-#include <string>
 #include "Utility.h"
 #include "strconv.h"
 

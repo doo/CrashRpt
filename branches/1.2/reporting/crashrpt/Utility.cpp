@@ -38,11 +38,7 @@
 #include "stdafx.h"
 #include "Utility.h"
 #include "resource.h"
-#include <time.h>
-#include "atldlgs.h"
-#include <shellapi.h>
 #include "strconv.h"
-#include "Psapi.h"
 
 CString Utility::getAppName()
 {

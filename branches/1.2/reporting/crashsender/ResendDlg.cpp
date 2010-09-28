@@ -31,7 +31,6 @@
 ***************************************************************************************/
 
 #include "stdafx.h"
-#include <windows.h>
 #include "resource.h"
 #include "CrashInfoReader.h"
 #include "ResendDlg.h"
@@ -39,7 +38,7 @@
 #include "strconv.h"
 #include "DetailDlg.h"
 #include "ErrorReportSender.h"
-#include "shellapi.h"
+
 
 LRESULT CActionProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   

@@ -44,11 +44,6 @@
 #define _MAILMSG_H_
 
 #include "stdafx.h"
-#include <xcmc.h>          // CMC function defs
-#include <mapi.h>          // MAPI function defs
-
-#include <map>
-#include <string>
 
 typedef std::map<std::string, std::string> TStrStrMap;
 

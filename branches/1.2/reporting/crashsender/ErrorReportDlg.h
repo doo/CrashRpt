@@ -36,9 +36,7 @@
 // Date: 
 
 #pragma once
-
-#include <atlctrls.h>
-#include <atlctrlx.h>
+#include "stdafx.h"
 #include "MailMsg.h"
 #include "DetailDlg.h"
 #include "ProgressDlg.h"

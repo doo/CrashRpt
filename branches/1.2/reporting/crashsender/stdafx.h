@@ -63,18 +63,19 @@
 #include <atlbase.h>
 
 // Support for VS2005 Express & SDK ATL
-#ifdef _WTL_SUPPORT_SDK_ATL3
+#if defined(_WTL_SUPPORT_SDK_ATL3) && !defined(_WTLSUP_INCLUDED)
+  #define _WTLSUP_INCLUDED
   namespace ATL
   {
-	inline void * __stdcall __AllocStdCallThunk()
-	{
-		return ::HeapAlloc(::GetProcessHeap(), 0, sizeof(_stdcallthunk));
-	}
+	  inline void * __stdcall __AllocStdCallThunk()
+	  {
+		  return ::HeapAlloc(::GetProcessHeap(), 0, sizeof(_stdcallthunk));
+	  }
 
-	inline void __stdcall __FreeStdCallThunk(void *p)
-	{
-		::HeapFree(::GetProcessHeap(), 0, p);
-	}
+	  inline void __stdcall __FreeStdCallThunk(void *p)
+	  {
+		  ::HeapFree(::GetProcessHeap(), 0, p);
+	  }
   };
 #endif // _WTL_SUPPORT_SDK_ATL3
 
@@ -87,9 +88,26 @@ extern CAppModule _Module;
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
+#include <atlctrlx.h>
 
 #define _WTL_USE_CSTRING
 #include <atlmisc.h>
+
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+
+#include "dbghelp.h"
+#include <wininet.h>
+#include <xcmc.h>          // CMC function defs
+#include <mapi.h>          // MAPI function defs
+#include <sys/stat.h>
+#include <shellapi.h>
+#include <Windns.h>
+#include <Wspiapi.h>
+#include <time.h>
+#include <Psapi.h>
 
 #if _MSC_VER<1400
 #define _TCSCPY_S(strDestination, numberOfElements, strSource) _tcscpy(strDestination, strSource)

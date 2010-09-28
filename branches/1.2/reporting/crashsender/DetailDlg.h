@@ -31,9 +31,7 @@
 ***************************************************************************************/
 
 #pragma once
-
-#include <atlctrls.h>
-#include <atlctrlx.h>
+#include "stdafx.h"
 #include "resource.h"
 #include "MailMsg.h"
 #include "FilePreviewCtrl.h"

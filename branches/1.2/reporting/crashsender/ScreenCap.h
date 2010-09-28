@@ -33,11 +33,11 @@
 #ifndef __SCREENCAP_H__
 #define __SCREENCAP_H__
 
+#include "stdafx.h"
+
 extern "C" {
 #include "png.h"
 }
-
-#include <vector>
 
 class CScreenCapture
 {

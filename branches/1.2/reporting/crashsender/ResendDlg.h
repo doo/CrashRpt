@@ -36,8 +36,7 @@
 // Date: 
 
 #pragma once
-#include <atlctrls.h>
-#include <atlctrlx.h>
+#include "stdafx.h"
 #include "ProgressDlg.h"
 
 // Mail client launch confirmation status

@@ -32,7 +32,6 @@
 
 #include "stdafx.h"
 #include "FilePreviewCtrl.h"
-#include <set>
 #include "png.h"
 #include "strconv.h"
 

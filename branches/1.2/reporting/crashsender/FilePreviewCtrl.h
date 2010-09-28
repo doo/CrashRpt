@@ -31,9 +31,7 @@
 ***************************************************************************************/
 
 #pragma once
-#include "atlmisc.h"
-#include <vector>
-#include <map>
+#include "stdafx.h"
 #include "CritSec.h"
 
 // Preview mode
