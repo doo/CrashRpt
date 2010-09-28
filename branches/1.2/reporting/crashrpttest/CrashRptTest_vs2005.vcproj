@@ -450,11 +450,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptLIB.lib shell32.lib"
-				OutputFile="$(OutDir)\CrashRptTestLIB.exe"
+				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>

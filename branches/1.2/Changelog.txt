@@ -1,6 +1,6 @@
 ======= Change History ========
 
---- Ver. 1.2.6 ---
+--- Ver. 1.2.7 ---
 
 - Added Tests project that implements automated tests for CrashRpt and 
   CrashRptProbe functionality. 

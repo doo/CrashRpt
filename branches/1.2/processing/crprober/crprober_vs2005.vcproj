@@ -373,7 +373,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\crproberLIB.exe"
+				OutputFile="$(OutDir)\crprober.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
