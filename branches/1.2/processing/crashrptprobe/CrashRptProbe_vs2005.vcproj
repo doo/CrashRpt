@@ -412,9 +412,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)lib"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="2"
+			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -436,7 +436,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\CrashRpt\src;..\..\CrashSender\src;..\..\tinyxml;..\..\zip_utils;..\..\wtl;..\..\minizip\src;..\..\zlib\src"
+				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -448,30 +448,19 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\wtl"
+				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib"
-				OutputFile="..\..\bin\CrashRptProbe.dll"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\zlib\lib;..\..\minizip\lib"
-				ModuleDefinitionFile="CrashRptProbe.def"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				ImportLibrary="..\..\lib\CrashRptProbe.lib"
-				TargetMachine="17"
+				Name="VCLibrarianTool"
+				AdditionalDependencies="dbghelp.lib psapi.lib Rpcrt4.lib version.lib"
+				OutputFile="$(OutDir)\CrashRptProbeLIB.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -481,12 +470,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -546,6 +529,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release LIB|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -667,6 +658,14 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\thirdparty\tinyxml\tinyxml.cpp"
@@ -705,6 +704,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release LIB|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"
@@ -755,6 +762,14 @@
 							UsePrecompiledHeader="0"
 						/>
 					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\thirdparty\tinyxml\tinyxmlparser.cpp"
@@ -793,6 +808,14 @@
 					</FileConfiguration>
 					<FileConfiguration
 						Name="Release LIB|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release LIB|x64"
 						>
 						<Tool
 							Name="VCCLCompilerTool"

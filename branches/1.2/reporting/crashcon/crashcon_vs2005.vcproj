@@ -498,7 +498,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -527,8 +527,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
+				AdditionalIncludeDirectories="..\..\include"
+				PreprocessorDefinitions="_WIN64;NDEBUG;_CONSOLE;CRASHRPT_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
@@ -555,10 +555,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptLIB.lib"
-				OutputFile="..\..\bin\crashconLIB.exe"
+				OutputFile="$(OutDir)\crashcon.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib;$(SolutionDir)lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\crashcon.pdb"
 				SubSystem="1"

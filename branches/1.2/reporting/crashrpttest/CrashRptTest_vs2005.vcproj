@@ -486,7 +486,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -518,7 +518,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\crashrpt\include"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -535,7 +535,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -543,9 +543,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptLIB.lib"
-				OutputFile="..\..\bin\CrashRptTestLIB.exe"
+				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
 				SubSystem="2"

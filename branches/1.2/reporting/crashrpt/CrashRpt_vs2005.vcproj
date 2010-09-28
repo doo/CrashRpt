@@ -543,7 +543,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)lib"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -576,7 +576,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;..\..\tinyxml;..\..\zlib;..\..\zip_utils"
+				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\libpng;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_LIB"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -591,7 +591,6 @@
 				WarningLevel="4"
 				WarnAsError="false"
 				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 				OmitDefaultLibName="true"
 			/>
@@ -602,15 +601,16 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlib.lib version.lib shell32.lib Comdlg32.lib"
-				OutputFile="..\..\lib\CrashRptLIB.lib"
-				AdditionalLibraryDirectories="..\..\zlib\lib"
+				AdditionalDependencies="dbghelp.lib mapi32.lib Rpcrt4.lib zlib.lib version.lib shell32.lib Comdlg32.lib psapi.lib"
+				OutputFile="$(OutDir)\CrashRptLIB.lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib"
 				IgnoreAllDefaultLibraries="true"
 				IgnoreDefaultLibraryNames=""
 			/>
