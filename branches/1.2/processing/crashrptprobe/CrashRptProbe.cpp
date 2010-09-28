@@ -764,6 +764,7 @@ crpGetPropertyW(
         return -3;
       }
       _STPRINTF_S(szBuff, BUFF_SIZE, L"%d", pDescReader->m_bOSIs64Bit);    
+      pszPropVal = szBuff;      
     }
     else if(sColumnId.Compare(CRP_COL_GEO_LOCATION)==0)
     {
@@ -1140,13 +1141,13 @@ crpGetPropertyW(
     // User wants us to get the required length of the buffer
     if(pcchCount!=NULL)
     {
-      *pcchCount = (ULONG)wcslen(pszPropVal);
+      *pcchCount = pszPropVal!=NULL?(ULONG)wcslen(pszPropVal):0;
     }
   }
   else
   {
     // User wants us to return the property value 
-    ULONG uRequiredLen = (ULONG)wcslen(pszPropVal);
+    ULONG uRequiredLen = pszPropVal!=NULL?(ULONG)wcslen(pszPropVal):0;
     if(uRequiredLen>(cchBuffSize))
     {
       crpSetErrorMsg(_T("Buffer is too small."));
@@ -1154,7 +1155,8 @@ crpGetPropertyW(
     }
 
     // Copy the property to the buffer
-    WCSCPY_S(lpszBuffer, cchBuffSize, pszPropVal);
+    if(pszPropVal!=NULL)
+      WCSCPY_S(lpszBuffer, cchBuffSize, pszPropVal);
 
     if(pcchCount!=NULL)
     {
