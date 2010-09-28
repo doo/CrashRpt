@@ -63,7 +63,8 @@
 #include <atlbase.h>
 
 // Support for VS2005 Express & SDK ATL
-#ifdef _WTL_SUPPORT_SDK_ATL3
+#if defined(_WTL_SUPPORT_SDK_ATL3) && !defined(_WTLSUP_INCLUDED)
+#define _WTLSUP_INCLUDED
   namespace ATL
   {
 	inline void * __stdcall __AllocStdCallThunk()

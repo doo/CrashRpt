@@ -64,18 +64,18 @@
 
 // Support for VS2005 Express & SDK ATL
 #if defined(_WTL_SUPPORT_SDK_ATL3) && !defined(_WTLSUP_INCLUDED)
-  #define _WTLSUP_INCLUDED
+#define _WTLSUP_INCLUDED
   namespace ATL
   {
-	  inline void * __stdcall __AllocStdCallThunk()
-	  {
-		  return ::HeapAlloc(::GetProcessHeap(), 0, sizeof(_stdcallthunk));
-	  }
+	inline void * __stdcall __AllocStdCallThunk()
+	{
+		return ::HeapAlloc(::GetProcessHeap(), 0, sizeof(_stdcallthunk));
+	}
 
-	  inline void __stdcall __FreeStdCallThunk(void *p)
-	  {
-		  ::HeapFree(::GetProcessHeap(), 0, p);
-	  }
+	inline void __stdcall __FreeStdCallThunk(void *p)
+	{
+		::HeapFree(::GetProcessHeap(), 0, p);
+	}
   };
 #endif // _WTL_SUPPORT_SDK_ATL3
 
