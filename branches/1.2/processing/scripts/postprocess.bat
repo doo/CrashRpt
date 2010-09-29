@@ -67,8 +67,8 @@ exit
 
 :failed
 
- mkdir %SAVE_INVALID_REPORTS_TO_DIR
- move %1 %SAVE_INVALID_REPORTS_TO_DIR
+ mkdir %SAVE_INVALID_REPORTS_TO_DIR%
+ move %1 %SAVE_INVALID_REPORTS_TO_DIR%
  
 :done
   
