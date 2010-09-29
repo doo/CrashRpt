@@ -4,7 +4,7 @@
 
 import os
 
-in_dir = "D:/Projects/CrashRpt/branch_1.2/bin/valid_reports"
+in_dir = "D:/Projects/CrashRpt/valid_reports"
 out_file = "stats.txt"
 
 f = open(out_file, "w")
