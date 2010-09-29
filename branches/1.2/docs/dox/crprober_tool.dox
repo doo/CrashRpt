@@ -153,7 +153,7 @@ to move corrupted error reports to some folder, to move error reports not having
 and error reports not having symbols loading for any stack frame to the third folder.
 You can automate this task using a batch (BAT) script. 
 
-Below an example batch script is presented. 
+Below an example batch script is presented (you can find the script in processing\scripts\postprocess.bat file). 
 - The script recursively searches \a INPUT_DIR folder and processes files matching the pattern defined by \a INPUT_FILE_PATTERN variable. For example,
 "*.zip" pattern means to process all ZIP files in a directory.
 - The script accepts only reports having application name as defined by \a ACCEPTABLE_APPNAME variable. 
@@ -166,7 +166,29 @@ Keep this empty to accept all app versions.
   are placed into NoExceptionInfo subfolder, and error reports not having symbols loaded for any stack trace are placed
   to  NoSymbolsLoaded subfolder.
 - The script moves corrupted error reports to the folder defined by \a SAVE_INVALID_REPORTS_TO_DIR parameter.
- 
+
 \include postprocess.bat
+
+When the script finishes, you will have similar error reports groupped in subfolders. The question is what
+group to start to analyze first? What groups contain the reports of errors occurring most often? 
+The following simple Python script (you can find the script in processing\scripts\basic_stats.py file) 
+can help you to answer this question by getting the count of 
+.txt files in each subfolder and outputting the results into the text file.
+
+\include basic_stats.py
+   
+The expected script output:
+
+\code
+202 error repors in total
+105 error reports in 'subdir1'
+50 error reports in 'subdir2'
+30 error reports in 'subdir3'
+20 error reports in 'subdir4'
+2 error reports in 'subdir5'
+\endcode
+ 
+So, the 'subdir1' contains the reports about an error reported the most often. And the 'subdir5' contains the reports
+about an error reported the most rare.
 
 */
