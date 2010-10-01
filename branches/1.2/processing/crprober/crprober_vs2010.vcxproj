@@ -30,6 +30,7 @@
     <ProjectGuid>{485ADA7C-BF7C-4EDC-AA56-212BF0160351}</ProjectGuid>
     <RootNamespace>crprober</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <ProjectName>crprober</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'" Label="Configuration">
