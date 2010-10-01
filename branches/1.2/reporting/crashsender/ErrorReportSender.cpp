@@ -1336,10 +1336,9 @@ int CErrorReportSender::Base64EncodeAttachment(CString sFileName,
   
   int uFileSize = 0;
   BYTE* uchFileData = NULL;  
-  struct _stat st;
-  LPCSTR lpszFileNameA = strconv.t2a(sFileName.GetBuffer(0));
+  struct _stat st;  
 
-  int nResult = _stat(lpszFileNameA, &st);
+  int nResult = _tstat(sFileName, &st);
   if(nResult != 0)
     return 1;  // File not found.
   
