@@ -141,7 +141,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   {
     m_DumpData.m_hProcess = NULL;
     Close();
-    return 4;
+    return 5;
   }
     
   m_bReadSysInfoStream = !ReadSysInfoStream();
@@ -174,6 +174,25 @@ void CMiniDumpReader::Close()
   {
     SymCleanup(m_DumpData.m_hProcess);
   }
+}
+
+BOOL CMiniDumpReader::CheckDbgHelpApiVersion()
+{
+  // Set valid dbghelp API version
+  API_VERSION CompiledApiVer;
+  CompiledApiVer.MajorVersion = 6;
+  CompiledApiVer.MinorVersion = 1;
+  CompiledApiVer.Revision = 11;    
+  CompiledApiVer.Reserved = 0;
+  LPAPI_VERSION pActualApiVer = ImagehlpApiVersionEx(&CompiledApiVer);    
+  if(CompiledApiVer.MajorVersion!=pActualApiVer->MajorVersion ||
+     CompiledApiVer.MinorVersion!=pActualApiVer->MinorVersion ||
+     CompiledApiVer.Revision!=pActualApiVer->Revision)
+  {     
+    return FALSE; // Not exact version of dbghelp.dll! Expected v6.11.
+  }
+
+  return TRUE;
 }
 
 // Extracts a UNICODE string stored in minidump file by its relative address

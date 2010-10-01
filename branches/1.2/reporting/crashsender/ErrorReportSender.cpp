@@ -424,6 +424,24 @@ BOOL CErrorReportSender::CreateMiniDump()
     return FALSE;
   }
 
+  // Set valid dbghelp API version  
+  typedef LPAPI_VERSION (WINAPI* LPIMAGEHLPAPIVERSIONEX)(LPAPI_VERSION AppVersion);  
+  LPIMAGEHLPAPIVERSIONEX lpImagehlpApiVersionEx = 
+    (LPIMAGEHLPAPIVERSIONEX)GetProcAddress(hDbgHelp, "ImagehlpApiVersionEx");
+  ATLASSERT(lpImagehlpApiVersionEx!=NULL);
+  if(lpImagehlpApiVersionEx!=NULL)
+  {    
+    API_VERSION CompiledApiVer;
+    CompiledApiVer.MajorVersion = 6;
+    CompiledApiVer.MinorVersion = 1;
+    CompiledApiVer.Revision = 11;    
+    CompiledApiVer.Reserved = 0;
+    LPAPI_VERSION pActualApiVer = lpImagehlpApiVersionEx(&CompiledApiVer);    
+    ATLASSERT(CompiledApiVer.MajorVersion==pActualApiVer->MajorVersion);
+    ATLASSERT(CompiledApiVer.MinorVersion==pActualApiVer->MinorVersion);
+    ATLASSERT(CompiledApiVer.Revision==pActualApiVer->Revision);    
+  }
+  
   // Write minidump to the file
   mei.ThreadId = g_CrashInfo.m_dwThreadId;
   mei.ExceptionPointers = g_CrashInfo.m_pExInfo;

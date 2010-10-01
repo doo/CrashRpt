@@ -225,6 +225,13 @@ crpOpenErrorReportW(
   report_data.m_pDescReader = new CCrashDescReader;
   report_data.m_pDmpReader = new CMiniDumpReader;
 
+  // Check dbghelp.dll version
+  if(!report_data.m_pDmpReader->CheckDbgHelpApiVersion())
+  {
+    crpSetErrorMsg(_T("Invalid dbghelp.dll version (v6.11 expected)."));
+    goto exit; // Invalid hash
+  }
+
   // Check ZIP integrity
   if(pszMd5Hash!=NULL)
   {

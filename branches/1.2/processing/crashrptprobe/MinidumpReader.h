@@ -144,6 +144,8 @@ public:
   // Closes the opened minidump file
   void Close();
 
+  BOOL CheckDbgHelpApiVersion();
+
   int GetModuleRowIdByBaseAddr(DWORD64 dwBaseAddr);
   int GetModuleRowIdByAddress(DWORD64 dwAddress);
   int GetThreadRowIdByThreadId(DWORD dwThreadId);
