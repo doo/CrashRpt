@@ -45,9 +45,9 @@ According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you 
 
 The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application that distributed CrashRpt in compiled (binary) form must reproduce the copyright notice, the list of conditions and the disclaimer in the documentation and/or other materials provided with the distribution.  
 
-== I want to sign crashrpt binaries with some tools. Is this violation of the license? == 
+== I want to sign crashrpt binaries with some tools. Is this a violation of the crashrpt license? == 
 
-No, the New BSD License CrashRpt uses permits to distribute the crashrpt binaries with or without modification. So, feel free to sign CrashRpt binaries or modify them any other way.
+No, the New BSD License that is used by CrashRpt permits to distribute the crashrpt binaries with or without modification. So, feel free to sign CrashRpt binaries or modify them any other way.
 
 == What programming languages can I use crashrpt in? ==
 
