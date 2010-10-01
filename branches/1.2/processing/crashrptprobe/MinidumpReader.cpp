@@ -123,9 +123,9 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   m_DumpData.m_hProcess = (HANDLE)(++dwProcessID);  
   
   strconv_t strconv;
-  BOOL bSymInit = SymInitialize(
+  BOOL bSymInit = SymInitializeW(
     m_DumpData.m_hProcess,
-    (PSTR)strconv.t2a(sSymSearchPath), 
+    strconv.t2w(sSymSearchPath), 
     FALSE);
 
   if(!bSymInit)
@@ -136,12 +136,10 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   }
   
   DWORD dwOptions = SymGetOptions();
-  dwOptions |= ( 
-    //SYMOPT_DEFERRED_LOADS | // Symbols are not loaded until a reference is made requiring the symbols be loaded.
-    SYMOPT_EXACT_SYMBOLS  |   // Do not load an unmatched .pdb file. 
-    SYMOPT_FAIL_CRITICAL_ERRORS | // Do not display system dialog boxes when there is a media failure such as no media in a drive.
-    SYMOPT_UNDNAME // All symbols are presented in undecorated form. 
-    );
+  //dwOptions |= SYMOPT_DEFERRED_LOADS; // Symbols are not loaded until a reference is made requiring the symbols be loaded.
+  dwOptions |= SYMOPT_EXACT_SYMBOLS; // Do not load an unmatched .pdb file. 
+  dwOptions |= SYMOPT_FAIL_CRITICAL_ERRORS; // Do not display system dialog boxes when there is a media failure such as no media in a drive.
+  dwOptions |= SYMOPT_UNDNAME; // All symbols are presented in undecorated form.   
   SymSetOptions(dwOptions);
 
   m_bReadSysInfoStream = !ReadSysInfoStream();
