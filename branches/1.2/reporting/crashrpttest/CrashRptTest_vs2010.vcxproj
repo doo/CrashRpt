@@ -271,7 +271,7 @@ copy dummy.log ..\..\bin
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+      <Command>copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 copy dummy.ini ..\..\bin
 copy dummy.log ..\..\bin
 </Command>
