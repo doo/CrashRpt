@@ -132,7 +132,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">crashcon</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">crashcon</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">crashcond</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">crashconLIB.exe</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">crashcon.exe</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -167,13 +167,15 @@
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>CrashRpt.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\lib</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <OutputFile>.\Release/crashcon.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+      <Command>copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -342,7 +344,7 @@
     <Link>
       <AdditionalDependencies>CrashRptLIB.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\thirdparty\lib;..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\crashcon.pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
@@ -354,7 +356,7 @@
       <OutputFile>.\Release/crashcon.bsc</OutputFile>
     </Bscmake>
     <PostBuildEvent>
-      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
+      <Command>copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin
 
 </Command>
     </PostBuildEvent>
@@ -427,16 +429,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\crashrpt\src\CrashRpt.vcxproj">
-      <Project>{9be99719-aa32-4463-a011-b61d55f020d6}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\..\crashsender\src\CrashSender.vcxproj">
-      <Project>{939312d6-690a-4103-92c5-4d89025bf10a}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
