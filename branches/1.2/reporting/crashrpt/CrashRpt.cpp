@@ -41,7 +41,8 @@
 #include "Utility.h"
 #include "strconv.h"
 
-CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
+HANDLE g_hModuleCrashRpt = NULL; // Handle to CrashRpt.dll module.
+CComAutoCriticalSection g_cs;    // Critical section for thread-safe accessing error messages.
 std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
 
 CRASHRPTAPI(LPVOID) InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWSTR pszEmailSubject)
@@ -810,4 +811,15 @@ crEmulateCrash(unsigned ExceptionType) throw (...)
   return 1;
 }
 
+#ifndef CRASHRPT_LIB
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD dwReason, LPVOID /*lpReserved*/)
+{
+  if(dwReason==DLL_PROCESS_ATTACH)
+  {
+    // Save handle to the CrashRpt.dll module.
+    g_hModuleCrashRpt = hModule;
+  }
+  return TRUE;
+}
+#endif
 

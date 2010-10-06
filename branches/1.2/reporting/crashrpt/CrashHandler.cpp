@@ -60,6 +60,7 @@ EXTERNC void * _ReturnAddress(void);
 
 #endif 
 
+extern HANDLE g_hModuleCrashRpt;
 CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
 CCrashHandler::CCrashHandler()
@@ -257,20 +258,16 @@ int CCrashHandler::Init(
   pszCrashRptModule = NULL;
 #endif
   
-  std::set<CString> asPathToCrashSenderCandidates;
-
   // Save path to CrashSender.exe
   if(lpcszCrashSenderPath==NULL)
   {
-    // By default assume that CrashSender.exe is located in the same dir as CrashRpt.dll
-    asPathToCrashSenderCandidates = Utility::GetModulePathCandidates(pszCrashRptModule);   
+    // By default assume that CrashSender.exe is located in the same dir as CrashRpt.dll    
+    m_sPathToCrashSender = Utility::GetModulePath((HMODULE)g_hModuleCrashRpt);    
   }
   else
   {
-    // Save user-specified path
-    // Remove ending backslash if any
-    CString sPathToCrashSender = CString(lpcszCrashSenderPath);
-    asPathToCrashSenderCandidates.insert(sPathToCrashSender);    
+    // Save user-specified path    
+    m_sPathToCrashSender = CString(lpcszCrashSenderPath);    
   }
 
   // Get CrashSender EXE name
@@ -283,27 +280,19 @@ int CCrashHandler::Init(
 #endif //_DEBUG
 
   // Check that CrashSender.exe file exists
-  std::set<CString>::iterator it;
-  for(it=asPathToCrashSenderCandidates.begin(); it!=asPathToCrashSenderCandidates.end(); it++)
-  {
-    CString sPathToCrashSender = *it;  
-    if(sPathToCrashSender.Right(1)!='\\')
-        sPathToCrashSender+="\\";    
+  if(m_sPathToCrashSender.Right(1)!='\\')
+      m_sPathToCrashSender+="\\";    
     
-    HANDLE hFile = CreateFile(sPathToCrashSender+sCrashSenderName, FILE_GENERIC_READ, 
+  HANDLE hFile = CreateFile(m_sPathToCrashSender+sCrashSenderName, FILE_GENERIC_READ, 
       FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);  
-    if(hFile!=INVALID_HANDLE_VALUE)
-    {
-      m_sPathToCrashSender = sPathToCrashSender;
-      CloseHandle(hFile);
-      break;
-    }
-  }
-
-  if(m_sPathToCrashSender.IsEmpty())
-  {
+  if(hFile==INVALID_HANDLE_VALUE)
+  { 
     crSetErrorMsg(_T("CrashSender.exe is not found in the specified path."));
     return 1;
+  }
+  else
+  {
+    CloseHandle(hFile);   
   }
   
   // Determine where to look for language file.
@@ -327,55 +316,43 @@ int CCrashHandler::Init(
     crSetErrorMsg(_T("Missing language file or wrong language file version."));
     return 1; // Language INI file has wrong version!
   }
-  
-  std::set<CString> asPathToDbgHelpCandidates;
+    
   if(lpcszDebugHelpDLLPath==NULL)
   {
     // By default assume that debughlp.dll is located in the same dir as CrashRpt.dll    
-    asPathToDbgHelpCandidates = Utility::GetModulePathCandidates(pszCrashRptModule);       
+    m_sPathToDebugHelpDll = Utility::GetModulePath((HMODULE)g_hModuleCrashRpt);       
   }
   else
   {
-    CString sPathToDebugHelpDll = CString(lpcszDebugHelpDLLPath);    
-    asPathToDbgHelpCandidates.insert(sPathToDebugHelpDll);
+    m_sPathToDebugHelpDll = CString(lpcszDebugHelpDLLPath);        
   }  
 
   const CString sDebugHelpDLL_name = "dbghelp.dll";  
 
-  for(it=asPathToDbgHelpCandidates.begin(); it!=asPathToDbgHelpCandidates.end(); it++)
-  {
-    CString sPathToDebugHelpDll = *it;
-    if(sPathToDebugHelpDll.Right(1)!='\\')
-      sPathToDebugHelpDll+="\\";
+  if(m_sPathToDebugHelpDll.Right(1)!='\\')
+    m_sPathToDebugHelpDll+="\\";
 
-    m_hDbgHelpDll = LoadLibrary(sPathToDebugHelpDll+sDebugHelpDLL_name);    
+  m_hDbgHelpDll = LoadLibrary(m_sPathToDebugHelpDll+sDebugHelpDLL_name);    
     
-    if(m_hDbgHelpDll!=NULL)
-    {
-      m_sPathToDebugHelpDll = sPathToDebugHelpDll;      
-      break;
-    }
-  }
-  
   if(!m_hDbgHelpDll)
   {
     //try again ... fallback to dbghelp.dll in path
+    m_sPathToDebugHelpDll = _T("");
     m_hDbgHelpDll = LoadLibrary(sDebugHelpDLL_name);
     if(!m_hDbgHelpDll)
     {     
       crSetErrorMsg(_T("Couldn't load dbghelp.dll."));      
       return 1;
-    }
-
-    m_sPathToDebugHelpDll = Utility::GetModulePath(m_hDbgHelpDll);
-    if(m_sPathToDebugHelpDll.Right(1)!='\\')
-      m_sPathToDebugHelpDll+="\\";
+    }    
   }
 
   m_sPathToDebugHelpDll += sDebugHelpDLL_name;
 
   if(m_hDbgHelpDll!=NULL)
+  {
     FreeLibrary(m_hDbgHelpDll);
+    m_hDbgHelpDll = NULL;
+  }
 
   // Generate unique GUID for this crash report.
   if(0!=Utility::GenerateGUID(m_sCrashGUID))

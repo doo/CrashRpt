@@ -308,6 +308,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\CrashRptd.pdb"
 				OptimizeForWindows98="1"
+				ResourceOnlyDLL="false"
 				BaseAddress="0x20000000"
 				ImportLibrary="..\..\lib\CrashRptd.lib"
 				TargetMachine="1"
