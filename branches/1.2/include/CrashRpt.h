@@ -424,7 +424,7 @@ GenerateErrorReport(
  *
  *    <tr><td> \ref CR_INST_SEND_QUEUED_REPORTS     
  *        <td> <b>Available since v.1.2.5</b> Specify this parameter to send all queued reports. Those
- *             report files are by default stored in <i>%LOCAL_APPDATA%\CrashRpt\UnsentCrashReports\%AppName%_%AppVersion%</i> folder.
+ *             report files are by default stored in <i>%LOCAL_APPDATA%\\CrashRpt\\UnsentCrashReports\\%AppName%_%AppVersion%</i> folder.
  *             If this is specified, CrashRpt checks if it's time to remind user about recent errors in the application and offers to send
  *             all queued error reports.
  *
