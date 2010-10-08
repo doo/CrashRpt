@@ -140,7 +140,9 @@ solution, Visual Studio can locate them automatically. But, if you delete/move o
 won't be able to locate them. In order to illustrate such case, I will remove the entire <i>D:\\Projects\\CrashRpt\\dmptest</i> 
 folder that contained CrashRpt source code I used in compilation, resulting binaries and PDB files. 
 Then I open the minidump again and see the message 'No symbols are loaded for any stack frame. The source
-code can't be displayed'.  
+code can't be displayed' (see the figure below).  
+
+\image html no_symbols_loaded.png "No Symbols Loaded"
 
 Also look at the <i>Modules</i> window - symbol status for <b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules shows that 
 there were no matching binaries found. In order to fix this, you should specify symbol search path
