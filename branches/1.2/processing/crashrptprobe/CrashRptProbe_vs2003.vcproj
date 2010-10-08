@@ -137,7 +137,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib version.lib zlib.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbeLIB.lib"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"/>
+				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
