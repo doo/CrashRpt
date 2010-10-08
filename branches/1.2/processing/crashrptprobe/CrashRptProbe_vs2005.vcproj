@@ -208,7 +208,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib"
+				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdharty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -230,7 +230,7 @@
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
 				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
