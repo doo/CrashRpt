@@ -18,7 +18,7 @@ Options->Projects and Solutions->VC++ Directories.
   the path to <i>[CRASHRPT_HOME]\\lib</i> directory to the list.
 
 Here <i>[CRASHRPT_HOME]</i> should be replaced with the actual path of the 
-directory you unzipped CrashRpt package to.
+directory you unzipped CrashRpt distribution to.
 
 \note In previous versions, include files were stored in <i>[CRASHRPT_HOME]\\CrashRpt\\include</i>.
 <b>Since v1.2.0</b>, all include files are stored in <i>[CRASHRPT_HOME]\\include</i> directory.

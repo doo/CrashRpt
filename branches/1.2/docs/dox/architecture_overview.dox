@@ -29,7 +29,7 @@
    should be supported. Visual C++ development environment should be supported.
 
 \b Rubustness. CrashRpt should provide crash reporting services not depending of client
-   application state. Client application may be instable, heap-corrupted, stack-corrupted and so on.
+   application state. Client application may be unstable, heap-corrupted, stack-corrupted and so on.
 
 \b Testability. The main features should be covered by automated tests to 
    guarantee expected behavior.

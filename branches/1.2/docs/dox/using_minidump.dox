@@ -85,7 +85,7 @@ you can see what symbol files are loaded for each module.
 \image html output_window.png "Output Window"
 
 Now look at the <i>Modules</i> window. If you do not see such window, open menu <i>Debug->Windows</i> and select 
-the <i>Modules</i> menu item. Click the <i>Symbol Status</i> column header twice to order modules by symbol 
+the <i>Modules</i> menu item. Click the <i>Symbol Status</i> column header twice to sort modules by symbol 
 load status in descending order. Now you should be able to see that symbols are loaded for 
 <b>CrashRptTest.exe</b> and <b>CrashRpt.dll</b> modules. 
 
@@ -153,7 +153,7 @@ are located (see the figure below for example).
 
 Now reload the minidump (stop the debugging and start it again). You see that the stack trace is now recovered
 correctly. But there is still one problem - the correct source code files are not displayed. 
-In the <i>Call Stack</i> window, doble-click the topmost stack frame. A dialog titled 'Find Source: crashrpt.cpp'
+In the <i>Call Stack</i> window, double-click the topmost stack frame. A dialog titled 'Find Source: crashrpt.cpp'
 will appear. In this dialog, browse to the <i>D:\\Projects\\CrashRptSaved\\src\\reporting\\crashrpt</i> folder. Now
 the correct source file should be displayed in Visual Studio source code window.
 

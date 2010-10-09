@@ -72,12 +72,7 @@ at the moment of crash, or about the version of the graphics card driver.
 
 \section adding_a_screenshot Adding a Screenshot
 
-In 90% of cases, minidump file + crash description XML file would be sufficient. 
-The rest 10% require additional information, for example a log that your application maintains. 
-This technical information should be enough to localize the probable place in your code which 
-was the source of the problem.
-
-However, it may be also useful to have a screenshot of user's desktop at the moment of crash. 
+It may be useful to have a screenshot of user's desktop at the moment of crash. 
 This may help to see which button user clicked before the crash, and to see the desktop state. 
 For example, for multi-monitor desktops it may be useful to see if the application window is 
 positioned on the primary monitor, on the secondary monitor, or at the boundary of two monitors. 

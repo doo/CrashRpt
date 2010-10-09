@@ -17,7 +17,7 @@ you usually do with normal bugs. You usually can't reproduce the error on your m
 so you can't guarantee it is fixed. So the only way to check is to make fixes in parts of code 
 that could cause the crash most probably and to release a new version of software. 
 
-The normal scenario is that your software becomes more and more stable with each release and
+The normal scenario is that your software becomes more and more stable with each evolutional release and
 less and less error reports are received. 
 
 \section zip_structure The Structure of an Error Report

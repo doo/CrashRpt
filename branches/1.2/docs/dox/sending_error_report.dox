@@ -202,8 +202,9 @@ you may receive the same error report several times through different transport.
 
 \subsection script_example Sample PHP Script
 
-Below is an example server-side PHP script that can receive a crash report and write it to a file.
-The script can receive error reports from any version of CrashRpt.
+Below is an example server-side PHP script (reporting/scripts/crashrpt.php) that can receive a crash 
+report and write it to a file.
+The script can receive error reports from any version of CrashRpt. 
 
 \include crashrpt.php
 
@@ -221,7 +222,7 @@ record of recipent's domain. Another way to specify the recipient server address
 \ref CR_INSTALL_INFO::pszSmtpProxy member.
 
 Many SMTP servers may block direct access to them to avoid spam (for example Google does so). 
-This way may alsp fail if firewall blocks outgoing connections on port 25. 
+This way may also fail if firewall blocks outgoing connections on port 25. 
 
 \section smapisend Sending Crash Report Using Simple MAPI
 
