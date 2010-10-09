@@ -427,7 +427,7 @@
 				AdditionalIncludeDirectories="..\..\reporting\CrashRpt;..\..\include\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				FloatingPointExceptions="false"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"

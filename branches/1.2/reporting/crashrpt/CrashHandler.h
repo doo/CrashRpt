@@ -31,7 +31,7 @@
 ***************************************************************************************/
 
 // File: CrashHandler.h
-// Description: Exception handling and report generation functionality.
+// Description: Exception handling functionality.
 // Authors: mikecarruth, zexspectrum
 // Date: 
 
