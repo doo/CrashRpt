@@ -8,13 +8,7 @@ CrashRpt library is an open source error handling, reporting and processing tool
 
 == What license does crashrpt use? ==
 
-CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New BSD License].  
-
-== What third-party libraries does crashrpt use internally? ==
-
-This depends on what CrashRpt version you use. See the documentation distributed with your version of CrashRpt.
-
-Generally, CrashRpt may use the following third-party libraries:
+CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New BSD License]. Other software included in CrashRpt distribution is provided under other licenses, as listed in the table below. 
 
 || *Name* || *License* || *Usage Purpose* ||
 || [http://sourceforge.net/projects/wtl/ WTL] || [http://opensource.org/licenses/ms-pl.html Microsoft Permissive License] || Used for GUI management || 
