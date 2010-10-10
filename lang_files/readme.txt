@@ -6,6 +6,11 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.7 ---
+
+ * In [DetailDlg]
+  - TextEncoding - new
+
 --- v.1.2.6 ---
 
  * In [DetailDlg]
