@@ -15,7 +15,6 @@ CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New 
 || [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Debug Help Library] || [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Software License Terms for Microsoft Debugging Tools for Windows] || Used for creating and reading crash minidumps ||
 || [http://www.grinninglizard.com/tinyxml/ TinyXml] || [http://en.wikipedia.org/wiki/TinyXML licence of zlib/libpng] || Used for creating and editing XML files || 
 || [http://www.zlib.net/ ZLib] || [http://www.gzip.org/zlib/zlib_license.html zlib license] || File compression functionality ||  
-|| [http://www.codeproject.com/KB/files/zip_utils.aspx zip utils] || [http://creativecommons.org/licenses/publicdomain/ Public Domain Dedication] || ZIP file management ||
 || [http://www.winimage.com/zLibDll/minizip.html minizip] || [http://www.gzip.org/zlib/zlib_license.html zlib license] || ZIP file management (replacement for zip_utils) ||
 || [http://www.libpng.org/pub/png/libpng.html libpng] || [http://www.libpng.org/pub/png/src/libpng-LICENSE.txt libpng license] || PNG file management ||  
 
