@@ -1,6 +1,49 @@
 #summary Release History
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.2.7 =
+
+CrashRpt v1.2.7 introduces automated tests, improves error report post-processing scripts and fixes some detected issues. Below the complete list of changes is presented. 
+
+  - Added Tests project that implements automated tests for CrashRpt and `CrashRptProbe` functionality. 
+
+  - Reorganized directory structure to better reflect architecture.
+
+  - Updated tinyxml, minizip and zlib files to the latest available versions.
+
+  - Refactored `scripts/postprocess.bat`. It now better groups similar error reports.
+
+  - New tag `GeoLocation` - user's geographic location like 'en-us' is now recorded inside of crash description XML.
+
+  - New tag `OSIs64Bit` - detects if user's OS is 64-bit and records this inside of crash description XML.
+
+  - Improved the way `crprober.exe` cleans up its temporary files.
+
+  - New columns `CRP_COL_OS_IS_64BIT` and `CRP_COL_GEO_LOCATION` for `CRP_TBL_XMLDESC_MISC` table.
+
+  - New column `CRP_COL_EXCEPTION_THREAD_STACK_MD5` for `CRP_TBL_MDMP_MISC` table.
+
+  - Fixed issue with Chineese symbols in app name (issue 54). 
+
+  - Improved `CFilePreviewCtrl` to support UTF-8 and UTF-16 encoding (issue 56). Also improved `WM_MOUSEWHEEL` message handling (scrolling preview by mouse wheel).
+
+  - Using critical section to avoid access to CCrashHandler from several crashed threads (issue 52).
+
+  - Fixed: Leaving `pszRestartCmdLine NULL`, gives new application instance blank first argument (issue 50).
+
+  - Fixed incorrect argument order in `crAddRegKeyA` (issue 49).
+
+  - Added new flag `CR_INST_STORE_ZIP_ARCHIVES` that allows to store ZIP archives along with uncompressed error report files (issue 53).
+
+  - Fixed: Version info caused crash (issue 48).
+
+  - Improved documentation (section Architecture Overview).
+
+  - Improved documentation (section Using Crash Minidump) (issue 45).
+
+  - Fixed DNS access problem for SMTP proxy (issue 51).
+
+
 = crashrpt v1.2.6 =
 
 CrashRpt v1.2.6 introduces support of Visual Studio 2010, an ability to add a dump of a registry key and fixes some detected issues. Below the complete list of changes is presented. 
