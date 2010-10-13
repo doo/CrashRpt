@@ -10,13 +10,13 @@ CrashRpt library is an open source error handling, reporting and processing tool
 
 CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New BSD License]. Other software included in CrashRpt distribution is provided under other licenses, as listed in the table below. 
 
-|| *Name* || *License* || *Usage Purpose* ||
-|| [http://sourceforge.net/projects/wtl/ WTL] || [http://opensource.org/licenses/ms-pl.html Microsoft Permissive License] || Used for GUI management || 
-|| [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Debug Help Library] || [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Software License Terms for Microsoft Debugging Tools for Windows] || Used for creating and reading crash minidumps ||
-|| [http://www.grinninglizard.com/tinyxml/ TinyXml] || [http://en.wikipedia.org/wiki/TinyXML licence of zlib/libpng] || Used for creating and editing XML files || 
-|| [http://www.zlib.net/ ZLib] || [http://www.gzip.org/zlib/zlib_license.html zlib license] || File compression functionality ||  
-|| [http://www.winimage.com/zLibDll/minizip.html minizip] || [http://www.gzip.org/zlib/zlib_license.html zlib license] || ZIP file management (replacement for zip_utils) ||
-|| [http://www.libpng.org/pub/png/libpng.html libpng] || [http://www.libpng.org/pub/png/src/libpng-LICENSE.txt libpng license] || PNG file management ||  
+|| *Name* || *License* ||
+|| [http://sourceforge.net/projects/wtl/ WTL] || [http://opensource.org/licenses/ms-pl.html Microsoft Permissive License] ||
+|| [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Debug Help Library] || [http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx Microsoft Software License Terms for Microsoft Debugging Tools for Windows] ||
+|| [http://www.grinninglizard.com/tinyxml/ TinyXml] || [http://en.wikipedia.org/wiki/TinyXML licence of zlib/libpng] ||
+|| [http://www.zlib.net/ ZLib] || [http://www.gzip.org/zlib/zlib_license.html zlib license] ||
+|| [http://www.winimage.com/zLibDll/minizip.html minizip] || [http://www.gzip.org/zlib/zlib_license.html zlib license] ||
+|| [http://www.libpng.org/pub/png/libpng.html libpng] || [http://www.libpng.org/pub/png/src/libpng-LICENSE.txt libpng license] ||
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
