@@ -49,6 +49,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "crprober", "processing\crpr
 		{42B7465D-C7ED-42D3-9DE6-D966721A6F86} = {42B7465D-C7ED-42D3-9DE6-D966721A6F86}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpeg", "thirdparty\jpeg\jpeg_vs2005.vcproj", "{153E58F0-E82C-4A96-8F06-788B49EB4990}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -177,6 +179,15 @@ Global
 		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release|Win32.Build.0 = Release|Win32
 		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release|x64.ActiveCfg = Release|x64
 		{485ADA7C-BF7C-4EDC-AA56-212BF0160351}.Release|x64.Build.0 = Release|x64
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Debug|Win32.ActiveCfg = Debug|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Debug|Win32.Build.0 = Debug|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Debug|x64.ActiveCfg = Debug|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Release LIB|Win32.ActiveCfg = Release|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Release LIB|Win32.Build.0 = Release|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Release LIB|x64.ActiveCfg = Release|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Release|Win32.ActiveCfg = Release|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Release|Win32.Build.0 = Release|Win32
+		{153E58F0-E82C-4A96-8F06-788B49EB4990}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

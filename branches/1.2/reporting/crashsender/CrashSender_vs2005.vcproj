@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\include;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\include;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib libpngd.lib psapi.lib minizipd.lib"
+				AdditionalDependencies="jpegd.lib zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib libpngd.lib psapi.lib minizipd.lib"
 				OutputFile="$(OutDir)\CrashSenderd.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
@@ -641,6 +641,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\BlackBox.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CrashInfoReader.cpp"
 				>
 			</File>
@@ -1051,6 +1055,10 @@
 			</File>
 			<File
 				RelativePath=".\base64.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BlackBox.h"
 				>
 			</File>
 			<File
