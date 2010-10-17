@@ -31,7 +31,7 @@
 ***************************************************************************************/
 
 // File: BlackBox.h
-// Description: Designed to record the application performance information and desktop state snapshots before the accident.
+// Description: Designed to record the application performance information and/or desktop state snapshots before the accident.
 // Authors: zexspectrum
 // Date: 2010
 
@@ -45,6 +45,8 @@ public:
   CBlackBox();
   ~CBlackBox();
 
+  BOOL Init();
+  void Destroy();
 
 private:
 

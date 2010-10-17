@@ -146,47 +146,39 @@ The latest stable version of CrashRpt is available on
 
 \section license License
 
-This library is distributed under the <b>New BSD license</b>. You can find the 
-license text <a href="../../License.txt">here</a>.
-
-Internally, CrashRpt uses the following third-party libraries:
+This library is distributed under the <a href="../../License.txt">New BSD license</a>. 
+Other software included in CrashRpt distribution is provided under other licenses, as listed 
+in the table below. 
 
 <table>
 
 <tr>
 <td> \b Name
-<td> \b Description
-<td> \b Link
+<td> \b License
 
 <tr>
-<td>WTL
-<td>Used for GUI management
-<td>http://sourceforge.net/projects/wtl/
+<td><a href="http://sourceforge.net/projects/wtl/">WTL</a>
+<td><a href="http://opensource.org/licenses/ms-pl.html">Microsoft Permissive License</a>
 
 <tr>
-<td>Microsoft Debug Help Library 	
-<td>Used for creating crash minidumps
-<td>http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx
+<td><a href="http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx">Microsoft Debug Help Library</a> 	
+<td><a href="http://msdn.microsoft.com/en-us/library/ms679309%28VS.85%29.aspx">Microsoft Software License Terms for Microsoft Debugging Tools for Windows</a>
 
 <tr>
-<td>TinyXml
-<td>Used for creating and editing XML files
-<td>http://www.grinninglizard.com/tinyxml/
+<td><a href="http://www.grinninglizard.com/tinyxml/">TinyXml</a>
+<td><a href="http://en.wikipedia.org/wiki/TinyXML">licence of zlib/libpng</a>
 
 <tr>
-<td>ZLib 	
-<td>File compression functionality
-<td>http://www.zlib.net/
+<td><a href="http://www.zlib.net/">ZLib</a> 	
+<td><a href="http://www.gzip.org/zlib/zlib_license.html">zlib license</a>
 
 <tr>
-<td>minizip 	
-<td>ZIP file management (replacement for zip_utils) 	
-<td>http://www.winimage.com/zLibDll/minizip.html
+<td><a href="http://www.winimage.com/zLibDll/minizip.html">minizip</a>
+<td><a href="http://www.gzip.org/zlib/zlib_license.html">zlib license</a>
 
 <tr>
-<td>libpng 	
-<td>PNG file management 	
-<td>http://www.libpng.org/pub/png/libpng.html
+<td><a href="http://www.libpng.org/pub/png/libpng.html">libpng</a>
+<td><a href="http://www.libpng.org/pub/png/src/libpng-LICENSE.txt">libpng license</a>
 
 </table>
 

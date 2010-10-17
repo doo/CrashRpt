@@ -148,6 +148,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\jaricom.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jcapimin.c"
 				>
 			</File>
@@ -241,6 +245,18 @@
 			</File>
 			<File
 				RelativePath=".\jfdctint.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jmemansi.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jmemmgr.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jutils.c"
 				>
 			</File>
 		</Filter>

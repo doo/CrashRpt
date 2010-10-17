@@ -1072,6 +1072,27 @@ crAddRegKeyA(
 #define crAddRegKey crAddRegKeyA
 #endif //UNICODE
 
+typedef struct tagCR_BLACKBOX_INFO
+{
+  UINT  cb;                    //!< Size of this structure, in bytes.  
+  int   nMemUsageSnapMaxCount; //!< Maximum memory usage snapshot count.
+  int   nMemUsageSnapInterval; //!< Memory usage snapshot taking interval, in miliseconds.
+  int   nCPUsageSnapMaxCount;  //!< CPU usage snapshot max count.
+  int   nCPUsageSnapInterval;  //!< CPU usage snapshot max interval. 
+  DWORD dwScreenshotFlags;     //!< Desktop screenshot flags.
+  int   nScreenshotMaxCount;   //!< Maximum desktop screenshot count.
+  int   nScreenshotInterval;   //!< Desktop screenshot taking interval, in miliseconds.
+  float fScrenshotJpegQuality; //!< Desktop screenshot JPEG image quality (between zero and one).
+  BOOL  bScreenshotGrayscale;  //!< If TRUE, generates grayscale screenshots (this decreases total file size).
+}
+CR_BLACKBOX_INFO, *PCR_BLACKBOX_INFO;
+
+
+CRASHRPTAPI(int)
+crEnableBlackBox(   
+   BOOL bEnable,
+   PCR_BLACKBOX_INFO pInfo
+   );
 
 // Exception types
 #define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< SEH exception (deprecated name, use \ref CR_SEH_EXCEPTION instead).

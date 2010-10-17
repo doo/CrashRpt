@@ -35,6 +35,23 @@
 #include "jpeglib.h"
 #include <setjmp.h>
 
+CBlackBox::CBlackBox()
+{
+}
+
+CBlackBox::~CBlackBox()
+{
+  Destroy();
+}
+
+BOOL CBlackBox::Init()
+{
+  return TRUE;
+}
+
+void CBlackBox::Destroy()
+{
+}
 
 BOOL CBlackBox::JpegWrite(CString sFileName)
 {
