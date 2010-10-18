@@ -19,24 +19,31 @@ def get_txt_file_count(dirname):
      break;
    return count
 
-map = dict()
+multimap = dict()
 for root, dirs, files in os.walk(in_dir):
    for dir in dirs:
       dir_name = os.path.join(root, dir)
       report_count_in_dir = get_txt_file_count(dir_name)
-      map[report_count_in_dir] = dir
+      if report_count_in_dir in multimap.keys():
+         multimap[report_count_in_dir].append(dir)
+      else:
+         multimap[report_count_in_dir] = [dir]
 
-ordered_list = list(map.keys())
+ordered_list = list(multimap.keys())
 ordered_list.sort()
 ordered_list.reverse()
 
 total_count = 0
+total_groups = 0
 for count in ordered_list:
-   total_count += count
+  total_groups += len(multimap[count]);
+  total_count += count * len(multimap[count])
 
-f.write("%d reports in total \n"%(total_count))
+f.write("Total %d reports (100%%) in %d directories\n"%(total_count, total_groups))
 
 for key in ordered_list:
-   f.write("%d reports in '%s'\n"%(key, map[key]))
+  for dir in multimap[key]:
+   percent = key/total_count*100
+   f.write("%d (%0.1f%%) reports in '%s'\n"%(key, percent, dir))
 
 f.close()
