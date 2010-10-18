@@ -80,7 +80,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)thirdparty\lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
@@ -103,12 +103,14 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4244;4267"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -121,6 +123,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\jpeg.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -224,7 +227,51 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jdarith.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jdatadst.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdatasrc.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdcoefct.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdcolor.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jddctmgr.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdhuff.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdinput.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdmainct.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdmarker.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdmaster.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdmerge.c"
 				>
 			</File>
 			<File

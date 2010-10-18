@@ -297,7 +297,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     ERIFileItem fi;
     fi.m_sSrcFile = screenshot_names[i];
     fi.m_sDestFile = sDestFile;
-    fi.m_sDesc = _T("Desktop Screenshot");    
+    fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
     FilesToAdd.push_back(fi);
   }
 
@@ -490,7 +490,7 @@ BOOL CErrorReportSender::CreateMiniDump()
   }
 
   fi.m_bMakeCopy = false;
-  fi.m_sDesc = _T("Crash Dump");
+  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
   fi.m_sDestFile = _T("crashdump.dmp");
   fi.m_sSrcFile = sMinidumpFile;
   files_to_add.push_back(fi);
@@ -636,7 +636,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
     ERIFileItem fi;
     fi.m_sSrcFile = sFileName;
     fi.m_sDestFile = rit->second;
-    fi.m_sDesc = _T("Registry Key Dump");
+    fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescRegKey"));
     fi.m_bMakeCopy = FALSE;
     std::vector<ERIFileItem> file_list;
     file_list.push_back(fi);

@@ -894,7 +894,7 @@ int CCrashHandler::GenerateErrorReport(
   // Create crash description file in XML format. 
   CString sFileName;
   sFileName.Format(_T("%s\\crashrpt.xml"), m_sReportFolderName);
-  AddFile(sFileName, NULL, _T("Crash Log"), CR_AF_MISSING_FILE_OK);        
+  AddFile(sFileName, NULL, _T("Crash Description"), CR_AF_MISSING_FILE_OK);        
   int result = CreateCrashDescriptionXML(sFileName.GetBuffer(0), pExceptionInfo);
   ATLASSERT(result==0);
   
