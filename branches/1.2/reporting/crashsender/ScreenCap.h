@@ -55,6 +55,7 @@ public:
   /* Member variables. */
 
   CPoint m_ptCursorPos;
+  CRect m_rcCapture;
   CURSORINFO m_CursorInfo;
   int m_nIdStartFrom;
   CString m_sSaveDirName;

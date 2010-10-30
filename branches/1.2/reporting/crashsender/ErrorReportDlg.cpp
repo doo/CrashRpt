@@ -345,6 +345,12 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
     }
     else // If we shouldn't send error report now
     {
+      if(g_CrashInfo.m_bStoreZIPArchives) // If we should generate ZIP archive
+      {
+        // Compress error report files
+        g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
+      }
+
       // Exit
       SendMessage(WM_CLOSE);
     }

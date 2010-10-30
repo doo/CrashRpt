@@ -37,6 +37,7 @@
 
 #pragma once
 #include "stdafx.h"
+#include "CrashRpt.h"
 
 class CBlackBox
 {
@@ -45,11 +46,14 @@ public:
   CBlackBox();
   ~CBlackBox();
 
-  BOOL Init();
+  BOOL Init(PCR_BLACK_BOX_INFO pInfo);
   void Destroy();
 
 private:
 
+  static DWORD WINAPI ThreadProc(LPVOID lpParam);
+
   BOOL JpegWrite(CString sFileName);
 
+  CR_BLACK_BOX_INFO m_Info;
 };

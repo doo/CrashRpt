@@ -37,6 +37,7 @@
 
 CBlackBox::CBlackBox()
 {
+  ZeroMemory(&m_Info, sizeof(CR_BLACK_BOX_INFO));
 }
 
 CBlackBox::~CBlackBox()
@@ -44,8 +45,13 @@ CBlackBox::~CBlackBox()
   Destroy();
 }
 
-BOOL CBlackBox::Init()
+BOOL CBlackBox::Init(PCR_BLACK_BOX_INFO pInfo)
 {
+  if(pInfo==NULL || pInfo->cb!=sizeof(CR_BLACK_BOX_INFO))
+    return FALSE;
+
+  memcpy(&m_Info, pInfo, sizeof(CR_BLACK_BOX_INFO));
+
   return TRUE;
 }
 
@@ -53,12 +59,17 @@ void CBlackBox::Destroy()
 {
 }
 
+DWORD WINAPI CBlackBox::ThreadProc(LPVOID /*lpParam*/)
+{
+  return 0;
+}
+
 BOOL CBlackBox::JpegWrite(CString sFileName)
 {
-  int image_width;
-  int image_height;
-  int quality;
-  JSAMPLE * image_buffer;
+  int image_width = 0;
+  int image_height = 0;
+  int quality = 0;
+  JSAMPLE * image_buffer = NULL;
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
   FILE * outfile;		/* target file */

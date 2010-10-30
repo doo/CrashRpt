@@ -1074,6 +1074,8 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
   DWORD dwBytesRead=0;
   HANDLE hFile = INVALID_HANDLE_VALUE;  
   std::map<CString, ERIFileItem>::iterator it;
+  FILE* f = NULL;
+  CString sMD5Hash;
     
   if(m_bExport)
     m_Assync.SetProgress(_T("[exporting_report]"), 0, false);
@@ -1109,7 +1111,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
     CString sFileName = it->second.m_sSrcFile.GetBuffer(0);
     CString sDesc = it->second.m_sDesc;
 
-    sMsg.Format(_T("Compressing %s"), sDstFileName);
+    sMsg.Format(_T("Compressing file %s"), sDstFileName);
     m_Assync.SetProgress(sMsg, 0, false);
         
     HANDLE hFile = CreateFile(sFileName, 
@@ -1175,6 +1177,34 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
     CloseHandle(hFile);
     hFile = INVALID_HANDLE_VALUE;
   }
+
+  if(hZip!=NULL)
+  {
+    zipClose(hZip, NULL);
+    hZip = NULL;
+  }
+
+  sMsg.Format(_T("Calculating MD5 hash for file %s"), m_sZipName);
+  m_Assync.SetProgress(sMsg, 0, false);
+  
+  int nCalcMD5 = CalcFileMD5Hash(m_sZipName, sMD5Hash);
+  if(nCalcMD5!=0)
+  {
+    sMsg.Format(_T("Couldn't calculate MD5 hash for file %s"), m_sZipName);
+    m_Assync.SetProgress(sMsg, 0, false);
+    goto cleanup;
+  }
+  
+  
+  _tfopen_s(&f, m_sZipName + _T(".md5"), _T("wt"));
+  if(f==NULL)
+  {
+    sMsg.Format(_T("Couldn't save MD5 hash for file %s"), m_sZipName);
+    m_Assync.SetProgress(sMsg, 0, false);
+  }
+  
+  _ftprintf(f, sMD5Hash);
+  fclose(f);
 
   if(lTotalSize==lTotalCompressed)
     bStatus = TRUE;

@@ -55,6 +55,18 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   LPBYTE pRowBits = NULL;
   CString sFileName;
 
+  if(psc->m_rcCapture.left>=lprcMonitor->left && 
+    psc->m_rcCapture.left<lprcMonitor->right)
+  {
+    nLeft = psc->m_rcCapture.left;
+  }
+
+  if(psc->m_rcCapture.top>=lprcMonitor->top && 
+    psc->m_rcCapture.top<lprcMonitor->bottom)
+  {
+    nTop = psc->m_rcCapture.top;
+  }
+
   // Get monitor size
   nWidth = lprcMonitor->right - lprcMonitor->left;
 	nHeight = lprcMonitor->bottom - lprcMonitor->top;
@@ -159,9 +171,15 @@ CScreenCapture::CScreenCapture()
   m_nIdStartFrom = 0;
 }
 
-BOOL CScreenCapture::CaptureScreenRect(RECT rcCapture, POINT ptCursorPos, 
-      CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list)
+BOOL CScreenCapture::CaptureScreenRect(
+  RECT rcCapture, 
+  POINT ptCursorPos, 
+  CString sSaveDirName, 
+  int nIdStartFrom, 
+  std::vector<CString>& out_file_list)
 {	
+  m_rcCapture = rcCapture;
+
   // Get cursor information
   m_ptCursorPos = ptCursorPos;
   m_CursorInfo.cbSize = sizeof(CURSORINFO);

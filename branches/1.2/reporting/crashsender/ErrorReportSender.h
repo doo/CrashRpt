@@ -72,7 +72,7 @@ public:
   void DoWorkAssync();
   static DWORD WINAPI WorkerThread(LPVOID lpParam);  
     
-  BOOL CollectCrashFiles();
+  BOOL CollectCrashFiles();  
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   int DumpRegKey(CString sRegKey, CString sDestFile);
   int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
