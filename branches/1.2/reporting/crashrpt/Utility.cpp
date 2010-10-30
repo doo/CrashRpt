@@ -289,18 +289,22 @@ int Utility::GetGeoLocation(CString& sGeoLocation)
   sGeoLocation = _T("");
   
   typedef GEOID (WINAPI *PFNGETUSERGEOID)(GEOCLASS);
+  typedef int (WINAPI *PFNGETGEOINFOW)(GEOID, GEOTYPE, LPWSTR, int, LANGID);
 
   HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
   PFNGETUSERGEOID pfnGetUserGeoID = 
     (PFNGETUSERGEOID)GetProcAddress(hKernel32, "GetUserGeoID");
-  if(pfnGetUserGeoID==NULL)
+  PFNGETGEOINFOW pfnGetGeoInfoW = 
+    (PFNGETGEOINFOW)GetProcAddress(hKernel32, "GetGeoInfoW");
+  if(pfnGetUserGeoID==NULL || 
+     pfnGetGeoInfoW==NULL)
     return -1;
 
-  GEOID GeoLocation = GetUserGeoID(GEOCLASS_NATION);
+  GEOID GeoLocation = pfnGetUserGeoID(GEOCLASS_NATION);
   if(GeoLocation!=GEOID_NOT_AVAILABLE)
   { 
-    TCHAR szGeoInfo[1024] = _T("");    
-    int n = GetGeoInfo(GeoLocation, GEO_RFC1766, szGeoInfo, 1024, 0);
+    WCHAR szGeoInfo[1024] = _T("");    
+    int n = pfnGetGeoInfoW(GeoLocation, GEO_RFC1766, szGeoInfo, 1024, 0);
     if(n!=0)
     {
       sGeoLocation = szGeoInfo;

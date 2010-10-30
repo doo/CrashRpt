@@ -182,7 +182,7 @@ public:
     EXCEPTION_POINTERS* pExInfo, BOOL bSendRecentReports);
   
   // Launches the CrashSender.exe process.
-  int LaunchCrashSender(CString sCmdLineParams, BOOL bWait);  
+  int LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE* phProcess);  
 
   // Replaces characters that are restricted in XML.
   std::string XmlEncodeStr(CString sText);

@@ -60,6 +60,29 @@ EXTERNC void * _ReturnAddress(void);
 
 #endif 
 
+// The following helper function provided by lilinghui
+std::string& replaceInPlace(std::string& str, const std::string& from, const std::string& to, std::string::size_type start = 0)
+{	
+	std::string result;
+	std::string::size_type pos = 0;
+	result.append(str, 0, start);
+	do
+	{
+		pos = str.find(from, start);
+		if (pos != std::string::npos)
+		{
+			result.append(str, start, pos - start);
+			result.append(to);
+			start = pos + from.length();
+		}
+		else result.append(str, start, str.size() - start);
+	}
+	while (pos != std::string::npos);
+	str.swap(result);
+	return str;
+}
+
+
 extern HANDLE g_hModuleCrashRpt;
 CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
@@ -443,7 +466,7 @@ int CCrashHandler::Init(
   {
     CString sFileName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID + _T(".xml");
     CreateInternalCrashInfoFile(sFileName, NULL, TRUE);
-    LaunchCrashSender(sFileName, FALSE);
+    LaunchCrashSender(sFileName, FALSE, NULL);
   }
 
   // OK.
@@ -910,7 +933,7 @@ int CCrashHandler::GenerateErrorReport(
   // notify user about crash, compress the report into ZIP archive and send 
   // the error report. 
     
-  result = LaunchCrashSender(sFileName, TRUE);
+  result = LaunchCrashSender(sFileName, TRUE, &pExceptionInfo->hSenderProcess);
   if(result!=0)
   {
     ATLASSERT(result==0);
@@ -1474,7 +1497,7 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName,
 }
 
 // Launches CrashSender.exe process
-int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait)
+int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE* phProcess)
 {
   crSetErrorMsg(_T("Success."));
   
@@ -1485,7 +1508,7 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait)
   si.cb = sizeof(STARTUPINFO);
 
   PROCESS_INFORMATION pi;
-  memset(&pi, 0, sizeof(PROCESS_INFORMATION));  
+  memset(&pi, 0, sizeof(PROCESS_INFORMATION));    
 
   CString sCmdLine;
   sCmdLine.Format(_T("\"%s\" \"%s\""), sCmdLineParams, sCmdLineParams.GetBuffer(0));
@@ -1498,13 +1521,18 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait)
     return 1;
   }
   
-
   if(bWait)
   {
     /* Wait until CrashSender finishes with making screenshot, 
       copying files, creating minidump. */  
 
     WaitForSingleObject(m_hEvent, INFINITE);  
+  }
+
+  // Return handle to the CrashSender.exe process.
+  if(phProcess!=NULL)
+  {
+    *phProcess = pi.hProcess;
   }
 
   return 0;
@@ -1520,14 +1548,24 @@ std::string CCrashHandler::XmlEncodeStr(CString sText)
   LPCSTR pszEncodedStr = strconv.t2utf8(sText);
 
   // Replace characters restricted by XML
-  CString sResult = pszEncodedStr;
-  sResult.Replace(_T("&"), _T("&amp"));
-  sResult.Replace(_T("\""), _T("&quot"));
-  sResult.Replace(_T("'"), _T("&apos"));  
-  sResult.Replace(_T("<"), _T("&lt"));
-	sResult.Replace(_T(">"), _T("&gt"));
-  
-  return std::string(strconv.t2a(sResult));
+ // CString sResult = pszEncodedStr;
+ // sResult.Replace(_T("&"), _T("&amp"));
+ // sResult.Replace(_T("\""), _T("&quot"));
+ // sResult.Replace(_T("'"), _T("&apos"));  
+ // sResult.Replace(_T("<"), _T("&lt"));
+	//sResult.Replace(_T(">"), _T("&gt"));
+ // 
+ // return std::string(strconv.t2a(sResult));
+
+  // Replace characters restricted by XML
+  std::string str(pszEncodedStr);
+  replaceInPlace(str, std::string("&"), std::string("&amp"));
+  replaceInPlace(str, std::string("\""), std::string("&quot"));
+  replaceInPlace(str, std::string("'"), std::string("&apos"));
+  replaceInPlace(str, std::string("<"), std::string("&lt"));
+  replaceInPlace(str, std::string(">"), std::string("&gt"));
+
+  return std::string(pszEncodedStr);
 }
 
 void CCrashHandler::CrashLock(BOOL bLock)
