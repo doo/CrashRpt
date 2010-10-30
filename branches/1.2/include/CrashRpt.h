@@ -1072,7 +1072,7 @@ crAddRegKeyA(
 #define crAddRegKey crAddRegKeyA
 #endif //UNICODE
 
-typedef struct tagCR_BLACKBOX_INFO
+typedef struct tagCR_BLACK_BOX_INFO
 {
   UINT  cb;                    //!< Size of this structure, in bytes.  
   int   nMemUsageSnapMaxCount; //!< Maximum memory usage snapshot count.
@@ -1085,13 +1085,13 @@ typedef struct tagCR_BLACKBOX_INFO
   float fScrenshotJpegQuality; //!< Desktop screenshot JPEG image quality (between zero and one).
   BOOL  bScreenshotGrayscale;  //!< If TRUE, generates grayscale screenshots (this decreases total file size).
 }
-CR_BLACKBOX_INFO, *PCR_BLACKBOX_INFO;
+CR_BLACK_BOX_INFO, *PCR_BLACK_BOX_INFO;
 
 
 CRASHRPTAPI(int)
 crEnableBlackBox(   
    BOOL bEnable,
-   PCR_BLACKBOX_INFO pInfo
+   PCR_BLACK_BOX_INFO pInfo
    );
 
 // Exception types
@@ -1119,13 +1119,18 @@ crEnableBlackBox(
  *  This structure contains essential information needed to generate crash minidump file and
  *  provide the developer with other information about the error.
  *
- *  \a cb must contain the size of this structure in bytes.
+ *  \b cb [in]
  *
- *  \a pexcptrs should contain the exception pointers. If this parameter is NULL, 
- *     the current CPU state is used to generate exception pointers.
+ *    This must contain the size of this structure in bytes.
  *
- *  \a exctype is the type of exception. This value can be used for crash report classification on developers' side. 
- *  This parameter may be one of the following:
+ *  \b pexcptrs [in, optional]
+ *
+ *    Should contain the exception pointers. If this parameter is NULL, 
+ *    the current CPU state is used to generate exception pointers.
+ *
+ *  \b exctype [in]
+ *  
+ *    The type of exception. This parameter may be one of the following:
  *     - \ref CR_SEH_EXCEPTION             SEH (Structured Exception Handling) exception
  *     - \ref CR_CPP_TERMINATE_CALL        C++ terminate() function call
  *     - \ref CR_CPP_UNEXPECTED_CALL       C++ unexpected() function call
@@ -1140,20 +1145,34 @@ crEnableBlackBox(
  *     - \ref CR_CPP_SIGSEGV C++ invalid storage access
  *     - \ref CR_CPP_SIGTERM C++ termination request
  * 
- *   \a code is used if \a exctype is \ref CR_SEH_EXCEPTION and represents the SEH exception code. 
- *   If \a pexptrs is NULL, this value is used when generating exception information for initializing
- *   \c pexptrs->ExceptionRecord->ExceptionCode member, otherwise it is ignored.
+ *   \b code [in, optional]
  *
- *   \a fpe_subcode is used if \a exctype is equal to \ref CR_CPP_SIGFPE. It defines the floating point
- *   exception subcode (see \c signal() function ducumentation in MSDN).
+ *      Used if \a exctype is \ref CR_SEH_EXCEPTION and represents the SEH exception code. 
+ *      If \a pexptrs is NULL, this value is used when generating exception information for initializing
+ *      \c pexptrs->ExceptionRecord->ExceptionCode member, otherwise it is ignored.
+ *
+ *   \b fpe_subcode [in, optional]
+ *
+ *      Used if \a exctype is equal to \ref CR_CPP_SIGFPE. It defines the floating point
+ *      exception subcode (see \c signal() function ducumentation in MSDN).
  * 
- *   \a expression, \a function, \a file and \a line are used when \a exctype is \ref CR_CPP_INVALID_PARAMETER.
- *   These members are typically non-zero when using debug version of CRT.
+ *   \b expression, \b function, \b file and \b line [in, optional]
  *
- *   <b>Since v.1.2.4</b>, \a bManual parameter should be equal to TRUE if the report is generated manually. 
- *   The value of \a bManual parameter affects the automatic application restart behavior. If the application
- *   restart is requested by the \ref CR_INST_APP_RESTART flag of CR_INSTALL_INFO::dwFlags structure member, and if \a bManual is FALSE, the application will be
- *   restarted after error report generation. If \a bManual is TRUE, the application won't be restarted.
+ *     These parameters are used when \a exctype is \ref CR_CPP_INVALID_PARAMETER. 
+ *     These members are typically non-zero when using debug version of CRT.
+ *
+ *  \b bManual [in]
+ *
+ *     Since v.1.2.4, \a bManual parameter should be equal to TRUE if the report is generated manually. 
+ *     The value of \a bManual parameter affects the automatic application restart behavior. If the application
+ *     restart is requested by the \ref CR_INST_APP_RESTART flag of CR_INSTALL_INFO::dwFlags structure member, and if \a bManual is FALSE, the application will be
+ *     restarted after error report generation. If \a bManual is TRUE, the application won't be restarted.
+ *
+ *  \b hSenderProcess [out]
+ *
+ *     As of v.1.2.8, \a hSenderProcess parameter will contain the handle to the <b>CrashSender.exe</b> process when 
+ *     \ref crGenerateErrorReport function returns. The caller may use this handle to wait until <b>CrashSender.exe</b> 
+ *     process exits and check the exit code.
  */
 
 typedef struct tagCR_EXCEPTION_INFO
@@ -1168,6 +1187,7 @@ typedef struct tagCR_EXCEPTION_INFO
   const wchar_t* file;       //!< File in which assertion happened.
   unsigned int line;         //!< Line number.
   BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
+  HANDLE hSenderProcess;     //!< Handle to the CrashSender.exe process.
 }
 CR_EXCEPTION_INFO;
 
