@@ -1548,24 +1548,24 @@ std::string CCrashHandler::XmlEncodeStr(CString sText)
   LPCSTR pszEncodedStr = strconv.t2utf8(sText);
 
   // Replace characters restricted by XML
- // CString sResult = pszEncodedStr;
- // sResult.Replace(_T("&"), _T("&amp"));
- // sResult.Replace(_T("\""), _T("&quot"));
- // sResult.Replace(_T("'"), _T("&apos"));  
- // sResult.Replace(_T("<"), _T("&lt"));
-	//sResult.Replace(_T(">"), _T("&gt"));
- // 
- // return std::string(strconv.t2a(sResult));
+  CString sResult = pszEncodedStr;
+  sResult.Replace(_T("&"), _T("&amp;"));
+  sResult.Replace(_T("\""), _T("&quot;"));
+  sResult.Replace(_T("'"), _T("&apos;"));  
+  sResult.Replace(_T("<"), _T("&lt;"));
+	sResult.Replace(_T(">"), _T("&gt;"));
+  
+  return std::string(strconv.t2a(sResult));
 
   // Replace characters restricted by XML
-  std::string str(pszEncodedStr);
+  /*std::string str(pszEncodedStr);
   replaceInPlace(str, std::string("&"), std::string("&amp"));
   replaceInPlace(str, std::string("\""), std::string("&quot"));
   replaceInPlace(str, std::string("'"), std::string("&apos"));
   replaceInPlace(str, std::string("<"), std::string("&lt"));
   replaceInPlace(str, std::string(">"), std::string("&gt"));
 
-  return std::string(pszEncodedStr);
+  return std::string(pszEncodedStr);*/
 }
 
 void CCrashHandler::CrashLock(BOOL bLock)

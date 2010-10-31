@@ -1201,10 +1201,12 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
   {
     sMsg.Format(_T("Couldn't save MD5 hash for file %s"), m_sZipName);
     m_Assync.SetProgress(sMsg, 0, false);
+    goto cleanup;
   }
   
   _ftprintf(f, sMD5Hash);
   fclose(f);
+  f = NULL;
 
   if(lTotalSize==lTotalCompressed)
     bStatus = TRUE;
@@ -1216,6 +1218,9 @@ cleanup:
 
   if(hFile!=INVALID_HANDLE_VALUE)
     CloseHandle(hFile);
+
+  if(f!=NULL)
+    fclose(f);
 
   if(bStatus)
     m_Assync.SetProgress(_T("Finished compressing files...OK"), 100, true);

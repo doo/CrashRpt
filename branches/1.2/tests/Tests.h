@@ -39,6 +39,7 @@ extern std::map<std::string, std::string>* g_pTestSuiteList;
 extern std::string sCurTestSuite;
 extern std::map<std::string, PFNTEST>* g_pTestList;
 extern std::vector<std::string>* g_pErrorList;
+extern BOOL g_bRunningFromUNICODEFolder;
 
 class CTestSuiteRegistrator
 {

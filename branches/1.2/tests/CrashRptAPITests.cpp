@@ -241,8 +241,9 @@ void Test_crInstall_in_different_folder()
   CR_INSTALL_INFO infoW;
   memset(&infoW, 0, sizeof(CR_INSTALL_INFOW));
   infoW.cb = sizeof(CR_INSTALL_INFOW);
-  infoW.pszAppVersion = _T("1.0.0"); // Specify app version, otherwise it will fail.
-  
+  infoW.pszAppName = L"My& app Name & '"; // Use appname with restricted XML characters
+  infoW.pszAppVersion = L"1.0.0"; // Specify app version, otherwise it will fail.  
+
   typedef int (WINAPI *PFNCRINSTALLW)(PCR_INSTALL_INFOW);
   PFNCRINSTALLW pfncrInstallW = (PFNCRINSTALLW)GetProcAddress(hCrashRpt, "crInstallW");
   TEST_ASSERT(pfncrInstallW!=NULL);
@@ -303,12 +304,15 @@ void Test_crAddFileA()
   int nResult2 = crAddFileA("a.txt", "invalid file");
   TEST_ASSERT(nResult2!=0);
 
-  // Add existing file, crAddFileA should succeed
-  
-  sFileName = Utility::GetModulePath(NULL)+_T("\\dummy.ini");
-  LPCSTR szFileName = strconv.t2a(sFileName);
-  int nResult3 = crAddFileA(szFileName, "Dummy INI File");
-  TEST_ASSERT(nResult3==0);
+  if(g_bRunningFromUNICODEFolder==FALSE)
+  {
+    // Add existing file, crAddFileA should succeed
+    
+    sFileName = Utility::GetModulePath(NULL)+_T("\\dummy.ini");
+    LPCSTR szFileName = strconv.t2a(sFileName);
+    int nResult3 = crAddFileA(szFileName, "Dummy INI File");
+    TEST_ASSERT(nResult3==0);
+  }
 
   __TEST_CLEANUP__;
 
