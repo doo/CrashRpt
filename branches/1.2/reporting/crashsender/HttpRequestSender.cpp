@@ -120,8 +120,16 @@ BOOL CHttpRequestSender::InternalSend()
   // Connect to HTTP server
   m_Assync->SetProgress(_T("Connecting to server"), 0, true);
 
-  hConnect = InternetConnect(hSession, szServer, (WORD)dwPort, 
-    NULL, NULL, INTERNET_SERVICE_HTTP, 0, 1);
+  hConnect = InternetConnect(
+    hSession,     // InternetOpen handle
+    szServer,     // Server  name
+    (WORD)dwPort, // Default HTTPS port - 443
+    NULL,         // User name
+    NULL,         //  User password
+    INTERNET_SERVICE_HTTP, // Service
+    0,            // Flags
+    0             // Context
+    );
 	if(hConnect==NULL)
   {
     m_Assync->SetProgress(_T("Error connecting to server"), 0);
@@ -132,8 +140,20 @@ BOOL CHttpRequestSender::InternalSend()
 
   m_Assync->SetProgress(_T("Opening HTTP request..."), 0, true);
 
-  hRequest = HttpOpenRequest(hConnect, _T("POST"), szURI, 
-			NULL, NULL, szAccept, INTERNET_FLAG_NO_CACHE_WRITE, 0);
+  DWORD dwFlags = INTERNET_FLAG_NO_CACHE_WRITE;
+  if(dwPort==INTERNET_DEFAULT_HTTPS_PORT)
+    dwFlags |= INTERNET_FLAG_SECURE; // Use SSL
+
+  hRequest = HttpOpenRequest(
+    hConnect, 
+    _T("POST"), 
+    szURI, 
+		NULL, 
+    NULL, 
+    szAccept, 
+    dwFlags, 
+    0
+    );
   if (!hRequest)
   {
 	  m_Assync->SetProgress(_T("HttpOpenRequest has failed."), 0, true);
