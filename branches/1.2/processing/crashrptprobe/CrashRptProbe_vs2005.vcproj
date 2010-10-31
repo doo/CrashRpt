@@ -229,7 +229,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
+				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"

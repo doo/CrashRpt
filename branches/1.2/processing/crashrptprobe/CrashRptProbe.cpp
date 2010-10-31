@@ -45,8 +45,8 @@
 #include "strconv.h"
 #include "unzip.h"
 
-CComAutoCriticalSection g_cs; // Critical section for thread-safe accessing error messages
-std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling thread.
+CComAutoCriticalSection g_crp_cs; // Critical section for thread-safe accessing error messages
+std::map<DWORD, CString> g_crp_sErrorMsg; // Last error messages for each calling thread.
 
 // Funtion prototype
 int crpSetErrorMsg(PTSTR pszErrorMsg);
@@ -1289,12 +1289,12 @@ crpGetLastErrorMsgW(
 
   strconv_t strconv;
 
-  g_cs.Lock();
+  g_crp_cs.Lock();
 
   DWORD dwThreadId = GetCurrentThreadId();
-  std::map<DWORD, CString>::iterator it = g_sErrorMsg.find(dwThreadId);
+  std::map<DWORD, CString>::iterator it = g_crp_sErrorMsg.find(dwThreadId);
 
-  if(it==g_sErrorMsg.end())
+  if(it==g_crp_sErrorMsg.end())
   {
     // No error message for current thread.
     CString sErrorMsg = _T("No error.");
@@ -1302,7 +1302,7 @@ crpGetLastErrorMsgW(
 	  int size = min((int)wcslen(pwszErrorMsg), (int)uBuffSize-1);
     WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, sErrorMsg.GetLength());
     pszBuffer[uBuffSize-1] = 0;    
-    g_cs.Unlock();
+    g_crp_cs.Unlock();
     return size;
   }
   
@@ -1310,7 +1310,7 @@ crpGetLastErrorMsgW(
   int size = min((int)wcslen(pwszErrorMsg), (int)uBuffSize-1);
   WCSNCPY_S(pszBuffer, uBuffSize, pwszErrorMsg, size);
   pszBuffer[uBuffSize-1] = 0;  
-  g_cs.Unlock();
+  g_crp_cs.Unlock();
   return size;
 }
 
@@ -1339,10 +1339,10 @@ crpGetLastErrorMsgA(
 
 int crpSetErrorMsg(PTSTR pszErrorMsg)
 {  
-  g_cs.Lock();
+  g_crp_cs.Lock();
   DWORD dwThreadId = GetCurrentThreadId();
-  g_sErrorMsg[dwThreadId] = pszErrorMsg;
-  g_cs.Unlock();
+  g_crp_sErrorMsg[dwThreadId] = pszErrorMsg;
+  g_crp_cs.Unlock();
   return 0;
 }
 

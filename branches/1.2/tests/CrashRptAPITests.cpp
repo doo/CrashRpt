@@ -191,6 +191,7 @@ void Test_crInstallA_twice()
   
 }
 
+#ifndef CRASHRPT_LIB
 // Test the case when CrashRpt.dll and CrashSender.exe are located in
 // a different folder (not the same where process executable is located).
 // This test also checks that crInstall and crUninstall function names
@@ -265,6 +266,7 @@ void Test_crInstall_in_different_folder()
   // Delete temporary folder
   Utility::RecycleFile(sTmpFolder, TRUE);
 }
+#endif //!CRASHRPT_LIB
 
 REGISTER_TEST(Test_crUninstall);
 void Test_crUninstall()
@@ -876,6 +878,7 @@ void Test_crGenerateErrorReport()
   Utility::RecycleFile(sTmpFolder, TRUE);
 }
 
+#ifndef CRASHRPT_LIB
 // Test that API function names are undecorated
 REGISTER_TEST(Test_undecorated_func_names);
 void Test_undecorated_func_names()
@@ -941,3 +944,4 @@ void Test_undecorated_func_names()
     
   FreeLibrary(hCrashRpt);
 }
+#endif //!CRASHRPT_LIB

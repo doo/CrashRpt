@@ -265,7 +265,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib"
+				AdditionalDependencies="tinyxml.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib"
@@ -426,7 +426,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\reporting\CrashRpt;..\..\include\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="..\..\reporting\CrashRpt;..\..\include\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\wtl;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"

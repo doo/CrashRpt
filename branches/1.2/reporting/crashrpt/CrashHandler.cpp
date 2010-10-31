@@ -60,29 +60,6 @@ EXTERNC void * _ReturnAddress(void);
 
 #endif 
 
-// The following helper function provided by lilinghui
-std::string& replaceInPlace(std::string& str, const std::string& from, const std::string& to, std::string::size_type start = 0)
-{	
-	std::string result;
-	std::string::size_type pos = 0;
-	result.append(str, 0, start);
-	do
-	{
-		pos = str.find(from, start);
-		if (pos != std::string::npos)
-		{
-			result.append(str, start, pos - start);
-			result.append(to);
-			start = pos + from.length();
-		}
-		else result.append(str, start, str.size() - start);
-	}
-	while (pos != std::string::npos);
-	str.swap(result);
-	return str;
-}
-
-
 extern HANDLE g_hModuleCrashRpt;
 CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
@@ -1556,16 +1533,6 @@ std::string CCrashHandler::XmlEncodeStr(CString sText)
 	sResult.Replace(_T(">"), _T("&gt;"));
   
   return std::string(strconv.t2a(sResult));
-
-  // Replace characters restricted by XML
-  /*std::string str(pszEncodedStr);
-  replaceInPlace(str, std::string("&"), std::string("&amp"));
-  replaceInPlace(str, std::string("\""), std::string("&quot"));
-  replaceInPlace(str, std::string("'"), std::string("&apos"));
-  replaceInPlace(str, std::string("<"), std::string("&lt"));
-  replaceInPlace(str, std::string(">"), std::string("&gt"));
-
-  return std::string(pszEncodedStr);*/
 }
 
 void CCrashHandler::CrashLock(BOOL bLock)
