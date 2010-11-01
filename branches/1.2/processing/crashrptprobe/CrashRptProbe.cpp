@@ -1049,6 +1049,10 @@ crpGetPropertyW(
     {
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sLoadedPdbName);          
     }
+    else if(sColumnId.Compare(CRP_COL_MODULE_LOADED_IMAGE_NAME)==0)
+    {
+      pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sLoadedImageName);          
+    }    
     else
     {
       crpSetErrorMsg(_T("Invalid column ID specified."));

@@ -35,6 +35,7 @@
 
 #include "stdafx.h"
 #include "dbghelp.h"
+#include "imagehlp.h"
 #include <map>
 #include <vector>
 
@@ -183,6 +184,8 @@ private:
 
   /* Member variables */
   
+  CString m_sFileName;    // Minidump file name.
+  CString m_sSymSearchPath; // The list of symbol search dirs passed.
   HANDLE m_hFileMiniDump; // Handle to opened .DMP file
   HANDLE m_hFileMapping;  // Handle to memory mapping object
   LPVOID m_pMiniDumpStartPtr; // Pointer to the biginning of memory-mapped minidump  

@@ -78,6 +78,9 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
     return 1;
   }
 
+  m_sFileName = sFileName;
+  m_sSymSearchPath = sSymSearchPath;
+
   m_hFileMiniDump = CreateFile(
     sFileName, 
     FILE_ALL_ACCESS, 
@@ -123,7 +126,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   m_DumpData.m_hProcess = (HANDLE)(++dwProcessID);  
   
   DWORD dwOptions = 0;
-  //dwOptions |= SYMOPT_DEFERRED_LOADS; // Symbols are not loaded until a reference is made requiring the symbols be loaded.
+  dwOptions |= SYMOPT_DEFERRED_LOADS; // Symbols are not loaded until a reference is made requiring the symbols be loaded.
   dwOptions |= SYMOPT_EXACT_SYMBOLS; // Do not load an unmatched .pdb file. 
   dwOptions |= SYMOPT_FAIL_CRITICAL_ERRORS; // Do not display system dialog boxes when there is a media failure such as no media in a drive.
   dwOptions |= SYMOPT_UNDNAME; // All symbols are presented in undecorated form.   
@@ -274,6 +277,27 @@ int CMiniDumpReader::ReadExceptionStream()
   return 0;
 }
 
+BOOL CALLBACK FindExecutableImageProc(
+  HANDLE FileHandle,
+  PCTSTR FileName,
+  PVOID CallerData
+)
+{
+  time_t* pTimeStamp = (time_t*)CallerData;
+
+  PLOADED_IMAGE pImage = NULL;
+  BOOL bLoad = MapAndLoad(FileName, NULL, &pImage, TRUE, TRUE);
+  if(bLoad && pImage)
+  {
+    GetImageConfigInformation();
+    
+    ImageUnload(pImage);
+  }
+
+  return FALSE;
+}
+
+
 int CMiniDumpReader::ReadModuleListStream()
 {
   LPVOID pStreamStart = NULL;
@@ -302,7 +326,7 @@ int CMiniDumpReader::ReadModuleListStream()
           (MINIDUMP_MODULE*)((LPBYTE)pModuleStream->Modules+i*sizeof(MINIDUMP_MODULE));
 
         CString sModuleName = GetMinidumpString(m_pMiniDumpStartPtr, pModule->ModuleNameRva);               
-        LPCSTR szModuleName = strconv.t2a(sModuleName);
+        LPCWSTR szModuleName = strconv.t2w(sModuleName);
         DWORD64 dwBaseAddr = pModule->BaseOfImage;
         DWORD64 dwImageSize = pModule->SizeOfImage;
 
@@ -312,10 +336,19 @@ int CMiniDumpReader::ReadModuleListStream()
         if(pos>=0)
           sShortModuleName = sShortModuleName.Mid(pos+1);          
 
-        /*DWORD64 dwLoadResult = */SymLoadModuleEx(
+        WCHAR szImageFilePath[_MAX_PATH] = L"";
+        HANDLE hFileExecutable = FindExecutableImageExW(
+          szModuleName,
+          m_sSymSearchPath,
+          szImageFilePath,
+          FindExecutableImageProc,
+          (PVOID)&pModule->TimeDateStamp);     
+
+
+        /*DWORD64 dwLoadResult = */SymLoadModuleExW(
           m_DumpData.m_hProcess,
           NULL,
-          (PSTR)szModuleName,
+          (PWSTR)szModuleName,
           NULL,
           dwBaseAddr,
           (DWORD)dwImageSize,

@@ -871,6 +871,7 @@ int output_document(CrpHandle hReport, FILE* f)
   doc.PutTableCell(_T("#"), 2, false);
   doc.PutTableCell(_T("Name"), 32, false);
   doc.PutTableCell(_T("LoadedPDBName"), 32, true);
+  doc.PutTableCell(_T("LoadedImageName"), 32, true);
   
   // Get module count
   nItemCount = get_table_row_count(hReport, CRP_TBL_MDMP_MODULES);
@@ -887,6 +888,10 @@ int output_document(CrpHandle hReport, FILE* f)
     tstring sLoadedPDBName;
     result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_LOADED_PDB_NAME, sLoadedPDBName, i);  
     doc.PutTableCell(sLoadedPDBName.c_str(), 32, true);      
+
+    tstring sLoadedImageName;
+    result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_LOADED_IMAGE_NAME, sLoadedImageName, i);  
+    doc.PutTableCell(sLoadedImageName.c_str(), 32, true);      
   }  
 
   doc.EndDocument();
