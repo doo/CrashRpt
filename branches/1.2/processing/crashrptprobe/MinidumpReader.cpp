@@ -283,18 +283,36 @@ BOOL CALLBACK FindExecutableImageProc(
   PVOID CallerData
 )
 {
-  time_t* pTimeStamp = (time_t*)CallerData;
+  ULONG32* pTimeStamp = (ULONG32*)CallerData;
+  BOOL bStatus = FALSE;
+  HANDLE hFileMapping = NULL;
+  LPVOID pStartPtr = NULL;
+  PIMAGE_NT_HEADERS pNTHeaders = NULL;
+  
+  hFileMapping = CreateFileMapping(FileHandle, NULL, PAGE_READONLY, 0, 0, 0);
+  if(hFileMapping==NULL)
+    goto cleanup;
 
-  PLOADED_IMAGE pImage = NULL;
-  BOOL bLoad = MapAndLoad(FileName, NULL, &pImage, TRUE, TRUE);
-  if(bLoad && pImage)
-  {
-    GetImageConfigInformation();
-    
-    ImageUnload(pImage);
-  }
+  pStartPtr = MapViewOfFile(hFileMapping, FILE_MAP_READ,  0, 0, 0);
+  if(pStartPtr==NULL)
+    goto cleanup;
 
-  return FALSE;
+  pNTHeaders = ImageNtHeader(pStartPtr);
+  if(pNTHeaders==NULL)
+    goto cleanup;
+  
+  if(pNTHeaders->FileHeader.TimeDateStamp == *pTimeStamp)
+    bStatus = TRUE; // Timestamp match
+  
+cleanup:
+
+  if(pStartPtr!=NULL)
+    UnmapViewOfFile(pStartPtr);
+
+  if(hFileMapping!=NULL)
+    CloseHandle(hFileMapping);
+
+  return bStatus;
 }
 
 
@@ -336,7 +354,7 @@ int CMiniDumpReader::ReadModuleListStream()
         if(pos>=0)
           sShortModuleName = sShortModuleName.Mid(pos+1);          
 
-        WCHAR szImageFilePath[_MAX_PATH] = L"";
+        WCHAR szImageFilePath[4096] = _T("");        
         HANDLE hFileExecutable = FindExecutableImageExW(
           szModuleName,
           m_sSymSearchPath,
@@ -344,16 +362,18 @@ int CMiniDumpReader::ReadModuleListStream()
           FindExecutableImageProc,
           (PVOID)&pModule->TimeDateStamp);     
 
-
         /*DWORD64 dwLoadResult = */SymLoadModuleExW(
           m_DumpData.m_hProcess,
           NULL,
-          (PWSTR)szModuleName,
+          (PWSTR)(hFileExecutable==NULL?szModuleName:szImageFilePath),
           NULL,
           dwBaseAddr,
           (DWORD)dwImageSize,
           NULL,
-          0);
+          0);        
+
+        if(hFileExecutable!=NULL)
+          CloseHandle(hFileExecutable);
         
         IMAGEHLP_MODULE64 modinfo;
         memset(&modinfo, 0, sizeof(IMAGEHLP_MODULE64));

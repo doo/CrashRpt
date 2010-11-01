@@ -35,7 +35,6 @@
 
 #include "stdafx.h"
 #include "dbghelp.h"
-#include "imagehlp.h"
 #include <map>
 #include <vector>
 
