@@ -927,6 +927,9 @@ crAddFile2A(
 // Flags for crAddScreenshot function.
 #define CR_AS_VIRTUAL_SCREEN  0 //!< Take a screenshot of the virtual screen.
 #define CR_AS_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
+#define CR_AS_PROCESS_WINDOWS 2 //!< Take a screenshot of all visible process windows.
+#define CR_AS_GRAYSCALE_IMAGE 4 //!< Make a grayscale image instead of full-color.
+#define CR_AS_USE_JPEG_FORMAT 8 //!< Store screenshots as JPG files.
 
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a screenshot to the crash report.
@@ -937,20 +940,30 @@ crAddFile2A(
  *  
  *  \remarks 
  *
- *  This function can be used to make a screenshot at the moment of crash and add
- *  the screenshot to the error report. Call this function inside of \ref LPGETLOGFILE crash callback.
+ *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
  * 
- *  \a dwFlags can be one of the following:
- *    - \ref CR_AS_VIRTUAL_SCREEN Use this to take a screenshot of the desktop (virtual screen).
- *    - \ref CR_AS_MAIN_WINDOW    Use this to take a screenshot of the application's main window.
- *  
- *  Screenshots are added in form of PNG files. When capturing entire desktop consisting of several monitors, 
- *  one screenshot file is added per each monitor.
+ *  \b dwFlags 
  *
- *  You should be carefull when using this feature, because screenshots may contain user-identifying 
- *  or private information. Always specify the purposes you will use the collected 
- *  information for in your Privacy Policy. Typically, the screenshot is not a required information to 
- *  debug the crash, however sometimes it may be useful.
+ *    Use one of the following constants to specify what part of virtual screen to capture:
+ *    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
+ *    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the application's main window.
+ *    - \ref CR_AS_PROCESS_WINDOWS Use this to take a screenshot of all visible windows that belong to the process.
+ *
+ *  Screenshots are added in form of PNG files by default. You can specify the \ref CR_AS_USE_JPEG_FORMAT flag to save
+ *  screenshots as JPEG files instead. 
+ *
+ *  In addition, you can specify the \ref CR_AS_GRAYSCALE_IMAGE flag to make a grayscale screenshot 
+ *  (by default color image is made). Grayscale image gives smaller file size.
+ *
+ *  When capturing entire desktop consisting of several monitors, 
+ *  one screenshot file is added per each monitor. 
+ *
+ *  Screenshot information may help the developer to better understand state of the application
+ *  at the moment of crash and reproduce the error.
+ *
+ *  You should be careful when using this feature, because screenshots may contain user-identifying 
+ *  or private information. Always specify purposes you will use collected 
+ *  information for in your Privacy Policy. 
  *
  *  \sa
  *   crAddFile2()
