@@ -85,8 +85,6 @@ CCrashHandler::CCrashHandler()
   m_dwProcessHandleCount = 0;
   m_bAddScreenshot = FALSE;
   m_dwScreenshotFlags = 0;
-  memset(&m_rcAppWnd, 0, sizeof(RECT));
-  m_ptCursorPos.SetPoint(0, 0);
   m_hEvent = NULL;  
   m_bAppRestart = FALSE;
   m_bInitialized = FALSE;  
@@ -411,6 +409,15 @@ int CCrashHandler::Init(
     
   // Save the name of the folder we will save this crash report (if occur)
   m_sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+
+  // Create directory for the error report.   
+  BOOL bCreateDir2 = Utility::CreateFolder(m_sReportFolderName);
+  if(!bCreateDir2)
+  {    
+    ATLASSERT(bCreateDir);
+    crSetErrorMsg(_T("Couldn't create crash report directory."));
+    return 1; // Failed to create directory
+  }
 
   // Set exception handlers with initial values (NULLs)
   InitPrevExceptionHandlerPointers();
@@ -856,40 +863,13 @@ int CCrashHandler::GenerateErrorReport(
   if(pExceptionInfo->bManual)
     m_bAppRestart = FALSE;
 
-  // Let client add application-specific files / desktop screenshot 
-  // to the report via the crash callback function. 
-
+  // Let client know about crash via the crash callback function. 
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
   {
-    crSetErrorMsg(_T("The operation was cancelled by client application."));
+    crSetErrorMsg(_T("The operation was cancelled by client."));
     return 2;
   }
 
-  if(m_bAddScreenshot)
-  {
-    m_rcAppWnd.SetRectEmpty();
-    // Find main app window
-    HWND hWndMain = Utility::FindAppWindow();
-    if(hWndMain)
-    {
-      GetWindowRect(hWndMain, &m_rcAppWnd);
-    }
-  }
-
-  // Create directory for the error report. 
-  
-  BOOL bCreateDir = Utility::CreateFolder(m_sReportFolderName);
-  if(!bCreateDir)
-  {    
-    ATLASSERT(bCreateDir);
-    CString szCaption;
-    szCaption.Format(_T("%s has stopped working"), Utility::getAppName());
-    CString szMessage;
-    // Try notify user about crash using message box.
-    szMessage.Format(_T("Couldn't save error report."));
-    MessageBox(NULL, szMessage, szCaption, MB_OK|MB_ICONERROR);    
-    return 1; // Failed to create directory
-  }
     
   // Create crash description file in XML format. 
   CString sFileName;
@@ -1051,66 +1031,6 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
   *ppExceptionPointers = new EXCEPTION_POINTERS;
   (*ppExceptionPointers)->ExceptionRecord = pExceptionRecord;
   (*ppExceptionPointers)->ContextRecord = pContextRecord;  
-}
-
-void CCrashHandler::CollectMiscCrashInfo()
-{  
-  // Get crash time
-  Utility::GetSystemTimeUTC(m_sCrashTime);
-
-  HANDLE hCurProcess = GetCurrentProcess();
-
-  // Determine the period of time the process is working.
-  SYSTEMTIME CurTime;
-  GetSystemTime(&CurTime);
-  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
-  ULONG64 uStartTime = Utility::SystemTimeToULONG64(m_AppStartTime);
-  
-  // Check that the application works for at least one minute before crash.
-  // This might help to avoid cyclic error report generation when the applciation
-  // crashes on startup.
-  double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
-  if(dDiffTime<60)
-  {
-    m_bAppRestart = FALSE; // Disable restart.
-  }
-
-  // Get number of GUI resources in use  
-  m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
-  
-  // Determine if GetProcessHandleCount function available
-  typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
-  HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-  LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
-    (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
-  if(pfnGetProcessHandleCount!=NULL)
-  {    
-    // Get count of opened handles
-    DWORD dwHandleCount = 0;
-    BOOL bGetHandleCount = pfnGetProcessHandleCount(hCurProcess, &dwHandleCount);
-    if(bGetHandleCount)
-      m_dwProcessHandleCount = dwHandleCount;
-    else
-      m_dwProcessHandleCount = 0;
-  }
-
-  // Get memory usage info
-  PROCESS_MEMORY_COUNTERS meminfo;
-  BOOL bGetMemInfo = GetProcessMemoryInfo(hCurProcess, &meminfo, 
-    sizeof(PROCESS_MEMORY_COUNTERS));
-  if(bGetMemInfo)
-  {    
-    CString sMemUsage;
-#ifdef _WIN64
-    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
-#else
-    sMemUsage.Format(_T("%lu"), meminfo.WorkingSetSize/1024);
-#endif 
-    m_sMemUsage = sMemUsage;
-  }
-
-  // Get cursor position
-  GetCursorPos(&m_ptCursorPos);
 }
 
 int CCrashHandler::CreateCrashDescriptionXML(
@@ -1399,16 +1319,12 @@ int CCrashHandler::CreateInternalCrashInfoFile(CString sFileName,
 
   // Add ScreenshotFlags tag
   fprintf(f, "  <ScreenshotFlags>%lu</ScreenshotFlags>\n", m_dwScreenshotFlags);
-
-  // Add AppWindowRect tag
-  fprintf(f, "  <AppWindowRect left=\"%d\" top=\"%d\" right=\"%d\" bottom=\"%d\" />\n", 
-    m_rcAppWnd.left, m_rcAppWnd.top, m_rcAppWnd.right, m_rcAppWnd.bottom);
-
+  
   // Add CursorPos tag
   fprintf(f, "  <CursorPos x=\"%d\" y=\"%d\" />\n", 
     m_ptCursorPos.x, m_ptCursorPos.y);
 
-  // Add MultiPartHttpUploads tag
+  // Add HttpBinaryEncoding tag
   fprintf(f, "  <HttpBinaryEncoding>%d</HttpBinaryEncoding>\n", m_bHttpBinaryEncoding);
 
   // Add SilentMode tag

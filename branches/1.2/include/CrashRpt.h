@@ -925,11 +925,12 @@ crAddFile2A(
 
 
 // Flags for crAddScreenshot function.
-#define CR_AS_VIRTUAL_SCREEN  0 //!< Take a screenshot of the virtual screen.
-#define CR_AS_MAIN_WINDOW     1 //!< Take a screenshot of application main window.
-#define CR_AS_PROCESS_WINDOWS 2 //!< Take a screenshot of all visible process windows.
-#define CR_AS_GRAYSCALE_IMAGE 4 //!< Make a grayscale image instead of full-color.
-#define CR_AS_USE_JPEG_FORMAT 8 //!< Store screenshots as JPG files.
+#define CR_AS_VIRTUAL_SCREEN  0  //!< Take a screenshot of the virtual screen.
+#define CR_AS_MAIN_WINDOW     1  //!< Take a screenshot of application main window.
+#define CR_AS_PROCESS_WINDOWS 2  //!< Take a screenshot of all visible process windows.
+#define CR_AS_GRAYSCALE_IMAGE 4  //!< Make a grayscale image instead of full-color.
+#define CR_AS_USE_JPEG_FORMAT 8  //!< Store screenshots as JPG files.
+#define CR_AS_USE_BMP_FORMAT  16 //!< Store screenshots as BMP files.
 
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a screenshot to the crash report.

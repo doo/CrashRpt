@@ -219,21 +219,57 @@ public:
   std::map<DWORD, ThreadExceptionHandlers> m_ThreadExceptionHandlers;
   CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers.
 
-  std::map<CString, FileItem> m_files;  // Files to be added to crash report.
-  std::map<CString, CString> m_props;   // User-defined properties
-  std::map<CString, CString> m_RegKeys; // Registry keys to include.
+  BOOL m_bInitialized;           // Flag telling if this object was initialized.  
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
-  CString m_sEmailTo;            // Email recipient address.
-  int m_nSmtpPort;               // Port for SMTP connection.
-  CString m_sEmailSubject;       // Email subject.
-  CString m_sEmailText;          // Email message text.
-  CString m_sSmtpProxyServer;    // SMTP proxy server address.
-  int m_nSmtpProxyPort;          // SMTP proxy server port.
-  CString m_sUrl;                // URL for sending reports via HTTP.
-  UINT m_uPriorities[3];         // Which method to prefer when sending crash report?
-  CString m_sAppName;            // Application name.
-  CString m_sAppVersion;         // Application version.
-  CString m_sImageName;          // Path to client executable file.
+  SYSTEMTIME m_AppStartTime;     // The time this application was started.
+  CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
+
+};
+
+// File item entry.
+struct FILE_ITEM
+{
+  WCHAR m_szSrcFilePath[_MAX_PATH]; // Path to the original file.
+  WCHAR m_szDstFileName[_MAX_PATH]; // Name of the destination file.
+  WCHAR m_szDescription[1024];      // File description.
+  BOOL  m_bMakeCopy;                // Should we make a copy of this file on crash?
+};
+
+// Registry key entry.
+struct REG_KEY
+{
+  WCHAR m_szRegKeyName[4096];       // Registry key name.
+  WCHAR m_szDstFileName[_MAX_PATH]; // Destination file name.
+};
+
+// User-defined property.
+struct CUSTOM_PROP
+{
+  WCHAR m_szName[256];              // Property name.
+  WCHAR m_szValue[4096];            // Property value.
+};
+
+// Crash description. 
+struct CRASH_DESCRIPTION
+{  
+  WCHAR m_szAppName[128];              // Application name.
+  WCHAR m_szAppVersion[128];           // Application version.
+  WCHAR m_szLangFileName[_MAX_PATH];   // Language file to use.
+  BOOL  m_bSendErrorReport;            // Should we send error report or just save it  
+  BOOL  m_bStoreZIPArchives;           // Store compressed error report files as ZIP archives?
+  BOOL  m_bAddScreenshot;              // Should we make a desktop screenshot on crash?
+  DWORD m_dwScreenshotFlags;           // Screenshot flags.    
+  BOOL  m_bAppRestart;                 // Should we restart the crashed app or not?
+  WCHAR m_szRestartCmdLine[4096];      // Command line for app restart.
+  HANDLE m_hEvent;                     // Event used to synchronize CrashRpt.dll with CrashSender.exe.
+  WCHAR m_szEmailTo[128];              // Email recipient address.
+  int   m_nSmtpPort;                   // Port for SMTP connection.
+  WCHAR m_szEmailSubject[256];         // Email subject.
+  WCHAR m_szEmailText[1024];           // Email message text.
+  WCHAR m_szSmtpProxyServer[256];      // SMTP proxy server address.
+  int m_nSmtpProxyPort;                // SMTP proxy server port.
+  WCHAR m_szUrl[256];                  // URL for sending reports via HTTP.
+  UINT m_uPriorities[3];               // Which method to prefer when sending crash report?
   CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
   CString m_sCrashGUID;          // Unique ID of the crash report.
   CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
@@ -246,31 +282,10 @@ public:
   MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type. 
   BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
   BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
-  BOOL m_bSendErrorReport;       // Should we send error report or just save it  
-  BOOL m_bStoreZIPArchives;      // Store compressed error report files as ZIP archives?
-  CString m_sLangFileName;       // Language file to use.
-  SYSTEMTIME m_AppStartTime;     // The time this application was started.
-  CString m_sCrashTime;          // Crash time in UTC format
-  CString m_sOSName;             // Operating system name.
-  BOOL    m_bOSIs64Bit;          // Is operating system 64-bit (TRUE) or 32-bit (FALSE)?
-  DWORD m_dwGuiResources;        // Count of GUI resources in use.
-  DWORD m_dwProcessHandleCount;  // Count of opened handles.
-  CString m_sMemUsage;           // Memory usage.
-  CString m_sGeoLocation;        // Current geographic location abbreviation.
-  BOOL m_bAddScreenshot;         // Should we make a desktop screenshot on crash?
-  DWORD m_dwScreenshotFlags;     // Screenshot flags.
-  CRect m_rcAppWnd;              // Rectangle of the main app window (used for screenshot generation).
-  CPoint m_ptCursorPos;          // Mouse cursor position at the moment of crash.
-
-  BOOL m_bAppRestart;            // Should we restart the crashed app or not?
-  CString m_sRestartCmdLine;     // Command line for app restart.
-
-  HANDLE m_hEvent;               // Event used to synchronize with CrashSender.exe.
-
-  BOOL m_bInitialized;           // Flag telling if this object was initialized.  
-
-  CCritSec m_csCrashLock;        // Critical section used to synchronize access on crash 
-
+  UINT m_uFileItems;                  // Count of file item records.
+  UINT m_uRegKeyEntries;              // Count of registry key entries.
+  UINT m_uCustomProps;                // Count of user-defined properties.  
 };
 
 #endif	// !_CRASHHANDLER_H_
+

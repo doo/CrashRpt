@@ -180,6 +180,14 @@ BOOL CScreenCapture::CaptureScreenRect(
 {	
   m_rcCapture = rcCapture;
 
+  m_rcAppWnd.SetRectEmpty();
+  // Find main app window
+  HWND hWndMain = Utility::FindAppWindow();
+  if(hWndMain)
+  {
+    GetWindowRect(hWndMain, &m_rcAppWnd);
+  }
+
   // Get cursor information
   m_ptCursorPos = ptCursorPos;
   m_CursorInfo.cbSize = sizeof(CURSORINFO);

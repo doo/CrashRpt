@@ -231,6 +231,65 @@ void CErrorReportSender::FeedbackReady(int code)
   m_Assync.FeedbackReady(code);
 }
 
+void CCrashHandler::CollectMiscCrashInfo()
+{  
+  // Get crash time
+  Utility::GetSystemTimeUTC(m_sCrashTime);
+
+  HANDLE hCurProcess = GetCurrentProcess();
+
+  // Determine the period of time the process is working.
+  SYSTEMTIME CurTime;
+  GetSystemTime(&CurTime);
+  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
+  ULONG64 uStartTime = Utility::SystemTimeToULONG64(m_AppStartTime);
+  
+  // Check that the application works for at least one minute before crash.
+  // This might help to avoid cyclic error report generation when the applciation
+  // crashes on startup.
+  double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
+  if(dDiffTime<60)
+  {
+    m_bAppRestart = FALSE; // Disable restart.
+  }
+
+  // Get number of GUI resources in use  
+  m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
+  
+  // Determine if GetProcessHandleCount function available
+  typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
+  HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
+  LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
+    (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
+  if(pfnGetProcessHandleCount!=NULL)
+  {    
+    // Get count of opened handles
+    DWORD dwHandleCount = 0;
+    BOOL bGetHandleCount = pfnGetProcessHandleCount(hCurProcess, &dwHandleCount);
+    if(bGetHandleCount)
+      m_dwProcessHandleCount = dwHandleCount;
+    else
+      m_dwProcessHandleCount = 0;
+  }
+
+  // Get memory usage info
+  PROCESS_MEMORY_COUNTERS meminfo;
+  BOOL bGetMemInfo = GetProcessMemoryInfo(hCurProcess, &meminfo, 
+    sizeof(PROCESS_MEMORY_COUNTERS));
+  if(bGetMemInfo)
+  {    
+    CString sMemUsage;
+#ifdef _WIN64
+    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
+#else
+    sMemUsage.Format(_T("%lu"), meminfo.WorkingSetSize/1024);
+#endif 
+    m_sMemUsage = sMemUsage;
+  }
+
+  // Get cursor position
+  GetCursorPos(&m_ptCursorPos);
+}
 
 // This takes the desktop screenshot (screenshot of entire virtual screen
 // or screenshot of the main window). 
