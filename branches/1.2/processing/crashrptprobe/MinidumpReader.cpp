@@ -130,8 +130,6 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   dwOptions |= SYMOPT_EXACT_SYMBOLS; // Do not load an unmatched .pdb file. 
   dwOptions |= SYMOPT_FAIL_CRITICAL_ERRORS; // Do not display system dialog boxes when there is a media failure such as no media in a drive.
   dwOptions |= SYMOPT_UNDNAME; // All symbols are presented in undecorated form.   
-  //dwOptions |= SYMOPT_IGNORE_CVREC; // Ignore path information in the CodeView record of the image header when loading a .pdb file.
-  //dwOptions |= SYMOPT_NO_IMAGE_SEARCH; // Do not search the image for the symbol path when loading the symbols for a module if the module header cannot be read.
   SymSetOptions(dwOptions);
 
   strconv_t strconv;
