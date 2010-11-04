@@ -41,9 +41,11 @@ for count in ordered_list:
 
 f.write("Total %d reports (100%%) in %d directories\n"%(total_count, total_groups))
 
+n = 1
 for key in ordered_list:
   for dir in multimap[key]:
    percent = key/total_count*100
-   f.write("%d (%0.1f%%) reports in '%s'\n"%(key, percent, dir))
+   f.write("%d. %d reports (%0.1f%%) in '%s'\n"%(n, key, percent, dir))
+   n = n+1
 
 f.close()
