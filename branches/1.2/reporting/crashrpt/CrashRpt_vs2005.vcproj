@@ -748,6 +748,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\SharedMem.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -876,6 +880,10 @@
 			</File>
 			<File
 				RelativePath="resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedMem.h"
 				>
 			</File>
 			<File
