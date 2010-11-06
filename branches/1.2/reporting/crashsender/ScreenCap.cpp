@@ -55,7 +55,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   LPBYTE pRowBits = NULL;
   CString sFileName;
 
-  if(psc->m_rcCapture.left>=lprcMonitor->left && 
+  /*if(psc->m_rcCapture.left>=lprcMonitor->left && 
     psc->m_rcCapture.left<lprcMonitor->right)
   {
     nLeft = psc->m_rcCapture.left;
@@ -65,7 +65,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
     psc->m_rcCapture.top<lprcMonitor->bottom)
   {
     nTop = psc->m_rcCapture.top;
-  }
+  }*/
 
   // Get monitor size
   nWidth = lprcMonitor->right - lprcMonitor->left;
@@ -178,14 +178,15 @@ BOOL CScreenCapture::CaptureScreenRect(
   int nIdStartFrom, 
   std::vector<CString>& out_file_list)
 {	
-  m_rcCapture = rcCapture;
-
-  m_rcAppWnd.SetRectEmpty();
+  //m_rcCapture = rcCapture;
+  
   // Find main app window
   HWND hWndMain = Utility::FindAppWindow();
   if(hWndMain)
   {
-    GetWindowRect(hWndMain, &m_rcAppWnd);
+    CRect rcAppWnd;
+
+    GetWindowRect(hWndMain, &rcAppWnd);
   }
 
   // Get cursor information

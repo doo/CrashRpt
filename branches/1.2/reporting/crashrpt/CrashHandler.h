@@ -44,6 +44,7 @@
 #include "CrashRpt.h"      
 #include "Utility.h"
 #include "CritSec.h"
+#include "SharedMem.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
 struct ThreadExceptionHandlers
@@ -167,29 +168,25 @@ public:
   /* Crash report generation methods */
 
   // Collects current process state.
-  void GetExceptionPointers(DWORD dwExceptionCode, 
-    EXCEPTION_POINTERS** pExceptionPointers);
-  
-  // Collects various information useful for crash analyzis.
-  void CollectMiscCrashInfo();
-    
-  // Creates crash description XML file.
-  int CreateCrashDescriptionXML(LPTSTR pszFileName, 
-     PCR_EXCEPTION_INFO pExceptionInfo);
-
-  // Creates internally used crash description file.
-  int CreateInternalCrashInfoFile(CString sFileName, 
-    EXCEPTION_POINTERS* pExInfo, BOOL bSendRecentReports);
+  void GetExceptionPointers(
+        DWORD dwExceptionCode, 
+        EXCEPTION_POINTERS** pExceptionPointers);
+      
+  // Packs crash description into shared memory.
+  int PackCrashInfoIntoSharedMem(
+        EXCEPTION_POINTERS* pExInfo, 
+        BOOL bSendRecentReports);
   
   // Launches the CrashSender.exe process.
-  int LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE* phProcess);  
-
-  // Replaces characters that are restricted in XML.
-  std::string XmlEncodeStr(CString sText);
+  int LaunchCrashSender(
+        CString sCmdLineParams, 
+        BOOL bWait, 
+        HANDLE* phProcess);  
   
   // Sets internal pointers to exception handlers to NULL.
   void InitPrevExceptionHandlerPointers();
 
+  // Acqure exclusive access to this crash handler.
   void CrashLock(BOOL bLock);
 
   /* Private member variables. */
@@ -220,10 +217,35 @@ public:
   CCritSec m_csThreadExceptionHandlers; // Synchronization lock for m_ThreadExceptionHandlers.
 
   BOOL m_bInitialized;           // Flag telling if this object was initialized.  
-  LPGETLOGFILE m_lpfnCallback;   // Client crash callback.
-  SYSTEMTIME m_AppStartTime;     // The time this application was started.
+  CString m_sAppName;            // Application name.
+  CString m_sAppVersion;         // Application version.  
+  CString m_sCrashGUID;          // Crash GUID.
+  DWORD m_dwFlags;               // Flags.
+  MINIDUMP_TYPE m_MiniDumpType;  // Minidump type.
+  BOOL m_bAppRestart;
+  CString m_sRestartCmdLine;     // App restart command line.
+  CString m_sUrl;                // Url to use when sending error report over HTTP.  
+  CString m_sEmailTo;            // E-mail recipient.
+  int m_nSmtpPort;               // SMTP port.
+  CString m_sSmtpProxyServer;    // SMTP proxy.
+  int m_nSmtpProxyPort;          // SMTP proxy port.
+  CString m_sEmailSubject;       // E-mail subject.
+  CString m_sEmailText;          // E-mail text.
+  UINT m_uPriorities[3];         // Delivery priorities.
+  CString m_sPrivacyPolicyURL;   // Privacy policy URL.
+  CString m_sPathToCrashSender;  // Path to CrashSender.exe
+  CString m_sLangFileName;       // Language file.
+  CString m_sPathToDebugHelpDll; // Path to dbghelp.dll.
+  CString m_sUnsentCrashReportsFolder; //  
+  LPGETLOGFILE m_lpfnCallback;   // Client crash callback.    
+  BOOL m_bAddScreenshot;
+  DWORD m_dwScreenshotFlags;
+  std::map<CString, FileItem> m_files; // File items to include.
+  std::map<CString, CString> m_props;  // User-defined properties to include.
+  std::map<CString, CString> m_RegKeys; // Registry keys to dump.  
   CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
-
+  HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
+  CSharedMem m_SharedMem;        // Shared memory.  
 };
 
 

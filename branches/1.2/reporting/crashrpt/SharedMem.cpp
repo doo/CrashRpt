@@ -31,201 +31,103 @@
 ***************************************************************************************/
 
 #include "stdafx.h"
+#include "SharedMem.h"
 
-CSharedMem::CSharedMem()
+CSharedMem::CSharedMem()  
 {
-  m_dwAllocGranularity = 0;
-  m_hFileMapping = NULL;
-  m_pViewStartPtr = NULL;
-  m_hAccessMutex = NULL;  
+  m_uSize = 0;
+  m_hFileMapping = NULL;  
+  
+  SYSTEM_INFO si;  
+  GetSystemInfo(&si);
+  m_dwAllocGranularity = si.dwAllocationGranularity;  
 }
 
 CSharedMem::~CSharedMem()
 {
+  Destroy();
 }
 
-HANDLE __OpenFileMapping()
+
+BOOL CSharedMem::Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize)
 {
-  __try{ // Use SEH handler to catch possible access violations
+  if(m_hFileMapping!=NULL)
+    return FALSE;
+
+  if(!bOpenExisting)
+  {	
+    ULARGE_INTEGER i;
+    i.QuadPart = uSize;
+	  m_hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, i.HighPart, i.LowPart, szName);
+  }
+  else
+  {
+    m_hFileMapping = OpenFileMapping(FILE_MAP_READ, FALSE, szName);
+  }
+
+  m_uSize = uSize; 
+
+  if(m_hFileMapping==NULL)
+  {
+    m_uSize = 0;  
+    return FALSE;
+  }
+
+	return TRUE;
+}
+
+BOOL CSharedMem::Destroy()
+{
+  std::map<DWORD, LPBYTE>::iterator it;
+  for(it=m_aViewStartPtrs.begin(); it!=m_aViewStartPtrs.end(); it++)
+  {
+    if(it->second != NULL)
+      UnmapViewOfFile(it->second);    
+  }
+  m_aViewStartPtrs.clear();
   
-    return OpenFileMapping(
-      FILE_MAP_READ|FILE_MAP_WRITE, // Read/write access
-      FALSE,               // Do not inherit this handle
-      FILE_MAPPING_NAME    // File mapping name
-      );
-  }
-  __except(EXCEPTION_EXECUTE_HANDLER)
-  {
-    // Access violation - maybe mem page fault.    
-    return NULL;    
-  }
-}
-
-
-// Creates new file mapping or opens an existing one. 
-BOOL CSharedMem::Init()
-{ 
-  BOOL bStatus = FALSE;
-  CAutoLock lock(&m_csLock);
-
-  // Get memory allocation granularity
-  SYSTEM_INFO si;  
-  GetSystemInfo(&si);
-  m_dwAllocGranularity = si.dwAllocationGranularity;  
-  if(m_dwAllocGranularity==0)
-    goto cleanup;
-    
-  // Create access mutex
-  // Try to open existing one
-  m_hAccessMutex = OpenMutex(
-    SYNCHRONIZE|MUTEX_MODIFY_STATE,
-    FALSE,
-    MUTEX_NAME // Mutex name
-   );    
-    
-  if(m_hAccessMutex==NULL) // If doesn't exist, create new one
-  {    
-    m_hAccessMutex = CreateMutex(
-      NULL, // security attrs
-      FALSE, // Initial owner
-      MUTEX_NAME // Mutex name
-      );      
-  }
-
-  if(m_hAccessMutex==NULL)
-  {
-    goto cleanup;
-  }
-    
-  // Try to open existing file mapping
-
-  m_hFileMapping = __OpenFileMapping();
-  if(m_hFileMapping==NULL)
-  {
-    // Create file mapping
-    m_hFileMapping = ::CreateFileMapping(
-      INVALID_HANDLE_VALUE, // Use system paging file
-      NULL,                  // Use default security attributes
-      PAGE_READWRITE,       // Allow reading and writing access
-      0,
-      sizeof(FileMappingDescriptor),   // Size of the file mapping
-      FILE_MAPPING_NAME);  // Name of the file mapping
-
-    SetLowIntegrityByName(FILE_MAPPING_NAME, SE_KERNEL_OBJECT);
-  }
-
-  if(m_hFileMapping==NULL)
-  {
-    assert(m_hFileMapping!=NULL);
-    return 1; // 
-  }
-
-
-  bStatus = TRUE;
-
-cleanup:
-
-  if(!bStatus)
-  {
-    Destroy();
-  }
-
-  return bStatus;
-}
-
-// Frees all used resources
-void CSharedMem::Destroy()
-{  
-  CAutoLock lock(&m_csLock);
-
-  if(m_pViewStartPtr!=NULL)
-    UnmapViewOfFile();
-
   if(m_hFileMapping!=NULL)
   {
-    CloseHandle(m_hFileMapping);
-    m_hFileMapping = NULL;
+	  CloseHandle(m_hFileMapping);    
   }
 
-  if(m_hAccessMutex!=NULL)
-  {
-    CloseHandle(m_hAccessMutex);
-    m_hAccessMutex = NULL;
-  }
+  m_hFileMapping = NULL;	
+	m_uSize = 0;  
 
+	return TRUE;
 }
 
-BOOL CSharedMem::AcquireAccessMutex(DWORD dwWaitTime)
+ULONG64 CSharedMem::GetSize()
 {
-  if(m_hAccessMutex==NULL)
-    return FALSE;
-
-  DWORD dwWaitResult = WaitForSingleObject(m_hAccessMutex, dwWaitTime);
-  if(dwWaitResult==WAIT_OBJECT_0)
-    return TRUE;
-
-  ATLASSERT(dwWaitResult==WAIT_OBJECT_0);
-  return FALSE;
+	return m_uSize;
 }
 
-void CSharedMem::ReleaseAccessMutex()
+LPBYTE CSharedMem::CreateView(DWORD dwOffset, DWORD dwLength)
 {
-  ATLASSERT(m_hAccessMutex!=NULL);
-  ReleaseMutex(m_hAccessMutex);
-}
+  DWORD dwThreadId = GetCurrentThreadId();
+  DWORD dwBaseOffs = dwOffset-dwOffset%m_dwAllocGranularity;
+  DWORD dwDiff = dwOffset-dwBaseOffs;
+  LPBYTE pPtr = NULL;
 
-// Maps view of shared memory 
-BOOL CSharedMem::MapViewOfFile(DWORD dwFileOffs, SIZE_T dwNumberOfBytes)
-{ 
   CAutoLock lock(&m_csLock);
 
-  // Validate internal state
-  if(m_pViewStartPtr!=NULL ||
-     m_hFileMapping==NULL)
+  std::map<DWORD, LPBYTE>::iterator it = m_aViewStartPtrs.find(dwThreadId);
+  if(it!=m_aViewStartPtrs.end())
   {
-    ATLASSERT(m_pViewStartPtr==NULL);
-    ATLASSERT(m_hFileMapping!=NULL);
-    return FALSE;
+    UnmapViewOfFile(it->second);
   }
-
-  m_pViewStartPtr = ::MapViewOfFile(
-    m_hFileMapping,
-    FILE_MAP_READ|FILE_MAP_WRITE,
-    0,
-    dwFileOffs, // File offset
-    dwNumberOfBytes);
-
-  if(m_pViewStartPtr==NULL)
-  {
-    ATLASSERT(m_pViewStartPtr!=NULL);
-    return FALSE;
-  }
-    
-  // Done
-  return TRUE;
-}
-
-// Unmaps view of shared memory
-TRUE CSharedMem::UnmapViewOfFile()
-{
-  CAutoLock lock(&m_csLock);
-
-  if(m_pViewStartPtr==NULL)
-  {    
-    // Invalid mapping ptr
-    return FALSE;
-  }
-
-  BOOL bUnmap = ::UnmapViewOfFile(m_pViewStartPtr);
-
-  m_pViewStartPtr = NULL;
   
-  return bUnmap;
+  pPtr = (LPBYTE)MapViewOfFile(m_hFileMapping, FILE_MAP_READ, 0, dwBaseOffs, dwLength+dwDiff);
+  if(it!=m_aViewStartPtrs.end())
+  {
+    it->second = pPtr;
+  }
+  else
+  {
+    m_aViewStartPtrs[dwThreadId] = pPtr;
+  }
+  
+  return (pPtr+dwDiff);
 }
 
-void CSharedMem::GetViewBase(DWORD dwAbsOffs, DWORD& dwGranOffs, DWORD& dwOffsInGran)
-{
-  dwOffsInGran = dwAbsOffs%m_dwAllocGranularity;
-  dwGranOffs = dwAbsOffs - dwOffsInGran;  
-}
 

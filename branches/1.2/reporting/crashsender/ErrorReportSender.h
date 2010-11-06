@@ -71,7 +71,8 @@ public:
 
   void DoWorkAssync();
   static DWORD WINAPI WorkerThread(LPVOID lpParam);  
-    
+
+  void CollectMiscCrashInfo();
   BOOL CollectCrashFiles();  
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   int DumpRegKey(CString sRegKey, CString sDestFile);

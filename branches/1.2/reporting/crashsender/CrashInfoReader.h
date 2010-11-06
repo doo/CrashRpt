@@ -67,7 +67,9 @@ struct ErrorReportInfo
   ErrorReportInfo()
   {
     m_bSelected = TRUE;
-    m_DeliveryStatus = PENDING;
+    m_DeliveryStatus = PENDING;    
+    m_dwGuiResources = 0;
+    m_dwProcessHandleCount = 0;
     m_uTotalSize = 0;
   }
 
@@ -79,6 +81,12 @@ struct ErrorReportInfo
   CString     m_sEmailFrom;          // E-mail sender address.
   CString     m_sDescription;        // User-provided problem description.
   CString     m_sSystemTimeUTC;      // The time when crash occurred (UTC).
+  DWORD       m_dwGuiResources;      // GUI resource count.
+  DWORD       m_dwProcessHandleCount; // Process handle count.
+  CString     m_sMemUsage;           // Memory usage.
+  CString     m_sOSName;             // Operating system friendly name.
+  BOOL        m_bOSIs64Bit;          // Is operating system 64-bit?
+  CString     m_sGeoLocation;        // Geographic location.
   ULONG64     m_uTotalSize;          // Summary size of this (uncompressed) report.
   BOOL        m_bSelected;           // Is this report selected for delivery.
   DELIVERY_STATUS m_DeliveryStatus;  // Delivery status.

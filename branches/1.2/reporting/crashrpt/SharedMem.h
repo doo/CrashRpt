@@ -31,82 +31,93 @@
 ***************************************************************************************/
 
 #include "stdafx.h"
+#include "CritSec.h"
+
+#define FILE_DESC_MAX_LEN 1024
 
 // File item entry.
 struct FILE_ITEM
 {
   WCHAR m_szSrcFilePath[_MAX_PATH]; // Path to the original file.
   WCHAR m_szDstFileName[_MAX_PATH]; // Name of the destination file.
-  WCHAR m_szDescription[1024];      // File description.
+  WCHAR m_szDescription[FILE_DESC_MAX_LEN];  // File description.
   BOOL  m_bMakeCopy;                // Should we make a copy of this file on crash?
 };
+
+#define REG_KEY_NAME_MAX_LEN 4096
 
 // Registry key entry.
 struct REG_KEY
 {
-  WCHAR m_szRegKeyName[4096];       // Registry key name.
+  WCHAR m_szRegKeyName[REG_KEY_NAME_MAX_LEN]; // Registry key name.
   WCHAR m_szDstFileName[_MAX_PATH]; // Destination file name.
 };
+
+#define CUSTOM_PROP_NAME_MAX_LEN 256
+#define CUSTOM_PROP_VAL_MAX_LEN 4096
 
 // User-defined property.
 struct CUSTOM_PROP
 {
-  WCHAR m_szName[256];              // Property name.
-  WCHAR m_szValue[4096];            // Property value.
+  WCHAR m_szName[CUSTOM_PROP_NAME_MAX_LEN];  // Property name.
+  WCHAR m_szValue[CUSTOM_PROP_VAL_MAX_LEN];  // Property value.
+};
+
+struct STRING_DESC
+{
+  DWORD m_dwOffset;
+  WORD m_cchLength;  
 };
 
 // Crash description. 
 struct CRASH_DESCRIPTION
 {  
-  WCHAR m_szAppName[128];              // Application name.
-  WCHAR m_szAppVersion[128];           // Application version.
-  WCHAR m_szLangFileName[_MAX_PATH];   // Language file to use.
-  BOOL  m_bSendErrorReport;            // Should we send error report or just save it  
-  BOOL  m_bStoreZIPArchives;           // Store compressed error report files as ZIP archives?
-  BOOL  m_bAddScreenshot;              // Should we make a desktop screenshot on crash?
-  DWORD m_dwScreenshotFlags;           // Screenshot flags.    
-  BOOL  m_bAppRestart;                 // Should we restart the crashed app or not?
-  WCHAR m_szRestartCmdLine[4096];      // Command line for app restart.
-  HANDLE m_hEvent;                     // Event used to synchronize CrashRpt.dll with CrashSender.exe.
-  WCHAR m_szEmailTo[128];              // Email recipient address.
-  int   m_nSmtpPort;                   // Port for SMTP connection.
-  WCHAR m_szEmailSubject[256];         // Email subject.
-  WCHAR m_szEmailText[1024];           // Email message text.
-  WCHAR m_szSmtpProxyServer[256];      // SMTP proxy server address.
-  int m_nSmtpProxyPort;                // SMTP proxy server port.
-  WCHAR m_szUrl[256];                  // URL for sending reports via HTTP.
-  UINT m_uPriorities[3];               // Which method to prefer when sending crash report?
-  CString m_sPathToCrashSender;  // Path to crash sender exectuable file.  
-  CString m_sCrashGUID;          // Unique ID of the crash report.
-  CString m_sUnsentCrashReportsFolder; // Folder where unsent crash reports should be saved.
-  CString m_sReportFolderName;   // Folder where current crash report will be saved.
-  CString m_sPrivacyPolicyURL;   // Privacy policy URL.  
-  HMODULE m_hDbgHelpDll;         // HANDLE to debug help DLL.
-  CString m_sPathToDebugHelpDll; // Path to dbghelp DLL.
-  BOOL m_bGenerateMinidump;      // Should we generate minidump file?
-  BOOL m_bQueueEnabled;          // Should we resend recently generated reports?
-  MINIDUMP_TYPE m_MiniDumpType;  // Mini dump type. 
-  BOOL m_bSilentMode;            // Do not show GUI on crash, send report silently.
-  BOOL m_bHttpBinaryEncoding;    // Use HTTP uploads with binary encoding instead of the legacy (Base-64) encoding.
+  STRING_DESC m_AppName;        
+  STRING_DESC m_AppVersion;     
+  STRING_DESC m_LangFileName;   
+  DWORD m_dwInstallFlags;
+  DWORD m_dwScreenshotFlags;        
+  STRING_DESC m_RestartCmdLine; 
+  STRING_DESC m_EmailTo;   
+  int   m_nSmtpPort;            
+  STRING_DESC m_EmailSubject;
+  STRING_DESC m_EmailText;
+  STRING_DESC m_SmtpProxyServer;
+  int m_nSmtpProxyPort;
+  STRING_DESC m_Url;
+  UINT m_uPriorities[3];  
+  STRING_DESC m_PathToCrashSender;
+  STRING_DESC m_CrashGUID;
+  STRING_DESC m_UnsentCrashReportsFolder;
+  STRING_DESC m_ReportFolderName;
+  STRING_DESC m_PrivacyPolicyURL;
+  MINIDUMP_TYPE m_MiniDumpType;    
   UINT m_uFileItems;                  // Count of file item records.
   UINT m_uRegKeyEntries;              // Count of registry key entries.
   UINT m_uCustomProps;                // Count of user-defined properties.  
 };
 
+// Used to share memory between CrashRpt.dll and CrashSender.exe
 class CSharedMem
 {
 public:
 
-  CSharedMem();
-  ~CSharedMem();
+	CSharedMem();  
+  ~CSharedMem();  
+
+	BOOL Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize);
+	BOOL Destroy();
+
+  ULONG64 GetSize();
+	LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
 
 private:
-
-  CCritSec m_csLock;  
-  DWORD m_dwAllocGranularity; // System allocation granularity.  
-  HANDLE m_hFileMapping;   // File mapping object.
-  LPVOID m_pViewStartPtr;  // View starting address.
-  HANDLE m_hAccessMutex;   // Access synchronization object.
+  
+	HANDLE m_hFileMapping;		  // Memory mapped object
+  DWORD m_dwAllocGranularity; // System allocation granularity  	  
+	ULONG64 m_uSize;	      	    // Size of the file mapping.		
+  CCritSec m_csLock;
+  std::map<DWORD, LPBYTE> m_aViewStartPtrs; // Base of the view of the file mapping.    
 };
 
 

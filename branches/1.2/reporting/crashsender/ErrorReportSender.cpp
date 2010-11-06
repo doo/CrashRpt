@@ -231,64 +231,82 @@ void CErrorReportSender::FeedbackReady(int code)
   m_Assync.FeedbackReady(code);
 }
 
-void CCrashHandler::CollectMiscCrashInfo()
-{  
+void CErrorReportSender::CollectMiscCrashInfo()
+{   
   // Get crash time
-  Utility::GetSystemTimeUTC(m_sCrashTime);
+  Utility::GetSystemTimeUTC(g_CrashInfo.GetReport(0).m_sSystemTimeUTC);
 
-  HANDLE hCurProcess = GetCurrentProcess();
+  HANDLE hProcess = OpenProcess(
+    PROCESS_QUERY_INFORMATION, 
+    FALSE, 
+    g_CrashInfo.m_dwProcessId);
+  if(hProcess!=NULL)
+  {
+    // Get number of GUI resources in use  
+    g_CrashInfo.GetReport(0).m_dwGuiResources = GetGuiResources(hProcess, GR_GDIOBJECTS);
+  
+    // Determine if GetProcessHandleCount function available
+    typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
+    HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
+    LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
+      (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
+    if(pfnGetProcessHandleCount!=NULL)
+    {    
+      // Get count of opened handles
+      DWORD dwHandleCount = 0;
+      BOOL bGetHandleCount = pfnGetProcessHandleCount(hProcess, &dwHandleCount);
+      if(bGetHandleCount)
+        g_CrashInfo.GetReport(0).m_dwProcessHandleCount = dwHandleCount;
+      else
+        g_CrashInfo.GetReport(0).m_dwProcessHandleCount = 0;
+    }
+
+    // Get memory usage info
+    PROCESS_MEMORY_COUNTERS meminfo;
+    BOOL bGetMemInfo = GetProcessMemoryInfo(hProcess, &meminfo, 
+      sizeof(PROCESS_MEMORY_COUNTERS));
+    if(bGetMemInfo)
+    {    
+      CString sMemUsage;
+  #ifdef _WIN64
+      sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
+  #else
+      sMemUsage.Format(_T("%lu"), meminfo.WorkingSetSize/1024);
+  #endif 
+      g_CrashInfo.GetReport(0).m_sMemUsage = sMemUsage;
+    }
+  }
 
   // Determine the period of time the process is working.
+  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+  BOOL bGetTimes = GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime);
+  ATLASSERT(bGetTimes);
+  SYSTEMTIME AppStartTime;
+  FileTimeToSystemTime(&CreationTime, &AppStartTime);
+
   SYSTEMTIME CurTime;
   GetSystemTime(&CurTime);
   ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
-  ULONG64 uStartTime = Utility::SystemTimeToULONG64(m_AppStartTime);
+  ULONG64 uStartTime = Utility::SystemTimeToULONG64(AppStartTime);
   
+  // Get operating system friendly name.
+  Utility::GetOSFriendlyName(g_CrashInfo.GetReport(0).m_sOSName);
+  
+  // Determine if Windows is 64-bit.
+  g_CrashInfo.GetReport(0).m_bOSIs64Bit = Utility::IsOS64Bit();
+
+  // Get geographic location.
+  Utility::GetGeoLocation(g_CrashInfo.GetReport(0).m_sGeoLocation);
+
+
   // Check that the application works for at least one minute before crash.
   // This might help to avoid cyclic error report generation when the applciation
   // crashes on startup.
   double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
   if(dDiffTime<60)
   {
-    m_bAppRestart = FALSE; // Disable restart.
-  }
-
-  // Get number of GUI resources in use  
-  m_dwGuiResources = GetGuiResources(hCurProcess, GR_GDIOBJECTS);
-  
-  // Determine if GetProcessHandleCount function available
-  typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
-  HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-  LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
-    (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
-  if(pfnGetProcessHandleCount!=NULL)
-  {    
-    // Get count of opened handles
-    DWORD dwHandleCount = 0;
-    BOOL bGetHandleCount = pfnGetProcessHandleCount(hCurProcess, &dwHandleCount);
-    if(bGetHandleCount)
-      m_dwProcessHandleCount = dwHandleCount;
-    else
-      m_dwProcessHandleCount = 0;
-  }
-
-  // Get memory usage info
-  PROCESS_MEMORY_COUNTERS meminfo;
-  BOOL bGetMemInfo = GetProcessMemoryInfo(hCurProcess, &meminfo, 
-    sizeof(PROCESS_MEMORY_COUNTERS));
-  if(bGetMemInfo)
-  {    
-    CString sMemUsage;
-#ifdef _WIN64
-    sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
-#else
-    sMemUsage.Format(_T("%lu"), meminfo.WorkingSetSize/1024);
-#endif 
-    m_sMemUsage = sMemUsage;
-  }
-
-  // Get cursor position
-  GetCursorPos(&m_ptCursorPos);
+    g_CrashInfo.m_bAppRestart = FALSE; // Disable restart.
+  } 
 }
 
 // This takes the desktop screenshot (screenshot of entire virtual screen
