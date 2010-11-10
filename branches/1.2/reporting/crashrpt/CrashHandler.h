@@ -106,6 +106,7 @@ public:
   BOOL IsInitialized();
 
   int Destroy();
+
    
   // Adds a file to the crash report
   int AddFile(LPCTSTR lpFile, LPCTSTR lpDestFile, LPCTSTR lpDesc, DWORD dwFlags);
@@ -171,12 +172,10 @@ public:
   void GetExceptionPointers(
         DWORD dwExceptionCode, 
         EXCEPTION_POINTERS** pExceptionPointers);
-      
+    
   // Packs crash description into shared memory.
-  int PackCrashInfoIntoSharedMem(
-        EXCEPTION_POINTERS* pExInfo, 
-        BOOL bSendRecentReports);
-  
+  BOOL PackCrashInfoIntoSharedMem();
+    
   // Launches the CrashSender.exe process.
   int LaunchCrashSender(
         CString sCmdLineParams, 
@@ -236,10 +235,10 @@ public:
   CString m_sPathToCrashSender;  // Path to CrashSender.exe
   CString m_sLangFileName;       // Language file.
   CString m_sPathToDebugHelpDll; // Path to dbghelp.dll.
-  CString m_sUnsentCrashReportsFolder; //  
+  CString m_sUnsentCrashReportsFolder; // Path to the folder where to save error reports.
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.    
-  BOOL m_bAddScreenshot;
-  DWORD m_dwScreenshotFlags;
+  BOOL m_bAddScreenshot;         // Should we add screenshot?
+  DWORD m_dwScreenshotFlags;     // Screenshot flags.
   std::map<CString, FileItem> m_files; // File items to include.
   std::map<CString, CString> m_props;  // User-defined properties to include.
   std::map<CString, CString> m_RegKeys; // Registry keys to dump.  

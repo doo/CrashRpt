@@ -68,24 +68,13 @@ CCrashHandler::CCrashHandler()
   InitPrevExceptionHandlerPointers();
 
   m_lpfnCallback = NULL;
-  //m_nSmtpPort = 25;
-  //m_nSmtpProxyPort = 2525;
-  //memset(&m_uPriorities, 0, 3*sizeof(UINT));  
-  //m_hDbgHelpDll = NULL;
-  //m_bGenerateMinidump = TRUE;
-  //m_bQueueEnabled = FALSE;
-  //m_MiniDumpType = MiniDumpNormal;
-  //m_bSilentMode = FALSE;
-  //m_bHttpBinaryEncoding = FALSE;
-  //m_bSendErrorReport = TRUE;
-  //m_bStoreZIPArchives = FALSE;
-  //memset(&m_AppStartTime, 0, sizeof(SYSTEMTIME));
-  //m_bOSIs64Bit = FALSE;
-  //m_dwGuiResources = 0;
-  //m_dwProcessHandleCount = 0;
-  //m_bAddScreenshot = FALSE;
-  //m_dwScreenshotFlags = 0;  
-  //m_bAppRestart = FALSE;
+  m_nSmtpPort = 25;
+  m_nSmtpProxyPort = 2525;
+  memset(&m_uPriorities, 0, 3*sizeof(UINT));    
+  m_MiniDumpType = MiniDumpNormal;
+  m_bAddScreenshot = FALSE;
+  m_dwScreenshotFlags = 0;  
+  m_bAppRestart = FALSE;
   m_hEvent = NULL;  
   m_bInitialized = FALSE;  
 }
@@ -370,9 +359,8 @@ int CCrashHandler::Init(
     crSetErrorMsg(_T("Couldn't create crash report directory."));
     return 1; 
   }
-    
-  // Save the name of the folder we will save this crash report (if occur)
-  //m_sReportFolderName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID;
+  
+  PackCrashInfoIntoSharedMem();
   
   // Set exception handlers with initial values (NULLs)
   InitPrevExceptionHandlerPointers();
@@ -403,7 +391,7 @@ int CCrashHandler::Init(
   if(dwFlags&CR_INST_SEND_QUEUED_REPORTS)
   {
     CString sFileName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID + _T(".xml");
-    PackCrashInfoIntoSharedMem(NULL, TRUE);
+    PackCrashInfoIntoSharedMem(/*NULL, TRUE*/);
     if(0!=LaunchCrashSender(sFileName, FALSE, NULL))
     {
       crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
@@ -415,6 +403,50 @@ int CCrashHandler::Init(
   m_bInitialized = TRUE;
   crSetErrorMsg(_T("Success."));
   return 0;
+}
+
+BOOL CCrashHandler::PackCrashInfoIntoSharedMem()
+{
+  // Pack config info to shared mem.
+  BOOL bSharedMem = m_SharedMem.Init(m_sCrashGUID, FALSE, 10*1024*1024 /*10 MB*/);
+  if(!bSharedMem)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't initialize shared memory."));
+    return 1; 
+  }
+
+  CRASH_DESCRIPTION* pCrashDesc = 
+    (CRASH_DESCRIPTION*)m_SharedMem.CreateView(0, sizeof(CRASH_DESCRIPTION));  
+  if(pCrashDesc==NULL)
+  {
+    ATLASSERT(0);
+    crSetErrorMsg(_T("Couldn't create shared memory view."));
+    return 1; 
+  }
+
+  memset(pCrashDesc, 0, sizeof(CRASH_DESCRIPTION));
+  memcpy(pCrashDesc->m_uchMagic, "CRD", 3);  
+  pCrashDesc->m_dwTotalSize = sizeof(CRASH_DESCRIPTION);
+  pCrashDesc->m_dwSize = sizeof(CRASH_DESCRIPTION);
+  pCrashDesc->m_dwInstallFlags = m_dwFlags;
+  pCrashDesc->m_MiniDumpType = m_MinidumpType;
+
+  PackString(&pCrashDesc, m_sAppName, &pCrashDesc->m_AppName.m_dwOffset, &pCrashDesc->m_AppName.m_wLength);
+
+  return TRUE;
+}
+
+BOOL CCrashHandler::PackString(
+  CRASH_DESCRIPTION** ppCrashDesc,
+  CString str,
+  PDWORD pdwOffset,
+  PDWORD pwLength)
+{
+  DWORD dwTotalSize = pCrashDesc->m_dwTotalSize;
+  WORD wLength = m_sAppName.GetLength()*sizeof(TCHAR);
+  LPBYTE pStringData = m_SharedMem.CreateView(pCrashDesc->m_AppName.m_dwOffset, pCrashDesc->m_AppName.m_wLength);  
+  memcpy(pStringData, m_sAppName.GetBuffer(0), pCrashDesc->m_AppName.m_wLength);
 }
 
 BOOL CCrashHandler::IsInitialized()
@@ -815,7 +847,7 @@ int CCrashHandler::GenerateErrorReport(
   }
 
   // Save crash info into shared memory.
-  PackCrashInfoIntoSharedMem(pExceptionInfo->pexcptrs, FALSE);
+  PackCrashInfoIntoSharedMem(/*pExceptionInfo->pexcptrs, FALSE*/);
 
   // If error report is being generated manually, disable app restart.
   if(pExceptionInfo->bManual)
@@ -1141,16 +1173,16 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
 //  return 0;
 //}
 
-int CCrashHandler::PackCrashInfoIntoSharedMem(
-    EXCEPTION_POINTERS* pExInfo, 
-    BOOL bSendRecentReports)
-{
-  crSetErrorMsg(_T("Unspecified error."));
-  
-  strconv_t strconv;  
-
-  DWORD dwProcessId = GetCurrentProcessId();
-  DWORD dwThreadId = GetCurrentThreadId();
+//int CCrashHandler::PackCrashInfoIntoSharedMem(
+//    EXCEPTION_POINTERS* pExInfo, 
+//    BOOL bSendRecentReports)
+//{
+//  crSetErrorMsg(_T("Unspecified error."));
+//  
+//  strconv_t strconv;  
+//
+//  DWORD dwProcessId = GetCurrentProcessId();
+//  DWORD dwThreadId = GetCurrentThreadId();
 
 //  FILE* f = NULL;
 //
@@ -1329,9 +1361,9 @@ int CCrashHandler::PackCrashInfoIntoSharedMem(
 //  // Make the file hidden.
 //  SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
 
-  crSetErrorMsg(_T("Success."));
-  return 0;
-}
+//  crSetErrorMsg(_T("Success."));
+//  return 0;
+//}
 
 // Launches CrashSender.exe process
 int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE* phProcess)

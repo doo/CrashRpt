@@ -33,45 +33,49 @@
 #include "stdafx.h"
 #include "CritSec.h"
 
-#define FILE_DESC_MAX_LEN 1024
+// String description.
+struct STRING_DESC
+{
+  BYTE m_uchMagic[3]; // Magic sequence "STR"
+  DWORD m_dwOffset;   // String data offset from the beginning of the shared memory.
+  WORD m_wLength;     // String data length in bytes.
+};
 
 // File item entry.
 struct FILE_ITEM
 {
-  WCHAR m_szSrcFilePath[_MAX_PATH]; // Path to the original file.
-  WCHAR m_szDstFileName[_MAX_PATH]; // Name of the destination file.
-  WCHAR m_szDescription[FILE_DESC_MAX_LEN];  // File description.
-  BOOL  m_bMakeCopy;                // Should we make a copy of this file on crash?
+  BYTE m_uchMagic[3]; // Magic sequence "FIL"
+  STRING_DESC m_SrcFilePath; // Path to the original file.
+  STRING_DESC m_DstFileName; // Name of the destination file.
+  STRING_DESC m_Description; // File description.
+  BOOL  m_bMakeCopy;         // Should we make a copy of this file on crash?
 };
-
-#define REG_KEY_NAME_MAX_LEN 4096
 
 // Registry key entry.
 struct REG_KEY
 {
-  WCHAR m_szRegKeyName[REG_KEY_NAME_MAX_LEN]; // Registry key name.
-  WCHAR m_szDstFileName[_MAX_PATH]; // Destination file name.
+  BYTE m_uchMagic[3];        // Magic sequence "REG"
+  STRING_DESC m_RegKeyName;  // Registry key name.
+  STRING_DESC m_DstFileName; // Destination file name.
 };
-
-#define CUSTOM_PROP_NAME_MAX_LEN 256
-#define CUSTOM_PROP_VAL_MAX_LEN 4096
 
 // User-defined property.
 struct CUSTOM_PROP
 {
-  WCHAR m_szName[CUSTOM_PROP_NAME_MAX_LEN];  // Property name.
-  WCHAR m_szValue[CUSTOM_PROP_VAL_MAX_LEN];  // Property value.
-};
-
-struct STRING_DESC
-{
-  DWORD m_dwOffset;
-  WORD m_cchLength;  
+  BYTE m_uchMagic[3];  // Magic sequence "CPR"
+  STRING_DESC m_Name;  // Property name.
+  STRING_DESC m_Value; // Property value.
 };
 
 // Crash description. 
 struct CRASH_DESCRIPTION
 {  
+  BYTE m_uchMagic[3];  // Magic sequence "CRD"
+  DWORD m_dwSize;      // Size of this structure in bytes.
+  DWORD m_dwTotalSize; // Total size of the whole used shared mem.
+  UINT m_uFileItems;                  // Count of file item records.
+  UINT m_uRegKeyEntries;              // Count of registry key entries.
+  UINT m_uCustomProps;                // Count of user-defined properties.  
   STRING_DESC m_AppName;        
   STRING_DESC m_AppVersion;     
   STRING_DESC m_LangFileName;   
@@ -91,10 +95,7 @@ struct CRASH_DESCRIPTION
   STRING_DESC m_UnsentCrashReportsFolder;
   STRING_DESC m_ReportFolderName;
   STRING_DESC m_PrivacyPolicyURL;
-  MINIDUMP_TYPE m_MiniDumpType;    
-  UINT m_uFileItems;                  // Count of file item records.
-  UINT m_uRegKeyEntries;              // Count of registry key entries.
-  UINT m_uCustomProps;                // Count of user-defined properties.  
+  MINIDUMP_TYPE m_MiniDumpType;      
 };
 
 // Used to share memory between CrashRpt.dll and CrashSender.exe
