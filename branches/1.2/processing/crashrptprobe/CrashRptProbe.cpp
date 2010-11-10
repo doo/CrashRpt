@@ -564,6 +564,7 @@ crpGetPropertyW(
   if(sTableId.Compare(CRP_TBL_MDMP_MISC)==0 ||
      sTableId.Compare(CRP_TBL_MDMP_MODULES)==0 ||
      sTableId.Compare(CRP_TBL_MDMP_THREADS)==0 ||
+     sTableId.Compare(CRP_TBL_MDMP_LOAD_LOG)==0 ||
      nDynTable==0 ||
      (pDescReader->m_dwGeneratorVersion==1000 && sTableId.Compare(CRP_TBL_XMLDESC_MISC)==0) )
   {     
@@ -1081,6 +1082,30 @@ crpGetPropertyW(
       _STPRINTF_S(szBuff, BUFF_SIZE, _T("STACK%d"), nRowIndex); 
       pszPropVal = szBuff;
     }    
+    else
+    {
+      crpSetErrorMsg(_T("Invalid column ID specified."));
+      return -2;
+    }
+
+  }  
+  else if(sTableId.Compare(CRP_TBL_MDMP_LOAD_LOG)==0)
+  {  
+    if(nRowIndex>=(int)pDmpReader->m_DumpData.m_LoadLog.size())
+    {
+      crpSetErrorMsg(_T("Invalid row index specified."));
+      return -4;    
+    }
+
+    if(sColumnId.Compare(CRP_META_ROW_COUNT)==0)
+    {
+      return (int)pDmpReader->m_DumpData.m_LoadLog.size();
+    }
+    else if(sColumnId.Compare(CRP_COL_LOAD_LOG_ENTRY)==0)
+    {
+      _TCSCPY_S(szBuff, BUFF_SIZE, pDmpReader->m_DumpData.m_LoadLog[nRowIndex]); 
+      pszPropVal = szBuff;
+    }
     else
     {
       crpSetErrorMsg(_T("Invalid column ID specified."));

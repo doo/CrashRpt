@@ -197,6 +197,7 @@ crpCloseErrorReport(
 #define CRP_TBL_MDMP_MISC    _T("MdmpMisc")    //!< Table: Miscellaneous info contained in crash minidump file.  
 #define CRP_TBL_MDMP_MODULES _T("MdmpModules") //!< Table: The list of loaded modules.
 #define CRP_TBL_MDMP_THREADS _T("MdmpThreads") //!< Table: The list of threads.
+#define CRP_TBL_MDMP_LOAD_LOG _T("MdmpLoadLog") //!< Table: Minidump loading log.
 
 /* Meta information */
 
@@ -268,6 +269,9 @@ crpCloseErrorReport(
 #define CRP_COL_STACK_SOURCE_FILE      _T("StackSourceFile")     //!< Column: Stack trace: source file name.
 #define CRP_COL_STACK_SOURCE_LINE      _T("StackSourceLine")     //!< Column: Stack trace: source file line number.
 #define CRP_COL_STACK_ADDR_PC_OFFSET   _T("StackAddrPCOffset")   //!< Column: Stack trace: AddrPC offset.
+
+// Column IDs of the CRP_MDMP_LOAD_LOG table
+#define CRP_COL_LOAD_LOG_ENTRY _T("LoadLogEntry")   //!< Column: A entry of the minidump loading log.
 
 /*! \ingroup CrashRptProbeAPI
  *  \brief Retrieves a string property from crash report.
