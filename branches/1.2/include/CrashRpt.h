@@ -1133,11 +1133,11 @@ crEnableBlackBox(
  *  This structure contains essential information needed to generate crash minidump file and
  *  provide the developer with other information about the error.
  *
- *  \b cb [in]
+ *  \argdesc{cb}
  *
  *    This must contain the size of this structure in bytes.
  *
- *  \b pexcptrs [in, optional]
+ *  \argdesc{pexcptrs} [in, optional]
  *
  *    Should contain the exception pointers. If this parameter is NULL, 
  *    the current CPU state is used to generate exception pointers.
