@@ -181,6 +181,10 @@ It is unsafe to do complex operations in the crashed program which may be unstab
 
 Typically a process (executable file) loads `CrashRpt.dll` into its address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process. Client application uses CrashRpt API functions to set exception handlers in the process once, typically in its `main()` function. In a multi-threaded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
 
+== How can I use crashrpt without `CrashSender.exe`? ==
+
+You can not generate crash reports without `CrashSender.exe`. It is unsafe to do complex operations in the crashed program which may be unstable. CrashSender.exe collects information about the crash, closes the application which have crashed and continues sending the error report in background.
+
 == What .h file should I include in my code and what .lib file should I link my code to? ==
 
 Include `CrashRpt.h` header file in the beginning of your code.
