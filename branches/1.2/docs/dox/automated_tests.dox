@@ -1,0 +1,16 @@
+/*!
+
+\page automated_tests Running Automated Tests
+
+CrashRpt distribution contains project Tests that implements automated tests 
+for CrashRpt functionality.
+
+To run the tests, go to the \b bin directory and click the \b Tests.exe executable
+file name. This should launch a console program that will run a set of test cases.
+
+Test cases are organized into several test suites. You can run tests from all test suites at once,
+or to run tests from selected test suites.
+
+
+
+*/
