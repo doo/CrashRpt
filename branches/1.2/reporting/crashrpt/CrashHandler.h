@@ -61,7 +61,7 @@ struct ThreadExceptionHandlers
   terminate_handler m_prevTerm;        // Previous terminate handler   
   unexpected_handler m_prevUnexp;      // Previous unexpected handler
   void (__cdecl *m_prevSigFPE)(int);   // Previous FPE handler
-  void (__cdecl *m_prevSigILL)(int);   // Previous 
+  void (__cdecl *m_prevSigILL)(int);   // Previous SIGILL handler
   void (__cdecl *m_prevSigSEGV)(int);  // Previous illegal storage access handler
 };
 
@@ -70,8 +70,9 @@ int crSetErrorMsg(PTSTR pszErrorMsg);
 
 struct FileItem
 {
-  CString m_sFileName;    // Path to the original file 
-  CString m_sDescription; // Description
+  CString m_sSrcFilePath; // Path to the original file. 
+  CString m_sDstFileName; // Destination file name.
+  CString m_sDescription; // Description.
   BOOL m_bMakeCopy;       // Should we make a copy of this file on crash?
 };
 
@@ -175,6 +176,10 @@ public:
     
   // Packs crash description into shared memory.
   BOOL PackCrashInfoIntoSharedMem();
+  DWORD PackString(CString str);
+  DWORD PackFileItem(FileItem& fi);
+  DWORD PackProperty(CString sName, CString sValue);
+  DWORD PackRegKey(CString sKeyName, CString sDstFileName);
     
   // Launches the CrashSender.exe process.
   int LaunchCrashSender(
@@ -220,8 +225,8 @@ public:
   CString m_sAppVersion;         // Application version.  
   CString m_sCrashGUID;          // Crash GUID.
   DWORD m_dwFlags;               // Flags.
-  MINIDUMP_TYPE m_MiniDumpType;  // Minidump type.
-  BOOL m_bAppRestart;
+  MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
+  BOOL m_bAppRestart;            // Should we restart the app or not.
   CString m_sRestartCmdLine;     // App restart command line.
   CString m_sUrl;                // Url to use when sending error report over HTTP.  
   CString m_sEmailTo;            // E-mail recipient.
@@ -245,6 +250,7 @@ public:
   CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
   HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
   CSharedMem m_SharedMem;        // Shared memory.  
+  CRASH_DESCRIPTION* m_pCrashDesc;
 };
 
 

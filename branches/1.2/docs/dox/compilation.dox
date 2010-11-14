@@ -41,6 +41,8 @@ There are several projects in CrashRpt solution.
 
 - \b libpng project contains PNG file management functionality.
 
+- \b jpeg project contains JPEG file management functionality.
+
 - \b minizip project contains ZIP file management functionality.
 
 - \b CrashRptProbe project contains functionality for processing error reports.
@@ -48,6 +50,7 @@ There are several projects in CrashRpt solution.
 - \b crprober is a console tool for error reports processing.
 
 - \b Tests project contains automated tests.
+
 
 To build the solution, choose the \b Release build configuration and press 
 F7 to start building process.

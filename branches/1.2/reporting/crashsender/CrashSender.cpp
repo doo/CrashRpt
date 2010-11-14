@@ -55,11 +55,13 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 
   // Read crash info
   CString sFileName = CString(argv[1]);
-  g_CrashInfo.Init(sFileName);
-
-  // Remove the file containing crash info.
-  Utility::RecycleFile(sFileName, TRUE);
-
+  int nInit = g_CrashInfo.Init(sFileName);
+  if(nInit!=0)
+  {
+    MessageBox(NULL, _T("Couldn't initialize!"), _T("CrashSender.exe"), MB_ICONERROR);
+    return 1;
+  }
+  
   if(!g_CrashInfo.m_bSendRecentReports)
   {
     // Do the crash info collection work assynchronously

@@ -30,24 +30,31 @@
   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
+#pragma once
 #include "stdafx.h"
 #include "CritSec.h"
+
+struct GENERIC_HEADER
+{
+  BYTE m_uchMagic[3]; // Magic sequence
+  WORD m_wSize;       // Size of this chunk in bytes.
+};
 
 // String description.
 struct STRING_DESC
 {
-  BYTE m_uchMagic[3]; // Magic sequence "STR"
-  DWORD m_dwOffset;   // String data offset from the beginning of the shared memory.
-  WORD m_wLength;     // String data length in bytes.
+  BYTE m_uchMagic[3]; // Magic sequence "STR"  
+  WORD m_wSize;       // String data length in bytes.
 };
 
 // File item entry.
 struct FILE_ITEM
 {
   BYTE m_uchMagic[3]; // Magic sequence "FIL"
-  STRING_DESC m_SrcFilePath; // Path to the original file.
-  STRING_DESC m_DstFileName; // Name of the destination file.
-  STRING_DESC m_Description; // File description.
+  WORD m_wSize;
+  DWORD m_dwSrcFilePathOffs; // Path to the original file.
+  DWORD m_dwDstFileNameOffs; // Name of the destination file.
+  DWORD m_dwDescriptionOffs; // File description.
   BOOL  m_bMakeCopy;         // Should we make a copy of this file on crash?
 };
 
@@ -55,47 +62,47 @@ struct FILE_ITEM
 struct REG_KEY
 {
   BYTE m_uchMagic[3];        // Magic sequence "REG"
-  STRING_DESC m_RegKeyName;  // Registry key name.
-  STRING_DESC m_DstFileName; // Destination file name.
+  WORD m_wSize;
+  DWORD m_dwRegKeyNameOffs;  // Registry key name.
+  DWORD m_dwDstFileNameOffs; // Destination file name.
 };
 
 // User-defined property.
 struct CUSTOM_PROP
 {
   BYTE m_uchMagic[3];  // Magic sequence "CPR"
-  STRING_DESC m_Name;  // Property name.
-  STRING_DESC m_Value; // Property value.
+  WORD m_wSize;
+  DWORD m_dwNameOffs;  // Property name.
+  DWORD m_dwValueOffs; // Property value.
 };
 
 // Crash description. 
 struct CRASH_DESCRIPTION
 {  
   BYTE m_uchMagic[3];  // Magic sequence "CRD"
-  DWORD m_dwSize;      // Size of this structure in bytes.
+  WORD m_wSize;      // Size of this structure in bytes.
   DWORD m_dwTotalSize; // Total size of the whole used shared mem.
   UINT m_uFileItems;                  // Count of file item records.
   UINT m_uRegKeyEntries;              // Count of registry key entries.
   UINT m_uCustomProps;                // Count of user-defined properties.  
-  STRING_DESC m_AppName;        
-  STRING_DESC m_AppVersion;     
-  STRING_DESC m_LangFileName;   
   DWORD m_dwInstallFlags;
-  DWORD m_dwScreenshotFlags;        
-  STRING_DESC m_RestartCmdLine; 
-  STRING_DESC m_EmailTo;   
-  int   m_nSmtpPort;            
-  STRING_DESC m_EmailSubject;
-  STRING_DESC m_EmailText;
-  STRING_DESC m_SmtpProxyServer;
-  int m_nSmtpProxyPort;
-  STRING_DESC m_Url;
+  int m_nSmtpPort;            
+  int m_nSmtpProxyPort;  
   UINT m_uPriorities[3];  
-  STRING_DESC m_PathToCrashSender;
-  STRING_DESC m_CrashGUID;
-  STRING_DESC m_UnsentCrashReportsFolder;
-  STRING_DESC m_ReportFolderName;
-  STRING_DESC m_PrivacyPolicyURL;
-  MINIDUMP_TYPE m_MiniDumpType;      
+  MINIDUMP_TYPE m_MinidumpType;   
+  DWORD m_dwScreenshotFlags;        
+  DWORD m_dwUrlOffs;
+  DWORD m_dwAppNameOffs;        
+  DWORD m_dwAppVersionOffs;     
+  DWORD m_dwLangFileNameOffs;       
+  DWORD m_dwRestartCmdLineOffs; 
+  DWORD m_dwEmailToOffs;     
+  DWORD m_dwCrashGUIDOffs;
+  DWORD m_dwUnsentCrashReportsFolderOffs;  
+  DWORD m_dwPrivacyPolicyURLOffs;
+  DWORD m_dwEmailSubjectOffs;
+  DWORD m_dwEmailTextOffs;
+  DWORD m_dwSmtpProxyServerOffs;  
 };
 
 // Used to share memory between CrashRpt.dll and CrashSender.exe
@@ -110,15 +117,16 @@ public:
 	BOOL Destroy();
 
   ULONG64 GetSize();
+
 	LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
+  void DestroyView(LPBYTE pViewPtr);
 
 private:
   
 	HANDLE m_hFileMapping;		  // Memory mapped object
   DWORD m_dwAllocGranularity; // System allocation granularity  	  
-	ULONG64 m_uSize;	      	    // Size of the file mapping.		
-  CCritSec m_csLock;
-  std::map<DWORD, LPBYTE> m_aViewStartPtrs; // Base of the view of the file mapping.    
+	ULONG64 m_uSize;	      	  // Size of the file mapping.		  
+  std::set<LPBYTE> m_aViewStartPtrs; // Base of the view of the file mapping.    
 };
 
 

@@ -16,6 +16,7 @@ postprocessing tool for Visual C++ applications running in Windows.
 - \subpage introduction_to_crashrpt
   - \ref getting_started
   - \ref demos
+  - \ref automated_tests
   - \ref error_report
   - \ref architecture_overview
   - \ref exception_handling

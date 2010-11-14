@@ -1086,28 +1086,6 @@ crAddRegKeyA(
 #define crAddRegKey crAddRegKeyA
 #endif //UNICODE
 
-typedef struct tagCR_BLACK_BOX_INFO
-{
-  UINT  cb;                    //!< Size of this structure, in bytes.  
-  int   nMemUsageSnapMaxCount; //!< Maximum memory usage snapshot count.
-  int   nMemUsageSnapInterval; //!< Memory usage snapshot taking interval, in miliseconds.
-  int   nCPUsageSnapMaxCount;  //!< CPU usage snapshot max count.
-  int   nCPUsageSnapInterval;  //!< CPU usage snapshot max interval. 
-  DWORD dwScreenshotFlags;     //!< Desktop screenshot flags.
-  int   nScreenshotMaxCount;   //!< Maximum desktop screenshot count.
-  int   nScreenshotInterval;   //!< Desktop screenshot taking interval, in miliseconds.
-  float fScrenshotJpegQuality; //!< Desktop screenshot JPEG image quality (between zero and one).
-  BOOL  bScreenshotGrayscale;  //!< If TRUE, generates grayscale screenshots (this decreases total file size).
-}
-CR_BLACK_BOX_INFO, *PCR_BLACK_BOX_INFO;
-
-
-CRASHRPTAPI(int)
-crEnableBlackBox(   
-   BOOL bEnable,
-   PCR_BLACK_BOX_INFO pInfo
-   );
-
 // Exception types
 #define CR_WIN32_STRUCTURED_EXCEPTION   0    //!< SEH exception (deprecated name, use \ref CR_SEH_EXCEPTION instead).
 #define CR_SEH_EXCEPTION                0    //!< SEH exception.
@@ -1126,18 +1104,16 @@ crEnableBlackBox(
 
 
 /*! \ingroup CrashRptStructs
- *  \brief Extended exception info used by crGenerateErrorReport().
- *
- *  \remarks
- *
+ *  
  *  This structure contains essential information needed to generate crash minidump file and
- *  provide the developer with other information about the error.
+ *  provide the developer with other information about the error. This structure is ised by
+ *  the crGenerateErrorReport() function.
  *
- *  \argdesc{cb}
+ *  \b cb [in] 
  *
- *    This must contain the size of this structure in bytes.
+ *  This must contain the size of this structure in bytes.
  *
- *  \argdesc{pexcptrs} [in, optional]
+ *  \b pexcptrs [in, optional]
  *
  *    Should contain the exception pointers. If this parameter is NULL, 
  *    the current CPU state is used to generate exception pointers.

@@ -38,6 +38,7 @@
 #pragma once
 #include "stdafx.h"
 #include "tinyxml.h"
+#include "SharedMem.h"
 
 // The structure describing file item.
 struct ERIFileItem
@@ -94,6 +95,7 @@ struct ErrorReportInfo
   // The list of files that are included into this report.
   std::map<CString, ERIFileItem>  m_FileItems; 
   std::map<CString, CString> m_RegKeys;
+  std::map<CString, CString> m_Props;
 };
 
 // Remind policy.
@@ -143,8 +145,9 @@ public:
   
   /* Member functions */
     
-  // Gets crash info from internal crash info XML file
-  int Init(CString sCrashInfoFile);
+  // Gets crash info from shared memory
+  int Init(CString sFileMappingName);
+
 
   // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
@@ -163,6 +166,9 @@ public:
 
 private:
 
+  int UnpackCrashDescription();
+  int UnpackString(DWORD dwOffset, CString& str);
+
   // Gets the list of file items 
   int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
@@ -176,6 +182,9 @@ private:
 
   // Path to ~CrashRpt.ini file.
   CString m_sINIFile; 
+
+  CSharedMem m_SharedMem;
+  CRASH_DESCRIPTION* m_pCrashDesc;
 };
 
 // Declare globally available object.

@@ -1602,7 +1602,9 @@ GENERATE_LEGEND        = YES
 
 DOT_CLEANUP            = YES
 
-ALIASES += argdesc{1}="<b> \1 </b><li style=\"list-style:square;\">"
-ALIASES += endargesc="</li>"
+ALIASES += argsection="<table border=\"0\">"
+ALIASES += argdesc{1}="<tr><td><b>\1</b><td>"
+ALIASES += endargsection="</tr></table>"
+
 
 

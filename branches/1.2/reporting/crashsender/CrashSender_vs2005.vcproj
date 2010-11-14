@@ -743,6 +743,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\crashrpt\SharedMem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\smtpclient.cpp"
 				>
 				<FileConfiguration

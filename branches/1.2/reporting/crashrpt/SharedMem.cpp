@@ -62,7 +62,7 @@ BOOL CSharedMem::Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize)
   }
   else
   {
-    m_hFileMapping = OpenFileMapping(FILE_MAP_READ, FALSE, szName);
+    m_hFileMapping = OpenFileMapping(FILE_MAP_READ|FILE_MAP_WRITE, FALSE, szName);
   }
 
   m_uSize = uSize; 
@@ -78,11 +78,11 @@ BOOL CSharedMem::Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize)
 
 BOOL CSharedMem::Destroy()
 {
-  std::map<DWORD, LPBYTE>::iterator it;
+  std::set<LPBYTE>::iterator it;
   for(it=m_aViewStartPtrs.begin(); it!=m_aViewStartPtrs.end(); it++)
   {
-    if(it->second != NULL)
-      UnmapViewOfFile(it->second);    
+    if(*it != NULL)
+      UnmapViewOfFile(*it);    
   }
   m_aViewStartPtrs.clear();
   
@@ -104,30 +104,22 @@ ULONG64 CSharedMem::GetSize()
 
 LPBYTE CSharedMem::CreateView(DWORD dwOffset, DWORD dwLength)
 {
-  DWORD dwThreadId = GetCurrentThreadId();
   DWORD dwBaseOffs = dwOffset-dwOffset%m_dwAllocGranularity;
   DWORD dwDiff = dwOffset-dwBaseOffs;
   LPBYTE pPtr = NULL;
-
-  CAutoLock lock(&m_csLock);
-
-  std::map<DWORD, LPBYTE>::iterator it = m_aViewStartPtrs.find(dwThreadId);
-  if(it!=m_aViewStartPtrs.end())
-  {
-    UnmapViewOfFile(it->second);
-  }
   
-  pPtr = (LPBYTE)MapViewOfFile(m_hFileMapping, FILE_MAP_READ, 0, dwBaseOffs, dwLength+dwDiff);
-  if(it!=m_aViewStartPtrs.end())
-  {
-    it->second = pPtr;
-  }
-  else
-  {
-    m_aViewStartPtrs[dwThreadId] = pPtr;
-  }
+  pPtr = (LPBYTE)MapViewOfFile(m_hFileMapping, FILE_MAP_READ|FILE_MAP_WRITE, 0, dwBaseOffs, dwLength+dwDiff);
+  m_aViewStartPtrs.insert(pPtr);
   
   return (pPtr+dwDiff);
 }
 
-
+void CSharedMem::DestroyView(LPBYTE pViewPtr)
+{
+  std::set<LPBYTE>::iterator it = m_aViewStartPtrs.find(pViewPtr);
+  if(it!=m_aViewStartPtrs.end())
+  {
+    UnmapViewOfFile(pViewPtr);
+    m_aViewStartPtrs.erase(it);
+  }
+}
