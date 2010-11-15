@@ -69,6 +69,20 @@ rmdir /S /Q thirdparty\minizip\x64
 erase /A H thirdparty\minizip\*.user
 erase thirdparty\minizip\*.aps
 
+rmdir /S /Q thirdparty\jpeg\Debug
+rmdir /S /Q thirdparty\jpeg\Release
+rmdir /S /Q "thirdparty\jpeg\Release LIB"
+rmdir /S /Q thirdparty\jpeg\x64
+erase /A H thirdparty\jpeg\*.user
+erase thirdparty\jpeg\*.aps
+
+rmdir /S /Q thirdparty\tinyxml\Debug
+rmdir /S /Q thirdparty\tinyxml\Release
+rmdir /S /Q "thirdparty\tinyxml\Release LIB"
+rmdir /S /Q thirdparty\tinyxml\x64
+erase /A H thirdparty\tinyxml\*.user
+erase thirdparty\tinyxml\*.aps
+
 rmdir /S /Q processing\CrashRptProbe\Debug
 rmdir /S /Q processing\CrashRptProbe\Release
 rmdir /S /Q "processing\CrashRptProbe\Release LIB"
