@@ -122,6 +122,7 @@ struct MdmpData
   std::vector<MdmpModule> m_Modules;       // The list of loaded modules.
   std::map<DWORD64, size_t> m_ModuleIndex; // <base_addr, module_entry_index> pairs
   std::vector<MdmpMemRange> m_MemRanges;   // The list of memory ranges.  
+  std::vector<CString> m_LoadLog; // Load log
 };
 
 // Class for opening minidumps
