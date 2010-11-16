@@ -34,24 +34,26 @@
 #include "stdafx.h"
 #include "CritSec.h"
 
+// Generic block header.
 struct GENERIC_HEADER
 {
-  BYTE m_uchMagic[3]; // Magic sequence
-  WORD m_wSize;       // Size of this chunk in bytes.
+  BYTE m_uchMagic[3]; // Magic sequence.
+  WORD m_wSize;       // Total bytes occupied by this block.
 };
 
-// String description.
+// String block description.
 struct STRING_DESC
 {
-  BYTE m_uchMagic[3]; // Magic sequence "STR"  
-  WORD m_wSize;       // String data length in bytes.
+  BYTE m_uchMagic[3]; // Magic sequence "STR".  
+  WORD m_wSize;       // Total bytes occupied by this block.
+  // This structure is followed by (m_wSize-sizeof(STRING_DESC) bytes of string data.
 };
 
 // File item entry.
 struct FILE_ITEM
 {
   BYTE m_uchMagic[3]; // Magic sequence "FIL"
-  WORD m_wSize;
+  WORD m_wSize;       // Total bytes occupied by this block.
   DWORD m_dwSrcFilePathOffs; // Path to the original file.
   DWORD m_dwDstFileNameOffs; // Name of the destination file.
   DWORD m_dwDescriptionOffs; // File description.
@@ -62,7 +64,7 @@ struct FILE_ITEM
 struct REG_KEY
 {
   BYTE m_uchMagic[3];        // Magic sequence "REG"
-  WORD m_wSize;
+  WORD m_wSize;              // Total bytes occupied by this block.
   DWORD m_dwRegKeyNameOffs;  // Registry key name.
   DWORD m_dwDstFileNameOffs; // Destination file name.
 };
@@ -71,7 +73,7 @@ struct REG_KEY
 struct CUSTOM_PROP
 {
   BYTE m_uchMagic[3];  // Magic sequence "CPR"
-  WORD m_wSize;
+  WORD m_wSize;        // Total bytes occupied by this block.
   DWORD m_dwNameOffs;  // Property name.
   DWORD m_dwValueOffs; // Property value.
 };
@@ -80,29 +82,32 @@ struct CUSTOM_PROP
 struct CRASH_DESCRIPTION
 {  
   BYTE m_uchMagic[3];  // Magic sequence "CRD"
-  WORD m_wSize;      // Size of this structure in bytes.
+  WORD m_wSize;        // Total bytes occupied by this block.
   DWORD m_dwTotalSize; // Total size of the whole used shared mem.
-  UINT m_uFileItems;                  // Count of file item records.
-  UINT m_uRegKeyEntries;              // Count of registry key entries.
-  UINT m_uCustomProps;                // Count of user-defined properties.  
-  DWORD m_dwInstallFlags;
-  int m_nSmtpPort;            
-  int m_nSmtpProxyPort;  
-  UINT m_uPriorities[3];  
-  MINIDUMP_TYPE m_MinidumpType;   
-  DWORD m_dwScreenshotFlags;        
-  DWORD m_dwUrlOffs;
-  DWORD m_dwAppNameOffs;        
-  DWORD m_dwAppVersionOffs;     
-  DWORD m_dwLangFileNameOffs;       
-  DWORD m_dwRestartCmdLineOffs; 
-  DWORD m_dwEmailToOffs;     
-  DWORD m_dwCrashGUIDOffs;
-  DWORD m_dwUnsentCrashReportsFolderOffs;  
-  DWORD m_dwPrivacyPolicyURLOffs;
-  DWORD m_dwEmailSubjectOffs;
-  DWORD m_dwEmailTextOffs;
-  DWORD m_dwSmtpProxyServerOffs;  
+  DWORD m_dwCrashRptVer;         // Version of CrashRpt.
+  UINT m_uFileItems;             // Count of file item records.
+  UINT m_uRegKeyEntries;         // Count of registry key entries.
+  UINT m_uCustomProps;           // Count of user-defined properties.  
+  DWORD m_dwInstallFlags;        // Flags passed to crInstall() function.
+  int m_nSmtpPort;               // Smtp port.
+  int m_nSmtpProxyPort;          // Smtp proxy port.
+  UINT m_uPriorities[3];         // Delivery priorities.
+  MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
+  BOOL  m_bAddScreenshot;        // Add screenshot?
+  DWORD m_dwScreenshotFlags;     // Screenshot flags.
+  DWORD m_dwUrlOffs;             // Offset of recipient URL.
+  DWORD m_dwAppNameOffs;         // Offset of application name.
+  DWORD m_dwAppVersionOffs;      // Offset of app version.
+  DWORD m_dwLangFileNameOffs;    // Offset of language INI file name.
+  DWORD m_dwRestartCmdLineOffs;  // Offset of app restart command line.
+  DWORD m_dwEmailToOffs;         // Offset to E-mail recipient.
+  DWORD m_dwCrashGUIDOffs;       // Offset to crash GUID.
+  DWORD m_dwUnsentCrashReportsFolderOffs;  // Offset of folder name where error reports are stored.
+  DWORD m_dwPrivacyPolicyURLOffs; // Offset of privacy policy URL.
+  DWORD m_dwEmailSubjectOffs;    // Offset of E-mail subject.
+  DWORD m_dwEmailTextOffs;       // Offset of E-mail text.
+  DWORD m_dwSmtpProxyServerOffs; // Offset of SMTP proxy server name.
+  DWORD m_dwCustomSenderIconOffs; // Offset of custom Error Report dialog icon resource name.
 };
 
 // Used to share memory between CrashRpt.dll and CrashSender.exe

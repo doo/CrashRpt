@@ -102,7 +102,8 @@ public:
       LPCTSTR lpcszRestartCmdLine = NULL,
       LPCTSTR lpcszLangFilePath = NULL,
       LPCTSTR lpcszEmailText = NULL,
-      LPCTSTR lpcszSmtpProxy = NULL);
+      LPCTSTR lpcszSmtpProxy = NULL,
+      LPCTSTR lpcszCustomSenderIcon = NULL);
 
   BOOL IsInitialized();
 
@@ -244,6 +245,7 @@ public:
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.    
   BOOL m_bAddScreenshot;         // Should we add screenshot?
   DWORD m_dwScreenshotFlags;     // Screenshot flags.
+  CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
   std::map<CString, FileItem> m_files; // File items to include.
   std::map<CString, CString> m_props;  // User-defined properties to include.
   std::map<CString, CString> m_RegKeys; // Registry keys to dump.  

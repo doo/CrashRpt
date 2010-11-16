@@ -103,7 +103,8 @@ int CCrashHandler::Init(
   LPCTSTR lpcszRestartCmdLine,
   LPCTSTR lpcszLangFilePath,
   LPCTSTR lpcszEmailText,
-  LPCTSTR lpcszSmtpProxy)
+  LPCTSTR lpcszSmtpProxy,
+  LPCTSTR lpcszCustomSenderIcon)
 { 
   crSetErrorMsg(_T("Unspecified error."));
   
@@ -139,6 +140,41 @@ int CCrashHandler::Init(
       crSetErrorMsg(_T("Application version is not specified."));
       return 1;
     }
+  }
+
+  m_sCustomSenderIcon = lpcszCustomSenderIcon;
+
+  if(!m_sCustomSenderIcon.IsEmpty())
+  {
+    CString sResourceFile;
+    CString sIconIndex;
+    int nIconIndex = 0;
+
+    int nComma = m_sCustomSenderIcon.ReverseFind(',');    
+    if(nComma>=0)
+    {
+      sResourceFile = m_sCustomSenderIcon.Left(nComma);      
+      sIconIndex = m_sCustomSenderIcon.Mid(nComma+1);
+      sIconIndex.TrimLeft();
+      sIconIndex.TrimRight();
+      nIconIndex = _ttoi(sIconIndex);      
+    }
+    else
+    {
+      sResourceFile = m_sCustomSenderIcon;
+    }
+
+    sResourceFile.TrimRight();        
+
+    // Check that custom can be loaded
+    HICON hIcon = ExtractIcon(NULL, sResourceFile, nIconIndex);
+    if(hIcon==NULL)
+    {
+      crSetErrorMsg(_T("Custom icon couldn't be loaded."));
+      return 1;
+    }
+
+    DestroyIcon(hIcon);
   }
 
   // Save URL to send reports via HTTP
@@ -431,6 +467,7 @@ BOOL CCrashHandler::PackCrashInfoIntoSharedMem()
   memcpy(m_pCrashDesc->m_uchMagic, "CRD", 3);  
   m_pCrashDesc->m_wSize = sizeof(CRASH_DESCRIPTION);
   m_pCrashDesc->m_dwTotalSize = sizeof(CRASH_DESCRIPTION);  
+  m_pCrashDesc->m_dwCrashRptVer = CRASHRPT_VER;
   m_pCrashDesc->m_dwInstallFlags = m_dwFlags;
   m_pCrashDesc->m_MinidumpType = m_MinidumpType;
   m_pCrashDesc->m_nSmtpPort = m_nSmtpPort;
@@ -450,6 +487,7 @@ BOOL CCrashHandler::PackCrashInfoIntoSharedMem()
   m_pCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
   m_pCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);
   m_pCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);
+  m_pCrashDesc->m_dwCustomSenderIconOffs = PackString(m_sCustomSenderIcon);
 
   return TRUE;
 }
@@ -477,6 +515,7 @@ DWORD CCrashHandler::PackFileItem(FileItem& fi)
   DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
   WORD wLength = sizeof(FILE_ITEM);
   m_pCrashDesc->m_dwTotalSize += wLength;
+  m_pCrashDesc->m_uFileItems++;
 
   LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);    
   FILE_ITEM* pFileItem = (FILE_ITEM*)pView;
@@ -486,7 +525,7 @@ DWORD CCrashHandler::PackFileItem(FileItem& fi)
   pFileItem->m_dwDstFileNameOffs = PackString(fi.m_sDstFileName);
   pFileItem->m_dwDescriptionOffs = PackString(fi.m_sDescription);
   pFileItem->m_bMakeCopy = fi.m_bMakeCopy;
-  pFileItem->m_wSize = m_pCrashDesc->m_dwTotalSize-dwTotalSize;
+  pFileItem->m_wSize = (WORD)(m_pCrashDesc->m_dwTotalSize-dwTotalSize);
   
   m_SharedMem.DestroyView(pView);
   return dwTotalSize;
@@ -497,6 +536,7 @@ DWORD CCrashHandler::PackProperty(CString sName, CString sValue)
   DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
   WORD wLength = sizeof(CUSTOM_PROP);
   m_pCrashDesc->m_dwTotalSize += wLength;
+  m_pCrashDesc->m_uCustomProps++;
 
   LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);    
   CUSTOM_PROP* pProp = (CUSTOM_PROP*)pView;
@@ -504,7 +544,7 @@ DWORD CCrashHandler::PackProperty(CString sName, CString sValue)
   memcpy(pProp->m_uchMagic, "CPR", 3); 
   pProp->m_dwNameOffs = PackString(sName);
   pProp->m_dwValueOffs = PackString(sValue);
-  pProp->m_wSize = m_pCrashDesc->m_dwTotalSize-dwTotalSize;
+  pProp->m_wSize = (WORD)(m_pCrashDesc->m_dwTotalSize-dwTotalSize);
   
   m_SharedMem.DestroyView(pView);
   return dwTotalSize;
@@ -515,6 +555,7 @@ DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
   DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
   WORD wLength = sizeof(REG_KEY);
   m_pCrashDesc->m_dwTotalSize += wLength;
+  m_pCrashDesc->m_uRegKeyEntries++;
 
   LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);    
   REG_KEY* pKey = (REG_KEY*)pView;
@@ -522,7 +563,7 @@ DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
   memcpy(pKey->m_uchMagic, "REG", 3); 
   pKey->m_dwRegKeyNameOffs = PackString(sKeyName);
   pKey->m_dwDstFileNameOffs = PackString(sDstFileName);
-  pKey->m_wSize = m_pCrashDesc->m_dwTotalSize-dwTotalSize;
+  pKey->m_wSize = (WORD)(m_pCrashDesc->m_dwTotalSize-dwTotalSize);
   
   m_SharedMem.DestroyView(pView);
   return dwTotalSize;
@@ -1098,171 +1139,6 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
   (*ppExceptionPointers)->ContextRecord = pContextRecord;  
 }
 
-//int CCrashHandler::CreateCrashDescriptionXML(
-//	LPTSTR pszFileName,          
-//    PCR_EXCEPTION_INFO pExceptionInfo)
-//{
-//  crSetErrorMsg(_T("Unspecified error."));
-//
-//  strconv_t strconv;  
-//  FILE* f = NULL;
-//
-//#if _MSC_VER>=1400
-//  _tfopen_s(&f, pszFileName, _T("wt"));
-//#else
-//  f = _tfopen(pszFileName, _T("wt"));
-//#endif
-//  
-//  if(f==NULL)
-//    return 1; // Couldn't create file
-//
-//  // UTF-8 signature
-//  fprintf(f, "%c%c%c", 0xEF, 0xBB, 0xBF); 
-//
-//  // Add <?xml version="1.0" encoding="utf-8" ?> element
-//  fprintf(f, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-//
-//  // Add root element
-//  fprintf(f, "<CrashRpt version=\"%d\">\n", CRASHRPT_VER);
-//  
-//  // Write crash GUID
-//  fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
-//    XmlEncodeStr(m_sCrashGUID.GetBuffer(0)).c_str());
-//
-//  // Write application name 
-//  fprintf(f, "  <AppName>%s</AppName>\n", 
-//    XmlEncodeStr(m_sAppName.GetBuffer(0)).c_str());
-//
-//  // Write application version 
-//  fprintf(f, "  <AppVersion>%s</AppVersion>\n", 
-//    XmlEncodeStr(m_sAppVersion.GetBuffer(0)).c_str());
-//  
-//  // Write EXE image name
-//  fprintf(f, "  <ImageName>%s</ImageName>\n", 
-//    XmlEncodeStr(m_sImageName.GetBuffer(0)).c_str());
-//
-//  // Write operating system friendly name  
-//  fprintf(f, "  <OperatingSystem>%s</OperatingSystem>\n", 
-//    XmlEncodeStr(m_sOSName.GetBuffer(0)).c_str());
-//
-//  // Write OSIs64Bit tag
-//  fprintf(f, "  <OSIs64Bit>%d</OSIs64Bit>\n", m_bOSIs64Bit);  
-//
-//  // Write user's geographic location in RFC1766 compliant form
-//  fprintf(f, "  <GeoLocation>%s</GeoLocation>\n", 
-//    XmlEncodeStr(m_sGeoLocation.GetBuffer(0)).c_str());  
-//
-//  // Write system time in UTC format
-//  fprintf(f, "  <SystemTimeUTC>%s</SystemTimeUTC>\n", 
-//    XmlEncodeStr(m_sCrashTime.GetBuffer(0)).c_str());
-//    
-//  // Write exception type
-//  fprintf(f, "  <ExceptionType>%d</ExceptionType>\n", 
-//    pExceptionInfo->exctype);
-//
-//  if(pExceptionInfo->exctype==CR_SEH_EXCEPTION)
-//  {
-//    // Write exception code
-//    fprintf(f, "  <ExceptionCode>0x%X</ExceptionCode>\n", 
-//      pExceptionInfo->pexcptrs->ExceptionRecord->ExceptionCode);
-//  }
-//
-//  if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
-//  {
-//    // Write FPE exception subcode
-//    fprintf(f, "  <FPESubcode>%d</FPESubcode>\n", 
-//      pExceptionInfo->fpe_subcode);
-//  }
-//
-//#if _MSC_VER>=1400
-//  if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
-//  {
-//    if(pExceptionInfo->expression!=NULL)
-//    {
-//      // Write expression      
-//      fprintf(f, "  <InvParamExpression>%s</InvParamExpression>\n", 
-//        XmlEncodeStr(pExceptionInfo->expression).c_str());
-//    }
-//
-//    if(pExceptionInfo->function!=NULL)
-//    {
-//      // Write function      
-//      fprintf(f, "  <InvParamFunction>%s</InvParamFunction>\n", 
-//        XmlEncodeStr(pExceptionInfo->function).c_str());
-//    }
-//
-//    if(pExceptionInfo->file!=NULL)
-//    {
-//      // Write file
-//      fprintf(f, "  <InvParamFile>%s</InvParamFile>\n", 
-//        XmlEncodeStr(pExceptionInfo->file).c_str());
-//
-//      // Write line number
-//      fprintf(f, "  <InvParamLine>%d</InvParamLine>\n", 
-//        pExceptionInfo->line);
-//    }    
-//  }
-//#endif 
-//
-//  // Write the number of GUI resources in use
-//  fprintf(f, "  <GUIResourceCount>%lu</GUIResourceCount>\n", 
-//      m_dwGuiResources);
-//
-//  // Write count of open handles that belong to current process
-//  fprintf(f, "  <OpenHandleCount>%lu</OpenHandleCount>\n", 
-//    m_dwProcessHandleCount);  
-//
-//  // Write memory usage info
-//  fprintf(f, "  <MemoryUsageKbytes>%s</MemoryUsageKbytes>\n", 
-//    XmlEncodeStr(m_sMemUsage.GetBuffer(0)).c_str());  
-//  
-//  // Write list of custom user-added properties
-//  fprintf(f, "  <CustomProps>\n");
-//  
-//  std::map<CString, CString>::iterator pit = m_props.begin();
-//  unsigned i;
-//  for (i = 0; i < m_props.size(); i++, pit++)
-//  {    
-//    CString sPropName = pit->first;
-//    CString sPropValue = pit->second;
-//
-//    fprintf(f, "    <Prop name=\"%s\" value=\"%s\" />\n",
-//      XmlEncodeStr(sPropName).c_str(), XmlEncodeStr(sPropValue).c_str());
-//  }
-//
-//  fprintf(f, "  </CustomProps>\n");
-//  
-//  // Write list of files that present in this crash report
-//
-//  fprintf(f, "  <FileList>\n");
-//  
-//  std::map<CString, FileItem>::iterator cur = m_files.begin();
-//  for (i = 0; i < m_files.size(); i++, cur++)
-//  {    
-//    CString sDestFile = (*cur).first;
-//
-//    int pos = -1;
-//    sDestFile.Replace('/', '\\');
-//    pos = sDestFile.ReverseFind('\\');
-//    if(pos!=-1)
-//      sDestFile = sDestFile.Mid(pos+1);
-//
-//    FileItem& fi = cur->second;
-//
-//    fprintf(f, "    <FileItem name=\"%s\" description=\"%s\" />\n",
-//      XmlEncodeStr(sDestFile).c_str(), XmlEncodeStr(fi.m_sDescription).c_str());  
-//  }
-//
-//  fprintf(f, "  </FileList>\n");
-//
-//  fprintf(f, "</CrashRpt>\n");
-//
-//  fclose(f);  
-//
-//  crSetErrorMsg(_T("Success."));
-//  return 0;
-//}
-
 //int CCrashHandler::PackCrashInfoIntoSharedMem(
 //    EXCEPTION_POINTERS* pExInfo, 
 //    BOOL bSendRecentReports)
@@ -1273,183 +1149,6 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
 //
 //  DWORD dwProcessId = GetCurrentProcessId();
 //  DWORD dwThreadId = GetCurrentThreadId();
-
-//  FILE* f = NULL;
-//
-//#if _MSC_VER>=1400
-//  _tfopen_s(&f, sFileName, _T("wt"));
-//#else
-//  f = _tfopen(sFileName, _T("wt"));
-//#endif
-//  
-//  if(f==NULL)
-//  {
-//    crSetErrorMsg(_T("Couldn't create internal crash info file."));
-//    return 1; // Couldn't create file
-//  }
-//  
-//  // UTF-8 signature
-//  fprintf(f, "%c%c%c", 0xEF, 0xBB, 0xBF); 
-//
-//  // Add <?xml version="1.0" encoding="utf-8" ?> element
-//  fprintf(f, "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-//
-//  // Add root element
-//  fprintf(f, "<CrashRptInternal version=\"%d\">\n", CRASHRPT_VER);
-//
-//  // Add AppName tag
-//  fprintf(f, "  <AppName>%s</AppName>\n", 
-//    XmlEncodeStr(m_sAppName).c_str());
-//
-//  // Add AppVersion tag
-//  fprintf(f, "  <AppVersion>%s</AppVersion>\n", 
-//    XmlEncodeStr(m_sAppVersion).c_str());
-//
-//  // Add CrashGUID tag
-//  fprintf(f, "  <CrashGUID>%s</CrashGUID>\n", 
-//    XmlEncodeStr(m_sCrashGUID).c_str());
-//
-//  // Add UnsentCrashReportsFolder tag
-//  fprintf(f, "  <UnsentCrashReportsFolder>%s</UnsentCrashReportsFolder>\n", 
-//    XmlEncodeStr(m_sUnsentCrashReportsFolder).c_str());
-//  
-//  // Add ReportFolder tag
-//  fprintf(f, "  <ReportFolder>%s</ReportFolder>\n", 
-//    XmlEncodeStr(m_sReportFolderName).c_str());
-//  
-//  // Add SendRecentReports tag
-//  fprintf(f, "  <SendRecentReports>%d</SendRecentReports>\n", 
-//    bSendRecentReports);
-//
-//  // Add QueueEnabled tag
-//  fprintf(f, "  <QueueEnabled>%d</QueueEnabled>\n", 
-//    m_bQueueEnabled);
-//
-//  // Add DbgHelpPath tag
-//  fprintf(f, "  <DbgHelpPath>%s</DbgHelpPath>\n", 
-//    XmlEncodeStr(m_sPathToDebugHelpDll).c_str());
-//
-//  // Add MinidumpType tag
-//  fprintf(f, "  <MinidumpType>%lu</MinidumpType>\n", m_MiniDumpType);
-//
-//  // Add ProcessId tag
-//  fprintf(f, "  <ProcessId>%lu</ProcessId>\n", dwProcessId);
-//
-//  // Add ThreadId tag
-//  fprintf(f, "  <ThreadId>%lu</ThreadId>\n", dwThreadId);
-//
-//  // Add ExceptionPointersAddress tag
-//  fprintf(f, "  <ExceptionPointersAddress>%p</ExceptionPointersAddress>\n", pExInfo);
-//
-//  // Add EmailSubject tag
-//  fprintf(f, "  <EmailSubject>%s</EmailSubject>\n", 
-//    XmlEncodeStr(m_sEmailSubject).c_str());
-//
-//  // Add EmailTo tag
-//  fprintf(f, "  <EmailTo>%s</EmailTo>\n", 
-//    XmlEncodeStr(m_sEmailTo).c_str());
-//
-//  // Add EmailText tag
-//  fprintf(f, "  <EmailText>%s</EmailText>\n", 
-//    XmlEncodeStr(m_sEmailText).c_str());
-//
-//  // Add SmtpPort tag
-//  fprintf(f, "  <SmtpPort>%d</SmtpPort>\n", m_nSmtpPort);
-//
-//  // Add SmtpProxyServer tag
-//  fprintf(f, "  <SmtpProxyServer>%s</SmtpProxyServer>\n", 
-//    XmlEncodeStr(m_sSmtpProxyServer).c_str());
-//
-//  // Add SmtpProxyPort tag
-//  fprintf(f, "  <SmtpProxyPort>%d</SmtpProxyPort>\n", m_nSmtpProxyPort);
-//
-//  // Add Url tag
-//  fprintf(f, "  <Url>%s</Url>\n", 
-//    XmlEncodeStr(m_sUrl).c_str());
-//
-//  // Add PrivacyPolicyUrl tag
-//  fprintf(f, "  <PrivacyPolicyUrl>%s</PrivacyPolicyUrl>\n", 
-//    XmlEncodeStr(m_sPrivacyPolicyURL).c_str());
-//
-//  // Add HttpPriority tag
-//  fprintf(f, "  <HttpPriority>%d</HttpPriority>\n", m_uPriorities[CR_HTTP]);
-//
-//  // Add SmtpPriority tag
-//  fprintf(f, "  <SmtpPriority>%d</SmtpPriority>\n", m_uPriorities[CR_SMTP]);
-//
-//  // Add MapiPriority tag
-//  fprintf(f, "  <MapiPriority>%d</MapiPriority>\n", m_uPriorities[CR_SMAPI]);
-//
-//  // Add AddScreenshot tag
-//  fprintf(f, "  <AddScreenshot>%d</AddScreenshot>\n", m_bAddScreenshot);
-//
-//  // Add ScreenshotFlags tag
-//  fprintf(f, "  <ScreenshotFlags>%lu</ScreenshotFlags>\n", m_dwScreenshotFlags);
-//  
-//  // Add CursorPos tag
-//  fprintf(f, "  <CursorPos x=\"%d\" y=\"%d\" />\n", 
-//    m_ptCursorPos.x, m_ptCursorPos.y);
-//
-//  // Add HttpBinaryEncoding tag
-//  fprintf(f, "  <HttpBinaryEncoding>%d</HttpBinaryEncoding>\n", m_bHttpBinaryEncoding);
-//
-//  // Add SilentMode tag
-//  fprintf(f, "  <SilentMode>%d</SilentMode>\n", m_bSilentMode);
-//
-//  // Add SendErrorReport tag
-//  fprintf(f, "  <SendErrorReport>%d</SendErrorReport>\n", m_bSendErrorReport);
-//
-//  // Add StoreZIPArchives tag
-//  fprintf(f, "  <StoreZIPArchives>%d</StoreZIPArchives>\n", m_bStoreZIPArchives);
-//
-//  // Add AppRestart tag
-//  fprintf(f, "  <AppRestart>%d</AppRestart>\n", m_bAppRestart);
-//
-//  // Add RestartCmdLine tag
-//  fprintf(f, "  <RestartCmdLine>%s</RestartCmdLine>\n", 
-//    XmlEncodeStr(m_sRestartCmdLine).c_str());
-//
-//  // Add GenerateMinidump tag
-//  fprintf(f, "  <GenerateMinidump>%d</GenerateMinidump>\n", m_bGenerateMinidump);
-//
-//  // Add LangFileName tag
-//  fprintf(f, "  <LangFileName>%s</LangFileName>\n", 
-//    XmlEncodeStr(m_sLangFileName).c_str());
-//
-//  // Write file list
-//  fprintf(f, "  <FileList>\n");
-//   
-//  std::map<CString, FileItem>::iterator it;
-//  for(it=m_files.begin(); it!=m_files.end(); it++)
-//  {
-//    fprintf(f, "    <FileItem destfile=\"%s\" srcfile=\"%s\" description=\"%s\" makecopy=\"%d\" />\n",
-//      XmlEncodeStr(it->first).c_str(), 
-//      XmlEncodeStr(it->second.m_sFileName).c_str(), 
-//      XmlEncodeStr(it->second.m_sDescription).c_str(), 
-//      it->second.m_bMakeCopy?1:0 );    
-//  }
-//
-//  fprintf(f, "  </FileList>\n");
-//
-//  // Write included reg keys list
-//  fprintf(f, "  <RegKeyList>\n");
-//   
-//  std::map<CString, CString>::iterator rit;
-//  for(rit=m_RegKeys.begin(); rit!=m_RegKeys.end(); rit++)
-//  {
-//    fprintf(f, "    <RegKey name=\"%s\" destfile=\"%s\" />\n",
-//      XmlEncodeStr(rit->first).c_str(), 
-//      XmlEncodeStr(rit->second).c_str());    
-//  }
-//
-//  fprintf(f, "  </RegKeyList>\n");
-//  
-//  fprintf(f, "</CrashRptInternal>\n");
-//
-//  fclose(f);
-//
-//  // Make the file hidden.
-//  SetFileAttributes(sFileName, FILE_ATTRIBUTE_HIDDEN);
 
 //  crSetErrorMsg(_T("Success."));
 //  return 0;

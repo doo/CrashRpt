@@ -116,6 +116,7 @@ public:
   CString     m_sLangFileName;        // Path to language INI file.
   CString     m_sDbgHelpPath;         // Path to dbghelp.dll.
   CString     m_sAppName;             // Application name.
+  CString     m_sCustomSenderIcon;    // Custom icon resource for Error Report dialog.
   CString     m_sEmailTo;             // E-mail recipient address.
   CString     m_sEmailSubject;        // E-mail subject.
   CString     m_sEmailText;           // E-mail text.
@@ -147,7 +148,6 @@ public:
     
   // Gets crash info from shared memory
   int Init(CString sFileMappingName);
-
 
   // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  

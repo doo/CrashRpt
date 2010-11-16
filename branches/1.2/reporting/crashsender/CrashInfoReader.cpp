@@ -70,7 +70,7 @@ int CCrashInfoReader::Init(CString sFileMappingName)
 
   ErrorReportInfo& eri = g_CrashInfo.GetReport(0);
 
-  eri.m_sErrorReportDirName = m_sUnsentErrorReportFolder + eri.m_sCrashGUID;
+  eri.m_sErrorReportDirName = m_sUnsentCrashReportsFolder + eri.m_sCrashGUID;
 
   
   //if(!m_bSendRecentReports)
@@ -131,6 +131,7 @@ int CCrashInfoReader::UnpackCrashDescription()
   UnpackString(m_pCrashDesc->m_dwEmailTextOffs, m_sEmailText);
   UnpackString(m_pCrashDesc->m_dwEmailToOffs, m_sEmailTo);  
   UnpackString(m_pCrashDesc->m_dwUnsentCrashReportsFolderOffs, m_sUnsentCrashReportsFolder);
+  UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);
 
   DWORD dwOffs = m_pCrashDesc->m_wSize;
   while(dwOffs<m_pCrashDesc->m_dwTotalSize)

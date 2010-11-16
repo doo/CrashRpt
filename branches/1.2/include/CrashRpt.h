@@ -463,6 +463,10 @@ GenerateErrorReport(
  *   If this is NULL, the SMTP server address is resolved using the MX record of sender's or recipient's mailbox. You should typically set this parameter with NULL, except in the
  *   case when your software is a server and custom SMTP configuration is required.
  *  
+ *   <b>Since v.1.2.8</b>, \a pszCustomSenderIcon parameter can be used to define a custom icon for <i>Error Report</i> dialog.
+ *   The value of this parameter should be absolute address to the image containing the icon resource, followed by resource identifier separated by comma.
+ *   Example: "D:\\MyApp\\Resources.dll, 128". You can set this parameter with NULL to use the default icon.
+ *  
  *  \note
  *
  *    \ref CR_INSTALL_INFOW and \ref CR_INSTALL_INFOA structures are wide-character and multi-byte character 
@@ -490,6 +494,7 @@ typedef struct tagCR_INSTALL_INFOW
   LPCWSTR pszLangFilePath;        //!< Path to the language file (including file name).
   LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
   LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
+  LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 }
 CR_INSTALL_INFOW;
 
@@ -520,6 +525,7 @@ typedef struct tagCR_INSTALL_INFOA
   LPCSTR pszLangFilePath;        //!< Path to the language file (including file name).
   LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
   LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
+  LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
 }
 CR_INSTALL_INFOA;
 
