@@ -176,7 +176,7 @@ public:
         EXCEPTION_POINTERS** pExceptionPointers);
     
   // Packs crash description into shared memory.
-  BOOL PackCrashInfoIntoSharedMem();
+  CRASH_DESCRIPTION* PackCrashInfoIntoSharedMem(CSharedMem* pSharedMem, BOOL bTempMem);
   DWORD PackString(CString str);
   DWORD PackFileItem(FileItem& fi);
   DWORD PackProperty(CString sName, CString sValue);
@@ -252,7 +252,9 @@ public:
   CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
   HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
   CSharedMem m_SharedMem;        // Shared memory.  
-  CRASH_DESCRIPTION* m_pCrashDesc;
+  CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash description shared mem view.
+  CSharedMem* m_pTmpSharedMem;        // Used temporary
+  CRASH_DESCRIPTION* m_pTmpCrashDesc; // Used temporary
 };
 
 

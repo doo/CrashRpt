@@ -108,7 +108,14 @@ struct CRASH_DESCRIPTION
   DWORD m_dwEmailTextOffs;       // Offset of E-mail text.
   DWORD m_dwSmtpProxyServerOffs; // Offset of SMTP proxy server name.
   DWORD m_dwCustomSenderIconOffs; // Offset of custom Error Report dialog icon resource name.
+  DWORD m_dwProcessId;           // Process ID.
+  DWORD m_dwThreadId;            // Thread ID.
+  PEXCEPTION_POINTERS m_pExceptionPtrs; // Exception pointers.
+  BOOL m_bSendRecentReports;     // If TRUE, CrashSender.exe needs to send queued error reports.
+                                 // If FALSE, CrashSender.exe needs to send single report.
 };
+
+#define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */
 
 // Used to share memory between CrashRpt.dll and CrashSender.exe
 class CSharedMem
@@ -121,6 +128,7 @@ public:
 	BOOL Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize);
 	BOOL Destroy();
 
+  CString GetName();
   ULONG64 GetSize();
 
 	LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
@@ -128,6 +136,7 @@ public:
 
 private:
   
+  CString m_sName;            // Name of the file mapping.
 	HANDLE m_hFileMapping;		  // Memory mapped object
   DWORD m_dwAllocGranularity; // System allocation granularity  	  
 	ULONG64 m_uSize;	      	  // Size of the file mapping.		  

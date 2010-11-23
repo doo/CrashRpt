@@ -61,10 +61,11 @@ BOOL CSharedMem::Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize)
 	  m_hFileMapping = CreateFileMapping(INVALID_HANDLE_VALUE, 0, PAGE_READWRITE, i.HighPart, i.LowPart, szName);
   }
   else
-  {
+  {    
     m_hFileMapping = OpenFileMapping(FILE_MAP_READ|FILE_MAP_WRITE, FALSE, szName);
   }
 
+  m_sName = szName;
   m_uSize = uSize; 
 
   if(m_hFileMapping==NULL)
@@ -95,6 +96,11 @@ BOOL CSharedMem::Destroy()
 	m_uSize = 0;  
 
 	return TRUE;
+}
+
+CString CSharedMem::GetName()
+{
+  return m_sName;
 }
 
 ULONG64 CSharedMem::GetSize()

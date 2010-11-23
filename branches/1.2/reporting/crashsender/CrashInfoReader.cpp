@@ -59,8 +59,10 @@ int CCrashInfoReader::Init(CString sFileMappingName)
   m_pCrashDesc = (CRASH_DESCRIPTION*)m_SharedMem.CreateView(0, sizeof(CRASH_DESCRIPTION));
 
   int nUnpack = UnpackCrashDescription();
-  if(!nUnpack)
+  if(0!=nUnpack)
+  {
     return 2;
+  }
   
   BOOL bCreateFolder = Utility::CreateFolder(m_sUnsentCrashReportsFolder);
   if(!bCreateFolder)
@@ -71,46 +73,43 @@ int CCrashInfoReader::Init(CString sFileMappingName)
   ErrorReportInfo& eri = g_CrashInfo.GetReport(0);
 
   eri.m_sErrorReportDirName = m_sUnsentCrashReportsFolder + eri.m_sCrashGUID;
-
   
-  //if(!m_bSendRecentReports)
-  //{    
-  //  // Get the list of files that should be included to report
-  //  ParseFileList(hRoot, eri);
+  if(!m_bSendRecentReports)
+  { 
+    m_Reports.push_back(eri);
+  }  
+  else
+  {
+    // Unblock the parent process
+    CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.GetReport(0).m_sCrashGUID);
+    HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+    if(hEvent!=NULL)
+      SetEvent(hEvent);
 
-  //  ParseRegKeyList(hRoot, eri);
+    // Look for pending error reports
+    CString sSearchPattern = m_sUnsentCrashReportsFolder + _T("\\*");
+    CFindFile find;
+    BOOL bFound = find.FindFile(sSearchPattern);
+    while(bFound)
+    {
+      if(find.IsDirectory() && !find.IsDots())
+      {
+        CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
+          find.GetFileName();
+        CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
+        ErrorReportInfo eri;
+        eri.m_sErrorReportDirName = sErrorReportDirName;
+        if(0==ParseCrashDescription(sFileName, TRUE, eri))
+        {          
+          eri.m_uTotalSize = GetUncompressedReportSize(eri);
+          m_Reports.push_back(eri);
+        }
+      }
 
-  //  // Get some info from crashrpt.xml
-  //  CString sXmlName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
-  //  ParseCrashDescription(sXmlName, FALSE, eri);    
-  //  
-  //  m_Reports.push_back(eri);
-  //}  
-  //else
-  //{
-  //  // Look for unsent error reports
-  //  CString sSearchPattern = m_sUnsentCrashReportsFolder + _T("\\*");
-  //  CFindFile find;
-  //  BOOL bFound = find.FindFile(sSearchPattern);
-  //  while(bFound)
-  //  {
-  //    if(find.IsDirectory() && !find.IsDots())
-  //    {
-  //      CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
-  //        find.GetFileName();
-  //      CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
-  //      ErrorReportInfo eri;
-  //      eri.m_sErrorReportDirName = sErrorReportDirName;
-  //      if(0==ParseCrashDescription(sFileName, TRUE, eri))
-  //      {          
-  //        eri.m_uTotalSize = GetUncompressedReportSize(eri);
-  //        m_Reports.push_back(eri);
-  //      }
-  //    }
-
-  //    bFound = find.FindNextFile();
-  //  }
-  //}
+      bFound = find.FindNextFile();
+    }
+  }
 
   return 0;
 }
@@ -122,7 +121,22 @@ int CCrashInfoReader::UnpackCrashDescription()
 
   ErrorReportInfo eri;
   
-  DWORD dwInstallFlags = m_pCrashDesc->m_dwInstallFlags;  
+  // Unpack process ID, thread ID and exception pointers address.
+  m_dwProcessId = m_pCrashDesc->m_dwProcessId;
+  m_dwThreadId = m_pCrashDesc->m_dwThreadId;
+  m_pExInfo = m_pCrashDesc->m_pExceptionPtrs;  
+  m_bSendRecentReports = m_pCrashDesc->m_bSendRecentReports;
+
+  // Unpack install flags
+  DWORD dwInstallFlags = m_pCrashDesc->m_dwInstallFlags;   
+  m_bHttpBinaryEncoding = (dwInstallFlags&CR_INST_HTTP_BINARY_ENCODING)!=0;
+  m_bSilentMode = (dwInstallFlags&CR_INST_NO_GUI)!=0;    
+  m_bSendErrorReport = (dwInstallFlags&CR_INST_DONT_SEND_REPORT)==0;
+  m_bStoreZIPArchives = (dwInstallFlags&CR_INST_STORE_ZIP_ARCHIVES)!=0;
+  m_bAppRestart = (dwInstallFlags&CR_INST_APP_RESTART)!=0;
+  m_bGenerateMinidump = (dwInstallFlags&CR_INST_NO_MINIDUMP)==0;
+  m_bQueueEnabled = (dwInstallFlags&CR_INST_SEND_QUEUED_REPORTS)!=0;
+
   UnpackString(m_pCrashDesc->m_dwAppNameOffs, eri.m_sAppName);
   UnpackString(m_pCrashDesc->m_dwAppVersionOffs, eri.m_sAppVersion);
   UnpackString(m_pCrashDesc->m_dwCrashGUIDOffs, eri.m_sCrashGUID);

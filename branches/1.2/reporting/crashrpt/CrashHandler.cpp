@@ -166,7 +166,7 @@ int CCrashHandler::Init(
 
     sResourceFile.TrimRight();        
 
-    // Check that custom can be loaded
+    // Check that custom icon can be loaded
     HICON hIcon = ExtractIcon(NULL, sResourceFile, nIconIndex);
     if(hIcon==NULL)
     {
@@ -422,102 +422,119 @@ int CCrashHandler::Init(
   // Associate this handler with the caller process
   m_pProcessCrashHandler =  this;
 
-  PackCrashInfoIntoSharedMem();
+  // Pack configuration info to shared memory.
+  // It will be passed to CrashSender.exe later.
+  m_pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
 
-  // If client wants us to send error reports that were failed to send recently,
-  // launch the CrashSender.exe and make it to send the reports again.
+  // If client wants us to send pending error reports that were queued recently,
+  // launch the CrashSender.exe and make it to alert user and send the reports.
   if(dwFlags&CR_INST_SEND_QUEUED_REPORTS)
   {
-    CString sFileName = m_sUnsentCrashReportsFolder + _T("\\") + m_sCrashGUID + _T(".xml");
-    //PackCrashInfoIntoSharedMem(/*NULL, TRUE*/);
-    if(0!=LaunchCrashSender(sFileName, FALSE, NULL))
+    // Create temporary shared mem.
+    CSharedMem tmpSharedMem;    
+    CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&tmpSharedMem, TRUE);
+    pCrashDesc->m_bSendRecentReports = TRUE;
+    if(0!=LaunchCrashSender(tmpSharedMem.GetName(), TRUE, NULL))
     {
       crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
       return 1;
     }
+
+    m_pTmpCrashDesc = m_pCrashDesc;
   }
 
-  // OK.
+  // Initialization OK.
   m_bInitialized = TRUE;
   crSetErrorMsg(_T("Success."));
   return 0;
 }
 
-BOOL CCrashHandler::PackCrashInfoIntoSharedMem()
+// Packs config info to shared mem.
+CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pSharedMem, BOOL bTempMem)
 {
-  // Pack config info to shared mem.
-  BOOL bSharedMem = m_SharedMem.Init(m_sCrashGUID, FALSE, 10*1024*1024 /*10 MB*/);
+  m_pTmpSharedMem = pSharedMem;
+
+  CString sSharedMemName;
+  if(bTempMem)
+    sSharedMemName.Format(_T("%s-tmp"), m_sCrashGUID);    
+  else 
+    sSharedMemName = m_sCrashGUID;
+
+  // Initialize shared memory.
+  BOOL bSharedMem = pSharedMem->Init(sSharedMemName, FALSE, SHARED_MEM_MAX_SIZE);
   if(!bSharedMem)
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't initialize shared memory."));
-    return 1; 
+    return NULL; 
   }
 
-  m_pCrashDesc = 
-    (CRASH_DESCRIPTION*)m_SharedMem.CreateView(0, sizeof(CRASH_DESCRIPTION));  
-  if(m_pCrashDesc==NULL)
+  // Create memory view.
+  m_pTmpCrashDesc = 
+    (CRASH_DESCRIPTION*)pSharedMem->CreateView(0, sizeof(CRASH_DESCRIPTION));  
+  if(m_pTmpCrashDesc==NULL)
   {
     ATLASSERT(0);
     crSetErrorMsg(_T("Couldn't create shared memory view."));
-    return 1; 
+    return NULL; 
   }
 
-  memset(m_pCrashDesc, 0, sizeof(CRASH_DESCRIPTION));
-  memcpy(m_pCrashDesc->m_uchMagic, "CRD", 3);  
-  m_pCrashDesc->m_wSize = sizeof(CRASH_DESCRIPTION);
-  m_pCrashDesc->m_dwTotalSize = sizeof(CRASH_DESCRIPTION);  
-  m_pCrashDesc->m_dwCrashRptVer = CRASHRPT_VER;
-  m_pCrashDesc->m_dwInstallFlags = m_dwFlags;
-  m_pCrashDesc->m_MinidumpType = m_MinidumpType;
-  m_pCrashDesc->m_nSmtpPort = m_nSmtpPort;
-  m_pCrashDesc->m_nSmtpProxyPort = m_nSmtpProxyPort;
-  m_pCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;
-  memcpy(m_pCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
+  // Pack config information to shared memory
+  memset(m_pTmpCrashDesc, 0, sizeof(CRASH_DESCRIPTION));
+  memcpy(m_pTmpCrashDesc->m_uchMagic, "CRD", 3);  
+  m_pTmpCrashDesc->m_wSize = sizeof(CRASH_DESCRIPTION);
+  m_pTmpCrashDesc->m_dwTotalSize = sizeof(CRASH_DESCRIPTION);  
+  m_pTmpCrashDesc->m_dwCrashRptVer = CRASHRPT_VER;
+  m_pTmpCrashDesc->m_dwInstallFlags = m_dwFlags;
+  m_pTmpCrashDesc->m_MinidumpType = m_MinidumpType;
+  m_pTmpCrashDesc->m_nSmtpPort = m_nSmtpPort;
+  m_pTmpCrashDesc->m_nSmtpProxyPort = m_nSmtpProxyPort;
+  m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;
+  memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
 
-  m_pCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
-  m_pCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
-  m_pCrashDesc->m_dwCrashGUIDOffs = PackString(m_sCrashGUID);
-  m_pCrashDesc->m_dwLangFileNameOffs = PackString(m_sLangFileName);
-  m_pCrashDesc->m_dwUrlOffs = PackString(m_sUrl);
-  m_pCrashDesc->m_dwRestartCmdLineOffs = PackString(m_sRestartCmdLine);
-  m_pCrashDesc->m_dwEmailToOffs = PackString(m_sEmailTo);  
-  m_pCrashDesc->m_dwUnsentCrashReportsFolderOffs = PackString(m_sUnsentCrashReportsFolder);
-  m_pCrashDesc->m_dwPrivacyPolicyURLOffs = PackString(m_sPrivacyPolicyURL);
-  m_pCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
-  m_pCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);
-  m_pCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);
-  m_pCrashDesc->m_dwCustomSenderIconOffs = PackString(m_sCustomSenderIcon);
+  m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
+  m_pTmpCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
+  m_pTmpCrashDesc->m_dwCrashGUIDOffs = PackString(m_sCrashGUID);
+  m_pTmpCrashDesc->m_dwLangFileNameOffs = PackString(m_sLangFileName);
+  m_pTmpCrashDesc->m_dwUrlOffs = PackString(m_sUrl);
+  m_pTmpCrashDesc->m_dwRestartCmdLineOffs = PackString(m_sRestartCmdLine);
+  m_pTmpCrashDesc->m_dwEmailToOffs = PackString(m_sEmailTo);  
+  m_pTmpCrashDesc->m_dwUnsentCrashReportsFolderOffs = PackString(m_sUnsentCrashReportsFolder);
+  m_pTmpCrashDesc->m_dwPrivacyPolicyURLOffs = PackString(m_sPrivacyPolicyURL);
+  m_pTmpCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
+  m_pTmpCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);
+  m_pTmpCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);
+  m_pTmpCrashDesc->m_dwCustomSenderIconOffs = PackString(m_sCustomSenderIcon);
 
-  return TRUE;
+  return m_pTmpCrashDesc;
 }
 
 DWORD CCrashHandler::PackString(CString str)
 {
-  DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
+  DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
   int nStrLen = str.GetLength()*sizeof(TCHAR);
   WORD wLength = (WORD)(sizeof(STRING_DESC)+nStrLen);
   
-  LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);  
+  LPBYTE pView = m_pTmpSharedMem->CreateView(dwTotalSize, wLength);  
   STRING_DESC* pStrDesc = (STRING_DESC*)pView;
   memcpy(pStrDesc->m_uchMagic, "STR", 3);
   pStrDesc->m_wSize = wLength;
   memcpy(pView+sizeof(STRING_DESC), str.GetBuffer(0), nStrLen); 
 
-  m_pCrashDesc->m_dwTotalSize += wLength;
+  m_pTmpCrashDesc->m_dwTotalSize += wLength;
 
-  m_SharedMem.DestroyView(pView);
+  m_pTmpSharedMem->DestroyView(pView);
   return dwTotalSize;
 }
 
 DWORD CCrashHandler::PackFileItem(FileItem& fi)
 {
-  DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
+  DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
   WORD wLength = sizeof(FILE_ITEM);
-  m_pCrashDesc->m_dwTotalSize += wLength;
-  m_pCrashDesc->m_uFileItems++;
+  m_pTmpCrashDesc->m_dwTotalSize += wLength;
+  m_pTmpCrashDesc->m_uFileItems++;
 
-  LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);    
+  LPBYTE pView = m_pTmpSharedMem->CreateView(dwTotalSize, wLength);    
   FILE_ITEM* pFileItem = (FILE_ITEM*)pView;
 
   memcpy(pFileItem->m_uchMagic, "FIL", 3);  
@@ -525,47 +542,47 @@ DWORD CCrashHandler::PackFileItem(FileItem& fi)
   pFileItem->m_dwDstFileNameOffs = PackString(fi.m_sDstFileName);
   pFileItem->m_dwDescriptionOffs = PackString(fi.m_sDescription);
   pFileItem->m_bMakeCopy = fi.m_bMakeCopy;
-  pFileItem->m_wSize = (WORD)(m_pCrashDesc->m_dwTotalSize-dwTotalSize);
+  pFileItem->m_wSize = (WORD)(m_pTmpCrashDesc->m_dwTotalSize-dwTotalSize);
   
-  m_SharedMem.DestroyView(pView);
+  m_pTmpSharedMem->DestroyView(pView);
   return dwTotalSize;
 }
 
 DWORD CCrashHandler::PackProperty(CString sName, CString sValue)
 {
-  DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
+  DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
   WORD wLength = sizeof(CUSTOM_PROP);
-  m_pCrashDesc->m_dwTotalSize += wLength;
-  m_pCrashDesc->m_uCustomProps++;
+  m_pTmpCrashDesc->m_dwTotalSize += wLength;
+  m_pTmpCrashDesc->m_uCustomProps++;
 
-  LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);    
+  LPBYTE pView = m_pTmpSharedMem->CreateView(dwTotalSize, wLength);    
   CUSTOM_PROP* pProp = (CUSTOM_PROP*)pView;
 
   memcpy(pProp->m_uchMagic, "CPR", 3); 
   pProp->m_dwNameOffs = PackString(sName);
   pProp->m_dwValueOffs = PackString(sValue);
-  pProp->m_wSize = (WORD)(m_pCrashDesc->m_dwTotalSize-dwTotalSize);
+  pProp->m_wSize = (WORD)(m_pTmpCrashDesc->m_dwTotalSize-dwTotalSize);
   
-  m_SharedMem.DestroyView(pView);
+  m_pTmpSharedMem->DestroyView(pView);
   return dwTotalSize;
 }
 
 DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
 {
-  DWORD dwTotalSize = m_pCrashDesc->m_dwTotalSize;
+  DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
   WORD wLength = sizeof(REG_KEY);
-  m_pCrashDesc->m_dwTotalSize += wLength;
-  m_pCrashDesc->m_uRegKeyEntries++;
+  m_pTmpCrashDesc->m_dwTotalSize += wLength;
+  m_pTmpCrashDesc->m_uRegKeyEntries++;
 
-  LPBYTE pView = m_SharedMem.CreateView(dwTotalSize, wLength);    
+  LPBYTE pView = m_pTmpSharedMem->CreateView(dwTotalSize, wLength);    
   REG_KEY* pKey = (REG_KEY*)pView;
 
   memcpy(pKey->m_uchMagic, "REG", 3); 
   pKey->m_dwRegKeyNameOffs = PackString(sKeyName);
   pKey->m_dwDstFileNameOffs = PackString(sDstFileName);
-  pKey->m_wSize = (WORD)(m_pCrashDesc->m_dwTotalSize-dwTotalSize);
+  pKey->m_wSize = (WORD)(m_pTmpCrashDesc->m_dwTotalSize-dwTotalSize);
   
-  m_SharedMem.DestroyView(pView);
+  m_pTmpSharedMem->DestroyView(pView);
   return dwTotalSize;
 }
 
@@ -946,9 +963,14 @@ int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
 
 int CCrashHandler::AddScreenshot(DWORD dwFlags)
 { 
+  crSetErrorMsg(_T("Unspecified error."));
+
   if(dwFlags!=CR_AS_VIRTUAL_SCREEN &&
      dwFlags!=CR_AS_MAIN_WINDOW)
-     return 1; // Invalid input parameter
+  {
+    crSetErrorMsg(_T("Invalid flag specified.")); 
+    return 1; // Invalid input parameter
+  }
 
   m_bAddScreenshot = TRUE;
   m_dwScreenshotFlags = dwFlags;
@@ -975,21 +997,24 @@ int CCrashHandler::GenerateErrorReport(
     GetExceptionPointers(pExceptionInfo->code, &pExceptionInfo->pexcptrs);
   }
 
-  // Save crash info into shared memory.
-  //PackCrashInfoIntoSharedMem(/*pExceptionInfo->pexcptrs, FALSE*/);
+  // Save current process ID, thread ID and exception pointers address to shared mem.
+  m_pCrashDesc->m_dwProcessId = GetCurrentProcessId();
+  m_pCrashDesc->m_dwThreadId = GetCurrentThreadId();
+  m_pCrashDesc->m_pExceptionPtrs = pExceptionInfo->pexcptrs;
+  m_pCrashDesc->m_bSendRecentReports = FALSE;
 
   // If error report is being generated manually, disable app restart.
   if(pExceptionInfo->bManual)
-    m_bAppRestart = FALSE;
+    m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
 
-  // Let client know about crash via the crash callback function. 
+  // Let client know about the crash via the crash callback function. 
   if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
   {
     crSetErrorMsg(_T("The operation was cancelled by client."));
     return 2;
   }
   
-  // Start the CrashSender process which will take the dekstop screenshot, 
+  // Start the CrashSender.exe process which will take the dekstop screenshot, 
   // copy user-specified files to the error report folder, create minidump, 
   // notify user about crash, compress the report into ZIP archive and send 
   // the error report. 
@@ -1017,12 +1042,14 @@ int CCrashHandler::GenerateErrorReport(
 
 int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags)
 {
-  dwFlags;
+  UNREFERENCED_PARAMETER(dwFlags);
+  crSetErrorMsg(_T("Unspecified error."));
 
   if(szDstFileName==NULL ||
      szRegKey==NULL)
   {
     // Invalid param
+    crSetErrorMsg(_T("Invalid registry key or invalid destination file is specified."));
     return 1;
   }
 
@@ -1051,17 +1078,22 @@ int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFl
   }    
   else 
   {
+    crSetErrorMsg(_T("Invalid registry branch is specified."));
     return 1; // Invalid key.
   }
 
   CString sSubKey = sKey.Mid(nSkip+1);  
   if(sSubKey.IsEmpty())
+  {
+    crSetErrorMsg(_T("Empty subkey is not allowed."));
     return 2; // Empty subkey not allowed
+  }
 
   HKEY hKeyResult = NULL;
   LRESULT lResult = RegOpenKeyEx(hKey, sSubKey, 0, KEY_READ, &hKeyResult);
   if(lResult!=ERROR_SUCCESS)
   {
+    crSetErrorMsg(_T("The registry key coudn't be open."));
     return 3; // Invalid key.
   }
   RegCloseKey(hKeyResult);
@@ -1071,9 +1103,11 @@ int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFl
   PackRegKey(szRegKey, sDstFileName);
 
   // OK
+  crSetErrorMsg(_T("Success."));
   return 0;
 }
 
+// The following code gets exception pointers using a workaround found in CRT code.
 void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode, 
   EXCEPTION_POINTERS** ppExceptionPointers)
 {
@@ -1139,21 +1173,6 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
   (*ppExceptionPointers)->ContextRecord = pContextRecord;  
 }
 
-//int CCrashHandler::PackCrashInfoIntoSharedMem(
-//    EXCEPTION_POINTERS* pExInfo, 
-//    BOOL bSendRecentReports)
-//{
-//  crSetErrorMsg(_T("Unspecified error."));
-//  
-//  strconv_t strconv;  
-//
-//  DWORD dwProcessId = GetCurrentProcessId();
-//  DWORD dwThreadId = GetCurrentThreadId();
-
-//  crSetErrorMsg(_T("Success."));
-//  return 0;
-//}
-
 // Launches CrashSender.exe process
 int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE* phProcess)
 {
@@ -1196,6 +1215,8 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE*
   return 0;
 }
 
+// Acquires the crash lock. Other threads that may crash will
+// wait until we unlock.
 void CCrashHandler::CrashLock(BOOL bLock)
 {
   if(bLock)
