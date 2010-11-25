@@ -257,6 +257,7 @@ crpCloseErrorReport(
 #define CRP_COL_MODULE_SIZE      _T("ModuleSize")           //!< Column: Module size.
 #define CRP_COL_MODULE_LOADED_PDB_NAME _T("LoadedPDBName")  //!< Column: The full path and file name of the .pdb file. 
 #define CRP_COL_MODULE_LOADED_IMAGE_NAME _T("LoadedImageName")  //!< Column: The full path and file name of executable file.
+#define CRP_COL_MODULE_SYM_LOAD_STATUS _T("ModuleSymLoadStatus") //!< Column: Symbol load status for the module.
 
 // Column IDs of the CRP_MDMP_THREADS table
 #define CRP_COL_THREAD_ID            _T("ThdeadID")           //!< Column: Thread ID.

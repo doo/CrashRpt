@@ -56,6 +56,13 @@ DWORD64 CALLBACK GetModuleBaseProc64(
   HANDLE hProcess,
   DWORD64 Address);
 
+BOOL CALLBACK SymRegisterCallbackProc64(
+  HANDLE hProcess,
+  ULONG ActionCode,
+  ULONG64 CallbackData,
+  ULONG64 UserContext
+);
+
 CMiniDumpReader::CMiniDumpReader()
 {
   m_bLoaded = false;
@@ -126,7 +133,7 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   m_DumpData.m_hProcess = (HANDLE)(++dwProcessID);  
   
   DWORD dwOptions = 0;
-  dwOptions |= SYMOPT_DEFERRED_LOADS; // Symbols are not loaded until a reference is made requiring the symbols be loaded.
+  //dwOptions |= SYMOPT_DEFERRED_LOADS; // Symbols are not loaded until a reference is made requiring the symbols be loaded.
   dwOptions |= SYMOPT_EXACT_SYMBOLS; // Do not load an unmatched .pdb file. 
   dwOptions |= SYMOPT_FAIL_CRITICAL_ERRORS; // Do not display system dialog boxes when there is a media failure such as no media in a drive.
   dwOptions |= SYMOPT_UNDNAME; // All symbols are presented in undecorated form.   
@@ -144,7 +151,12 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
     Close();
     return 5;
   }
-    
+  
+  /*SymRegisterCallbackW64(
+    m_DumpData.m_hProcess, 
+    SymRegisterCallbackProc64,
+    (ULONG64)this);*/
+
   m_bReadSysInfoStream = !ReadSysInfoStream();
   m_bReadExceptionStream = !ReadExceptionStream();    
   m_bReadModuleListStream = !ReadModuleListStream();
@@ -154,6 +166,70 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
   m_bLoaded = true;
   return 0;
 }
+
+//BOOL CALLBACK SymRegisterCallbackProc64(
+//  HANDLE hProcess,
+//  ULONG ActionCode,
+//  ULONG64 CallbackData,
+//  ULONG64 UserContext
+//)
+//{
+//  UNREFERENCED_PARAMETER(hProcess);
+//  CMiniDumpReader* pMdmpReader = (CMiniDumpReader*)UserContext;
+//
+//  switch(ActionCode)
+//  {
+//  case CBA_DEBUG_INFO:
+//    {
+//      LPCTSTR szMessage = (LPCTSTR)CallbackData;
+//      pMdmpReader->m_DumpData.m_LoadLog.push_back(szMessage);
+//    } 
+//    return TRUE;   
+//  case CBA_DEFERRED_SYMBOL_LOAD_CANCEL:
+//    {
+//      // Ignore      
+//    } 
+//    return FALSE;    
+//  case CBA_DEFERRED_SYMBOL_LOAD_COMPLETE:
+//    {
+//      IMAGEHLP_DEFERRED_SYMBOL_LOADW64* pLoadInfo = 
+//        (IMAGEHLP_DEFERRED_SYMBOL_LOADW64*)CallbackData;
+//      CString sMessage;
+//      sMessage.Format(_T("Completed loading symbols for %s."), pLoadInfo->FileName);
+//      //pMdmpReader->m_DumpData.m_LoadLog.push_back(sMessage);
+//    }
+//    return TRUE;
+//  case CBA_DEFERRED_SYMBOL_LOAD_FAILURE:
+//    {
+//      IMAGEHLP_DEFERRED_SYMBOL_LOADW64* pLoadInfo = 
+//        (IMAGEHLP_DEFERRED_SYMBOL_LOADW64*)CallbackData;
+//      CString sMessage;
+//      sMessage.Format(_T("Failed to loaded symbols for %s."), pLoadInfo->FileName);
+//      pMdmpReader->m_DumpData.m_LoadLog.push_back(sMessage);
+//    }
+//    return TRUE;
+//  case CBA_DEFERRED_SYMBOL_LOAD_PARTIAL:
+//    {
+//      IMAGEHLP_DEFERRED_SYMBOL_LOADW64* pLoadInfo = 
+//        (IMAGEHLP_DEFERRED_SYMBOL_LOADW64*)CallbackData;
+//      CString sMessage;
+//      sMessage.Format(_T("Partially loaded symbols for %s."), pLoadInfo->FileName);
+//      pMdmpReader->m_DumpData.m_LoadLog.push_back(sMessage);
+//    }
+//    return TRUE;
+//  case CBA_DEFERRED_SYMBOL_LOAD_START:
+//    {
+//      IMAGEHLP_DEFERRED_SYMBOL_LOADW64* pLoadInfo = 
+//        (IMAGEHLP_DEFERRED_SYMBOL_LOADW64*)CallbackData;
+//      CString sMessage;
+//      sMessage.Format(_T("Started loading symbols for %s."), pLoadInfo->FileName);
+//      //pMdmpReader->m_DumpData.m_LoadLog.push_back(sMessage);
+//    }
+//    return TRUE;
+//  }
+//
+//  return FALSE;
+//}
 
 void CMiniDumpReader::Close()
 {
@@ -321,17 +397,28 @@ int CMiniDumpReader::ReadModuleListStream()
           dwBaseAddr,
           (DWORD)dwImageSize,
           NULL,
-          0);        
-        
+          0);         
+         
         IMAGEHLP_MODULE64 modinfo;
         memset(&modinfo, 0, sizeof(IMAGEHLP_MODULE64));
         modinfo.SizeOfStruct = sizeof(IMAGEHLP_MODULE64);
         BOOL bModuleInfo = SymGetModuleInfo64(m_DumpData.m_hProcess,
           dwBaseAddr, 
           &modinfo);
-        if(bModuleInfo)
-        {
-          MdmpModule m;
+        MdmpModule m;
+        if(!bModuleInfo)
+        {          
+          m.m_bImageUnmatched = TRUE;
+          m.m_bNoSymbolInfo = TRUE;
+          m.m_bPdbUnmatched = TRUE;
+          m.m_pVersionInfo = NULL;
+          m.m_sImageName = sModuleName;
+          m.m_sModuleName = sShortModuleName;
+          m.m_uBaseAddr = dwBaseAddr;
+          m.m_uImageSize = dwImageSize;          
+        }
+        else
+        {          
           m.m_uBaseAddr = modinfo.BaseOfImage;
           m.m_uImageSize = modinfo.ImageSize;        
           m.m_sModuleName = sShortModuleName;
@@ -339,10 +426,33 @@ int CMiniDumpReader::ReadModuleListStream()
           m.m_sLoadedImageName = modinfo.LoadedImageName;
           m.m_sLoadedPdbName = modinfo.LoadedPdbName;
           m.m_pVersionInfo = &pModule->VersionInfo;
-
-          m_DumpData.m_Modules.push_back(m);
-          m_DumpData.m_ModuleIndex[m.m_uBaseAddr] = m_DumpData.m_Modules.size()-1;
+          m.m_bPdbUnmatched = modinfo.PdbUnmatched;          
+          BOOL bTimeStampMatched = pModule->TimeDateStamp == modinfo.TimeDateStamp;
+          m.m_bImageUnmatched = !bTimeStampMatched;
+          m.m_bNoSymbolInfo = !modinfo.GlobalSymbols;
         }        
+        
+        m_DumpData.m_Modules.push_back(m);
+        m_DumpData.m_ModuleIndex[m.m_uBaseAddr] = m_DumpData.m_Modules.size()-1;          
+
+        CString sMsg;
+        if(m.m_bImageUnmatched)
+          sMsg.Format(_T("Loaded '*%s'"), sModuleName);
+        else
+          sMsg.Format(_T("Loaded '%s'"), m.m_sLoadedImageName);
+          
+        if(m.m_bImageUnmatched)
+          sMsg += _T(", No matching binary found.");          
+        else if(m.m_bPdbUnmatched)
+          sMsg += _T(", No matching PDB file found.");          
+        else
+        {
+          if(m.m_bNoSymbolInfo)            
+            sMsg += _T(", No symbols loaded.");          
+          else
+            sMsg += _T(", Symbols loaded.");          
+        }
+        m_DumpData.m_LoadLog.push_back(sMsg);
       }
     }
   }

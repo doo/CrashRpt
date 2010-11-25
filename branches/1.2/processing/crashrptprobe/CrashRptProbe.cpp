@@ -1053,6 +1053,26 @@ crpGetPropertyW(
     else if(sColumnId.Compare(CRP_COL_MODULE_LOADED_IMAGE_NAME)==0)
     {
       pszPropVal = strconv.t2w(pDmpReader->m_DumpData.m_Modules[nRowIndex].m_sLoadedImageName);          
+    }
+    else if(sColumnId.Compare(CRP_COL_MODULE_SYM_LOAD_STATUS)==0)
+    {
+      CString sSymLoadStatus;
+      MdmpModule m = pDmpReader->m_DumpData.m_Modules[nRowIndex];
+      if(m.m_bImageUnmatched)
+        sSymLoadStatus = _T("No matching binary found.");          
+      else if(m.m_bPdbUnmatched)
+        sSymLoadStatus = _T("No matching PDB file found.");          
+      else
+      {
+        if(m.m_bNoSymbolInfo)            
+          sSymLoadStatus = _T("No symbols loaded.");          
+        else
+          sSymLoadStatus = _T("Symbols loaded.");          
+      }
+
+      _tcscpy_s(szBuff, BUFF_SIZE, sSymLoadStatus.GetBuffer(0));
+
+      pszPropVal = strconv.t2w(szBuff);          
     }    
     else
     {

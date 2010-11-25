@@ -47,6 +47,9 @@ struct MdmpModule
   CString m_sImageName;  // The image name. The name may or may not contain a full path. 
   CString m_sLoadedImageName; // The full path and file name of the file from which symbols were loaded. 
   CString m_sLoadedPdbName;   // The full path and file name of the .pdb file.     
+  BOOL m_bImageUnmatched;     // If TRUE than there wasn't matching binary found.
+  BOOL m_bPdbUnmatched;       // If TRUE than there wasn't matching PDB file found.
+  BOOL m_bNoSymbolInfo;       // If TRUE than no symbols were generated for this module.
   VS_FIXEDFILEINFO* m_pVersionInfo; // Version info for module.
 };
 

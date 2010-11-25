@@ -870,8 +870,9 @@ int output_document(CrpHandle hReport, FILE* f)
 
   doc.PutTableCell(_T("#"), 2, false);
   doc.PutTableCell(_T("Name"), 32, false);
-  doc.PutTableCell(_T("LoadedPDBName"), 32, true);
-  doc.PutTableCell(_T("LoadedImageName"), 32, true);
+  doc.PutTableCell(_T("SymLoadStatus"), 32, false);
+  doc.PutTableCell(_T("LoadedPDBName"), 48, false);
+  doc.PutTableCell(_T("LoadedImageName"), 48, true);
   
   // Get module count
   nItemCount = get_table_row_count(hReport, CRP_TBL_MDMP_MODULES);
@@ -885,14 +886,33 @@ int output_document(CrpHandle hReport, FILE* f)
     result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_NAME, sModuleName, i);  
     doc.PutTableCell(sModuleName.c_str(), 32, false);      
 
+    tstring sSymLoadStatus;
+    result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_SYM_LOAD_STATUS, sSymLoadStatus, i);  
+    doc.PutTableCell(sSymLoadStatus.c_str(), 32, false);      
+
     tstring sLoadedPDBName;
     result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_LOADED_PDB_NAME, sLoadedPDBName, i);  
-    doc.PutTableCell(sLoadedPDBName.c_str(), 32, true);      
+    doc.PutTableCell(sLoadedPDBName.c_str(), 48, false);      
 
     tstring sLoadedImageName;
     result = get_prop(hReport, CRP_TBL_MDMP_MODULES, CRP_COL_MODULE_LOADED_IMAGE_NAME, sLoadedImageName, i);  
-    doc.PutTableCell(sLoadedImageName.c_str(), 32, true);      
+    doc.PutTableCell(sLoadedImageName.c_str(), 48, true);      
   }  
+  doc.EndSection();
+
+  doc.BeginSection(_T("Minidump Load Log"));
+  nItemCount = get_table_row_count(hReport, CRP_TBL_MDMP_LOAD_LOG);
+  for(i=0; i<nItemCount; i++)
+  {
+    TCHAR szBuffer[10];
+    __STPRINTF_S(szBuffer, 10, _T("%d"), i+1);
+    doc.PutTableCell(szBuffer, 2, false);
+
+    tstring sEntry;
+    result = get_prop(hReport, CRP_TBL_MDMP_LOAD_LOG, CRP_COL_LOAD_LOG_ENTRY, sEntry, i);  
+    doc.PutTableCell(sEntry.c_str(), 64, true);          
+  }
+  doc.EndSection();
 
   doc.EndDocument();
   
