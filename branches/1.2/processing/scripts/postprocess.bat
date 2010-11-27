@@ -8,6 +8,7 @@ set ACCEPTABLE_APPVERSION="1.2.0"
 set SYM_SEARCH_DIRS="D:\Projects\CrashRpt\CrashRptSaved\1.2.0"
 set SAVE_RESULTS_TO_DIR="valid_reports\"
 set SAVE_INVALID_REPORTS_TO_DIR="invalid_reports\"
+set CRPROBER_PATH="D:\Projects\CrashRpt\bin\crprober.exe"
 
 mkdir %SAVE_RESULTS_TO_DIR%
 
@@ -21,7 +22,7 @@ exit
 
   if %ACCEPTABLE_APPNAME%=="" goto appname_ok
   rem Get application name from the crash report file and write it to "temp.txt"
-  crprober.exe /f %1 /o "temp.txt" /get XmlDescMisc AppName 0
+  %CRPROBER_PATH% /f %1 /o "temp.txt" /get XmlDescMisc AppName 0
   if not %errorlevel%==0 goto failed
  
   set /p app_name=<temp.txt
@@ -32,7 +33,7 @@ exit
 
   if %ACCEPTABLE_APPVERSION%=="" goto appversion_ok
   rem Get application version from the crash report file and write it to "temp.txt"
-  crprober.exe /f %1 /o "temp.txt" /get XmlDescMisc AppVersion 0
+  %CRPROBER_PATH% /f %1 /o "temp.txt" /get XmlDescMisc AppVersion 0
   if not %errorlevel%==0 goto failed
  
   set /p app_version=<temp.txt
@@ -43,7 +44,7 @@ exit
 :appversion_ok
 
   set stack_md5=NoExceptionInfo
-  crprober.exe /f %1 /o "temp.txt" /sym %SYM_SEARCH_DIRS%  /get MdmpMisc ExceptionThreadStackMD5 0
+  %CRPROBER_PATH% /f %1 /o "temp.txt" /sym %SYM_SEARCH_DIRS%  /get MdmpMisc ExceptionThreadStackMD5 0
   if not %errorlevel%==0 goto save_results
   set /p stack_md5=<temp.txt
   erase temp.txt
@@ -56,7 +57,7 @@ exit
   
 
   rem Process report and write results to text file
-  crprober.exe /f %1 /o %1.txt /sym %SYM_SEARCH_DIRS% 
+  %CRPROBER_PATH% /f %1 /o %1.txt /sym %SYM_SEARCH_DIRS% 
   echo Return code=%errorlevel%
   if not %errorlevel%==0 goto failed
 

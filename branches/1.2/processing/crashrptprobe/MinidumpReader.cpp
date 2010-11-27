@@ -157,11 +157,11 @@ int CMiniDumpReader::Open(CString sFileName, CString sSymSearchPath)
     SymRegisterCallbackProc64,
     (ULONG64)this);*/
 
-  m_bReadSysInfoStream = !ReadSysInfoStream();
-  m_bReadExceptionStream = !ReadExceptionStream();    
+  m_bReadSysInfoStream = !ReadSysInfoStream();  
   m_bReadModuleListStream = !ReadModuleListStream();
   m_bReadThreadListStream = !ReadThreadListStream();
   m_bReadMemoryListStream = !ReadMemoryListStream();    
+  m_bReadExceptionStream = !ReadExceptionStream();    
   
   m_bLoaded = true;
   return 0;
@@ -341,10 +341,30 @@ int CMiniDumpReader::ReadExceptionStream()
       m_DumpData.m_uExceptionAddress = pExceptionStream->ExceptionRecord.ExceptionAddress;          
       m_DumpData.m_pExceptionThreadContext = 
         (CONTEXT*)(((LPBYTE)m_pMiniDumpStartPtr)+pExceptionStream->ThreadContext.Rva);      
+
+      CString sMsg;
+      int nExcModuleRowID = pDmpReader->GetModuleRowIdByAddress(pDmpReader->m_DumpData.m_uExceptionAddress);
+      if(nExcModuleRowID>=0)
+      {
+        sMsg.Format(_T("Unhandled exception at 0x%x in %s: 0x%x : %s"),
+            pDmpReader->m_DumpData.m_uExceptionAddress,
+            pDmpReader->m_DumpData.m_Modules[nExcModuleID].m_sModuleName,
+            pDmpReader->m_DumpData.m_uExceptionCode,
+            _T("Exception description.")
+           );
+      }
+      else
+      {
+        
+      }
+      m_DumpData.m_LoadLog.push_back(sMsg);
     }    
   }
   else
   {
+    CString sMsg;
+    sMsg = _T("No exception information found in minidump.");
+    m_DumpData.m_LoadLog.push_back(sMsg);
     return 1;
   }
 
