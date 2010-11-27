@@ -107,6 +107,7 @@ struct CRASH_DESCRIPTION
   DWORD m_dwEmailSubjectOffs;    // Offset of E-mail subject.
   DWORD m_dwEmailTextOffs;       // Offset of E-mail text.
   DWORD m_dwSmtpProxyServerOffs; // Offset of SMTP proxy server name.
+  DWORD m_dwPathToDebugHelpDllOffs; // Offset of dbghelp path.
   DWORD m_dwCustomSenderIconOffs; // Offset of custom Error Report dialog icon resource name.
   DWORD m_dwProcessId;           // Process ID.
   DWORD m_dwThreadId;            // Thread ID.

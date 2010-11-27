@@ -231,84 +231,6 @@ void CErrorReportSender::FeedbackReady(int code)
   m_Assync.FeedbackReady(code);
 }
 
-void CErrorReportSender::CollectMiscCrashInfo()
-{   
-  // Get crash time
-  Utility::GetSystemTimeUTC(g_CrashInfo.GetReport(0).m_sSystemTimeUTC);
-
-  HANDLE hProcess = OpenProcess(
-    PROCESS_QUERY_INFORMATION, 
-    FALSE, 
-    g_CrashInfo.m_dwProcessId);
-  if(hProcess!=NULL)
-  {
-    // Get number of GUI resources in use  
-    g_CrashInfo.GetReport(0).m_dwGuiResources = GetGuiResources(hProcess, GR_GDIOBJECTS);
-  
-    // Determine if GetProcessHandleCount function available
-    typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
-    HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-    LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
-      (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
-    if(pfnGetProcessHandleCount!=NULL)
-    {    
-      // Get count of opened handles
-      DWORD dwHandleCount = 0;
-      BOOL bGetHandleCount = pfnGetProcessHandleCount(hProcess, &dwHandleCount);
-      if(bGetHandleCount)
-        g_CrashInfo.GetReport(0).m_dwProcessHandleCount = dwHandleCount;
-      else
-        g_CrashInfo.GetReport(0).m_dwProcessHandleCount = 0;
-    }
-
-    // Get memory usage info
-    PROCESS_MEMORY_COUNTERS meminfo;
-    BOOL bGetMemInfo = GetProcessMemoryInfo(hProcess, &meminfo, 
-      sizeof(PROCESS_MEMORY_COUNTERS));
-    if(bGetMemInfo)
-    {    
-      CString sMemUsage;
-  #ifdef _WIN64
-      sMemUsage.Format(_T("%I64u"), meminfo.WorkingSetSize/1024);
-  #else
-      sMemUsage.Format(_T("%lu"), meminfo.WorkingSetSize/1024);
-  #endif 
-      g_CrashInfo.GetReport(0).m_sMemUsage = sMemUsage;
-    }
-  }
-
-  // Determine the period of time the process is working.
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  BOOL bGetTimes = GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime);
-  ATLASSERT(bGetTimes);
-  SYSTEMTIME AppStartTime;
-  FileTimeToSystemTime(&CreationTime, &AppStartTime);
-
-  SYSTEMTIME CurTime;
-  GetSystemTime(&CurTime);
-  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
-  ULONG64 uStartTime = Utility::SystemTimeToULONG64(AppStartTime);
-  
-  // Get operating system friendly name.
-  Utility::GetOSFriendlyName(g_CrashInfo.GetReport(0).m_sOSName);
-  
-  // Determine if Windows is 64-bit.
-  g_CrashInfo.GetReport(0).m_bOSIs64Bit = Utility::IsOS64Bit();
-
-  // Get geographic location.
-  Utility::GetGeoLocation(g_CrashInfo.GetReport(0).m_sGeoLocation);
-
-
-  // Check that the application works for at least one minute before crash.
-  // This might help to avoid cyclic error report generation when the applciation
-  // crashes on startup.
-  double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
-  if(dDiffTime<60)
-  {
-    g_CrashInfo.m_bAppRestart = FALSE; // Disable restart.
-  } 
-}
-
 // This takes the desktop screenshot (screenshot of entire virtual screen
 // or screenshot of the main window). 
 BOOL CErrorReportSender::TakeDesktopScreenshot()
@@ -455,7 +377,7 @@ BOOL CErrorReportSender::CreateMiniDump()
     m_sErrorReportDirName + _T("\\crashdump.dmp");
   std::vector<ERIFileItem> files_to_add;
   ERIFileItem fi;
-  BOOL bAdd = FALSE;
+  CString sErrorMsg;
 
   if(g_CrashInfo.m_bGenerateMinidump==FALSE)
   {
@@ -477,6 +399,7 @@ BOOL CErrorReportSender::CreateMiniDump()
 
   if(hDbgHelp==NULL)
   {
+    sErrorMsg = _T("dbghelp.dll couldn't be loaded");
     m_Assync.SetProgress(_T("dbghelp.dll couldn't be loaded."), 0, false);
     goto cleanup;
   }
@@ -498,6 +421,7 @@ BOOL CErrorReportSender::CreateMiniDump()
     sMsg.Format(_T("Couldn't create minidump file: %s"), 
       Utility::FormatErrorMsg(dwError));
     m_Assync.SetProgress(sMsg, 0, false);
+    sErrorMsg = sMsg;
     return FALSE;
   }
 
@@ -542,6 +466,7 @@ BOOL CErrorReportSender::CreateMiniDump()
   if(!pfnMiniDumpWriteDump)
   {    
     m_Assync.SetProgress(_T("Bad MiniDumpWriteDump function."), 0, false);
+    sErrorMsg = _T("Bad MiniDumpWriteDump function");
     return FALSE;
   }
 
@@ -561,20 +486,10 @@ BOOL CErrorReportSender::CreateMiniDump()
  
   if(!bWriteDump)
   {    
+    CString sMsg = Utility::FormatErrorMsg(GetLastError());
     m_Assync.SetProgress(_T("Error writing dump."), 0, false);
-    m_Assync.SetProgress(Utility::FormatErrorMsg(GetLastError()), 0, false);
-    goto cleanup;
-  }
-
-  fi.m_bMakeCopy = false;
-  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
-  fi.m_sDestFile = _T("crashdump.dmp");
-  fi.m_sSrcFile = sMinidumpFile;
-  files_to_add.push_back(fi);
-  bAdd = g_CrashInfo.AddFilesToCrashDescriptionXML(files_to_add);
-  if(!bAdd)
-  {
-    m_Assync.SetProgress(_T("Error adding minidump file to the reprot."), 0, false);
+    m_Assync.SetProgress(sMsg, 0, false);
+    sErrorMsg = sMsg;
     goto cleanup;
   }
 
@@ -590,6 +505,84 @@ cleanup:
   // Unload dbghelp.dll
   if(hDbgHelp)
     FreeLibrary(hDbgHelp);
+
+  fi.m_bMakeCopy = false;
+  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
+  fi.m_sDestFile = _T("crashdump.dmp");
+  fi.m_sSrcFile = sMinidumpFile;
+  fi.m_sErrorStatus = sErrorMsg;
+  files_to_add.push_back(fi);
+
+  // Add file to the list
+  g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
+
+
+  return bStatus;
+}
+
+BOOL CErrorReportSender::CreateCrashDescriptionXML()
+{
+  BOOL bStatus = FALSE;
+  ERIFileItem fi;
+  CString sSrcFile = g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName + _T("\\crashrpt.xml");
+  CString sErrorMsg;
+  strconv_t strconv;
+  TiXmlDocument doc;
+  FILE* f = NULL; 
+
+  TiXmlNode* root = doc.FirstChild("CrashRpt");
+  if(!root)
+  { 
+    return FALSE;
+  }
+  
+  TiXmlHandle hFileItems = root->FirstChild("FileList");
+  if(hFileItems.ToElement()==NULL)
+  {
+    hFileItems = new TiXmlElement("FileList");
+    root->LinkEndChild(hFileItems.ToNode());
+  }
+  
+  unsigned i;
+  for(i=0; i<FilesToAdd.size(); i++)
+  { 
+    if(m_Reports[0].m_FileItems.find(FilesToAdd[i].m_sDestFile)!=m_Reports[0].m_FileItems.end())
+      continue; // Such file item already exists, skip
+
+    TiXmlHandle hFileItem = new TiXmlElement("FileItem");
+    hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
+    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(FilesToAdd[i].m_sDesc));
+    hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
+
+    m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+  }
+
+#if _MSC_VER<1400
+  f = _tfopen(sFileName, _T("w"));
+#else
+  _tfopen_s(&f, sFileName, _T("w"));
+#endif
+
+  if(f==NULL)
+    return FALSE;
+
+  bool bSave = doc.SaveFile(f); 
+  if(!bSave)
+    return FALSE;
+  fclose(f);
+
+  bStatus = TRUE;
+cleanup:
+
+  fi.m_bMakeCopy = false;
+  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
+  fi.m_sDestFile = _T("crashdump.dmp");
+  fi.m_sSrcFile = sSrcFile;
+  fi.m_sErrorStatus = sErrorMsg;
+  g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
+
+  // Add file to the list
+  g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
 
   return bStatus;
 }
@@ -632,6 +625,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
         FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
       if(hSrcFile==INVALID_HANDLE_VALUE)
       {
+        it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
         str.Format(_T("Error opening file %s."), it->second.m_sSrcFile);
         m_Assync.SetProgress(str, 0, false);
       }
@@ -639,6 +633,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
       bGetSize = GetFileSizeEx(hSrcFile, &lFileSize);
       if(!bGetSize)
       {
+        it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
         str.Format(_T("Couldn't get file size of %s"), it->second.m_sSrcFile);
         m_Assync.SetProgress(str, 0, false);
         CloseHandle(hSrcFile);
@@ -652,6 +647,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
         FILE_SHARE_READ, NULL, CREATE_ALWAYS, 0, NULL);
       if(hDestFile==INVALID_HANDLE_VALUE)
       {
+        it->second.m_sErrorStatus = Utility::FormatErrorMsg(GetLastError());
         str.Format(_T("Error creating file %s."), sDestFile);
         m_Assync.SetProgress(str, 0, false);
         CloseHandle(hSrcFile);
@@ -709,15 +705,19 @@ BOOL CErrorReportSender::CollectCrashFiles()
     str.Format(_T("Dumping registry key '%s' to file '%s' "), rit->first, sFileName);
     m_Assync.SetProgress(str, 0, false);    
 
-    DumpRegKey(rit->first, sFileName);
+    // Create registry key dump
+    CString sErrorMsg;
+    DumpRegKey(rit->first, sFileName, sErrorMsg);
     ERIFileItem fi;
     fi.m_sSrcFile = sFileName;
     fi.m_sDestFile = rit->second;
     fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescRegKey"));
     fi.m_bMakeCopy = FALSE;
+    fi.m_sErrorStatus = sErrorMsg;
     std::vector<ERIFileItem> file_list;
     file_list.push_back(fi);
-    g_CrashInfo.AddFilesToCrashDescriptionXML(file_list);
+    // Add file to the list of file items
+    g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
   }
 
   // Success
@@ -736,7 +736,7 @@ cleanup:
   return 0;
 }
 
-int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
+int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg)
 {
   strconv_t strconv;
   TiXmlDocument document; 
@@ -786,6 +786,9 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile)
   bool bSave = document.SaveFile(f);
 
   fclose(f);
+
+  if(!bSave)
+    sErrorMsg = _T("Error saving XML document to file");
 
   return (bSave==true)?0:1;
 }

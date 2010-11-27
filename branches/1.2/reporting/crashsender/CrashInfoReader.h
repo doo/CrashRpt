@@ -52,6 +52,7 @@ struct ERIFileItem
   CString m_sSrcFile;   // Absolute source file path.
   CString m_sDesc;      // File description.
   BOOL m_bMakeCopy;     // Should we copy source file to error report folder?
+  CString m_sErrorStatus; // Empty if OK, non-empty if error occurred.
 };
 
 // Error report delivery status
@@ -168,6 +169,8 @@ private:
 
   int UnpackCrashDescription();
   int UnpackString(DWORD dwOffset, CString& str);
+
+  void CollectMiscCrashInfo(ErrorReportInfo& eri);
 
   // Gets the list of file items 
   int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);

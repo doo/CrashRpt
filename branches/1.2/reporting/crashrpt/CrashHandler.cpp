@@ -441,6 +441,7 @@ int CCrashHandler::Init(
     }
 
     m_pTmpCrashDesc = m_pCrashDesc;
+    m_pTmpSharedMem = &m_SharedMem;
   }
 
   // Initialization OK.
@@ -504,6 +505,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
   m_pTmpCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
   m_pTmpCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);
   m_pTmpCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);
+  m_pTmpCrashDesc->m_dwPathToDebugHelpDllOffs = PackString(m_sPathToDebugHelpDll);
   m_pTmpCrashDesc->m_dwCustomSenderIconOffs = PackString(m_sCustomSenderIcon);
 
   return m_pTmpCrashDesc;
