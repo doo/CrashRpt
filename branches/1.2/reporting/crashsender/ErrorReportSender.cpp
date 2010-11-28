@@ -520,41 +520,71 @@ cleanup:
   return bStatus;
 }
 
-BOOL CErrorReportSender::CreateCrashDescriptionXML()
+BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 {
   BOOL bStatus = FALSE;
   ERIFileItem fi;
-  CString sSrcFile = g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName + _T("\\crashrpt.xml");
+  CString sFileName = eri.m_sErrorReportDirName + _T("\\crashrpt.xml");
   CString sErrorMsg;
   strconv_t strconv;
   TiXmlDocument doc;
   FILE* f = NULL; 
 
-  TiXmlNode* root = doc.FirstChild("CrashRpt");
-  if(!root)
-  { 
-    return FALSE;
-  }
-  
-  TiXmlHandle hFileItems = root->FirstChild("FileList");
-  if(hFileItems.ToElement()==NULL)
+  fi.m_bMakeCopy = false;
+  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
+  fi.m_sDestFile = _T("crashrpt.xml");
+  fi.m_sSrcFile = sFileName;
+  fi.m_sErrorStatus = sErrorMsg;  
+  // Add this file to the list
+  eri.m_FileItems[fi.m_sDestFile] = fi;
+
+  TiXmlNode* root = root = new TiXmlElement("CrashRpt");
+  doc.LinkEndChild(root);
+  CString sCrashRptVer;
+  sCrashRptVer.Format(_T("%d"), CRASHRPT_VER);
+  TiXmlHandle(root).ToElement()->SetAttribute("version", strconv.t2utf8(sCrashRptVer));
+   
   {
-    hFileItems = new TiXmlElement("FileList");
-    root->LinkEndChild(hFileItems.ToNode());
+    TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
+    doc.InsertBeforeChild(root, *decl);
   }
   
-  unsigned i;
-  for(i=0; i<FilesToAdd.size(); i++)
-  { 
-    if(m_Reports[0].m_FileItems.find(FilesToAdd[i].m_sDestFile)!=m_Reports[0].m_FileItems.end())
-      continue; // Such file item already exists, skip
+  {
+    TiXmlHandle hAppName = new TiXmlElement("AppName");
+    root->LinkEndChild(hAppName.ToNode());
+    TiXmlText* text = new TiXmlText(strconv.t2utf8(eri.m_sAppName));
+    hAppName.ToElement()->LinkEndChild(text);
+  }
 
+  {
+    TiXmlHandle hAppVersion = new TiXmlElement("AppVersion");
+    root->LinkEndChild(hAppVersion.ToNode());
+    TiXmlText* text = new TiXmlText(strconv.t2utf8(eri.m_sAppVersion));
+    hAppVersion.ToElement()->LinkEndChild(text);
+  }
+
+  {
+    TiXmlHandle hElem = new TiXmlElement("ImageName");
+    root->LinkEndChild(hElem.ToNode());
+    TiXmlText* text = new TiXmlText(strconv.t2utf8(eri.m_sImageName));
+    hElem.ToElement()->LinkEndChild(text);
+  }
+
+  TiXmlHandle hFileItems = new TiXmlElement("FileList");
+  root->LinkEndChild(hFileItems.ToNode());
+    
+  std::map<CString, ERIFileItem>::iterator it;
+  for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
+  {    
+    ERIFileItem& fi = it->second;
     TiXmlHandle hFileItem = new TiXmlElement("FileItem");
-    hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(FilesToAdd[i].m_sDestFile));
-    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(FilesToAdd[i].m_sDesc));
-    hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());              
-
-    m_Reports[0].m_FileItems[FilesToAdd[i].m_sDestFile] = FilesToAdd[i];
+    
+    hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(fi.m_sDestFile));
+    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(fi.m_sDesc));
+    if(!fi.m_sErrorStatus.IsEmpty())
+      hFileItem.ToElement()->SetAttribute("error", strconv.t2utf8(fi.m_sErrorStatus));
+    
+    hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());                  
   }
 
 #if _MSC_VER<1400
@@ -566,23 +596,16 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML()
   if(f==NULL)
     return FALSE;
 
+  doc.useMicrosoftBOM = true;
   bool bSave = doc.SaveFile(f); 
   if(!bSave)
     return FALSE;
   fclose(f);
 
   bStatus = TRUE;
+
 cleanup:
-
-  fi.m_bMakeCopy = false;
-  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
-  fi.m_sDestFile = _T("crashdump.dmp");
-  fi.m_sSrcFile = sSrcFile;
-  fi.m_sErrorStatus = sErrorMsg;
-  g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
-
-  // Add file to the list
-  g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
+  
 
   return bStatus;
 }
@@ -719,6 +742,9 @@ BOOL CErrorReportSender::CollectCrashFiles()
     // Add file to the list of file items
     g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
   }
+
+  // Create crash description XML
+  CreateCrashDescriptionXML(g_CrashInfo.GetReport(0));
 
   // Success
   bStatus = TRUE;

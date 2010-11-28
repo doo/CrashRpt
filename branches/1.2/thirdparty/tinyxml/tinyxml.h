@@ -1544,6 +1544,7 @@ private:
 	TIXML_STRING errorDesc;
 	int tabsize;
 	TiXmlCursor errorLocation;
+public:
 	bool useMicrosoftBOM;		// the UTF-8 BOM were found when read. Note this, and try to write.
 };
 

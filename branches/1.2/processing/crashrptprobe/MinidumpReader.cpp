@@ -343,13 +343,13 @@ int CMiniDumpReader::ReadExceptionStream()
         (CONTEXT*)(((LPBYTE)m_pMiniDumpStartPtr)+pExceptionStream->ThreadContext.Rva);      
 
       CString sMsg;
-      int nExcModuleRowID = pDmpReader->GetModuleRowIdByAddress(pDmpReader->m_DumpData.m_uExceptionAddress);
+      int nExcModuleRowID = GetModuleRowIdByAddress(m_DumpData.m_uExceptionAddress);
       if(nExcModuleRowID>=0)
       {
         sMsg.Format(_T("Unhandled exception at 0x%x in %s: 0x%x : %s"),
-            pDmpReader->m_DumpData.m_uExceptionAddress,
-            pDmpReader->m_DumpData.m_Modules[nExcModuleID].m_sModuleName,
-            pDmpReader->m_DumpData.m_uExceptionCode,
+            m_DumpData.m_uExceptionAddress,
+            m_DumpData.m_Modules[nExcModuleRowID].m_sModuleName,
+            m_DumpData.m_uExceptionCode,
             _T("Exception description.")
            );
       }

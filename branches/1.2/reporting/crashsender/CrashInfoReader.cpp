@@ -246,7 +246,7 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
 {   
   // Get crash time
   Utility::GetSystemTimeUTC(eri.m_sSystemTimeUTC);
-
+  
   // Open parent process handle
   HANDLE hProcess = OpenProcess(
     PROCESS_QUERY_INFORMATION, 
@@ -254,6 +254,11 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     m_dwProcessId);
   if(hProcess!=NULL)
   {
+    // Get image name
+    TCHAR szImageName[_MAX_PATH] = _T("");
+    GetProcessImageFileName(hProcess, szImageName, _MAX_PATH);
+    eri.m_sImageName = szImageName;
+
     // Get number of GUI resources in use  
     eri.m_dwGuiResources = GetGuiResources(hProcess, GR_GDIOBJECTS);
   

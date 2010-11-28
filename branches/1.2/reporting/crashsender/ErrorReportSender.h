@@ -72,14 +72,13 @@ public:
   void DoWorkAssync();
   static DWORD WINAPI WorkerThread(LPVOID lpParam);  
 
-  void CollectMiscCrashInfo();
   BOOL CollectCrashFiles();  
   int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
   int DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg);
   int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
   BOOL TakeDesktopScreenshot();
   BOOL CreateMiniDump();  
-  BOOL CreateCrashDescriptionXML();
+  BOOL CreateCrashDescriptionXML(ErrorReportInfo& eri);
   static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,
