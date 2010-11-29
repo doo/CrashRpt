@@ -109,8 +109,16 @@ struct CRASH_DESCRIPTION
   DWORD m_dwSmtpProxyServerOffs; // Offset of SMTP proxy server name.
   DWORD m_dwPathToDebugHelpDllOffs; // Offset of dbghelp path.
   DWORD m_dwCustomSenderIconOffs; // Offset of custom Error Report dialog icon resource name.
+  DWORD m_dwImageNameOffs;       // Offset to image name.
   DWORD m_dwProcessId;           // Process ID.
   DWORD m_dwThreadId;            // Thread ID.
+  int m_nExceptionType;          // Exception type.
+  DWORD m_dwExceptionCode;       // SEH exception code.
+  DWORD m_dwInvParamExprOffs;    // Invalid parameter expression.
+  DWORD m_dwInvParamFunctionOffs; // Invalid parameter function.
+  DWORD m_dwInvParamFileOffs;    // Invalid parameter file.
+  UINT  m_uInvParamLine;         // Invalid parameter line.
+  UINT m_uFPESubcode;            // FPE subcode.
   PEXCEPTION_POINTERS m_pExceptionPtrs; // Exception pointers.
   BOOL m_bSendRecentReports;     // If TRUE, CrashSender.exe needs to send queued error reports.
                                  // If FALSE, CrashSender.exe needs to send single report.

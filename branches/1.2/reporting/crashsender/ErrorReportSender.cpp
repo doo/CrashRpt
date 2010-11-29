@@ -520,6 +520,15 @@ cleanup:
   return bStatus;
 }
 
+void CErrorReportSender::AddElemToXML(CString sName, CString sValue, TiXmlNode* root)
+{
+  strconv_t strconv;
+  TiXmlHandle hElem = new TiXmlElement(strconv.t2utf8(sName));
+  root->LinkEndChild(hElem.ToNode());
+  TiXmlText* text = new TiXmlText(strconv.t2utf8(sValue));
+  hElem.ToElement()->LinkEndChild(text);
+}
+
 BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 {
   BOOL bStatus = FALSE;
@@ -549,25 +558,67 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     doc.InsertBeforeChild(root, *decl);
   }
   
+  AddElemToXML(_T("CrashGUID"), eri.m_sCrashGUID, root);
+  AddElemToXML(_T("AppName"), eri.m_sAppName, root);
+  AddElemToXML(_T("AppVersion"), eri.m_sAppVersion, root);  
+  AddElemToXML(_T("ImageName"), eri.m_sImageName, root);
+  AddElemToXML(_T("OperatingSystem"), eri.m_sOSName, root);
+  
+  CString sOSIs64Bit;
+  sOSIs64Bit.Format(_T("%d"), eri.m_bOSIs64Bit);
+  AddElemToXML(_T("OSIs64Bit"), sOSIs64Bit, root);
+
+  AddElemToXML(_T("GeoLocation"), eri.m_sGeoLocation, root);
+  AddElemToXML(_T("SystemTimeUTC"), eri.m_sSystemTimeUTC, root);
+  
+  CString sExceptionType;
+  sExceptionType.Format(_T("%d"), g_CrashInfo.m_nExceptionType);
+  AddElemToXML(_T("ExceptionType"), sExceptionType, root);
+  if(g_CrashInfo.m_nExceptionType==CR_SEH_EXCEPTION)
   {
-    TiXmlHandle hAppName = new TiXmlElement("AppName");
-    root->LinkEndChild(hAppName.ToNode());
-    TiXmlText* text = new TiXmlText(strconv.t2utf8(eri.m_sAppName));
-    hAppName.ToElement()->LinkEndChild(text);
+    CString sExceptionCode;
+    sExceptionCode.Format(_T("%d"), g_CrashInfo.m_dwExceptionCode);
+    AddElemToXML(_T("ExceptionCode"), sExceptionCode, root);
+  }
+  else if(g_CrashInfo.m_nExceptionType==CR_CPP_SIGFPE)
+  {
+    CString sFPESubcode;
+    sFPESubcode.Format(_T("%d"), g_CrashInfo.m_uFPESubcode);
+    AddElemToXML(_T("FPESubcode"), sFPESubcode, root);
+  }
+  else if(g_CrashInfo.m_nExceptionType==CR_CPP_INVALID_PARAMETER)
+  {
+    AddElemToXML(_T("InvParamExpression"), g_CrashInfo.m_sInvParamExpr, root);
+    AddElemToXML(_T("InvParamFunction"), g_CrashInfo.m_sInvParamFunction, root);
+    AddElemToXML(_T("InvParamFile"), g_CrashInfo.m_sInvParamFile, root);
+    
+    CString sInvParamLine;
+    sInvParamLine.Format(_T("%d"), g_CrashInfo.m_uInvParamLine);
+    AddElemToXML(_T("InvParamLine"), sInvParamLine, root);
   }
 
-  {
-    TiXmlHandle hAppVersion = new TiXmlElement("AppVersion");
-    root->LinkEndChild(hAppVersion.ToNode());
-    TiXmlText* text = new TiXmlText(strconv.t2utf8(eri.m_sAppVersion));
-    hAppVersion.ToElement()->LinkEndChild(text);
-  }
+  CString sGuiResources;
+  sGuiResources.Format(_T("%d"), eri.m_dwGuiResources);
+  AddElemToXML(_T("GUIResourceCount"), sGuiResources, root);
 
-  {
-    TiXmlHandle hElem = new TiXmlElement("ImageName");
-    root->LinkEndChild(hElem.ToNode());
-    TiXmlText* text = new TiXmlText(strconv.t2utf8(eri.m_sImageName));
-    hElem.ToElement()->LinkEndChild(text);
+  CString sProcessHandleCount;
+  sProcessHandleCount.Format(_T("%d"), eri.m_dwProcessHandleCount);
+  AddElemToXML(_T("OpenHandleCount"), sProcessHandleCount, root);
+
+  AddElemToXML(_T("MemoryUsageKbytes"), eri.m_sMemUsage, root);
+
+  TiXmlHandle hCustomProps = new TiXmlElement("CustomProps");
+  root->LinkEndChild(hCustomProps.ToNode());
+    
+  std::map<CString, CString>::iterator it2;
+  for(it2=eri.m_Props.begin(); it2!=eri.m_Props.end(); it2++)
+  { 
+    TiXmlHandle hProp = new TiXmlElement("Prop");
+    
+    hProp.ToElement()->SetAttribute("name", strconv.t2utf8(it2->first));
+    hProp.ToElement()->SetAttribute("value", strconv.t2utf8(it2->second));
+    
+    hCustomProps.ToElement()->LinkEndChild(hProp.ToNode());                  
   }
 
   TiXmlHandle hFileItems = new TiXmlElement("FileList");

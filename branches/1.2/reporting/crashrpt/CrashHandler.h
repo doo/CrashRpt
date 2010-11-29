@@ -225,6 +225,7 @@ public:
   CString m_sAppName;            // Application name.
   CString m_sAppVersion;         // Application version.  
   CString m_sCrashGUID;          // Crash GUID.
+  CString m_sImageName;          // Process image name.
   DWORD m_dwFlags;               // Flags.
   MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
   BOOL m_bAppRestart;            // Should we restart the app or not.

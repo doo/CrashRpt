@@ -142,6 +142,9 @@ int CCrashHandler::Init(
     }
   }
 
+  // Get process image name
+  m_sImageName = Utility::GetModuleName(NULL);
+
   m_sCustomSenderIcon = lpcszCustomSenderIcon;
 
   if(!m_sCustomSenderIcon.IsEmpty())
@@ -496,6 +499,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
   m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
   m_pTmpCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
   m_pTmpCrashDesc->m_dwCrashGUIDOffs = PackString(m_sCrashGUID);
+  m_pTmpCrashDesc->m_dwImageNameOffs = PackString(m_sImageName);
   m_pTmpCrashDesc->m_dwLangFileNameOffs = PackString(m_sLangFileName);
   m_pTmpCrashDesc->m_dwUrlOffs = PackString(m_sUrl);
   m_pTmpCrashDesc->m_dwRestartCmdLineOffs = PackString(m_sRestartCmdLine);
@@ -1002,8 +1006,24 @@ int CCrashHandler::GenerateErrorReport(
   // Save current process ID, thread ID and exception pointers address to shared mem.
   m_pCrashDesc->m_dwProcessId = GetCurrentProcessId();
   m_pCrashDesc->m_dwThreadId = GetCurrentThreadId();
-  m_pCrashDesc->m_pExceptionPtrs = pExceptionInfo->pexcptrs;
+  m_pCrashDesc->m_pExceptionPtrs = pExceptionInfo->pexcptrs;  
   m_pCrashDesc->m_bSendRecentReports = FALSE;
+  m_pCrashDesc->m_nExceptionType = pExceptionInfo->exctype;
+  if(pExceptionInfo->exctype==CR_SEH_EXCEPTION)
+  {
+    m_pCrashDesc->m_dwExceptionCode = pExceptionInfo->code;
+  }
+  else if(pExceptionInfo->exctype==CR_CPP_SIGFPE)
+  {
+    m_pCrashDesc->m_uFPESubcode = pExceptionInfo->fpe_subcode;
+  }
+  else if(pExceptionInfo->exctype==CR_CPP_INVALID_PARAMETER)
+  {
+    m_pCrashDesc->m_dwInvParamExprOffs = PackString(pExceptionInfo->expression);
+    m_pCrashDesc->m_dwInvParamFunctionOffs = PackString(pExceptionInfo->function);
+    m_pCrashDesc->m_dwInvParamFileOffs = PackString(pExceptionInfo->file);
+    m_pCrashDesc->m_uInvParamLine = pExceptionInfo->line;
+  }
 
   // If error report is being generated manually, disable app restart.
   if(pExceptionInfo->bManual)

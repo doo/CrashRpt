@@ -79,6 +79,7 @@ public:
   BOOL TakeDesktopScreenshot();
   BOOL CreateMiniDump();  
   BOOL CreateCrashDescriptionXML(ErrorReportInfo& eri);
+  void AddElemToXML(CString sName, CString sValue, TiXmlNode* root);
   static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
                 PMINIDUMP_CALLBACK_OUTPUT CallbackOutput); 
   BOOL OnMinidumpProgress(const PMINIDUMP_CALLBACK_INPUT CallbackInput,

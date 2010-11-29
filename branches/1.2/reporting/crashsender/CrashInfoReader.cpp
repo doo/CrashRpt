@@ -128,6 +128,22 @@ int CCrashInfoReader::UnpackCrashDescription()
   m_dwThreadId = m_pCrashDesc->m_dwThreadId;
   m_pExInfo = m_pCrashDesc->m_pExceptionPtrs;  
   m_bSendRecentReports = m_pCrashDesc->m_bSendRecentReports;
+  m_nExceptionType = m_pCrashDesc->m_nExceptionType;
+  if(m_nExceptionType==CR_SEH_EXCEPTION)
+  {
+    m_dwExceptionCode = m_pCrashDesc->m_dwExceptionCode;    
+  }
+  else if(m_nExceptionType==CR_CPP_SIGFPE)
+  {
+    m_uFPESubcode = m_pCrashDesc->m_uFPESubcode;
+  }
+  else if(m_nExceptionType==CR_CPP_INVALID_PARAMETER)
+  {
+    UnpackString(m_pCrashDesc->m_dwInvParamExprOffs, m_sInvParamExpr);  
+    UnpackString(m_pCrashDesc->m_dwInvParamFunctionOffs, m_sInvParamFunction);  
+    UnpackString(m_pCrashDesc->m_dwInvParamFileOffs, m_sInvParamFile);      
+    m_uInvParamLine = m_pCrashDesc->m_uInvParamLine;
+  }
 
   // Unpack install flags
   DWORD dwInstallFlags = m_pCrashDesc->m_dwInstallFlags;   
@@ -143,6 +159,7 @@ int CCrashInfoReader::UnpackCrashDescription()
   m_sAppName = eri.m_sAppName;
   UnpackString(m_pCrashDesc->m_dwAppVersionOffs, eri.m_sAppVersion);  
   UnpackString(m_pCrashDesc->m_dwCrashGUIDOffs, eri.m_sCrashGUID);  
+  UnpackString(m_pCrashDesc->m_dwImageNameOffs, eri.m_sImageName);  
   UnpackString(m_pCrashDesc->m_dwLangFileNameOffs, m_sLangFileName);
   UnpackString(m_pCrashDesc->m_dwEmailSubjectOffs, m_sEmailSubject);
   UnpackString(m_pCrashDesc->m_dwEmailTextOffs, m_sEmailText);
@@ -254,11 +271,6 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     m_dwProcessId);
   if(hProcess!=NULL)
   {
-    // Get image name
-    TCHAR szImageName[_MAX_PATH] = _T("");
-    GetProcessImageFileName(hProcess, szImageName, _MAX_PATH);
-    eri.m_sImageName = szImageName;
-
     // Get number of GUI resources in use  
     eri.m_dwGuiResources = GetGuiResources(hProcess, GR_GDIOBJECTS);
   
@@ -431,44 +443,59 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
 
   {
     TiXmlHandle hCrashGUID = hRoot.FirstChild("CrashGUID");
-    if(hCrashGUID.FirstChild().ToText()!=NULL)
+    if(hCrashGUID.ToElement()!=NULL)
     {
-      const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
-      if(szCrashGUID!=NULL)
-        eri.m_sCrashGUID = strconv.utf82t(szCrashGUID);
+      if(hCrashGUID.FirstChild().ToText()!=NULL)
+      {
+        const char* szCrashGUID = hCrashGUID.FirstChild().ToText()->Value();
+        if(szCrashGUID!=NULL)
+          eri.m_sCrashGUID = strconv.utf82t(szCrashGUID);
+      }
     }
   }
 
   {
     TiXmlHandle hAppName = hRoot.FirstChild("AppName");
-    const char* szAppName = hAppName.FirstChild().ToText()->Value();
-    if(szAppName!=NULL)
-      eri.m_sAppName = strconv.utf82t(szAppName);
+    if(hAppName.ToElement()!=NULL)
+    {
+      const char* szAppName = hAppName.FirstChild().ToText()->Value();
+      if(szAppName!=NULL)
+        eri.m_sAppName = strconv.utf82t(szAppName);
+    }
   }
 
   {
     TiXmlHandle hAppVersion = hRoot.FirstChild("AppVersion");
-    TiXmlText* pText = hAppVersion.FirstChild().ToText();
-    if(pText!=NULL)
+    if(hAppVersion.ToElement()!=NULL)
     {
-      const char* szAppVersion = pText->Value();
-      if(szAppVersion!=NULL)
-        eri.m_sAppVersion = strconv.utf82t(szAppVersion);
+      TiXmlText* pText = hAppVersion.FirstChild().ToText();
+      if(pText!=NULL)
+      {
+        const char* szAppVersion = pText->Value();
+        if(szAppVersion!=NULL)
+          eri.m_sAppVersion = strconv.utf82t(szAppVersion);
+      }
     }
   }
 
   {
     TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
-    const char* szImageName = hImageName.FirstChild().ToText()->Value();
-    if(szImageName!=NULL)
-      eri.m_sImageName = strconv.utf82t(szImageName);
+    if(hImageName.ToElement()!=NULL)
+    {
+      const char* szImageName = hImageName.FirstChild().ToText()->Value();
+      if(szImageName!=NULL)
+        eri.m_sImageName = strconv.utf82t(szImageName);
+    }
   }
 
   {
     TiXmlHandle hSystemTimeUTC = hRoot.FirstChild("SystemTimeUTC");
-    const char* szSystemTimeUTC = hSystemTimeUTC.FirstChild().ToText()->Value();
-    if(szSystemTimeUTC!=NULL)
-      eri.m_sSystemTimeUTC = strconv.utf82t(szSystemTimeUTC);
+    if(hSystemTimeUTC.ToElement()!=NULL)
+    {
+      const char* szSystemTimeUTC = hSystemTimeUTC.FirstChild().ToText()->Value();
+      if(szSystemTimeUTC!=NULL)
+        eri.m_sSystemTimeUTC = strconv.utf82t(szSystemTimeUTC);
+    }
   }
 
   if(bParseFileItems)

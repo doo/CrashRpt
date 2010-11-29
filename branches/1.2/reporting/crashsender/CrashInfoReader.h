@@ -136,14 +136,22 @@ public:
   CString     m_sPrivacyPolicyURL;    // Privacy policy URL.
   BOOL        m_bGenerateMinidump;    // Should we generate crash minidump file?
   MINIDUMP_TYPE m_MinidumpType;       // Minidump type.
-  DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
-  DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
-  PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
   BOOL        m_bAddScreenshot;       // Should we add a desktop screenshot?
   DWORD       m_dwScreenshotFlags;    // Screenshot options.
   CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
   CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
   BOOL        m_bQueueEnabled;        // Can reports be send later or not (queue enabled)?
+  
+  DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
+  DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
+  PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
+  int         m_nExceptionType;
+  DWORD       m_dwExceptionCode;
+  UINT        m_uFPESubcode;
+  CString     m_sInvParamExpr;
+  CString     m_sInvParamFunction;
+  CString     m_sInvParamFile;
+  UINT        m_uInvParamLine;
   
   /* Member functions */
     
