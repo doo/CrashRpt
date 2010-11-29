@@ -540,7 +540,7 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
   FILE* f = NULL; 
 
   fi.m_bMakeCopy = false;
-  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescCrashDump"));
+  fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescXML"));
   fi.m_sDestFile = _T("crashrpt.xml");
   fi.m_sSrcFile = sFileName;
   fi.m_sErrorStatus = sErrorMsg;  
@@ -645,18 +645,33 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 #endif
 
   if(f==NULL)
-    return FALSE;
+  {
+    sErrorMsg = _T("Error opening file for writing");
+    goto cleanup;
+  }
 
   doc.useMicrosoftBOM = true;
   bool bSave = doc.SaveFile(f); 
   if(!bSave)
-    return FALSE;
+  {
+    sErrorMsg = doc.ErrorDesc();
+    goto cleanup;
+  }
+
   fclose(f);
+  f = NULL;
 
   bStatus = TRUE;
 
 cleanup:
   
+  if(f)
+    fclose(f);
+
+  if(!bStatus)
+  {
+    eri.m_FileItems[fi.m_sDestFile].m_sErrorStatus = sErrorMsg;
+  }
 
   return bStatus;
 }

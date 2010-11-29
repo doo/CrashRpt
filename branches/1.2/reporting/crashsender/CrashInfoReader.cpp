@@ -482,9 +482,13 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
     TiXmlHandle hImageName = hRoot.FirstChild("ImageName");
     if(hImageName.ToElement()!=NULL)
     {
-      const char* szImageName = hImageName.FirstChild().ToText()->Value();
-      if(szImageName!=NULL)
-        eri.m_sImageName = strconv.utf82t(szImageName);
+      TiXmlText* pText = hImageName.FirstChild().ToText();
+      if(pText!=NULL)
+      {
+        const char* szImageName = pText->Value();
+        if(szImageName!=NULL)
+          eri.m_sImageName = strconv.utf82t(szImageName);
+      }
     }
   }
 
@@ -492,9 +496,13 @@ int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileIt
     TiXmlHandle hSystemTimeUTC = hRoot.FirstChild("SystemTimeUTC");
     if(hSystemTimeUTC.ToElement()!=NULL)
     {
-      const char* szSystemTimeUTC = hSystemTimeUTC.FirstChild().ToText()->Value();
-      if(szSystemTimeUTC!=NULL)
-        eri.m_sSystemTimeUTC = strconv.utf82t(szSystemTimeUTC);
+      TiXmlText* pText = hSystemTimeUTC.FirstChild().ToText();
+      if(pText!=NULL)
+      {
+        const char* szSystemTimeUTC = pText->Value();
+        if(szSystemTimeUTC!=NULL)
+          eri.m_sSystemTimeUTC = strconv.utf82t(szSystemTimeUTC);
+      }
     }
   }
 
