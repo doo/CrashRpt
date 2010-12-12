@@ -109,7 +109,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 		}				
 	}
 
-  /* Write screenshot bitmap to a PNG file. */
+  /* Write screenshot bitmap to an image file. */
 
   // Init PNG writer
   sFileName.Format(_T("%s\\screenshot%d.png"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
@@ -171,26 +171,18 @@ CScreenCapture::CScreenCapture()
   m_nIdStartFrom = 0;
 }
 
+CScreenCapture::~CScreenCapture()
+{
+}
+
 BOOL CScreenCapture::CaptureScreenRect(
-  RECT rcCapture, 
-  POINT ptCursorPos, 
+  std::vector<CRect> arcCapture,  
   CString sSaveDirName, 
   int nIdStartFrom, 
   std::vector<CString>& out_file_list)
 {	
-  //m_rcCapture = rcCapture;
-  
-  // Find main app window
-  HWND hWndMain = Utility::FindAppWindow();
-  if(hWndMain)
-  {
-    CRect rcAppWnd;
-
-    GetWindowRect(hWndMain, &rcAppWnd);
-  }
-
   // Get cursor information
-  m_ptCursorPos = ptCursorPos;
+  GetCursorPos(&m_ptCursorPos);
   m_CursorInfo.cbSize = sizeof(CURSORINFO);
   GetCursorInfo(&m_CursorInfo);
 
@@ -303,7 +295,75 @@ BOOL CScreenCapture::PngFinalize()
   return TRUE;
 }
 
+struct FindWindowData
+{
+  HANDLE hProcess;                     // Handle to the process
+  BOOL bAllProcessWindows;             // If TRUE, finds all process windows, else only the main one
+  std::vector<WindowInfo>* paWindows;  // Output array of window handles
+};
 
+BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
+{
+  FindWindowData* pFWD = (FindWindowData*)lParam;
+
+  // Get process ID
+  DWORD dwMyProcessId = GetProcessId(pFWD->hProcess);
+
+  if(IsWindowVisible(hWnd)) // Get only wisible windows
+  {
+    // Determine the process ID of the current window
+    DWORD dwProcessId = 0;
+    GetWindowThreadProcessId(hWnd, &dwProcessId);
+
+    // Compare window process ID to our process ID
+    if(dwProcessId == dwMyProcessId)
+    {     
+      HWND hWndParent = GetParent(hWnd);
+      if(hWndParent==NULL) // Get only non-child windows
+      {
+        if(!pFWD->bAllProcessWindows) // Find only the main window
+        {
+          // The main window should have caption, system menu and WS_EX_APPWINDOW style.
+          DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
+          DWORD dwExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+          if(dwExStyle&WS_EX_APPWINDOW || (dwStyle&WS_CAPTION && dwStyle&WS_SYSMENU)) )
+          {      
+            // Match!
+            WindowInfo wi;
+            TCHAR szTitle[1024];
+            GetWindowText(hWnd, szTitle, 1024);            
+            wi.m_sTitle = szTitle;
+            GetWindowRect(hWnd, &wi.m_rcWnd)
+            pFWD->paWindows->push_back(wi);
+            return FALSE;
+          }
+        }
+        else
+        {
+          // Add the window info to the list
+          WindowInfo wi;
+          TCHAR szTitle[1024];
+          GetWindowText(hWnd, szTitle, 1024);            
+          wi.m_sTitle = szTitle;
+          GetWindowRect(hWnd, &wi.m_rcWnd)
+          pFWD->paWindows->push_back(wi);
+        }
+      }
+    }
+  }
+   
+  return TRUE;
+}
+
+BOOL CScreenCap::FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows)
+{
+  FindWindowData fwd;
+  fwd.bAllProcessWindows = bAllProcessWindows;
+  fwd.hProcess = hProcess;
+  fwd.aWindows = paWindows;
+  EnumWindows(EnumWndProc, (LPARAM)&fwd);
+  return TRUE;
+}
 
 
 

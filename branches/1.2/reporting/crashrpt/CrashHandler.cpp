@@ -981,6 +981,10 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags)
   m_bAddScreenshot = TRUE;
   m_dwScreenshotFlags = dwFlags;
 
+  // Pack this info into shared memory
+  m_pCrashDesc->m_bAddScreenshot = TRUE;
+  m_pCrashDesc->m_dwScreenshotFlags = dwFlags;
+
   crSetErrorMsg(_T("Success."));
   return 0;
 }

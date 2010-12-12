@@ -44,6 +44,8 @@ CResendDlg dlgResend;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 {
+  ATLASSERT(0);
+
   LPCWSTR szCommandLine = GetCommandLineW();
   
   int argc = 0;

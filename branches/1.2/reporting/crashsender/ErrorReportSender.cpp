@@ -249,40 +249,53 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   m_Assync.SetProgress(_T("Taking desktop screenshot"), 0);    
   
   DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
+  
+  std::vector<CRect> wnd_list;
 
   if(dwFlags==CR_AS_VIRTUAL_SCREEN)
   {
     // Take screenshot of entire desktop
     CRect rcScreen;
-    sc.GetScreenRect(&rcScreen);
-    
-    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcScreen, g_CrashInfo.m_ptCursorPos,
-      g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 0, screenshot_names);
-    if(bTakeScreenshot==FALSE)
-    {
-      return FALSE;
-    }
+    sc.GetScreenRect(&rcScreen);    
+    wnd_list.push_back(rcScreen);
   }
   else if(dwFlags==CR_AS_MAIN_WINDOW)
   {     
     // Take screenshot of the main window
-    CRect rcWindow = g_CrashInfo.m_rcAppWnd; 
-    if(rcWindow.IsRectEmpty())
+    std::vector<WindowInfo> aWindows; 
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, g_CrashInfo.m_dwProcessId);
+    if(hProcess!=NULL)
     {
-      return FALSE;
+      sc.FindWindows(hProcess, FALSE, &aWindows);
+      CloseHandle(hProcess);
     }
-
-    BOOL bTakeScreenshot = sc.CaptureScreenRect(rcWindow, g_CrashInfo.m_ptCursorPos,
-      g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 0, screenshot_names);
-    if(bTakeScreenshot==FALSE)
-    {      
-      return FALSE;
+    if(aWindows.size()==1)
+      wnd_list.push_back(aWindows[0].m_rcWnd);
+  }
+  else if(dwFlags==CR_AS_PROCESS_WINDOWS)
+  {     
+    // Take screenshot of the main window
+    std::vector<WindowInfo> aWindows; 
+    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, g_CrashInfo.m_dwProcessId);
+    if(hProcess!=NULL)
+    {
+      sc.FindWindows(hProcess, TRUE, &aWindows);
+      CloseHandle(hProcess);
     }
+    if(aWindows.size()==1)
+      wnd_list.push_back(aWindows[0].m_rcWnd);
   }
   else
   {    
     // Invalid flags
     ATLASSERT(0);
+    return FALSE;
+  }
+
+  BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
+      g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 0, screenshot_names);
+  if(bTakeScreenshot==FALSE)
+  {
     return FALSE;
   }
 
@@ -845,7 +858,9 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile, CString& 
   if(f!=NULL)
   { 
     document.LoadFile(f);
-  }
+    fclose(f);
+    f = NULL;
+  }  
 
   TiXmlHandle hdoc(&document);
   
@@ -865,22 +880,27 @@ int CErrorReportSender::DumpRegKey(CString sRegKey, CString sDestFile, CString& 
   }   
 
   DumpRegKey(NULL, sRegKey, registry);
-
-  if(f==NULL)
-  {
+  
 #if _MSC_VER<1400
   f = _tfopen(sDestFile, _T("wb"));
 #else
   _tfopen_s(&f, sDestFile, _T("wb"));
 #endif
+  if(f==NULL)
+  {
+    sErrorMsg = _T("Error opening file for writing.");
+    return 1;
   }
-
+  
   bool bSave = document.SaveFile(f);
 
   fclose(f);
 
   if(!bSave)
-    sErrorMsg = _T("Error saving XML document to file");
+  {
+    sErrorMsg = _T("Error saving XML document to file: ");
+    sErrorMsg += document.ErrorDesc();
+  }
 
   return (bSave==true)?0:1;
 }

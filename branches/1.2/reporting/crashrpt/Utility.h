@@ -106,10 +106,7 @@ namespace Utility
 
   // Parses file path and returns file extension.
   CString GetFileExtension(CString sFileName);
-
-  // This helper function looks for the app's main window.
-  HWND FindAppWindow();
-
+  
   // Retrieves product version info from resources embedded into EXE or DLL
   CString GetProductVersion(CString sModuleName);
   

@@ -39,30 +39,50 @@ extern "C" {
 #include "png.h"
 }
 
+struct WindowInfo
+{
+  CString m_sTitle; // Window title
+  CRect m_rcWnd;    // Window rect
+};
+
 class CScreenCapture
 {
 public:
 
   CScreenCapture();
+  ~CScreenCapture();
 
+  // Returns virtual screen rectangle
   void GetScreenRect(LPRECT rcScreen);
-  BOOL CaptureScreenRect(RECT rcCapture, POINT ptCursorPos, CString sSaveDirName, int nIdStartFrom, std::vector<CString>& out_file_list);
 
+  // Returns an array of visible windows for the specified process or 
+  // the main window of the process.
+  BOOL FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows);
+
+  // Captures the specified screen area and returns the list of image files
+  BOOL CaptureScreenRect(std::vector<CRect> arcCapture, CString sSaveDirName, 
+    int nIdStartFrom, std::vector<CString>& out_file_list);
+
+  /* PNG management functions */
+
+  // Initializes PNG file header
   BOOL PngInit(int nWidth, int nHeight, CString sFileName);
+  // Writes a scan line to the PNG file
   BOOL PngWriteRow(LPBYTE pRow);
+  // Closes PNG file
   BOOL PngFinalize();
 
   /* Member variables. */
 
-  CPoint m_ptCursorPos;
-  std::vector<CRect> m_arcCapture;
-  CURSORINFO m_CursorInfo;
-  int m_nIdStartFrom;
-  CString m_sSaveDirName;
-  FILE* m_fp;
-  png_structp m_png_ptr;
-  png_infop m_info_ptr;  
-  std::vector<CString> m_out_file_list;
+  CPoint m_ptCursorPos;                 // Current mouse cursor pos
+  std::vector<CRect> m_arcCapture;      // Array of capture rectangles
+  CURSORINFO m_CursorInfo;              // Cursor info
+  int m_nIdStartFrom;                   // An ID for the current screenshot image 
+  CString m_sSaveDirName;               // Directory name to save screenshots to
+  FILE* m_fp;                           // Handle to the file
+  png_structp m_png_ptr;                // libpng stuff
+  png_infop m_info_ptr;                 // libpng stuff
+  std::vector<CString> m_out_file_list; // The list of output image files
 };
 
 #endif //__SCREENCAP_H__

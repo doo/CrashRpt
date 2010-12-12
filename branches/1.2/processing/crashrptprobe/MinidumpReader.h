@@ -102,7 +102,15 @@ struct MdmpData
   MdmpData()
   {
     m_hProcess = INVALID_HANDLE_VALUE;
-    //m_pExceptionContext = NULL;
+    m_uProcessorArchitecture = 0;
+    m_uchProductType = 0;
+    m_ulVerMajor = 0;
+    m_ulVerMinor = 0;
+    m_ulVerBuild = 0;    
+    m_uExceptionCode = 0;
+    m_uExceptionAddress = 0;
+    m_uExceptionThreadId = 0;
+    m_pExceptionThreadContext = NULL;
   }
 
   HANDLE m_hProcess; // Process ID

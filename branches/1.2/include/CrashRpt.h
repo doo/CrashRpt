@@ -948,6 +948,8 @@ crAddFile2A(
  *  \remarks 
  *
  *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
+ *  Screenshot information may help the developer to better understand state of the application
+ *  at the moment of crash and reproduce the error.
  * 
  *  \b dwFlags 
  *
@@ -964,9 +966,6 @@ crAddFile2A(
  *
  *  When capturing entire desktop consisting of several monitors, 
  *  one screenshot file is added per each monitor. 
- *
- *  Screenshot information may help the developer to better understand state of the application
- *  at the moment of crash and reproduce the error.
  *
  *  You should be careful when using this feature, because screenshots may contain user-identifying 
  *  or private information. Always specify purposes you will use collected 

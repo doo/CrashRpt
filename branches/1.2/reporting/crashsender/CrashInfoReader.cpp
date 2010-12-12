@@ -48,8 +48,6 @@ CCrashInfoReader g_CrashInfo;
 
 int CCrashInfoReader::Init(CString sFileMappingName)
 { 
-  ATLASSERT(0);
-
   strconv_t strconv;
   
   BOOL bInitMem = m_SharedMem.Init(sFileMappingName, TRUE, 0);
@@ -169,6 +167,8 @@ int CCrashInfoReader::UnpackCrashDescription()
   UnpackString(m_pCrashDesc->m_dwPathToDebugHelpDllOffs, m_sDbgHelpPath);
   m_nSmtpPort = m_pCrashDesc->m_nSmtpPort;
   m_nSmtpProxyPort = m_pCrashDesc->m_nSmtpProxyPort;
+  m_bAddScreenshot = m_pCrashDesc->m_bAddScreenshot;
+  m_dwScreenshotFlags = m_pCrashDesc->m_dwScreenshotFlags;
 
   DWORD dwOffs = m_pCrashDesc->m_wSize;
   while(dwOffs<m_pCrashDesc->m_dwTotalSize)
@@ -232,6 +232,26 @@ int CCrashInfoReader::UnpackCrashDescription()
     dwOffs += pHeader->m_wSize;
 
     m_SharedMem.DestroyView(pView);
+  }
+
+  // Perform some integrity checks
+
+  if(m_pCrashDesc->m_uFileItems!=eri.m_FileItems.size())
+  {
+    ATLASSERT(0);
+    return 1; 
+  }
+
+  if(m_pCrashDesc->m_uCustomProps!=eri.m_Props.size())
+  {
+    ATLASSERT(0);
+    return 1; 
+  }
+
+  if(m_pCrashDesc->m_uRegKeyEntries!=eri.m_RegKeys.size())
+  {
+    ATLASSERT(0);
+    return 1; 
   }
 
   m_Reports.push_back(eri);
