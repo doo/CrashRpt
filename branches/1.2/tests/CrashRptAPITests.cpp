@@ -444,10 +444,6 @@ void Test_crAddScreenshot()
   int nResult3 = crAddScreenshot(CR_AS_MAIN_WINDOW);
   TEST_ASSERT(nResult3==0);
 
-  // Call with invalid param - should fail
-  int nResult4 = crAddScreenshot(100);
-  TEST_ASSERT(nResult4!=0);
-
   __TEST_CLEANUP__;
 
   // Uninstall

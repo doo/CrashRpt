@@ -971,13 +971,6 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags)
 { 
   crSetErrorMsg(_T("Unspecified error."));
 
-  if(dwFlags!=CR_AS_VIRTUAL_SCREEN &&
-     dwFlags!=CR_AS_MAIN_WINDOW)
-  {
-    crSetErrorMsg(_T("Invalid flag specified.")); 
-    return 1; // Invalid input parameter
-  }
-
   m_bAddScreenshot = TRUE;
   m_dwScreenshotFlags = dwFlags;
 

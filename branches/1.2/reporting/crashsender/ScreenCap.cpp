@@ -113,14 +113,13 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
   {
     // Init JPG writer
+    sFileName.Format(_T("%s\\screenshot%d.jpg"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
+    BOOL bInit = psc->JpegInit(nWidth, nHeight, 95, sFileName);
+    if(!bInit)
+      goto cleanup;
   }
   else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
   {
-  }
-  else
-  {
-    ATLASSERT(0); // Invalid format
-    goto cleanup;
   }
 
   // We will get bitmap bits row by row
@@ -151,6 +150,9 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
     }
     else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
     {    
+      BOOL bWrite = psc->JpegWriteRow(pRowBits, nRowWidth);
+      if(!bWrite)
+        goto cleanup;   
     }
     else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
     {
@@ -163,6 +165,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   }
   else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
   {    
+    psc->JpegFinalize();
   }
   else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
   {
@@ -173,6 +176,8 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
     goto cleanup;
   }  
   
+  psc->m_out_file_list.push_back(sFileName);
+
 cleanup:
 
   // Clean up
@@ -361,6 +366,76 @@ BOOL CScreenCapture::PngFinalize()
   
   if(m_fp)
     fclose(m_fp);
+
+  return TRUE;
+}
+
+BOOL CScreenCapture::JpegInit(int nWidth, int nHeight, int nQuality, CString sFileName)
+{   
+  /* Step 1: allocate and initialize JPEG compression object */
+
+  m_cinfo.err = jpeg_std_error(&m_jerr);  
+  jpeg_create_compress(&m_cinfo);
+
+  /* Step 2: specify data destination (eg, a file) */
+
+  _tfopen_s(&m_fp, sFileName, _T("wb"));
+  if(m_fp==NULL)
+    return FALSE;
+
+  jpeg_stdio_dest(&m_cinfo, m_fp);
+
+  /* Step 3: set parameters for compression */
+
+  m_cinfo.image_width = nWidth; 	/* image width and height, in pixels */
+  m_cinfo.image_height = nHeight;
+  m_cinfo.input_components = 3;		/* # of color components per pixel */
+  m_cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+  jpeg_set_defaults(&m_cinfo);
+  jpeg_set_quality(&m_cinfo, nQuality, TRUE /* limit to baseline-JPEG values */);
+
+  /* Step 4: Start compressor */
+
+  jpeg_start_compress(&m_cinfo, TRUE);
+
+  return TRUE;
+}
+
+BOOL CScreenCapture::JpegWriteRow(LPBYTE pRow, int nRowLen)
+{
+  // Convert RGB to BGR
+  LPBYTE pRow2 = new BYTE[nRowLen];
+  int i;
+  for(i=0; i<nRowLen/3; i++)
+  {    
+    pRow2[i*3+0] = pRow[i*3+2];
+    pRow2[i*3+1] = pRow[i*3+1];
+    pRow2[i*3+2] = pRow[i*3+0];
+  }
+
+  JSAMPROW row_pointer[1];
+  row_pointer[0] = (JSAMPROW)pRow2;
+  (void) jpeg_write_scanlines(&m_cinfo, row_pointer, 1);
+
+  delete [] pRow2;
+
+  return TRUE;
+}
+
+BOOL CScreenCapture::JpegFinalize()
+{
+  /* Step 6: Finish compression */
+  jpeg_finish_compress(&m_cinfo);
+
+  /* After finish_compress, we can close the output file. */
+  if(m_fp!=NULL)
+    fclose(m_fp);
+  m_fp = NULL;
+
+  /* Step 7: release JPEG compression object */
+
+  /* This is an important step since it will release a good deal of memory. */
+  jpeg_destroy_compress(&m_cinfo);
 
   return TRUE;
 }

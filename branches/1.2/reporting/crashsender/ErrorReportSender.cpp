@@ -252,19 +252,13 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   
   SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG;
 
-  if(dwFlags&CR_AS_USE_JPEG_FORMAT)
+  if((dwFlags&CR_AS_USE_JPEG_FORMAT)!=0)
     fmt = SCREENSHOT_FORMAT_JPG;
 
   std::vector<CRect> wnd_list;
 
-  if(dwFlags==CR_AS_VIRTUAL_SCREEN)
-  {
-    // Take screenshot of entire desktop
-    CRect rcScreen;
-    sc.GetScreenRect(&rcScreen);    
-    wnd_list.push_back(rcScreen);
-  }
-  else if(dwFlags==CR_AS_MAIN_WINDOW)
+  
+  if((dwFlags&CR_AS_MAIN_WINDOW)!=0)
   {     
     // Take screenshot of the main window
     std::vector<WindowInfo> aWindows; 
@@ -277,7 +271,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     if(aWindows.size()==1)
       wnd_list.push_back(aWindows[0].m_rcWnd);
   }
-  else if(dwFlags==CR_AS_PROCESS_WINDOWS)
+  else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0)
   {     
     // Take screenshot of the main window
     std::vector<WindowInfo> aWindows; 
@@ -290,11 +284,12 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     if(aWindows.size()==1)
       wnd_list.push_back(aWindows[0].m_rcWnd);
   }
-  else
-  {    
-    // Invalid flags
-    ATLASSERT(0);
-    return FALSE;
+  else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0
+  {
+    // Take screenshot of entire desktop
+    CRect rcScreen;
+    sc.GetScreenRect(&rcScreen);    
+    wnd_list.push_back(rcScreen);
   }
 
   std::vector<MonitorInfo> monitor_list;
@@ -312,7 +307,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   for(i=0; i<screenshot_names.size(); i++)
   {
     CString sDestFile;
-    sDestFile.Format(_T("screenshot%d.png"), i); 
+    int nSlashPos = screenshot_names[i].ReverseFind('\\');
+    sDestFile = screenshot_names[i].Mid(nSlashPos+1);
     ERIFileItem fi;
     fi.m_sSrcFile = screenshot_names[i];
     fi.m_sDestFile = sDestFile;
@@ -1375,30 +1371,34 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
     zipClose(hZip, NULL);
     hZip = NULL;
   }
-
-  sMsg.Format(_T("Calculating MD5 hash for file %s"), m_sZipName);
-  m_Assync.SetProgress(sMsg, 0, false);
   
-  int nCalcMD5 = CalcFileMD5Hash(m_sZipName, sMD5Hash);
-  if(nCalcMD5!=0)
+  // Save MD5 hash file
+  if(!m_bExport)
   {
-    sMsg.Format(_T("Couldn't calculate MD5 hash for file %s"), m_sZipName);
+    sMsg.Format(_T("Calculating MD5 hash for file %s"), m_sZipName);
     m_Assync.SetProgress(sMsg, 0, false);
-    goto cleanup;
+  
+    int nCalcMD5 = CalcFileMD5Hash(m_sZipName, sMD5Hash);
+    if(nCalcMD5!=0)
+    {
+      sMsg.Format(_T("Couldn't calculate MD5 hash for file %s"), m_sZipName);
+      m_Assync.SetProgress(sMsg, 0, false);
+      goto cleanup;
+    }
+    
+    
+    _tfopen_s(&f, m_sZipName + _T(".md5"), _T("wt"));
+    if(f==NULL)
+    {
+      sMsg.Format(_T("Couldn't save MD5 hash for file %s"), m_sZipName);
+      m_Assync.SetProgress(sMsg, 0, false);
+      goto cleanup;
+    }
+    
+    _ftprintf(f, sMD5Hash);
+    fclose(f);
+    f = NULL;
   }
-  
-  
-  _tfopen_s(&f, m_sZipName + _T(".md5"), _T("wt"));
-  if(f==NULL)
-  {
-    sMsg.Format(_T("Couldn't save MD5 hash for file %s"), m_sZipName);
-    m_Assync.SetProgress(sMsg, 0, false);
-    goto cleanup;
-  }
-  
-  _ftprintf(f, sMD5Hash);
-  fclose(f);
-  f = NULL;
 
   if(lTotalSize==lTotalCompressed)
     bStatus = TRUE;

@@ -38,6 +38,7 @@
 extern "C" {
 #include "png.h"
 }
+#include "jpeglib.h"
 
 // Window information
 struct WindowInfo
@@ -95,6 +96,12 @@ public:
   // Closes PNG file
   BOOL PngFinalize();
 
+  /* JPEG management functions */
+
+  BOOL JpegInit(int nWidth, int nHeight, int nQuality, CString sFileName);
+  BOOL JpegWriteRow(LPBYTE pRow, int nRowLen);
+  BOOL JpegFinalize();
+
   /* Member variables. */
 
   CPoint m_ptCursorPos;                 // Current mouse cursor pos
@@ -108,6 +115,8 @@ public:
   FILE* m_fp;                           // Handle to the file
   png_structp m_png_ptr;                // libpng stuff
   png_infop m_info_ptr;                 // libpng stuff
+  struct jpeg_compress_struct m_cinfo;
+  struct jpeg_error_mgr m_jerr;
   std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices
   std::vector<CString> m_out_file_list; // The list of output image files
 };
