@@ -47,33 +47,24 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   HDC hCompatDC = NULL;
   HBITMAP hBitmap = NULL;
   BITMAPINFO bmi;
-  int nLeft = 0;
-  int nTop = 0;
   int nWidth = 0;
   int nHeight = 0;
   int nRowWidth = 0;
   LPBYTE pRowBits = NULL;
   CString sFileName;
-
-  /*if(psc->m_rcCapture.left>=lprcMonitor->left && 
-    psc->m_rcCapture.left<lprcMonitor->right)
-  {
-    nLeft = psc->m_rcCapture.left;
-  }
-
-  if(psc->m_rcCapture.top>=lprcMonitor->top && 
-    psc->m_rcCapture.top<lprcMonitor->bottom)
-  {
-    nTop = psc->m_rcCapture.top;
-  }*/
-
-  // Get monitor size
+    
+  // Get clipping rect size
   nWidth = lprcMonitor->right - lprcMonitor->left;
 	nHeight = lprcMonitor->bottom - lprcMonitor->top;
 	
   // Get monitor info
   mi.cbSize = sizeof(MONITORINFOEX);
 	GetMonitorInfo(hMonitor, &mi);
+  
+  MonitorInfo monitor_info;
+  monitor_info.m_rcMonitor = mi.rcMonitor;
+  monitor_info.m_sDeviceID = mi.szDevice;
+  psc->m_monitor_list.push_back(monitor_info);
     
 	// Get the device context for this monitor
 	hDC = CreateDC(_T("DISPLAY"), mi.szDevice, NULL, NULL); 
@@ -90,7 +81,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
   SelectObject(hCompatDC, hBitmap);
 
-  BOOL bBitBlt = BitBlt(hCompatDC, 0, 0, nWidth, nHeight, hDC, nLeft, nTop, SRCCOPY|CAPTUREBLT);
+  BOOL bBitBlt = BitBlt(hCompatDC, 0, 0, nWidth, nHeight, hDC, 0, 0, SRCCOPY|CAPTUREBLT);
   if(!bBitBlt)
     goto cleanup;
   
@@ -111,11 +102,26 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
   /* Write screenshot bitmap to an image file. */
 
-  // Init PNG writer
-  sFileName.Format(_T("%s\\screenshot%d.png"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
-  BOOL bInit = psc->PngInit(nWidth, nHeight, sFileName);
-  if(!bInit)
+  if(psc->m_fmt==SCREENSHOT_FORMAT_PNG)
+  {
+    // Init PNG writer
+    sFileName.Format(_T("%s\\screenshot%d.png"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
+    BOOL bInit = psc->PngInit(nWidth, nHeight, sFileName);
+    if(!bInit)
+      goto cleanup;
+  }
+  else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
+  {
+    // Init JPG writer
+  }
+  else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
+  {
+  }
+  else
+  {
+    ATLASSERT(0); // Invalid format
     goto cleanup;
+  }
 
   // We will get bitmap bits row by row
   nRowWidth = nWidth*3 + 10;
@@ -137,12 +143,35 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
     if(nFetched!=1)
       break;
 
-    BOOL bWrite = psc->PngWriteRow(pRowBits);
-    if(!bWrite)
-      goto cleanup;   
+    if(psc->m_fmt==SCREENSHOT_FORMAT_PNG)
+    {
+      BOOL bWrite = psc->PngWriteRow(pRowBits);
+      if(!bWrite)
+        goto cleanup;   
+    }
+    else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
+    {    
+    }
+    else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
+    {
+    }      
   }
   
-  psc->PngFinalize();
+  if(psc->m_fmt==SCREENSHOT_FORMAT_PNG)
+  {
+    psc->PngFinalize();
+  }
+  else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
+  {    
+  }
+  else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
+  {
+  }
+  else
+  {
+    ATLASSERT(0); // Invalid format
+    goto cleanup;
+  }  
   
 cleanup:
 
@@ -177,22 +206,63 @@ CScreenCapture::~CScreenCapture()
 
 BOOL CScreenCapture::CaptureScreenRect(
   std::vector<CRect> arcCapture,  
-  CString sSaveDirName, 
+  CString sSaveDirName,   
   int nIdStartFrom, 
+  SCREENSHOT_IMAGE_FORMAT fmt,
+  std::vector<MonitorInfo>& monitor_list,
   std::vector<CString>& out_file_list)
 {	
+  // Init output variables
+  monitor_list.clear();
+  out_file_list.clear();
+
+  // Set internal variables
+  m_nIdStartFrom = nIdStartFrom;
+  m_sSaveDirName = sSaveDirName;
+  m_fmt = fmt;
+  m_arcCapture = arcCapture;
+  m_out_file_list.clear();
+  m_monitor_list.clear();
+
   // Get cursor information
   GetCursorPos(&m_ptCursorPos);
   m_CursorInfo.cbSize = sizeof(CURSORINFO);
   GetCursorInfo(&m_CursorInfo);
 
-  m_nIdStartFrom = nIdStartFrom;
-  m_sSaveDirName = sSaveDirName;
-	EnumDisplayMonitors(NULL, &rcCapture, EnumMonitorsProc, (LPARAM)this);	
+  // Determine union rect
+  CRect rcUnion = CRect(0, 0, 0, 0);
+  size_t i;
+  for(i=0; i<arcCapture.size(); i++)
+  {
+    if(i==0)
+      rcUnion = arcCapture[i];
+    else
+    {
+      if(arcCapture[i].left<rcUnion.left)
+        rcUnion.left = arcCapture[i].left;
+
+      if(arcCapture[i].right>rcUnion.right)
+        rcUnion.right = arcCapture[i].right;
+
+      if(arcCapture[i].top<rcUnion.top)
+        rcUnion.top = arcCapture[i].top;
+
+      if(arcCapture[i].bottom>rcUnion.bottom)
+        rcUnion.bottom = arcCapture[i].bottom;
+    }
+  }
+  m_rcUnion = rcUnion;
+
+  // Perform actual capture task inside of EnumMonitorsProc
+	EnumDisplayMonitors(NULL, rcUnion, EnumMonitorsProc, (LPARAM)this);	
+
+  // Return
   out_file_list = m_out_file_list;
+  monitor_list = m_monitor_list;
 	return TRUE;
 }
 
+// Gets rectangle of the virtual screen
 void CScreenCapture::GetScreenRect(LPRECT rcScreen)
 {
 	int nWidth = GetSystemMetrics(SM_CXVIRTUALSCREEN);
@@ -326,14 +396,14 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
           // The main window should have caption, system menu and WS_EX_APPWINDOW style.
           DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
           DWORD dwExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-          if(dwExStyle&WS_EX_APPWINDOW || (dwStyle&WS_CAPTION && dwStyle&WS_SYSMENU)) )
+          if(dwExStyle&WS_EX_APPWINDOW || (dwStyle&WS_CAPTION && dwStyle&WS_SYSMENU))
           {      
             // Match!
             WindowInfo wi;
             TCHAR szTitle[1024];
             GetWindowText(hWnd, szTitle, 1024);            
             wi.m_sTitle = szTitle;
-            GetWindowRect(hWnd, &wi.m_rcWnd)
+            GetWindowRect(hWnd, &wi.m_rcWnd);
             pFWD->paWindows->push_back(wi);
             return FALSE;
           }
@@ -345,7 +415,7 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
           TCHAR szTitle[1024];
           GetWindowText(hWnd, szTitle, 1024);            
           wi.m_sTitle = szTitle;
-          GetWindowRect(hWnd, &wi.m_rcWnd)
+          GetWindowRect(hWnd, &wi.m_rcWnd);
           pFWD->paWindows->push_back(wi);
         }
       }
@@ -355,12 +425,12 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
   return TRUE;
 }
 
-BOOL CScreenCap::FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows)
+BOOL CScreenCapture::FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows)
 {
   FindWindowData fwd;
   fwd.bAllProcessWindows = bAllProcessWindows;
   fwd.hProcess = hProcess;
-  fwd.aWindows = paWindows;
+  fwd.paWindows = paWindows;
   EnumWindows(EnumWndProc, (LPARAM)&fwd);
   return TRUE;
 }

@@ -250,6 +250,11 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   
   DWORD dwFlags = g_CrashInfo.m_dwScreenshotFlags;
   
+  SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG;
+
+  if(dwFlags&CR_AS_USE_JPEG_FORMAT)
+    fmt = SCREENSHOT_FORMAT_JPG;
+
   std::vector<CRect> wnd_list;
 
   if(dwFlags==CR_AS_VIRTUAL_SCREEN)
@@ -292,8 +297,10 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     return FALSE;
   }
 
+  std::vector<MonitorInfo> monitor_list;
   BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
-      g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 0, screenshot_names);
+      g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 
+      0, fmt, monitor_list, screenshot_names);
   if(bTakeScreenshot==FALSE)
   {
     return FALSE;
@@ -310,16 +317,9 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     fi.m_sSrcFile = screenshot_names[i];
     fi.m_sDestFile = sDestFile;
     fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
-    FilesToAdd.push_back(fi);
+    g_CrashInfo.GetReport(0).m_FileItems[fi.m_sDestFile] = fi;
   }
-
-  // Add the list of PNG files to the error report
-  int nAdd = g_CrashInfo.AddFilesToCrashDescriptionXML(FilesToAdd);
-  if(nAdd!=0)
-  {
-    return FALSE;
-  }
-
+  
   // Done
   return TRUE;
 }

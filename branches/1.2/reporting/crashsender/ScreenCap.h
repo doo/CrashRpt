@@ -39,16 +39,33 @@ extern "C" {
 #include "png.h"
 }
 
+// Window information
 struct WindowInfo
 {
   CString m_sTitle; // Window title
   CRect m_rcWnd;    // Window rect
 };
 
+struct MonitorInfo
+{
+  CString m_sDeviceID;
+  CRect m_rcMonitor;
+};
+
+// What format to use when saving screenshots
+enum SCREENSHOT_IMAGE_FORMAT
+{
+  SCREENSHOT_FORMAT_PNG = 0, // Use PNG format
+  SCREENSHOT_FORMAT_JPG = 1, // Use JPG format
+  SCREENSHOT_FORMAT_BMP = 2  // Use BMP format
+};
+
+// Desktop screenshot capture
 class CScreenCapture
 {
 public:
 
+  // Constructor
   CScreenCapture();
   ~CScreenCapture();
 
@@ -57,11 +74,17 @@ public:
 
   // Returns an array of visible windows for the specified process or 
   // the main window of the process.
-  BOOL FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows);
+  BOOL FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, 
+    std::vector<WindowInfo>* paWindows);
 
   // Captures the specified screen area and returns the list of image files
-  BOOL CaptureScreenRect(std::vector<CRect> arcCapture, CString sSaveDirName, 
-    int nIdStartFrom, std::vector<CString>& out_file_list);
+  BOOL CaptureScreenRect(
+    std::vector<CRect> arcCapture, 
+    CString sSaveDirName, 
+    int nIdStartFrom, 
+    SCREENSHOT_IMAGE_FORMAT fmt, 
+    std::vector<MonitorInfo>& monitor_list,
+    std::vector<CString>& out_file_list);
 
   /* PNG management functions */
 
@@ -77,11 +100,15 @@ public:
   CPoint m_ptCursorPos;                 // Current mouse cursor pos
   std::vector<CRect> m_arcCapture;      // Array of capture rectangles
   CURSORINFO m_CursorInfo;              // Cursor info
+  std::vector<CRect> arcCapture;        // An array of capture rectangles.
+  CRect m_rcUnion;
   int m_nIdStartFrom;                   // An ID for the current screenshot image 
   CString m_sSaveDirName;               // Directory name to save screenshots to
+  SCREENSHOT_IMAGE_FORMAT m_fmt;        // Image format
   FILE* m_fp;                           // Handle to the file
   png_structp m_png_ptr;                // libpng stuff
   png_infop m_info_ptr;                 // libpng stuff
+  std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices
   std::vector<CString> m_out_file_list; // The list of output image files
 };
 
