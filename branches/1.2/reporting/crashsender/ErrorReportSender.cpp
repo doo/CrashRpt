@@ -255,6 +255,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   if((dwFlags&CR_AS_USE_JPEG_FORMAT)!=0)
     fmt = SCREENSHOT_FORMAT_JPG;
 
+  BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
+
   std::vector<CRect> wnd_list;
 
   
@@ -295,7 +297,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   std::vector<MonitorInfo> monitor_list;
   BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
       g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 
-      0, fmt, monitor_list, screenshot_names);
+      0, fmt, bGrayscale, monitor_list, screenshot_names);
   if(bTakeScreenshot==FALSE)
   {
     return FALSE;

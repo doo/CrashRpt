@@ -106,7 +106,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   {
     // Init PNG writer
     sFileName.Format(_T("%s\\screenshot%d.png"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
-    BOOL bInit = psc->PngInit(nWidth, nHeight, sFileName);
+    BOOL bInit = psc->PngInit(nWidth, nHeight, psc->m_bGrayscale, sFileName);
     if(!bInit)
       goto cleanup;
   }
@@ -114,7 +114,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   {
     // Init JPG writer
     sFileName.Format(_T("%s\\screenshot%d.jpg"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
-    BOOL bInit = psc->JpegInit(nWidth, nHeight, 95, sFileName);
+    BOOL bInit = psc->JpegInit(nWidth, nHeight, psc->m_bGrayscale, 95, sFileName);
     if(!bInit)
       goto cleanup;
   }
@@ -144,13 +144,13 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
     if(psc->m_fmt==SCREENSHOT_FORMAT_PNG)
     {
-      BOOL bWrite = psc->PngWriteRow(pRowBits);
+      BOOL bWrite = psc->PngWriteRow(pRowBits, nRowWidth, psc->m_bGrayscale);
       if(!bWrite)
         goto cleanup;   
     }
     else if(psc->m_fmt==SCREENSHOT_FORMAT_JPG)
     {    
-      BOOL bWrite = psc->JpegWriteRow(pRowBits, nRowWidth);
+      BOOL bWrite = psc->JpegWriteRow(pRowBits, nRowWidth, psc->m_bGrayscale);
       if(!bWrite)
         goto cleanup;   
     }
@@ -214,9 +214,12 @@ BOOL CScreenCapture::CaptureScreenRect(
   CString sSaveDirName,   
   int nIdStartFrom, 
   SCREENSHOT_IMAGE_FORMAT fmt,
+  BOOL bGrayscale,
   std::vector<MonitorInfo>& monitor_list,
   std::vector<CString>& out_file_list)
 {	
+  ATLASSERT(0);
+
   // Init output variables
   monitor_list.clear();
   out_file_list.clear();
@@ -225,6 +228,7 @@ BOOL CScreenCapture::CaptureScreenRect(
   m_nIdStartFrom = nIdStartFrom;
   m_sSaveDirName = sSaveDirName;
   m_fmt = fmt;
+  m_bGrayscale = bGrayscale;
   m_arcCapture = arcCapture;
   m_out_file_list.clear();
   m_monitor_list.clear();
@@ -279,7 +283,7 @@ void CScreenCapture::GetScreenRect(LPRECT rcScreen)
 	rcScreen->bottom = rcScreen->top + nHeight;
 }
 
-BOOL CScreenCapture::PngInit(int nWidth, int nHeight, CString sFileName)
+BOOL CScreenCapture::PngInit(int nWidth, int nHeight, BOOL bGrayscale, CString sFileName)
 {  
   m_fp = NULL;
   m_png_ptr = NULL;
@@ -336,7 +340,7 @@ BOOL CScreenCapture::PngInit(int nWidth, int nHeight, CString sFileName)
     nWidth, //width, 
     nHeight, //height,
     8, // bit_depth
-    PNG_COLOR_TYPE_RGB, // color_type
+    bGrayscale?PNG_COLOR_TYPE_GRAY:PNG_COLOR_TYPE_RGB, // color_type
     PNG_INTERLACE_NONE, // interlace_type
     PNG_COMPRESSION_TYPE_DEFAULT, 
     PNG_FILTER_TYPE_DEFAULT);
@@ -349,10 +353,28 @@ BOOL CScreenCapture::PngInit(int nWidth, int nHeight, CString sFileName)
   return TRUE;
 }
 
-BOOL CScreenCapture::PngWriteRow(LPBYTE pRow)
+BOOL CScreenCapture::PngWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale)
 {
-  png_bytep rows[1] = {pRow};
+  // Convert RGB to BGR
+  LPBYTE pRow2 = NULL;
+  
+  if(bGrayscale)
+  {
+    int i;
+    pRow2 = new BYTE[nRowLen/3];
+    for(i=0; i<nRowLen/3; i++)
+      pRow2[i] = (pRow[i*3+0]+pRow[i*3+1]+pRow[i*3+2])/3;
+  }
+  else
+  {
+    pRow2 = pRow;    
+  }
+
+  png_bytep rows[1] = {pRow2};
   png_write_rows(m_png_ptr, (png_bytepp)&rows, 1);
+
+  if(bGrayscale)
+    delete [] pRow2;
   return TRUE;
 }
 
@@ -370,7 +392,7 @@ BOOL CScreenCapture::PngFinalize()
   return TRUE;
 }
 
-BOOL CScreenCapture::JpegInit(int nWidth, int nHeight, int nQuality, CString sFileName)
+BOOL CScreenCapture::JpegInit(int nWidth, int nHeight, BOOL bGrayscale, int nQuality, CString sFileName)
 {   
   /* Step 1: allocate and initialize JPEG compression object */
 
@@ -389,8 +411,8 @@ BOOL CScreenCapture::JpegInit(int nWidth, int nHeight, int nQuality, CString sFi
 
   m_cinfo.image_width = nWidth; 	/* image width and height, in pixels */
   m_cinfo.image_height = nHeight;
-  m_cinfo.input_components = 3;		/* # of color components per pixel */
-  m_cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+  m_cinfo.input_components = bGrayscale?1:3;		/* # of color components per pixel */
+  m_cinfo.in_color_space = bGrayscale?JCS_GRAYSCALE:JCS_RGB; 	/* colorspace of input image */
   jpeg_set_defaults(&m_cinfo);
   jpeg_set_quality(&m_cinfo, nQuality, TRUE /* limit to baseline-JPEG values */);
 
@@ -401,16 +423,26 @@ BOOL CScreenCapture::JpegInit(int nWidth, int nHeight, int nQuality, CString sFi
   return TRUE;
 }
 
-BOOL CScreenCapture::JpegWriteRow(LPBYTE pRow, int nRowLen)
+BOOL CScreenCapture::JpegWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale)
 {
   // Convert RGB to BGR
-  LPBYTE pRow2 = new BYTE[nRowLen];
+  LPBYTE pRow2 = NULL;
   int i;
-  for(i=0; i<nRowLen/3; i++)
-  {    
-    pRow2[i*3+0] = pRow[i*3+2];
-    pRow2[i*3+1] = pRow[i*3+1];
-    pRow2[i*3+2] = pRow[i*3+0];
+  if(bGrayscale)
+  {
+    pRow2 = new BYTE[nRowLen/3];
+    for(i=0; i<nRowLen/3; i++)
+      pRow2[i] = (pRow[i*3+0]+pRow[i*3+1]+pRow[i*3+2])/3;
+  }
+  else
+  {
+    pRow2 = new BYTE[nRowLen];
+    for(i=0; i<nRowLen/3; i++)
+    {    
+      pRow2[i*3+0] = pRow[i*3+2];
+      pRow2[i*3+1] = pRow[i*3+1];
+      pRow2[i*3+2] = pRow[i*3+0];
+    }
   }
 
   JSAMPROW row_pointer[1];
