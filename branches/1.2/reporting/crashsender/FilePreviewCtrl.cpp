@@ -33,6 +33,7 @@
 #include "stdafx.h"
 #include "FilePreviewCtrl.h"
 #include "png.h"
+#include "jpeglib.h"
 #include "strconv.h"
 
 #pragma warning(disable:4611)
@@ -182,6 +183,24 @@ BOOL CImage::IsPNG(FILE* f)
   return TRUE;
 }
 
+BOOL CImage::IsJPEG(FILE* f)
+{
+ 	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&cinfo);
+
+  rewind(f);
+
+  jpeg_stdio_src(&cinfo, f);
+  jpeg_read_header(&cinfo, TRUE);
+
+  jpeg_destroy_decompress(&cinfo);
+  
+  return TRUE;
+}
+
 BOOL CImage::IsImageFile(CString sFileName)
 {
   FILE* f = NULL;
@@ -189,7 +208,7 @@ BOOL CImage::IsImageFile(CString sFileName)
   if(f==NULL)
     return FALSE;
 
-  if(IsBitmap(f) || IsPNG(f))
+  if(IsBitmap(f) || IsPNG(f) || IsJPEG(f))
   {
     fclose(f);
     return TRUE;
@@ -241,6 +260,11 @@ BOOL CImage::Load(CString sFileName)
   {
     fclose(f);
     return LoadBitmapFromPNGFile(sFileName.GetBuffer(0));
+  }
+  else if(IsJPEG(f))
+  {
+    fclose(f);
+    return LoadBitmapFromJPEGFile(sFileName.GetBuffer(0));
   }
 
   fclose(f);
@@ -439,6 +463,42 @@ cleanup:
   return bStatus;
 }
 
+BOOL CImage::LoadBitmapFromJPEGFile(LPTSTR szFileName)
+{
+  BOOL bStatus = false;
+ 	struct jpeg_decompress_struct cinfo;
+	struct jpeg_error_mgr jerr;
+  FILE* fp = NULL;
+
+	cinfo.err = jpeg_std_error(&jerr);
+	jpeg_create_decompress(&cinfo);
+
+  _TFOPEN_S(fp, szFileName, _T("rb"));
+  if (!fp)
+  {
+    goto cleanup;
+  }
+
+  jpeg_stdio_src(&cinfo, fp);
+
+  jpeg_read_header(&cinfo, TRUE);
+
+  jpeg_start_decompress(&cinfo);
+
+  jpeg_finish_decompress(&cinfo);
+	jpeg_destroy_decompress(&cinfo);
+
+  bStatus = true;
+
+cleanup:
+
+  if(!bStatus)
+  {
+    Destroy();
+  }
+
+  return bStatus;
+}
 
 void CImage::Draw(HDC hDC, LPRECT prcDraw)
 {

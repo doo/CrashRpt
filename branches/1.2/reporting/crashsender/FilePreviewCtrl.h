@@ -94,6 +94,7 @@ public:
 
   static BOOL IsBitmap(FILE* f);
   static BOOL IsPNG(FILE* f);
+  static BOOL IsJPEG(FILE* f);
   static BOOL IsImageFile(CString sFileName);
 
   BOOL Load(CString sFileName);
@@ -105,11 +106,12 @@ private:
   
   BOOL LoadBitmapFromBMPFile(LPTSTR szFileName);
   BOOL LoadBitmapFromPNGFile(LPTSTR szFileName);
+  BOOL LoadBitmapFromJPEGFile(LPTSTR szFileName);
 
   CCritSec m_csLock;      // Critical section
   HBITMAP m_hBitmap;      // Handle to the bitmap.  
   HPALETTE m_hPalette;    // Palette
-  BOOL m_bLoadCancelled;
+  BOOL m_bLoadCancelled;  // Load cancel flag
 };
 
 #define WM_FPC_COMPLETE  (WM_APP+100)
