@@ -338,6 +338,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jdpostct.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jdsample.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jdtrans.c"
 				>
 			</File>
@@ -358,11 +366,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\jidctflt.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jidctfst.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jidctint.c"
+				>
+			</File>
+			<File
 				RelativePath=".\jmemansi.c"
 				>
 			</File>
 			<File
 				RelativePath=".\jmemmgr.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jquant1.c"
+				>
+			</File>
+			<File
+				RelativePath=".\jquant2.c"
 				>
 			</File>
 			<File
