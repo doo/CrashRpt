@@ -39,6 +39,7 @@
 
 LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+  ATLASSERT(0);
   DlgResize_Init();
 
   CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, 

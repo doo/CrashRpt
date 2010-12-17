@@ -196,9 +196,11 @@ BOOL CImage::IsJPEG(FILE* f)
   jpeg_stdio_src(&cinfo, f);
   jpeg_read_header(&cinfo, TRUE);
 
+  BOOL bJpeg = (cinfo.output_width>0 && cinfo.output_height>0);
+
   jpeg_destroy_decompress(&cinfo);
   
-  return TRUE;
+  return bJpeg;
 }
 
 BOOL CImage::IsImageFile(CString sFileName)
@@ -468,7 +470,10 @@ BOOL CImage::LoadBitmapFromJPEGFile(LPTSTR szFileName)
   BOOL bStatus = false;
  	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
-  FILE* fp = NULL;
+  FILE* fp = NULL;  
+  JSAMPROW row = NULL;
+  BITMAPINFO bmi;
+  HDC hDC = NULL;
 
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
@@ -485,12 +490,47 @@ BOOL CImage::LoadBitmapFromJPEGFile(LPTSTR szFileName)
 
   jpeg_start_decompress(&cinfo);
 
+  row = new BYTE[cinfo.output_width*3+10];
+
+  hDC = GetDC(NULL);
+
+  {
+    CAutoLock lock(&m_csLock);
+    if(m_bLoadCancelled)
+      goto cleanup;
+    m_hBitmap = CreateCompatibleBitmap(hDC, cinfo.output_width, cinfo.output_height);  
+  }
+
+  memset(&bmi, 0, sizeof(bmi));  
+  bmi.bmiHeader.biSize = sizeof(bmi);
+  bmi.bmiHeader.biBitCount = 24;
+  bmi.bmiHeader.biWidth = cinfo.output_width;
+  bmi.bmiHeader.biHeight = cinfo.output_height;
+  bmi.bmiHeader.biPlanes = 1;
+  bmi.bmiHeader.biCompression = BI_RGB;
+  bmi.bmiHeader.biSizeImage = cinfo.output_width*cinfo.output_height*3;
+  
+  while (cinfo.output_scanline < cinfo.output_height)
+  {    
+    jpeg_read_scanlines(&cinfo, &row, 1); 
+
+    {
+      CAutoLock lock(&m_csLock);
+      int n = SetDIBits(hDC, m_hBitmap, cinfo.output_scanline, 1, row, &bmi, DIB_RGB_COLORS);
+      if(n==0)
+        goto cleanup;
+    }
+  }
+
   jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
 
   bStatus = true;
 
 cleanup:
+
+  if(row)
+    delete [] row;
 
   if(!bStatus)
   {
