@@ -185,22 +185,20 @@ BOOL CImage::IsPNG(FILE* f)
 
 BOOL CImage::IsJPEG(FILE* f)
 {
- 	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;
-
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
-
   rewind(f);
 
-  jpeg_stdio_src(&cinfo, f);
-  jpeg_read_header(&cinfo, TRUE);
-
-  BOOL bJpeg = (cinfo.output_width>0 && cinfo.output_height>0);
-
-  jpeg_destroy_decompress(&cinfo);
+  // Read first two bytes (SOI marker).
+	// Each JPEG file begins with SOI marker (0xD8FF).
   
-  return bJpeg;
+  WORD wSOIMarker;
+  int n = fread(&wSOIMarker, 1, 2, f);
+  if(n!=2)
+    return FALSE;
+
+  if(wSOIMarker==0xD8FF)
+    return TRUE; // This is a JPEG file
+
+  return FALSE;
 }
 
 BOOL CImage::IsImageFile(CString sFileName)
@@ -503,20 +501,32 @@ BOOL CImage::LoadBitmapFromJPEGFile(LPTSTR szFileName)
 
   memset(&bmi, 0, sizeof(bmi));  
   bmi.bmiHeader.biSize = sizeof(bmi);
-  bmi.bmiHeader.biBitCount = 24;
+  bmi.bmiHeader.biBitCount = cinfo.out_color_components*8;
   bmi.bmiHeader.biWidth = cinfo.output_width;
   bmi.bmiHeader.biHeight = cinfo.output_height;
   bmi.bmiHeader.biPlanes = 1;
   bmi.bmiHeader.biCompression = BI_RGB;
-  bmi.bmiHeader.biSizeImage = cinfo.output_width*cinfo.output_height*3;
+  bmi.bmiHeader.biSizeImage = cinfo.output_width*cinfo.output_height*cinfo.out_color_components;
   
   while (cinfo.output_scanline < cinfo.output_height)
   {    
     jpeg_read_scanlines(&cinfo, &row, 1); 
 
+    if(cinfo.out_color_components==3)
+    {
+      // Convert RGB to BGR
+      UINT i;
+      for(i=0; i<cinfo.output_width; i++)
+      {
+        BYTE tmp = row[i*3+0];
+        row[i*3+0] = row[i*3+2];
+        row[i*3+2] = tmp;
+      }
+    }
+
     {
       CAutoLock lock(&m_csLock);
-      int n = SetDIBits(hDC, m_hBitmap, cinfo.output_scanline, 1, row, &bmi, DIB_RGB_COLORS);
+      int n = SetDIBits(hDC, m_hBitmap, cinfo.output_height-cinfo.output_scanline, 1, row, &bmi, DIB_RGB_COLORS);
       if(n==0)
         goto cleanup;
     }
