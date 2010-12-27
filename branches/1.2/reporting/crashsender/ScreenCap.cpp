@@ -218,8 +218,6 @@ BOOL CScreenCapture::CaptureScreenRect(
   std::vector<MonitorInfo>& monitor_list,
   std::vector<CString>& out_file_list)
 {	
-  ATLASSERT(0);
-
   // Init output variables
   monitor_list.clear();
   out_file_list.clear();

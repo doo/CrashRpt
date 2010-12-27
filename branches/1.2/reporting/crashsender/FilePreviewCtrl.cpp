@@ -354,7 +354,7 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
   png_uint_32 height = 0;
   png_bytep row = NULL;
   int y = 0;
-  BITMAPINFO bmi;
+  BITMAPINFO* pBMI = NULL;
   HDC hDC = NULL;
 
   _TFOPEN_S(fp, szFileName, _T("rb"));
@@ -397,10 +397,13 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
 
   width = png_get_image_width(png_ptr, info_ptr);
   height = png_get_image_height(png_ptr, info_ptr);
-
-  png_set_strip_16(png_ptr);
-  png_set_packing(png_ptr);
-  png_set_bgr(png_ptr);
+  
+  if(info_ptr->channels==3)
+  {
+    png_set_strip_16(png_ptr);
+    png_set_packing(png_ptr); 
+    png_set_bgr(png_ptr);
+  }
   
   hDC = GetDC(NULL);
 
@@ -411,22 +414,37 @@ BOOL CImage::LoadBitmapFromPNGFile(LPTSTR szFileName)
     m_hBitmap = CreateCompatibleBitmap(hDC, width, height);  
   }
 
-  memset(&bmi, 0, sizeof(bmi));  
-  bmi.bmiHeader.biSize = sizeof(bmi);
-  bmi.bmiHeader.biBitCount = 24;
-  bmi.bmiHeader.biWidth = width;
-  bmi.bmiHeader.biHeight = height;
-  bmi.bmiHeader.biPlanes = 1;
-  bmi.bmiHeader.biCompression = BI_RGB;
-  bmi.bmiHeader.biSizeImage = rowbytes*height;
-  
+  pBMI = (BITMAPINFO*)new BYTE[sizeof(BITMAPINFO)+256*4];
+  memset(pBMI, 0, sizeof(BITMAPINFO)+256*4);  
+  pBMI->bmiHeader.biSize = sizeof(BITMAPINFO);
+  pBMI->bmiHeader.biBitCount = 8*info_ptr->channels;
+  pBMI->bmiHeader.biWidth = width;
+  pBMI->bmiHeader.biHeight = height;
+  pBMI->bmiHeader.biPlanes = 1;
+  pBMI->bmiHeader.biCompression = BI_RGB;
+  pBMI->bmiHeader.biSizeImage = rowbytes*height;
+ 
+  if( info_ptr->channels == 1 )
+	{
+    RGBQUAD* palette = pBMI->bmiColors;
+
+		int i;
+		for( i = 0; i < 256; i++ )
+		{
+			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
+			palette[i].rgbReserved = 0;
+		}
+   
+    palette[256].rgbBlue = palette[256].rgbGreen = palette[256].rgbRed = 255;
+	}
+
   for(y=height-1; y>=0; y--)
   {
     png_read_rows(png_ptr, &row, png_bytepp_NULL, 1); 
 
     {
       CAutoLock lock(&m_csLock);
-      int n = SetDIBits(hDC, m_hBitmap, y, 1, row, &bmi, DIB_RGB_COLORS);
+      int n = SetDIBits(hDC, m_hBitmap, y, 1, row, pBMI, DIB_RGB_COLORS);
       if(n==0)
         goto cleanup;
     }
@@ -453,6 +471,11 @@ cleanup:
   if(row)
   {
     delete [] row;
+  }
+
+  if(pBMI)
+  {
+    delete [] pBMI;
   }
 
   if(!bStatus)
@@ -501,12 +524,12 @@ BOOL CImage::LoadBitmapFromJPEGFile(LPTSTR szFileName)
 
   memset(&bmi, 0, sizeof(bmi));  
   bmi.bmiHeader.biSize = sizeof(bmi);
-  bmi.bmiHeader.biBitCount = cinfo.out_color_components*8;
+  bmi.bmiHeader.biBitCount = 24;
   bmi.bmiHeader.biWidth = cinfo.output_width;
   bmi.bmiHeader.biHeight = cinfo.output_height;
   bmi.bmiHeader.biPlanes = 1;
   bmi.bmiHeader.biCompression = BI_RGB;
-  bmi.bmiHeader.biSizeImage = cinfo.output_width*cinfo.output_height*cinfo.out_color_components;
+  bmi.bmiHeader.biSizeImage = cinfo.output_width*cinfo.output_height*3;
   
   while (cinfo.output_scanline < cinfo.output_height)
   {    
@@ -521,6 +544,17 @@ BOOL CImage::LoadBitmapFromJPEGFile(LPTSTR szFileName)
         BYTE tmp = row[i*3+0];
         row[i*3+0] = row[i*3+2];
         row[i*3+2] = tmp;
+      }
+    }
+    else
+    {
+      // Convert grayscale to BGR
+      int i;
+      for(i=cinfo.output_width-1; i>=0; i--)
+      {
+        row[i*3+0] = row[i];
+        row[i*3+1] = row[i];
+        row[i*3+2] = row[i];
       }
     }
 
