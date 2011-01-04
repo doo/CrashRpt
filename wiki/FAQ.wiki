@@ -70,7 +70,7 @@ The latest version of CrashRpt can be found at [http://code.google.com/p/crashrp
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
-You can sign in using Google account and add a comment for this wiki page. Or you can ask a question using our [http://groups.google.com/group/crashrpt Discussions group] (Google account is also required).
+You can sign in using Google account and add a comment for this wiki page. Or you can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required).
 
 == How do I report a bug in crashrpt or request a new feature? ==
 
@@ -84,7 +84,7 @@ If the code in `CrashRpt.dll` works fine, but `CrashSender.exe` crashes, you nee
 
 == How do I contribute into crashrpt project development? ==
 
-First of all create a topic in our [http://groups.google.com/group/crashrpt Discussions] group and describe there how you would like to contribute. Then we will add your email to the list of project members and you will be able to make changes in the source code.
+First of all create a topic in our [http://groups.google.com/group/crashrpt Forum] and describe there how you would like to contribute. Then we will add your email to the list of project members and you will be able to make changes in the source code.
 
 == How can I show my appreciation of crashrpt project? ==
 
