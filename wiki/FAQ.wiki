@@ -4,7 +4,7 @@
 
 == What is crashrpt? ==
 
-CrashRpt library is an open source error handling, reporting and post-processing tool for applications created in Microsoft Visual C++ and running in Windows. 
+CrashRpt is an open source library providing a set of error handling, reporting and post-processing tools for applications created in Microsoft Visual C++ and running in Windows. 
 
 == What license does crashrpt use? ==
 
@@ -17,6 +17,10 @@ CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New 
 || [http://www.zlib.net/ ZLib] || [http://www.gzip.org/zlib/zlib_license.html zlib license] ||
 || [http://www.winimage.com/zLibDll/minizip.html minizip] || [http://www.gzip.org/zlib/zlib_license.html zlib license] ||
 || [http://www.libpng.org/pub/png/libpng.html libpng] || [http://www.libpng.org/pub/png/src/libpng-LICENSE.txt libpng license] ||
+
+== Is crashrpt _fully_ open-source? ==
+
+Actually, the Microsoft Debug Help Library (`dbghelp.dll`) CrashRpt depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with CrashRpt to avoid problems with older `dbhelp.dll`'s versions installed on end-users` computers.
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
