@@ -10,7 +10,7 @@
 <td>Read this for quick start and for troubleshooting</td>
 </tr>
 <tr>
-<td><h2><a href="http://groups.google.com/group/crashrpt">Forum</a></h2></td>
+<td><h2><a href="http://groups.google.com/group/crashrpt/topics">Forum</a></h2></td>
 <td>Sign in to ask a question or participate in a discussion</td>
 </tr>
 </table>
