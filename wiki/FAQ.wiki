@@ -4,7 +4,7 @@
 
 == What is crashrpt? ==
 
-CrashRpt library is an open source error handling, reporting and processing tool for applications created in Microsoft Visual C++ and running in Windows. 
+CrashRpt library is an open source error handling, reporting and post-processing tool for applications created in Microsoft Visual C++ and running in Windows. 
 
 == What license does crashrpt use? ==
 
