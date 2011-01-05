@@ -100,6 +100,7 @@ Yes, they are listed in the table below:
 
 || *Name* || *Description* || 
 || [http://code.google.com/p/google-breakpad/ google-breakpad] || An open-source multi-platform crash reporting system ||
+|| [http://code.google.com/p/socorro/ Socorro] || A server for crash reports from Breakpad clients ||
 || [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Used in Mozilla Firefox browser || 
 || [http://msdn.microsoft.com/en-us/isv/bb190483.aspx Windows Error Reporting] || Embed into Windows Vista and later || 
 || [http://www.codeproject.com/KB/applications/BugTrap.aspx BugTrap] || Crash reporting system for C++ and .NET || 
