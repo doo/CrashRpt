@@ -104,11 +104,15 @@ Yes, they are listed in the table below:
 || [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Used in Mozilla Firefox browser || 
 || [http://msdn.microsoft.com/en-us/isv/bb190483.aspx Windows Error Reporting] || Embed into Windows Vista and later || 
 || [http://www.codeproject.com/KB/applications/BugTrap.aspx BugTrap] || Crash reporting system for C++ and .NET || 
-|| [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || XCrashReport : Exception Handling and Crash Reporting  || 
+|| [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || Exception Handling and Crash Reporting  || 
 || [http://bugcollect.com BugCollect.com] || Web-based crash reporting system || 
 || [http://exceptionreporter.codeplex.com/ Exception Reporter] || A .NET component that shows a dialog with detailed information on an Exception  ||
 || [http://www.red-gate.com/products/dotnet-development/smartassembly/ SmartAssembly] || .NET obfuscator and automated error reporting ||
 || [http://www.eurekalog.com/index_delphi.php EurekaLog] || A complete bug resolution tool for Delphi and C++Builder developers  ||
+|| [http://code.google.com/p/acra/ ACRA] || A library enabling Android Application to automatically post crash reports to a GoogleDoc form ||
+|| [http://code.google.com/p/recrash/ ReCrash] ||  A debugging tool that captures and reproduce java program crashes ||
+|| [http://code.google.com/p/bugback/ BugBack] || A tool for collecting crash data from Windows Forms applications ||
+|| || ||
 
 == What Windows versions crashrpt can work in? ==
 
