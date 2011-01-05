@@ -112,7 +112,7 @@ Yes, they are listed in the table below:
 || [http://code.google.com/p/acra/ ACRA] || A library enabling Android Application to automatically post crash reports to a GoogleDoc form ||
 || [http://code.google.com/p/recrash/ ReCrash] ||  A debugging tool that captures and reproduce java program crashes ||
 || [http://code.google.com/p/bugback/ BugBack] || A tool for collecting crash data from Windows Forms applications ||
-|| || ||
+|| [http://www.codeproject.com/KB/exception/littlecrashreporter.aspx Little Crash Reporter] || Collect crash data from a machine and send it to your email to be analyzed ||
 
 == What Windows versions crashrpt can work in? ==
 
