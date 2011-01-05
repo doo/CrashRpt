@@ -105,6 +105,9 @@ Yes, they are listed in the table below:
 || [http://www.codeproject.com/KB/applications/BugTrap.aspx BugTrap] || Crash reporting system for C++ and .NET || 
 || [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || XCrashReport : Exception Handling and Crash Reporting  || 
 || [http://bugcollect.com BugCollect.com] || Web-based crash reporting system || 
+|| [http://exceptionreporter.codeplex.com/ Exception Reporter] || A .NET component that shows a dialog with detailed information on an Exception  ||
+|| [http://www.red-gate.com/products/dotnet-development/smartassembly/ SmartAssembly] || .NET obfuscator and automated error reporting ||
+|| [http://www.eurekalog.com/index_delphi.php EurekaLog] || A complete bug resolution tool for Delphi and C++Builder developers  ||
 
 == What Windows versions crashrpt can work in? ==
 
