@@ -3,9 +3,9 @@
 
 = crashrpt v1.2.7 =
 
-CrashRpt v1.2.7 introduces automated tests, improves error report post-processing scripts and fixes some detected issues. Below the complete list of changes is presented. 
+`CrashRpt` v1.2.7 introduces automated tests, improves error report post-processing scripts and fixes some detected issues. Below the complete list of changes is presented. 
 
-  * Added Tests project that implements automated tests for CrashRpt and `CrashRptProbe` functionality. 
+  * Added Tests project that implements automated tests for `CrashRpt` and `CrashRptProbe` functionality. 
 
   * Reorganized directory structure to better reflect architecture.
 
@@ -46,7 +46,7 @@ CrashRpt v1.2.7 introduces automated tests, improves error report post-processin
 
 = crashrpt v1.2.6 =
 
-CrashRpt v1.2.6 introduces support of Visual Studio 2010, an ability to add a dump of a registry key and fixes some detected issues. Below the complete list of changes is presented. 
+`CrashRpt` v1.2.6 introduces support of Visual Studio 2010, an ability to add a dump of a registry key and fixes some detected issues. Below the complete list of changes is presented. 
 
   * Added project files for Visual Studio 2010 (issue 35).
 
@@ -64,7 +64,7 @@ CrashRpt v1.2.6 introduces support of Visual Studio 2010, an ability to add a du
 
 = crashrpt v1.2.5 =
 
-CrashRpt v1.2.5 introduces queued error report delivery and fixes some detected issues. Below the complete list of changes is presented. 
+`CrashRpt` v1.2.5 introduces queued error report delivery and fixes some detected issues. Below the complete list of changes is presented. 
 
   * Introduced an ability to send error reports queued for delivery (issue 33). New flag `CR_INST_SEND_QUEUED_REPORTS`.
 
@@ -101,7 +101,7 @@ CrashRpt v1.2.5 introduces queued error report delivery and fixes some detected 
 
 = crashrpt v1.2.3 =
 
-CrashRpt v1.2.3 improves file preview (HEX and text) in Error Report Details dialog and fixes some detected issues. Below the complete list of changes is presented. 
+`CrashRpt` v1.2.3 improves file preview (HEX and text) in Error Report Details dialog and fixes some detected issues. Below the complete list of changes is presented. 
 
   * Improved file preview in DetailDlg. Now a file can be previewed in HEX or in text mode.
 
@@ -119,17 +119,17 @@ CrashRpt v1.2.3 improves file preview (HEX and text) in Error Report Details dia
 
 CrashRpt v1.2.2 improves sending error reports over HTTP connection, improves error report generation by doing all complex actions outside of the crashed process, introduces non-GUI mode and restyles the documentation. Below the complete list of changes is presented. 
 
-  * WTL files are now included into CrashRpt distribution.
+  * WTL files are now included into `CrashRpt` distribution.
 
   * Completely removed dependency on zip_utils (it is better to use minizip).
 
   * Removed vs.2008 project files. If you need to compile in VS 2008 and higher, use VS project convertor.
 
-  * Modifyed communication between CrashRpt.dll and CrashSender.exe. Now XML file is used for this purpose instead of named pipe.
+  * Modifyed communication between `CrashRpt.dll` and `CrashSender.exe`. Now XML file is used for this purpose instead of named pipe.
 
   * Refactored code. After crash, all complex actions are done outside of the crashed process (inside of CrashSender.exe). This includes taking desktop screenshot, minidump generation, file copying, file compression and sending.
 
-  * Introduced silent mode (CrashRpt sends report silently without showing GUI). This is useful for services and server processes.
+  * Introduced silent mode (`CrashRpt` sends report silently without showing GUI). This is useful for services and server processes.
 
   * Improved documentation (restyling).
 
@@ -152,7 +152,7 @@ CrashRpt v1.2.2 improves sending error reports over HTTP connection, improves er
 
 = crashrpt v1.2.1 =
 
-CrashRpt v1.2.1 introduces support of compilation for x64 platform and desktop screenshots at the moment of crash, extends crash descriptor XML, improves crash report generation functionality and user interface. Below the list of changes is presented. 
+`CrashRpt` v1.2.1 introduces support of compilation for x64 platform and desktop screenshots at the moment of crash, extends crash descriptor XML, improves crash report generation functionality and user interface. Below the list of changes is presented. 
 
   * Refactored crash report generation and sending functionality. Now report files are stored in unzipped state, compression is performed during sending procedure. This will be required for huge reports (that will be fully supported in the future).
 
@@ -179,13 +179,13 @@ CrashRpt v1.2.1 introduces support of compilation for x64 platform and desktop s
 
 = crashrpt v1.2.0 =
 
-CrashRpt v1.2.0 introduces crash report processing tool (crporber.exe), crash report processing application programming interface (CrashRptProbe API), extends documentation and fixes some minor bugs. Below the list of changes is presented. 
+`CrashRpt` v1.2.0 introduces crash report processing tool (crporber.exe), crash report processing application programming interface (`CrashRptProbe` API), extends documentation and fixes some minor bugs. Below the list of changes is presented. 
 
   * Reorgranized the include files; moved from 'CrashRpt\include' to 'include'.
 
   * Support of error report batch processing (crprober.exe tool).
 
-  * New application programming interface for error report processing (CrashRptProbe.dll).
+  * New application programming interface for error report processing (`CrashRptProbe.dll`).
 
   * Introduced functions crpOpenErrorReport(), crpCloseErrorReport(),
   crpGetProperty(), crpGetLastErrorMsg().
@@ -196,7 +196,7 @@ CrashRpt v1.2.0 introduces crash report processing tool (crporber.exe), crash re
 
 = crashrpt v1.1.3 =
 
-CrashRpt v1.1.3 introduces support of multi-lingual UI, improves and reorganizes project documentation. Below the list of changes is presented. 
+`CrashRpt` v1.1.3 introduces support of multi-lingual UI, improves and reorganizes project documentation. Below the list of changes is presented. 
 
   * Support of globalization and RTL languages.
 
@@ -206,7 +206,7 @@ CrashRpt v1.1.3 introduces support of multi-lingual UI, improves and reorganizes
 
 = crashrpt v1.1.2 =
 
-CrashRpt v1.1.2 introduces an ablity to define the Privacy Policy for error reports, extends API, improves documentation and fixes some minor bugs. Below the list of changes is presented. 
+`CrashRpt` v1.1.2 introduces an ablity to define the Privacy Policy for error reports, extends API, improves documentation and fixes some minor bugs. Below the list of changes is presented. 
 
   * crInstall: Ability to select what exception handlers to install
 
@@ -214,7 +214,7 @@ CrashRpt v1.1.2 introduces an ablity to define the Privacy Policy for error repo
 
   * New API function `crInstallToCurrentThead2()`.
 
-  * Improved documentation; Fixed some mistakes; Added info on compiling CrashRpt in VC++ Express
+  * Improved documentation; Fixed some mistakes; Added info on compiling `CrashRpt` in VC++ Express
 
   * Using standard Windows convention `__stdcall` instead of `__cdecl` in API function declarations 
 
@@ -238,7 +238,7 @@ CrashRpt v1.1.2 introduces an ablity to define the Privacy Policy for error repo
 
 = crashrpt v1.1.1 =
 
-CrashRpt v1.1.1 contains several improvements over previous version of CrashRpt. Below the list of changes is presented. 
+`CrashRpt` v1.1.1 contains several improvements over previous version of `CrashRpt`. Below the list of changes is presented. 
 
   * Support of Visual Studio Express edition (EVS 2005 and EVS 2008)
 
@@ -260,7 +260,7 @@ CrashRpt v1.1.1 contains several improvements over previous version of CrashRpt.
 
 = crashrpt v1.1 beta =
 
-CrashRpt v1.1b contains a lot of improvements over previous version of CrashRpt. Below the list of changes is presented. 
+`CrashRpt` v1.1b contains a lot of improvements over previous version of `CrashRpt`. Below the list of changes is presented. 
 
 This release has status 'beta' and is made available for public beta testing. We appreciate any user feedback, bug reports and feature requests.
 
@@ -275,7 +275,7 @@ Major Features:
 
 - Support of various C++ exception handlers (Visual Studio-specific)
 
-- Crash report generation and crash sending functionality are separeted into different modules (CrashRpt.dll and CrashSender.exe)
+- Crash report generation and crash sending functionality are separeted into different modules (`CrashRpt.dll` and `CrashSender.exe`)
 
 - New ways of sending error reports: using HTTP connection, using SMTP embed client or (as in 1.0) using Simple MAPI.
 
