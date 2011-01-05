@@ -4,11 +4,11 @@
 
 == What is crashrpt? ==
 
-CrashRpt is an open source library providing a set of error handling, reporting and post-processing tools for applications created in Microsoft Visual C++ and running in Windows. 
+`CrashRpt` is an open source library providing a set of error handling, reporting and post-processing tools for applications created in Microsoft Visual C++ and running in Windows. 
 
 == What license does crashrpt use? ==
 
-CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New BSD License]. Other software included in CrashRpt distribution is provided under other licenses, as listed in the table below. 
+`CrashRpt` is licensed under the [http://crashrpt.sourceforge.net/License.txt New BSD License]. Other software included in `CrashRpt` distribution is provided under other licenses, as listed in the table below. 
 
 || *Name* || *License* ||
 || [http://sourceforge.net/projects/wtl/ WTL] || [http://opensource.org/licenses/ms-pl.html Microsoft Permissive License] ||
@@ -20,7 +20,7 @@ CrashRpt is licensed under the [http://crashrpt.sourceforge.net/License.txt New 
 
 == Is crashrpt _fully_ open-source? ==
 
-Actually, the Microsoft Debug Help Library (`dbghelp.dll`) CrashRpt depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with CrashRpt to avoid problems with older `dbhelp.dll`'s versions installed on end-users` computers.
+Actually, the Microsoft Debug Help Library (`dbghelp.dll`) `CrashRpt` depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with `CrashRpt` to avoid problems with older `dbhelp.dll`'s versions installed on end-users` computers.
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
@@ -28,31 +28,31 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
 == What are the main features of crashrpt? ==
 
-  * CrashRpt is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. CrashRpt is able to intercept unhandled SEH exceptions, typed C++ exceptions and C run-time errors.
+  * `CrashRpt` is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. `CrashRpt` is able to intercept unhandled SEH exceptions, typed C++ exceptions and C run-time errors.
 
-  * CrashRpt can send error reports using HTTP or using E-mail. This is suitable for developers who don't have a server for storing error reports. To send reports over E-mail, end user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+  * `CrashRpt` can send error reports using HTTP or using E-mail. This is suitable for developers who don't have a server for storing error reports. To send reports over E-mail, end user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 
-  * CrashRpt has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
+  * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
 == Can I use crashrpt in a commercial application? ==
 
-According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use CrashRpt in any application.
+According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use `CrashRpt` in any application.
 
 == Should I give credits if my application uses crashrpt? ==
 
-The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application that distributed CrashRpt in compiled (binary) form must reproduce the copyright notice, the list of conditions and the disclaimer in the documentation and/or other materials provided with the distribution.  
+The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application that distributes `CrashRpt` in compiled (binary) form must reproduce the copyright notice, the list of conditions and the disclaimer in the documentation and/or other materials provided with the distribution.  
 
 == I want to sign crashrpt binaries with some tools. Is this a violation of the crashrpt license? == 
 
-No, the New BSD License that is used by CrashRpt permits to distribute the crashrpt binaries with or without modification. So, feel free to sign CrashRpt binaries or modify them any other way.
+No, the New BSD License that is used by `CrashRpt` permits to distribute the `CrashRpt` binaries with or without modification. So, feel free to sign `CrashRpt` binaries or modify them any other way.
 
 == What programming languages can I use crashrpt in? ==
 
-You can use CrashRpt in C++ programs created using Visual C++. You can not use it in .NET or in Visual Basic. 
+You can use `CrashRpt` in C++ programs created using Visual C++. You can not use it in .NET or in Visual Basic. 
 
 == Can I use crashrpt in an MFC-based application? ATL/WTL-based application? WinAPI application? ==
 
-Yes, you can use CrashRpt in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
+Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
 
 == What is an exception? ==
 
@@ -70,7 +70,7 @@ For example, an exception may occur because of the following:
 
 == Where can I find the latest version of crashrpt? ==
 
-The latest version of CrashRpt can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
+The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
@@ -92,7 +92,7 @@ First of all create a topic in our [http://groups.google.com/group/crashrpt Foru
 
 == How can I show my appreciation of crashrpt project? ==
 
-If you like CrashRpt and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make CrashRpt more significant for other users and also support further development.
+If you like `CrashRpt` and use it in your software product, you can show your appreciation and add your project name and logo to the WhoUsesCrashRpt page. By doing this you make `CrashRpt` more significant for other users and also support further development.
 
 == Are there any analogous software for crash reporting? ==
 
@@ -112,27 +112,27 @@ Yes, they are listed in the table below:
 
 == What Windows versions crashrpt can work in? ==
 
-CrashRpt supports Windows 2000/XP/2003/Vista and Windows 7. 
+`CrashRpt` supports Windows 2000/XP/2003/Vista and Windows 7. 
 
 == What Visual C++ versions can I use crashrpt in? ==
 
-You can compile CrashRpt in Visual C++ .NET 2003, Visual C++ 2005, Visual C++ 2008 and in Visual C++ 2010. Visual C++ 6.0 is not supported.
+You can compile `CrashRpt` in Visual C++ .NET 2003, Visual C++ 2005, Visual C++ 2008 and in Visual C++ 2010. Visual C++ 6.0 is not supported.
 
-You can also compile CrashRpt in Visual C++ Express Edition. For additional info on compiling CrashRpt in VC++ Express, see below.
+You can also compile `CrashRpt` in Visual C++ Express Edition. For additional info on compiling `CrashRpt` in VC++ Express, see below.
 
 == How do I compile crashrpt in Visual C++ Express Edition? ==
 
-In order to compile CrashRpt in Visual C++ Express Edition, you have to download and install `Microsoft Windows Server 2003 SP1 Platform SDK`, for example from [http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en this place].
+In order to compile `CrashRpt` in Visual C++ Express Edition, you have to download and install `Microsoft Windows Server 2003 SP1 Platform SDK`, for example from [http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en this place].
 
 In VC++ Express window, open menu `Tools->Options...->Projects and Solutions->VC++ Directories`. In the 'Show directories for' combo, select 'Include files' and then add `[Platform_SDK_Folder]\Include\atl` path to the list of include directories ([Plaform_SDK_Folder] should be replaced with actual folder name). 
 
 Note: In VC++ 2010 Express, there is no usual VC++ Directories page. Instead, open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. In the `Include Directories` field, add `[Platform_SDK_Folder]\Include\atl` path. 
 
-That's all. Now you are be able to compile CrashRpt.
+That's all. Now you are be able to compile `CrashRpt`.
 
 == Why do I have to install Platform SDK for Windows Server 2003 to be able to compile crashrpt in Visual C++ Express? ==
 
-This is because CrashRpt depends on WTL library, which in turn depends on Microsoft's ATL library. 
+This is because `CrashRpt` depends on WTL library, which in turn depends on Microsoft's ATL library. 
 
 ATL library is a part of Visual Studio SDKs. The latest version at the moment is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows SDK and the latest version (at the moment) of Windows SDK is v6.0. However, Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of commercial Visual Studio having ATL. The dependency on ATL introduces a lot of problems for WTL, so in the future WTL developers might remove this dependency at all (if possible).
 
@@ -144,32 +144,32 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 == What platforms crashrpt can be compiled for? ==
 
-Since v1.2.1, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms. Earlier versions supported Win32 platform only.
+Since v1.2.1, `CrashRpt` can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms. Earlier versions supported Win32 platform only.
 
 == Why is it strongly recommended that I compile crashrpt myself? ==
 
-It is strongly recommended that you compile CrashRpt yourself to ensure CrashRpt uses
+It is strongly recommended that you compile `CrashRpt` yourself to ensure `CrashRpt` uses
 the same C run-time DLLs as your application. 
 
-CrashRpt distribution already has compiled CrashRpt binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and CrashRpt won't be able to intercept exceptions in your C run-time libraries.
+`CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
 
 == Where do I look for crashrpt documentation? ==
 
-The documentation is usually included into the CrashRpt archive. To open the documentation, click the `index.html` in the top level directory of the CrashRpt archive.
+The documentation is usually included into the `CrashRpt` archive. To open the documentation, click the `index.html` in the top level directory of the `CrashRpt` archive.
 
-Online documentation for the latest CrashRpt version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
+Online documentation for the latest `CrashRpt` version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
 
-For the users of obsolete CrashRpt v1.0, the documentation can be also found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
+For the users of obsolete `CrashRpt` v1.0, the documentation can be also found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
 
 == How do I properly install crashrpt? ==
 
-This depends on CrashRpt version you use. Typically, you download and unzip CrashRpt archive to some folder and then follow installation instructions listed in the documentation.
+This depends on `CrashRpt` version you use. Typically, you download and unzip `CrashRpt` archive to some folder and then follow installation instructions listed in the documentation.
 
 == How does crashrpt support multi-lingual user interface? ==
 
-Since v.1.1.3, CrashRpt supports multi-lingual user interfaces. You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
+Since v.1.1.3, `CrashRpt` supports multi-lingual user interfaces. You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
 
-You should place a valid language file named `crashrpt_lang.ini` to the directory where `CrashSender.exe` file is located in order to make CrashRpt work properly. The language file is a text document in UNICODE format and having INI extension. The language file contains localized strings used by CrashRpt dialogs.
+You should place a valid language file named `crashrpt_lang.ini` to the directory where `CrashSender.exe` file is located in order to make `CrashRpt` work properly. The language file is a text document in UNICODE format and having INI extension. The language file contains localized strings used by `CrashRpt` dialogs.
 
 If your software supports several languages, you can distribute several language files with your software. On install, rename an appropriate file to `crashrpt_lang.ini` and copy it to the folder where your `CrashSender.exe` is located.
 
@@ -181,13 +181,13 @@ For instructions, see ContributingLanguageFiles page.
 
 == How does crashrpt work internally? ==
 
-CrashRpt consists of two core modules: `CrashRpt.dll` and `CrashSender.exe`.
+`CrashRpt` consists of two core modules: `CrashRpt.dll` and `CrashSender.exe`.
 `CrashRpt.dll` contains functionality for intercepting exceptions in a client software.
 `CrashSender.exe` contains functionality for compressing and sending error reports to the software's support team.
 
-It is unsafe to do complex operations in the crashed program which may be unstable. CrashRpt is separated into these modules to be able to close the application which have crashed and to continue sending the error report in `CrashSender.exe` in background. 
+It is unsafe to do complex operations in the crashed program which may be unstable. `CrashRpt` is separated into these modules to be able to close the application which have crashed and to continue sending the error report in `CrashSender.exe` in background. 
 
-Typically a process (executable file) loads `CrashRpt.dll` into its address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process. Client application uses CrashRpt API functions to set exception handlers in the process once, typically in its `main()` function. In a multi-threaded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
+Typically a process (executable file) loads `CrashRpt.dll` into its address space when process starts. This single instance of `CrashRpt` is shared between all DLL modules that are loaded into the address space of the process. Client application uses `CrashRpt` API functions to set exception handlers in the process once, typically in its `main()` function. In a multi-threaded program, client additionally sets exception handlers in the beginning of thread procedure of each worker thread.
 
 == How can I use crashrpt without `CrashSender.exe`? ==
 
@@ -206,37 +206,37 @@ You also need to add `CrashRpt.lib` to the list of input libraries for your proj
 
 == How is crashrpt.dll loaded and how is it shared between other modules loaded into process address space? ==
 
-Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of CrashRpt is shared between all DLL modules that are loaded into the address space of the process.
+Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of `CrashRpt` is shared between all DLL modules that are loaded into the address space of the process.
 
 == My software is not an EXE, but DLL (e.g. a plugin for another software). Can I use crashrpt in such case? ==
 
-Generally, it is not recommended to use CrashRpt if your software is a plugin DLL. It would be better if the client process (EXE) take care of exception handling instead of your DLL. 
+Generally, it is not recommended to use `CrashRpt` if your software is a plugin DLL. It would be better if the client process (EXE) take care of exception handling instead of your DLL. 
 
 You may try to install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
 
 == How do I use crashrpt across process boundaries? == 
 
-Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently CrashRpt doesn't support such possibility. 
+Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine how you can share single loaded instance of `CrashRpt.dll` between several processes. Currently `CrashRpt` doesn't support such possibility. 
 
 == How do I use crashrpt in a multi-threaded application? ==
 
-You should use CrashRpt API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
+You should use `CrashRpt` API functions to set exception handlers in the beginning of thread procedure of each of your worker threads. Do not forget to unset handlers in just before exiting the thread procedure.
 
 == Does using crashrpt affect performance of my application? ==
 
-No, using CrashRpt doesn't affect performance of your application. CrashRpt doesn't perform any tasks in background and doesn't use additional memory. CrashRpt code is executed just when an exception is raised.
+No, using `CrashRpt` doesn't affect performance of your application. `CrashRpt` doesn't perform any tasks in background and doesn't use additional memory. `CrashRpt` code is executed just when an exception is raised.
 
 == Does using crashrpt make it easier for somebody to reverse engineer my code? ==
 
-No, actually not. In order to use CrashRpt, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using CrashRpt doesn't affect the difficulty of reverse engineering your code. 
+No, actually not. In order to use `CrashRpt`, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using `CrashRpt` doesn't affect the difficulty of reverse engineering your code. 
 
 == Do crashrpt API functions support UNICODE character set? multi-byte character set (MBCS)? ==
 
-Yes, all CrashRpt functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
+Yes, all `CrashRpt` functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
 
 == I need to modify some crashrpt configuration info (i.e. uPriorities) based on information collected after `crInstall()`. What is the best way ?==
 
-Currently, there are no ways to modify the CrashRpt configuration info after calling `crInstall()`. I would recommend to hardcode the info you pass to `crInstall()` function, that means not reading it from an INI file or from another source. 
+Currently, there are no ways to modify the `CrashRpt` configuration info after calling `crInstall()`. I would recommend to hardcode the info you pass to `crInstall()` function, that means not reading it from an INI file or from another source. 
 
 However, if you strongly wish to read crashrpt configuration info from an external file, call `crInstall()` _after_ reading the info from that file. Simple file reading functionality is not likely to crash, I suppose. So the probability you miss a crash while reading the file is small. 
 
@@ -266,7 +266,7 @@ If your application stores its settings as a registry key under `HKEY_CURRENT_US
 
 == I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
-In CrashRpt v.1.2.1, we introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
+In `CrashRpt` v.1.2.1, we introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can create the installation GUID in your program, store it in the registry or in a file and pass this GUID to the `crAddProperty()` function, so the named property will be added to the crashrpt.xml and 
 you will be able to identify the installation and associate the bugs together.
 
 The following code example shows how to do this (code provided by tdev):
@@ -297,7 +297,7 @@ To collect information about such error, you may provide an ability to generate 
 
 == I would like to force the user to enter a description of what happened just before the crash. What do I do? ==
 
-The user has an ability to enter the description of the problem in the Error Report dialog by clicking the link "Provide additional information (recommended)". However, my CrashRpt usage experience shows most users do not enter anything meaningful into this field.
+The user has an ability to enter the description of the problem in the Error Report dialog by clicking the link "Provide additional information (recommended)". However, my `CrashRpt` usage experience shows most users do not enter anything meaningful into this field.
 
 == What do I do to save a local copy of an error report to my disk? ==
 
@@ -305,13 +305,13 @@ Since v.1.2.2, you can use the 'Export...' button on the Error Report Details di
 
 == Does crashrpt support a non-GUI (silent) mode? ==
 
-Yes, since v.1.2.2, CrashRpt supports non-GUI mode. In the non-GUI mode, CrashRpt doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
+Yes, since v.1.2.2, `CrashRpt` supports non-GUI mode. In the non-GUI mode, `CrashRpt` doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
 
 However, it is not recommended to use the non-GUI mode with regular GUI applications that create windows and interact with user.
 
 == Does crashrpt support automatic restart of the application that crashes? ==
 
-Yes, since v.1.2.4, CrashRpt supports automatic application restart. But the restart is performed if two conditions are satisfied: 
+Yes, since v.1.2.4, `CrashRpt` supports automatic application restart. But the restart is performed if two conditions are satisfied: 
   * If at least 60 seconds have elapsed since the application start. This is done to avoid cyclic restarts in case when crash occurs on application start up.
   * If the user has provided his consent to restart the app. 
 
@@ -327,11 +327,11 @@ This should be done for all projects in your solution to ensure all modules will
 
 Ensure that all modules that exist in your application use the same version of CRT. If some dependent modules were compiled using an older version of CRT, you should recompile them to ensure the single version or CRT DLL is used.
 
-For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a CRT error in the dependent module won't be intercepted by CrashRpt, because CrashRpt will intercept exceptions in CRT 8.0 only. However, CrashRpt will intercept SEH exceptions in all modules not depending on CRT version.
+For example, assume you use Visual Studio 2005 and CRT 8.0 linked as DLL, but some dependent module in your application was compiled in Visual Studio .NET 2003 and uses CRT 7.1 linked as DLL. In such situation a CRT error in the dependent module won't be intercepted by `CrashRpt`, because `CrashRpt` will intercept exceptions in CRT 8.0 only. However, `CrashRpt` will intercept SEH exceptions in all modules not depending on CRT version.
 
 == What do I do if my project uses CRT as a static library? ==
 
-You can try to compile CrashRpt in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
+You can try to compile `CrashRpt` in `Release LIB` configuration. This configuration is experimental and may be removed in future versions.
 
 Actually, it is recommended that you configure your project to use C runtime libraries (CRT) as `Multi-threaded DLL (/MD)` for `Release` configuration. This is the way recommended in MSDN. And you may have troubles if CRT is used in different way. Below is explained why CRT DLL is better than the static LIB.
 
@@ -343,7 +343,7 @@ If your project uses CRT as a static link library (which is not recommended to d
 
 == What is `Release LIB` build configuration? ==
 
-The `Release LIB` configuration is an addition to the standard Debug and Release build configurations. Typically, you do not compile CrashRpt in this configuration. However, it may be useful if you use static CRT linkage.
+The `Release LIB` configuration is an addition to the standard Debug and Release build configurations. Typically, you do not compile `CrashRpt` in this configuration. However, it may be useful if you use static CRT linkage.
 
 In the `Release LIB` configuration, the build generates `CrashSender.exe` executable file and `CrashRptLIB.lib` static library. In this configuration, `CrashSender.exe` and `CrashRptLIB.lib` use static linkage to CRT.   
 
@@ -362,7 +362,7 @@ This is not necessary, because a minidump file itself contains the list of loade
 
 == Does crashrpt intercept _exactly_ all exceptions that may occur in my program? == 
 
-CrashRpt intercepts all exceptions that are allowed to intercept by C runtime libraries (CRT).
+`CrashRpt` intercepts all exceptions that are allowed to intercept by C runtime libraries (CRT).
 
 Note that some exceptions related to security can't be intercepted. Since CRT 8.0 you can't intercept security errors in your code. When buffer overrun is detected, CRT invokes Dr.Watson directly instead of calling unhandled exception filter. This is done because of security reasons and Microsoft doesn't plan to change this behavior.
 
@@ -370,7 +370,7 @@ For more information, see this [https://connect.microsoft.com/VisualStudio/feedb
 
 == How do I test if crashrpt intercepts exceptions in my application? ==
 
-When you install crash reporting support to your program, it is important to test if CrashRpt intercepts exceptions properly. Use `crEmulateCrash()` function to emulate an exceptional situation. Call this function in your `main()` function and in the thread procedure of each of your working threads.
+When you install crash reporting support to your program, it is important to test if `CrashRpt` intercepts exceptions properly. Use `crEmulateCrash()` function to emulate an exceptional situation. Call this function in your `main()` function and in the thread procedure of each of your working threads.
 
 == Do program optimizations (/O compiler switch) affect the minidump generation? ==
 
@@ -414,7 +414,7 @@ In order to read the minidump, you need to save a local copy of the original (un
 
 == I use `IncrediBuild` for compiling my project. Does crashrpt work with PDB files generated such way? ==
 
-Yes, CrashRpt works with PDB files generated with help of `IncrediBuild`.
+Yes, `CrashRpt` works with PDB files generated with help of `IncrediBuild`.
 
 [http://www.xoreax.com/ IncrediBuild] is a platform for accelerating Visual C++ builds through by distributing the build processes over local area network.
 
@@ -425,7 +425,7 @@ Yes, CrashRpt works with PDB files generated with help of `IncrediBuild`.
 
 == What crashrpt files do I distribute with my software release package? == 
 
-The list of files you should distribute depends on your version of CrashRpt. 
+The list of files you should distribute depends on your version of `CrashRpt`. 
 
 Not depending on version, it is recommended that you distribute the following files with your software release:
 
@@ -436,11 +436,11 @@ Not depending on version, it is recommended that you distribute the following fi
     
 It is recommended that you place these files to the directory where your application executable file is located.
 
-The `CrashRpt.dll` and `CrashSender.exe` are core CrashRpt modules. `dbghelp.dll` (Microsoft Debug Help Library) is the module CrashRpt depends on. `crashrpt_lang.ini` is the language file.
+The `CrashRpt.dll` and `CrashSender.exe` are core `CrashRpt` modules. `dbghelp.dll` (Microsoft Debug Help Library) is the module `CrashRpt` depends on. `crashrpt_lang.ini` is the language file.
 
 == What version of dbghelp.dll should I distribute? ==
 
-You can distribute the version of `dbghelp.dll` that is shipped with CrashRpt archive. Or you can distribute `dbghelp.dll` from Debugging Tools for Windows.
+You can distribute the version of `dbghelp.dll` that is shipped with `CrashRpt` archive. Or you can distribute `dbghelp.dll` from Debugging Tools for Windows.
 
 == I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
@@ -450,7 +450,7 @@ Even though `dbghelp.dll` is included in versions of Windows starting from XP, t
 
 == I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
-No, this is impossible. Architecture of CrashRpt requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
+No, this is impossible. Architecture of `CrashRpt` requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
 
 == What is an error report? ==
 
@@ -458,15 +458,15 @@ An error report refers to a collection of files intended to help the developer d
 
 The error report contains crash minidump file (crashdump.dmp), which has operating system version, processor type, CPU registers state and local variables and stack trace for each execution thread. The minidump can be used on developer's side to determine the reason of the crash and try to fix the problem.
 
-In addition, CrashRpt generates XML crash description file. The file contains various complementary information that might be useful for crash analysis.
+In addition, `CrashRpt` generates XML crash description file. The file contains various complementary information that might be useful for crash analysis.
 
 Crash report can optionally contain application-defined files, for example, application log files, included into crash report via the crash callback. 
 
 == How does crashrpt create an error report when crash occurs? ==
 
-When crash occurs, CrashRpt runs another process named `CrashSender.exe`. The parent process is then terminated. If you generate error report manually, the parent process is not terminated.
+When crash occurs, `CrashRpt` runs another process named `CrashSender.exe`. The parent process is then terminated. If you generate error report manually, the parent process is not terminated.
 
-CrashRpt saves the error report files to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. 
+`CrashRpt` saves the error report files to `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. 
 
 == What is the Privacy Policy? Where can I find a template for the Privacy Policy? ==
 
@@ -480,50 +480,50 @@ Just set the privacy policy link with NULL. This will hide the Privacy Policy li
 
 == How does crashrpt deliver me error reports from end users? ==
 
-CrashRpt sends error reports back to your software support team using any of the following ways:
+`CrashRpt` sends error reports back to your software support team using any of the following ways:
   * via HTTP request to a server-side script
   * via connection to an SMTP server
   * via Simple MAPI programming interface (the user's default E-mail client application is being utilized)
 
-If one of these ways fails, CrashRpt tries others in turn. You can define the preferred order of ways used to send reports.
+If one of these ways fails, `CrashRpt` tries others in turn. You can define the preferred order of ways used to send reports.
 
 == Are there any crash report size limitations? ==
 
-Yes, they are. Although CrashRpt supports large error reports, the crash report should be as small as possible. If you use E-mail for error reports delivery, there may be mail size limits on the SMTP server. If the error report is larger than the limit, it is possible that the error report will be rejected. If you use HTTP for error report delivery, there may also be POST data size limits on the web-server. You should check your web-server settings to figure out the maximum error report size.
+Yes, they are. Although `CrashRpt` supports large error reports, the crash report should be as small as possible. If you use E-mail for error reports delivery, there may be mail size limits on the SMTP server. If the error report is larger than the limit, it is possible that the error report will be rejected. If you use HTTP for error report delivery, there may also be POST data size limits on the web-server. You should check your web-server settings to figure out the maximum error report size.
 
 == How does crashrpt send me error reports using HTTP connection? ==
 
-Many software products have web sites on the Internet. Such web servers typically have some scripting engine enabled, for example PHP, Perl, ASP and so on. CrashRpt can establish HTTP connection to the server and send an error report as a script parameter.
+Many software products have web sites on the Internet. Such web servers typically have some scripting engine enabled, for example PHP, Perl, ASP and so on. `CrashRpt` can establish HTTP connection to the server and send an error report as a script parameter.
 
-This way is not affected by firewalls, because most firewalls have HTTP port 8080 open. However, this way requires a server with some script that you create and deploy yourself.
+This way is not affected by firewalls, because most firewalls have HTTP port 80 open. However, this way requires a server with some script that you create and deploy yourself.
 
-See CrashRpt project documentation for more information.
+See `CrashRpt` project documentation for more information.
 
 == How does crashrpt send me error reports using SMTP connection? ==
 
-CrashRpt has a simple built-in SMTP client. It can try to send an error report to recipient using SMTP connection without any user interaction. The error report is sent as an E-mail multi-part message with attachments.
+`CrashRpt` has a simple built-in SMTP client. It can try to send an error report to recipient using SMTP connection without any user interaction. The error report is sent as an E-mail multi-part message with attachments.
 
 This way `CrashSender.exe` creates SMTP connection with a mail server (port 25) and sends crash reports without additional user interaction. There are two SMTP servers that can be used to relay email: sender's mailbox and recipient's mailbox. 
 
-If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP server name and relay the email message to that server.
+If user provides his/her email address, `CrashRpt` tries to use the address's MX domain record to determine local SMTP server name and relay the email message to that server.
 
-If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX record of recipient's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
+If user doesn't provide his/her email address, `CrashRpt` tries to send the email directly to recipient using the MX record of recipient's domain. Many SMTP servers may block direct access to them to avoid spam (for example Google does so).
 
 This way won't work when firewall is enabled and port 25 is closed for outbound traffic (SMTP client won't be able to even connect). Since many organizations and even home users have firewalls that silently block port 25, this way fails for many users. 
 
 == How does crashrpt send me error reports using Simple MAPI programming interface? ==
 
-CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send the error report as email. The error report is sent as E-mail multi-part message. This requires some user interaction. This way has the lowest priority by default. 
+`CrashRpt` can use the default E-mail client, for example, Mozilla Thunderbird, to send the error report as email. The error report is sent as E-mail multi-part message. This requires some user interaction. This way has the lowest priority by default. 
 
 == What does crashrpt do when all attempts to send error report fail? == 
 
-This depends on how you have configured CrashRpt.
+This depends on how you have configured `CrashRpt`.
 
-CrashRpt can queue error reports for later submission (by default the report files are stored in `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. Alternatively, if queue is disabled, CrashRpt erases the error report files when delivery fails. 
+`CrashRpt` can queue error reports for later submission (by default the report files are stored in `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. Alternatively, if queue is disabled, `CrashRpt` erases the error report files when delivery fails. 
 
 == What do I do when I start receiving error reports after software release? ==
 
-When software release is made and CrashRpt support is enabled in your software, sooner or later you start receiving crash reports.
+When software release is made and `CrashRpt` support is enabled in your software, sooner or later you start receiving crash reports.
 
 Count of received crash reports may depend on robustness of your software to various exceptional situations and on how much your software popular. So it's nothing unusual if you receive hundreds of error reports a day. If there are many incoming error reports, you can monitor and analyze them for the first few days after release, and prepare a hot fix release.
 
@@ -537,7 +537,7 @@ You may calculate MD5 hash for your error report and compare it with the MD5 has
 
 When you receive error reports using HTTP connection, the MD5 hash is passed to the server-side script through the 'md5' parameter. 
 
-Since CrashRpt v1.1.1., when you receive error reports using email, the MD5 hash is attached to the email.
+Since `CrashRpt` v1.1.1., when you receive error reports using email, the MD5 hash is attached to the email.
 
 == How do I use an error report for debugging a crash? ==
 
@@ -548,15 +548,13 @@ for example exception type, operating system name, application name and version.
  
 The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each execution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studio or in `WinDbg` program and see the place of your code where exception had occurred. 
 
-See CrashRpt documentation more information.
-
 == Does crashrpt support bidirectional communication (the user gets an email with updates on his issue)? ==
 
 We currently do not support bidirectional communication, because this would require some complex server-side functionality. You can add such integration on your server for users of your software yourself if you wish. 
 
 == I want the user to directly send me the stack trace, w/o me need to postprocess anything with that on my side. Does crashrpt support this somehow? == 
 
-No, CrashRpt can't generate readable stack traces on the side of the user. It supports developer-side error report processing.
+No, `CrashRpt` can't generate readable stack traces on the side of the user. It supports developer-side error report processing.
 
 User-side error report processing would require you to distribute your PDB files with your software. Typically you do not distribute PDB files, because it makes someone easier to reverse-engineer your program. Our approach is developer-side post-processing. This means users send you error reports and you post-process them on your machine, where PDB files, binaries and source code is located. 
 
@@ -620,13 +618,13 @@ Sometimes you can't determine the location of the crash and the error message is
 
 Automating the error report processing becomes the critical task when you receive a lot of error reports after software release. Among hundreds of reports there may be only several different problems, while others just duplicate the information about these problems. Opening so many reports manually in Visual Studio or in `WinDbg` and analyzing their content may become boring and take a lot of time.
 
-Since v1.2.0, CrashRpt provides a way for automating the report processing. The command line tool named `crprober.exe` is introduced for processing error report files and outputting the results to a text file or to terminal. The `CrashRptProbe API` is introduced to provide base crash report processing services to your custom error report processing applications.
+Since v1.2.0, `CrashRpt` provides a way for automating the report processing. The command line tool named `crprober.exe` is introduced for processing error report files and outputting the results to a text file or to terminal. The `CrashRptProbe API` is introduced to provide base crash report processing services to your custom error report processing applications.
 
 == How do I use the `crprober.exe` tool? ==
 
-Since v1.2.0, CrashRpt provides a tool named `crprober.exe` that can be used for automating crash report processing. To run the tool, go to `bin` directory and type `crprober.exe` in the command line. 
+Since v1.2.0, `CrashRpt` provides a tool named `crprober.exe` that can be used for automating crash report processing. To run the tool, go to `bin` directory and type `crprober.exe` in the command line. 
 
-The tool can be used to open error report files generated by any version of CrashRpt. However it works the best with reports created by version 1.1 and higher.
+The tool can be used to open error report files generated by any version of `CrashRpt`. However it works the best with reports created by version 1.1 and higher.
 
 For usage examples, please see the documentation.
 
