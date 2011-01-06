@@ -106,13 +106,13 @@ Yes, they are listed in the table below:
 || [http://www.codeproject.com/KB/applications/BugTrap.aspx BugTrap] || The Microsoft Public License (Ms-PL) || Crash reporting system for C++ and .NET || 
 || [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || The Code Project Open License (CPOL) || Exception Handling and Crash Reporting  || 
 || [http://bugcollect.com BugCollect.com] || A proprietary license || Web-based crash reporting system || 
-|| [http://exceptionreporter.codeplex.com/ Exception Reporter] || GNU Library General Public License (LGPL) || A .NET component that shows a dialog with detailed information on an Exception  ||
+|| [http://exceptionreporter.codeplex.com/ Exception Reporter] || GNU Library General Public License (LGPL) || A .NET component that shows a dialog with information on an exception  ||
 || [http://www.red-gate.com/products/dotnet-development/smartassembly/ SmartAssembly] || A proprietary license || .NET obfuscator and automated error reporting ||
-|| [http://www.eurekalog.com/index_delphi.php EurekaLog] || A proprietary license || A complete bug resolution tool for Delphi and C++Builder developers  ||
-|| [http://code.google.com/p/acra/ ACRA] || Apache License 2.0 || A library enabling Android Application to automatically post crash reports to a GoogleDoc form ||
-|| [http://code.google.com/p/recrash/ ReCrash] || MIT License ||  A debugging tool that captures and reproduce java program crashes ||
-|| [http://code.google.com/p/bugback/ BugBack] || Apache License 2.0 || A tool for collecting crash data from Windows Forms applications ||
-|| [http://www.codeproject.com/KB/exception/littlecrashreporter.aspx Little Crash Reporter] || The GNU General Public License (GPLv3) || Collect crash data from a machine and send it to your email to be analyzed ||
+|| [http://www.eurekalog.com/index_delphi.php EurekaLog] || A proprietary license || A bug resolution tool for Delphi and C++ Builder ||
+|| [http://code.google.com/p/acra/ ACRA] || Apache License 2.0 || A library for Android apps to post crash reports to a Google Doc form ||
+|| [http://code.google.com/p/recrash/ ReCrash] || MIT License ||  A debugging tool that captures java program crashes ||
+|| [http://code.google.com/p/bugback/ BugBack] || Apache License 2.0 || A tool for collecting crash data from Windows Forms apps ||
+|| [http://www.codeproject.com/KB/exception/littlecrashreporter.aspx Little Crash Reporter] || The GNU General Public License (GPLv3) || Collect crash data from a machine and send it to your email ||
 
 == What Windows versions crashrpt can work in? ==
 
