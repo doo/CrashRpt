@@ -590,9 +590,9 @@ Double-click on the minidump file name. This should open it using an associated 
 
 Alternatively, you can open the minidump file using `WinDbg` program from `Microsoft Debugging Tools`. It is freely distributed.
 
-== Can I open crash reports with `WinDbg`? ==
+== Can I open crash minidumps with `WinDbg`? ==
 
-Yes, you can open crash reports with `WinDbg` program that is a part of Debugging Tools for Windows.
+Yes, you can open crash minidumps (.DMP files) with `WinDbg` program that is a part of Debugging Tools for Windows.
 
 == How do I identify if the symbol files fit to a certain executable? ==
 
