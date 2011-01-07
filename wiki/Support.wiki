@@ -3,7 +3,7 @@
 <table border="0" cellpadding="10" cellspacing="10">
 <tr>
 <td><h2>[http://crashrpt.sourceforge.net Online Documentation]</h2></td>
-<td>The main source of CrashRpt documentation. Describes how to compile the library and use it in your project</td>
+<td>The main source of `CrashRpt` documentation. Describes how to compile the library and use it in your project</td>
 </tr>
 <tr>
 <td><h2>[FAQ]</h2></td>
