@@ -8,21 +8,20 @@
 
 ==What information do we collect?==
 
-We collect information from you when you send us an error report from *SOFTWARE NAME* program. 
+We collect information from you when you send us an error report from *SOFTWARE NAME* program, hereinafter referred to as the "Software". 
 
 The information includes:
-  * Crash description XML file containing the basic information about the crash
-  * Crash minidump file which contains technical information about exception in the * SOFTWARE NAME* program
-  * Desktop screenshot image file in PNG format containing the image of the application window or the image of the whole desktop
-  * *If your software adds other files (for example, logs), specify them here*
-
-You may be asked to enter your e-mail address and short problem description. This information is also included into the crash description XML.
+  * Crash description XML file (crashrpt.xml) containing the basic information about the crash (Software name and version, resource usage parameters, your Windows version, your country and language). You may be asked to enter your e-mail address and short problem description. This information is also included into the crash description XML file.
+  * Crash minidump file (crashdump.dmp) which contains technical information about exception in the Software (processor information, operating system version, process and thread information, stack traces for each thread, the list of loaded modules).
+  * Desktop screenshot image file in PNG format containing the image of the Software's main window or the image of the whole desktop.
+  * Registry key dump file that may contain the persistent settings of the Software.
+  * *If your Software adds other files (for example, logs), list them here*
 
 == What do we use your information for? ==
 
 Any of the information we collect from you may be used in one of the following ways: 
 
-  * To improve the *SOFTWARE NAME* software (we continually strive to improve our software based on the information and feedback we receive from you)
+  * To improve the Software (we continually strive to improve the Software based on the information and feedback we receive from you)
   * *If you use the information for other purposes, specify them here*
  
 == Do we disclose any information to outside parties? ==
