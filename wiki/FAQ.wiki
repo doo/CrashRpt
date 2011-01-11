@@ -34,6 +34,10 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
   * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
+== Are there any beginner's tutorials? ==
+
+You can read this article by Usman Javaid: [http://www.addictivetips.com/windows-tips/integrate-crash-report-mechanism-in-your-applications-developers/ Integrate Crash Report Mechanism In Your Applications].
+
 == Can I use crashrpt in a commercial application? ==
 
 According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use `CrashRpt` in any application.
