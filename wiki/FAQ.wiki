@@ -38,6 +38,8 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
 You can read this article by Usman Javaid: [http://www.addictivetips.com/windows-tips/integrate-crash-report-mechanism-in-your-applications-developers/ Integrate Crash Report Mechanism In Your Applications] on `addictivetips.com`.
 
+A good starting point for learning CrashRpt is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
+
 If you speak Russian you may read this article by Oleg Tarasenko: [http://rsdn.ru/article/files/libs/crashrpt.xml Using the CrashRpt Library] on `rsdn.ru`.
 
 == Can I use crashrpt in a commercial application? ==
