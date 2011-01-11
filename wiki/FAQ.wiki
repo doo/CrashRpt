@@ -169,7 +169,7 @@ The documentation is usually included into the `CrashRpt` archive. To open the d
 
 Online documentation for the latest `CrashRpt` version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
 
-For the users of obsolete `CrashRpt` v1.0, the documentation can be also found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx] article.
+For the users of obsolete `CrashRpt` v1.0, the documentation can be also found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article.
 
 == How do I properly install crashrpt? ==
 
