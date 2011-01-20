@@ -18,7 +18,7 @@
 || [http://www.winimage.com/zLibDll/minizip.html minizip] || [http://www.gzip.org/zlib/zlib_license.html zlib license] ||
 || [http://www.libpng.org/pub/png/libpng.html libpng] || [http://www.libpng.org/pub/png/src/libpng-LICENSE.txt libpng license] ||
 
-== Is crashrpt _fully_ open-source? ==
+== Is crashrpt a _fully_ open-source? ==
 
 Actually, the Microsoft Debug Help Library (`dbghelp.dll`) `CrashRpt` depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with `CrashRpt` to avoid problems with older `dbhelp.dll`'s versions installed on end-users` computers.
 
