@@ -88,7 +88,7 @@ public:
   int SetClipboard(CString& sData);
 
   ActionOnCancel m_ActionOnCancel;  
-  ActionOnCancel m_ActionOnClose;
+  ActionOnCancel m_ActionOnClose;  
 };
 
 

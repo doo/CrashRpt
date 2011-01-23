@@ -35,6 +35,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "AboutDlg.h"
+#include "DocumentDlg.h"
 
 #define WM_POSTCREATE (WM_USER+256)
 
@@ -55,6 +57,9 @@ public:
     MESSAGE_HANDLER(WM_POSTCREATE, OnPostCreate)		
 		COMMAND_ID_HANDLER(IDOK, OnOK)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
+    COMMAND_ID_HANDLER(ID_FILE_NEWWINDOW, OnFileNewWindow)
+    COMMAND_ID_HANDLER(ID_FILE_EXIT, OnCancel)
+    COMMAND_ID_HANDLER(ID_HELP_ABOUT, OnHelpAbout)
    
   END_MSG_MAP()
 
@@ -67,11 +72,15 @@ public:
   LRESULT OnPostCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);	
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-  
+  LRESULT OnFileNewWindow(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnHelpAbout(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 	void CloseDialog(int nVal);
   void DoCrash();
   BOOL m_bRestarted;
 
   CComboBox m_cboThread;
   CComboBox m_cboExcType;
+  CAboutDlg m_dlgAbout;
+  int m_nDocNum;
 };

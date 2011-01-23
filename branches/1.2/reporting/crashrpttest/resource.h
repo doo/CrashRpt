@@ -5,6 +5,8 @@
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDD_MAINDLG                     129
+#define IDR_MENU                        201
+#define IDD_DOCUMENT                    202
 #define IDC_MAIN_NOEXC                  1000
 #define IDC_MAIN_WIN32                  1001
 #define IDC_MAIN_TERM                   1002
@@ -46,18 +48,24 @@
 #define IDC_RADIO2                      1047
 #define IDC_RADIO3                      1048
 #define IDC_EDIT1                       1049
+#define IDC_EDIT                        1049
 #define IDC_EDIT2                       1050
 #define IDC_EDIT3                       1051
 #define IDC_CHECK2                      1052
 #define IDC_EDIT4                       1053
+#define IDC_VERSION                     1053
+#define IDC_LINK                        1054
+#define ID_FILE_NEWWINDOW               32772
+#define ID_FILE_EXIT                    32773
+#define ID_HELP_ABOUT                   32774
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        201
-#define _APS_NEXT_COMMAND_VALUE         32772
-#define _APS_NEXT_CONTROL_VALUE         1053
+#define _APS_NEXT_RESOURCE_VALUE        203
+#define _APS_NEXT_COMMAND_VALUE         32775
+#define _APS_NEXT_CONTROL_VALUE         1055
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -228,7 +228,7 @@ public:
   CString m_sImageName;          // Process image name.
   DWORD m_dwFlags;               // Flags.
   MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
-  BOOL m_bAppRestart;            // Should we restart the app or not.
+  //BOOL m_bAppRestart;            // This is packed into dwFlags
   CString m_sRestartCmdLine;     // App restart command line.
   CString m_sUrl;                // Url to use when sending error report over HTTP.  
   CString m_sEmailTo;            // E-mail recipient.

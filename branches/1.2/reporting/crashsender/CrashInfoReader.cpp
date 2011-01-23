@@ -119,6 +119,9 @@ int CCrashInfoReader::UnpackCrashDescription()
   if(memcmp(m_pCrashDesc->m_uchMagic, "CRD", 3)!=0)
     return 1; // Invalid magic word
 
+  if(m_pCrashDesc->m_dwCrashRptVer!=CRASHRPT_VER)
+    return 2; // Invalid CrashRpt version
+
   ErrorReportInfo eri;
   
   // Unpack process ID, thread ID and exception pointers address.
@@ -143,6 +146,12 @@ int CCrashInfoReader::UnpackCrashDescription()
     m_uInvParamLine = m_pCrashDesc->m_uInvParamLine;
   }
 
+  // Unpack other info
+  UnpackString(m_pCrashDesc->m_dwAppNameOffs, eri.m_sAppName);
+  m_sAppName = eri.m_sAppName;
+  UnpackString(m_pCrashDesc->m_dwAppVersionOffs, eri.m_sAppVersion);  
+  UnpackString(m_pCrashDesc->m_dwCrashGUIDOffs, eri.m_sCrashGUID);  
+  UnpackString(m_pCrashDesc->m_dwImageNameOffs, eri.m_sImageName);  
   // Unpack install flags
   DWORD dwInstallFlags = m_pCrashDesc->m_dwInstallFlags;   
   m_bHttpBinaryEncoding = (dwInstallFlags&CR_INST_HTTP_BINARY_ENCODING)!=0;
@@ -152,24 +161,25 @@ int CCrashInfoReader::UnpackCrashDescription()
   m_bAppRestart = (dwInstallFlags&CR_INST_APP_RESTART)!=0;
   m_bGenerateMinidump = (dwInstallFlags&CR_INST_NO_MINIDUMP)==0;
   m_bQueueEnabled = (dwInstallFlags&CR_INST_SEND_QUEUED_REPORTS)!=0;
-
-  UnpackString(m_pCrashDesc->m_dwAppNameOffs, eri.m_sAppName);
-  m_sAppName = eri.m_sAppName;
-  UnpackString(m_pCrashDesc->m_dwAppVersionOffs, eri.m_sAppVersion);  
-  UnpackString(m_pCrashDesc->m_dwCrashGUIDOffs, eri.m_sCrashGUID);  
-  UnpackString(m_pCrashDesc->m_dwImageNameOffs, eri.m_sImageName);  
-  UnpackString(m_pCrashDesc->m_dwLangFileNameOffs, m_sLangFileName);
-  UnpackString(m_pCrashDesc->m_dwEmailSubjectOffs, m_sEmailSubject);
-  UnpackString(m_pCrashDesc->m_dwEmailTextOffs, m_sEmailText);
+  m_MinidumpType = m_pCrashDesc->m_MinidumpType;
+  //m_bAppRestart = m_pCrashDesc->m_bAppRestart (unpacked from dwFlags);
+  UnpackString(m_pCrashDesc->m_dwRestartCmdLineOffs, m_sRestartCmdLine);
+  UnpackString(m_pCrashDesc->m_dwUrlOffs, m_sUrl);
   UnpackString(m_pCrashDesc->m_dwEmailToOffs, m_sEmailTo);  
-  UnpackString(m_pCrashDesc->m_dwUnsentCrashReportsFolderOffs, m_sUnsentCrashReportsFolder);
-  UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);
-  UnpackString(m_pCrashDesc->m_dwPathToDebugHelpDllOffs, m_sDbgHelpPath);
   m_nSmtpPort = m_pCrashDesc->m_nSmtpPort;
+  UnpackString(m_pCrashDesc->m_dwSmtpProxyServerOffs, m_sSmtpProxyServer);
   m_nSmtpProxyPort = m_pCrashDesc->m_nSmtpProxyPort;
+  UnpackString(m_pCrashDesc->m_dwEmailSubjectOffs, m_sEmailSubject);
+  UnpackString(m_pCrashDesc->m_dwEmailTextOffs, m_sEmailText);  
+  memcpy(m_uPriorities, m_pCrashDesc->m_uPriorities, sizeof(UINT)*3);
+  UnpackString(m_pCrashDesc->m_dwPrivacyPolicyURLOffs, m_sPrivacyPolicyURL);
+  UnpackString(m_pCrashDesc->m_dwLangFileNameOffs, m_sLangFileName);  
+  UnpackString(m_pCrashDesc->m_dwPathToDebugHelpDllOffs, m_sDbgHelpPath);
+  UnpackString(m_pCrashDesc->m_dwUnsentCrashReportsFolderOffs, m_sUnsentCrashReportsFolder);
   m_bAddScreenshot = m_pCrashDesc->m_bAddScreenshot;
-  m_dwScreenshotFlags = m_pCrashDesc->m_dwScreenshotFlags;
-
+  m_dwScreenshotFlags = m_pCrashDesc->m_dwScreenshotFlags;  
+  UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);  
+  
   DWORD dwOffs = m_pCrashDesc->m_wSize;
   while(dwOffs<m_pCrashDesc->m_dwTotalSize)
   {
@@ -337,8 +347,8 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
 
   // Determine the period of time the process is working.
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  BOOL bGetTimes = GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime);
-  ATLASSERT(bGetTimes);
+  /*BOOL bGetTimes = */GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime);
+  /*ATLASSERT(bGetTimes);*/
   SYSTEMTIME AppStartTime;
   FileTimeToSystemTime(&CreationTime, &AppStartTime);
 

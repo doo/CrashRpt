@@ -57,7 +57,7 @@ public:
   void SetExportFlag(BOOL bExport, CString sExportFile);
 
   void WaitForCompletion();
-
+  int GetGlobalStatus();
   void GetStatus(int& nProgressPct, std::vector<CString>& msg_log);
   void Cancel();
   void FeedbackReady(int code);
@@ -95,6 +95,7 @@ public:
   BOOL SendOverSMTP();
   BOOL SendOverSMAPI();
 
+  int m_nGlobalStatus;
   int m_nCurReport;
   HANDLE m_hThread;                   // Handle to the worker thread
   int m_SendAttempt;                  // Number of current sending attempt

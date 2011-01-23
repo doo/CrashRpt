@@ -51,6 +51,7 @@ CErrorReportSender g_ErrorReportSender;
 
 CErrorReportSender::CErrorReportSender()
 {
+  m_nGlobalStatus = 0;
   m_hThread = NULL;
   m_SendAttempt = 0;
   m_Action=COLLECT_CRASH_INFO;
@@ -60,6 +61,11 @@ CErrorReportSender::CErrorReportSender()
 
 CErrorReportSender::~CErrorReportSender()
 {
+}
+
+int CErrorReportSender::GetGlobalStatus()
+{
+  return m_nGlobalStatus;
 }
 
 int CErrorReportSender::GetCurReport()
@@ -1513,8 +1519,8 @@ BOOL CErrorReportSender::SendReport()
     }
   }
 
-  m_Assync.SetCompleted(status);
-  
+  m_nGlobalStatus = status;
+  m_Assync.SetCompleted(status);  
   return 0;
 }
 

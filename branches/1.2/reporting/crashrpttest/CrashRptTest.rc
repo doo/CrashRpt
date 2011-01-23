@@ -60,19 +60,23 @@ IDR_MAINFRAME           ICON                    "res\\CrashRptTest.ico"
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 187, 70
+IDD_ABOUTBOX DIALOGEX 0, 0, 187, 95
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,68,49,50,14
-    ICON            IDR_MAINFRAME,IDC_STATIC,23,17,21,20
-    LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,51,22,114,8
+    DEFPUSHBUTTON   "OK",IDOK,68,74,50,14
+    ICON            IDR_MAINFRAME,IDC_STATIC,10,9,21,20
+    LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,42,14,137,8
+    LTEXT           "Version:",IDC_VERSION,42,28,138,8
+    LTEXT           "Copyright (c) 2003-2011 Mikhael Carruth",IDC_STATIC,42,43,138,8
+    LTEXT           "Visit CrashRpt project site",IDC_LINK,42,58,138,11
 END
 
 IDD_MAINDLG DIALOGEX 0, 0, 298, 191
 STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
 CAPTION "CrashRptTest"
+MENU IDR_MENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     PUSHBUTTON      "Quit",IDCANCEL,152,169,60,14
@@ -81,7 +85,15 @@ BEGIN
     COMBOBOX        IDC_EXCTYPE,7,94,284,93,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Exception type:",IDC_STATIC,7,83,50,8
     DEFPUSHBUTTON   "Crash!",IDOK,77,169,60,14
-    LTEXT           "Select a thread and exception type and press the ""Crash"" button.",IDC_STATIC,7,7,284,21
+    LTEXT           "Select a thread and exception type and press the ""Crash"" button.",IDC_STATIC,7,14,284,21
+END
+
+IDD_DOCUMENT DIALOGEX 0, 0, 299, 162
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Document 1"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_EDIT,7,7,285,148,ES_MULTILINE | ES_AUTOHSCROLL,WS_EX_CLIENTEDGE
 END
 
 
@@ -97,8 +109,9 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 180
+        VERTGUIDE, 42
         TOPMARGIN, 7
-        BOTTOMMARGIN, 63
+        BOTTOMMARGIN, 88
     END
 
     IDD_MAINDLG, DIALOG
@@ -107,6 +120,14 @@ BEGIN
         RIGHTMARGIN, 291
         TOPMARGIN, 7
         BOTTOMMARGIN, 183
+    END
+
+    IDD_DOCUMENT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 292
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 155
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -161,7 +182,7 @@ BEGIN
             VALUE "FileDescription", "CrashRptTest Module"
             VALUE "FileVersion", "1, 2, 0, 8"
             VALUE "InternalName", "CrashRptTest"
-            VALUE "LegalCopyright", "Copyright 2003-2010"
+            VALUE "LegalCopyright", "Copyright 2003-2011 Mikhael Carruth"
             VALUE "OriginalFilename", "CrashRptTest.exe"
             VALUE "ProductName", "CrashRptTest Module"
             VALUE "ProductVersion", "1, 2, 0, 8"
@@ -180,6 +201,26 @@ END
 //
 
 1                       RT_MANIFEST             "res\\CrashRptTest.exe.manifest"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU MENU 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "New window",                  ID_FILE_NEWWINDOW
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        ID_FILE_EXIT
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "About...",                    ID_HELP_ABOUT
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

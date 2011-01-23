@@ -113,6 +113,7 @@ public:
 
   /* Member variables. */
 
+  int         m_nCrashRptVersion;     // CrashRpt version sent through shared memory
   CString     m_sUnsentCrashReportsFolder; // Path to UnsentCrashReports folder for the application.
   CString     m_sLangFileName;        // Path to language INI file.
   CString     m_sDbgHelpPath;         // Path to dbghelp.dll.

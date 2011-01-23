@@ -36,6 +36,8 @@
 
 #include "stdafx.h"
 #include "resource.h"
+#include "AboutDlg.h"
+#include "DocumentDlg.h"
 #include "MainDlg.h"
 #include "CrashThread.h"
 #include <assert.h>
@@ -126,6 +128,10 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
   m_cboExcType.SetCurSel(0);
 
+  m_dlgAbout.Create(m_hWnd);
+
+  m_nDocNum = 0;
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -202,3 +208,19 @@ void CMainDlg::DoCrash()
   }
 }
 
+LRESULT CMainDlg::OnFileNewWindow(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CDocumentDlg* pDlg = new CDocumentDlg();
+  pDlg->Create(m_hWnd);
+  pDlg->ShowWindow(SW_SHOW);
+  CString sTitle;
+  sTitle.Format(_T("Document %d"), ++m_nDocNum);
+  pDlg->SetWindowText(sTitle);
+  return 0;
+}
+
+LRESULT CMainDlg::OnHelpAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{    
+  m_dlgAbout.ShowWindow(SW_SHOW);
+  return 0;
+}

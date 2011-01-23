@@ -65,7 +65,7 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("Cancel")));
 
   m_ActionOnCancel = DONT_CLOSE;
-  m_ActionOnClose = CLOSE_MYSELF;
+  m_ActionOnClose = CLOSE_MYSELF;  
 
   DlgResize_Init();
 
@@ -248,14 +248,14 @@ LRESULT CProgressDlg::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, B
       else if(messages[i].CompareNoCase(_T("[status_success]"))==0)
       {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;        
-        m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
+        m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;        
         HWND hWndParent = ::GetParent(m_hWnd);        
         ::PostMessage(hWndParent, WM_CLOSE, 0, 0);
       }
       else if(messages[i].CompareNoCase(_T("[status_failed]"))==0)
       {         
         m_ActionOnCancel = CLOSE_MYSELF_AND_PARENT;
-        m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;
+        m_ActionOnClose = CLOSE_MYSELF_AND_PARENT;        
         KillTimer(1);
         m_statText.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ProgressDlg"), _T("CompletedWithErrors")));
                 

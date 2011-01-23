@@ -93,6 +93,7 @@ struct CRASH_DESCRIPTION
   int m_nSmtpProxyPort;          // Smtp proxy port.
   UINT m_uPriorities[3];         // Delivery priorities.
   MINIDUMP_TYPE m_MinidumpType;  // Minidump type.
+  //BOOL m_bAppRestart;            // Packed into flags
   BOOL  m_bAddScreenshot;        // Add screenshot?
   DWORD m_dwScreenshotFlags;     // Screenshot flags.
   DWORD m_dwUrlOffs;             // Offset of recipient URL.

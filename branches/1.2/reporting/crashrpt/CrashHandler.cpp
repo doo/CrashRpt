@@ -68,7 +68,7 @@ CCrashHandler::CCrashHandler()
   m_bInitialized = FALSE;  
   m_dwFlags = 0;
   m_MinidumpType = MiniDumpNormal;
-  m_bAppRestart = FALSE;  
+  //m_bAppRestart = FALSE;  
   m_nSmtpPort = 25;
   m_nSmtpProxyPort = 2525;
   memset(&m_uPriorities, 0, 3*sizeof(UINT));    
@@ -195,7 +195,7 @@ int CCrashHandler::Init(
     return 1;
   }
   
-  m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
+  //m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
 
   m_sRestartCmdLine = lpcszRestartCmdLine;
 
@@ -493,7 +493,9 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
   m_pTmpCrashDesc->m_MinidumpType = m_MinidumpType;
   m_pTmpCrashDesc->m_nSmtpPort = m_nSmtpPort;
   m_pTmpCrashDesc->m_nSmtpProxyPort = m_nSmtpProxyPort;
-  m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;
+  m_pTmpCrashDesc->m_bAddScreenshot = m_bAddScreenshot;
+  m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;  
+  //m_pTmpCrashDesc->m_bAppRestart = m_bAppRestart;
   memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
 
   m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
@@ -501,16 +503,16 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
   m_pTmpCrashDesc->m_dwCrashGUIDOffs = PackString(m_sCrashGUID);
   m_pTmpCrashDesc->m_dwImageNameOffs = PackString(m_sImageName);
   m_pTmpCrashDesc->m_dwLangFileNameOffs = PackString(m_sLangFileName);
-  m_pTmpCrashDesc->m_dwUrlOffs = PackString(m_sUrl);
-  m_pTmpCrashDesc->m_dwRestartCmdLineOffs = PackString(m_sRestartCmdLine);
-  m_pTmpCrashDesc->m_dwEmailToOffs = PackString(m_sEmailTo);  
-  m_pTmpCrashDesc->m_dwUnsentCrashReportsFolderOffs = PackString(m_sUnsentCrashReportsFolder);
-  m_pTmpCrashDesc->m_dwPrivacyPolicyURLOffs = PackString(m_sPrivacyPolicyURL);
-  m_pTmpCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
-  m_pTmpCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);
-  m_pTmpCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);
   m_pTmpCrashDesc->m_dwPathToDebugHelpDllOffs = PackString(m_sPathToDebugHelpDll);
+  m_pTmpCrashDesc->m_dwRestartCmdLineOffs = PackString(m_sRestartCmdLine);
+  m_pTmpCrashDesc->m_dwPrivacyPolicyURLOffs = PackString(m_sPrivacyPolicyURL);
+  m_pTmpCrashDesc->m_dwUnsentCrashReportsFolderOffs = PackString(m_sUnsentCrashReportsFolder);  
   m_pTmpCrashDesc->m_dwCustomSenderIconOffs = PackString(m_sCustomSenderIcon);
+  m_pTmpCrashDesc->m_dwUrlOffs = PackString(m_sUrl);    
+  m_pTmpCrashDesc->m_dwEmailToOffs = PackString(m_sEmailTo);
+  m_pTmpCrashDesc->m_dwEmailSubjectOffs = PackString(m_sEmailSubject);
+  m_pTmpCrashDesc->m_dwEmailTextOffs = PackString(m_sEmailText);  
+  m_pTmpCrashDesc->m_dwSmtpProxyServerOffs = PackString(m_sSmtpProxyServer);    
 
   return m_pTmpCrashDesc;
 }

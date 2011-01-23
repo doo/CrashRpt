@@ -305,7 +305,7 @@ BEGIN
             VALUE "FileDescription", "CrashSender Module"
             VALUE "FileVersion", "1, 2, 0, 8"
             VALUE "InternalName", "CrashSender"
-            VALUE "LegalCopyright", "Copyright 2009-2010"
+            VALUE "LegalCopyright", "Copyright 2003-2011 Mikhael Carruth"
             VALUE "OriginalFilename", "CrashSender.exe"
             VALUE "ProductName", "CrashSender Module"
             VALUE "ProductVersion", "1, 2, 0, 8"
