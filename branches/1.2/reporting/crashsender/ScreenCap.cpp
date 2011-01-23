@@ -114,7 +114,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   {
     // Init JPG writer
     sFileName.Format(_T("%s\\screenshot%d.jpg"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
-    BOOL bInit = psc->JpegInit(nWidth, nHeight, psc->m_bGrayscale, 95, sFileName);
+    BOOL bInit = psc->JpegInit(nWidth, nHeight, psc->m_bGrayscale, psc->m_nJpegQuality, sFileName);
     if(!bInit)
       goto cleanup;
   }
@@ -214,6 +214,7 @@ BOOL CScreenCapture::CaptureScreenRect(
   CString sSaveDirName,   
   int nIdStartFrom, 
   SCREENSHOT_IMAGE_FORMAT fmt,
+  int nJpegQuality,
   BOOL bGrayscale,
   std::vector<MonitorInfo>& monitor_list,
   std::vector<CString>& out_file_list)
@@ -226,6 +227,7 @@ BOOL CScreenCapture::CaptureScreenRect(
   m_nIdStartFrom = nIdStartFrom;
   m_sSaveDirName = sSaveDirName;
   m_fmt = fmt;
+  m_nJpegQuality = nJpegQuality;
   m_bGrayscale = bGrayscale;
   m_arcCapture = arcCapture;
   m_out_file_list.clear();

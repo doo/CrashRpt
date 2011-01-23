@@ -84,6 +84,7 @@ public:
     CString sSaveDirName, 
     int nIdStartFrom, 
     SCREENSHOT_IMAGE_FORMAT fmt, 
+    int nJpegQuality,
     BOOL bGrayscale,
     std::vector<MonitorInfo>& monitor_list,
     std::vector<CString>& out_file_list);
@@ -113,6 +114,7 @@ public:
   int m_nIdStartFrom;                   // An ID for the current screenshot image 
   CString m_sSaveDirName;               // Directory name to save screenshots to
   SCREENSHOT_IMAGE_FORMAT m_fmt;        // Image format
+  int m_nJpegQuality;
   BOOL m_bGrayscale;
   FILE* m_fp;                           // Handle to the file
   png_structp m_png_ptr;                // libpng stuff

@@ -28,5 +28,6 @@ EXPORTS
    crGetLastErrorMsgA  @24
    crAddRegKeyW        @25
    crAddRegKeyA        @26
+   crAddScreenshot2    @27
    
 

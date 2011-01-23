@@ -63,17 +63,18 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	// center the dialog on the screen
 	CenterWindow();
 	
+  HICON hIcon = NULL;
+
+  hIcon = GetCustomIcon();
+  if(!hIcon)
+    ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+
   // Set window icon
-  SetIcon(::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME)), 0);
+  SetIcon(hIcon, 0);
 
-  // Load heading icon
-  HMODULE hExeModule = LoadLibrary(g_CrashInfo.GetReport(0).m_sImageName);
-  if(hExeModule)
-  {
-    // Use IDR_MAINFRAME icon which is the default one for the crashed application.
-    m_HeadingIcon = ::LoadIcon(hExeModule, MAKEINTRESOURCE(IDR_MAINFRAME));
-  }  
-
+  // Get the first icon in the EXE image
+  m_HeadingIcon = ExtractIcon(NULL, g_CrashInfo.GetReport(0).m_sImageName, 0);
+  
   // If there is no IDR_MAINFRAME icon in crashed EXE module, use IDI_APPLICATION system icon
   if(m_HeadingIcon == NULL)
   {
@@ -181,6 +182,48 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	UIAddChildWindowContainer(m_hWnd);
 
 	return TRUE;
+}
+
+HICON CErrorReportDlg::GetCustomIcon()
+{
+  if(!g_CrashInfo.m_sCustomSenderIcon.IsEmpty())
+  {
+    CString sResourceFile;
+    CString sIconIndex;
+    int nIconIndex = 0;
+
+    int nComma = g_CrashInfo.m_sCustomSenderIcon.ReverseFind(',');    
+    if(nComma>=0)
+    {
+      sResourceFile = g_CrashInfo.m_sCustomSenderIcon.Left(nComma);      
+      sIconIndex = g_CrashInfo.m_sCustomSenderIcon.Mid(nComma+1);
+      sIconIndex.TrimLeft();
+      sIconIndex.TrimRight();
+      nIconIndex = _ttoi(sIconIndex);      
+    }
+    else
+    {
+      sResourceFile = g_CrashInfo.m_sCustomSenderIcon;
+    }
+
+    sResourceFile.TrimRight();        
+
+    if(nIconIndex<=0)
+    {      
+      return NULL;
+    }
+
+    // Check that custom icon can be loaded
+    HICON hIcon = ExtractIcon(NULL, sResourceFile, -nIconIndex);
+    if(hIcon==NULL)
+    {      
+      return NULL;
+    }
+
+    return hIcon;
+  }
+
+  return NULL;
 }
 
 void CErrorReportDlg::ShowMoreInfo(BOOL bShow)

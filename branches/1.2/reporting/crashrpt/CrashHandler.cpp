@@ -75,6 +75,7 @@ CCrashHandler::CCrashHandler()
   m_lpfnCallback = NULL;
   m_bAddScreenshot = FALSE;
   m_dwScreenshotFlags = 0;    
+  m_nJpegQuality = 95;
   m_hEvent = NULL;  
   m_pCrashDesc = NULL;
 
@@ -169,8 +170,14 @@ int CCrashHandler::Init(
 
     sResourceFile.TrimRight();        
 
+    if(nIconIndex<=0)
+    {
+      crSetErrorMsg(_T("Invalid index of custom icon."));
+      return 1;
+    }
+
     // Check that custom icon can be loaded
-    HICON hIcon = ExtractIcon(NULL, sResourceFile, nIconIndex);
+    HICON hIcon = ExtractIcon(NULL, sResourceFile, -nIconIndex);
     if(hIcon==NULL)
     {
       crSetErrorMsg(_T("Custom icon couldn't be loaded."));
@@ -969,16 +976,24 @@ int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
   return 0;
 }
 
-int CCrashHandler::AddScreenshot(DWORD dwFlags)
+int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
 { 
   crSetErrorMsg(_T("Unspecified error."));
 
+  if(nJpegQuality<0 || nJpegQuality>100)
+  {
+    crSetErrorMsg(_T("Invalid Jpeg quality."));
+    return 1;
+  }
+
   m_bAddScreenshot = TRUE;
   m_dwScreenshotFlags = dwFlags;
+  m_nJpegQuality = nJpegQuality;
 
   // Pack this info into shared memory
   m_pCrashDesc->m_bAddScreenshot = TRUE;
   m_pCrashDesc->m_dwScreenshotFlags = dwFlags;
+  m_pCrashDesc->m_nJpegQuality = nJpegQuality;
 
   crSetErrorMsg(_T("Success."));
   return 0;

@@ -303,7 +303,8 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   std::vector<MonitorInfo> monitor_list;
   BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
       g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 
-      0, fmt, bGrayscale, monitor_list, screenshot_names);
+      0, fmt, g_CrashInfo.m_nJpegQuality, bGrayscale, 
+      monitor_list, screenshot_names);
   if(bTakeScreenshot==FALSE)
   {
     return FALSE;

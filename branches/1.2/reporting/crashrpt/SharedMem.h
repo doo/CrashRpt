@@ -96,6 +96,7 @@ struct CRASH_DESCRIPTION
   //BOOL m_bAppRestart;            // Packed into flags
   BOOL  m_bAddScreenshot;        // Add screenshot?
   DWORD m_dwScreenshotFlags;     // Screenshot flags.
+  int m_nJpegQuality;            // Jpeg image quality.
   DWORD m_dwUrlOffs;             // Offset of recipient URL.
   DWORD m_dwAppNameOffs;         // Offset of application name.
   DWORD m_dwAppVersionOffs;      // Offset of app version.

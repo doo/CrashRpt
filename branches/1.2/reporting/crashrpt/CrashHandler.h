@@ -117,7 +117,7 @@ public:
   int AddProperty(CString sPropName, CString sPropValue);
 
   // Adds desktop screenshot on crash
-  int AddScreenshot(DWORD dwFlags);
+  int AddScreenshot(DWORD dwFlags, int nJpegQuality);
 
   // Adds a registry key 
   int AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags);
@@ -246,6 +246,7 @@ public:
   LPGETLOGFILE m_lpfnCallback;   // Client crash callback.    
   BOOL m_bAddScreenshot;         // Should we add screenshot?
   DWORD m_dwScreenshotFlags;     // Screenshot flags.
+  int m_nJpegQuality;
   CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
   std::map<CString, FileItem> m_files; // File items to include.
   std::map<CString, CString> m_props;  // User-defined properties to include.

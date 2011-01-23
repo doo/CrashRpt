@@ -177,7 +177,8 @@ int CCrashInfoReader::UnpackCrashDescription()
   UnpackString(m_pCrashDesc->m_dwPathToDebugHelpDllOffs, m_sDbgHelpPath);
   UnpackString(m_pCrashDesc->m_dwUnsentCrashReportsFolderOffs, m_sUnsentCrashReportsFolder);
   m_bAddScreenshot = m_pCrashDesc->m_bAddScreenshot;
-  m_dwScreenshotFlags = m_pCrashDesc->m_dwScreenshotFlags;  
+  m_dwScreenshotFlags = m_pCrashDesc->m_dwScreenshotFlags; 
+  m_nJpegQuality = m_pCrashDesc->m_nJpegQuality;
   UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);  
   
   DWORD dwOffs = m_pCrashDesc->m_wSize;

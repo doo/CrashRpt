@@ -153,6 +153,7 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
   LPCTSTR ptszLangFilePath = strconv.w2t((LPWSTR)pInfo->pszLangFilePath);
   LPCTSTR ptszEmailText = strconv.w2t((LPWSTR)pInfo->pszEmailText);
   LPCTSTR ptszSmtpProxy = strconv.w2t((LPWSTR)pInfo->pszSmtpProxy);
+  LPCTSTR ptszCustomSenderIcon = strconv.w2t((LPWSTR)pInfo->pszCustomSenderIcon);
 
   int nInitResult = pCrashHandler->Init(
     ptszAppName, 
@@ -171,7 +172,8 @@ CRASHRPTAPI(int) crInstallW(CR_INSTALL_INFOW* pInfo)
     ptszRestartCmdLine,
     ptszLangFilePath,
     ptszEmailText,
-    ptszSmtpProxy
+    ptszSmtpProxy,
+    ptszCustomSenderIcon
     );
   
   if(nInitResult!=0)
@@ -375,6 +377,15 @@ crAddScreenshot(
    DWORD dwFlags
    )
 {
+  return crAddScreenshot2(dwFlags, 95);
+}
+
+CRASHRPTAPI(int)
+crAddScreenshot2(
+   DWORD dwFlags,
+   int nJpegQuality
+   )
+{
   crSetErrorMsg(_T("Unspecified error."));
   
   CCrashHandler *pCrashHandler = 
@@ -386,7 +397,7 @@ crAddScreenshot(
     return 1; // Invalid parameter?
   }
 
-  return pCrashHandler->AddScreenshot(dwFlags);
+  return pCrashHandler->AddScreenshot(dwFlags, nJpegQuality);
 }
 
 CRASHRPTAPI(int)

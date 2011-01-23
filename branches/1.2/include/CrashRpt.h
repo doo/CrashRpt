@@ -938,6 +938,9 @@ crAddFile2A(
  *  In addition, you can specify the \ref CR_AS_GRAYSCALE_IMAGE flag to make a grayscale screenshot 
  *  (by default color image is made). Grayscale image gives smaller file size.
  *
+ *  If you use JPEG image format, you may better use the \ref crAddScreenshot2() function, that allows to
+ *  define JPEG image quality.
+ *
  *  When capturing entire desktop consisting of several monitors, 
  *  one screenshot file is added per each monitor. 
  *
@@ -952,6 +955,57 @@ crAddFile2A(
 CRASHRPTAPI(int)
 crAddScreenshot(
    DWORD dwFlags
+   );
+
+/*! \ingroup CrashRptAPI  
+ *  \brief Adds a screenshot to the crash report.
+ * 
+ *  \return This function returns zero if succeeded.
+ *
+ *  \param[in] dwFlags Flags.
+ *  \param[in] nJpegQuality Defines the JPEG image quality.
+ *  
+ *  \remarks 
+ * 
+ *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
+ *  Screenshot information may help the developer to better understand state of the application
+ *  at the moment of crash and reproduce the error.
+ *
+ *  When this function is called, screenshot flags are saved, then the function returns control to the caller.
+ *  When crash occurs, screenshot is made by the \b CrashSender.exe process and added to the report. 
+ * 
+ *  \b dwFlags 
+ *
+ *    Use one of the following constants to specify what part of virtual screen to capture:
+ *    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
+ *    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the application's main window.
+ *    - \ref CR_AS_PROCESS_WINDOWS Use this to take a screenshot of all visible windows that belong to the process.
+ * 
+ *
+ *  Screenshots are added in form of PNG files by default. You can specify the \ref CR_AS_USE_JPEG_FORMAT flag to save
+ *  screenshots as JPEG files instead. 
+ *
+ *  If you use JPEG format, you can use the \a nJpegQuality parameter to define the JPEG image quality. 
+ *  This should be the number between 0 and 100, inclusively. 
+ *
+ *  In addition, you can specify the \ref CR_AS_GRAYSCALE_IMAGE flag to make a grayscale screenshot 
+ *  (by default color image is made). Grayscale image gives smaller file size.
+ *
+ *  When capturing entire desktop consisting of several monitors, 
+ *  one screenshot file is added per each monitor. 
+ *
+ *  You should be careful when using this feature, because screenshots may contain user-identifying 
+ *  or private information. Always specify purposes you will use collected 
+ *  information for in your Privacy Policy. 
+ *
+ *  \sa
+ *   crAddFile2(), crAddScreenShot()
+ */
+
+CRASHRPTAPI(int)
+crAddScreenshot2(
+   DWORD dwFlags,
+   int nJpegQuality
    );
 
 /*! \ingroup CrashRptAPI  

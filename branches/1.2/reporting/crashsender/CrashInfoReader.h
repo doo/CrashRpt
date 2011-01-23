@@ -139,6 +139,7 @@ public:
   MINIDUMP_TYPE m_MinidumpType;       // Minidump type.
   BOOL        m_bAddScreenshot;       // Should we add a desktop screenshot?
   DWORD       m_dwScreenshotFlags;    // Screenshot options.
+  int         m_nJpegQuality;         // Jpeg image quality.
   CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
   CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
   BOOL        m_bQueueEnabled;        // Can reports be send later or not (queue enabled)?

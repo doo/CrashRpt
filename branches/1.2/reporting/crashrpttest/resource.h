@@ -7,6 +7,7 @@
 #define IDD_MAINDLG                     129
 #define IDR_MENU                        201
 #define IDD_DOCUMENT                    202
+#define IDI_KEYS                        203
 #define IDC_MAIN_NOEXC                  1000
 #define IDC_MAIN_WIN32                  1001
 #define IDC_MAIN_TERM                   1002
@@ -63,7 +64,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        203
+#define _APS_NEXT_RESOURCE_VALUE        204
 #define _APS_NEXT_COMMAND_VALUE         32775
 #define _APS_NEXT_CONTROL_VALUE         1055
 #define _APS_NEXT_SYMED_VALUE           101

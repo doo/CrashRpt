@@ -697,6 +697,10 @@
 				RelativePath=".\CrashRptTest.rc"
 				>
 			</File>
+			<File
+				RelativePath=".\res\Keys.ico"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
