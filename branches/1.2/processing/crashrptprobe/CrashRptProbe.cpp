@@ -1070,7 +1070,11 @@ crpGetPropertyW(
           sSymLoadStatus = _T("Symbols loaded.");          
       }
 
+#if _MSC_VER < 1400
+      _tcscpy(szBuff, sSymLoadStatus.GetBuffer(0));
+#else
       _tcscpy_s(szBuff, BUFF_SIZE, sSymLoadStatus.GetBuffer(0));
+#endif
 
       pszPropVal = strconv.t2w(szBuff);          
     }    

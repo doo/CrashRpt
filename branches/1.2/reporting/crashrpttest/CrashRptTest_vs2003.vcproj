@@ -249,7 +249,13 @@ copy dummy.ini ..\..\bin
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
+				RelativePath=".\AboutDlg.h">
+			</File>
+			<File
 				RelativePath=".\CrashThread.h">
+			</File>
+			<File
+				RelativePath=".\DocumentDlg.h">
 			</File>
 			<File
 				RelativePath=".\MainDlg.h">

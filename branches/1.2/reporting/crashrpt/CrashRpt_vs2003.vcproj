@@ -181,6 +181,9 @@
 				RelativePath=".\CrashRpt.rc">
 			</File>
 			<File
+				RelativePath=".\SharedMem.cpp">
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp">
 			</File>
 			<File

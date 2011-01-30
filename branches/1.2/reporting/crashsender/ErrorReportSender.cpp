@@ -1397,8 +1397,11 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
       goto cleanup;
     }
     
-    
+#if _MSC_VER <1400
+    f = _tfopen(m_sZipName + _T(".md5"), _T("wt"));
+#else
     _tfopen_s(&f, m_sZipName + _T(".md5"), _T("wt"));
+#endif
     if(f==NULL)
     {
       sMsg.Format(_T("Couldn't save MD5 hash for file %s"), m_sZipName);

@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib minizipd.lib version.lib libpngd.lib psapi.lib"
+				AdditionalDependencies="jpegd.lib tinyxmld.lib zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib minizipd.lib version.lib libpngd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSenderd.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib"
@@ -247,6 +247,9 @@
 				RelativePath=".\ScreenCap.cpp">
 			</File>
 			<File
+				RelativePath="..\crashrpt\SharedMem.cpp">
+			</File>
+			<File
 				RelativePath=".\smtpclient.cpp">
 			</File>
 			<File
@@ -273,21 +276,6 @@
 			<File
 				RelativePath="..\crashrpt\Utility.cpp">
 			</File>
-			<Filter
-				Name="tinyxml">
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinystr.cpp">
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxml.cpp">
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxmlerror.cpp">
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxmlparser.cpp">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -343,15 +331,6 @@
 			<File
 				RelativePath="..\..\crashrpt\src\Utility.h">
 			</File>
-			<Filter
-				Name="tinyxml">
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinystr.h">
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxml.h">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

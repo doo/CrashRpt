@@ -407,7 +407,11 @@ BOOL CScreenCapture::JpegInit(int nWidth, int nHeight, BOOL bGrayscale, int nQua
 
   /* Step 2: specify data destination (eg, a file) */
 
+#if _MSC_VER < 1400
+  m_fp = _tfopen(sFileName, _T("wb"));
+#else
   _tfopen_s(&m_fp, sFileName, _T("wb"));
+#endif
   if(m_fp==NULL)
     return FALSE;
 

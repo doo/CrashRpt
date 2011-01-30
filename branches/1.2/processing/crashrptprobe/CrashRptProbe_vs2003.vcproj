@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib minizipd.lib version.lib  zlibd.lib psapi.lib"
+				AdditionalDependencies="tinyxmld.lib dbghelp.lib Rpcrt4.lib minizipd.lib version.lib  zlibd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbed.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
@@ -214,69 +214,6 @@
 			<File
 				RelativePath="..\..\reporting\crashrpt\Utility.cpp">
 			</File>
-			<Filter
-				Name="tinyxml">
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinystr.cpp">
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxml.cpp">
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxmlerror.cpp">
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxmlparser.cpp">
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release LIB|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -297,15 +234,6 @@
 			<File
 				RelativePath=".\stdafx.h">
 			</File>
-			<Filter
-				Name="tinyxml">
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinystr.h">
-				</File>
-				<File
-					RelativePath="..\..\thirdparty\tinyxml\tinyxml.h">
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"
