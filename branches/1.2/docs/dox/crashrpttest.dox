@@ -15,6 +15,10 @@ please compile the solution yourself as described in \ref compiling_crashrpt.
 how it sends error reports to the software support team. The application has simple dialog based GUI that
 allows to choose what type of exception to generate and in what thread. 
 
+\note This demo does not uppload error reports to any server, it just demonstrates how error report delivery works.
+To make this demo to upload your error reports, you need to edit its configuration (see CrashRptTest.cpp file inside of 
+/reporting/crashrpttest folder) and then recompile the demo.
+
 To run CrashRptTest demo, open \c bin directory and run \b CrashRptTest.exe.
 You can also compile the demo yourself.
 
@@ -30,6 +34,10 @@ The <i>Thread</i> combo box allows to select the thread exception should occur i
 \b crashcon demo is a console application (presented below). It generates a SEH 
 exception and shows how CrashRpt intercepts the exception and sends the error
 report to software support team.
+
+\note This demo does not uppload error reports to any server, it just demonstrates how error report delivery works.
+To make this demo to upload your error reports, you need to edit its configuration (see crashcon.cpp file inside of 
+/reporting/crashcon folder) and then recompile the demo.
 
 To run the demo, open \c bin directory and run \b crashcon.exe.
 You can also compile the demo yourself.

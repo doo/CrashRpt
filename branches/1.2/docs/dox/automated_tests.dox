@@ -5,8 +5,8 @@
 CrashRpt distribution contains project <b>Tests</b> that implements automated tests 
 for CrashRpt functionality.
 
-To run tests, go to the \b bin directory and click the \b Tests.exe executable
-file name. This should launch a console program that will run a set of test cases.
+To run the tests, go to the \b bin directory and click the \b Tests.exe executable
+file. This should launch a console program that will run a set of test cases.
 
 Tests optionally can be launched from from a temporary folder having Chineese 
 UNICODE characters in its name. This can be used to test UNICODE compatibility. To
@@ -19,16 +19,16 @@ Test cases are organized into several test suites. Below is the list of test sui
 - DeliveryTests : Error report delivery tests
             
 You can run tests from all test suites at once,
-or to run tests from selected test suites. To run all test suites, press Enter when prompted.
-To run tests from selected test suites, type their names when prompted.
+or to run tests from selected test suites. To run tests from all test suites, press Enter when prompted.
+To run tests from selected test suites, type their names when prompted (separate names by space).
 
-\note Automated tests may require an additional software to be installed in your machine (localhost). For example, to
-pass a HTTP delivery tests, you need to have a Web-server installed on you localhost, and having crashrpt.php
+\note Automated tests may require an additional software to be installed on your machine (local host). For example, to
+pass HTTP delivery tests, you need to have a Web-server installed on you local host, and having crashrpt.php
 script inside of your htdocs directory. To pass SMTP delivery tests, you need to have an SMTP server configured
-on your localhost. To pass SMAPI delivery tests, you need to have a E-mail client program, such as Mozilla Thunderbird,
+on your local host. To pass SMAPI delivery tests, you need to have an E-mail client program, such as Mozilla Thunderbird,
 configured on your machine.
 
-Below is an example of the output of the console program:
+Below is an example of the output of the <b>Tests.exe</b> console program:
 
 \code
 

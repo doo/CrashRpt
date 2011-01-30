@@ -40,6 +40,8 @@
 
 - Extended lang files (new strings DescCrashDump, DescXML, DescScreenshot, DescRegKey)
 
+- Added HTTPS support for error report upload
+
 --- Ver. 1.2.7 ---
 
 - Added Tests project that implements automated tests for CrashRpt and 
