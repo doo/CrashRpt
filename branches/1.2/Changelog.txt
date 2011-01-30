@@ -2,7 +2,43 @@
 
 --- Ver. 1.2.8 ---
 
+- Added JPEG library code from Independent Jpeg Group.
 
+- Improved desktop screenshot capture: added an ability to save screenshots as JPEG files, an
+  ability to define JPEG image quaility, an ability to save grayscale screenshots.
+
+- New function crAddScreenshot2() allows to define JPEG quality.
+
+- Implemented Jpeg image preview in Error Report Details dialog.
+
+- Modified compiler options in all projects to favor small size (Release configuration). This should
+  reduce the size of the binaries.
+
+- Completely rewritten the code responsible for communication between CrashRpt.dll and CrashSender.exe
+  (now using shared memory instead of temporary XML files)
+
+- Added an ability to add a custom title icon for CrashRpt dialogs through CR_INSTALL_INFO::pszCustomSenderIcon.
+
+- New section of documentation: Running automated tests.
+
+- Refactored Tests project (removed unneeded functionality). Additional test cases. 
+  New test suite DeliveryTests. Tests now work even for Release LIB build configuration.
+
+- Improved Doxyfile, removed search index and now the documentation should take less disk space.
+
+- Added new table CRP_TBL_MDMP_LOAD_LOG
+
+- New column CRP_COL_MODULE_LOADED_IMAGE_NAME
+
+- MD5 file is now generated and stored in error report folder when using CR_INST_STORE_ZIP_ARCHIVES flag
+
+- New member hSenderProcess in CR_EXCEPTION_INFO struct
+
+- Fixed a mistake in basic_stats.py (now using multimap instead of map)
+
+- Reorganized tinyxml files (now they are compiled in a separate project)
+
+- Extended lang files (new strings DescCrashDump, DescXML, DescScreenshot, DescRegKey)
 
 --- Ver. 1.2.7 ---
 
