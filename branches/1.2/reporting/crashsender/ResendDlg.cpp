@@ -90,7 +90,10 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 	CenterWindow();
 	
   // Set window icon
-  SetIcon(::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME)), 0);
+  HICON hIcon = g_CrashInfo.GetCustomIcon();
+  if(!hIcon)
+    ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+  SetIcon(hIcon, 0);
   
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -605,8 +608,12 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
 
     CString sTip; 
     sTip.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("DlgCaption")), g_CrashInfo.m_sAppName);
-		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
     _TCSCPY_S(nf.szTip, 64, sTip);
+    HICON hIcon = g_CrashInfo.GetCustomIcon();
+    if(!hIcon)
+      ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));    
+		nf.hIcon = hIcon;
+    
 	
     CString sInfo;
     sInfo.Format(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("ResendDlg"), _T("BalloonText")), 

@@ -65,7 +65,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	
   HICON hIcon = NULL;
 
-  hIcon = GetCustomIcon();
+  hIcon = g_CrashInfo.GetCustomIcon();
   if(!hIcon)
     ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
 
@@ -184,47 +184,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	return TRUE;
 }
 
-HICON CErrorReportDlg::GetCustomIcon()
-{
-  if(!g_CrashInfo.m_sCustomSenderIcon.IsEmpty())
-  {
-    CString sResourceFile;
-    CString sIconIndex;
-    int nIconIndex = 0;
 
-    int nComma = g_CrashInfo.m_sCustomSenderIcon.ReverseFind(',');    
-    if(nComma>=0)
-    {
-      sResourceFile = g_CrashInfo.m_sCustomSenderIcon.Left(nComma);      
-      sIconIndex = g_CrashInfo.m_sCustomSenderIcon.Mid(nComma+1);
-      sIconIndex.TrimLeft();
-      sIconIndex.TrimRight();
-      nIconIndex = _ttoi(sIconIndex);      
-    }
-    else
-    {
-      sResourceFile = g_CrashInfo.m_sCustomSenderIcon;
-    }
-
-    sResourceFile.TrimRight();        
-
-    if(nIconIndex<=0)
-    {      
-      return NULL;
-    }
-
-    // Check that custom icon can be loaded
-    HICON hIcon = ExtractIcon(NULL, sResourceFile, -nIconIndex);
-    if(hIcon==NULL)
-    {      
-      return NULL;
-    }
-
-    return hIcon;
-  }
-
-  return NULL;
-}
 
 void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
 {
@@ -535,7 +495,11 @@ int CErrorReportDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
 		nf.uVersion = NOTIFYICON_VERSION;
 #endif
 
-		nf.hIcon = LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+    // Try to load custom icon
+    HICON hIcon = g_CrashInfo.GetCustomIcon();
+    if(hIcon==NULL)
+      ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+		nf.hIcon = hIcon;
 	  _TCSCPY_S(nf.szTip, 128, _T("Sending Error Report"));
 		
 		Shell_NotifyIcon(NIM_ADD, &nf);

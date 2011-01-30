@@ -53,7 +53,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   LPBYTE pRowBits = NULL;
   CString sFileName;
     
-  // Get clipping rect size
+  // Get monitor rect size
   nWidth = lprcMonitor->right - lprcMonitor->left;
 	nHeight = lprcMonitor->bottom - lprcMonitor->top;
 	
@@ -81,9 +81,15 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
 
   SelectObject(hCompatDC, hBitmap);
 
-  BOOL bBitBlt = BitBlt(hCompatDC, 0, 0, nWidth, nHeight, hDC, 0, 0, SRCCOPY|CAPTUREBLT);
-  if(!bBitBlt)
-    goto cleanup;
+  int i;
+  for(i=0; i<(int)psc->m_arcCapture.size(); i++)
+  {
+    CRect rc = psc->m_arcCapture[i];
+
+    BOOL bBitBlt = BitBlt(hCompatDC, rc.left, rc.top, rc.Width(), rc.Height(), hDC, rc.left, rc.top, SRCCOPY|CAPTUREBLT);
+    if(!bBitBlt)
+      goto cleanup;
+  }
   
   // Draw mouse cursor.
   if(PtInRect(lprcMonitor, psc->m_ptCursorPos))
@@ -135,7 +141,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   bmi.bmiHeader.biBitCount = 24;
   bmi.bmiHeader.biPlanes = 1;  
 
-  int i;
+  //int i;
   for(i=nHeight-1; i>=0; i--)
   {    
     int nFetched = GetDIBits(hCompatDC, hBitmap, i, 1, pRowBits, &bmi, DIB_RGB_COLORS);
@@ -263,7 +269,7 @@ BOOL CScreenCapture::CaptureScreenRect(
   m_rcUnion = rcUnion;
 
   // Perform actual capture task inside of EnumMonitorsProc
-	EnumDisplayMonitors(NULL, rcUnion, EnumMonitorsProc, (LPARAM)this);	
+	EnumDisplayMonitors(NULL, NULL, EnumMonitorsProc, (LPARAM)this);	
 
   // Return
   out_file_list = m_out_file_list;
@@ -495,8 +501,8 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
     // Compare window process ID to our process ID
     if(dwProcessId == dwMyProcessId)
     {     
-      HWND hWndParent = GetParent(hWnd);
-      if(hWndParent==NULL) // Get only non-child windows
+      DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
+      if((dwStyle&WS_CHILD)==0) // Get only non-child windows
       {
         if(!pFWD->bAllProcessWindows) // Find only the main window
         {

@@ -109,7 +109,7 @@ public:
   CPoint m_ptCursorPos;                 // Current mouse cursor pos
   std::vector<CRect> m_arcCapture;      // Array of capture rectangles
   CURSORINFO m_CursorInfo;              // Cursor info
-  std::vector<CRect> arcCapture;        // An array of capture rectangles.
+  //std::vector<CRect> arcCapture;        // An array of capture rectangles.
   CRect m_rcUnion;
   int m_nIdStartFrom;                   // An ID for the current screenshot image 
   CString m_sSaveDirName;               // Directory name to save screenshots to

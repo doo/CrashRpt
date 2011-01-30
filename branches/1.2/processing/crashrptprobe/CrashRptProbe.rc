@@ -72,9 +72,9 @@ BEGIN
             VALUE "FileDescription", "CrashRptProbe Module"
             VALUE "FileVersion", "1, 2, 0, 8"
             VALUE "InternalName", "CrashRpt"
-            VALUE "LegalCopyright", "Copyright 2003-2011 Mikhael Carruth"
+            VALUE "LegalCopyright", "Copyright 2003-2011 Mike Carruth"
             VALUE "OriginalFilename", "CrashRptProbe.dll"
-            VALUE "ProductName", "CrashRptProbe Module"
+            VALUE "ProductName", "CrashRpt"
             VALUE "ProductVersion", "1, 2, 0, 8"
         END
     END

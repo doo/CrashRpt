@@ -276,12 +276,12 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
       sc.FindWindows(hProcess, FALSE, &aWindows);
       CloseHandle(hProcess);
     }
-    if(aWindows.size()==1)
+    if(aWindows.size()>0)
       wnd_list.push_back(aWindows[0].m_rcWnd);
   }
   else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0)
   {     
-    // Take screenshot of the main window
+    // Take screenshot of the main window    
     std::vector<WindowInfo> aWindows; 
     HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, g_CrashInfo.m_dwProcessId);
     if(hProcess!=NULL)
@@ -289,12 +289,14 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
       sc.FindWindows(hProcess, TRUE, &aWindows);
       CloseHandle(hProcess);
     }
-    if(aWindows.size()==1)
-      wnd_list.push_back(aWindows[0].m_rcWnd);
+    
+    int i;
+    for(i=0; i<(int)aWindows.size(); i++)
+      wnd_list.push_back(aWindows[i].m_rcWnd);
   }
   else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0
   {
-    // Take screenshot of entire desktop
+    // Take screenshot of the entire desktop
     CRect rcScreen;
     sc.GetScreenRect(&rcScreen);    
     wnd_list.push_back(rcScreen);

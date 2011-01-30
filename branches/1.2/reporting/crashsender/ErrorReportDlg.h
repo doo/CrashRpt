@@ -209,8 +209,7 @@ public:
   LRESULT OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-	void CloseDialog(int nVal);
-  HICON GetCustomIcon();
+	void CloseDialog(int nVal);  
   void ShowMoreInfo(BOOL bShow);
   int CreateTrayIcon(bool bCreate, HWND hWndParent);
   

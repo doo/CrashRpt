@@ -450,6 +450,45 @@ void Test_crAddScreenshot()
   crUninstall();  
 }
 
+REGISTER_TEST(Test_crAddScreenshot2);
+void Test_crAddScreenshot2()
+{   
+  // Should fail, because crInstall() should be called first
+  int nResult = crAddScreenshot2(CR_AS_VIRTUAL_SCREEN, 95);
+  TEST_ASSERT(nResult!=0);
+
+  // Install crash handler
+  CR_INSTALL_INFOW infoW;
+  memset(&infoW, 0, sizeof(CR_INSTALL_INFOW));
+  infoW.cb = sizeof(CR_INSTALL_INFOW);
+  infoW.pszAppVersion = L"1.0.0"; // Specify app version, otherwise it will fail.
+
+  int nInstallResult = crInstallW(&infoW);
+  TEST_ASSERT(nInstallResult==0);
+  
+  // Should succeed
+  int nResult2 = crAddScreenshot2(CR_AS_VIRTUAL_SCREEN, 50);
+  TEST_ASSERT(nResult2==0);
+
+  // Call twice - should succeed
+  int nResult3 = crAddScreenshot2(CR_AS_MAIN_WINDOW, 60);
+  TEST_ASSERT(nResult3==0);
+
+  // Call with invalid JPEG quality - should fail
+  int nResult4 = crAddScreenshot2(CR_AS_MAIN_WINDOW, -60);
+  TEST_ASSERT(nResult4!=0);
+
+  // Call with invalid JPEG quality - should fail
+  int nResult5 = crAddScreenshot2(CR_AS_MAIN_WINDOW, 160);
+  TEST_ASSERT(nResult5!=0);
+
+  __TEST_CLEANUP__;
+
+  // Uninstall
+  crUninstall();  
+}
+
+
 REGISTER_TEST(Test_crAddRegKeyA);
 void Test_crAddRegKeyA()
 {   

@@ -160,6 +160,9 @@ public:
   // Gets crash info from shared memory
   int Init(CString sFileMappingName);
 
+  // Loads custom icon (if defined)
+  HICON GetCustomIcon();
+
   // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
 
@@ -177,7 +180,7 @@ public:
 
 private:
 
-  int UnpackCrashDescription();
+  int UnpackCrashDescription(ErrorReportInfo& eri);
   int UnpackString(DWORD dwOffset, CString& str);
 
   void CollectMiscCrashInfo(ErrorReportInfo& eri);

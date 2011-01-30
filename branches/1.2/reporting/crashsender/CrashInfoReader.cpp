@@ -49,6 +49,7 @@ CCrashInfoReader g_CrashInfo;
 int CCrashInfoReader::Init(CString sFileMappingName)
 { 
   strconv_t strconv;
+  ErrorReportInfo eri;
   
   BOOL bInitMem = m_SharedMem.Init(sFileMappingName, TRUE, 0);
   if(!bInitMem)
@@ -56,7 +57,7 @@ int CCrashInfoReader::Init(CString sFileMappingName)
 
   m_pCrashDesc = (CRASH_DESCRIPTION*)m_SharedMem.CreateView(0, sizeof(CRASH_DESCRIPTION));
 
-  int nUnpack = UnpackCrashDescription();
+  int nUnpack = UnpackCrashDescription(eri);
   if(0!=nUnpack)
   {
     return 2;
@@ -67,22 +68,21 @@ int CCrashInfoReader::Init(CString sFileMappingName)
     return 3;
   
   m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");          
-
-  ErrorReportInfo& eri = g_CrashInfo.GetReport(0);
-
-  eri.m_sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + eri.m_sCrashGUID;
-  Utility::CreateFolder(eri.m_sErrorReportDirName);
   
   if(!m_bSendRecentReports)
   { 
     CollectMiscCrashInfo(eri);
-    m_Reports.push_back(eri);    
+
+    eri.m_sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + eri.m_sCrashGUID;
+    Utility::CreateFolder(eri.m_sErrorReportDirName);
+
+    m_Reports.push_back(eri);
   }  
   else
   {
     // Unblock the parent process
     CString sEventName;
-    sEventName.Format(_T("Local\\CrashRptEvent_%s"), g_CrashInfo.GetReport(0).m_sCrashGUID);
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), eri.m_sCrashGUID);
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     if(hEvent!=NULL)
       SetEvent(hEvent);
@@ -114,7 +114,7 @@ int CCrashInfoReader::Init(CString sFileMappingName)
   return 0;
 }
 
-int CCrashInfoReader::UnpackCrashDescription()
+int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
 {
   if(memcmp(m_pCrashDesc->m_uchMagic, "CRD", 3)!=0)
     return 1; // Invalid magic word
@@ -122,8 +122,6 @@ int CCrashInfoReader::UnpackCrashDescription()
   if(m_pCrashDesc->m_dwCrashRptVer!=CRASHRPT_VER)
     return 2; // Invalid CrashRpt version
 
-  ErrorReportInfo eri;
-  
   // Unpack process ID, thread ID and exception pointers address.
   m_dwProcessId = m_pCrashDesc->m_dwProcessId;
   m_dwThreadId = m_pCrashDesc->m_dwThreadId;
@@ -264,9 +262,7 @@ int CCrashInfoReader::UnpackCrashDescription()
     ATLASSERT(0);
     return 1; 
   }
-
-  m_Reports.push_back(eri);
-
+  
   return 0;
 }
 
@@ -827,4 +823,46 @@ LONG64 CCrashInfoReader::GetUncompressedReportSize(ErrorReportInfo& eri)
   }
 
   return lTotalSize;
+}
+
+HICON CCrashInfoReader::GetCustomIcon()
+{
+  if(!g_CrashInfo.m_sCustomSenderIcon.IsEmpty())
+  {
+    CString sResourceFile;
+    CString sIconIndex;
+    int nIconIndex = 0;
+
+    int nComma = g_CrashInfo.m_sCustomSenderIcon.ReverseFind(',');    
+    if(nComma>=0)
+    {
+      sResourceFile = g_CrashInfo.m_sCustomSenderIcon.Left(nComma);      
+      sIconIndex = g_CrashInfo.m_sCustomSenderIcon.Mid(nComma+1);
+      sIconIndex.TrimLeft();
+      sIconIndex.TrimRight();
+      nIconIndex = _ttoi(sIconIndex);      
+    }
+    else
+    {
+      sResourceFile = g_CrashInfo.m_sCustomSenderIcon;
+    }
+
+    sResourceFile.TrimRight();        
+
+    if(nIconIndex<=0)
+    {      
+      return NULL;
+    }
+
+    // Check that custom icon can be loaded
+    HICON hIcon = ExtractIcon(NULL, sResourceFile, -nIconIndex);
+    if(hIcon==NULL)
+    {      
+      return NULL;
+    }
+
+    return hIcon;
+  }
+
+  return NULL;
 }
