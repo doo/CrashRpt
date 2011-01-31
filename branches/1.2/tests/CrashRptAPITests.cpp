@@ -975,6 +975,16 @@ void Test_undecorated_func_names()
     (PFNCRADDFILE2A)GetProcAddress(hCrashRpt, "crAddFile2A");
   TEST_ASSERT(pfncrAddFile2A!=NULL);
 
+  typedef int (WINAPI *PFNCRADDSCREENSHOT)(DWORD);
+  PFNCRADDSCREENSHOT pfncrAddScreenshot = 
+    (PFNCRADDSCREENSHOT)GetProcAddress(hCrashRpt, "crAddScreenshot");
+  TEST_ASSERT(pfncrAddScreenshot!=NULL);
+
+  typedef int (WINAPI *PFNCRADDSCREENSHOT2)(DWORD, int);
+  PFNCRADDSCREENSHOT2 pfncrAddScreenshot2 = 
+    (PFNCRADDSCREENSHOT2)GetProcAddress(hCrashRpt, "crAddScreenshot2");
+  TEST_ASSERT(pfncrAddScreenshot2!=NULL);
+
   __TEST_CLEANUP__
     
   FreeLibrary(hCrashRpt);
