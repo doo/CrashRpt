@@ -87,6 +87,8 @@ copy dummy.ini ..\..\bin
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
@@ -152,6 +154,8 @@ copy dummy.ini ..\..\bin
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="TRUE"

@@ -83,8 +83,9 @@
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="2"
@@ -145,8 +146,9 @@
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				AdditionalIncludeDirectories="..\..\include;..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\wtl;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="0"

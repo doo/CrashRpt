@@ -73,6 +73,8 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\dbghelp\include;..\..\thirdparty\zlib;..\..\thirdparty\wtl;..\..\thirdparty\minizip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
@@ -83,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib version.lib zlib.lib psapi.lib"
+				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib version.lib zlib.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
@@ -125,6 +127,8 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\dbghelp\include;..\..\thirdparty\zlib;..\..\thirdparty\wtl;..\..\thirdparty\minizip"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_LIB;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="0"
@@ -135,7 +139,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib version.lib zlib.lib psapi.lib"
+				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib version.lib zlib.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbeLIB.lib"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"/>
 			<Tool

@@ -191,7 +191,7 @@ BOOL CImage::IsJPEG(FILE* f)
 	// Each JPEG file begins with SOI marker (0xD8FF).
   
   WORD wSOIMarker;
-  int n = fread(&wSOIMarker, 1, 2, f);
+  int n = (int)fread(&wSOIMarker, 1, 2, f);
   if(n!=2)
     return FALSE;
 

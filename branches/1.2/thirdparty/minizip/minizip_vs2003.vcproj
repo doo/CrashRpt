@@ -63,6 +63,8 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\thirdparty\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
@@ -104,6 +106,8 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\thirdparty\zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"

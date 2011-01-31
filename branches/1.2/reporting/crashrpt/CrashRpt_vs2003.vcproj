@@ -74,7 +74,8 @@
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\zlib;..\..\thirdparty\tinyxml;..\..\thirdparty\libpng;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPT_EXPORTS"
 				BasicRuntimeChecks="0"
@@ -128,7 +129,8 @@
 			CharacterSet="1">
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPT_LIB"
 				BasicRuntimeChecks="0"

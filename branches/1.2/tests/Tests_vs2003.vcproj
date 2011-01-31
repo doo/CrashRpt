@@ -70,6 +70,8 @@
 			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\include;..\reporting\crashrpt;..\thirdparty\wtl;..\reporting\crashsender;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\tinyxml;..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -82,6 +84,58 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRpt.lib Rpcrt4.lib version.lib WS2_32.lib wininet.lib Dnsapi.lib psapi.lib"
+				OutputFile="$(OutDir)\Tests.exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\lib"
+				GenerateDebugInformation="TRUE"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release LIB|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="TRUE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				AdditionalIncludeDirectories="..\include;..\reporting\crashrpt;..\thirdparty\wtl;..\reporting\crashsender;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\tinyxml;..\thirdparty\dbghelp\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="0"
+				UsePrecompiledHeader="3"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="TRUE"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="CrashRptLIB.lib Rpcrt4.lib version.lib WS2_32.lib wininet.lib Dnsapi.lib psapi.lib"
 				OutputFile="$(OutDir)\Tests.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\lib"
@@ -133,11 +187,23 @@
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Tests.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release LIB|Win32">
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="3"/>
