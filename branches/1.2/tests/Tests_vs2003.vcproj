@@ -115,7 +115,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -125,7 +125,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\include;..\reporting\crashrpt;..\thirdparty\wtl;..\reporting\crashsender;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\tinyxml;..\thirdparty\dbghelp\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;CRASHRPT_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="3"
 				WarningLevel="3"
@@ -178,6 +178,9 @@
 			</File>
 			<File
 				RelativePath=".\CrashRptProbeAPITests.cpp">
+			</File>
+			<File
+				RelativePath=".\DeliveryTests.cpp">
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp">
