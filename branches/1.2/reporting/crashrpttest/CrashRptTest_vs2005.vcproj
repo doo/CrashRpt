@@ -335,6 +335,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
@@ -520,6 +522,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"

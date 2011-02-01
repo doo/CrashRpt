@@ -292,6 +292,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
@@ -311,7 +313,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
+				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib\amd64"
@@ -438,9 +440,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				DebugInformationFormat="3"

@@ -159,7 +159,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="1"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\libpng;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_EXPORTS"
 				StringPooling="true"
@@ -577,7 +578,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="1"
-				InlineFunctionExpansion="1"
+				InlineFunctionExpansion="0"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\libpng;..\..\thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_LIB"
 				StringPooling="true"

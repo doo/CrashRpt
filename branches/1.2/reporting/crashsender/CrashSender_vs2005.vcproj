@@ -334,7 +334,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -519,10 +521,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
+				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				FloatingPointExceptions="false"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"

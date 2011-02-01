@@ -284,6 +284,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="..\include;..\thirdparty\wtl;..\reporting\crashrpt;..\reporting\CrashSender;..\thirdparty\tinyxml;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -303,7 +305,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRpt.lib CrashRptProbe.lib Rpcrt4.lib version.lib psapi.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Gdi32.lib shell32.lib Comdlg32.lib libpng.lib minizip.lib"
+				AdditionalDependencies="CrashRptLIB.lib CrashRptProbeLIB.lib Rpcrt4.lib version.lib psapi.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Gdi32.lib shell32.lib Comdlg32.lib libpng.lib minizip.lib"
 				OutputFile="$(OutDir)\Tests.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\thirdparty\lib;..\lib"
@@ -447,7 +449,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\include;..\thirdparty\wtl;..\reporting\crashrpt;..\reporting\CrashSender;..\thirdparty\tinyxml;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\dbghelp\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
+				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="true"
