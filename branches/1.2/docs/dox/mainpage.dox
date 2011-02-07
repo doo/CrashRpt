@@ -32,6 +32,7 @@ postprocessing tool for Visual C++ applications running in Windows.
   - \ref analyzing_error_reports
   - \ref using_crash_descriptor
   - \ref using_minidump
+  - \ref writing_robust_code
   - \ref automating_crash_report_processing
     - \ref crprober_tool
     - \ref using_crashrptprobe_api

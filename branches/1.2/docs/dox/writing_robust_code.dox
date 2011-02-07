@@ -1,0 +1,97 @@
+/*!
+
+\page writing_robust_code Making Your Code Robust
+
+This page describes some best practices on writing C++ code robust to errors. 
+A program that conforms to these rules is less likely to crash.
+
+\section init_vars Always Initializing Local Variables
+
+\section validate_input Validating Function Input 
+
+\section validate_output Validating Function Input 
+
+\section static_checks Using SAL macros 
+
+\section automated_testing Using Automated Tests
+
+Use STL containers
+
+Use left-side == operator
+
+Use clean programming style, indenting
+
+Complex conditional expressions must be avoided.
+
+Use asserts 
+
+Compile your code at warning level 4
+
+Do not disable warnings
+
+Preconditions and postconditions
+
+Check return code
+
+Use Hungarian notation
+
+Check NULL pointers
+
+COM Smart pointers
+
+Choose meaningful variable names
+
+Initialize class member variables
+
+Comment your code
+
+goto should not be used.
+
+A switch statement should have the following form:
+
+A try-catch statement should have the following form:
+
+Goto statements violate the idea of structured code. Only in some very few cases (for instance breaking out of deeply nested structures) should goto be considered, and only if the alternative structured counterpart is proven to be less readable.
+
+The class declarations should have the following form:
+The public, protected, and private sections of a class are to be declared in that order (the public section is declared before the protected section which is declared before the private section).
+
+Avoid division by zero
+
+Remove commented code
+
+All comments should be written in English [2].
+
+Name your files properly
+
+Use macros carefully
+
+Be careful with type conversion
+
+Initialize WinAPI cbSize member
+
+Use ZeroMemory or memset for structures
+
+Use safe CRT functions
+
+Explicitly define calling convention
+
+Good design
+
+Thread safety (critical sections)
+
+Safe memory allocation new delete []
+
+UINT overflow
+
+Assign NULL to a pointer after freeing (or deleting) it.
+
+Ensure that 0 (zero) bytes are not allocated using malloc. 
+
+http://www.codeproject.com/KB/tips/CBP_for_memory_allocation.aspx
+
+How to write robust code http://www.iovene.com/28/
+http://geosoft.no/development/cppstyle.html
+http://www.doc.ic.ac.uk/lab/cplus/c%2b%2b.rules/chap4.html#sect2
+
+*/
