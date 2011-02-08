@@ -9,73 +9,108 @@ likely to crash.
 
 This page contains the following coding rules:
 
-\ref init_vars
-\ref validate_input
-\ref init_func_output
+- \ref init_vars
+- \ref validate_input
+- \ref init_func_output
 
 \section init_vars Always Initialize Local Variables
 
 Not ininitialized local variables are a common reason of program crashes. For example,
 see the following code fragment:
 
-\code
+\code    
+  // Define local variables
 
-  BOOL SomeFunction()
-  {
-
-    // Define local variables
-    BOOL bExitResult; // This will be TRUE if the function exits successfully
-    FILE* f; // Handle to file
-    TCHAR szBuffer[_MAX_PATH];   // String buffer
-    HDC hDC; // Handle to GDI display device context
-    HBITMAP hBitmap; // Handle to GDI bitmap
-    LPBYTE pData[512]; // Buffer
+  BOOL bExitResult; // This will be TRUE if the function exits successfully
+  NOTIFYICONDATA nid; // This WinAPI structure is used to add a tray icon
+  FILE* f; // Handle to file
+  TCHAR szBuffer[_MAX_PATH];   // String buffer
+  HDC hDC; // Handle to GDI display device context
+  HBITMAP hBitmap; // Handle to GDI bitmap
+  LPBYTE pData[512]; // Buffer  
     
-    // Do something...
-
-    return bExitResult;
-  }
-                   
+  // Do something with variables above...
 \endcode
 
 The code fragment above can be a potential reason of a crash, because none
 of local variables is initialized. The correct code would be the following:
 
 \code
+  // Define local variables
+  
+  // Initialize function exit code with FALSE to indicate failure assumption
+  BOOL bExitResult = FALSE; // This will be TRUE if the function exits successfully
 
-  BOOL SomeFunction()
-  {
+  // Use ZeroMemory() or memset() to initialize structure 
+  // And do not forget to init cbSize member!
+  NOTIFYICONDATA nid; // This WinAPI structure is used to add a tray icon
+  memset(&nid, 0, sizeof(NOTIFYICONDATA));
+  nid.cbSize = sizeof(NOTIFYICONDATA));
 
-    // Define local variables
-    BOOL bExitResult = FALSE; // This will be TRUE if the function exits successfully
-    FILE* f = NULL; // Handle to file
-    TCHAR szBuffer[_MAX_PATH] = _T("");   // String buffer
-    HDC hDC = NULL; // Handle to GDI display device context
-    HBITMAP hBitmap = NULL; // Handle to GDI bitmap
-    LPBYTE pData[512]; // Buffer
-    memset(pData, 0, 512); // Init buffer with zeroes
+  // Initialize file handle with NULL
+  FILE* f = NULL; // Handle to file
 
-    // Do something...
+  // Initialize string buffer with empty string
+  TCHAR szBuffer[_MAX_PATH] = _T("");   // String buffer
 
-    return bExitResult;
-  }
+  // Initialize GDI handles with NULL
+  HDC hDC = NULL; // Handle to GDI display device context
+  HBITMAP hBitmap = NULL; // Handle to GDI bitmap
+  
+  // Use ZeroMemory() or memset() to initialize a buffer
+  LPBYTE pData[512]; // Buffer
+  memset(pData, 0, 512); // Init buffer with zeroes
 
-Use ZeroMemory or memset for structures
+  // Do something with variables above...
+\endcode 
                    
-\endcode
-
 \section Initialize class member variables
 
-\section validate_input Always Validate Function Input 
+\code
+
+class CVehicle
+{
+public:
+
+   CVehicle();
+   ~CVehicle();
+
+private:
+   
+   int m_nWheelCount;
+   UINT m_nValveCount;
+   CSize m_Dimensions;
+   TCHAR m_szModel[_MAX_MODEL_NAME];
+   std::string m_sManufacturer;
+   CString m_sDriverName;
+};
+
+\endcode
+
+\section validate_input Validate Function Input 
 
 Preconditions and postconditions
 It is recommended to validate function input parameters.
 
 \code
 
-  int ParseUserInput()
+  BOOL DrawCircles(HWND hWnd, LPRECT prcDraw, int nCircleCount)
   {
-    
+    // Check that window is valid
+    if(!IsWindow(hWnd))
+      return FALSE;
+
+    // Check that drawing rect is valid
+    if(prcDraw==NULL)
+      return FALSE;
+
+    // Check count of circles to draw is valid
+    if(nCircleCount<0 || nCircleCount>10)
+      return FALSE;
+   
+    // Now it's safe to draw the circles
+
+    return TRUE;
   }
   
 \endcode
