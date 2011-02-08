@@ -2,89 +2,197 @@
 
 \page writing_robust_code Making Your Code Robust
 
-This page describes some best practices on writing C++ code robust to errors. 
-A program that conforms to these rules is less likely to crash.
+Analyzing many crash reports and fixing many errors makes you to think about how to 
+write code that would be more stable. This page describes some best practices of 
+writing C++ code robust to errors. A program that conforms to these rules is less 
+likely to crash.
 
-\section init_vars Always Initializing Local Variables
+This page contains the following coding rules:
 
-\section validate_input Validating Function Input 
+\ref init_vars
+\ref validate_input
+\ref init_func_output
 
-\section validate_output Validating Function Input 
+\section init_vars Always Initialize Local Variables
+
+Not ininitialized local variables are a common reason of program crashes. For example,
+see the following code fragment:
+
+\code
+
+  BOOL SomeFunction()
+  {
+
+    // Define local variables
+    BOOL bExitResult; // This will be TRUE if the function exits successfully
+    FILE* f; // Handle to file
+    TCHAR szBuffer[_MAX_PATH];   // String buffer
+    HDC hDC; // Handle to GDI display device context
+    HBITMAP hBitmap; // Handle to GDI bitmap
+    LPBYTE pData[512]; // Buffer
+    
+    // Do something...
+
+    return bExitResult;
+  }
+                   
+\endcode
+
+The code fragment above can be a potential reason of a crash, because none
+of local variables is initialized. The correct code would be the following:
+
+\code
+
+  BOOL SomeFunction()
+  {
+
+    // Define local variables
+    BOOL bExitResult = FALSE; // This will be TRUE if the function exits successfully
+    FILE* f = NULL; // Handle to file
+    TCHAR szBuffer[_MAX_PATH] = _T("");   // String buffer
+    HDC hDC = NULL; // Handle to GDI display device context
+    HBITMAP hBitmap = NULL; // Handle to GDI bitmap
+    LPBYTE pData[512]; // Buffer
+    memset(pData, 0, 512); // Init buffer with zeroes
+
+    // Do something...
+
+    return bExitResult;
+  }
+
+Use ZeroMemory or memset for structures
+                   
+\endcode
+
+\section Initialize class member variables
+
+\section validate_input Always Validate Function Input 
+
+Preconditions and postconditions
+It is recommended to validate function input parameters.
+
+\code
+
+  int ParseUserInput()
+  {
+    
+  }
+  
+\endcode
+
+\section Check NULL pointers
+
+
+\section init_func_output Always Initialize Function Output
+
+\code
+
+  int CreateObject(CObject** ppObject)
+  {
+    *ppObject = NULL;
+
+    if(CanCreateObject())
+    {
+      *ppObject = new CObject();
+      return 1;
+    }    
+
+    return 0;
+  }
+
+\endcode
+
+\section Use Asserts Carefully
+
+\section Check return code of a function
+
+\section Use left-side == operator
+
+\code
+ 
+  int nItemCount = 10;
+  if(0==nItemCount)
+  {
+  } 
+ 
+\endcode
+
+\section Use STL Containers 
+
+\code
+
+  // Initialize column widths
+  int* pColumnWidths = new int[10];
+  int i;
+  for(i=0; i<10; i++)
+  {
+    pColumnWidths[i] = 50;
+  }
+
+\endcode
 
 \section static_checks Using SAL macros 
 
 \section automated_testing Using Automated Tests
 
-Use STL containers
+\section Properly use line indenting
 
-Use left-side == operator
-
-Use clean programming style, indenting
-
-Complex conditional expressions must be avoided.
-
-Use asserts 
-
-Compile your code at warning level 4
-
-Do not disable warnings
-
-Preconditions and postconditions
-
-Check return code
+\section Use consistent programming style
 
 Use Hungarian notation
 
-Check NULL pointers
+\section Avoid complex conditional expressions
 
-COM Smart pointers
+\section Compile your code at warning level 4
 
-Choose meaningful variable names
+\section Keep your code clean of compiler warnings
 
-Initialize class member variables
+\section Use smart pointers
 
-Comment your code
+\section Choose meaningful variable names
 
-goto should not be used.
+\section Comment your code 
 
-A switch statement should have the following form:
+\section Remove junk comment blocks
 
-A try-catch statement should have the following form:
+\section Using goto instruction
 
-Goto statements violate the idea of structured code. Only in some very few cases (for instance breaking out of deeply nested structures) should goto be considered, and only if the alternative structured counterpart is proven to be less readable.
+Some people say that goto statements violate the idea of structured code. 
+Only in some very few cases (for instance breaking out of deeply nested 
+structures) should goto be considered, and only if the alternative 
+structured counterpart is proven to be less readable.
 
-The class declarations should have the following form:
-The public, protected, and private sections of a class are to be declared in that order (the public section is declared before the protected section which is declared before the private section).
+\section Switch statement 
 
-Avoid division by zero
+\section Try-catch statement 
 
-Remove commented code
+\section Clean up in class destructor
 
-All comments should be written in English [2].
+\section Check for division by zero
 
-Name your files properly
+\section Use macros carefully
 
-Use macros carefully
+\section Use type conversion carefully
 
-Be careful with type conversion
+\section Initialize cbSize member of WinAPI structures
 
-Initialize WinAPI cbSize member
+\section Use safe CRT functions
 
-Use ZeroMemory or memset for structures
+\section Explicitly define calling convention
 
-Use safe CRT functions
-
-Explicitly define calling convention
-
-Good design
-
-Thread safety (critical sections)
+\section Thread safety (critical sections)
 
 Safe memory allocation new delete []
 
+\section Use UINT type carefully
+
 UINT overflow
 
+\section Clean up pointers to deleted objects
+
 Assign NULL to a pointer after freeing (or deleting) it.
+
+\section Allocate memory carefully
 
 Ensure that 0 (zero) bytes are not allocated using malloc. 
 
@@ -93,5 +201,6 @@ http://www.codeproject.com/KB/tips/CBP_for_memory_allocation.aspx
 How to write robust code http://www.iovene.com/28/
 http://geosoft.no/development/cppstyle.html
 http://www.doc.ic.ac.uk/lab/cplus/c%2b%2b.rules/chap4.html#sect2
+http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Header_Files
 
 */
