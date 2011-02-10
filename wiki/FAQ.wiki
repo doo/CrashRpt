@@ -36,7 +36,7 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
 == Are there any beginner's tutorials? ==
 
-You can read this article by Usman Javaid: [http://www.addictivetips.com/windows-tips/integrate-crash-report-mechanism-in-your-applications-developers/ Integrate Crash Report Mechanism In Your Applications] on `addictivetips.com`.
+You can read this article by Usman Javaid: [http://www.addictivetips.com/windows-tips/integrate-crash-report-mechanism-in-your-applications-developers/ Integrate Crash Report Mechanism In Your Applications] on `addictivetips.com`, or the [http://www.fryan0911.com/2010/06/add-crash-reporting-capability-to-your.html Add Crash Reporting Capability To Your C++ Application] post on `Fryan's Digital World`. 
 
 A good starting point for learning `CrashRpt` is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
 
