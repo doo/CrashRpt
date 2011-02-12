@@ -2,16 +2,44 @@
 
 \page writing_robust_code Making Your Code Robust
 
-Analyzing many crash reports and fixing many errors makes you to think about how to 
-write code that would be more stable. This page describes some best practices of 
-writing C++ code robust to errors. A program that conforms to these rules is less 
-likely to crash.
+This page contains some tips on writing C++ code robust to errors. 
+A program that conforms to these rules is less likely to crash.
 
-This page contains the following coding rules:
+This page contains the following topics:
 
+- \ref coding_guide_intro
 - \ref init_vars
+- \ref init_winapi_structures
 - \ref validate_input
+- \ref validate_pointers
 - \ref init_func_output
+- \ref clean_up_pointers
+- \ref delete_operator
+- \ref allocate_memory_carefully
+- \ref use_asserts_carefully
+- \ref check_return_code
+- \ref use_smart_ptrs
+
+\section coding_guide_intro Introduction
+
+As a program grows in size and dependencies, you start losing trace of its components, 
+get further away from the big picture, and ease the introduction of bugs
+[<a href="http://www.iovene.com/28/">How to write robust code</a>]. So it is
+important to realise that some rules should be followed to write a code
+more tolerant to errors.
+
+Generally speaking, robust code has such features as: it is well designed, neat and tidy, well named, 
+well commented, well tested, it rarely crashes.
+
+If your program follows consistent coding rules (for example, 
+<a href="http://geosoft.no/development/cppstyle.html">C++ Programming Style Guidelines</a>,
+<a href="http://www.doc.ic.ac.uk/lab/cplus/c%2b%2b.rules/chap4.html#sect2">Programming in C++, Rules and Recommendations</a> or
+<a href="http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml">Google C++ Style Guide</a>)
+it is less likely to crash, because it has a consistent structure.
+
+Even if your program currently doesn't follow any coding rules because of its complexity and
+because of your team structure, following the simple rules listed below may help you to avoid
+the majority of the crash situations.
 
 \section init_vars Always Initialize Local Variables
 
@@ -22,12 +50,8 @@ see the following code fragment:
   // Define local variables
 
   BOOL bExitResult; // This will be TRUE if the function exits successfully
-  NOTIFYICONDATA nid; // This WinAPI structure is used to add a tray icon
   FILE* f; // Handle to file
   TCHAR szBuffer[_MAX_PATH];   // String buffer
-  HDC hDC; // Handle to GDI display device context
-  HBITMAP hBitmap; // Handle to GDI bitmap
-  LPBYTE pData[512]; // Buffer  
     
   // Do something with variables above...
 \endcode
@@ -41,60 +65,76 @@ of local variables is initialized. The correct code would be the following:
   // Initialize function exit code with FALSE to indicate failure assumption
   BOOL bExitResult = FALSE; // This will be TRUE if the function exits successfully
 
-  // Use ZeroMemory() or memset() to initialize structure 
-  // And do not forget to init cbSize member!
-  NOTIFYICONDATA nid; // This WinAPI structure is used to add a tray icon
-  memset(&nid, 0, sizeof(NOTIFYICONDATA));
-  nid.cbSize = sizeof(NOTIFYICONDATA));
-
   // Initialize file handle with NULL
   FILE* f = NULL; // Handle to file
 
   // Initialize string buffer with empty string
   TCHAR szBuffer[_MAX_PATH] = _T("");   // String buffer
 
-  // Initialize GDI handles with NULL
-  HDC hDC = NULL; // Handle to GDI display device context
-  HBITMAP hBitmap = NULL; // Handle to GDI bitmap
-  
-  // Use ZeroMemory() or memset() to initialize a buffer
-  LPBYTE pData[512]; // Buffer
-  memset(pData, 0, 512); // Init buffer with zeroes
-
   // Do something with variables above...
 \endcode 
-                   
-\section Initialize class member variables
+
+\section init_winapi_structures Properly Initialize WinAPI Structures
+
+Many WinAPI functions receive/return parameters through C structures. Such a
+structure, if incorrectly initialized, may be the reason of a crash.
+
+It is recommended to use \b ZeroMemory() or \b memset() to fill the structure
+with zeroes (this typically sets structure fields to their default values).
+
+Many WinAPI structures also have the \b cbSize parameter that must be initialized
+with the size of the structure before using.
+
+The following code shows how to initialize a WinAPI structure:
 
 \code
 
-class CVehicle
-{
-public:
+  NOTIFYICONDATA nf;
+  memset(&nf,0,sizeof(NOTIFYICONDATA)); // Zero memory
+  nf.cbSize = sizeof(NOTIFYICONDATA); // Set structure size!
+  // Initialize other structure members
+  nf.hWnd = hWndParent;
+  nf.uID = 0;	
+  nf.uFlags = NIF_ICON | NIF_TIP;
+  nf.hIcon = ::LoadIcon(NULL, IDI_APPLICATION);
+  _tcscpy_s(nf.szTip, 128, _T("Popup Tip Text"));
+	
+  // Add a tray icon
+  Shell_NotifyIcon(NIM_ADD, &nf);
+\endcode
 
-   CVehicle();
-   ~CVehicle();
+But! DO NOT use \b ZeroMemory() or \b memset() for your C++ structures that contain objects as structure members, 
+that may corrupt their internal state and be the reason of a crash.
 
-private:
-   
-   int m_nWheelCount;
-   UINT m_nValveCount;
-   CSize m_Dimensions;
-   TCHAR m_szModel[_MAX_MODEL_NAME];
-   std::string m_sManufacturer;
-   CString m_sDriverName;
-};
+\code
+
+  // Declare a C++ structure
+  struct ItemInfo
+  {
+    std::string sItemName; // The structure has std::string object inside
+    int nItemValue;
+  };
+
+  // Init the structure
+  ItemInfo item;
+
+  // Do not use memset()! It can corrupt the structure
+  // memset(&item, 0, sizeof(ItemInfo));
+
+  // Instead use the following
+  item.sItemName = "item1";
+  item.nItemValue = 0;  	
+
 
 \endcode
 
 \section validate_input Validate Function Input 
 
-Preconditions and postconditions
-It is recommended to validate function input parameters.
+It is recommended to always validate function input parameters. 
 
 \code
 
-  BOOL DrawCircles(HWND hWnd, LPRECT prcDraw, int nCircleCount)
+  BOOL DrawVehicle(HWND hWnd, LPRECT prcDraw, int nDrawingQuality)
   {
     // Check that window is valid
     if(!IsWindow(hWnd))
@@ -104,31 +144,77 @@ It is recommended to validate function input parameters.
     if(prcDraw==NULL)
       return FALSE;
 
-    // Check count of circles to draw is valid
-    if(nCircleCount<0 || nCircleCount>10)
+    // Check drawing quality is valid
+    if(nDrawingQuality<0 || nDrawingQuality>100)
       return FALSE;
    
-    // Now it's safe to draw the circles
+    // Now it's safe to draw the vehicle
 
     return TRUE;
   }
   
 \endcode
 
-\section Check NULL pointers
+\section validate_pointers Validate Pointers
 
-
-\section init_func_output Always Initialize Function Output
+If you use a pointer, make sure it is not equal to NULL.
 
 \code
 
-  int CreateObject(CObject** ppObject)
+  CVehicle* pVehicle = GetCurrentVehicle();
+  
+  // Validate pointer
+  if(pVehicle==NULL)
   {
-    *ppObject = NULL;
+    // Invalid pointer, do not use it!
+    return FALSE;
+  }
 
-    if(CanCreateObject())
+  // Use the pointer
+  
+\endcode
+
+\section init_func_output Always Initialize Function Output
+
+If your function creates an object and returns it as a function parameter, it is
+recommended to initialize the pointer with NULL in the beginning of the function body.
+
+If you do not explicitly initialize the output parameter and further it is not set 
+due to a bug in function logics, the caller may use invalid pointer which would possibly 
+cause a crash.
+
+Example of incorrect code:
+
+\code
+
+  int CreateVehicle(CVehicle** ppVehicle)
+  {
+    if(CanCreateVehicle())
     {
-      *ppObject = new CObject();
+      *ppVehicle = new CVehicle();
+      return 1;
+    }    
+
+    // If CanCreateVehicle() returns FALSE,
+    // the pointer to *ppVehcile would never be set!
+
+    return 0;
+  }
+
+\endcode
+
+The correct code:
+
+\code
+
+  int CreateVehicle(CVehicle** ppVehicle)
+  {
+    // First initialize the output parameter with NULL
+    *ppVehicle = NULL;
+
+    if(CanCreateVehicle())
+    {
+      *ppVehicle = new CVehicle();
       return 1;
     }    
 
@@ -137,105 +223,286 @@ It is recommended to validate function input parameters.
 
 \endcode
 
-\section Use Asserts Carefully
+\section clean_up_pointers Clean Up Pointers to Deleted Objects
 
-\section Check return code of a function
-
-\section Use left-side == operator
+Assign NULL to a pointer after freeing (or deleting) it. This will
+help to ensure noone will try to reuse an invalid pointer.
 
 \code
+ // Create object
+ CVehicle* pVehicle = new CVehicle();
  
-  int nItemCount = 10;
-  if(0==nItemCount)
-  {
-  } 
- 
+ delete pVehicle; // Free pointer
+ pVehicle = NULL; // Set pointer with NULL
 \endcode
 
-\section Use STL Containers 
+\section delete_operator Use delete [] Operator for Arrays
+
+If you allocate a single object with the operator \b new, you should
+free it with the operator \b delete.
+
+But if you allocate an array of objects with the operator \b new,
+you should free this array with <b> delete [] </b>.
 
 \code
+ // Create an array of objects
+ CVehicle* paVehicles = new CVehicle[10];
+ 
+ delete [] paVehicles; // Free pointer to array
+ paVehicles = NULL; // Set pointer with NULL
+\endcode
 
-  // Initialize column widths
-  int* pColumnWidths = new int[10];
-  int i;
-  for(i=0; i<10; i++)
+or
+
+\code
+ // Create a buffer of bytes
+ LPBYTE pBuffer = new BYTE[255];
+ 
+ delete [] pBuffer; // Free pointer to array
+ pBuffer = NULL; // Set pointer with NULL
+\endcode
+        
+\section allocate_memory_carefully Allocate Memory Carefully
+
+Ensure that 0 (zero) bytes are not allocated using \b malloc() or \b new. 
+
+\code
+  UINT uBufferSize = GetBufferSize(); // Determine what buffer to allocate.
+
+  LPBYTE* pBuffer = NULL; // Init pointer to buffer
+
+  // Allocate a buffer only if buffer size > 0
+  if(uBufferSize!=0)
+   pBuffer = new BYTE[uBufferSize];
+
+\endcode
+
+For additional tips on how to allocate memory correctly, you can read 
+the <a href="http://www.codeproject.com/KB/tips/CBP_for_memory_allocation.aspx">
+Secure Coding Best Practices for Memory Allocation in C and C++</a> article.
+
+\section use_asserts_carefully Use Asserts Carefully
+
+Asserts can be used in debug mode for checking preconditions and postconditions.
+But when you compile your program in release mode, asserts are removed on the
+preprocessing stage. So, using asserts is not enough to validate your program's state.
+
+Incorrect code:
+
+\code
+  #include <assert.h>
+  
+  CVehicle* ReadVehicleModelFromFile(LPCTSTR szFileName)
   {
-    pColumnWidths[i] = 50;
+    CVehicle* pVehicle = NULL; // Pointer to vehicle object
+
+    // Check preconditions
+    assert(szFileName!=NULL); // This will be removed by preprocessor in Release mode!
+    assert(_tcslen(szFileName)!=0); // This will be removed by preprocessor in Release mode!
+
+    // Open the file
+    FILE* f = _tfopen(szFileName, _T("rt"));
+
+    // Create new CVehicle object
+    pVehicle = new CVehicle();
+
+    // Read vehicle model from file
+
+    // Check postcondition 
+    assert(pVehicle->GetWheelCount()==4); // This will be removed by preprocessor in Release mode!
+
+    // Return pointer to the vehicle object
+    return pVehicle;
   }
-
 \endcode
 
-\section static_checks Using SAL macros 
+As you can see in the code above, usage of asserts can help you to check your program
+state in Debug mode, but in Release mode these checks will just disappear.
 
-\section automated_testing Using Automated Tests
+The correct code would be:
 
-\section Properly use line indenting
+\code
+  #include <assert.h>
+  
+  CVehicle* ReadVehicleModelFromFile(LPCTSTR szFileName, )
+  {
+    CVehicle* pVehicle = NULL; // Pointer to vehicle object
 
-\section Use consistent programming style
+    // Check preconditions
+    assert(szFileName!=NULL); // This will be removed by preprocessor in Release mode!
+    assert(_tcslen(szFileName)!=0); // This will be removed by preprocessor in Release mode!
 
-Use Hungarian notation
+    if(szFileName==NULL || _tcslen(szFileName)==0)
+      return NULL; // Invalid input parameter
 
-\section Avoid complex conditional expressions
+    // Open the file
+    FILE* f = _tfopen(szFileName, _T("rt"));
 
-\section Compile your code at warning level 4
+    // Create new CVehicle object
+    pVehicle = new CVehicle();
 
-\section Keep your code clean of compiler warnings
+    // Read vehicle model from file
 
-\section Use smart pointers
+    // Check postcondition 
+    assert(pVehicle->GetWheelCount()==4); // This will be removed by preprocessor in Release mode!
 
-\section Choose meaningful variable names
+    if(pVehicle->GetWheelCount!=4)
+    { 
+      // Oops... an invalid wheel count was encountered!  
+      delete pVehicle; 
+      pVehicle = NULL;
+    }
 
-\section Comment your code 
+    // Return pointer to the vehicle object
+    return pVehicle;
+  }
+\endcode
 
-\section Remove junk comment blocks
+\section check_return_code Check Return Code of a Function
 
-\section Using goto instruction
+It is a common mistake to call the function and assume it will succeed.
+When you call a function, it is recommended to check its return code and 
+values of output parameters.
 
-Some people say that goto statements violate the idea of structured code. 
-Only in some very few cases (for instance breaking out of deeply nested 
-structures) should goto be considered, and only if the alternative 
-structured counterpart is proven to be less readable.
+The following code calls functions in succession. Whether to
+proceed or to exit depends on return code and output parameters.
 
-\section Switch statement 
+\code
+    HRESULT hres = E_FAIL;
+    IWbemServices *pSvc = NULL;
+    IWbemLocator *pLoc = NULL;
+    
+    hres =  CoInitializeSecurity(
+        NULL, 
+        -1,                          // COM authentication
+        NULL,                        // Authentication services
+        NULL,                        // Reserved
+        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
+        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+        NULL,                        // Authentication info
+        EOAC_NONE,                   // Additional capabilities 
+        NULL                         // Reserved
+        );
 
-\section Try-catch statement 
+                      
+    if (FAILED(hres))
+    {
+	log_write(_T("Failed to initialize security. Error code = %X\n"), hres);
+        if(hres!=RPC_E_TOO_LATE) return FALSE;
+    }
+    
+    hres = CoCreateInstance(
+        CLSID_WbemLocator,             
+        0, 
+        CLSCTX_INPROC_SERVER, 
+        IID_IWbemLocator, (LPVOID *) &pLoc);
+ 
+    if (FAILED(hres) || !pLoc)
+    {
+	log_write(_T("Failed to create IWbemLocator object. Err code = %X"), hres);
+        return FALSE;               
+    }
+   
+    hres = pLoc->ConnectServer(
+         _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
+         NULL,                    // User name. NULL = current user
+         NULL,                    // User password. NULL = current
+         0,                       // Locale. NULL indicates current
+         NULL,                    // Security flags.
+         0,                       // Authority (e.g. Kerberos)
+         0,                       // Context object 
+         &pSvc                    // pointer to IWbemServices proxy
+         );
+    
+    if (FAILED(hres) || !pSvc)
+    {
+	log_write(_T("Couldn't conect server\n"));      
+	if(pLoc) pLoc->Release();     
+        return FALSE;  
+    }
 
-\section Clean up in class destructor
+    hres = CoSetProxyBlanket(
+       pSvc,                        // Indicates the proxy to set
+       RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+       RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+       NULL,                        // Server principal name 
+       RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+       RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+       NULL,                        // client identity
+       EOAC_NONE                    // proxy capabilities 
+    );
 
-\section Check for division by zero
+    if (FAILED(hres))
+    {
+	log_write(_T("Could not set proxy blanket.\n"));
+        if(pSvc) pSvc->Release();
+        if(pLoc) pLoc->Release();     
+        return FALSE;               
+    }
+\endcode
 
-\section Use macros carefully
+\section use_smart_ptrs Use Smart Pointers
 
-\section Use type conversion carefully
+If you intensively use pointers to shared objects (e.g., COM interfaces),
+it is a good practice to wrap them into smart pointers. The smart pointer
+will take care of your objec't reference counting and will protect you
+from accessing an object that was already deleted. That is, you don't need 
+to worry about controlling the lifetime of your interface pointer.
 
-\section Initialize cbSize member of WinAPI structures
+Below is an example code (borrowed from MSDN) that uses ATL's \b CComPtr template class as a
+smart pointer. 
 
-\section Use safe CRT functions
+\code
+#include <windows.h>
+#include <shobjidl.h> 
+#include <atlbase.h> // Contains the declaration of CComPtr.
 
-\section Explicitly define calling convention
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
+{
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+        COINIT_DISABLE_OLE1DDE);
+    if (SUCCEEDED(hr))
+    {
+        CComPtr<IFileOpenDialog> pFileOpen;
 
-\section Thread safety (critical sections)
+        // Create the FileOpenDialog object.
+        hr = pFileOpen.CoCreateInstance(__uuidof(FileOpenDialog));
+        if (SUCCEEDED(hr))
+        {
+            // Show the Open dialog box.
+            hr = pFileOpen->Show(NULL);
 
-Safe memory allocation new delete []
+            // Get the file name from the dialog box.
+            if (SUCCEEDED(hr))
+            {
+                CComPtr<IShellItem> pItem;
+                hr = pFileOpen->GetResult(&pItem);
+                if (SUCCEEDED(hr))
+                {
+                    PWSTR pszFilePath;
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 
-\section Use UINT type carefully
+                    // Display the file name to the user.
+                    if (SUCCEEDED(hr))
+                    {
+                        MessageBox(NULL, pszFilePath, L"File Path", MB_OK);
+                        CoTaskMemFree(pszFilePath);
+                    }
+                }
 
-UINT overflow
+                // pItem goes out of scope.
+            }
 
-\section Clean up pointers to deleted objects
+            // pFileOpen goes out of scope.
+        }
+        CoUninitialize();
+    }
+    return 0;
+} 
+\endcode
 
-Assign NULL to a pointer after freeing (or deleting) it.
 
-\section Allocate memory carefully
 
-Ensure that 0 (zero) bytes are not allocated using malloc. 
 
-http://www.codeproject.com/KB/tips/CBP_for_memory_allocation.aspx
-
-How to write robust code http://www.iovene.com/28/
-http://geosoft.no/development/cppstyle.html
-http://www.doc.ic.ac.uk/lab/cplus/c%2b%2b.rules/chap4.html#sect2
-http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml#Header_Files
 
 */

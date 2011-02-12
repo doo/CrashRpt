@@ -180,7 +180,7 @@ can help you to answer this question by getting the count of
 The expected script output:
 
 \code
-202 error repors in total
+207 error reports in total
 105 error reports in 'subdir1'
 50 error reports in 'subdir2'
 30 error reports in 'subdir3'

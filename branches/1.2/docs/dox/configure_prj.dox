@@ -55,11 +55,6 @@ your default debugger intercepts exceptions instead of CrashRpt in Debug configu
 
 \image html crtdll.png "Multi-threaded DLL (/MD)"    
 
-<b>What do I do if my project uses CRT as a static library?</b>
-
-In such case you can't use current version of CrashRpt in your project, because it uses 
-dynamically linked C runtime libraries (Multi-threaded DLL (/MD) compiler flag).  
-
 \section crtver Using the Same Version of CRT for All Application Modules
 
 Ensure that all modules that exist in your application use the same version of CRT. 
@@ -80,8 +75,7 @@ symbols. By default Release builds don't generate debug symbols.
 Then choose Configuration Properties->C/C++->General. In the <b>Debug Information Format</b> field,
 choose <b>Program Database (/Zi)</b>.
 -# Choose Configuration Properties->Linker->Debugging. In the <b>Generate Debug Info</b> field,
-choose <b>Yes (/DEBUG)</b>. In the <b>Generate Program Database File</b> field,
-enter the name for your PDB file, for example <b>\$(TargetDir)\$(TargetName).pdb</b>.
+choose <b>Yes (/DEBUG)</b>. 
 
 Steps 1 and 2 should be done for all projects in your solution that support program database 
 (EXE, DLL).

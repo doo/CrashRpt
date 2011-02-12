@@ -16,6 +16,7 @@ try to fix it. The keyword is 'try', because in most cases you can't fix crash r
 you usually do with normal bugs. You usually can't reproduce the error on your machine,
 so you can't guarantee it is fixed. So the only way to check is to make fixes in parts of code 
 that could cause the crash most probably and to release a new version of software. 
+For some tips on doing such code modifications, see \ref writing_robust_code.
 
 The normal scenario is that your software becomes more and more stable with each evolutional release and
 less and less error reports are received. 

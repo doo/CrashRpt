@@ -211,14 +211,14 @@ The script can receive error reports from any version of CrashRpt.
 \section smtpsend Sending Crash Report Using SMTP Connection
 
 CrashRpt has a simple built-in SMPT client. It can try to send an error report to recipient using SMTP
-connection without any user interaction. The error report is sent as an E-mail multi-part message with 
+connection without any user interaction. The error report is sent as an E-mail message with 
 attachments.
 
 If user provides his/her email address, CrashRpt tries to use the address's MX domain record to determine local SMTP
 server name and relay the email message to that server.
 
 If user doesn't provide his/her email address, CrashRpt tries to send the email directly to recipient using the MX 
-record of recipent's domain. Another way to specify the recipient server address and port is by using 
+record of recipent's domain. Another way to specify the SMTP server address and port is by using 
 \ref CR_INSTALL_INFO::pszSmtpProxy member.
 
 Many SMTP servers may block direct access to them to avoid spam (for example Google does so). 
@@ -227,7 +227,7 @@ This way may also fail if firewall blocks outgoing connections on port 25.
 \section smapisend Sending Crash Report Using Simple MAPI
 
 CrashRpt can use the default E-mail client, for example, Mozilla Thunderbird, to send an error report as email. 
-The error report is sent as an E-mail multi-part message with attachments.
+The error report is sent as an E-mail message with attachments.
 This requires some user interaction.
 
 This way has the lowest priority by default.

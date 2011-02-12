@@ -8,7 +8,7 @@
  - handling exceptions (critical errors) in a client software
  - automatically collecting necessary error info and generating error reports 
  - deliverying error reports over the internet
- - and simplify error report postprocessing
+ - and simplifying error report postprocessing
 
 \section crashrpt_stackholders CrashRpt Stakeholders
 
@@ -68,7 +68,7 @@ CrashRpt is designed to use C runtime libraries (CRT) as a Multi-threaded DLL
 (/MD compiler flag). All modules in the client application must be linked to 
 the same version of CRT DLL in order to use CrashRpt. If some dependent module 
 of the application uses different version of CRT or is statically linked to CRT, 
-exceptions are not intercepted in that module.
+exceptions are not intercepted in that module. For more information, see \ref exception_handling.
 
 In Visual C++, some exceptions related to security can't be intercepted. For example, 
 since CRT v8.0 you can not handle security errors. When buffer overrun is detected, 
@@ -82,7 +82,7 @@ Error report analyzis functionality consists of two modules:
 
 - \b CrashRptProbe.dll implements API that can be used to access error report data.
 - \b crprober.exe is a console tool that helps to extract error report data and
-   write the summary in human-readable form.
+   write the summary in a human-readable form.
 
 When you receive many error reports from users of your software, you 
 would have to spend a lot of time to open each report, analyze its contents and
@@ -97,7 +97,7 @@ Well, you can install exception handlers in your \b DllMain() function, but typi
 you can't guarantee that the client process (EXE) won't install its own exception 
 handlers above yours. And there might be some problems if the client process uses 
 several worker threads that call functions from your DLL. In such case you would 
-have to somehow install per-thread exception handlers too. It would be better if 
+have to install per-thread exception handlers too. It would be better if 
 the client process take care of exception handling instead of your DLL.
 
 <b>How do I use crashrpt across process boundaries?</b>

@@ -35,10 +35,9 @@ settings include application name and version, recipient's e-mail address or URL
 Privacy Policy URL and so on.
 
 You can also create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
-The crash callback is called on crash and allows to add custom files to the error report or perform
-another action.
+The crash callback is called on crash.
 
-On application exit, you should use the crUninstall() function to unset exception handlers. 
+On application exit, you use the crUninstall() function to unset exception handlers. 
 
 The function crInstallToCurrentThread2() installs exception handlers that work on per-thread basis. 
 In a multi-threaded program you call the crInstallToCurrentThread2() for all 
@@ -86,7 +85,7 @@ always provide a link to your Privacy Policy page describing what information yo
 crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
 with the contents of the error report and accepts the terms of the Privacy Policy.
 
-You can make a snapshot of user's virtual screen or a snapshot of your main window using crAddScreenshot() function. 
+You can make a screen shot of user's virtual screen or a screen shot of your main window using the crAddScreenshot() function. 
 
 \section adding_a_reg_key Adding a Registry Key
 
@@ -131,13 +130,6 @@ If you generate an error report manually, the caller process is not terminated a
 do not want to terminate the caller process, and want to avoid
 starting the second instance of the application, specify the \ref CR_EXCEPTION_INFO::bManual flag.
 
-\section handling_structured_exceptions Structured Exception Handling (SEH)
-
-Visual C++ provides structured exception handling mechanism. You may use <i>__try{}__except(Expression){}</i>
-construction to catch a SEH exception in a block of code in your program, however this requires some
-work to write custom exception filter function. To simplify this, use crExceptionFilter() function instead to
-generate the error report when SEH exception occurs. 
-
 \section testing_if_intercepted Testing If Exceptions are Intercepted
 
 When you install crash reporting support to your program, it is important to test if CrashRpt
@@ -160,19 +152,19 @@ text error message of the last called function, use crGetLastErrorMsg().
 collected after crInstall(). What is the best way ?</b>
 
 Currently, there are no ways to modify the CrashRpt configuration info after calling crInstall(). 
-I would recommend to hardcode the info you pass to crInstall() function, that means not reading 
+It is recommend to hardcode the info you pass to crInstall() function, that means not reading 
 it from an INI file or from another source.
 
 However, if you strongly wish to read crashrpt configuration info from an external file, call 
 crInstall() after reading the info from that file. Simple file reading functionality is not 
-likely to crash, I suppose. So the probability you miss a crash while reading the file is small. 
+likely to crash. So the probability you miss a crash while reading the file is small. 
 
 <b>We ship a software (game etc.) and certain crashes only happen on certain hardware. So we 
 need some sort of functionality that gathers GPU/CPU/general hardware information upon crash 
 report generation. What do we do?</b>
 
 We introduced a function crAddProperty() specially for purposes of extending the crash description 
-XML as you wish. You can also use the crAddFile2() function, which allows to add a used-defined 
+XML as you wish. You can also use the crAddFile2() function, which allows to add a user-defined 
 file to the crash report. 
 
 <b>I want to uniquely identify the installation by what the error reports are sent. What do I do?</b>

@@ -2,8 +2,8 @@
 
 \page compiling_crashrpt Compiling CrashRpt
 
-By default, CrashRpt archive already contains binary files 
-compiled with Visual Studio 2005 in its \c bin directory. These 
+By default, CrashRpt archive's \b bin directory contains binary files 
+compiled in Visual Studio 2005. These 
 files are provided for demonstration purposes only. 
 It is strongly recommended that you compile CrashRpt yourself using 
 your version of Visual Studio. This is needed to ensure CrashRpt 
@@ -18,8 +18,8 @@ and later versions, and in <b>Visual C++ Express</b>.
 Open one of solution files available in the top level directory of 
 CrashRpt archive, depending on your version of Visual Studio:
  - <b>CrashRpt_vs2003.sln</b> if you use Visual C++ 2003 
- - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express 
-    or Visual C++ 2008 or Visual C++ 2008 Express. Visual Studio will convert project 
+ - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express, 
+    Visual C++ 2008 or Visual C++ 2008 Express. Visual Studio will convert project 
     files to the right format.
  - <b>CrashRpt_vs2010.sln</b> if you use Visual C++ 2010 or Visual C++ 2010 Express.
 
@@ -31,7 +31,7 @@ There are several projects in CrashRpt solution.
 - \b CrashSender project contains functionality 
   for displaying GUI, sending the error report and showing error report sending progress.
 
-- \b CrashRptTest is a GUI application that helps to check that 
+- \b CrashRptTest is a GUI application that helps to test that 
    CrashRpt API functions work as expected.
 
 - \b crashcon is a console application that helps to test how CrashRpt

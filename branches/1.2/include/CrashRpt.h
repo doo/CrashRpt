@@ -918,7 +918,7 @@ crAddFile2A(
  *  \remarks 
  *
  *  This function can be used to take a screenshot at the moment of crash and add it to the error report. 
- *  Screenshot information may help the developer to better understand state of the application
+ *  Screenshot information may help the developer to better understand the state of the application
  *  at the moment of crash and reproduce the error.
  *
  *  When this function is called, screenshot flags are saved, 
@@ -939,7 +939,7 @@ crAddFile2A(
  *  (by default color image is made). Grayscale image gives smaller file size.
  *
  *  If you use JPEG image format, you may better use the \ref crAddScreenshot2() function, that allows to
- *  define JPEG image quality.
+ *  define JPEG image quality. 
  *
  *  When capturing entire desktop consisting of several monitors, 
  *  one screenshot file is added per each monitor. 
@@ -986,7 +986,7 @@ crAddScreenshot(
  *  screenshots as JPEG files instead. 
  *
  *  If you use JPEG format, you can use the \a nJpegQuality parameter to define the JPEG image quality. 
- *  This should be the number between 0 and 100, inclusively. 
+ *  This should be the number between 0 and 100, inclusively. If you use PNG file format, this parameter is ignored.
  *
  *  In addition, you can specify the \ref CR_AS_GRAYSCALE_IMAGE flag to make a grayscale screenshot 
  *  (by default color image is made). Grayscale image gives smaller file size.
@@ -999,7 +999,7 @@ crAddScreenshot(
  *  information for in your Privacy Policy. 
  *
  *  \sa
- *   crAddFile2(), crAddScreenShot()
+ *   crAddFile2()
  */
 
 CRASHRPTAPI(int)
@@ -1268,7 +1268,7 @@ crGenerateErrorReport(
    );
 
 
-/*! \ingroup CrashRptAPI 
+/*! \ingroup DeprecatedAPI 
  *  \brief Can be used as a SEH exception filter.
  *
  *  \return This function returns \c EXCEPTION_EXECUTE_HANDLER if succeeds, else \c EXCEPTION_CONTINUE_SEARCH.
@@ -1277,7 +1277,9 @@ crGenerateErrorReport(
  *  \param[in] ep   Exception pointers.
  *
  *  \remarks
- *     
+ *
+ *     As of v.1.2.8, this function is declared deprecated. It may be removed in one of the future releases.
+ *
  *     This function can be called instead of a SEH exception filter
  *     inside of __try{}__except(Expression){} statement. The function generates a error report
  *     and returns control to the exception handler block.
