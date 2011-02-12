@@ -305,7 +305,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRptLIB.lib CrashRptProbeLIB.lib Rpcrt4.lib version.lib psapi.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Gdi32.lib shell32.lib Comdlg32.lib libpng.lib minizip.lib"
+				AdditionalDependencies="CrashRpt.lib CrashRptProbe.lib Rpcrt4.lib version.lib psapi.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Gdi32.lib shell32.lib Comdlg32.lib libpng.lib minizip.lib"
 				OutputFile="$(OutDir)\Tests.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\thirdparty\lib;..\lib"
@@ -423,7 +423,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -448,7 +448,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\include;..\thirdparty\wtl;..\reporting\crashrpt;..\reporting\CrashSender;..\thirdparty\tinyxml;..\thirdparty\zlib;..\thirdparty\minizip;..\thirdparty\libpng;..\thirdparty\dbghelp\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;CRASHRPT_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
@@ -466,7 +466,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CrashRpt.lib CrashRptProbe.lib Rpcrt4.lib version.lib psapi.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Gdi32.lib shell32.lib Comdlg32.lib libpng.lib minizip.lib"
+				AdditionalDependencies="CrashRptLIB.lib CrashRptProbeLIB.lib Rpcrt4.lib version.lib psapi.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Gdi32.lib shell32.lib Comdlg32.lib libpng.lib minizip.lib"
 				OutputFile="$(OutDir)\Tests.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\thirdparty\lib;..\lib"
