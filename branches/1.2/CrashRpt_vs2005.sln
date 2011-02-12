@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+# Visual C++ Express 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "tests\Tests_vs2005.vcproj", "{C6941433-40EA-4307-A0A2-39BFB844367E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{939312D6-690A-4103-92C5-4D89025BF10A} = {939312D6-690A-4103-92C5-4D89025BF10A}

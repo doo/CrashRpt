@@ -32,7 +32,7 @@
 
 /*! \file   CrashRptProbe.h
  *  \brief  Defines the interface for the CrashRptProbe.DLL.
- *  \date   2009-2010
+ *  \date   2009-2011
  *  \author zexspectrum
  */
 

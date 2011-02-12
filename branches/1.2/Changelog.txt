@@ -19,7 +19,7 @@
 
 - Added an ability to add a custom title icon for CrashRpt dialogs through CR_INSTALL_INFO::pszCustomSenderIcon.
 
-- New section of documentation: Running automated tests.
+- New sections of documentation: Running automated tests and Making Your Code Robust.
 
 - Refactored Tests project (removed unneeded functionality). Additional test cases. 
   New test suite DeliveryTests. Tests now work even for Release LIB build configuration.
@@ -41,6 +41,8 @@
 - Extended lang files (new strings DescCrashDump, DescXML, DescScreenshot, DescRegKey)
 
 - Added HTTPS support for error report upload
+
+- The function crExceptionFilter() is declared deprecated.
 
 --- Ver. 1.2.7 ---
 
