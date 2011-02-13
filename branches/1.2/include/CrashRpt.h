@@ -769,7 +769,7 @@ crUninstallFromCurrentThread();
  *  \param[in] pszDesc File description (used in Error Report Details dialog).
  *
  *  \note
- *    This function is deprecated. It is recommended to use crAddFile2() function instead.
+ *    This function is deprecated and will be removed in one of the future releases. It is recommended to use crAddFile2() function instead.
  *
  *    This function can be called anytime after crInstall() to add one or more
  *    files to the generated crash report. 
@@ -832,10 +832,10 @@ crAddFileA(
  * 
  *  \return This function returns zero if succeeded.
  *
- *  \param[in] pszFile     Absolute path to the file to add.
- *  \param[in] pszDestFile Destination file name.
- *  \param[in] pszDesc     File description (used in Error Report Details dialog).
- *  \param[in] dwFlags     Flags.
+ *  \param[in] pszFile     Absolute path to the file to add, required.
+ *  \param[in] pszDestFile Destination file name, optional.
+ *  \param[in] pszDesc     File description (used in Error Report Details dialog), optional.
+ *  \param[in] dwFlags     Flags, optional.
  *
  *    This function can be called anytime after crInstall() to add one or more
  *    files to the generated crash report. 
@@ -844,7 +844,7 @@ crAddFileA(
  *    then the function returns control to the caller.
  *    When crash occurs, all marked files are added to the report by the \b CrashSender.exe process. 
  *    If a file is locked by someone for exclusive access, the file won't be included. Inside of \ref LPGETLOGFILE crash callback, 
- *    ensure files to be included are acessible for reading.
+ *    close open file handles and ensure files to be included are acessible for reading.
  *
  *    \a pszFile should be a valid absolute path of a file to add to crash report. 
  *
@@ -855,13 +855,14 @@ crAddFileA(
  *    \a pszDesc is a literal description of a file. It can be NULL.
  *
  *    \a dwFlags parameter defines the behavior of the function. This can be a combination of the following flags:
- *       - \ref CR_AF_TAKE_ORIGINAL_FILE  On crash, the CrashSender.exe will try to locate the file from its original location. This behavior is the default one.
- *       - \ref CR_AF_MAKE_FILE_COPY      On crash, the CrashSender.exe will make a copy of the file and save it to the error report folder.  
+ *       - \ref CR_AF_TAKE_ORIGINAL_FILE  On crash, the \b CrashSender.exe will try to locate the file from its original location. This behavior is the default one.
+ *       - \ref CR_AF_MAKE_FILE_COPY      On crash, the \b CrashSender.exe will make a copy of the file and save it to the error report folder.  
  *
  *       - \ref CR_AF_FILE_MUST_EXIST     The function will fail if file doesn't exist at the moment of function call (the default behavior). 
  *       - \ref CR_AF_MISSING_FILE_OK     Do not fail if file is missing (assume it will be created later).
  *
- *    If your file is not huge, specify the \ref CR_AF_MAKE_FILE_COPY as \a dwFlags parameter value. This will
+ *    If you use postponed error report delivery (if you specify \ref CR_INST_SEND_QUEUED_REPORTS flag for \ref CR_INSTALL_INFO::dwFlags structure member) 
+ *    you must also specify the \ref CR_AF_MAKE_FILE_COPY as \a dwFlags parameter value. This will
  *    guarantee that a snapshot of your file at the moment of crash is taken and saved to the error report folder.
  *
  *    This function fails if \a pszFile doesn't exist at the moment of function call, 
@@ -918,7 +919,7 @@ crAddFile2A(
  * 
  *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
- *  \param[in] dwFlags Flags.
+ *  \param[in] dwFlags Flags, optional.
  *  
  *  \remarks 
  *
@@ -971,8 +972,8 @@ crAddScreenshot(
  * 
  *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
- *  \param[in] dwFlags Flags.
- *  \param[in] nJpegQuality Defines the JPEG image quality.
+ *  \param[in] dwFlags Flags, optional.
+ *  \param[in] nJpegQuality Defines the JPEG image quality, optional.
  *  
  *  \remarks 
  * 
@@ -1026,8 +1027,8 @@ crAddScreenshot2(
  * 
  *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
- *  \param[in] pszPropName   Name of the property.
- *  \param[in] pszPropValue  Value of the property.
+ *  \param[in] pszPropName   Name of the property, required.
+ *  \param[in] pszPropValue  Value of the property, required.
  *  
  *  \remarks 
  *
@@ -1080,7 +1081,7 @@ crAddPropertyA(
  *
  *  \param[in] pszRegKey        Registry key to dump, required.
  *  \param[in] pszDstFileName   Name of the destination file, required. 
- *  \param[in] dwFlags          Flags.
+ *  \param[in] dwFlags          Flags, reserved.
  *  
  *  \remarks 
  *
