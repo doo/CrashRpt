@@ -44,6 +44,15 @@
 
 - The function crExceptionFilter() is declared deprecated.
 
+- fix: CR_INST_STORE_ZIP_ARCHIVES (issue 59)
+- fix: crAddScreenshot( CR_AS_MAIN_WINDOW); (issue 61)
+- fix: Cannot be loaded under Win2000 due to import of the GetGeoInfo function from kernel32.dll (issue 65)
+- fix: std::string CCrashHandler::XmlEncodeStr(CString sText) error (issue 67)
+- fix: CR_INST_STORE_ZIP_ARCHIVES and CR_AF_TAKE_ORIGINAL_FILE (issue 69)
+- fix: atlassert in crashhandler.cpp (issue 70)
+- fix: Registry keys with ampersand (&) are not dumped (issue 71)
+
+
 --- Ver. 1.2.7 ---
 
 - Added Tests project that implements automated tests for CrashRpt and 

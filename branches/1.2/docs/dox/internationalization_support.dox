@@ -101,11 +101,11 @@ language abbreviation (EN and so on). Ensure your file has the .INI extension. I
 In the <b>Encoding</b> field, select <b>Unicode</b>.
 
 Then test your changes by substituting the language file. Rename your file into
-<b>crashrpt_lang.ini</b> and copy it to the directory where CrashSender.exe is located (the \c bin directory under the
-CrashRpt top-level directory) and run CrashRptTest.exe.
+<b>crashrpt_lang.ini</b> and copy it to the directory where \b CrashSender.exe is located (the \c bin directory under the
+CrashRpt top-level directory) and run \b CrashRptTest.exe.
 
 To contribute your changes, please leave us a message in our 
-<a href="http://groups.google.com/group/crashrpt">Discussions</a> group. We will let you know how your changes 
+<a href="http://groups.google.com/group/crashrpt">Forum</a>. We will let you know how your changes 
 can be uploaded. 
 
 <b>I want to upgrade my language file from a previous version to the latest CrashRpt version. What do I do?</b>

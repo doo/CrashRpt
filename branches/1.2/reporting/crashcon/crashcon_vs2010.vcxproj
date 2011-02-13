@@ -130,7 +130,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">crashcond</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">crashcon</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">crashcon</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">crashcon.exe</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">crashcon</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">crashcon</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
