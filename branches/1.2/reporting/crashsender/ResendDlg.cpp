@@ -92,7 +92,7 @@ LRESULT CResendDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   // Set window icon
   HICON hIcon = g_CrashInfo.GetCustomIcon();
   if(!hIcon)
-    ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+    hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
   SetIcon(hIcon, 0);
   
 	// register object for message filtering and idle updates
@@ -611,7 +611,7 @@ void CResendDlg::AddTrayIcon(BOOL bAdd)
     _TCSCPY_S(nf.szTip, 64, sTip);
     HICON hIcon = g_CrashInfo.GetCustomIcon();
     if(!hIcon)
-      ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));    
+      hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));    
 		nf.hIcon = hIcon;
     
 	

@@ -849,15 +849,15 @@ HICON CCrashInfoReader::GetCustomIcon()
 
     sResourceFile.TrimRight();        
 
-    if(nIconIndex<=0)
+    if(nIconIndex==-1)
     {      
       return NULL;
     }
 
     // Check that custom icon can be loaded
-    HICON hIcon = ExtractIcon(NULL, sResourceFile, -nIconIndex);
-    if(hIcon==NULL)
-    {      
+    HICON hIcon = ExtractIcon(NULL, sResourceFile, nIconIndex);
+    if(hIcon==NULL || hIcon==(HICON)1)
+    { 
       return NULL;
     }
 

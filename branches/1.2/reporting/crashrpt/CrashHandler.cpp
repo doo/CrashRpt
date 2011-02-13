@@ -170,9 +170,9 @@ int CCrashHandler::Init(
 
     sResourceFile.TrimRight();        
 
-    if(nIconIndex<=0)
+    if(nIconIndex==-1)
     {
-      crSetErrorMsg(_T("Invalid index of custom icon."));
+      crSetErrorMsg(_T("Invalid index of custom icon (it should not equal to -1)."));
       return 1;
     }
 

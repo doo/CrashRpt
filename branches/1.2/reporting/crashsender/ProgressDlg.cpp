@@ -51,7 +51,7 @@ LRESULT CProgressDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
   // Try to load custom icon
   hIcon = g_CrashInfo.GetCustomIcon();
   if(hIcon==NULL)
-    ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+    hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
 
   SetIcon(hIcon, FALSE);
   SetIcon(hIcon, TRUE);

@@ -66,8 +66,8 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   HICON hIcon = NULL;
 
   hIcon = g_CrashInfo.GetCustomIcon();
-  if(!hIcon)
-    ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+  if(hIcon==NULL)
+    hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
 
   // Set window icon
   SetIcon(hIcon, 0);
@@ -535,7 +535,7 @@ int CErrorReportDlg::CreateTrayIcon(bool bCreate, HWND hWndParent)
     // Try to load custom icon
     HICON hIcon = g_CrashInfo.GetCustomIcon();
     if(hIcon==NULL)
-      ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+      hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
 		nf.hIcon = hIcon;
 	  _TCSCPY_S(nf.szTip, 128, _T("Sending Error Report"));
 		

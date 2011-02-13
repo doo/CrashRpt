@@ -464,7 +464,10 @@ GenerateErrorReport(
  *  
  *   <b>Since v.1.2.8</b>, \a pszCustomSenderIcon parameter can be used to define a custom icon for <i>Error Report</i> dialog.
  *   The value of this parameter should be absolute address to the image containing the icon resource, followed by resource identifier separated by comma.
- *   Example: "D:\\MyApp\\Resources.dll, 128". You can set this parameter with NULL to use the default icon.
+ *   The resource identifier is a zero-based index of the icon to retrieve. For example, if this value is 0, the first icon in the specified file is used.
+ *   If the identifier is a negative number not equal to –1, the icon in the specified file whose resource identifier is equal to the absolute value of the resource identifier is used.
+ *
+ *   Example: "D:\\MyApp\\Resources.dll, -128". You can set this parameter with NULL to use the default icon.
  *  
  *  \note
  *
