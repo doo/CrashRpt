@@ -181,8 +181,10 @@ public:
     COMMAND_ID_HANDLER(IDC_LINK, OnLinkClick)
     COMMAND_ID_HANDLER(IDC_MOREINFO, OnMoreInfoClick)    
     COMMAND_ID_HANDLER(IDC_RESTART, OnRestartClick)    
+    COMMAND_HANDLER(IDC_EMAIL, EN_KILLFOCUS, OnEmailKillFocus)
+    COMMAND_HANDLER(IDC_DESCRIPTION, EN_KILLFOCUS, OnEmailKillFocus)
 		COMMAND_ID_HANDLER(IDOK, OnSend)
-		COMMAND_ID_HANDLER(IDCANCEL, OnCancel)            
+		COMMAND_ID_HANDLER(IDC_CANCEL, OnCancel)            
     COMMAND_ID_HANDLER(ID_MENU5_SENDREPORTLATER, OnPopupSendReportLater)            
     COMMAND_ID_HANDLER(ID_MENU5_CLOSETHEPROGRAM, OnPopupCloseTheProgram)            
 	END_MSG_MAP()
@@ -201,6 +203,7 @@ public:
 
 	LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+  LRESULT OnEmailKillFocus(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnLinkClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
   LRESULT OnMoreInfoClick(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
   LRESULT OnSend(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

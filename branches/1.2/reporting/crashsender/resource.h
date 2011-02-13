@@ -65,6 +65,7 @@
 #define IDC_SHOWLOG                     1044
 #define IDC_ACTIONDESC                  1045
 #define IDC_CURRENTACTION               1046
+#define IDC_CANCEL                      1047
 #define ID_MENU1_COPYTHISLINE           32772
 #define ID_MENU1_COPYTHEWHOLELOG        32773
 #define ID_MENU1_COPYSEL                32774
@@ -112,7 +113,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32804
-#define _APS_NEXT_CONTROL_VALUE         1047
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

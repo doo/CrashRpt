@@ -176,15 +176,6 @@ int CCrashHandler::Init(
       return 1;
     }
 
-    // Check that custom icon can be loaded
-    HICON hIcon = ExtractIcon(NULL, sResourceFile, -nIconIndex);
-    if(hIcon==NULL)
-    {
-      crSetErrorMsg(_T("Custom icon couldn't be loaded."));
-      return 1;
-    }
-
-    DestroyIcon(hIcon);
   }
 
   // Save URL to send reports via HTTP
@@ -202,8 +193,6 @@ int CCrashHandler::Init(
     return 1;
   }
   
-  //m_bAppRestart = (dwFlags&CR_INST_APP_RESTART)?TRUE:FALSE;
-
   m_sRestartCmdLine = lpcszRestartCmdLine;
 
   // Save Email recipient address
@@ -1264,8 +1253,6 @@ void CCrashHandler::CrashLock(BOOL bLock)
 // Structured exception handler
 LONG WINAPI CCrashHandler::SehHandler(PEXCEPTION_POINTERS pExceptionPtrs)
 { 
-  ATLASSERT(0);
-
   CCrashHandler* pCrashHandler = CCrashHandler::GetCurrentProcessCrashHandler();
   ATLASSERT(pCrashHandler!=NULL);  
 

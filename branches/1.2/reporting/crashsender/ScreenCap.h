@@ -45,6 +45,8 @@ struct WindowInfo
 {
   CString m_sTitle; // Window title
   CRect m_rcWnd;    // Window rect
+  DWORD dwStyle;
+  DWORD dwExStyle;
 };
 
 struct MonitorInfo

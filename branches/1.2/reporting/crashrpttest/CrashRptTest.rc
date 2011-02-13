@@ -67,15 +67,15 @@ CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,68,74,50,14
-    ICON            IDR_MAINFRAME,IDC_STATIC,10,9,21,20
+    ICON            IDR_MAINFRAME,IDC_STATIC,10,9,20,20
     LTEXT           "Simple tests for CrashRpt library",IDC_STATIC,42,14,137,8
     LTEXT           "Version:",IDC_VERSION,42,28,138,8
-    LTEXT           "Copyright (c) 2003-2011 Mikhael Carruth",IDC_STATIC,42,43,138,8
-    LTEXT           "Visit CrashRpt project site",IDC_LINK,42,58,138,11
+    LTEXT           "Visit CrashRpt project site",IDC_LINK,42,53,138,11
 END
 
 IDD_MAINDLG DIALOGEX 0, 0, 298, 191
 STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
 CAPTION "CrashRptTest"
 MENU IDR_MENU
 FONT 8, "MS Sans Serif", 0, 0, 0x0

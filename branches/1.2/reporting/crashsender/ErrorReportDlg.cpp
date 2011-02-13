@@ -140,7 +140,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   m_btnOk = GetDlgItem(IDOK);
   m_btnOk.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReport")));
 
-  m_btnCancel = GetDlgItem(IDCANCEL);  
+  m_btnCancel = GetDlgItem(IDC_CANCEL);  
   if(g_CrashInfo.m_bQueueEnabled)
     m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("OtherActions")));
   else
@@ -394,6 +394,43 @@ LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 {
   BOOL bRestart = m_chkRestart.GetCheck()==BST_CHECKED?TRUE:FALSE;
   g_CrashInfo.m_bAppRestart = bRestart;
+
+  return 0;
+}
+
+LRESULT CErrorReportDlg::OnEmailKillFocus(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{ 
+  HWND     hWndEmail = GetDlgItem(IDC_EMAIL);
+  HWND     hWndDesc = GetDlgItem(IDC_DESCRIPTION);
+  int      nEmailLen = ::GetWindowTextLength(hWndEmail);
+  int      nDescLen = ::GetWindowTextLength(hWndDesc);
+
+  LPTSTR lpStr = g_CrashInfo.GetReport(0).m_sEmailFrom.GetBufferSetLength(nEmailLen+1);
+  ::GetWindowText(hWndEmail, lpStr, nEmailLen+1);
+  g_CrashInfo.GetReport(0).m_sEmailFrom.ReleaseBuffer();
+
+  lpStr = g_CrashInfo.GetReport(0).m_sDescription.GetBufferSetLength(nDescLen+1);
+  ::GetWindowText(hWndDesc, lpStr, nDescLen+1);
+  g_CrashInfo.GetReport(0).m_sDescription.ReleaseBuffer();
+
+  //
+  // If an email address was entered, verify that
+  // it [1] contains a @ and [2] the last . comes
+  // after the @.
+  //
+  
+  if (g_CrashInfo.GetReport(0).m_sEmailFrom.GetLength() &&
+      (g_CrashInfo.GetReport(0).m_sEmailFrom.Find(_T('@')) < 0 ||
+       g_CrashInfo.GetReport(0).m_sEmailFrom.ReverseFind(_T('.')) < 
+       g_CrashInfo.GetReport(0).m_sEmailFrom.Find(_T('@'))))
+  {
+    // Invalid email    
+    g_CrashInfo.GetReport(0).m_sEmailFrom = _T("");
+  }
+  
+  // Write user email and problem description to XML
+  g_CrashInfo.AddUserInfoToCrashDescriptionXML(
+      g_CrashInfo.GetReport(0).m_sEmailFrom, g_CrashInfo.GetReport(0).m_sDescription);
 
   return 0;
 }

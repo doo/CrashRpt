@@ -104,7 +104,7 @@ CAPTION "Error Report"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Send report",IDOK,10,206,80,16
-    PUSHBUTTON      "Close the program",IDCANCEL,101,206,80,16
+    PUSHBUTTON      "Close the program",IDC_CANCEL,101,206,80,16
     CONTROL         "Restart the program when when this window is closed",IDC_RESTART,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,152,294,10
     EDITTEXT        IDC_EMAIL,96,98,208,14,ES_AUTOHSCROLL

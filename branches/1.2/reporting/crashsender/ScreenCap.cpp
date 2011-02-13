@@ -508,33 +508,17 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
       DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
       if((dwStyle&WS_CHILD)==0) // Get only non-child windows
       {
-        if(!pFWD->bAllProcessWindows) // Find only the main window
-        {
-          // The main window should have caption, system menu and WS_EX_APPWINDOW style.
-          DWORD dwStyle = GetWindowLong(hWnd, GWL_STYLE);
-          DWORD dwExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-          if(dwExStyle&WS_EX_APPWINDOW || (dwStyle&WS_CAPTION && dwStyle&WS_SYSMENU))
-          {      
-            // Match!
-            WindowInfo wi;
-            TCHAR szTitle[1024];
-            GetWindowText(hWnd, szTitle, 1024);            
-            wi.m_sTitle = szTitle;
-            GetWindowRect(hWnd, &wi.m_rcWnd);
-            pFWD->paWindows->push_back(wi);
-            return FALSE;
-          }
-        }
-        else
-        {
-          // Add the window info to the list
-          WindowInfo wi;
-          TCHAR szTitle[1024];
-          GetWindowText(hWnd, szTitle, 1024);            
-          wi.m_sTitle = szTitle;
-          GetWindowRect(hWnd, &wi.m_rcWnd);
-          pFWD->paWindows->push_back(wi);
-        }
+        DWORD dwExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+        WindowInfo wi;
+        TCHAR szTitle[1024];
+        GetWindowText(hWnd, szTitle, 1024);            
+        wi.m_sTitle = szTitle;
+        GetWindowRect(hWnd, &wi.m_rcWnd);
+        wi.dwStyle = dwStyle;
+        wi.dwExStyle = dwExStyle;
+        pFWD->paWindows->push_back(wi);
+        
+        return TRUE;          
       }
     }
   }
@@ -549,6 +533,41 @@ BOOL CScreenCapture::FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::
   fwd.hProcess = hProcess;
   fwd.paWindows = paWindows;
   EnumWindows(EnumWndProc, (LPARAM)&fwd);
+
+  if(!bAllProcessWindows) 
+  {    
+    // Find only the main window
+    // The main window should have caption, system menu and WS_EX_APPWINDOW style.  
+    WindowInfo MainWnd;
+    BOOL bMainWndFound = FALSE;
+
+    size_t i;
+    for(i=0; i<paWindows->size(); i++)
+    {
+      if(((*paWindows)[i].dwExStyle&WS_EX_APPWINDOW) && 
+         ((*paWindows)[i].dwStyle&WS_CAPTION) && 
+         ((*paWindows)[i].dwStyle&WS_SYSMENU))
+      {      
+        // Match!
+        bMainWndFound = TRUE;
+        MainWnd = (*paWindows)[i];
+        break;
+      }
+    }
+
+    if(!bMainWndFound && paWindows->size()>0)
+    {
+      MainWnd = (*paWindows)[0];
+      bMainWndFound = TRUE;
+    }
+
+    if(bMainWndFound)
+    {
+      paWindows->clear();
+      paWindows->push_back(MainWnd);
+    }
+  }
+
   return TRUE;
 }
 

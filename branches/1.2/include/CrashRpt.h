@@ -353,12 +353,12 @@ GenerateErrorReport(
  *    \a pszEmailSubject is the subject of the email message. If this parameter is NULL,
  *       the default subject of form '[app_name] [app_version] Error Report' is generated.
  *
- *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP
- *       connection. If this parmeter is NULL, HTTP connection won't be used to send crash reports. For
+ *    \a pszUrl is the URL of a server-side script that would receive crash report data via HTTP or HTTPS 
+ *       connection. If this parmeter is NULL, HTTP(S) connection won't be used to send crash reports. For
  *       example of a server-side script that can receive crash reports, see \ref sending_error_reports.
- *       HTTP transport is the recommended way of sending large error reports (more than several MB in size).
- *       To define a custom port for HTTP connection, use the following URL format: "http://example.com:port/crashrpt.php",
- *       where \a port is the placeholder for the port number.
+ *       HTTP(S) transport is the recommended way of sending large error reports (more than several MB in size).
+ *       To define a custom port for HTTP(S) connection, use the following URL format: "http://example.com[:port]/crashrpt.php" or
+ *       "https://example.com[:port]/crashrpt.php", where optional\a port is the placeholder for the port number.
  *
  *    \a pszCrashSenderPath is the absolute path to the directory where CrashSender.exe is located. 
  *       The crash sender process is responsible for letting end user know about the crash and 
@@ -773,8 +773,8 @@ crUninstallFromCurrentThread();
  * 
  *    When this function is called, the file is marked to be added to the error report, 
  *    then the function returns control to the caller.
- *    When crash occurs, all marked files are added to the report. If a file is locked by someone 
- *    for exclusive access, the file won't be included. Inside of \ref LPGETLOGFILE crash callback, 
+ *    When crash occurs, all marked files are added to the report by the \b CrashSender.exe process. 
+ *    If a file is locked by someone for exclusive access, the file won't be included. Inside of \ref LPGETLOGFILE crash callback, 
  *    ensure files to be included are acessible for reading.
  *  
  *    \a pszFile should be a valid absolute path of a file to add to crash report. 
@@ -839,7 +839,9 @@ crAddFileA(
  *  
  *    When this function is called, the file is marked to be added to the error report, 
  *    then the function returns control to the caller.
- *    When crash occurs, all marked files are added to the report. 
+ *    When crash occurs, all marked files are added to the report by the \b CrashSender.exe process. 
+ *    If a file is locked by someone for exclusive access, the file won't be included. Inside of \ref LPGETLOGFILE crash callback, 
+ *    ensure files to be included are acessible for reading.
  *
  *    \a pszFile should be a valid absolute path of a file to add to crash report. 
  *
@@ -911,7 +913,7 @@ crAddFile2A(
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a screenshot to the crash report.
  * 
- *  \return This function returns zero if succeeded.
+ *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
  *  \param[in] dwFlags Flags.
  *  
@@ -931,6 +933,10 @@ crAddFile2A(
  *    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
  *    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the application's main window.
  *    - \ref CR_AS_PROCESS_WINDOWS Use this to take a screenshot of all visible windows that belong to the process.
+ *
+ *  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
+ *  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
+ *  the main window.
  *
  *  Screenshots are added in form of PNG files by default. You can specify the \ref CR_AS_USE_JPEG_FORMAT flag to save
  *  screenshots as JPEG files instead. 
@@ -960,7 +966,7 @@ crAddScreenshot(
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a screenshot to the crash report.
  * 
- *  \return This function returns zero if succeeded.
+ *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
  *  \param[in] dwFlags Flags.
  *  \param[in] nJpegQuality Defines the JPEG image quality.
@@ -978,15 +984,19 @@ crAddScreenshot(
  *
  *    Use one of the following constants to specify what part of virtual screen to capture:
  *    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
- *    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the application's main window.
+ *    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the main application main window.
  *    - \ref CR_AS_PROCESS_WINDOWS Use this to take a screenshot of all visible windows that belong to the process.
  * 
+ *  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
+ *  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
+ *  the main window.
  *
  *  Screenshots are added in form of PNG files by default. You can specify the \ref CR_AS_USE_JPEG_FORMAT flag to save
  *  screenshots as JPEG files instead. 
  *
  *  If you use JPEG format, you can use the \a nJpegQuality parameter to define the JPEG image quality. 
- *  This should be the number between 0 and 100, inclusively. If you use PNG file format, this parameter is ignored.
+ *  This should be the number between 0 and 100, inclusively. The bigger the number, the better the quality and the bigger the JPEG file size. 
+ *  If you use PNG file format, this parameter is ignored.
  *
  *  In addition, you can specify the \ref CR_AS_GRAYSCALE_IMAGE flag to make a grayscale screenshot 
  *  (by default color image is made). Grayscale image gives smaller file size.
@@ -1009,9 +1019,9 @@ crAddScreenshot2(
    );
 
 /*! \ingroup CrashRptAPI  
- *  \brief Adds a string property to the crash report.
+ *  \brief Adds a string property to the crash report. 
  * 
- *  \return This function returns zero if succeeded.
+ *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
  *  \param[in] pszPropName   Name of the property.
  *  \param[in] pszPropValue  Value of the property.
@@ -1063,7 +1073,7 @@ crAddPropertyA(
 /*! \ingroup CrashRptAPI  
  *  \brief Adds a registry key dump to the crash report.
  * 
- *  \return This function returns zero if succeeded.
+ *  \return This function returns zero if succeeded. Use crGetLastErrorMsg() to retrieve the error message on fail.
  *
  *  \param[in] pszRegKey        Registry key to dump, required.
  *  \param[in] pszDstFileName   Name of the destination file, required. 
@@ -1074,9 +1084,12 @@ crAddPropertyA(
  *  Use this function to add a dump of a Windows registry key into the crash report. This function
  *  is available since v.1.2.6.
  *
- *  The \a pszRegKey parameter must be the name of the registry key. 
- *  The content of the key specified by the \a pszRegKey parameter will be stored in human-readable XML
- *  format and included into the error report as \a pszDstFileName file. 
+ *  The \a pszRegKey parameter must be the name of the registry key. The key name should begin with "HKEY_CURRENT_USER"
+ *  or "HKEY_LOCAL_MACHINE". Other root keys are not supported.
+ *
+ *  The content of the key specified by the \a pszRegKey parameter will be stored in a human-readable XML
+ *  format and included into the error report as \a pszDstFileName destination file. You can dump multiple registry keys
+ *  to the same destination file.
  *
  *  The \a dwFlags parameter is reserved for future use and should be set to zero.
  *

@@ -36,8 +36,7 @@
 
 
 struct CrashThreadInfo
-{
-  LPVOID m_pCrashRptState;
+{  
   HANDLE m_hWakeUpEvent;
   bool m_bStop;
   int m_ExceptionType;
