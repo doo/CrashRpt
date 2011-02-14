@@ -39,7 +39,7 @@
 
 // This function is used for monitor enumeration
 BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM dwData)
-{	
+{	  
   CScreenCapture* psc = (CScreenCapture*)dwData;
 
 	MONITORINFOEX mi;
@@ -85,10 +85,14 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   for(i=0; i<(int)psc->m_arcCapture.size(); i++)
   {
     CRect rc = psc->m_arcCapture[i];
-
-    BOOL bBitBlt = BitBlt(hCompatDC, rc.left, rc.top, rc.Width(), rc.Height(), hDC, rc.left, rc.top, SRCCOPY|CAPTUREBLT);
-    if(!bBitBlt)
-      goto cleanup;
+    CRect rcIntersect;
+    if(IntersectRect(&rcIntersect, lprcMonitor, &rc))
+    {
+      BOOL bBitBlt = BitBlt(hCompatDC, rc.left-lprcMonitor->left, rc.top-lprcMonitor->top, 
+        rc.Width(), rc.Height(), hDC, rc.left-lprcMonitor->left, rc.top-lprcMonitor->top, SRCCOPY|CAPTUREBLT);
+      if(!bBitBlt)
+        goto cleanup;
+    }
   }
   
   // Draw mouse cursor.
