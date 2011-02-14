@@ -35,12 +35,13 @@
 
 typedef void (__cdecl *PFNTEST)();
 
-extern std::map<std::string, std::string>* g_pTestSuiteList;
-extern std::string sCurTestSuite;
-extern std::map<std::string, PFNTEST>* g_pTestList;
-extern std::vector<std::string>* g_pErrorList;
-extern BOOL g_bRunningFromUNICODEFolder;
+extern std::map<std::string, std::string>* g_pTestSuiteList; // Test suite list
+extern std::string sCurTestSuite; // Current test suite
+extern std::map<std::string, PFNTEST>* g_pTestList; // Test case list
+extern std::vector<std::string>* g_pErrorList; // The list of errors
+extern BOOL g_bRunningFromUNICODEFolder; // Are we running from a UNICODE-named folder?
 
+// Helper class used to register a test suite
 class CTestSuiteRegistrator
 {
 public:
@@ -60,6 +61,7 @@ public:
 #define REGISTER_TEST_SUITE(szSuite, szDesc)\
   CTestSuiteRegistrator __testSuite##szSuite ( #szSuite , szDesc );
 
+// Helper class used to register a test case
 class CTestRegistrator
 {
 public:
