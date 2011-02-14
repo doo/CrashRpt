@@ -242,6 +242,7 @@ void CErrorReportSender::FeedbackReady(int code)
 BOOL CErrorReportSender::TakeDesktopScreenshot()
 {
   CScreenCapture sc;
+  ScreenshotInfo ssi; 
   std::vector<CString> screenshot_names;
    
   m_Assync.SetProgress(_T("[taking_screenshot]"), 0);    
@@ -277,7 +278,10 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
       CloseHandle(hProcess);
     }
     if(aWindows.size()>0)
+    {
       wnd_list.push_back(aWindows[0].m_rcWnd);
+      ssi.m_aWindows.push_back(aWindows[0]);
+    }
   }
   else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0)
   {     
@@ -293,6 +297,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     int i;
     for(i=0; i<(int)aWindows.size(); i++)
       wnd_list.push_back(aWindows[i].m_rcWnd);
+    ssi.m_aWindows = aWindows;
   }
   else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0
   {
@@ -301,16 +306,20 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     sc.GetScreenRect(&rcScreen);    
     wnd_list.push_back(rcScreen);
   }
-
-  std::vector<MonitorInfo> monitor_list;
+  
+  ssi.m_bValid = TRUE;
+  sc.GetScreenRect(&ssi.m_rcVirtualScreen);  
+  
   BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
       g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, 
       0, fmt, g_CrashInfo.m_nJpegQuality, bGrayscale, 
-      monitor_list, screenshot_names);
+      ssi.m_aMonitors, screenshot_names);
   if(bTakeScreenshot==FALSE)
   {
     return FALSE;
   }
+
+  g_CrashInfo.GetReport(0).m_ScreenshotInfo = ssi;
 
   // Prepare the list of screenshot files we will add to the error report
   std::vector<ERIFileItem> FilesToAdd;
@@ -626,6 +635,82 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
   AddElemToXML(_T("OpenHandleCount"), sProcessHandleCount, root);
 
   AddElemToXML(_T("MemoryUsageKbytes"), eri.m_sMemUsage, root);
+
+  if(eri.m_ScreenshotInfo.m_bValid)
+  {
+    TiXmlHandle hScreenshotInfo = new TiXmlElement("ScreenshotInfo");
+    root->LinkEndChild(hScreenshotInfo.ToNode());
+    
+    TiXmlHandle hVirtualScreen = new TiXmlElement("VirtualScreen");
+    CString sNum;
+
+    sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.left);
+    hVirtualScreen.ToElement()->SetAttribute("left", strconv.t2utf8(sNum));
+
+    sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.top);
+    hVirtualScreen.ToElement()->SetAttribute("top", strconv.t2utf8(sNum));
+
+    sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.Width());
+    hVirtualScreen.ToElement()->SetAttribute("width", strconv.t2utf8(sNum));
+
+    sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.Height());
+    hVirtualScreen.ToElement()->SetAttribute("height", strconv.t2utf8(sNum));
+
+    hScreenshotInfo.ToNode()->LinkEndChild(hVirtualScreen.ToNode());
+
+    TiXmlHandle hMonitors = new TiXmlElement("Monitors");
+    hScreenshotInfo.ToElement()->LinkEndChild(hMonitors.ToNode());                  
+
+    size_t i;
+    for(i=0; i<eri.m_ScreenshotInfo.m_aMonitors.size(); i++)
+    { 
+      MonitorInfo& mi = eri.m_ScreenshotInfo.m_aMonitors[i];
+      CString sNum;
+      TiXmlHandle hMonitor = new TiXmlElement("Monitor");
+      
+      sNum.Format(_T("%d"), mi.m_rcMonitor.left);
+      hMonitor.ToElement()->SetAttribute("left", strconv.t2utf8(sNum));
+
+      sNum.Format(_T("%d"), mi.m_rcMonitor.top);
+      hMonitor.ToElement()->SetAttribute("top", strconv.t2utf8(sNum));
+
+      sNum.Format(_T("%d"), mi.m_rcMonitor.Width());
+      hMonitor.ToElement()->SetAttribute("width", strconv.t2utf8(sNum));
+
+      sNum.Format(_T("%d"), mi.m_rcMonitor.Height());
+      hMonitor.ToElement()->SetAttribute("height", strconv.t2utf8(sNum));
+
+      hMonitor.ToElement()->SetAttribute("file", strconv.t2utf8(Utility::GetFileName(mi.m_sFileName)));
+      
+      hMonitors.ToElement()->LinkEndChild(hMonitor.ToNode());                  
+    }
+
+    TiXmlHandle hWindows = new TiXmlElement("Windows");
+    hScreenshotInfo.ToElement()->LinkEndChild(hWindows.ToNode());                  
+
+    for(i=0; i<eri.m_ScreenshotInfo.m_aWindows.size(); i++)
+    { 
+      WindowInfo& wi = eri.m_ScreenshotInfo.m_aWindows[i];
+      CString sNum;
+      TiXmlHandle hWindow = new TiXmlElement("Window");
+      
+      sNum.Format(_T("%d"), wi.m_rcWnd.left);
+      hWindow.ToElement()->SetAttribute("left", strconv.t2utf8(sNum));
+
+      sNum.Format(_T("%d"), wi.m_rcWnd.top);
+      hWindow.ToElement()->SetAttribute("top", strconv.t2utf8(sNum));
+
+      sNum.Format(_T("%d"), wi.m_rcWnd.Width());
+      hWindow.ToElement()->SetAttribute("width", strconv.t2utf8(sNum));
+
+      sNum.Format(_T("%d"), wi.m_rcWnd.Height());
+      hWindow.ToElement()->SetAttribute("height", strconv.t2utf8(sNum));
+
+      hWindow.ToElement()->SetAttribute("title", strconv.t2utf8(wi.m_sTitle));
+      
+      hWindows.ToElement()->LinkEndChild(hWindow.ToNode());                  
+    }
+  }
 
   TiXmlHandle hCustomProps = new TiXmlElement("CustomProps");
   root->LinkEndChild(hCustomProps.ToNode());

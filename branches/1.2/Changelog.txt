@@ -11,6 +11,8 @@
 
 - Implemented Jpeg image preview in Error Report Details dialog.
 
+- New section ScreenshotInfo in crash description XML file
+
 - Modified compiler options in all projects to favor small size (Release configuration). This should
   reduce the size of the binaries.
 

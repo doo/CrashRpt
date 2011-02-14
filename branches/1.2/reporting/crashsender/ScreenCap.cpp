@@ -52,6 +52,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   int nRowWidth = 0;
   LPBYTE pRowBits = NULL;
   CString sFileName;
+  MonitorInfo monitor_info;
     
   // Get monitor rect size
   nWidth = lprcMonitor->right - lprcMonitor->left;
@@ -60,12 +61,7 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   // Get monitor info
   mi.cbSize = sizeof(MONITORINFOEX);
 	GetMonitorInfo(hMonitor, &mi);
-  
-  MonitorInfo monitor_info;
-  monitor_info.m_rcMonitor = mi.rcMonitor;
-  monitor_info.m_sDeviceID = mi.szDevice;
-  psc->m_monitor_list.push_back(monitor_info);
-    
+      
 	// Get the device context for this monitor
 	hDC = CreateDC(_T("DISPLAY"), mi.szDevice, NULL, NULL); 
 	if(hDC==NULL)
@@ -187,7 +183,12 @@ BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lpr
   }  
   
   psc->m_out_file_list.push_back(sFileName);
-
+  
+  monitor_info.m_rcMonitor = mi.rcMonitor;
+  monitor_info.m_sDeviceID = mi.szDevice;
+  monitor_info.m_sFileName = sFileName;
+  psc->m_monitor_list.push_back(monitor_info);
+  
 cleanup:
 
   // Clean up
@@ -247,30 +248,6 @@ BOOL CScreenCapture::CaptureScreenRect(
   GetCursorPos(&m_ptCursorPos);
   m_CursorInfo.cbSize = sizeof(CURSORINFO);
   GetCursorInfo(&m_CursorInfo);
-
-  // Determine union rect
-  CRect rcUnion = CRect(0, 0, 0, 0);
-  size_t i;
-  for(i=0; i<arcCapture.size(); i++)
-  {
-    if(i==0)
-      rcUnion = arcCapture[i];
-    else
-    {
-      if(arcCapture[i].left<rcUnion.left)
-        rcUnion.left = arcCapture[i].left;
-
-      if(arcCapture[i].right>rcUnion.right)
-        rcUnion.right = arcCapture[i].right;
-
-      if(arcCapture[i].top<rcUnion.top)
-        rcUnion.top = arcCapture[i].top;
-
-      if(arcCapture[i].bottom>rcUnion.bottom)
-        rcUnion.bottom = arcCapture[i].bottom;
-    }
-  }
-  m_rcUnion = rcUnion;
 
   // Perform actual capture task inside of EnumMonitorsProc
 	EnumDisplayMonitors(NULL, NULL, EnumMonitorsProc, (LPARAM)this);	

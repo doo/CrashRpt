@@ -39,6 +39,7 @@
 #include "stdafx.h"
 #include "tinyxml.h"
 #include "SharedMem.h"
+#include "ScreenCap.h"
 
 // The structure describing file item.
 struct ERIFileItem
@@ -89,6 +90,7 @@ struct ErrorReportInfo
   CString     m_sOSName;             // Operating system friendly name.
   BOOL        m_bOSIs64Bit;          // Is operating system 64-bit?
   CString     m_sGeoLocation;        // Geographic location.
+  ScreenshotInfo m_ScreenshotInfo;   // Screenshot info
   ULONG64     m_uTotalSize;          // Summary size of this (uncompressed) report.
   BOOL        m_bSelected;           // Is this report selected for delivery.
   DELIVERY_STATUS m_DeliveryStatus;  // Delivery status.

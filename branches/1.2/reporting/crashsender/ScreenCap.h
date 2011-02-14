@@ -49,10 +49,26 @@ struct WindowInfo
   DWORD dwExStyle;
 };
 
+// Monitor info
 struct MonitorInfo
 {
-  CString m_sDeviceID;
-  CRect m_rcMonitor;
+  CString m_sDeviceID; // Device ID
+  CRect m_rcMonitor;   // Monitor rectangle in screen coordinates
+  CString m_sFileName; // Image file name corresponding to this monitor
+};
+
+// Desktop screen shot info
+struct ScreenshotInfo
+{
+  ScreenshotInfo()
+  {
+    m_bValid = FALSE;
+  }
+
+  BOOL m_bValid;
+  CRect m_rcVirtualScreen;
+  std::vector<MonitorInfo> m_aMonitors; // The list of monitors.
+  std::vector<WindowInfo> m_aWindows; // The list of windows.
 };
 
 // What format to use when saving screenshots
@@ -110,19 +126,17 @@ public:
 
   CPoint m_ptCursorPos;                 // Current mouse cursor pos
   std::vector<CRect> m_arcCapture;      // Array of capture rectangles
-  CURSORINFO m_CursorInfo;              // Cursor info
-  //std::vector<CRect> arcCapture;        // An array of capture rectangles.
-  CRect m_rcUnion;
+  CURSORINFO m_CursorInfo;              // Cursor info  
   int m_nIdStartFrom;                   // An ID for the current screenshot image 
   CString m_sSaveDirName;               // Directory name to save screenshots to
   SCREENSHOT_IMAGE_FORMAT m_fmt;        // Image format
-  int m_nJpegQuality;
-  BOOL m_bGrayscale;
+  int m_nJpegQuality;                   // Jpeg quality
+  BOOL m_bGrayscale;                    // Create grayscale image or not
   FILE* m_fp;                           // Handle to the file
   png_structp m_png_ptr;                // libpng stuff
   png_infop m_info_ptr;                 // libpng stuff
-  struct jpeg_compress_struct m_cinfo;
-  struct jpeg_error_mgr m_jerr;
+  struct jpeg_compress_struct m_cinfo;  // libjpeg stuff
+  struct jpeg_error_mgr m_jerr;         // libjpeg stuff
   std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices
   std::vector<CString> m_out_file_list; // The list of output image files
 };
