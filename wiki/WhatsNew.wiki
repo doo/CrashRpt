@@ -1,6 +1,58 @@
 #summary Release History
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.2.8 =
+
+  * Added JPEG library code from Independent Jpeg Group.
+
+  * Improved desktop screenshot capture: added an ability to save screenshots as JPEG files, an ability to define JPEG image quaility, an ability to save grayscale screenshots.
+
+  * New function crAddScreenshot2() allows to define JPEG quality.
+
+  * Implemented Jpeg image preview in Error Report Details dialog.
+
+  * New section `ScreenshotInfo` in crash description XML file
+
+  * Modified compiler options in all projects to favor small size (Release configuration). This should reduce the size of the binaries.
+
+  * Completely rewritten the code responsible for communication between `CrashRpt.dll` and `CrashSender.exe` (now using shared memory instead of temporary XML files)
+
+  * Added an ability to add a custom title icon for `CrashRpt` dialogs through `CR_INSTALL_INFO::pszCustomSenderIcon`.
+
+  * New sections of documentation: Running automated tests and Making Your Code Robust.
+
+  * Refactored Tests project (removed unneeded functionality). Additional test cases. 
+
+  * New test suite `DeliveryTests`. Tests now work even for Release LIB build configuration.
+
+  * Improved Doxyfile, removed search index and now the documentation should take less disk space.
+
+  * Added new table `CRP_TBL_MDMP_LOAD_LOG`
+
+  * New column `CRP_COL_MODULE_LOADED_IMAGE_NAME`
+
+  * MD5 file is now generated and stored in error report folder when using `CR_INST_STORE_ZIP_ARCHIVES` flag
+
+  * New member hSenderProcess in `CR_EXCEPTION_INFO` struct
+
+  * Fixed a mistake in `basic_stats.py` (now using multimap instead of map)
+
+  * Reorganized tinyxml files (now they are compiled in a separate project)
+
+  * Extended lang files (new strings `DescCrashDump`, `DescXML`, `DescScreenshot`, `DescRegKey`)
+
+  * Added HTTPS support for error report upload
+
+  * The function `crExceptionFilter()` is declared deprecated.
+
+  * fix: `CR_INST_STORE_ZIP_ARCHIVES` (issue 59)
+  * fix: crAddScreenshot( `CR_AS_MAIN_WINDOW`); (issue 61)
+  * fix: Cannot be loaded under `Win2000` due to import of the `GetGeoInfo` function from `kernel32.dll` (issue 65)
+  * fix: std::string `CCrashHandler::XmlEncodeStr(CString sText)` error (issue 67)
+  * fix: `CR_INST_STORE_ZIP_ARCHIVES` and `CR_AF_TAKE_ORIGINAL_FILE` (issue 69)
+  * fix: atlassert in `crashhandler.cpp` (issue 70)
+  * fix: Registry keys with ampersand (&) are not dumped (issue 71)
+
 = crashrpt v1.2.7 =
 
 `CrashRpt` v1.2.7 introduces automated tests, improves error report post-processing scripts and fixes some detected issues. Below the complete list of changes is presented. 
