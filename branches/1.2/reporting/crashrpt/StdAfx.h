@@ -43,6 +43,7 @@
 #define _WIN32_IE	0x0600
 #define _RICHEDIT_VER	0x0200
 
+#include <errno.h>
 #include <atldef.h>
 #if ( _ATL_VER < 0x0710 )
 #define _WTL_SUPPORT_SDK_ATL3 // Support of VC++ Express 2005 and ATL 3.0

@@ -68,24 +68,34 @@ Note, that you should have x64 compiler tools and SDK files properly installed
 \section notes_about_evc Notes About Compiling in Visual C++ Express
 
 Compilation in free Visual C++ Express is a little more complicated than compilation
-in a commercial edition of Visual C++. To compile CrashRpt in Visual C++ Express, you need to have Platform SDK for 
-Windows Server 2003, because this Platform SDK contains ATL source code. 
+in a commercial edition of Visual C++. 
+
+CrashRpt depends on WTL. WTL itself depends on Microsoft's library called ATL 
+(Active Template Library). ATL library is a part of Visual Studio SDKs. 
+An older version, ATL 3.0, is included into Microsoft Platform 
+SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows 
+SDK. However, Microsoft doesn't include ATL into Windows SDK to encourage using of 
+commercial Visual Studio having ATL. 
+
+So, there are two ways to compile CrashRpt in Visual C++ Express:
+
+<b>The first way.</b> You need to have Platform SDK for 
+Windows Server 2003, because this Platform SDK contains ATL 3.0 source code. 
 Download and install Microsoft Platform SDK for Windows Server 2003, for example
 <a href="http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en">
 from here</a>.
 
 In VC++ Express window, open Tools->Options...->Projects and Solutions->
 VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
-and then add <i>[Platform_SDK_Folder]\\Include\\atl</i> path to the list of include 
-directories.
+and then add <i><Platform_SDK_Folder>\\Include\\atl</i> path to the list of include 
+directories (replace the <Platform_SDK_Folder> with the actual directory name).
 
-<b>For more information.</b> CrashRpt depends on WTL. WTL itself depends on Microsoft's library called ATL (Active Template Library). 
-ATL library is a part of Visual Studio SDKs. The latest version at the moment 
-is ATL 8.0. An older version, ATL 3.0 is also included into Microsoft Platform 
-SDK for Windows Server 2003. Since then, Platform SDK was renamed into Windows 
-SDK and the latest version (at the moment) of Windows SDK is v6.0. However, 
-Microsoft didn't include ATL into Windows SDK v6.0 to encourage using of 
-commercial Visual Studio having ATL. 
+<b>The second way.</b> Install <a href="http://www.microsoft.com/whdc/devtools/wdk/wdkpkg.mspx">Windows Driver Kit</a>, 
+version 7.0 or later, because it contains ATL 7.1 source code. 
+When WinDDK is installed, in VC++ Express window, open Tools->Options...->Projects and Solutions->
+VC++ Directories. In the 'Show directories for' combo, select 'Include files' 
+and then add <i>C:\\WinDDK\6001.18002\\inc\\crt\\atl71</i> path to the list of include 
+directories.
 
 \section builddox Generating Project Documentation
 

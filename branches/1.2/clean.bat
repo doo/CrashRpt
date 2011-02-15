@@ -104,3 +104,4 @@ rmdir /S /Q tests\x64
 erase /A H tests\*.user
 erase tests\*.aps
 
+rmdir /S /Q ipch
