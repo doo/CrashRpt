@@ -136,11 +136,11 @@ You can also compile `CrashRpt` in Visual C++ Express Edition. For additional in
 
 In order to compile `CrashRpt` in Visual C++ Express Edition, you additionally have to download and install either `Microsoft Windows Driver Kit 7.0` (recommended) or `Microsoft Platform SDK for Windows Server 2003 SP1`. Below these two alternatives are described:
 
-a. You can download Windows Driver Kit from [http://www.microsoft.com/whdc/devtools/wdk/wdkpkg.mspx here]. After installing WDK, in VC++ Express window, open menu `Tools->Options...->Projects and Solutions->VC++ Directories`. In the 'Show directories for' combo, select 'Include files' and then add `[WDK_Folder]\Inc\crt\atl71` path to the list of include directories ([WDK_Folder] should be replaced with actual folder name).
+a. You can download Windows Driver Kit from [http://www.microsoft.com/whdc/devtools/wdk/wdkpkg.mspx here]. After installing WDK, in VC++ Express window, open menu `Tools->Options...->Projects and Solutions->VC++ Directories`. In the 'Show directories for' combo, select 'Include files' and then add `[WDK_Folder]\Inc\crt\atl71` path to the list of include directories (`[WDK_Folder]` should be replaced with actual folder name).
 
 b. You can download Platform SDK from [http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en this place]. After installing Platform SDK, in VC++ Express window, open menu `Tools->Options...->Projects and Solutions->VC++ Directories`. In the 'Show directories for' combo, select 'Include files' and then add `[Platform_SDK_Folder]\Include\atl` path to the list of include directories (`[Platform_SDK_Folder]` should be replaced with the actual folder name). 
 
-Note: In VC++ 2010 Express, there is no usual VC++ Directories page. Instead, open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. In the `Include Directories` field, add `[Platform_SDK_Folder]\Include\atl` path. 
+Note: In VC++ 2010 Express, there is no usual VC++ Directories page. Instead, open the Property Manager window, multi-select all projects and right click the selection. In the appeared dialog, open `Configuration Properties->VC++ Directories`. In the `Include Directories` field, enter the required path. 
 
 That's all. Now you are be able to compile `CrashRpt`.
 
