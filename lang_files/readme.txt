@@ -6,6 +6,14 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.8 ---
+
+ * In [DetailDlg]
+  - DescCrashDump - new
+  - DescXML- new
+  - DescScreenshot - new
+  - DescRegKey - new
+
 --- v.1.2.7 ---
 
  * In [DetailDlg]
