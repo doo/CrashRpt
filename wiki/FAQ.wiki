@@ -483,12 +483,12 @@ If you need a template you may use this one: PrivacyPolicyTemplate.
 
 == I don't want to provide the Privacy Policy. What do I do? ==
 
-Just set the privacy policy link with NULL. This will hide the Privacy Policy link.
+Just set the `CR_INSTALL_INFO::pszPrivacyPolicy` parameter with NULL. This will hide the Privacy Policy link.
 
 == How does crashrpt deliver me error reports from end users? ==
 
 `CrashRpt` sends error reports back to your software support team using any of the following ways:
-  * via HTTP request to a server-side script
+  * via HTTP (or HTTPS) request to a server-side script
   * via connection to an SMTP server
   * via Simple MAPI programming interface (the user's default E-mail client application is being utilized)
 
@@ -496,11 +496,11 @@ If one of these ways fails, `CrashRpt` tries others in turn. You can define the 
 
 == Are there any crash report size limitations? ==
 
-Yes, they are. Although `CrashRpt` supports large error reports, the crash report should be as small as possible. If you use E-mail for error reports delivery, there may be mail size limits on the SMTP server. If the error report is larger than the limit, it is possible that the error report will be rejected. If you use HTTP for error report delivery, there may also be POST data size limits on the web-server. You should check your web-server settings to figure out the maximum error report size.
+Yes, they are. Although `CrashRpt` supports large error reports, the crash report should be as small as possible. If you use E-mail for error reports delivery, there may be mail size limits on the SMTP server. If the error report is larger than the limit, it is possible that the error report will be rejected. If you use HTTP (or HTTPS) for error report delivery, there may also be POST data size limits on the web-server. You should check your web-server settings to figure out the maximum error report size.
 
-== How does crashrpt send me error reports using HTTP connection? ==
+== How does crashrpt send me error reports using HTTP (or HTTPS) connection? ==
 
-Many software products have web sites on the Internet. Such web servers typically have some scripting engine enabled, for example PHP, Perl, ASP and so on. `CrashRpt` can establish HTTP connection to the server and send an error report as a script parameter.
+Many software products have web sites on the Internet. Such web servers typically have some scripting engine enabled, for example PHP, Perl, ASP and so on. `CrashRpt` can establish HTTP (or HTTPS) connection to the server and send an error report as a script parameter.
 
 This way is not affected by firewalls, because most firewalls have HTTP port 80 open. However, this way requires a server with some script that you create and deploy yourself.
 
