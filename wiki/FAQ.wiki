@@ -600,9 +600,9 @@ Symbol files are identified by timestamps (in older versions of PDB) or by GUIDs
 
 You do not need to identify matching PDB yourself. Symbol handler will do that for you. Just specify the list of folders to search in and the symbol handler will look for correct PDB files itself. 
 
-== If I've saved all the source code, should building from the source recreate the correct PDBs and use them for reading the minidump? ==
+== If I've saved all the source code, should building from the source recreate the correct PDBs? ==
 
-No, the recreated PDB files will not be the same as the original ones. The recreated PDB files won't have matching time stamp (or GUID in a never versions of dbghelp). The building environment may also be different, so generated binaries may be different.
+No, the recreated PDB files will not be the same as the original ones. The recreated PDB files won't have matching time stamp (or GUID). The building environment may also be different, so generated binaries may be different.
 
 The recommended way is to save the original PDB files (that were produced when building the project), binary files (EXE and DLL) along with the source code. 
 
