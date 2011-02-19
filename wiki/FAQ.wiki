@@ -204,7 +204,7 @@ Typically a process (executable file) loads `CrashRpt.dll` into its address spac
 
 == How can I use crashrpt without `CrashSender.exe`? ==
 
-You can not generate crash reports without `CrashSender.exe`. It is unsafe to do complex operations in the crashed program which may be unstable. CrashSender.exe collects information about the crash, closes the application which have crashed and continues sending the error report in background.
+You can not generate crash reports without `CrashSender.exe`. It is unsafe to do complex operations in the crashed program which may be unstable. `CrashSender.exe` collects information about the crash, closes the application which have crashed and continues sending the error report in background.
 
 == What .h file should I include in my code and what .lib file should I link my code to? ==
 
