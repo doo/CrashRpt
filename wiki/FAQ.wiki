@@ -31,7 +31,7 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
   * `CrashRpt` is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. `CrashRpt` is able to intercept unhandled SEH exceptions, typed C++ exceptions and C run-time errors.
 
-  * `CrashRpt` can send error reports using HTTP or using E-mail. This is suitable for developers who don't have a server for storing error reports. To send reports over E-mail, end user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+  * `CrashRpt` can send error reports using HTTP (or HTTPS) or using E-mail. This is suitable for developers who don't have a server for storing error reports. To send reports over E-mail, end user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
 
   * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
@@ -170,11 +170,9 @@ the same C run-time DLLs as your application.
 
 == Where do I look for crashrpt documentation? ==
 
-The documentation is usually included into the `CrashRpt` archive. To open the documentation, click the `index.html` in the top level directory of the `CrashRpt` archive.
+The documentation is usually included into the `CrashRpt` distribution archive. To open the documentation, click the `index.html` in the top level directory of the `CrashRpt` distribution.
 
 Online documentation for the latest `CrashRpt` version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
-
-For the users of obsolete `CrashRpt` v1.0, the documentation can be also found in [CrashRpt_v1_0_Documentation] page and also in [http://www.codeproject.com/KB/debug/crash_report.aspx Add Crash Reporting to Your Applications with the CrashRpt Library] article.
 
 == How do I properly install crashrpt? ==
 
