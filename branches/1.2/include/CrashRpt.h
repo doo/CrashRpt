@@ -906,7 +906,8 @@ crAddFileA(
  *       - \ref CR_AF_FILE_MUST_EXIST     The function will fail if file doesn't exist at the moment of function call (the default behavior). 
  *       - \ref CR_AF_MISSING_FILE_OK     Do not fail if file is missing (assume it will be created later).
  *
- *    If you use postponed error report delivery (if you specify \ref CR_INST_SEND_QUEUED_REPORTS flag for \ref CR_INSTALL_INFO::dwFlags structure member) 
+ *    If you do not use error report delivery (\ref CR_INST_DONT_SEND_REPORT flag) or if you use postponed error report delivery 
+ *    (if you specify \ref CR_INST_SEND_QUEUED_REPORTS flag) 
  *    you must also specify the \ref CR_AF_MAKE_FILE_COPY as \a dwFlags parameter value. This will
  *    guarantee that a snapshot of your file at the moment of crash is taken and saved to the error report folder.
  *

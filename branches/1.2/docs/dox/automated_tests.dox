@@ -8,7 +8,7 @@ for CrashRpt functionality.
 To run the tests, go to the \b bin directory and click the \b Tests.exe executable
 file. This should launch a console program that will run a set of test cases.
 
-Tests optionally can be launched from from a temporary folder having Chineese 
+Tests optionally can be launched from a temporary folder having Chineese 
 UNICODE characters in its name. This can be used to test UNICODE compatibility. To
 skip this, just press Enter when prompted.
 

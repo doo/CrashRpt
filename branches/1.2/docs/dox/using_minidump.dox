@@ -108,7 +108,7 @@ And there is a bug in Visual Studio 2005 that makes a filename lowercase when yo
 
 In order to better understand the reason of the crash, I would like to know what C++ class or function called the 
 crEmulateCrash() function and for what purpose. I can do this with the help of the <i>Call stack</i> window 
-(see the figure below). If the Stack trace window is hidden, open menu <i>Debug->Windows</i> and select the 
+(see the figure below). If the Call stack window is hidden, open menu <i>Debug->Windows</i> and select the 
 'Call Stack' menu item.
 
 \image html call_stack.png "Call Stack"
@@ -135,7 +135,7 @@ automatically. But in general, there may be some problems with reading minidumps
 files. 
 
 In order to locate matching binaries, PDB files and source code files, Visual Studio uses the absolute paths embedded
-into the minidump file at the time of linking. So, when you do not delete/move/modify the files you used to build the
+into the PDB file at the time of compilation and linking. So, when you do not delete/move/modify the files you used to build the
 solution, Visual Studio can locate them automatically. But, if you delete/move or modify those files, Visual Studio
 won't be able to locate them. In order to illustrate such case, I will remove the entire <i>D:\\Projects\\CrashRpt\\dmptest</i> 
 folder that contained CrashRpt source code I used in compilation, resulting binaries and PDB files. 
