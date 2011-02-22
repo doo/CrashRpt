@@ -236,6 +236,55 @@ help to ensure noone will try to reuse an invalid pointer.
  pVehicle = NULL; // Set pointer with NULL
 \endcode
 
+\section clean_up_handles Clean Up Handles to Deleted Objects
+
+Assign NULL (or zero, or something else default value) to a handle after freeing it. This will
+help to ensure noone will try to reuse an invalid handle.
+
+Below is an example of how to clean up a WinAPI file handle.
+\code
+  HANDLE hFile = INVALID_HANDLE_VALUE; 
+  
+  // Open file
+  hFile = CreateFile(_T("example.dat"), FILE_READ|FILE_WRITE, FILE_OPEN_EXISTING);
+  if(hFile==INVALID_HANDLE_VALUE)
+  {
+    return FALSE; // Error opening file
+  }
+
+  // Do something with file
+
+  // Finally, close the handle
+  if(hFile!=INVALID_HANDLE_VALUE)
+  {
+    CloseHandle(hFile);   // Close handle to file
+    hFile = INVALID_HANDLE_VALUE;   // Clean up handle
+  }
+
+\encode
+
+Below is an example of how to clean up a FILE* handle.
+\code
+  // First init file handle pointer with NULL
+  FILE* f = NULL;
+
+  // Open handle to file
+  errno_t err = _tfopen_s(_T("example.dat"), _T("rb"));
+  if(err!=0 || f==NULL)
+    return FALSE; // Error opening file
+
+  // Do something with file
+
+  // When finished, close the handle
+  if(f!=NULL) // Check that handle is valid
+  {
+    fclose(f);
+    f = NULL; // Clean up pointer to handle
+  }
+
+\endcode
+
+
 \section delete_operator Use delete [] Operator for Arrays
 
 If you allocate a single object with the operator \b new, you should
