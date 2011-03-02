@@ -14,6 +14,7 @@ This page contains the following topics:
 - \ref validate_pointers
 - \ref init_func_output
 - \ref clean_up_pointers
+- \ref clean_up_handles
 - \ref delete_operator
 - \ref allocate_memory_carefully
 - \ref use_asserts_carefully
@@ -128,6 +129,36 @@ that may corrupt their internal state and be the reason of a crash.
 
 \endcode
 
+It is even better to use a constructor for your C++ structure that would init its members with default values:
+
+\code
+
+  // Declare a C++ structure
+  struct ItemInfo
+  {
+    // Use structure constructor to set members with default values
+    ItemInfo()
+    {
+      sItemName = _T("unknown");
+      nItemValue = -1;
+    }
+	
+    std::string sItemName; // The structure has std::string object inside
+    int nItemValue;
+  };
+
+  // Init the structure
+  ItemInfo item;
+
+  // Do not use memset()! It can corrupt the structure
+  // memset(&item, 0, sizeof(ItemInfo));
+
+  // Instead use the following
+  item.sItemName = "item1";
+  item.nItemValue = 0;  	
+
+\endcode
+
 \section validate_input Validate Function Input 
 
 It is recommended to always validate function input parameters. 
@@ -236,7 +267,7 @@ help to ensure noone will try to reuse an invalid pointer.
  pVehicle = NULL; // Set pointer with NULL
 \endcode
 
-\section clean_up_handles Clean Up Handles to Deleted Objects
+\section clean_up_handles Clean Up Handles to Released Objects
 
 Assign NULL (or zero, or something else default value) to a handle after freeing it. This will
 help to ensure noone will try to reuse an invalid handle.
@@ -261,7 +292,7 @@ Below is an example of how to clean up a WinAPI file handle.
     hFile = INVALID_HANDLE_VALUE;   // Clean up handle
   }
 
-\encode
+\endcode
 
 Below is an example of how to clean up a FILE* handle.
 \code
