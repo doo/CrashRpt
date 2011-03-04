@@ -96,13 +96,13 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Release\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)\bin\$(Platform)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">$(SolutionDir)\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'" />
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">$(SolutionDir)\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">$(SolutionDir)\bin\$(Platform)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
@@ -130,7 +130,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">CrashRptTest</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CrashRptTest</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">CrashRptTest</TargetName>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\bin\$(Platform)\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CrashRptTestd</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -256,16 +256,16 @@ copy dummy.log ..\..\bin
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>CrashRpt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>..\..\bin\CrashRptTest.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>..\..\bin\$(Platform)\CrashRptTest.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
-copy dummy.ini ..\..\bin
-copy dummy.log ..\..\bin
+      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin\$(Platform)
+copy dummy.ini ..\..\bin\$(Platform)
+copy dummy.log ..\..\bin\$(Platform)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -344,16 +344,16 @@ copy dummy.log ..\..\bin
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>CrashRptLIB.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>..\..\bin\CrashRptTest.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)\CrashRptTest.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
-copy dummy.ini ..\..\bin
-copy dummy.log ..\..\bin
+      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin\$(Platform)
+copy dummy.ini ..\..\bin\$(Platform)
+copy dummy.log ..\..\bin\$(Platform)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -367,13 +367,13 @@ copy dummy.log ..\..\bin
       <AdditionalIncludeDirectories>..\..\thirdparty\wtl</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalLibraryDirectories>..\..\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\lib\$(Platform)</AdditionalLibraryDirectories>
       <AdditionalDependencies>CrashRptd.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin
-copy dummy.ini ..\..\bin
-copy dummy.log ..\..\bin</Command>
+      <Command>copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin$\(Platform)
+copy dummy.ini ..\..\bin\$(Platform)
+copy dummy.log ..\..\bin\$(Platform)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

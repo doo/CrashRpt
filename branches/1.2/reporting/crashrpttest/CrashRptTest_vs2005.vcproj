@@ -114,7 +114,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -175,9 +175,9 @@
 				AdditionalDependencies="CrashRptd.lib"
 				OutputFile="$(OutDir)\CrashRptTestd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashRptTestd.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashRptTestd.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -204,7 +204,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.ini ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.log ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -303,7 +303,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -363,9 +363,9 @@
 				AdditionalDependencies="CrashRpt.lib"
 				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -392,7 +392,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.ini ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.log ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -490,7 +490,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -551,9 +551,9 @@
 				AdditionalDependencies="CrashRptLIB.lib"
 				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName);..\..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -580,7 +580,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.ini ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.log ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -689,6 +689,10 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
+			<File
+				RelativePath=".\res\CrashRptTest.exe.manifest"
+				>
+			</File>
 			<File
 				RelativePath=".\res\CrashRptTest.ico"
 				>

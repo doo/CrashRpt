@@ -113,7 +113,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -174,9 +174,9 @@
 				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizipd.lib version.lib psapi.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSenderd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSenderd.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashSenderd.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -203,7 +203,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
+				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\$(PlatformName)\crashrpt_lang.ini&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -302,7 +302,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -362,9 +362,9 @@
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashSender.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -391,7 +391,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
+				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\$(PlatformName)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 		<Configuration
@@ -489,7 +489,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -550,9 +550,9 @@
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib psapi.lib version.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashSender.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -579,7 +579,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
+				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\$(PlatformName)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 	</Configurations>
@@ -920,6 +920,10 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
+			<File
+				RelativePath=".\res\CrashSender.exe.manifest"
+				>
+			</File>
 			<File
 				RelativePath=".\res\CrashSender.ico"
 				>

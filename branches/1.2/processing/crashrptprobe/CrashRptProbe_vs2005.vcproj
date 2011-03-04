@@ -102,7 +102,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -145,17 +145,19 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
+				CommandLine="if not exist ..\..\lib\$(PlatformName) mkdir ..\..\lib\$(PlatformName)"
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbed.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib\amd64"
+				AdditionalLibraryDirectories="&quot;..\..\thirdparty\lib\$(PlatformName)&quot;;..\..\thirdparty\dbghelp\lib\amd64"
 				ModuleDefinitionFile="CrashRptProbed.def"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\lib\$(PlatformName)\CrashRptProbed.pdb"
 				SubSystem="2"
-				ImportLibrary="..\..\lib\$(TargetName).lib"
+				ImportLibrary="..\..\lib\\$(PlatformName)\CrashRptProbed.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -268,7 +270,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -310,19 +312,20 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
+				CommandLine="if not exist ..\..\lib\$(PlatformName) mkdir ..\..\lib\$(PlatformName)"
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib\amd64"
+				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName);..\..\thirdparty\dbghelp\lib\amd64"
 				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="..\..\lib\CrashRptProbe.lib"
+				ImportLibrary="..\..\lib\$(PlatformName)\CrashRptProbe.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -416,7 +419,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(SolutionDir)lib"
+			OutputDirectory="$(SolutionDir)lib\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"

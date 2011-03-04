@@ -66,7 +66,7 @@
 #define CRASHRPTAPI(rettype) CRASHRPT_EXTERNC rettype WINAPI
 
 //! Current CrashRpt version
-#define CRASHRPT_VER 1208
+#define CRASHRPT_VER 1209
 
 /*! \defgroup CrashRptAPI CrashRpt Functions */
 /*! \defgroup DeprecatedAPI Obsolete Functions */

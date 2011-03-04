@@ -113,7 +113,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -174,7 +174,7 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\crashcon.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\crashcon.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="17"
@@ -204,7 +204,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -306,7 +306,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -365,12 +365,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CrashRptd.lib"
-				OutputFile="../../bin/crashcond.exe"
+				OutputFile="$(OutDir)\crashcond.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../lib"
+				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\crashcond.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\crashcond.pdb"
 				SubSystem="1"
 				TargetMachine="17"
 			/>
@@ -399,7 +399,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -500,7 +500,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release LIB|x64"
-			OutputDirectory="$(SolutionDir)bin"
+			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -561,9 +561,9 @@
 				OutputFile="$(OutDir)\crashcon.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib;$(SolutionDir)lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName);$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\crashcon.pdb"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)\crashcon.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="17"
@@ -593,7 +593,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;&#x0D;&#x0A;"
+				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)"
 			/>
 		</Configuration>
 	</Configurations>

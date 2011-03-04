@@ -12,6 +12,12 @@ erase bin\*d.exe
 erase bin\*d.dll
 erase bin\*LIB.exe
 
+erase bin\x64\*.pdb
+erase bin\x64\*.ilk
+erase bin\x64\*d.exe
+erase bin\x64\*d.dll
+erase bin\x64\*LIB.exe
+
 erase docs\Warnings.txt
 
 erase lib\*d.lib
