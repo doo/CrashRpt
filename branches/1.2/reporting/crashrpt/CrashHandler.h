@@ -86,24 +86,24 @@ public:
   virtual ~CCrashHandler();
 
   int Init(
-      LPCTSTR lpcszAppName = NULL,
-      LPCTSTR lpcszAppVersion = NULL,
-      LPCTSTR lpcszCrashSenderPath = NULL,
-      LPGETLOGFILE lpfnCallback = NULL,           
-      LPCTSTR lpcszTo = NULL,             
-      LPCTSTR lpcszSubject = NULL,
-      LPCTSTR lpcszUrl = NULL,
-      UINT (*puPriorities)[5] = NULL,
+      __in_opt LPCTSTR lpcszAppName = NULL,
+      __in_opt LPCTSTR lpcszAppVersion = NULL,
+      __in_opt LPCTSTR lpcszCrashSenderPath = NULL,
+      __in_opt LPGETLOGFILE lpfnCallback = NULL,           
+      __in_opt LPCTSTR lpcszTo = NULL,             
+      __in_opt LPCTSTR lpcszSubject = NULL,
+      __in_opt LPCTSTR lpcszUrl = NULL,
+      __in_opt UINT (*puPriorities)[5] = NULL,
       DWORD dwFlags = 0,
-      LPCTSTR lpcszPrivacyPolicyURL = NULL,
-      LPCTSTR lpcszDebugHelpDLLPath = NULL,
+      __in_opt LPCTSTR lpcszPrivacyPolicyURL = NULL,
+      __in_opt LPCTSTR lpcszDebugHelpDLLPath = NULL,
       MINIDUMP_TYPE MiniDumpType = MiniDumpNormal,
-      LPCTSTR lpcszErrorReportSaveDir = NULL,
-      LPCTSTR lpcszRestartCmdLine = NULL,
-      LPCTSTR lpcszLangFilePath = NULL,
-      LPCTSTR lpcszEmailText = NULL,
-      LPCTSTR lpcszSmtpProxy = NULL,
-      LPCTSTR lpcszCustomSenderIcon = NULL);
+      __in_opt LPCTSTR lpcszErrorReportSaveDir = NULL,
+      __in_opt LPCTSTR lpcszRestartCmdLine = NULL,
+      __in_opt LPCTSTR lpcszLangFilePath = NULL,
+      __in_opt LPCTSTR lpcszEmailText = NULL,
+      __in_opt LPCTSTR lpcszSmtpProxy = NULL,
+      __in_opt LPCTSTR lpcszCustomSenderIcon = NULL);
 
   BOOL IsInitialized();
 
@@ -111,7 +111,7 @@ public:
 
    
   // Adds a file to the crash report
-  int AddFile(LPCTSTR lpFile, LPCTSTR lpDestFile, LPCTSTR lpDesc, DWORD dwFlags);
+  int AddFile(__in_z LPCTSTR lpFile, __in_opt LPCTSTR lpDestFile, __in_opt LPCTSTR lpDesc, DWORD dwFlags);
 
   // Adds a named text property to the report
   int AddProperty(CString sPropName, CString sPropValue);
@@ -120,10 +120,10 @@ public:
   int AddScreenshot(DWORD dwFlags, int nJpegQuality);
 
   // Adds a registry key 
-  int AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags);
+  int AddRegKey(__in_z LPCTSTR szRegKey, __in_z LPCTSTR szDstFileName, DWORD dwFlags);
 
   // Generates error report
-  int GenerateErrorReport(PCR_EXCEPTION_INFO pExceptionInfo = NULL);
+  int GenerateErrorReport(__in_opt PCR_EXCEPTION_INFO pExceptionInfo = NULL);
      
   // Sets/unsets exception handlers for the current process
   int SetProcessExceptionHandlers(DWORD dwFlags);
@@ -140,7 +140,7 @@ public:
 
   /* Exception handler functions. */
 
-  static LONG WINAPI SehHandler(PEXCEPTION_POINTERS pExceptionPtrs);
+  static LONG WINAPI SehHandler(__in PEXCEPTION_POINTERS pExceptionPtrs);
   static void __cdecl TerminateHandler();
   static void __cdecl UnexpectedHandler();
 
@@ -173,10 +173,10 @@ public:
   // Collects current process state.
   void GetExceptionPointers(
         DWORD dwExceptionCode, 
-        EXCEPTION_POINTERS** pExceptionPointers);
+        __deref_out EXCEPTION_POINTERS** pExceptionPointers);
     
   // Packs crash description into shared memory.
-  CRASH_DESCRIPTION* PackCrashInfoIntoSharedMem(CSharedMem* pSharedMem, BOOL bTempMem);
+  CRASH_DESCRIPTION* PackCrashInfoIntoSharedMem(__in CSharedMem* pSharedMem, BOOL bTempMem);
   DWORD PackString(CString str);
   DWORD PackFileItem(FileItem& fi);
   DWORD PackProperty(CString sName, CString sValue);
@@ -186,7 +186,7 @@ public:
   int LaunchCrashSender(
         CString sCmdLineParams, 
         BOOL bWait, 
-        HANDLE* phProcess);  
+        __out HANDLE* phProcess);  
   
   // Sets internal pointers to exception handlers to NULL.
   void InitPrevExceptionHandlerPointers();
