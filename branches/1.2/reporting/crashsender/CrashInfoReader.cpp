@@ -98,12 +98,12 @@ int CCrashInfoReader::Init(CString sFileMappingName)
         CString sErrorReportDirName = m_sUnsentCrashReportsFolder + _T("\\") + 
           find.GetFileName();
         CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
-        ErrorReportInfo eri;
+        ErrorReportInfo eri2;
         eri.m_sErrorReportDirName = sErrorReportDirName;
-        if(0==ParseCrashDescription(sFileName, TRUE, eri))
+        if(0==ParseCrashDescription(sFileName, TRUE, eri2))
         {          
-          eri.m_uTotalSize = GetUncompressedReportSize(eri);
-          m_Reports.push_back(eri);
+          eri.m_uTotalSize = GetUncompressedReportSize(eri2);
+          m_Reports.push_back(eri2);
         }
       }
 
@@ -304,18 +304,24 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     // Determine if GetProcessHandleCount function available
     typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
     HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-    LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
-      (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
-    if(pfnGetProcessHandleCount!=NULL)
-    {    
-      // Get count of opened handles
-      DWORD dwHandleCount = 0;
-      BOOL bGetHandleCount = pfnGetProcessHandleCount(hProcess, &dwHandleCount);
-      if(bGetHandleCount)
-        eri.m_dwProcessHandleCount = dwHandleCount;
-      else
-        eri.m_dwProcessHandleCount = 0;
-    }
+	if(hKernel32!=NULL)
+	{
+      LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
+        (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
+      if(pfnGetProcessHandleCount!=NULL)
+      {    
+        // Get count of opened handles
+        DWORD dwHandleCount = 0;
+        BOOL bGetHandleCount = pfnGetProcessHandleCount(hProcess, &dwHandleCount);
+        if(bGetHandleCount)
+          eri.m_dwProcessHandleCount = dwHandleCount;
+        else
+          eri.m_dwProcessHandleCount = 0;
+      }
+
+	  CloseHandle(hKernel32);
+	  hKernel32=NULL;
+	}
 
     // Get memory usage info
     PROCESS_MEMORY_COUNTERS meminfo;
@@ -331,6 +337,27 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
   #endif 
       eri.m_sMemUsage = sMemUsage;
     }
+
+    // Determine the period of time the process is working.
+    FILETIME CreationTime, ExitTime, KernelTime, UserTime;
+    /*BOOL bGetTimes = */GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime);
+    /*ATLASSERT(bGetTimes);*/
+    SYSTEMTIME AppStartTime;
+    FileTimeToSystemTime(&CreationTime, &AppStartTime);
+
+	SYSTEMTIME CurTime;
+    GetSystemTime(&CurTime);
+    ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
+    ULONG64 uStartTime = Utility::SystemTimeToULONG64(AppStartTime);
+
+    // Check that the application works for at least one minute before crash.
+    // This might help to avoid cyclic error report generation when the applciation
+    // crashes on startup.
+    double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
+    if(dDiffTime<60)
+    {
+      m_bAppRestart = FALSE; // Disable restart.
+    } 
   }
 
   // Get operating system friendly name from registry.
@@ -340,28 +367,7 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
   eri.m_bOSIs64Bit = Utility::IsOS64Bit();
 
   // Get geographic location.
-  Utility::GetGeoLocation(eri.m_sGeoLocation);
-
-  // Determine the period of time the process is working.
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  /*BOOL bGetTimes = */GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime, &UserTime);
-  /*ATLASSERT(bGetTimes);*/
-  SYSTEMTIME AppStartTime;
-  FileTimeToSystemTime(&CreationTime, &AppStartTime);
-
-  SYSTEMTIME CurTime;
-  GetSystemTime(&CurTime);
-  ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
-  ULONG64 uStartTime = Utility::SystemTimeToULONG64(AppStartTime);
-
-  // Check that the application works for at least one minute before crash.
-  // This might help to avoid cyclic error report generation when the applciation
-  // crashes on startup.
-  double dDiffTime = (double)(uCurTime-uStartTime)*10E-08;
-  if(dDiffTime<60)
-  {
-    m_bAppRestart = FALSE; // Disable restart.
-  } 
+  Utility::GetGeoLocation(eri.m_sGeoLocation);  
 }
 
 
