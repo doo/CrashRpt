@@ -74,32 +74,6 @@ CString Utility::GetModulePath(HMODULE hModule)
 	return string;
 }
 
-std::set<CString> Utility::GetModulePathCandidates(CString sModuleName)
-{
-  std::set<CString> list;
-
-  HANDLE hProcess = GetCurrentProcess();
-  DWORD dwNeeded = 0;
-  EnumProcessModules(hProcess, NULL, 0, &dwNeeded);
-  if(dwNeeded!=0)
-  {
-    HMODULE* ahModules = (HMODULE*)new BYTE[dwNeeded];
-    EnumProcessModules(hProcess, ahModules, dwNeeded, &dwNeeded);
-
-    int i;
-    for(i=0; i<(int)(dwNeeded/sizeof(HMODULE));i++)
-    {
-      CString sModulePath = Utility::GetModulePath(ahModules[i]);
-      sModulePath.MakeLower();
-      list.insert(sModulePath);
-    }
-
-    delete [] ahModules;
-  }
-
-  return list;
-}
-
 int Utility::getTempDirectory(CString& strTemp)
 {
   TCHAR* pszTempVar = NULL;
@@ -258,6 +232,8 @@ int Utility::GetOSFriendlyName(CString& sOSName)
 
 BOOL Utility::IsOS64Bit()
 {
+  BOOL b64Bit = FALSE;
+
 #ifdef _WIN64
   // 64-bit applications always run under 64-bit Windows
   return TRUE;
@@ -268,18 +244,20 @@ BOOL Utility::IsOS64Bit()
   typedef BOOL (WINAPI *PFNISWOW64PROCESS)(HANDLE, PBOOL);
 
   HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-  PFNISWOW64PROCESS pfnIsWow64Process = 
-    (PFNISWOW64PROCESS)GetProcAddress(hKernel32, "IsWow64Process");
-  if(pfnIsWow64Process==NULL)
+  if(hKernel32!=NULL)
   {
-    // If there is no IsWow64Process() API, than Windows is 32-bit for sure
-    FreeLibrary(hKernel32);
-    return FALSE;
+	PFNISWOW64PROCESS pfnIsWow64Process = 
+	  (PFNISWOW64PROCESS)GetProcAddress(hKernel32, "IsWow64Process");
+    if(pfnIsWow64Process==NULL)
+    {
+      // If there is no IsWow64Process() API, than Windows is 32-bit for sure
+      FreeLibrary(hKernel32);
+      return FALSE;
+    }
+	
+	pfnIsWow64Process(GetCurrentProcess(), &b64Bit);
+	FreeLibrary(hKernel32);
   }
-
-  BOOL b64Bit = FALSE;
-  pfnIsWow64Process(GetCurrentProcess(), &b64Bit);
-  FreeLibrary(hKernel32);
 
   return b64Bit;
 }
@@ -292,28 +270,32 @@ int Utility::GetGeoLocation(CString& sGeoLocation)
   typedef int (WINAPI *PFNGETGEOINFOW)(GEOID, GEOTYPE, LPWSTR, int, LANGID);
 
   HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-  PFNGETUSERGEOID pfnGetUserGeoID = 
-    (PFNGETUSERGEOID)GetProcAddress(hKernel32, "GetUserGeoID");
-  PFNGETGEOINFOW pfnGetGeoInfoW = 
-    (PFNGETGEOINFOW)GetProcAddress(hKernel32, "GetGeoInfoW");
-  if(pfnGetUserGeoID==NULL || 
-     pfnGetGeoInfoW==NULL)
-    return -1;
+  if(hKernel32!=NULL)
+  {
+    PFNGETUSERGEOID pfnGetUserGeoID = 
+      (PFNGETUSERGEOID)GetProcAddress(hKernel32, "GetUserGeoID");
+    PFNGETGEOINFOW pfnGetGeoInfoW = 
+      (PFNGETGEOINFOW)GetProcAddress(hKernel32, "GetGeoInfoW");
+    if(pfnGetUserGeoID==NULL || 
+       pfnGetGeoInfoW==NULL)
+      return -1;
 
-  GEOID GeoLocation = pfnGetUserGeoID(GEOCLASS_NATION);
-  if(GeoLocation!=GEOID_NOT_AVAILABLE)
-  { 
-    WCHAR szGeoInfo[1024] = _T("");    
-    int n = pfnGetGeoInfoW(GeoLocation, GEO_RFC1766, szGeoInfo, 1024, 0);
-    if(n!=0)
-    {
-      sGeoLocation = szGeoInfo;
-      FreeLibrary(hKernel32);
-      return 0;
+    GEOID GeoLocation = pfnGetUserGeoID(GEOCLASS_NATION);
+    if(GeoLocation!=GEOID_NOT_AVAILABLE)
+    { 
+      WCHAR szGeoInfo[1024] = _T("");    
+      int n = pfnGetGeoInfoW(GeoLocation, GEO_RFC1766, szGeoInfo, 1024, 0);
+      if(n!=0)
+      {
+        sGeoLocation = szGeoInfo;
+        FreeLibrary(hKernel32);
+        return 0;
+      }
     }
-  }
   
-  FreeLibrary(hKernel32);
+    FreeLibrary(hKernel32);    
+  }
+
   return -1;
 }
 
@@ -474,9 +456,9 @@ CString Utility::GetProductVersion(CString sModuleName)
   CString sProductVer; 
 
   DWORD dwBuffSize = GetFileVersionInfoSize(sModuleName, 0);
-  LPBYTE pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);
+  LPBYTE pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);  
       
-  if(0!=GetFileVersionInfo(sModuleName, 0, dwBuffSize, pBuff))
+  if(NULL!=pBuff && 0!=GetFileVersionInfo(sModuleName, 0, dwBuffSize, pBuff))
   {
     VS_FIXEDFILEINFO* fi = NULL;
     UINT uLen = 0;
