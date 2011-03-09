@@ -85,7 +85,7 @@ protected:
   CCritSec * m_pLock;
 
 public:
-  CAutoLock(CCritSec * plock)
+  CAutoLock(__in CCritSec * plock)
   {
     m_pLock = plock;
     m_pLock->Lock();

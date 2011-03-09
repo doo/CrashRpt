@@ -38,6 +38,7 @@
 #ifndef _STRCONV_H
 #define _STRCONV_H
 
+#include <sal.h>
 #include <vector>
 
 class strconv_t
@@ -53,7 +54,7 @@ public:
     }
   }
 
-  LPCWSTR a2w(LPCSTR lpsz)
+  LPCWSTR a2w(__in_opt LPCSTR lpsz)
   {
     if(lpsz==NULL)
       return NULL;
@@ -74,7 +75,7 @@ public:
     return (LPCWSTR)pBuffer;
   }
 
-  LPCSTR w2a(LPCWSTR lpsz)
+  LPCSTR w2a(__in_opt LPCWSTR lpsz)
   { 
     if(lpsz==NULL)
       return NULL;
@@ -96,7 +97,7 @@ public:
   }
 
   // Converts UNICODE little endian string to UNICODE big endian 
-  LPCWSTR w2w_be(LPCWSTR lpsz, UINT cch)
+  LPCWSTR w2w_be(__in_opt LPCWSTR lpsz, UINT cch)
   {
     if(lpsz==NULL)
       return NULL;
@@ -115,7 +116,7 @@ public:
     return (LPCWSTR)pBuffer;
   }
 
-  LPCSTR a2utf8(LPCSTR lpsz)
+  LPCSTR a2utf8(__in_opt LPCSTR lpsz)
   {
     if(lpsz==NULL)
       return NULL;
@@ -146,7 +147,7 @@ public:
     return pszResult;
   }
 
-  LPCSTR w2utf8(LPCWSTR lpsz)
+  LPCSTR w2utf8(__in_opt LPCWSTR lpsz)
   {
     if(lpsz==NULL)
       return NULL;
@@ -171,7 +172,7 @@ public:
     return (LPCSTR)pBuffer;
   }
 
-  LPCWSTR utf82w(LPCSTR lpsz)
+  LPCWSTR utf82w(__in_opt LPCSTR lpsz)
   {
     if(lpsz==NULL)
       return NULL;
@@ -196,7 +197,7 @@ public:
     return (LPCWSTR)pBuffer;
   }
 
-  LPCWSTR utf82w(LPCSTR pStr, UINT cch)
+  LPCWSTR utf82w(__in_opt LPCSTR pStr, UINT cch)
   {
     if(pStr==NULL)
       return NULL;
@@ -224,12 +225,12 @@ public:
     return (LPCWSTR)pBuffer;
   }
 
-  LPCSTR utf82a(LPCSTR lpsz)
+  LPCSTR utf82a(__in_opt LPCSTR lpsz)
   {
     return w2a(utf82w(lpsz));
   }
 
-  LPCTSTR utf82t(LPCSTR lpsz)
+  LPCTSTR utf82t(__in_opt LPCSTR lpsz)
   {
 #ifdef UNICODE    
     return utf82w(lpsz);
@@ -238,7 +239,7 @@ public:
 #endif
   }
 
-  LPCSTR t2a(LPCTSTR lpsz)
+  LPCSTR t2a(__in_opt LPCTSTR lpsz)
   {
 #ifdef UNICODE    
     return w2a(lpsz);
@@ -247,7 +248,7 @@ public:
 #endif
   }
 
-LPCWSTR t2w(LPCTSTR lpsz)
+LPCWSTR t2w(__in_opt LPCTSTR lpsz)
   {
 #ifdef UNICODE    
     return lpsz;
@@ -256,7 +257,7 @@ LPCWSTR t2w(LPCTSTR lpsz)
 #endif
   }
 
-  LPCTSTR a2t(LPCSTR lpsz)
+  LPCTSTR a2t(__in_opt LPCSTR lpsz)
   {
 #ifdef UNICODE    
     return a2w(lpsz);
@@ -265,7 +266,7 @@ LPCWSTR t2w(LPCTSTR lpsz)
 #endif
   }
 
-LPCTSTR w2t(LPCWSTR lpsz)
+LPCTSTR w2t(__in_opt LPCWSTR lpsz)
   {
 #ifdef UNICODE    
     return lpsz;
@@ -274,7 +275,7 @@ LPCTSTR w2t(LPCWSTR lpsz)
 #endif
   }
 
-LPCSTR t2utf8(LPCTSTR lpsz)
+LPCSTR t2utf8(__in_opt LPCTSTR lpsz)
   {
 #ifdef UNICODE    
     return w2utf8(lpsz);
