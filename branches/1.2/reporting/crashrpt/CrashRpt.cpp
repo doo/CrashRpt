@@ -203,7 +203,7 @@ cleanup:
 CRASHRPTAPI(int) crInstallA(CR_INSTALL_INFOA* pInfo)
 {
   if(pInfo==NULL)
-    return crInstallW((CR_INSTALL_INFOW*)NULL);
+    return 1; // Invalid input parameter
 
   // Convert pInfo members to wide char
 
@@ -693,6 +693,8 @@ int RecurseAlloc()
 
 // Vulnerable function
 #pragma warning(disable : 4996)   // for strcpy use
+#pragma warning(disable : 6255)   // warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead
+#pragma warning(disable : 6204)   // warning C6204: Possible buffer overrun in call to 'strcpy': use of unchecked parameter 'str'
 void test_buffer_overrun(const char *str) 
 {
    char* buffer = (char*)_alloca(10);
@@ -703,7 +705,8 @@ void test_buffer_overrun(const char *str)
    // strncpy_s(buffer, _countof(buffer), str, _TRUNCATE);
 }
 #pragma warning(default : 4996)  
-
+#pragma warning(default : 6255)   
+#pragma warning(default : 6204)   
 
 CRASHRPTAPI(int) 
 crEmulateCrash(unsigned ExceptionType) throw (...)
@@ -716,7 +719,9 @@ crEmulateCrash(unsigned ExceptionType) throw (...)
     {
       // Access violation
       int *p = 0;
+#pragma warning(disable : 6011)   // warning C6011: Dereferencing NULL pointer 'p'
       *p = 0;
+#pragma warning(default : 6011)   
     }
     break;
   case CR_CPP_TERMINATE_CALL:
@@ -751,7 +756,10 @@ crEmulateCrash(unsigned ExceptionType) throw (...)
       char* formatString;
       // Call printf_s with invalid parameters.
       formatString = NULL;
+#pragma warning(disable : 6387)   // warning C6387: 'argument 1' might be '0': this does not adhere to the specification for the function 'printf'
       printf(formatString);
+#pragma warning(default : 6387)   
+
     }
     break;
   case CR_CPP_NEW_OPERATOR_ERROR:
