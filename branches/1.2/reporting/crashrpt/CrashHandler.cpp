@@ -213,11 +213,11 @@ int CCrashHandler::Init(
   if(lpcszSmtpProxy!=NULL)
   {
     m_sSmtpProxyServer = lpcszSmtpProxy;      
-    int pos = m_sSmtpProxyServer.ReverseFind(':');
-    if(pos>=0)
+    int pos2 = m_sSmtpProxyServer.ReverseFind(':');
+    if(pos2>=0)
     {
-      CString sServer = m_sSmtpProxyServer.Mid(0, pos);
-      CString sPort = m_sSmtpProxyServer.Mid(pos+1);
+      CString sServer = m_sSmtpProxyServer.Mid(0, pos2);
+      CString sPort = m_sSmtpProxyServer.Mid(pos2+1);
       m_sSmtpProxyServer = sServer;
       m_nSmtpProxyPort = _ttoi(sPort);
     }
@@ -1216,6 +1216,11 @@ int CCrashHandler::LaunchCrashSender(CString sCmdLineParams, BOOL bWait, HANDLE*
   sCmdLine.Format(_T("\"%s\" \"%s\""), sCmdLineParams, sCmdLineParams.GetBuffer(0));
   BOOL bCreateProcess = CreateProcess(
     m_sPathToCrashSender, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+  if(pi.hThread)
+  {
+	  CloseHandle(pi.hThread);
+	  pi.hThread = NULL;
+  }
   if(!bCreateProcess)
   {
     ATLASSERT(bCreateProcess);
