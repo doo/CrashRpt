@@ -1548,13 +1548,13 @@ class CrAutoInstallHelper
 public:
 
   //! Installs exception handlers to the caller process
-  CrAutoInstallHelper(PCR_INSTALL_INFOA pInfo)
+  CrAutoInstallHelper(__in PCR_INSTALL_INFOA pInfo)
   {
     m_nInstallStatus = crInstallA(pInfo);
   }
 
   //! Installs exception handlers to the caller process
-  CrAutoInstallHelper(PCR_INSTALL_INFOW pInfo)
+  CrAutoInstallHelper(__in PCR_INSTALL_INFOW pInfo)
   {
     m_nInstallStatus = crInstallW(pInfo);
   }
