@@ -150,7 +150,7 @@ process reports from the latest version of your application, ignoring all others
 similar error reports, for example, by stack trace of the exception thread. You may want to copy
 processed reports to some other directory, leaving not processed reports where they are. You also may want 
 to move corrupted error reports to some folder, to move error reports not having exception information to another folder,
-and error reports not having symbols loading for any stack frame to the third folder.
+and error reports not having symbols loaded for any stack frame to the third folder.
 You can automate this task using a batch (BAT) script. 
 
 Below an example batch script is presented (you can find the script in processing\scripts\postprocess.bat file). 
