@@ -2,7 +2,7 @@
 
 \page demos Running Demo Applications 
 
-\note CrashRpt distribution archive already contains compiled demos for demonstration purposes. 
+\note CrashRpt distribution archive contains compiled demo applications for demonstration purposes. 
 If you run the compiled demos from \c bin folder and do not compile them yourself, you might
 experience some problems if Visual C++ 2005 Redistributable files are not installed on your machine. 
 There may be error messages like 'The application configuration is incorrect' and so on.

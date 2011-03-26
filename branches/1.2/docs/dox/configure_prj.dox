@@ -32,7 +32,7 @@ Before you start using CrashRpt API functions in your program, do not forget to 
 \endcode
 
 You also need to add CrashRpt LIB file to the list of input libraries for your project.
-In the Solution Explorer window, right-click your project and choose Properties item in the
+In the Solution Explorer window, right-click your project and choose Properties item from the
 context menu. Then open Configuration Properties->Linker->Input->Additional Dependencies 
 and then add \b CrashRpt.lib to the list of libraries. 
 
@@ -86,6 +86,8 @@ The steps 1 and 2 are presented on the figures below.
 
 \image html linker_debug_settings.png "Enabling Debugging Information in Linker"
 
+\section configure_prj_faq FAQ
+
 <b>Does using crashrpt makes it easier for somebody to reverse engineer my code?</b>
 
 Actually not. To use CrashRpt you enable program database generation in Release 
@@ -94,11 +96,5 @@ for your project. PDB file contains information that can be used to reverse engi
 your code, however you typically store it locally and do not distribute with your 
 software release package. So, using crashrpt doesn't affect the difficulty of reverse 
 engineering your code. 
-
-<b>Should I use rebase.exe to set preferred load address for modules of my application 
-to be able read minidumps later?</b>
-
-This is not necessary, because a minidump file itself contains the list of loaded modules 
-of your application and their actual load addresses. 
 
 */

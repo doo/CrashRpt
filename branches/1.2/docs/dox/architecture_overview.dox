@@ -39,7 +39,8 @@
 CrashRpt consists of two kinds of functionality: error reporting functionality 
 and error report analyzis functionality. Error reporting functionality is distributed with
 a client software and responsible for handling exceptions in the client software and 
-deliver error reports to the developer.
+deliverying error reports to the developer.
+
 Error report analyzis functionality is designed to help the developer to extract data
 contained in error reports and to simplify error report analyzis. It is usually located
 at the side of the developer and not distributed with the client software.
@@ -90,6 +91,8 @@ write some summary about the report. There may be many reports related to the sa
 problem, so opening such reports doesn't tell anything new. The error report analyzis
 functionality is designed to address these problems. For additional information, 
 see \ref analyzing_error_reports.
+
+\section architecture_faq FAQ
 
 <b>My software is not an EXE, but DLL. Can I use crashrpt in such case?</b>
 

@@ -56,7 +56,7 @@ button on the main dialog. If the user doesn't want to send the report, the user
 \section progressdlg Sending Error Report Dialog
 
 The <b>Sending Error Report</b> dialog (presented below) shows the progress of sending the error report. There are
-maximum three attempts to send the report: using HTTP, using SMTP, and using Simple MAPI. The client
+maximum three attempts to send the report: using HTTP (or HTTPS), using SMTP, and using Simple MAPI. The client
 application may specify the order of attempts. By default HTTP connection is tried the first, SMTP
 connection is tried the second, and Simple MAPI is tried the last.
 
@@ -86,6 +86,8 @@ If user wants to send some queued error reports immediately, he/she presses the 
 If user wants to postpone the delivery, he/she presses the "Other actions..." button and clicks the 
 "Remind me later" from the context menu, or just closes the window. If user doesn't want to send error
 reports later, he/she clicks the "Never remind" context menu item.
+
+\section error_report_faq FAQ
 
 <b>What do I do to save a local copy of an error report to my disk?</b>
 

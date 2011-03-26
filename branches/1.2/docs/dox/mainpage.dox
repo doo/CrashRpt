@@ -8,8 +8,8 @@ might not have technical knowledge. These factors make debugging remote crashes
 almost impossible. That's why it is important to use special tools to report 
 errors automatically. 
 
-<b>CrashRpt</b> library is an open-source error handling, reporting and 
-postprocessing tool for Visual C++ applications running in Windows. 
+<b>CrashRpt</b> library is a set of open-source error handling, reporting and 
+postprocessing tools for Visual C++ applications running in Windows. 
 
 \section toc Table of Contents
 

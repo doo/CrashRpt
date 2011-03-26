@@ -8,7 +8,7 @@ API functions, always check that a correct \b CrashRpt.dll version was loaded in
 described in \ref checking_crashrpt_version.
 
 \note Older versions of CrashRpt provided different set of API functions that are now 
-declared obsolete. They are still supported for compatibility with older versions of CrashRpt,
+declared obsolete. Those obsolete API functions are still supported for compatibility with older versions of CrashRpt,
 but it is recommended that you use the newer functions instead. Here is the complete list of
 \ref DeprecatedAPI.
 
@@ -37,7 +37,7 @@ settings include application name and version, recipient's e-mail address or URL
 Privacy Policy URL and so on.
 
 You can also create a crash callback function LPGETLOGFILE() and pass its pointer to crInstall(). 
-The crash callback is called on crash.
+The crash callback function is called on crash.
 
 On application exit, you use the crUninstall() function to unset exception handlers. 
 
@@ -71,11 +71,11 @@ file. You can do this through the crAddProperty() function.
 For example, you may need to add the info about the amount of free disk space on a specific disk drive 
 at the moment of crash, or about the version of the graphics card driver. 
 
-\section adding_a_screenshot Adding a Screenshot
+\section adding_a_screenshot Adding a Screen Shot
 
-It may be useful to have a screenshot of user's desktop at the moment of crash. 
-This may help to see which button user clicked before the crash, and to see the desktop state. 
-For example, for multi-monitor desktops it may be useful to see if the application window is 
+It may be useful to have a screen shot of user's desktop at the moment of crash. 
+This may help to see which button user clicked before the crash, to see the desktop state and easier 
+reproduce the crash. For example, for multi-monitor desktops it may be useful to see if the application window is 
 positioned on the primary monitor, on the secondary monitor, or at the boundary of two monitors. 
 Sometimes it may be enough to see only the region of the desktop occupied by your application 
 and not the rest of desktop.

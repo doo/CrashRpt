@@ -102,7 +102,7 @@ only and use Visual C++ only, you might find the CrashRpt library described belo
 
 \section about_crashrpt About CrashRpt
 
-<b>CrashRpt</b> library is an open-source error handling, reporting and post-processing tool for 
+<b>CrashRpt</b> library is a set of open-source error handling, reporting and post-processing tools for 
 applications created in Microsoft Visual C++ and running in Windows. It supports only one OS 
 (Windows), only one programming language (C++) and only one compiler (Visual C++). This allows to assume
 it knows all aspects of this environment.
@@ -186,6 +186,7 @@ in the table below.
 <td><a href="http://www.ijg.org/">Independent JPEG Group license</a>
 </table>
 
+\section install_faq FAQ
 
 <b>Where do I look for answers to frequently asked questions about CrashRpt?</b>
 
@@ -200,7 +201,7 @@ If you detect an issue or want to request a new feature, please create an issue 
 If you would like to contribute or ask a question, create a topic in our <a href="http://groups.google.com/group/crashrpt/topics">
 Forum</a>.
 
-<b>I found a bug in crashrpt or in CrashSender.exe (it crashes itself :)) and want to debug 
+<b>I found a bug in CrashRpt.dll or in CrashSender.exe (it crashes itself :)) and want to debug 
 it in Visual C++ to determine the reason of the problem. What to I do?</b>
 
 Its easy to run CrashRpt.dll code in step-by-step debugging mode. Just trigger an exception 

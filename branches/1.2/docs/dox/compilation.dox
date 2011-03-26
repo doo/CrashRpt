@@ -16,7 +16,7 @@ You can compile CrashRpt in <b>Visual C++ 2003</b>
 and later versions, and in <b>Visual C++ Express</b>.
 
 Open one of solution files available in the top level directory of 
-CrashRpt archive, depending on your version of Visual Studio:
+CrashRpt distribution, depending on your version of Visual Studio:
  - <b>CrashRpt_vs2003.sln</b> if you use Visual C++ 2003 
  - <b>CrashRpt_vs2005.sln</b> if you use Visual C++ 2005, Visual C++ 2005 Express, 
     Visual C++ 2008 or Visual C++ 2008 Express. Visual Studio will convert project 
@@ -60,7 +60,7 @@ F7 to start building process.
 <b>Since v.1.2.1</b>, CrashRpt can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
 Visual C++ 2005 or later is required to compile for x64 plaform. 
 You can choose the current platform by opening menu Build->Configuration Manager... 
-and by selecting the desired platform in the 'Active solution platform:' combo box.
+and by selecting the desired platform from the 'Active solution platform:' combo box.
 
 Note, that you should have x64 compiler tools and SDK files properly installed 
 (ensure you have checked these components during Visual C++ installation).
@@ -99,8 +99,8 @@ directories.
 
 \section builddox Generating Project Documentation
 
-By default, project documentation is already generated and included into the CrashRpt release
-package. To open the documentation, click \c index.html file in the top-level directory of 
+By default, project documentation is already generated and included into the CrashRpt distribution.
+To open the documentation, click \c index.html file in the top-level directory of 
 CrashRpt distribution.
 
 You can also build documentation yourself. CrashRpt documentation can be 
@@ -114,6 +114,8 @@ doxygen Doxyfile
 \endcode
 
 When doxygen finishes, go to the top level directory and open \c index.html.
+
+\section compilation_faq FAQ
 
 <b>What is the Release LIB build configuration?</b>
 

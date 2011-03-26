@@ -54,13 +54,13 @@ where \b CrashSender.exe is located.
 You can distribute several INI files with your software. On install, rename an appropriate 
 file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
 
-\note 
-
-It is recommended that you distribute dbghelp.dll with your software, because 
+\note It is recommended that you distribute dbghelp.dll with your software, because 
 some end-user machines may not have dbghelp.dll installed or dbghelp.dll's version may 
 be different on different user machines. dbghelp.dll is shipped with Windows XP and later, 
 so most user machines have this library installed. If your target OS is Windows XP and later, 
 you may ignore distribution of dbghelp.dll at your own risk.                  
+
+\section preparing_to_release_faq FAQ
 
 <b>I do not like that I should distribute all these DLLs. Can I compile them all as static libs?</b>
 
