@@ -30,74 +30,39 @@
   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************************************************************************************/
 
-// File: CritSec.h
-// Description: Critical section wrapper classes. Code of CCritSec and CAutoLock classes 
-// is taken from DirectShow base classes and modified in some way.
-// Authors: zexspectrum
-// Date: 
+/*! \file   Prefastdef.h
+ *  \brief  SAL macro switches.
+ *  \date   2003-2011
+ *  \author zeXspectrum 
+ */
 
-#ifndef _CRITSEC_H
-#define _CRITSEC_H
+#pragma once
 
-#include "Prefastdef.h"
+#include <windows.h>
 
-// wrapper for whatever critical section we have
-class CCritSec 
-{
-  // make copy constructor and assignment operator inaccessible
+#if _MSC_VER<1400
+#pragma warning(disable: 4616)  //warning C4616: #pragma warning : warning number '6255' out of range, must be between '4001' and '4999'
+#endif
 
-  CCritSec(const CCritSec &refCritSec);
-  CCritSec &operator=(const CCritSec &refCritSec);
-
-  CRITICAL_SECTION m_CritSec;
-
-public:
-
-    CCritSec() 
-    {
-      InitializeCriticalSection(&m_CritSec);
-    };
-
-    ~CCritSec() 
-    {
-      DeleteCriticalSection(&m_CritSec);
-    }
-
-    void Lock() 
-    {
-      EnterCriticalSection(&m_CritSec);
-    };
-
-    void Unlock() 
-    {
-      LeaveCriticalSection(&m_CritSec);
-    };
-};
-
-// locks a critical section, and unlocks it automatically
-// when the lock goes out of scope
-class CAutoLock 
-{
-  // make copy constructor and assignment operator inaccessible
-
-  CAutoLock(const CAutoLock &refAutoLock);
-  CAutoLock &operator=(const CAutoLock &refAutoLock);
-
-protected:
-  CCritSec * m_pLock;
-
-public:
-  CAutoLock(__in CCritSec * plock)
-  {
-    m_pLock = plock;
-    m_pLock->Lock();
-  };
-
-  ~CAutoLock() 
-  {
-    m_pLock->Unlock();
-  };
-};
-
-
-#endif  //_CRITSEC_H
+// Define SAL macros to be empty if some old Visual Studio used
+#ifndef __reserved 
+  #define __reserved
+#endif
+#ifndef __in
+  #define __in
+#endif
+#ifndef __in_z
+  #define __in_z
+#endif
+#ifndef __in_opt
+  #define __in_opt
+#endif
+#ifndef __out_opt
+  #define __out_opt
+#endif
+#ifndef __out_ecount_z
+  #define __out_ecount_z(x)
+#endif
+#ifndef __deref_out
+  #define __deref_out
+#endif

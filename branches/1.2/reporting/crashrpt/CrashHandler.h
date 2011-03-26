@@ -45,6 +45,7 @@
 #include "Utility.h"
 #include "CritSec.h"
 #include "SharedMem.h"
+#include "Prefastdef.h"
 
 /* This structure contains pointer to the exception handlers for a thread.*/
 struct ThreadExceptionHandlers
@@ -186,7 +187,7 @@ public:
   int LaunchCrashSender(
         CString sCmdLineParams, 
         BOOL bWait, 
-        __out HANDLE* phProcess);  
+        __out_opt HANDLE* phProcess);  
   
   // Sets internal pointers to exception handlers to NULL.
   void InitPrevExceptionHandlerPointers();

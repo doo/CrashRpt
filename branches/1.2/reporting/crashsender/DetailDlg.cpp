@@ -276,19 +276,19 @@ LRESULT CDetailDlg::OnPreviewRClick(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bH
     submenu.SetMenuItemInfo(5, TRUE, &mii);
 
     
-    UINT uItem = ID_ENCODING_AUTO;
+    UINT uItem2 = ID_ENCODING_AUTO;
     if(m_textEncoding==ENC_AUTO)
-      uItem = ID_ENCODING_AUTO;
+      uItem2 = ID_ENCODING_AUTO;
     else if(m_textEncoding==ENC_ASCII)
-      uItem = ID_ENCODING_ASCII;
+      uItem2 = ID_ENCODING_ASCII;
     else if(m_textEncoding==ENC_UTF8)
-      uItem = ID_ENCODING_UTF8;
+      uItem2 = ID_ENCODING_UTF8;
     else if(m_textEncoding==ENC_UTF16_LE)
-      uItem = ID_ENCODING_UTF16;
+      uItem2 = ID_ENCODING_UTF16;
     else if(m_textEncoding==ENC_UTF16_BE)
-      uItem = ID_ENCODING_UTF16BE;
+      uItem2 = ID_ENCODING_UTF16BE;
     
-    TextEncMenu.CheckMenuRadioItem(ID_ENCODING_AUTO, ID_ENCODING_UTF16BE, uItem, MF_BYCOMMAND); 
+    TextEncMenu.CheckMenuRadioItem(ID_ENCODING_AUTO, ID_ENCODING_UTF16BE, uItem2, MF_BYCOMMAND); 
   }
 
   submenu.TrackPopupMenu(TPM_LEFTBUTTON, pt.x, pt.y, m_hWnd);

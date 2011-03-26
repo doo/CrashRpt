@@ -176,8 +176,11 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
-	pLoop->AddMessageFilter(this);
-	pLoop->AddIdleHandler(this);
+	if(pLoop)
+	{
+	  pLoop->AddMessageFilter(this);
+	  pLoop->AddIdleHandler(this);
+	}
 
 	UIAddChildWindowContainer(m_hWnd);
 

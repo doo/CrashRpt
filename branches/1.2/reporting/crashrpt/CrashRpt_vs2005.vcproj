@@ -883,6 +883,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Prefastdef.h"
+				>
+			</File>
+			<File
 				RelativePath="resource.h"
 				>
 			</File>

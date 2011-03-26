@@ -38,7 +38,7 @@
 #ifndef _STRCONV_H
 #define _STRCONV_H
 
-#include <sal.h>
+#include "Prefastdef.h"
 #include <vector>
 
 class strconv_t

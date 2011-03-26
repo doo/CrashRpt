@@ -567,6 +567,10 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
   strconv_t strconv;
   TiXmlDocument doc;
   FILE* f = NULL; 
+  CString sNum;
+  CString sCrashRptVer;
+  CString sOSIs64Bit;
+  CString sExceptionType;
 
   fi.m_bMakeCopy = false;
   fi.m_sDesc = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescXML"));
@@ -577,15 +581,13 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
   eri.m_FileItems[fi.m_sDestFile] = fi;
 
   TiXmlNode* root = root = new TiXmlElement("CrashRpt");
-  doc.LinkEndChild(root);
-  CString sCrashRptVer;
+  doc.LinkEndChild(root);  
   sCrashRptVer.Format(_T("%d"), CRASHRPT_VER);
   TiXmlHandle(root).ToElement()->SetAttribute("version", strconv.t2utf8(sCrashRptVer));
    
-  {
-    TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
-    doc.InsertBeforeChild(root, *decl);
-  }
+  TiXmlDeclaration * decl = new TiXmlDeclaration( "1.0", "UTF-8", "" );
+  doc.InsertBeforeChild(root, *decl);
+  
   
   AddElemToXML(_T("CrashGUID"), eri.m_sCrashGUID, root);
   AddElemToXML(_T("AppName"), eri.m_sAppName, root);
@@ -593,14 +595,13 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
   AddElemToXML(_T("ImageName"), eri.m_sImageName, root);
   AddElemToXML(_T("OperatingSystem"), eri.m_sOSName, root);
   
-  CString sOSIs64Bit;
+  
   sOSIs64Bit.Format(_T("%d"), eri.m_bOSIs64Bit);
   AddElemToXML(_T("OSIs64Bit"), sOSIs64Bit, root);
 
   AddElemToXML(_T("GeoLocation"), eri.m_sGeoLocation, root);
   AddElemToXML(_T("SystemTimeUTC"), eri.m_sSystemTimeUTC, root);
-  
-  CString sExceptionType;
+    
   sExceptionType.Format(_T("%d"), g_CrashInfo.m_nExceptionType);
   AddElemToXML(_T("ExceptionType"), sExceptionType, root);
   if(g_CrashInfo.m_nExceptionType==CR_SEH_EXCEPTION)
@@ -641,8 +642,7 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     TiXmlHandle hScreenshotInfo = new TiXmlElement("ScreenshotInfo");
     root->LinkEndChild(hScreenshotInfo.ToNode());
     
-    TiXmlHandle hVirtualScreen = new TiXmlElement("VirtualScreen");
-    CString sNum;
+    TiXmlHandle hVirtualScreen = new TiXmlElement("VirtualScreen");    
 
     sNum.Format(_T("%d"), eri.m_ScreenshotInfo.m_rcVirtualScreen.left);
     hVirtualScreen.ToElement()->SetAttribute("left", strconv.t2utf8(sNum));
@@ -664,8 +664,7 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
     size_t i;
     for(i=0; i<eri.m_ScreenshotInfo.m_aMonitors.size(); i++)
     { 
-      MonitorInfo& mi = eri.m_ScreenshotInfo.m_aMonitors[i];
-      CString sNum;
+      MonitorInfo& mi = eri.m_ScreenshotInfo.m_aMonitors[i];      
       TiXmlHandle hMonitor = new TiXmlElement("Monitor");
       
       sNum.Format(_T("%d"), mi.m_rcMonitor.left);
@@ -690,8 +689,7 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
 
     for(i=0; i<eri.m_ScreenshotInfo.m_aWindows.size(); i++)
     { 
-      WindowInfo& wi = eri.m_ScreenshotInfo.m_aWindows[i];
-      CString sNum;
+      WindowInfo& wi = eri.m_ScreenshotInfo.m_aWindows[i];      
       TiXmlHandle hWindow = new TiXmlElement("Window");
       
       sNum.Format(_T("%d"), wi.m_rcWnd.left);
@@ -732,13 +730,13 @@ BOOL CErrorReportSender::CreateCrashDescriptionXML(ErrorReportInfo& eri)
   std::map<CString, ERIFileItem>::iterator it;
   for(it=eri.m_FileItems.begin(); it!=eri.m_FileItems.end(); it++)
   {    
-    ERIFileItem& fi = it->second;
+    ERIFileItem& rfi = it->second;
     TiXmlHandle hFileItem = new TiXmlElement("FileItem");
     
-    hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(fi.m_sDestFile));
-    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(fi.m_sDesc));
-    if(!fi.m_sErrorStatus.IsEmpty())
-      hFileItem.ToElement()->SetAttribute("error", strconv.t2utf8(fi.m_sErrorStatus));
+    hFileItem.ToElement()->SetAttribute("name", strconv.t2utf8(rfi.m_sDestFile));
+    hFileItem.ToElement()->SetAttribute("description", strconv.t2utf8(rfi.m_sDesc));
+    if(!rfi.m_sErrorStatus.IsEmpty())
+      hFileItem.ToElement()->SetAttribute("error", strconv.t2utf8(rfi.m_sErrorStatus));
     
     hFileItems.ToElement()->LinkEndChild(hFileItem.ToNode());                  
   }
@@ -793,7 +791,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
   HANDLE hDestFile = INVALID_HANDLE_VALUE;
   LARGE_INTEGER lFileSize;
   BOOL bGetSize = FALSE;
-  LPBYTE buffer[4096];
+  LPBYTE buffer[1024];
   LARGE_INTEGER lTotalWritten;
   DWORD dwBytesRead=0;
   DWORD dwBytesWritten=0;
@@ -856,7 +854,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
         if(m_Assync.IsCancelled())
           goto cleanup;
     
-        bRead = ReadFile(hSrcFile, buffer, 4096, &dwBytesRead, NULL);
+        bRead = ReadFile(hSrcFile, buffer, 1024, &dwBytesRead, NULL);
         if(!bRead || dwBytesRead==0)
           break;
 
@@ -1104,7 +1102,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
                 
               val_node.ToElement()->SetAttribute("name", strconv.w2utf8(szName));
 
-              char str[128];
+              char str[128] = "";
               LPSTR szType = NULL;
               if(dwType==REG_BINARY)
                 szType = "REG_BINARY";
@@ -1132,9 +1130,9 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
 
               if(dwType==REG_BINARY)
               {
-                std::string str;
-                int i;
-                for(i=0; i<(int)dwValueLen; i++)
+                std::string str2;
+                int j;
+                for(j=0; j<(int)dwValueLen; j++)
                 {
                   char num[10];
 #if _MSC_VER<1400
@@ -1142,23 +1140,23 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
 #else
                   sprintf_s(num, 10, "%02X", pData[i]);
 #endif
-                  str += num;
-                  if(i<(int)dwValueLen)
-                    str += " ";
+                  str2 += num;
+                  if(j<(int)dwValueLen)
+                    str2 += " ";
                 }
                 
-                val_node.ToElement()->SetAttribute("value", str.c_str());
+                val_node.ToElement()->SetAttribute("value", str2.c_str());
               }
               else if(dwType==REG_DWORD)
               {
                 LPDWORD pdwValue = (LPDWORD)pData;
-                char str[64];
+                char str3[64]="";
 #if _MSC_VER<1400
-                sprintf(str, "0x%08x (%lu)", *pdwValue, *pdwValue);                
+                sprintf(str3, "0x%08x (%lu)", *pdwValue, *pdwValue);                
 #else
-                sprintf_s(str, 64, "0x%08x (%lu)", *pdwValue, *pdwValue);                
+                sprintf_s(str3, 64, "0x%08x (%lu)", *pdwValue, *pdwValue);                
 #endif
-                val_node.ToElement()->SetAttribute("value", str);
+                val_node.ToElement()->SetAttribute("value", str3);
               }
               else if(dwType==REG_SZ || dwType==REG_EXPAND_SZ)
               {
@@ -1178,25 +1176,25 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
               {                
                 LPCTSTR szValues = (LPCTSTR)pData;
                 int prev = 0;
-                int pos = 0;
+                int pos2 = 0;
                 for(;;)
                 {
-                  if(szValues[pos]==0)
+                  if(szValues[pos2]==0)
                   {
-                    CString sValue = CString(szValues+prev, pos-prev);
+                    CString sValue = CString(szValues+prev, pos2-prev);
                     LPCSTR szValue = strconv.t2utf8(sValue);
 
                     TiXmlHandle str_node = new TiXmlElement("str");
                     val_node.ToElement()->LinkEndChild(str_node.ToNode());                    
                     str_node.ToElement()->SetAttribute("value", szValue);              
 
-                    prev = pos+1;
+                    prev = pos2+1;
                   }
 
-                  if(szValues[pos]==0 && szValues[pos+1]==0)
+                  if(szValues[pos2]==0 && szValues[pos2+1]==0)
                     break; // Double-null
 
-                  pos++;
+                  pos2++;
                 }                     
               }
             }
@@ -1292,6 +1290,16 @@ BOOL CErrorReportSender::RestartApp()
   }
   BOOL bCreateProcess = CreateProcess(
     g_CrashInfo.GetReport(m_nCurReport).m_sImageName, sCmdLine.GetBuffer(0), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+  if(pi.hProcess)
+  {
+	CloseHandle(pi.hProcess);
+	pi.hProcess = NULL;
+  }
+  if(pi.hThread)
+  {
+	 CloseHandle(pi.hThread);
+	 pi.hThread = NULL;
+  }
   if(!bCreateProcess)
   {    
     m_Assync.SetProgress(_T("Error restarting the application!"), 0, false);
@@ -1398,7 +1406,7 @@ BOOL CErrorReportSender::CompressReportFiles(ErrorReportInfo& eri)
     sMsg.Format(_T("Compressing file %s"), sDstFileName);
     m_Assync.SetProgress(sMsg, 0, false);
         
-    HANDLE hFile = CreateFile(sFileName, 
+    hFile = CreateFile(sFileName, 
       GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
     if(hFile==INVALID_HANDLE_VALUE)
     {
