@@ -1,5 +1,22 @@
 ======= Change History ========
 
+--- Ver. 1.2.9 ---
+
+- Compiler/linker output for x64 platform is now directed to bin\x64, while output dir for Win32 platform
+  is the same (bin) (issue 77).
+
+- Improved documentation (extended "Using CrashRpt API" and "An Example of Using API", "Writing Robust Code" sections)
+
+- Annotated code with SAL macros and fixed some PREfast warnings (this should fix some potential stability and
+  security issues).
+
+- Fixed: Clarification for CR_INST_DONT_SEND_REPORT & CR_AF_TAKE_ORIGINAL_FILE
+
+- Fixed: SVN/package file encoding strangeness (issue 76)
+
+- Fixed: If I pass the short name for the path to crash report, it failed to create the directory (issue 78)
+
+
 --- Ver. 1.2.8 ---
 
 - Added JPEG library code from Independent Jpeg Group.
