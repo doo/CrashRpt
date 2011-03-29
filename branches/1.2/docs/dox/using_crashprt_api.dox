@@ -160,6 +160,9 @@ For example, assume the following real-life scenario:
     that may be incompatible with yours.
   - When your application tries to call a CrashRpt API function from the incompatible \b CrashRpt.dll, it may crash.
 
+One way to check \b CrashRpt.dll version is to get a handle to its loaded instance, get file version info for
+the module and compare it with the correct CrashRpt version.
+
 The following function may be used to check if the correct \b CrashRpt.dll version was loaded in your process
 address space. You should call this function before calling any CrashRpt API functions. If the function
 returns FALSE, do not call CrashRpt API functions.
