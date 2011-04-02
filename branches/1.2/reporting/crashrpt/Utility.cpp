@@ -506,6 +506,10 @@ BOOL Utility::CreateFolder(CString sFolderName)
     if(!bCreate && GetLastError()!=ERROR_ALREADY_EXISTS)
       return FALSE;
 
+    DWORD dwAttrs = GetFileAttributes(sIntermediateFolder);
+    if((dwAttrs&FILE_ATTRIBUTE_DIRECTORY)==0)
+      return FALSE;
+
     if(pos==-1)
       break;
 

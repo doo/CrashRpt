@@ -385,7 +385,7 @@ int CCrashHandler::Init(
       sLocalAppDataFolder, m_sAppName, m_sAppVersion);
   }
   else
-  {
+  {    
     m_sUnsentCrashReportsFolder = lpcszErrorReportSaveDir;
   }
 

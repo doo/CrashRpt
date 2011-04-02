@@ -280,7 +280,7 @@ The following code example shows how to do this (code provided by tdev):
   crAddProperty("SystemGUID", guid);
 \endcode
 
-<b>My software's worker thread hangs up on users machine (but no crash happens). How do I debug the 
+<b>My software's worker thread hangs up on user's machine (but no crash happens). How do I debug the 
 problem?</b>
 
 To collect information about such error, you may provide an ability to generate error report 
