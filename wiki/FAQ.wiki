@@ -21,7 +21,7 @@
 
 == Is crashrpt a _fully_ open-source? ==
 
-Actually, the Microsoft Debug Help Library (`dbghelp.dll`) `CrashRpt` depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with `CrashRpt` to avoid problems with older `dbhelp.dll`'s versions installed on end-users` computers.
+Actually, the Microsoft Debug Help Library (`dbghelp.dll`) `CrashRpt` depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with `CrashRpt` to avoid problems with older `dbghelp.dll`'s versions installed on end-users` computers.
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
@@ -80,6 +80,10 @@ For example, an exception may occur because of the following:
 == Where can I find the latest version of crashrpt? ==
 
 The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
+
+== How do I open downloaded CrashRpt distribution archive? ==
+
+CrashRpt uses 7zip format for its distribution archive. You can open the archive using [http://www.7-zip.org/ 7-Zip] program.
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
