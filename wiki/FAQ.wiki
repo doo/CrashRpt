@@ -81,9 +81,9 @@ For example, an exception may occur because of the following:
 
 The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
 
-== How do I open downloaded CrashRpt distribution archive? ==
+== How do I open crashrpt distribution archive? ==
 
-CrashRpt uses 7zip format for its distribution archive. You can open the archive using [http://www.7-zip.org/ 7-Zip] program.
+`CrashRpt` uses `7z` file format for its distribution archive, because this format offers better compression than regular `zip` format. You can open the archive using [http://www.7-zip.org/ 7-Zip] program.
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
