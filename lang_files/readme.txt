@@ -6,6 +6,10 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.9 ---
+
+  No changes
+
 --- v.1.2.8 ---
 
  * In [DetailDlg]
