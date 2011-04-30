@@ -2,26 +2,59 @@
 #labels Featured
 
 Error Report Dialog
+
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg.png
 
 Error Report Dialog and in Chinese...
+
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_chinese.png
 
 
 The same in Russian...
+
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_russian.png
 
 Expanded Error Report Dialog allows to enter additional info about the problem
+
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_expanded.png
 
+You can postpone error report delivery by pressing the 'Other Actions...' button
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_context_menu.png
+
 Error Report Details dialog show the list of contained files and file preview
+
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_hex_preview.png
 
-Not only HEX preview, but Text preview is supported, too...
+Not only HEX preview, but text preview is supported (ANSI, UTF-8, UNICODE), too...
+
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_text_preview.png
 
-The same with Image preview...
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_screenshot_preview.png
+The same with image preview (BMP, JPG, PNG)...
 
-If your program has several windows, its desctop screenshot preview looks like this...
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_multi_screenshot_preview.png
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_screenshot.png
+
+If your program has several windows, its desktop screenshot preview looks like this...
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detaildlg_multi_screenshot.png
+
+If your error contains a registry key dump, it looks like this...
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_reg_key_dump.png
+
+Error report delivery progress (HTTP)...
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg.png
+
+Your report can be also delivered using Email...
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_email.png
+
+Oops... error report delivery has failed. Press Close button to exit...
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_failed.png
+
+It may be useful to copy log to clipboard by right-clicking the list control...
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_context_menu.png
+
