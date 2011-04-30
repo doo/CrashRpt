@@ -108,6 +108,7 @@ First of all create a topic in our [http://groups.google.com/group/crashrpt Foru
 If you like `CrashRpt` and use it in your software, you can show your appreciation by adding your project name and logo to the WhoUsesCrashRpt page. By doing this you make `CrashRpt` more significant for other users and also support further development.
 
 Another way to support further development is by donating to `CrashRpt`.
+
 [https://sourceforge.net/donate/index.php?group_id=279722 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/donate.png]
 
 == Are there any analogous software for crash reporting? ==
