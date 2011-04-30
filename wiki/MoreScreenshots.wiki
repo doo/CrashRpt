@@ -1,0 +1,27 @@
+#summary More Screenshots.
+#labels Featured
+
+Error Report Dialog
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg.png
+
+Error Report Dialog and in Chinese...
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_chinese.png
+
+
+The same in Russian...
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_russian.png
+
+Expanded Error Report Dialog allows to enter additional info about the problem
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_expanded.png
+
+Error Report Details dialog show the list of contained files and file preview
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_hex_preview.png
+
+Not only HEX preview, but Text preview is supported, too...
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_text_preview.png
+
+The same with Image preview...
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_screenshot_preview.png
+
+If your program has several windows, its desctop screenshot preview looks like this...
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_multi_screenshot_preview.png
