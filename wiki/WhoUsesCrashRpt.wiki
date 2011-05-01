@@ -1,4 +1,4 @@
-#summary The list of software projects using CrashRpt.
+#summary The list of software projects using `CrashRpt`.
 #labels Featured,Phase-Support
 
 We are interested to know how many software projects use CrashRpt.
@@ -8,7 +8,7 @@ Add a comment to this wiki page and provide any of the following:
   # a hyperlink to your project's logo small image
   # a hyperlink to your project's site
 
-Below is the list of software that are known to use CrashRpt:
+Below is the list of software that are known to use `CrashRpt`:
 
 ==Games==
 
@@ -23,7 +23,7 @@ Below is the list of software that are known to use CrashRpt:
 
   * <img src="http://karaoke.kjams.com/w/skins/common/images/kjams_logo.png" height="48" align="center"/> <a href="http://karaoke.kjams.com/">kJams karaoke</a>
 
-==PhotoShop Plugins==
+==`PhotoShop` Plugins==
 
   * [http://www.curvemeister.com curvemeister]
 
