@@ -8,4 +8,29 @@ Add a comment to this wiki page and provide any of the following:
   # a hyperlink to your project's logo small image
   # a hyperlink to your project's site
 
+Below is the list of software that are known to use CrashRpt:
 
+==Games==
+
+  * [http://link-dead.net Link-Dead]
+
+  * <img src="http://static.greatgamesexperiment.com/userimages/a/aab8e18904b27faf7dfcfaedd3ad9936_sq.gif" height="48" align="center"/><a href="http://rigsofrods.com">Rigs of Rods</a>
+
+  * <img src="http://crenetic.de/grafik/logo.jpg" height="32" align="center"/> <a href="http://www.trappeddead.com/">Trapped Dead</a>
+
+
+==Karaoke==
+
+  * <img src="http://karaoke.kjams.com/w/skins/common/images/kjams_logo.png" height="48" align="center"/> <a href="http://karaoke.kjams.com/">kJams karaoke</a>
+
+==PhotoShop Plugins==
+
+  * [www.curvemeister.com curvemeister]
+
+==Radio Players==
+
+  * Connect-Radio and NBOX-Radio
+
+==Tools==
+
+  * <img src="http://www.wilcoxassoc.com/images/ems_button.gif" height="48" align="center"/> <a href="http://www.wilcoxassoc.com">PC-DMIS & PC-DMIS Planner</a>
