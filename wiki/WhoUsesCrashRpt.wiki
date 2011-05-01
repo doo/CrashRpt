@@ -25,7 +25,7 @@ Below is the list of software that are known to use CrashRpt:
 
 ==PhotoShop Plugins==
 
-  * [www.curvemeister.com curvemeister]
+  * [http://www.curvemeister.com curvemeister]
 
 ==Radio Players==
 
