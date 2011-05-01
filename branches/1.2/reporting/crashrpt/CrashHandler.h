@@ -178,9 +178,13 @@ public:
     
   // Packs crash description into shared memory.
   CRASH_DESCRIPTION* PackCrashInfoIntoSharedMem(__in CSharedMem* pSharedMem, BOOL bTempMem);
+  // Packs string
   DWORD PackString(CString str);
+  // Packs file item
   DWORD PackFileItem(FileItem& fi);
+  // Packs custom user property
   DWORD PackProperty(CString sName, CString sValue);
+  // Packs a registry key
   DWORD PackRegKey(CString sKeyName, CString sDstFileName);
     
   // Launches the CrashSender.exe process.

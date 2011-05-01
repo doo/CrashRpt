@@ -50,6 +50,7 @@
 
 CFileMemoryMapping::CFileMemoryMapping()  
 {
+  // Set member vars to the default values
   m_hFile = INVALID_HANDLE_VALUE;
   m_uFileLength = 0;
   m_hFileMapping = NULL;  
@@ -69,13 +70,16 @@ BOOL CFileMemoryMapping::Init(LPCTSTR szFileName)
 {
   if(m_hFile!=INVALID_HANDLE_VALUE)
   {
+    // If a file mapping already created, destroy it
     Destroy();    
   }
 
+  // Open file handle
 	m_hFile = CreateFile(szFileName, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
 	if(m_hFile == INVALID_HANDLE_VALUE)
 		return FALSE;
 	
+  // Create file mapping
 	m_hFileMapping = CreateFileMapping(m_hFile, 0, PAGE_READONLY, 0, 0, 0);
   LARGE_INTEGER size;
 	GetFileSizeEx(m_hFile, &size);	
@@ -86,6 +90,7 @@ BOOL CFileMemoryMapping::Init(LPCTSTR szFileName)
 
 BOOL CFileMemoryMapping::Destroy()
 {
+  // Unmap all views
   std::map<DWORD, LPBYTE>::iterator it;
   for(it=m_aViewStartPtrs.begin(); it!=m_aViewStartPtrs.end(); it++)
   {
@@ -94,11 +99,13 @@ BOOL CFileMemoryMapping::Destroy()
   }
   m_aViewStartPtrs.clear();
   
+  // Close file mapping handle
   if(m_hFileMapping!=NULL)
   {
 	  CloseHandle(m_hFileMapping);    
   }
 
+  // Close file handle
   if(m_hFile!=INVALID_HANDLE_VALUE)
   {
 	  CloseHandle(m_hFile);    

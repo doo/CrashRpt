@@ -47,6 +47,8 @@ std::map<DWORD, CString> g_sErrorMsg; // Last error messages for each calling th
 
 CRASHRPTAPI(LPVOID) InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWSTR pszEmailSubject)
 {
+  // This is just a wrapper that calls crInstallW() function.
+
   CR_INSTALL_INFOW info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
   info.cb = sizeof(CR_INSTALL_INFO);
@@ -61,6 +63,8 @@ CRASHRPTAPI(LPVOID) InstallW(LPGETLOGFILE pfnCallback, LPCWSTR pszEmailTo, LPCWS
 
 CRASHRPTAPI(LPVOID) InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR pszEmailSubject)
 {
+  // This is just a wrapper that calls crInstallA() function.
+
   strconv_t strconv;
   LPCWSTR lpwszEmailTo = strconv.a2w(pszEmailTo);
   LPCWSTR lpwszEmailSubject = strconv.a2w(pszEmailSubject);
@@ -70,18 +74,24 @@ CRASHRPTAPI(LPVOID) InstallA(LPGETLOGFILE pfnCallback, LPCSTR pszEmailTo, LPCSTR
 
 CRASHRPTAPI(void) Uninstall(LPVOID lpState)
 {
+  // This is just a wrapper that calls crInstall() function.
+
   lpState;
   crUninstall();  
 }
 
 CRASHRPTAPI(void) AddFileW(LPVOID lpState, LPCWSTR lpFile, LPCWSTR lpDesc)
 { 
+  // This is just a wrapper that calls crAddFileW() function.
+
   lpState;
   crAddFileW(lpFile, lpDesc);
 }
 
 CRASHRPTAPI(void) AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
 {
+  // This is just a wrapper that calls crAddFileA() function.
+
   strconv_t strconv;
   LPCWSTR lpwszFile = strconv.a2w(lpFile);
   LPCWSTR lpwszDesc = strconv.a2w(lpDesc);
@@ -90,6 +100,7 @@ CRASHRPTAPI(void) AddFileA(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc)
 
 CRASHRPTAPI(void) GenerateErrorReport(LPVOID lpState, PEXCEPTION_POINTERS pExInfo)
 {
+  // This is just a wrapper that calls crGenerateErrorReport() function.
   lpState;
 
   CR_EXCEPTION_INFO ei;

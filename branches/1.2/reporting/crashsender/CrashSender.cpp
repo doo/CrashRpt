@@ -43,7 +43,7 @@ CErrorReportDlg dlgErrorReport;
 CResendDlg dlgResend;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
-{ 
+{   
   LPCWSTR szCommandLine = GetCommandLineW();
   
   int argc = 0;

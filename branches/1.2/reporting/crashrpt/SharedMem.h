@@ -133,16 +133,24 @@ class CSharedMem
 {
 public:
 
+  // Construction/destruction
 	CSharedMem();  
   ~CSharedMem();  
 
+  // Initializes shared memory
 	BOOL Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize);
+
+  // Destroys the object
 	BOOL Destroy();
 
-  CString GetName();
+  // Returns file mapping name
+  CString GetName(); 
+  // Returns file mapping size
   ULONG64 GetSize();
 
+  // Creates a view and returns its start pointer
 	LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
+  // Destroys a view
   void DestroyView(LPBYTE pViewPtr);
 
 private:

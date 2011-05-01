@@ -58,13 +58,19 @@ class CFileMemoryMapping
 {
 public:
 
+  // Construction/destruction
 	CFileMemoryMapping();  
   ~CFileMemoryMapping();  
 
+  // Initializes the object
 	BOOL Init(LPCTSTR szFileName);
+  // Destroys the object
 	BOOL Destroy();
 
+  // Returns memory size
   ULONG64 GetSize();
+
+  // Creates a view 
 	LPBYTE CreateView(DWORD dwOffset, DWORD dwLength);
 
 private:
@@ -73,33 +79,45 @@ private:
 	HANDLE m_hFileMapping;		  // Memory mapped object
   DWORD m_dwAllocGranularity; // System allocation granularity  	  
 	ULONG64 m_uFileLength;		  // Size of the file.		
-  CCritSec m_csLock;
+  CCritSec m_csLock;          // Synchronization object
   std::map<DWORD, LPBYTE> m_aViewStartPtrs; // Base of the view of the file.    
 };
 
+// Line info
 struct LineInfo
 {
-  DWORD m_dwOffsetInFile;
-  DWORD m_cchLineLength;  
+  DWORD m_dwOffsetInFile; // Line offset in file
+  DWORD m_cchLineLength;  // Line length in symbols
 };
 
+// Image class - encapsulates image reading functionality
 class CImage
 {
 public:
 
+  // Construction/destruction
   CImage();
   ~CImage();
     
+  // Destroys the object
   void Destroy();
 
+  // Returns TRUE if the file is a BMP image, otherwise returns FALSE
   static BOOL IsBitmap(FILE* f);
+  // Returns TRUE if the file is a PNG image, otherwise returns FALSE
   static BOOL IsPNG(FILE* f);
+  // Returns TRUE if the file is a JPEG image, otherwise returns FALSE
   static BOOL IsJPEG(FILE* f);
+  // Returns TRUE if the file is an image file, otherwise returns FALSE
   static BOOL IsImageFile(CString sFileName);
 
+  // Loads the image from file
   BOOL Load(CString sFileName);
+  // Cancels loading
   void Cancel();
+  // Returns TRUE if image is valid, otherwise returns FALSE
   BOOL IsValid();  
+  // Draws the image on the device context
   void Draw(HDC hDC, LPRECT prcDraw);
   
 private:
@@ -114,12 +132,16 @@ private:
   BOOL m_bLoadCancelled;  // Load cancel flag
 };
 
+// This message is sent by file preview control when file loading is complete
 #define WM_FPC_COMPLETE  (WM_APP+100)
 
+// File preview control
+// A custom control derived from CStatic. Can preview files as hex, text and image
 class CFilePreviewCtrl : public CWindowImpl<CFilePreviewCtrl, CStatic>
 {
 public:
   
+  // Construction/destruction
   CFilePreviewCtrl();
   ~CFilePreviewCtrl();
 
@@ -151,16 +173,34 @@ public:
     MESSAGE_HANDLER(WM_MOUSEWHEEL, OnMouseWheel)
   END_MSG_MAP()
 
+  // Returns file name
   LPCTSTR GetFile();
+
+  // Sets file for preview
   BOOL SetFile(LPCTSTR szFileName, PreviewMode mode=PREVIEW_AUTO, TextEncoding enc = ENC_AUTO);
+
+  // Returns current preview mode
   PreviewMode GetPreviewMode();
+
+  // Sets preview mode
   void SetPreviewMode(PreviewMode mode);
+
+  // Returns text encoding
   TextEncoding GetTextEncoding();
+
+  // Sets text encoding
   void SetTextEncoding(TextEncoding enc);
+
+  // Sets the text that will be displayed as "No data to display" message
   void SetEmptyMessage(CString sText);
+
+  // Sets the width of HEX preview
   BOOL SetBytesPerLine(int nBytesPerLine);
 
+  // Returns the preview mode for the file
   PreviewMode DetectPreviewMode(LPCTSTR szFileName);
+
+  // Detects what text encoding to use for the file
   TextEncoding DetectTextEncoding(LPCTSTR szFileName, int& nSignatureLen);
   
   LRESULT OnDestroy(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -184,9 +224,14 @@ public:
   void DoPaintBitmap(HDC hDC);
   void DoPaint(HDC hDC);
 
-  static DWORD WINAPI WorkerThread(LPVOID lpParam);
+  // Used internally to performs some work assynchronously
+  static DWORD WINAPI WorkerThread(LPVOID lpParam);  
   void DoInWorkerThread();
+  
+  // Parses text file assynchronously
   void ParseText();
+
+  // Loads bitmap assynchronously
   void LoadBitmap();
     
   CString m_sFileName;         // File name.
@@ -200,10 +245,10 @@ public:
   int m_yChar;                 // Size of character in y direction.
   int m_nMaxColsPerPage;       // Maximum columns per page.
   int m_nMaxLinesPerPage;      // Maximum count of lines per one page.
-	int m_nMaxDisplayWidth;   
+	int m_nMaxDisplayWidth;      // Maximum display width
 	ULONG64 m_uNumLines;         // Number of lines in the file.	
   int m_nBytesPerLine;         // Count of displayed bytes per line.
-  int m_cchTabLength;
+  int m_cchTabLength;          // Length of the tab, in characters
   CString m_sEmptyMsg;         // Text to display when file is empty
   int m_nHScrollPos;           // Horizontal scroll position.
 	int m_nHScrollMax;           // Max horizontal scroll position.

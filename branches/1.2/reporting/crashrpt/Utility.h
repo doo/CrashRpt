@@ -115,6 +115,7 @@ namespace Utility
   // Converts system time to UINT64
   ULONG64 SystemTimeToULONG64( const SYSTEMTIME& st );
 
+  // Formats a string of file size
   CString FileSizeToStr(ULONG64 uFileSize); 
 };
 

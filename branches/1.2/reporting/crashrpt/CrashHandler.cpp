@@ -65,6 +65,7 @@ CCrashHandler* CCrashHandler::m_pProcessCrashHandler = NULL;
 
 CCrashHandler::CCrashHandler()
 {
+  // Init member variables to their defaults
   m_bInitialized = FALSE;  
   m_dwFlags = 0;
   m_MinidumpType = MiniDumpNormal;
@@ -79,11 +80,13 @@ CCrashHandler::CCrashHandler()
   m_hEvent = NULL;  
   m_pCrashDesc = NULL;
 
+  // Init exception handler pointers
   InitPrevExceptionHandlerPointers();
 }
 
 CCrashHandler::~CCrashHandler()
 {
+  // Clean up
   Destroy();
 }
 
@@ -193,6 +196,7 @@ int CCrashHandler::Init(
     return 1;
   }
   
+  // Save restart command line
   m_sRestartCmdLine = lpcszRestartCmdLine;
 
   // Save Email recipient address
@@ -209,6 +213,7 @@ int CCrashHandler::Init(
     m_nSmtpPort = _ttoi(sPort);
   }
 
+  // Set up SMTP proxy
   m_nSmtpProxyPort = 25;
   if(lpcszSmtpProxy!=NULL)
   {
@@ -513,6 +518,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
   return m_pTmpCrashDesc;
 }
 
+// Packs a string to shared memory
 DWORD CCrashHandler::PackString(CString str)
 {
   DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
@@ -531,6 +537,7 @@ DWORD CCrashHandler::PackString(CString str)
   return dwTotalSize;
 }
 
+// Packs file item to shared memory
 DWORD CCrashHandler::PackFileItem(FileItem& fi)
 {
   DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
@@ -552,6 +559,7 @@ DWORD CCrashHandler::PackFileItem(FileItem& fi)
   return dwTotalSize;
 }
 
+// Packs custom property to shared memory
 DWORD CCrashHandler::PackProperty(CString sName, CString sValue)
 {
   DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
@@ -571,6 +579,7 @@ DWORD CCrashHandler::PackProperty(CString sName, CString sValue)
   return dwTotalSize;
 }
 
+// Packs registry key to shared memory
 DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
 {
   DWORD dwTotalSize = m_pTmpCrashDesc->m_dwTotalSize;
@@ -590,11 +599,13 @@ DWORD CCrashHandler::PackRegKey(CString sKeyName, CString sDstFileName)
   return dwTotalSize;
 }
 
+// Returns TRUE if initialized, otherwise FALSE
 BOOL CCrashHandler::IsInitialized()
 {
   return m_bInitialized;
 }
 
+// Destroys the object
 int CCrashHandler::Destroy()
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -650,11 +661,13 @@ void CCrashHandler::InitPrevExceptionHandlerPointers()
   m_prevSigTERM = NULL;
 }
 
+// Returns singleton of the crash handler
 CCrashHandler* CCrashHandler::GetCurrentProcessCrashHandler()
 {   
   return m_pProcessCrashHandler;
 }
 
+// Releases the crash handler pointer
 void CCrashHandler::ReleaseCurrentProcessCrashHandler()
 {
   if(m_pProcessCrashHandler!=NULL)
@@ -664,6 +677,7 @@ void CCrashHandler::ReleaseCurrentProcessCrashHandler()
   }
 }
 
+// Sets exception handlers that work on per-process basis
 int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -746,6 +760,7 @@ int CCrashHandler::SetProcessExceptionHandlers(DWORD dwFlags)
   return 0;
 }
 
+// Unsets exception pointers that work on per-process basis
 int CCrashHandler::UnSetProcessExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -857,6 +872,7 @@ int CCrashHandler::SetThreadExceptionHandlers(DWORD dwFlags)
   return 0;
 }
 
+// Unsets exception handlers for the current thread
 int CCrashHandler::UnSetThreadExceptionHandlers()
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -901,6 +917,7 @@ int CCrashHandler::UnSetThreadExceptionHandlers()
 }
 
 
+// Adds a file item to the error report
 int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc, DWORD dwFlags)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -946,6 +963,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
   return 0;
 }
 
+// Adds a custom property to the error report
 int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
 {
   crSetErrorMsg(_T("Unspecified error."));
@@ -965,6 +983,7 @@ int CCrashHandler::AddProperty(CString sPropName, CString sPropValue)
   return 0;
 }
 
+// Adds a screen shot to the error report
 int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
 { 
   crSetErrorMsg(_T("Unspecified error."));
@@ -988,6 +1007,7 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
   return 0;
 }
 
+// Generates error report
 int CCrashHandler::GenerateErrorReport(
   PCR_EXCEPTION_INFO pExceptionInfo)
 {  
@@ -1065,6 +1085,7 @@ int CCrashHandler::GenerateErrorReport(
   return 0; 
 }
 
+// Adds a registry key dump to the error report
 int CCrashHandler::AddRegKey(LPCTSTR szRegKey, LPCTSTR szDstFileName, DWORD dwFlags)
 {
   UNREFERENCED_PARAMETER(dwFlags);

@@ -38,9 +38,9 @@
 #include <tchar.h>
 #include <assert.h>
 #include <process.h>
-#include "CrashRpt.h"
+#include "CrashRpt.h" // Include CrashRpt header
 
-LPVOID lpvState = NULL;
+LPVOID lpvState = NULL; // Not used, deprecated
 
 int main(int argc, char* argv[])
 {
@@ -57,20 +57,22 @@ int main(int argc, char* argv[])
 #else
   CR_INSTALL_INFO info;
   memset(&info, 0, sizeof(CR_INSTALL_INFO));
-  info.cb = sizeof(CR_INSTALL_INFO);
-  info.pszAppName = _T("CrashRpt Console Test");
-  info.pszAppVersion = _T("1.0.0");
-  info.pszEmailSubject = _T("CrashRpt Console Test 1.0.0 Error Report");
-  info.pszEmailTo = _T("test@hotmail.com");
+  info.cb = sizeof(CR_INSTALL_INFO);             // Size of the structure
+  info.pszAppName = _T("CrashRpt Console Test"); // App name
+  info.pszAppVersion = _T("1.0.0");              // App version
+  info.pszEmailSubject = _T("CrashRpt Console Test 1.0.0 Error Report"); // Email subject
+  info.pszEmailTo = _T("test@hotmail.com");      // Email recipient address
 
-  int nInstResult = crInstall(&info);
+  // Install crash handlers
+  int nInstResult = crInstall(&info);            
   assert(nInstResult==0);
   
+  // Check result
   if(nInstResult!=0)
   {
     TCHAR buff[256];
-    crGetLastErrorMsg(buff, 256);
-    _tprintf(_T("%s\n"), buff);
+    crGetLastErrorMsg(buff, 256); // Get last error
+    _tprintf(_T("%s\n"), buff); // and output it to the screen
     return FALSE;
   }
 
@@ -91,19 +93,20 @@ int main(int argc, char* argv[])
      }
 #else
      int *p = 0;
-     *p = 0;
+     *p = 0; // Access violation
 #endif // _DEBUG
   
   }
 
 #ifdef TEST_DEPRECATED_FUNCS
-  Uninstall(lpvState);
+  Uninstall(lpvState); // Uninstall exception handlers
 #else
-  int nUninstRes = crUninstall();
+  int nUninstRes = crUninstall(); // Uninstall exception handlers
   assert(nUninstRes==0);
   nUninstRes;
 #endif //TEST_DEPRECATED_FUNCS
 
+  // Exit
   return 0;
 }
 
