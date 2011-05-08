@@ -291,7 +291,7 @@ GenerateErrorReport(
 #endif //_CRASHRPT_REMOVE_DEPRECATED
 
 // Array indices for CR_INSTALL_INFO::uPriorities.
-#define CR_HTTP 0  //!< Send error report via HTTP connection.
+#define CR_HTTP 0  //!< Send error report via HTTP (or HTTPS) connection.
 #define CR_SMTP 1  //!< Send error report via SMTP connection.
 #define CR_SMAPI 2 //!< Send error report via simple MAPI (using default mail client).
 
@@ -305,7 +305,7 @@ GenerateErrorReport(
 #define CR_INST_UNEXPECTED_HANDLER             0x4    //!< Install unexpected handler.
 #define CR_INST_PURE_CALL_HANDLER              0x8    //!< Install pure call handler (VS .NET and later).
 #define CR_INST_NEW_OPERATOR_ERROR_HANDLER     0x10   //!< Install new operator error handler (VS .NET and later).
-#define CR_INST_SECURITY_ERROR_HANDLER         0x20   //!< Install security errror handler (VS .NET and later).
+#define CR_INST_SECURITY_ERROR_HANDLER         0x20   //!< Install security error handler (VS .NET and later).
 #define CR_INST_INVALID_PARAMETER_HANDLER      0x40   //!< Install invalid parameter handler (VS 2005 and later).
 #define CR_INST_SIGABRT_HANDLER                0x80   //!< Install SIGABRT signal handler.
 #define CR_INST_SIGFPE_HANDLER                 0x100  //!< Install SIGFPE signal handler.   
