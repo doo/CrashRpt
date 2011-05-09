@@ -157,6 +157,7 @@ private:
   FILE* m_fOut;
 };
 
+#include <atldef.h>
 
 // Program entry point
 int _tmain(int argc, TCHAR** argv)
