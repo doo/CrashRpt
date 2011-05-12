@@ -33,61 +33,148 @@
 #pragma once
 #include "stdafx.h"
 
-typedef void (__cdecl *PFNTEST)();
-
-extern std::map<std::string, std::string>* g_pTestSuiteList; // Test suite list
-extern std::string sCurTestSuite; // Current test suite
-extern std::map<std::string, PFNTEST>* g_pTestList; // Test case list
-extern std::vector<std::string>* g_pErrorList; // The list of errors
 extern BOOL g_bRunningFromUNICODEFolder; // Are we running from a UNICODE-named folder?
 
-// Helper class used to register a test suite
-class CTestSuiteRegistrator
+// What action to perform
+enum eAction
 {
-public:
-  CTestSuiteRegistrator(LPCSTR szTestSuiteName, LPCSTR szDesc)
-  {
-    if(g_pTestSuiteList==NULL)
-    {
-      g_pTestSuiteList = new std::map<std::string, std::string>;
-    }
-    std::string sSuiteName = std::string(szTestSuiteName);
-    (*g_pTestSuiteList)[sSuiteName] = szDesc;
-
-    sCurTestSuite = szTestSuiteName;
-  }
+  GET_NAMES, // Return test names
+  RUN_TESTS  // Run tests
 };
 
-#define REGISTER_TEST_SUITE(szSuite, szDesc)\
-  CTestSuiteRegistrator __testSuite##szSuite ( #szSuite , szDesc );
-
-// Helper class used to register a test case
-class CTestRegistrator
+// Test suite class
+class CTestSuite
 {
 public:
-  CTestRegistrator(LPCSTR szTestName, PFNTEST pfnTest)
-  {
-    if(g_pTestList==NULL)
-    {
-      g_pTestList = new std::map<std::string, PFNTEST>;
-    }
-    std::string sName = sCurTestSuite;
-    sName += "::";
-    sName += std::string(szTestName);
-    (*g_pTestList)[sName] = pfnTest;
-  }
+
+  // Constructor
+  CTestSuite(CTestSuite* pParentSuite=NULL);
+
+  // Allocates resources used by tests in this suite
+  virtual void SetUp() = 0;  
+
+  // Frees resources used by tests in this suite
+  virtual void TearDown() = 0;
+
+  // Returns suite name and description
+	virtual void GetSuiteInfo(std::string& sName, std::string& sDescription) = 0;
+
+  // Returns the list of tests in this suite or runs tests
+  virtual void DoWithMyTests(eAction action, std::vector<std::string>& test_list) = 0;
+  
+  // Runs all or some tests from this test suite
+  bool Run(std::vector<std::string>* pSuitesToRun = NULL);
+    
+  // Returns test list in this test suite 
+  virtual std::vector<std::string> GetTestList(bool bIncludeChildren = false);
+
+  // Returns parent test suite
+  CTestSuite* GetParentSuite();  
+
+  // Returns count of child test suites
+  UINT GetChildSuiteCount();  
+
+  // Returns i-th child test suite
+  CTestSuite* GetChildSuite(UINT i);  
+
+  // Adds a child test suite
+  void AddChildSuite(CTestSuite* pChildSuite);
+
+  // Returns the list of errors
+  std::vector<std::string> GetErrorList(bool bIncludeChildren = false);
+
+  void ClearErrors();
+
+  void AddErrorMsg(char* szFunction, char* szAssertion);
+
+protected: 
+
+  void BeforeTest(char* szFunction);
+
+private:
+  
+  CTestSuite* m_pParentSuite;   // Parent test suite
+  std::vector<CTestSuite*> m_apChildSuites;     // The list of child test suites
+  std::vector<std::string> m_asErrorMsg; // The list of error messages
 };
 
-#define REGISTER_TEST(pfnTest)\
-  void pfnTest();\
-  CTestRegistrator __test##pfnTest ( #pfnTest , pfnTest );
+#define BEGIN_TEST_MAP( TestSuite , Description)\
+virtual void GetSuiteInfo(std::string& sName, std::string& sDescription)\
+{\
+	sName = std::string( #TestSuite );\
+  sDescription = std::string( Description );\
+}\
+virtual void DoWithMyTests(eAction action, std::vector<std::string>& test_list)\
+{
 
+#define REGISTER_TEST( Test )\
+if(action==GET_NAMES)\
+test_list.push_back( #Test );\
+else\
+{\
+  BeforeTest( #Test );\
+ Test();\
+}
+
+#define END_TEST_MAP() }
+
+class CTopLevelTestSuite : public CTestSuite
+{
+public:
+
+	BEGIN_TEST_MAP( CTopLevelTestSuite, "All tests")
+	END_TEST_MAP()
+
+  CTopLevelTestSuite()
+    :CTestSuite(NULL)
+  {
+  }
+
+  virtual void SetUp()
+  {
+  }
+
+  virtual void TearDown()
+  {
+  }
+
+};
+
+class CTestRegistry
+{
+public: 
+
+  static CTestRegistry* GetRegistry();
+  
+  CTestRegistry();
+  
+  CTestSuite* GetTopSuite();
+  
+private:
+
+  CTestSuite* m_pTopSuite; // The top-level test suite.  
+};
+
+extern CTestSuite* g_pCurTestSuite;
 
 #define TEST_ASSERT(expr)\
-if(!(expr)) { printf("!!!Error in test: "__FUNCTION__ " Expr: " #expr "\n"); \
-std::string assertion = "In test: "__FUNCTION__ " Expr: " #expr;\
-  if(g_pErrorList==NULL) g_pErrorList = new std::vector<std::string>;\
-g_pErrorList->push_back(assertion);\
+if(!(expr)) { g_pCurTestSuite->AddErrorMsg(__FUNCTION__, #expr); \
 goto test_cleanup; }
 
 #define __TEST_CLEANUP__ test_cleanup:
+
+template <class T>
+class CTestSuiteRegistrator
+{
+public:
+
+	CTestSuiteRegistrator()
+	{
+		CTestSuite* pSuite = new T();  
+		CTestRegistry* pRegistry = CTestRegistry::GetRegistry();  
+		pRegistry->GetTopSuite()->AddChildSuite(pSuite);
+	}
+};
+
+#define REGISTER_TEST_SUITE( Suite ) CTestSuiteRegistrator<Suite> __reg_##Suite;
+

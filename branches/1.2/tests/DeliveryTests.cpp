@@ -35,10 +35,39 @@
 #include "Utility.h"
 #include "CrashRpt.h"
 
-REGISTER_TEST_SUITE( DeliveryTests , "Error report delivery tests");
+class DeliveryTests : public CTestSuite
+{
+  BEGIN_TEST_MAP(DeliveryTests, "Error report delivery tests")
+    REGISTER_TEST(Test_HttpDelivery_legacy_encoding)  
+    REGISTER_TEST(Test_HttpDelivery_binary_encoding)
+    REGISTER_TEST(Test_SmtpDelivery)
+    REGISTER_TEST(Test_SmtpDelivery_proxy);
+    REGISTER_TEST(Test_SMAPI_Delivery)
+  END_TEST_MAP()
 
-REGISTER_TEST(Test_HttpDelivery_legacy_encoding);
-void Test_HttpDelivery_legacy_encoding()
+public:
+
+  void SetUp();
+  void TearDown();
+    
+  void Test_HttpDelivery_legacy_encoding();
+  void Test_HttpDelivery_binary_encoding();
+  void Test_SmtpDelivery();
+  void Test_SmtpDelivery_proxy();
+  void Test_SMAPI_Delivery();
+};
+
+REGISTER_TEST_SUITE( DeliveryTests );
+
+void DeliveryTests::SetUp()
+{
+}
+
+void DeliveryTests::TearDown()
+{
+}
+
+void DeliveryTests::Test_HttpDelivery_legacy_encoding()
 { 
   CString sAppDataFolder;
   CString sExeFolder;
@@ -88,8 +117,8 @@ void Test_HttpDelivery_legacy_encoding()
   Utility::RecycleFile(sTmpFolder, TRUE);
 }
 
-REGISTER_TEST(Test_HttpDelivery_binary_encoding);
-void Test_HttpDelivery_binary_encoding()
+
+void DeliveryTests::Test_HttpDelivery_binary_encoding()
 { 
   CString sAppDataFolder;
   CString sExeFolder;
@@ -139,8 +168,7 @@ void Test_HttpDelivery_binary_encoding()
   Utility::RecycleFile(sTmpFolder, TRUE);
 }
 
-REGISTER_TEST(Test_SmtpDelivery);
-void Test_SmtpDelivery()
+void DeliveryTests::Test_SmtpDelivery()
 { 
   CString sAppDataFolder;
   CString sExeFolder;
@@ -192,8 +220,7 @@ void Test_SmtpDelivery()
   Utility::RecycleFile(sTmpFolder, TRUE);
 }
 
-REGISTER_TEST(Test_SmtpDelivery_proxy);
-void Test_SmtpDelivery_proxy()
+void DeliveryTests::Test_SmtpDelivery_proxy()
 { 
   CString sAppDataFolder;
   CString sExeFolder;
@@ -249,8 +276,7 @@ void Test_SmtpDelivery_proxy()
 
 // This test tries to send report in silent mode over SMAPI.
 // Since SMAPI is not available in silent mode, test passes when delivery fails.
-REGISTER_TEST(Test_SMAPI_Delivery);
-void Test_SMAPI_Delivery()
+void DeliveryTests::Test_SMAPI_Delivery()
 { 
   CString sAppDataFolder;
   CString sExeFolder;

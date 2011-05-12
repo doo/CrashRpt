@@ -36,10 +36,32 @@
 #include "Utility.h"
 #include "strconv.h"
 
-REGISTER_TEST_SUITE( LangFileTests , "CrashRpt language file tests");
+class LangFileTests : public CTestSuite
+{
+  BEGIN_TEST_MAP(LangFileTests, "CrashRpt language file tests")
+    REGISTER_TEST(Test_lang_file_versions);    
+  END_TEST_MAP()
 
-REGISTER_TEST(Test_lang_file_versions);
-void Test_lang_file_versions()
+public:
+
+  void SetUp();
+  void TearDown();
+  
+  void Test_lang_file_versions();
+};
+
+
+REGISTER_TEST_SUITE( LangFileTests );
+
+void LangFileTests::SetUp()
+{
+}
+
+void LangFileTests::TearDown()
+{
+}
+
+void LangFileTests::Test_lang_file_versions()
 { 
   // This test ensures that CrashRptVersion field of all CrashRpt language files
   // equals to CRASHRPT_VER constant value
