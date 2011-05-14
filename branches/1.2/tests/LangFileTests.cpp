@@ -54,7 +54,7 @@ public:
 REGISTER_TEST_SUITE( LangFileTests );
 
 void LangFileTests::SetUp()
-{
+{  
 }
 
 void LangFileTests::TearDown()
@@ -65,6 +65,9 @@ void LangFileTests::Test_lang_file_versions()
 { 
   // This test ensures that CrashRptVersion field of all CrashRpt language files
   // equals to CRASHRPT_VER constant value
+
+  if(g_bRunningFromUNICODEFolder)
+    return; // Skip this test if running from another process
 
   std::vector<CString> asLangAbbr;
   asLangAbbr.push_back(_T("DE"));

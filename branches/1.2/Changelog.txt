@@ -1,5 +1,21 @@
 ======= Change History ========
 
+--- Ver. 1.2.10 ---
+
+- Added new language files: German, Spanish, French, Hindi, Italian, Korean, Portuguese and Chinese Simplified.
+  Some of these files were produced by professional translators (Korean, Chinese Simplified), but others
+  are generated with help of an automated translation tool, so do not hesitate to report mistakes.
+
+- Refactored unit tests, so now they support fixtures and execute faster then before.
+
+- Added new test suites LangFileTests and CrproberTests.
+
+- Fixed: Typo in HttpRequestSender.cpp (issue 79)
+
+- Fixed: Typos in test project (issue 82)
+
+- Fixed: 
+
 --- Ver. 1.2.9 ---
 
 - Compiler/linker output for x64 platform is now directed to bin\x64, while output dir for Win32 platform

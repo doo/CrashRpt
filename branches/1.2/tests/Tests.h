@@ -63,13 +63,16 @@ public:
   virtual void DoWithMyTests(eAction action, std::vector<std::string>& test_list) = 0;
   
   // Runs all or some tests from this test suite
-  bool Run(std::vector<std::string>* pSuitesToRun = NULL);
+  bool Run(std::set<std::string>& SuitesToRun);
     
   // Returns test list in this test suite 
-  virtual std::vector<std::string> GetTestList(bool bIncludeChildren = false);
+  virtual std::vector<std::string> GetTestList(std::set<std::string>& SuitesToRun, bool bIncludeChildren = false);
 
   // Returns parent test suite
   CTestSuite* GetParentSuite();  
+
+  // Sets parent suite
+  void SetParentSuite(CTestSuite* pParent);
 
   // Returns count of child test suites
   UINT GetChildSuiteCount();  
@@ -85,17 +88,20 @@ public:
 
   void ClearErrors();
 
-  void AddErrorMsg(char* szFunction, char* szAssertion);
+  void AddErrorMsg(const char* szFunction, const char* szAssertion);
 
 protected: 
 
-  void BeforeTest(char* szFunction);
+  bool BeforeTest(const char* szFunction);
+  void AfterTest(const char* szFunction);
 
 private:
   
   CTestSuite* m_pParentSuite;   // Parent test suite
   std::vector<CTestSuite*> m_apChildSuites;     // The list of child test suites
   std::vector<std::string> m_asErrorMsg; // The list of error messages
+  bool m_bSuiteSetUpFailed;
+  bool m_bTestFailed;
 };
 
 #define BEGIN_TEST_MAP( TestSuite , Description)\
@@ -112,20 +118,23 @@ if(action==GET_NAMES)\
 test_list.push_back( #Test );\
 else\
 {\
-  BeforeTest( #Test );\
- Test();\
+ if(BeforeTest( #Test ))\
+   Test();\
+ AfterTest( #Test);\
 }
 
 #define END_TEST_MAP() }
 
-class CTopLevelTestSuite : public CTestSuite
+class TopLevelTestSuite : public CTestSuite
 {
 public:
 
-	BEGIN_TEST_MAP( CTopLevelTestSuite, "All tests")
+	BEGIN_TEST_MAP( TopLevelTestSuite, "All tests")
+    UNREFERENCED_PARAMETER(test_list);
+    UNREFERENCED_PARAMETER(action);
 	END_TEST_MAP()
 
-  CTopLevelTestSuite()
+  TopLevelTestSuite()
     :CTestSuite(NULL)
   {
   }
@@ -169,10 +178,12 @@ class CTestSuiteRegistrator
 public:
 
 	CTestSuiteRegistrator()
-	{
-		CTestSuite* pSuite = new T();  
+	{		
 		CTestRegistry* pRegistry = CTestRegistry::GetRegistry();  
-		pRegistry->GetTopSuite()->AddChildSuite(pSuite);
+    CTestSuite* pTopSuite = pRegistry->GetTopSuite();
+    CTestSuite* pSuite = new T();  
+    pSuite->SetParentSuite(pTopSuite);
+		pTopSuite->AddChildSuite(pSuite);
 	}
 };
 

@@ -8,7 +8,7 @@ for CrashRpt functionality.
 To run the tests, go to the \b bin directory and click the \b Tests.exe executable
 file. This should launch a console program that will run a set of test cases.
 
-Tests optionally can be launched from a temporary folder having Chineese 
+Tests optionally can be launched from a temporary folder having Chinese 
 UNICODE characters in its name. This can be used to test UNICODE compatibility. To
 skip this, just press Enter when prompted.
 
@@ -16,7 +16,9 @@ Test cases are organized into several test suites. Below is the list of test sui
 
 - CrashRptAPITests : CrashRpt API function tests
 - CrashRptProbeAPITests : CrashRptProbe API function tests
+- CrproberTests : crprober.exe tests
 - DeliveryTests : Error report delivery tests
+- LangFileTests : CrashRpt language file tests
             
 You can run tests from all test suites at once,
 or to run tests from selected test suites. To run tests from all test suites, press Enter when prompted.
@@ -31,71 +33,102 @@ Below is an example of the output of the <b>Tests.exe</b> console program:
 
 \code
 
-Do you want to run tests from a folder cotaining Chineese characters to test UNICODE compatibility (y/n)?
+
+Do you want to run tests from a folder containing Chinese characters to test UNICODE compatibility (y/n)?
 Your choice >
 
-=== Automated tests for CrashRpt v.1.2.8 ===
+=== Automated tests for CrashRpt v.1.2.10 ===
 
 The list of avaliable test suites:
  - CrashRptAPITests : CrashRpt API function tests
  - CrashRptProbeAPITests : CrashRptProbe API function tests
+ - CrproberTests : crprober.exe tests
  - DeliveryTests : Error report delivery tests
+ - LangFileTests : CrashRpt language file tests
 
-Enter which test suites to run (separate names by space) or enter empty line to
-run all test suites.
+Enter which test suites to run (separate names by space) or enter empty line to run all test suites.
 Your choice >
 
 Running tests...
-- 1/39: CrashRptAPITests::Test_AddFile ...
-- 2/39: CrashRptAPITests::Test_CrAutoInstallHelper ...
-- 3/39: CrashRptAPITests::Test_CrThreadAutoInstallHelper ...
-- 4/39: CrashRptAPITests::Test_InstallA ...
-- 5/39: CrashRptAPITests::Test_InstallW ...
-- 6/39: CrashRptAPITests::Test_crAddFileA ...
-- 7/39: CrashRptAPITests::Test_crAddFileW ...
-- 8/39: CrashRptAPITests::Test_crAddPropertyA ...
-- 9/39: CrashRptAPITests::Test_crAddPropertyW ...
-- 10/39: CrashRptAPITests::Test_crAddRegKeyA ...
-- 11/39: CrashRptAPITests::Test_crAddRegKeyW ...
-- 12/39: CrashRptAPITests::Test_crAddScreenshot ...
-- 13/39: CrashRptAPITests::Test_crEmulateCrash ...
-- 14/39: CrashRptAPITests::Test_crGenerateErrorReport ...
-- 15/39: CrashRptAPITests::Test_crGetLastErrorMsgA ...
-- 16/39: CrashRptAPITests::Test_crGetLastErrorMsgW ...
-- 17/39: CrashRptAPITests::Test_crInstallA_twice ...
-- 18/39: CrashRptAPITests::Test_crInstallA_zero_info ...
-- 19/39: CrashRptAPITests::Test_crInstallToCurrentThread ...
-- 20/39: CrashRptAPITests::Test_crInstallToCurrentThread_concurrent ...
-- 21/39: CrashRptAPITests::Test_crInstallW_zero_info ...
-- 22/39: CrashRptAPITests::Test_crInstall_in_different_folder ...
-- 23/39: CrashRptAPITests::Test_crInstall_missing_app_ver ...
-- 24/39: CrashRptAPITests::Test_crInstall_null ...
-- 25/39: CrashRptAPITests::Test_crInstall_wrong_cb ...
-- 26/39: CrashRptAPITests::Test_crUninstall ...
-- 27/39: CrashRptAPITests::Test_undecorated_func_names ...
-- 28/39: CrashRptProbeAPITests::Test_crpCloseErrorReport ...
-- 29/39: CrashRptProbeAPITests::Test_crpExtractFileA ...
-- 30/39: CrashRptProbeAPITests::Test_crpExtractFileW ...
-- 31/39: CrashRptProbeAPITests::Test_crpGetLastErrorA ...
-- 32/39: CrashRptProbeAPITests::Test_crpGetLastErrorW ...
-- 33/39: CrashRptProbeAPITests::Test_crpGetProperty ...
-- 34/39: CrashRptProbeAPITests::Test_crpGetPropertyA ...
-- 35/39: CrashRptProbeAPITests::Test_crpGetPropertyW ...
-- 36/39: CrashRptProbeAPITests::Test_crpOpenErrorReportA ...
-- 37/39: CrashRptProbeAPITests::Test_crpOpenErrorReportW ...
-- 38/39: DeliveryTests::Test_HttpDelivery_binary_encoding ...
-!!!Error in test: Test_HttpDelivery_binary_encoding Expr: dwExitCode==0
-- 39/39: DeliveryTests::Test_HttpDelivery_legacy_encoding ...
-!!!Error in test: Test_HttpDelivery_legacy_encoding Expr: dwExitCode==0
+ - TopLevelTestSuite::SetUp... OK.
+ - CrashRptAPITests::SetUp... OK.
+ - CrashRptAPITests::Test_InstallW... OK.
+ - CrashRptAPITests::Test_InstallA... OK.
+ - CrashRptAPITests::Test_crUninstall... OK.
+ - CrashRptAPITests::Test_AddFile... OK.
+ - CrashRptAPITests::Test_crInstall_null... OK.
+ - CrashRptAPITests::Test_crInstall_wrong_cb... OK.
+ - CrashRptAPITests::Test_crInstall_missing_app_ver... OK.
+ - CrashRptAPITests::Test_crInstallW_zero_info... OK.
+ - CrashRptAPITests::Test_crInstallA_zero_info... OK.
+ - CrashRptAPITests::Test_crInstallA_twice... OK.
+ - CrashRptAPITests::Test_crInstallA_short_path_name... OK.
+ - CrashRptAPITests::Test_crInstallW_short_path_name... OK.
+ - CrashRptAPITests::Test_crInstallToCurrentThread... OK.
+ - CrashRptAPITests::Test_crInstallToCurrentThread_concurrent... OK.
+ - CrashRptAPITests::Test_crAddFileA... OK.
+ - CrashRptAPITests::Test_crAddFileW... OK.
+ - CrashRptAPITests::Test_crAddScreenshot... OK.
+ - CrashRptAPITests::Test_crAddScreenshot2... OK.
+ - CrashRptAPITests::Test_crAddPropertyA... OK.
+ - CrashRptAPITests::Test_crAddPropertyW... OK.
+ - CrashRptAPITests::Test_crAddRegKeyA... OK.
+ - CrashRptAPITests::Test_crAddRegKeyW... OK.
+ - CrashRptAPITests::Test_crGenerateErrorReport... OK.
+ - CrashRptAPITests::Test_crEmulateCrash... OK.
+ - CrashRptAPITests::Test_crGetLastErrorMsgA... OK.
+ - CrashRptAPITests::Test_crGetLastErrorMsgW... OK.
+ - CrashRptAPITests::Test_CrAutoInstallHelper... OK.
+ - CrashRptAPITests::Test_CrThreadAutoInstallHelper... OK.
+ - CrashRptAPITests::Test_crInstall_in_different_folder... OK.
+ - CrashRptAPITests::Test_undecorated_func_names... OK.
+ - CrashRptAPITests::Test_crashrpt_dll_file_version... OK.
+ - CrashRptAPITests::TearDown... OK.
+ - CrashRptProbeAPITests::SetUp... OK.
+ - CrashRptProbeAPITests::Test_crpOpenErrorReportA... OK.
+ - CrashRptProbeAPITests::Test_crpOpenErrorReportW... OK.
+ - CrashRptProbeAPITests::Test_crpCloseErrorReport... OK.
+ - CrashRptProbeAPITests::Test_crpExtractFileW... OK.
+ - CrashRptProbeAPITests::Test_crpExtractFileA... OK.
+ - CrashRptProbeAPITests::Test_crpGetLastErrorW... OK.
+ - CrashRptProbeAPITests::Test_crpGetLastErrorA... OK.
+ - CrashRptProbeAPITests::Test_crpGetPropertyW... OK.
+ - CrashRptProbeAPITests::Test_crpGetPropertyA... OK.
+ - CrashRptProbeAPITests::Test_crpGetProperty... OK.
+ - CrashRptProbeAPITests::Test_crashrptprobe_dll_file_version... OK.
+ - CrashRptProbeAPITests::TearDown... OK.
+ - CrproberTests::SetUp... OK.
+ - CrproberTests::Test_output... OK.
+ - CrproberTests::Test_extract_file... OK.
+ - CrproberTests::TearDown... OK.
+ - DeliveryTests::SetUp... OK.
+ - DeliveryTests::Test_HttpDelivery_legacy_encoding... Failed.
+!!! In test: DeliveryTests::Test_HttpDelivery_legacy_encoding Expr: dwExitCode==
+0
+ - DeliveryTests::Test_HttpDelivery_binary_encoding... Failed.
+!!! In test: DeliveryTests::Test_HttpDelivery_binary_encoding Expr: dwExitCode==
+0
+ - DeliveryTests::Test_SmtpDelivery... Failed.
+!!! In test: DeliveryTests::Test_SmtpDelivery Expr: dwExitCode==0
+ - DeliveryTests::Test_SmtpDelivery_proxy... Failed.
+!!! In test: DeliveryTests::Test_SmtpDelivery_proxy Expr: dwExitCode==0
+ - DeliveryTests::Test_SMAPI_Delivery... OK.
+ - DeliveryTests::TearDown... OK.
+ - LangFileTests::SetUp... OK.
+ - LangFileTests::Test_lang_file_versions... OK.
+ - LangFileTests::TearDown... OK.
+ - TopLevelTestSuite::TearDown... OK.
 
 === Summary ===
 
-Error 0: Error in test: Test_HttpDelivery_binary_encoding Expr: dwExitCode==0
-Error 1: Error in test: Test_HttpDelivery_legacy_encoding Expr: dwExitCode==0
+1: In test: DeliveryTests::Test_HttpDelivery_legacy_encoding Expr: dwExitCode==0
+2: In test: DeliveryTests::Test_HttpDelivery_binary_encoding Expr: dwExitCode==0
+3: In test: DeliveryTests::Test_SmtpDelivery Expr: dwExitCode==0
+4: In test: DeliveryTests::Test_SmtpDelivery_proxy Expr: dwExitCode==0
 
- Test count: 39
- Tests passed: 37
- Tests failed: 2
+   Test count: 62
+ Tests passed: 58
+ Tests failed: 4
 
 \endcode
 

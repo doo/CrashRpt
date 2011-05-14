@@ -208,7 +208,7 @@ BOOL CHttpRequestSender::InternalSend()
     goto cleanup;
   }
 
-  m_Assync->SetProgress(_T("Reading server responce..."), 0);
+  m_Assync->SetProgress(_T("Reading server response..."), 0);
   
   InternetReadFile(hRequest, pBuffer, 2048, &dwBuffSize);
   pBuffer[dwBuffSize] = 0;

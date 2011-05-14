@@ -294,16 +294,16 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   }
 
 
-  char responce[1024];
+  char response[1024]="";
 
   sStatusMsg.Format(_T("Sending HELO"));
   scn->SetProgress(sStatusMsg, 1);
 
   // send HELO
-	res=SendMsg(scn, sock, _T("HELO CrashSender\r\n"), responce, 1024);
+	res=SendMsg(scn, sock, _T("HELO CrashSender\r\n"), response, 1024);
   if(res!=250)
   {
-    sStatusMsg = CString(responce, 1024);
+    sStatusMsg = CString(response, 1024);
     scn->SetProgress(sStatusMsg, 0);    
     goto exit;
   }
@@ -312,19 +312,19 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   scn->SetProgress(sStatusMsg, 1);
   
   sMsg.Format(_T("MAIL FROM:<%s>\r\n"), msg->m_sFrom);
-  res=SendMsg(scn, sock, sMsg, responce, 1024);
+  res=SendMsg(scn, sock, sMsg, response, 1024);
   if(res!=250)
   {
-    sStatusMsg = CString(responce, 1024);
+    sStatusMsg = CString(response, 1024);
     scn->SetProgress(sStatusMsg, 0);    
     goto exit;
   }
 	
   sMsg.Format(_T("RCPT TO:<%s>\r\n"), msg->m_sTo);
-  res=SendMsg(scn, sock, sMsg, responce, 1024);
+  res=SendMsg(scn, sock, sMsg, response, 1024);
   if(res!=250)
   {
-    sStatusMsg = CString(responce, 1024);
+    sStatusMsg = CString(response, 1024);
     scn->SetProgress(sStatusMsg, 0);
     goto exit;
   }
@@ -333,10 +333,10 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
   scn->SetProgress(sStatusMsg, 1);
 
   // Send DATA
-  res=SendMsg(scn, sock, _T("DATA\r\n"), responce, 1024);
+  res=SendMsg(scn, sock, _T("DATA\r\n"), response, 1024);
   if(res!=354)
   {
-    sStatusMsg = CString(responce, 1024);
+    sStatusMsg = CString(response, 1024);
     scn->SetProgress(sStatusMsg, 0);    
     goto exit;
   }
@@ -417,17 +417,17 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
     goto exit;
 
   // End of message marker
-	if(250!=SendMsg(scn, sock, _T("\r\n.\r\n"), responce, 1024))
+	if(250!=SendMsg(scn, sock, _T("\r\n.\r\n"), response, 1024))
   {
-    sStatusMsg = CString(responce, 1024);
+    sStatusMsg = CString(response, 1024);
     scn->SetProgress(sStatusMsg, 0);    
     goto exit;
   }
 
 	// quit
-	if(221!=SendMsg(scn, sock, _T("QUIT \r\n"), responce, 1024))
+	if(221!=SendMsg(scn, sock, _T("QUIT \r\n"), response, 1024))
   {
-    sStatusMsg = CString(responce, 1024);
+    sStatusMsg = CString(response, 1024);
     scn->SetProgress(sStatusMsg, 0);    
     goto exit;
   }
@@ -478,7 +478,7 @@ std::string CSmtpClient::UTF16toUTF8(LPCWSTR utf16)
    return utf8;
 }
 
-int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce, UINT uResponceSize)
+int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponse, UINT uResponseSize)
 {	
   strconv_t strconv;
 
@@ -489,17 +489,17 @@ int CSmtpClient::SendMsg(AssyncNotification* scn, SOCKET sock, LPCTSTR pszMessag
   LPCSTR lpszMessageA = strconv.t2a((TCHAR*)pszMessage);
   
   int res = send(sock, lpszMessageA, msg_len, 0);	
-	if(pszResponce==NULL) 
+	if(pszResponse==NULL) 
     return res;
 
-	int br = recv(sock, pszResponce, uResponceSize, 0);
+	int br = recv(sock, pszResponse, uResponseSize, 0);
   if(br==SOCKET_ERROR)
     return br;
 
   if(br>2)
-	  pszResponce[br-2]=0; //zero terminate string
+	  pszResponse[br-2]=0; //zero terminate string
 	
-	return GetMessageCode(pszResponce);
+	return GetMessageCode(pszResponse);
 }
 
 int CSmtpClient::CheckAttachmentOK(CString sFileName)

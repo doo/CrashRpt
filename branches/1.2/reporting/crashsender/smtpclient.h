@@ -70,7 +70,7 @@ protected:
   
   static int CheckAddressSyntax(CString addr);
   
-  static int SendMsg(AssyncNotification*, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponce=0, UINT uResponceSize=0);
+  static int SendMsg(AssyncNotification*, SOCKET sock, LPCTSTR pszMessage, LPSTR pszResponse=0, UINT uResponseSize=0);
 
   static int CheckAttachmentOK(CString sFileName);
 
