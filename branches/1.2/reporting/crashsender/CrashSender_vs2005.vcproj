@@ -20,7 +20,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)bin"
-			IntermediateDirectory="Debug"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\include;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\crashrpt\&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,7 +69,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -79,9 +79,9 @@
 				AdditionalDependencies="tinyxmld.lib jpegd.lib zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib libpngd.lib psapi.lib minizipd.lib"
 				OutputFile="$(OutDir)\CrashSenderd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib&quot;"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSenderd.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashSenderd.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -108,7 +108,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 		<Configuration
@@ -146,7 +146,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\include;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\crashrpt&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="WIN64;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -164,7 +164,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -174,9 +174,9 @@
 				AdditionalDependencies="zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizipd.lib version.lib psapi.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSenderd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashSenderd.pdb"
+				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\CrashSenderd.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -203,7 +203,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\$(PlatformName)\crashrpt_lang.ini&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\$(PlatformName)\crashrpt_lang.ini&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -242,7 +242,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\crashrpt\&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -258,7 +258,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -268,9 +268,9 @@
 				AdditionalDependencies="tinyxml.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashSender.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -297,7 +297,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 		<Configuration
@@ -336,7 +336,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\crashrpt&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -352,7 +352,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -362,9 +362,9 @@
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashSender.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashSender.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -391,7 +391,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\$(PlatformName)\crashrpt_lang.ini"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 		<Configuration
@@ -428,7 +428,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\reporting\CrashRpt;..\..\include\;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\dbghelp\include;..\..\thirdparty\wtl;..\..\thirdparty\jpeg"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)include\&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -445,7 +445,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -455,9 +455,9 @@
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib  psapi.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashSender.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashSender.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -484,7 +484,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\crashrpt_lang.ini"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 		<Configuration
@@ -523,7 +523,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\reporting\crashrpt;..\..\thirdparty\tinyxml;..\..\thirdparty\zlib;..\..\include;..\..\thirdparty\minizip;..\..\thirdparty\libpng;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include;..\..\thirdparty\jpeg"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\crashrpt&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -550,9 +550,9 @@
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib psapi.lib version.lib"
 				OutputFile="$(OutDir)\CrashSender.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashSender.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashSender.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -579,7 +579,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\lang_files\crashrpt_lang_EN.ini ..\..\bin\$(PlatformName)\crashrpt_lang.ini"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini"
 			/>
 		</Configuration>
 	</Configurations>

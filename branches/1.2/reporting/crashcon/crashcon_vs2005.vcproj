@@ -48,16 +48,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_"
 				RuntimeLibrary="2"
 				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/crashcon.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -95,7 +91,6 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/crashcon.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -108,7 +103,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)"
 			/>
 		</Configuration>
 		<Configuration
@@ -143,16 +138,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_CONSOLE;"
 				RuntimeLibrary="2"
 				FloatingPointExceptions="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/crashcon.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
@@ -174,7 +165,7 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\crashcon.pdb"
+				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\crashcon.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="17"
@@ -191,7 +182,6 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/crashcon.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -204,13 +194,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)bin"
-			IntermediateDirectory=".\Debug"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
@@ -237,17 +227,14 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_X86_"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug/crashcon.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
+				PrecompiledHeaderFile="$(IntDir)/crashcon.pch"
 				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
@@ -270,9 +257,9 @@
 				OutputFile="$(OutDir)\crashcond.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="../../lib"
+				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\crashcond.pdb"
+				ProgramDatabaseFile="$(OutDir)\crashcond.pdb"
 				SubSystem="1"
 				TargetMachine="1"
 			/>
@@ -288,7 +275,6 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/crashcon.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -301,7 +287,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -335,17 +321,13 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="_WIN64;_DEBUG;_CONSOLE;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Debug/crashcon.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				BrowseInformation="1"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
@@ -368,9 +350,9 @@
 				OutputFile="$(OutDir)\crashcond.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\crashcond.pdb"
+				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\crashcond.pdb"
 				SubSystem="1"
 				TargetMachine="17"
 			/>
@@ -386,7 +368,6 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Debug/crashcon.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -399,7 +380,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -432,15 +413,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/crashcon.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
@@ -463,9 +440,9 @@
 				OutputFile="$(OutDir)\crashcon.exe"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\crashcon.pdb"
+				ProgramDatabaseFile="$(OutDir)\crashcon.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="1"
@@ -482,7 +459,6 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/crashcon.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -495,7 +471,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -530,15 +506,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include"
+				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_CONSOLE;CRASHRPT_LIB"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
-				PrecompiledHeaderFile=".\Release/crashcon.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="4"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="true"
@@ -563,7 +535,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName);$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\crashcon.pdb"
+				ProgramDatabaseFile="$(OutDir)\crashcon.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="17"
@@ -580,7 +552,6 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile=".\Release/crashcon.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -593,7 +564,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)"
 			/>
 		</Configuration>
 	</Configurations>

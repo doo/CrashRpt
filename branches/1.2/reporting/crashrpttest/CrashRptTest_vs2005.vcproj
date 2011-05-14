@@ -20,7 +20,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)bin"
-			IntermediateDirectory="Debug"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -70,7 +70,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -80,9 +80,9 @@
 				AdditionalDependencies="CrashRptd.lib shell32.lib gdi32.lib"
 				OutputFile="$(OutDir)\CrashRptTestd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashRptTestd.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashRptTestd.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -109,7 +109,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -147,7 +147,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)include;$(SolutionDir)thirdparty\wtl"
 				PreprocessorDefinitions="WIN64;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -165,7 +165,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -175,9 +175,9 @@
 				AdditionalDependencies="CrashRptd.lib"
 				OutputFile="$(OutDir)\CrashRptTestd.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashRptTestd.pdb"
+				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\CrashRptTestd.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -204,7 +204,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.ini ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.log ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)\$(PlatformName)&#x0D;&#x0A;copy dummy.ini $(OutDir)\$(PlatformName)&#x0D;&#x0A;copy dummy.log $(OutDir)\$(PlatformName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -243,7 +243,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)include;$(SolutionDir)thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -259,7 +259,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -269,9 +269,9 @@
 				AdditionalDependencies="CrashRpt.lib shell32.lib gdi32.lib"
 				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\CrashRptTest.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="1"
 			/>
@@ -298,7 +298,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -337,7 +337,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;"
 				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -353,7 +353,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -363,9 +363,9 @@
 				AdditionalDependencies="CrashRpt.lib"
 				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashRptTest.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -392,7 +392,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.ini ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.log ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -429,7 +429,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)include;$(SolutionDir)thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -446,7 +446,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -456,7 +456,7 @@
 				AdditionalDependencies="CrashRptLIB.lib shell32.lib"
 				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\CrashRptTest.pdb"
 				SubSystem="2"
@@ -485,7 +485,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dbghelp\bin\dbghelp.dll ..\..\bin&#x0D;&#x0A;copy dummy.ini ..\..\bin&#x0D;&#x0A;copy dummy.log ..\..\bin&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -524,7 +524,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)include;$(SolutionDir)thirdparty\wtl"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
@@ -551,9 +551,9 @@
 				AdditionalDependencies="CrashRptLIB.lib"
 				OutputFile="$(OutDir)\CrashRptTest.exe"
 				LinkIncremental="0"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName);..\..\lib\$(PlatformName)"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib\$(PlatformName)&quot;;&quot;$(SolutionDir)lib\$(PlatformName)&quot;"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)\CrashRptTest.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashRptTest.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -580,7 +580,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\thirdparty\dbghelp\bin\dbghelp.dll ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.ini ..\..\bin\$(PlatformName)&#x0D;&#x0A;copy dummy.log ..\..\bin\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;copy dummy.ini $(OutDir)&#x0D;&#x0A;copy dummy.log $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

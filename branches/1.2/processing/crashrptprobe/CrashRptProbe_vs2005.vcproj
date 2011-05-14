@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\zlib;..\..\thirdparty\minizip;..\..\reporting\crashrpt;..\..\reporting\crashsender;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)reporting\crashrpt&quot;;&quot;$(SolutionDir)reporting\crashsender&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -68,11 +68,11 @@
 				AdditionalDependencies="tinyxmld.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbed.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib&quot;"
 				ModuleDefinitionFile="CrashRptProbed.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				ImportLibrary="..\..\lib\$(TargetName).lib"
+				ImportLibrary="$(SolutionDir)lib\$(TargetName).lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -126,7 +126,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\wtl;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)reporting\CrashSender&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;"
 				PreprocessorDefinitions="_WIN64;_DEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -141,23 +141,23 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				CommandLine="if not exist ..\..\lib\$(PlatformName) mkdir ..\..\lib\$(PlatformName)"
+				CommandLine="if not exist $(SolutionDir)lib\$(PlatformName) mkdir $(SolutionDir)lib\$(PlatformName)"
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbed.dll"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\thirdparty\lib\$(PlatformName)&quot;;..\..\thirdparty\dbghelp\lib\amd64"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib\$(PlatformName)&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib\amd64&quot;"
 				ModuleDefinitionFile="CrashRptProbed.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\lib\$(PlatformName)\CrashRptProbed.pdb"
+				ProgramDatabaseFile="$(SolutionDir)lib\$(PlatformName)\CrashRptProbed.pdb"
 				SubSystem="2"
-				ImportLibrary="..\..\lib\\$(PlatformName)\CrashRptProbed.lib"
+				ImportLibrary="$(SolutionDir)lib\$(PlatformName)\CrashRptProbed.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -212,7 +212,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)reporting\CrashSender&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -224,7 +224,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -234,13 +234,13 @@
 				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib;$(SolutionDir)thirdparty\dbghelp\lib"
 				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="..\..\lib\CrashRptProbe.lib"
+				ImportLibrary="$(SolutionDir)lib\CrashRptProbe.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -296,7 +296,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)reporting\CrashSender&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
@@ -308,24 +308,24 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
-				CommandLine="if not exist ..\..\lib\$(PlatformName) mkdir ..\..\lib\$(PlatformName)"
+				CommandLine="if not exist $(SolutionDir)lib\$(PlatformName) mkdir $(SolutionDir)lib\$(PlatformName)"
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbe.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib\$(PlatformName);..\..\thirdparty\dbghelp\lib\amd64"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName);$(SolutionDir)thirdparty\dbghelp\lib\amd64"
 				ModuleDefinitionFile="CrashRptProbe.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="..\..\lib\$(PlatformName)\CrashRptProbe.lib"
+				ImportLibrary="$(SolutionDir)lib\$(PlatformName)\CrashRptProbe.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -378,7 +378,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\zip_utils;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)reporting\CrashSender&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zip_utils&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_LIB;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
@@ -390,7 +390,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -399,7 +399,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
 				OutputFile="$(OutDir)\CrashRptProbeLIB.lib"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib"
+				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib;$(SolutionDir)thirdparty\dbghelp\lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -445,7 +445,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\include;..\..\reporting\CrashRpt;..\..\reporting\CrashSender;..\..\thirdparty\tinyxml;..\..\thirdparty\wtl;..\..\thirdparty\minizip;..\..\thirdparty\zlib;..\..\thirdparty\dbghelp\include"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)reporting\CrashSender&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;"
 				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;CRASHRPTPROBE_EXPORTS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
@@ -457,7 +457,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
-				AdditionalIncludeDirectories="..\..\thirdparty\wtl"
+				AdditionalIncludeDirectories="$(SolutionDir)thirdparty\wtl"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -466,7 +466,7 @@
 				Name="VCLibrarianTool"
 				AdditionalDependencies="dbghelp.lib psapi.lib Rpcrt4.lib version.lib"
 				OutputFile="$(OutDir)\CrashRptProbeLIB.lib"
-				AdditionalLibraryDirectories="..\..\thirdparty\lib;..\..\thirdparty\dbghelp\lib\amd64"
+				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib\amd64&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
