@@ -194,11 +194,9 @@ You should place a valid language file named `crashrpt_lang.ini` to the director
 
 If your software supports several languages, you can distribute several language files with your software. On install, rename an appropriate file to `crashrpt_lang.ini` and copy it to the folder where your `CrashSender.exe` is located.
 
-== How do I contribute a language file? ==
+== Can I contribute a language file? ==
 
-If there is no language file for your favorite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
-
-For instructions, see ContributingLanguageFiles page.
+If there is no language file for your favorite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. For additional information, please see the Internationalization Support section of the documentation. 
 
 == How does crashrpt work internally? ==
 
