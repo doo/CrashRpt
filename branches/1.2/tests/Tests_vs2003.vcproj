@@ -180,7 +180,13 @@
 				RelativePath=".\CrashRptProbeAPITests.cpp">
 			</File>
 			<File
+				RelativePath=".\CrproberTests.cpp">
+			</File>
+			<File
 				RelativePath=".\DeliveryTests.cpp">
+			</File>
+			<File
+				RelativePath=".\LangFileTests.cpp">
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp">
