@@ -49,7 +49,7 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg.png
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_email.png
 
-*Error Report Delivery Failure.* When error report delivery fais, user pressed the Close button to close the window.
+*Error Report Delivery Failure.* When error report delivery fails, user presses the Close button to close the window.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_failed.png
 
