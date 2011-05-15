@@ -352,7 +352,7 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="$(SolutionDir)lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\crashcond.pdb"
+				ProgramDatabaseFile="$(OutDir)\crashcond.pdb"
 				SubSystem="1"
 				TargetMachine="17"
 			/>
@@ -380,7 +380,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -412,7 +412,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="1"
 				AdditionalIncludeDirectories="$(SolutionDir)include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_X86_;CRASHRPT_LIB"
 				RuntimeLibrary="0"

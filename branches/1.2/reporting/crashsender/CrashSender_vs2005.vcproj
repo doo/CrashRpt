@@ -176,7 +176,7 @@
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\CrashSenderd.pdb"
+				ProgramDatabaseFile="$(OutDir)\CrashSenderd.pdb"
 				SubSystem="2"
 				TargetMachine="17"
 			/>
@@ -203,7 +203,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\$(PlatformName)\crashrpt_lang.ini&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)lang_files\crashrpt_lang_EN.ini $(OutDir)\crashrpt_lang.ini&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -428,6 +428,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="1"
+				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\CrashRpt&quot;;&quot;$(SolutionDir)include\&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
@@ -920,10 +922,6 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
-			<File
-				RelativePath=".\res\CrashSender.exe.manifest"
-				>
-			</File>
 			<File
 				RelativePath=".\res\CrashSender.ico"
 				>

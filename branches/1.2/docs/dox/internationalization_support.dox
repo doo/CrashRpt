@@ -16,18 +16,18 @@ If your software supports several languages, you can distribute several language
 software. On install, rename an appropriate 
 file to \b crashrpt_lang.ini and copy it to the folder where your \b CrashSender.exe is located.
 
-You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
+You can download a language file from \a lang_files directory under the top-level directory of
+the CrashRpt distribution.
 
 Each language file has the CrashRptVersion field that stores the version of CrashRpt you
 can use this language file in. If you try to use a language file with a wrong version, the crInstall()
 will return an error.
 
-For example, assume you want to download the English language file for CrashRpt v1.1.3. Browse for
-lang_files->1.1.3->crashrpt_lang_EN.ini (shown below).
+For example, assume you want to download the English language file. Browse for
+lang_files->crashrpt_lang_EN.ini (shown below).
 
 \code
 - lang_files
-   - 1.1.3
        crashrpt_lang_EN.ini
 \endcode
 
@@ -39,9 +39,8 @@ contribute your changes.
 
 If you want to translate a language file to your native language, you may do the following. 
 
-First of all, decide what CrashRpt version you want to prepare the language file for. Download an 
-appropriate language file for the CrashRpt version you decided and for the language you know well. 
-It would be easier for you to translate from such language.
+First of all, chose an existing language file for a language you know well. It would be 
+easier for you to translate from such language.
 
 Open the language file using <b>notepad</b>. It is strongly recommended that you use notepad for
 editing to avoid unexpected problems with encoding.
@@ -113,6 +112,6 @@ can be uploaded.
 <b>I want to upgrade my language file from a previous version to the latest CrashRpt version. What do I do?</b>
 
 To determine the differences between your language file and the language file for the latest CrashRpt version,
-please see <a href="http://crashrpt.googlecode.com/svn/lang_files/readme.txt">Language Files Change Log</a>. 
+please see language files change log (located in the \a lang_files\readme.txt). 
 
 */
