@@ -63,4 +63,4 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/resend_balloon.png
 
 *Send Error Reports Dialog.* This dialog appears when the user clicks the balloon. The dialog allows user to review the error reports being ready for delivery and send them all at once.
 
-http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_failed.png
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/resend_dialog.png
