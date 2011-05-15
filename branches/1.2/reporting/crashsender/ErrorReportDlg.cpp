@@ -200,11 +200,7 @@ void CErrorReportDlg::ShowMoreInfo(BOOL bShow)
   m_statIndent.ShowWindow(bShow?SW_SHOW:SW_HIDE);
 
   m_Layout.Update();
-
-  //GetClientRect(&rc1);
-  //rc1.bottom += k*nDeltaY;
-  // ResizeClient(rc1.Width(), rc1.Height());
-
+ 
   if(bShow)
     m_editEmail.SetFocus();
   else
@@ -254,29 +250,40 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  DoClose(false);
+  // Close dialog
+  CloseDialog(wID);  
+	return 0;
+}
+
+void CErrorReportDlg::DoClose(bool bCloseBtnPressed)
+{
   if(g_CrashInfo.m_bQueueEnabled)
   {
-    CPoint pt;
-    GetCursorPos(&pt);
-    CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
-    CMenu submenu = menu.GetSubMenu(4);
+    if(!bCloseBtnPressed)
+    {
+      CPoint pt;
+      GetCursorPos(&pt);
+      CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
+      CMenu submenu = menu.GetSubMenu(4);
 
-    strconv_t strconv;
-    CString sSendLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReportLater"));
-    CString sCloseTheProgram = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram"));
+      strconv_t strconv;
+      CString sSendLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReportLater"));
+      CString sCloseTheProgram = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram"));
+      
+      MENUITEMINFO mii;
+      memset(&mii, 0, sizeof(MENUITEMINFO));
+      mii.cbSize = sizeof(MENUITEMINFO);
+      mii.fMask = MIIM_STRING;
+
+      mii.dwTypeData = sSendLater.GetBuffer(0);  
+      submenu.SetMenuItemInfo(ID_MENU5_SENDREPORTLATER, FALSE, &mii);
+
+      mii.dwTypeData = sCloseTheProgram.GetBuffer(0);  
+      submenu.SetMenuItemInfo(ID_MENU5_CLOSETHEPROGRAM, FALSE, &mii);
     
-    MENUITEMINFO mii;
-    memset(&mii, 0, sizeof(MENUITEMINFO));
-    mii.cbSize = sizeof(MENUITEMINFO);
-    mii.fMask = MIIM_STRING;
-
-    mii.dwTypeData = sSendLater.GetBuffer(0);  
-    submenu.SetMenuItemInfo(ID_MENU5_SENDREPORTLATER, FALSE, &mii);
-
-    mii.dwTypeData = sCloseTheProgram.GetBuffer(0);  
-    submenu.SetMenuItemInfo(ID_MENU5_CLOSETHEPROGRAM, FALSE, &mii);
-  
-    submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
+      submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
+    }
   }
   else
   {
@@ -284,13 +291,8 @@ LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
     g_ErrorReportSender.DoWork(RESTART_APP);
 
     // Remove report files
-    Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);
-
-    // Close dialog
-    CloseDialog(wID);  
+    Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);    
   }
-
-	return 0;
 }
 
 LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
@@ -367,6 +369,7 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
 
 LRESULT CErrorReportDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {  
+  DoClose(true);
   CreateTrayIcon(FALSE, m_hWnd);
   CloseDialog(0);  
   return 0;

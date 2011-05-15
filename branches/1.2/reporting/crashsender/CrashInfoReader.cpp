@@ -99,10 +99,10 @@ int CCrashInfoReader::Init(CString sFileMappingName)
           find.GetFileName();
         CString sFileName = sErrorReportDirName + _T("\\crashrpt.xml");
         ErrorReportInfo eri2;
-        eri.m_sErrorReportDirName = sErrorReportDirName;
+        eri2.m_sErrorReportDirName = sErrorReportDirName;
         if(0==ParseCrashDescription(sFileName, TRUE, eri2))
         {          
-          eri.m_uTotalSize = GetUncompressedReportSize(eri2);
+          eri2.m_uTotalSize = GetUncompressedReportSize(eri2);
           m_Reports.push_back(eri2);
         }
       }

@@ -215,5 +215,5 @@ public:
 	void CloseDialog(int nVal);  
   void ShowMoreInfo(BOOL bShow);
   int CreateTrayIcon(bool bCreate, HWND hWndParent);
-  
+  void DoClose(bool bCloseBtnPressed);
 };

@@ -14,7 +14,11 @@
 
 - Fixed: Typos in test project (issue 82)
 
-- Fixed: 
+- Fixed: Replace relative paths with OutDir and IntDir (issue 80)
+
+- Fixed: MD5 files are not removed (issue 83)
+
+- Fixed: CrashSender cannot properly send old reports (with smtp) (issue 84)
 
 --- Ver. 1.2.9 ---
 

@@ -1597,6 +1597,7 @@ BOOL CErrorReportSender::SendReport()
 
   // Remove compressed error report file
   Utility::RecycleFile(m_sZipName, true);
+  Utility::RecycleFile(m_sZipName+_T(".md5"), true);
 
   if(status==0)
   {
@@ -1788,6 +1789,9 @@ BOOL CErrorReportSender::SendOverSMTP()
     m_EmailMsg.m_sText = FormatEmailText();
   else
     m_EmailMsg.m_sText = g_CrashInfo.m_sEmailText;
+
+  m_EmailMsg.m_aAttachments.clear();
+
   m_EmailMsg.m_aAttachments.insert(m_sZipName);  
 
   // Create and attach MD5 hash file
