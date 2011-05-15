@@ -88,8 +88,13 @@ void LangFileTests::Test_lang_file_versions()
   {
     CString sExePath = Utility::GetModulePath(NULL);
     CString sFileName;
+#ifndef WIN64
     sFileName.Format(_T("%s\\..\\lang_files\\crashrpt_lang_%s.ini"), 
       sExePath.GetBuffer(0), asLangAbbr[i].GetBuffer(0));
+#else
+    sFileName.Format(_T("%s\\..\\..\\lang_files\\crashrpt_lang_%s.ini"), 
+      sExePath.GetBuffer(0), asLangAbbr[i].GetBuffer(0));
+#endif //!WIN64
 
     GetPrivateProfileString(_T("Settings"), _T("CrashRptVersion"), _T(""), szBuffer, BUFF_SIZE, sFileName);
 

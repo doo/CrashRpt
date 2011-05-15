@@ -526,7 +526,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)reporting\crashrpt&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\minizip&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\include&quot;;&quot;$(SolutionDir)thirdparty\jpeg&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
+				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				FloatingPointExceptions="false"

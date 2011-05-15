@@ -165,7 +165,7 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)\$(PlatformName)\crashcon.pdb"
+				ProgramDatabaseFile="$(OutDir)\crashcon.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				TargetMachine="17"
@@ -194,7 +194,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)\$(PlatformName)&#x0D;&#x0A;"
+				CommandLine="copy $(SolutionDir)thirdparty\dbghelp\bin\dbghelp.dll $(OutDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration

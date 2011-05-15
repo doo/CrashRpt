@@ -559,7 +559,7 @@
 				InlineFunctionExpansion="0"
 				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)include&quot;;&quot;$(SolutionDir)thirdparty\tinyxml&quot;;&quot;$(SolutionDir)thirdparty\zlib&quot;;&quot;$(SolutionDir)thirdparty\libpng&quot;;&quot;$(SolutionDir)thirdparty\wtl&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_LIB"
+				PreprocessorDefinitions="_WIN64;NDEBUG;_WINDOWS;_USRDLL;STRICT;CRASHRPT_LIB"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="true"

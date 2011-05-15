@@ -525,7 +525,7 @@
 				Optimization="1"
 				FavorSizeOrSpeed="2"
 				AdditionalIncludeDirectories="$(SolutionDir)include;$(SolutionDir)thirdparty\wtl"
-				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
+				PreprocessorDefinitions="_WIN64;_WINDOWS;STRICT;NDEBUG;CRASHRPT_LIB"
 				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				FloatingPointExceptions="true"
