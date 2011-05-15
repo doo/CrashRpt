@@ -21,38 +21,38 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_expanded.png
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_context_menu.png
 
-Error Report Details dialog show the list of contained files and file preview
+*Error Report Details.* This dialog show the list of files contained in the error report and allows user to preview and open these files.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_hex_preview.png
 
-Not only HEX preview, but text preview is supported (ANSI, UTF-8, UNICODE), too...
+*Text Preview.* The Error Report Details dialog supports several preview modes: HEX preview, text preview (ANSI, UTF-8, UNICODE encodings), image preview.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_text_preview.png
 
-The same with image preview (BMP, JPG, PNG)...
+*Image Preview.* The Error Report Details dialog is able to display preview of BMP, JPG and PNG image files.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_screenshot.png
 
-If your program has several windows, its desktop screenshot preview looks like this...
+*Desktop Screenshots.* If your program has several windows, its desktop screenshot preview looks like this. 
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detaildlg_multi_screenshot.png
 
-If your error contains a registry key dump, it looks like this...
+*Registry Key Dumps.* If your error report contains a registry key dump, it looks like this.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/detail_dlg_reg_key_dump.png
 
-Error report delivery progress (HTTP)...
+*Error Report Delivery.* The following dialog displays the progress of error report delivery (HTTP)...
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg.png
 
-Your report can be also delivered using Email...
+*Error Report Delivery Methods.* Your report can be also delivered as a Email message. 
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_email.png
 
-Oops... error report delivery has failed. Press Close button to exit...
+*Error Report Delivery Failure.* When error report delivery fais, user pressed the Close button to close the window.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_failed.png
 
-It may be useful to copy log to clipboard by right-clicking the list control...
+*Error Report Delivery Log.* It may be useful to copy log to clipboard by right-clicking the list control...
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_context_menu.png
