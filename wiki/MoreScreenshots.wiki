@@ -56,3 +56,11 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_failed.png
 *Error Report Delivery Log.* It may be useful to copy log to clipboard by right-clicking the list control...
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_context_menu.png
+
+*Postponed Delivery Balloon.* `CrashRpt` allows the user to postpone error report delivery. When its time to remind about the delivery, `CrashRpt` displays the balloon.
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/resend_balloon.png
+
+*Send Error Reports Dialog.* This dialog appears when the user clicks the balloon. The dialog allows user to review the error reports being ready for delivery and send them all at once.
+
+http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/progressdlg_failed.png
