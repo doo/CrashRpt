@@ -51,12 +51,14 @@ CErrorReportSender g_ErrorReportSender;
 
 CErrorReportSender::CErrorReportSender()
 {
+  // Init variables
   m_nGlobalStatus = 0;
+  m_nCurReport = 0;
   m_hThread = NULL;
   m_SendAttempt = 0;
   m_Action=COLLECT_CRASH_INFO;
   m_bExport = FALSE;
-  m_nCurReport = 0;
+  
 }
 
 CErrorReportSender::~CErrorReportSender()
@@ -84,19 +86,20 @@ BOOL CErrorReportSender::SetCurReport(int nCurReport)
   return TRUE;
 }
 
-// This method does crash files collection and
+// This method does crash files collection and/or
 // error report sending work
 BOOL CErrorReportSender::DoWork(int action)
 {
   m_Action = action;
 
-  // Create worker thread which will do all work assynchroniously
+  // Create worker thread which will do all work assynchronously
   m_hThread = CreateThread(NULL, 0, WorkerThread, (LPVOID)this, 0, NULL);
   
   // Check if the thread was created ok
   if(m_hThread==NULL)
     return FALSE;
 
+  // Done
   return TRUE;
 }
 
@@ -128,8 +131,8 @@ void CErrorReportSender::UnblockParentProcess()
 void CErrorReportSender::DoWorkAssync()
 {
   m_Assync.Reset();
-  
-  if(g_CrashInfo.m_bSendRecentReports)
+    
+  if(g_CrashInfo.m_bSendRecentReports) // If we are currently sending pending error reports
   {
     CString sMsg;
     sMsg.Format(_T(">>> Performing actions with error report: '%s'"), 
@@ -137,18 +140,17 @@ void CErrorReportSender::DoWorkAssync()
     m_Assync.SetProgress(sMsg, 0, false);
   }
 
-  if(m_Action&COLLECT_CRASH_INFO)
+  if(m_Action&COLLECT_CRASH_INFO) // Collect crash report files
   {
     m_Assync.SetProgress(_T("Start collecting information about the crash..."), 0, false);
     
     // First take a screenshot of user's desktop (if needed).
     TakeDesktopScreenshot();
 
-    if(m_Assync.IsCancelled())
+    if(m_Assync.IsCancelled()) // Check if user-cancelled
     {      
       UnblockParentProcess();
-      // Delete report files
-      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);  
+      
       m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
       return;
     }
@@ -156,11 +158,10 @@ void CErrorReportSender::DoWorkAssync()
     // Create crash dump.
     CreateMiniDump();
 
-    if(m_Assync.IsCancelled())
+    if(m_Assync.IsCancelled()) // Check if user-cancelled
     {      
       UnblockParentProcess();
-      // Delete report files
-      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);  
+      
       m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
       return;
     }
@@ -172,10 +173,8 @@ void CErrorReportSender::DoWorkAssync()
     // Copy user-provided files.
     CollectCrashFiles();
 
-    if(m_Assync.IsCancelled())
+    if(m_Assync.IsCancelled()) // Check if user-cancelled
     {      
-      // Delete report files
-      Utility::RecycleFile(g_CrashInfo.GetReport(m_nCurReport).m_sErrorReportDirName, true);  
       m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
       return;
     }
@@ -212,6 +211,7 @@ void CErrorReportSender::DoWorkAssync()
 
 void CErrorReportSender::SetExportFlag(BOOL bExport, CString sExportFile)
 {
+  // This is used when we need to export error report files as a ZIP archive
   m_bExport = bExport;
   m_sExportFileName = sExportFile;
 }
@@ -222,6 +222,7 @@ void CErrorReportSender::WaitForCompletion()
   WaitForSingleObject(m_hThread, INFINITE);
 }
 
+// Gets status of the local operation
 void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_log)
 {
   m_Assync.GetProgress(nProgressPct, msg_log); 
@@ -229,12 +230,39 @@ void CErrorReportSender::GetStatus(int& nProgressPct, std::vector<CString>& msg_
 
 void CErrorReportSender::Cancel()
 {
+  // User-cancelled
   m_Assync.Cancel();
 }
 
 void CErrorReportSender::FeedbackReady(int code)
 {
   m_Assync.FeedbackReady(code);
+}
+
+BOOL CErrorReportSender::Finalize()
+{  
+  if(g_CrashInfo.m_bSendErrorReport && !g_CrashInfo.m_bQueueEnabled)
+  {
+    // Remove report files if queue disabled
+    Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);    
+  }
+  
+  if(!g_CrashInfo.m_bSendErrorReport && 
+     g_CrashInfo.m_bStoreZIPArchives) // If we should generate a ZIP archive
+  {
+    // Compress error report files
+    g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
+    g_ErrorReportSender.WaitForCompletion();
+  }
+
+  // If needed, restart the application
+  if(!g_CrashInfo.m_bSendRecentReports)
+  {
+    g_ErrorReportSender.DoWork(RESTART_APP); 
+    g_ErrorReportSender.WaitForCompletion();
+  }
+
+  return TRUE;
 }
 
 // This takes the desktop screenshot (screenshot of entire virtual screen
@@ -265,7 +293,6 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
   BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
 
   std::vector<CRect> wnd_list;
-
   
   if((dwFlags&CR_AS_MAIN_WINDOW)!=0)
   {     
@@ -421,7 +448,7 @@ BOOL CErrorReportSender::CreateMiniDump()
   hDbgHelp = LoadLibrary(g_CrashInfo.m_sDbgHelpPath);
   if(hDbgHelp==NULL)
   {
-    //try again ... fallback to dbghelp.dll in path
+    // Try again ... fallback to dbghelp.dll in path
     const CString sDebugHelpDLL_name = "dbghelp.dll";
     hDbgHelp = LoadLibrary(sDebugHelpDLL_name);    
   }
@@ -868,10 +895,7 @@ BOOL CErrorReportSender::CollectCrashFiles()
 
         m_Assync.SetProgress(nProgress, false);
       }
-
-      //if(lTotalWritten.QuadPart!=lFileSize.QuadPart)
-      //  goto cleanup; // Error copying file
-
+      
       CloseHandle(hSrcFile);
       hSrcFile = INVALID_HANDLE_VALUE;
       CloseHandle(hDestFile);
@@ -1161,16 +1185,7 @@ int CErrorReportSender::DumpRegKey(HKEY hParentKey, CString sSubKey, TiXmlElemen
               else if(dwType==REG_SZ || dwType==REG_EXPAND_SZ)
               {
                 LPCSTR szValue = strconv.t2utf8((LPCTSTR)pData);
-                val_node.ToElement()->SetAttribute("value", szValue);
-
-                /*if(dwType==REG_EXPAND_SZ)
-                {
-                  DWORD dwDstBuffSize = ExpandEnvironmentStrings((LPCTSTR)pData, NULL, 0);
-                  LPTSTR szExpanded = new TCHAR[dwDstBuffSize];
-                  ExpandEnvironmentStrings((LPCTSTR)pData, szExpanded, dwDstBuffSize);                  
-                  val_node.ToElement()->SetAttribute("expanded", strconv.t2utf8(szExpanded));
-                  delete [] szExpanded;
-                }*/
+                val_node.ToElement()->SetAttribute("value", szValue);                
               }
               else if(dwType==REG_MULTI_SZ)
               {                
@@ -1266,7 +1281,7 @@ int CErrorReportSender::CalcFileMD5Hash(CString sFileName, CString& sMD5Hash)
 BOOL CErrorReportSender::RestartApp()
 {
   if(g_CrashInfo.m_bAppRestart==FALSE)
-    return FALSE;
+    return FALSE; // No need to restart
 
   m_Assync.SetProgress(_T("Restarting the application..."), 0, false);
 
@@ -1595,13 +1610,10 @@ BOOL CErrorReportSender::SendReport()
     }
   }
 
-  if(!g_CrashInfo.m_bStoreZIPArchives)
-  {
-    // Remove compressed error report file
-    Utility::RecycleFile(m_sZipName, true);
-    Utility::RecycleFile(m_sZipName+_T(".md5"), true);
-  }
-
+  // Remove compressed ZIP file and MD5 file
+  Utility::RecycleFile(m_sZipName, true);
+  Utility::RecycleFile(m_sZipName+_T(".md5"), true);
+  
   if(status==0)
   {
     m_Assync.SetProgress(_T("[status_success]"), 0);
@@ -1681,7 +1693,6 @@ BOOL CErrorReportSender::SendOverHTTP()
     request.m_aTextFields[_T("crashrpt")] = sEncodedData;
   }
 
-
   BOOL bSend = m_HttpSender.SendAssync(request, &m_Assync);  
   return bSend;
 }
@@ -1727,7 +1738,6 @@ int CErrorReportSender::Base64EncodeAttachment(CString sFileName,
   // OK.
   return 0;
 }
-
 
 // This method formats the E-mail message text
 CString CErrorReportSender::FormatEmailText()

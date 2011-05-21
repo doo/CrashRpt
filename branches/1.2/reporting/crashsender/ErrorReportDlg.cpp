@@ -52,6 +52,7 @@ BOOL CErrorReportDlg::OnIdle()
 
 LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {   
+  // Mirror this window if RTL language is in use
   CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
   {
@@ -60,14 +61,18 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
   SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("DlgCaption")));
 
-	// center the dialog on the screen
+	// Center the dialog on the screen
 	CenterWindow();
 	
   HICON hIcon = NULL;
 
+  // Get custom icon
   hIcon = g_CrashInfo.GetCustomIcon();
   if(hIcon==NULL)
+  {
+    // Use default icon
     hIcon = ::LoadIcon(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_MAINFRAME));
+  }
 
   // Set window icon
   SetIcon(hIcon, 0);
@@ -75,7 +80,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   // Get the first icon in the EXE image
   m_HeadingIcon = ExtractIcon(NULL, g_CrashInfo.GetReport(0).m_sImageName, 0);
   
-  // If there is no IDR_MAINFRAME icon in crashed EXE module, use IDI_APPLICATION system icon
+  // If there is no icon in crashed EXE module, use IDI_APPLICATION system icon
   if(m_HeadingIcon == NULL)
   {
     m_HeadingIcon = ::LoadIcon(NULL, MAKEINTRESOURCE(IDI_APPLICATION));
@@ -112,6 +117,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
   m_statConsent = GetDlgItem(IDC_CONSENT);
   
+  // Init font for consent string
   LOGFONT lf;
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 11;
@@ -146,6 +152,7 @@ LRESULT CErrorReportDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
   else
     m_btnCancel.SetWindowText(Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram")));
 
+  // Init font for heading text
   memset(&lf, 0, sizeof(LOGFONT));
   lf.lfHeight = 25;
   lf.lfWeight = FW_NORMAL;
@@ -250,58 +257,44 @@ LRESULT CErrorReportDlg::OnEraseBkgnd(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPa
 
 LRESULT CErrorReportDlg::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  DoClose(false);
-  // Close dialog
-  CloseDialog(wID);  
-	return 0;
-}
-
-void CErrorReportDlg::DoClose(bool bCloseBtnPressed)
-{
+  // Show popup menu on "Other actions..." button click
   if(g_CrashInfo.m_bQueueEnabled)
-  {
-    if(!bCloseBtnPressed)
-    {
-      CPoint pt;
-      GetCursorPos(&pt);
-      CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
-      CMenu submenu = menu.GetSubMenu(4);
+  {    
+    CPoint pt;
+    GetCursorPos(&pt);
+    CMenu menu = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(IDR_POPUPMENU));
+    CMenu submenu = menu.GetSubMenu(4);
 
-      strconv_t strconv;
-      CString sSendLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReportLater"));
-      CString sCloseTheProgram = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram"));
-      
-      MENUITEMINFO mii;
-      memset(&mii, 0, sizeof(MENUITEMINFO));
-      mii.cbSize = sizeof(MENUITEMINFO);
-      mii.fMask = MIIM_STRING;
-
-      mii.dwTypeData = sSendLater.GetBuffer(0);  
-      submenu.SetMenuItemInfo(ID_MENU5_SENDREPORTLATER, FALSE, &mii);
-
-      mii.dwTypeData = sCloseTheProgram.GetBuffer(0);  
-      submenu.SetMenuItemInfo(ID_MENU5_CLOSETHEPROGRAM, FALSE, &mii);
+    strconv_t strconv;
+    CString sSendLater = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("SendReportLater"));
+    CString sCloseTheProgram = Utility::GetINIString(g_CrashInfo.m_sLangFileName, _T("MainDlg"), _T("CloseTheProgram"));
     
-      submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);
-    }
-  }
+    MENUITEMINFO mii;
+    memset(&mii, 0, sizeof(MENUITEMINFO));
+    mii.cbSize = sizeof(MENUITEMINFO);
+    mii.fMask = MIIM_STRING;
+
+    mii.dwTypeData = sSendLater.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU5_SENDREPORTLATER, FALSE, &mii);
+
+    mii.dwTypeData = sCloseTheProgram.GetBuffer(0);  
+    submenu.SetMenuItemInfo(ID_MENU5_CLOSETHEPROGRAM, FALSE, &mii);
+  
+    submenu.TrackPopupMenu(0, pt.x, pt.y, m_hWnd);    
+  }  
   else
   {
-    // If needed, restart the application
-    g_ErrorReportSender.DoWork(RESTART_APP);
-
-    // Remove report files
-    Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);    
+    // Close dialog
+    CloseDialog(wID);  
   }
+
+	return 0;
 }
 
 LRESULT CErrorReportDlg::OnPopupSendReportLater(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   g_CrashInfo.SetRemindPolicy(REMIND_LATER);
-  
-  // If needed, restart the application
-  g_ErrorReportSender.DoWork(RESTART_APP);
-
+    
   CloseDialog(wID);  
   return 0;
 }
@@ -310,10 +303,7 @@ LRESULT CErrorReportDlg::OnPopupCloseTheProgram(WORD /*wNotifyCode*/, WORD wID, 
 {
   // If needed, restart the application
   g_ErrorReportSender.DoWork(RESTART_APP);
-
-  // Remove the error report files
-  Utility::RecycleFile(g_CrashInfo.GetReport(0).m_sErrorReportDirName, true);
-
+  
   CloseDialog(wID);  
   return 0;
 }
@@ -324,7 +314,7 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
   {
     if(g_CrashInfo.m_bSendErrorReport) // If we should send error report now
     {
-      // Show Error Report dialog
+      // Show "Error Report" dialog
       LONG64 lTotalSize = g_ErrorReportSender.GetUncompressedReportSize(g_CrashInfo.GetReport(0));  
       CString sTotalSize = Utility::FileSizeToStr(lTotalSize);    
       CString sSubHeader;
@@ -334,12 +324,6 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
     } 
     else // If we shouldn't send error report now
     {
-      if(g_CrashInfo.m_bStoreZIPArchives) // If we should generate ZIP archive
-      {
-        // Compress error report files
-        g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
-      }
-
       // Exit
       SendMessage(WM_CLOSE);
     }
@@ -352,13 +336,7 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
       g_ErrorReportSender.DoWork(COMPRESS_REPORT|SEND_REPORT);    
     }
     else // If we shouldn't send error report now
-    {
-      if(g_CrashInfo.m_bStoreZIPArchives) // If we should generate ZIP archive
-      {
-        // Compress error report files
-        g_ErrorReportSender.DoWork(COMPRESS_REPORT);    
-      }
-
+    {      
       // Exit
       SendMessage(WM_CLOSE);
     }
@@ -368,36 +346,41 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
 }
 
 LRESULT CErrorReportDlg::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{  
-  DoClose(true);
-  CreateTrayIcon(FALSE, m_hWnd);
+{   
   CloseDialog(0);  
   return 0;
 }
 
 void CErrorReportDlg::CloseDialog(int nVal)
 {
+  // Remove tray icon  
+  CreateTrayIcon(FALSE, m_hWnd);
+
 	DestroyWindow();
 	::PostQuitMessage(nVal);
 }
 
 LRESULT CErrorReportDlg::OnLinkClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {  
+  // Show "Error Report Details" dialog
   CDetailDlg dlg;
   dlg.m_nCurReport = 0;
   dlg.DoModal();
+
   return 0;
 }
 
 LRESULT CErrorReportDlg::OnMoreInfoClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
- m_linkMoreInfo.EnableWindow(0);
- ShowMoreInfo(TRUE);
- return 0;
+  // Expand dialog
+  m_linkMoreInfo.EnableWindow(0);
+  ShowMoreInfo(TRUE);
+
+  return 0;
 }
 
 LRESULT CErrorReportDlg::OnRestartClick(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
+{  
   BOOL bRestart = m_chkRestart.GetCheck()==BST_CHECKED?TRUE:FALSE;
   g_CrashInfo.m_bAppRestart = bRestart;
 
@@ -436,7 +419,8 @@ LRESULT CErrorReportDlg::OnEmailKillFocus(WORD /*wNotifyCode*/, WORD /*wID*/, HW
   
   // Write user email and problem description to XML
   g_CrashInfo.AddUserInfoToCrashDescriptionXML(
-      g_CrashInfo.GetReport(0).m_sEmailFrom, g_CrashInfo.GetReport(0).m_sDescription);
+      g_CrashInfo.GetReport(0).m_sEmailFrom, 
+      g_CrashInfo.GetReport(0).m_sDescription);
 
   return 0;
 }

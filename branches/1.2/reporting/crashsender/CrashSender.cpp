@@ -44,10 +44,9 @@ CResendDlg dlgResend;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 { 
-  ATLASSERT(0);
-
   LPCWSTR szCommandLine = GetCommandLineW();
   
+  // Split command line
   int argc = 0;
   LPWSTR* argv = CommandLineToArgvW(szCommandLine, &argc);
  
@@ -82,15 +81,18 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
     
   if(!g_CrashInfo.m_bSendRecentReports)
   {
+    // Create "Error Report" dialog
     if(dlgErrorReport.Create(NULL) == NULL)
 	  {
-		  ATLTRACE(_T("Main dialog creation failed!\n"));
+		  ATLTRACE(_T("Error report dialog creation failed!\n"));
 		  return 0;
 	  }
   }
   else
   {
-    // check if another instance of CrashSender.exe is running
+    // Create "Send Error Reports" dialog
+
+    // Check if another instance of CrashSender.exe is running
 	  ::CreateMutex( NULL, FALSE,_T("Local\\43773530-129a-4298-88f2-20eea3e4a59b"));
     if (::GetLastError() == ERROR_ALREADY_EXISTS)
 	  {		
@@ -112,11 +114,15 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 	  }
   }
   
+  // Process window messages
 	int nRet = theLoop.Run();
 
   // Wait until the worker thread is exited  
   g_ErrorReportSender.WaitForCompletion();
   nRet = g_ErrorReportSender.GetGlobalStatus();
+
+  // Remove temporary files we might create and perform other finalizing work
+  g_ErrorReportSender.Finalize();
 
 	_Module.RemoveMessageLoop();
 

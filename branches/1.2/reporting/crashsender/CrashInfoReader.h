@@ -164,37 +164,37 @@ public:
   // Loads custom icon (if defined)
   HICON GetCustomIcon();
 
-  // Retrieves some crash info from crash description XML
-  int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
-
-  // Adds user information
-  BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
-
-  // Adds the list of files
-  BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
-
-  // Returns report by its index in the list
+    // Returns report by its index in the list
   ErrorReportInfo& GetReport(int nIndex);
 
   // Returns count of error reports
   int GetReportCount();
 
-  // Returns last remind date
-  BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
-
-  // Updates last remind date
-  BOOL SetLastRemindDateToday();
-
   // Returns TRUE if it is time to remind user
   BOOL IsRemindNowOK();
-
-  // Returns current remind policy
-  REMIND_POLICY GetRemindPolicy();
 
   // Sets remind policy
   BOOL SetRemindPolicy(REMIND_POLICY Policy);
 
+  // Updates last remind date
+  BOOL SetLastRemindDateToday();
+
+  // Adds user information
+  BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
+
 private:
+
+  // Retrieves some crash info from crash description XML
+  int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
+  
+  // Adds the list of files
+  BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
+
+  // Returns last remind date
+  BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
+
+  // Returns current remind policy
+  REMIND_POLICY GetRemindPolicy();
 
   // Unpacks crash description from shared memory
   int UnpackCrashDescription(ErrorReportInfo& eri);
