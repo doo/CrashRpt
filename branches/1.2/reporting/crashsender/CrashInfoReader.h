@@ -41,7 +41,7 @@
 #include "SharedMem.h"
 #include "ScreenCap.h"
 
-// The structure describing file item.
+// The structure describing a file item.
 struct ERIFileItem
 {
   ERIFileItem()
@@ -90,15 +90,14 @@ struct ErrorReportInfo
   CString     m_sOSName;             // Operating system friendly name.
   BOOL        m_bOSIs64Bit;          // Is operating system 64-bit?
   CString     m_sGeoLocation;        // Geographic location.
-  ScreenshotInfo m_ScreenshotInfo;   // Screenshot info
+  ScreenshotInfo m_ScreenshotInfo;   // Screenshot info.
   ULONG64     m_uTotalSize;          // Summary size of this (uncompressed) report.
   BOOL        m_bSelected;           // Is this report selected for delivery.
   DELIVERY_STATUS m_DeliveryStatus;  // Delivery status.
- 
-  // The list of files that are included into this report.
-  std::map<CString, ERIFileItem>  m_FileItems; 
-  std::map<CString, CString> m_RegKeys;
-  std::map<CString, CString> m_Props;
+   
+  std::map<CString, ERIFileItem>  m_FileItems; // The list of files that are included into this report.
+  std::map<CString, CString> m_RegKeys; // The list of registry keys
+  std::map<CString, CString> m_Props;   // The list of custom properties
 };
 
 // Remind policy.
@@ -149,18 +148,18 @@ public:
   DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
   DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
   PEXCEPTION_POINTERS m_pExInfo;      // Address of exception info (used for minidump generation).
-  int         m_nExceptionType;
-  DWORD       m_dwExceptionCode;
-  UINT        m_uFPESubcode;
-  CString     m_sInvParamExpr;
-  CString     m_sInvParamFunction;
-  CString     m_sInvParamFile;
-  UINT        m_uInvParamLine;
+  int         m_nExceptionType;       // Exception type (what handler caught the exception).
+  DWORD       m_dwExceptionCode;      // SEH exception code
+  UINT        m_uFPESubcode;          // FPE exception subcode
+  CString     m_sInvParamExpr;        // Invalid parameter expression
+  CString     m_sInvParamFunction;    // Invalid parameter function
+  CString     m_sInvParamFile;        // Invalid parameter file
+  UINT        m_uInvParamLine;        // Invalid parameter line
   
   /* Member functions */
     
   // Gets crash info from shared memory
-  int Init(CString sFileMappingName);
+  int Init(LPCTSTR szFileMappingName);
 
   // Loads custom icon (if defined)
   HICON GetCustomIcon();
@@ -168,28 +167,48 @@ public:
   // Retrieves some crash info from crash description XML
   int ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri);  
 
+  // Adds user information
   BOOL AddUserInfoToCrashDescriptionXML(CString sEmail, CString sDesc);
+
+  // Adds the list of files
   BOOL AddFilesToCrashDescriptionXML(std::vector<ERIFileItem>);
 
-  ErrorReportInfo& GetReport(int nIndex){ return m_Reports[nIndex]; }
-  int GetReportCount(){ return (int)m_Reports.size(); }
+  // Returns report by its index in the list
+  ErrorReportInfo& GetReport(int nIndex);
 
+  // Returns count of error reports
+  int GetReportCount();
+
+  // Returns last remind date
   BOOL GetLastRemindDate(SYSTEMTIME& LastDate);
+
+  // Updates last remind date
   BOOL SetLastRemindDateToday();
+
+  // Returns TRUE if it is time to remind user
   BOOL IsRemindNowOK();
+
+  // Returns current remind policy
   REMIND_POLICY GetRemindPolicy();
+
+  // Sets remind policy
   BOOL SetRemindPolicy(REMIND_POLICY Policy);
 
 private:
 
+  // Unpacks crash description from shared memory
   int UnpackCrashDescription(ErrorReportInfo& eri);
+
+  // Unpacks string
   int UnpackString(DWORD dwOffset, CString& str);
 
+  // Collects misc info about the crash
   void CollectMiscCrashInfo(ErrorReportInfo& eri);
 
   // Gets the list of file items 
   int ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
 
+  // Gets the list of registry keys
   int ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri);
   
   // Calculates size of an uncompressed error report.
@@ -201,8 +220,8 @@ private:
   // Path to ~CrashRpt.ini file.
   CString m_sINIFile; 
 
-  CSharedMem m_SharedMem;
-  CRASH_DESCRIPTION* m_pCrashDesc;
+  CSharedMem m_SharedMem;          // Shared memory
+  CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash descritpion
 };
 
 // Declare globally available object.

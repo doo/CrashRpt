@@ -46,12 +46,13 @@
 // Define global CCrashInfoReader object
 CCrashInfoReader g_CrashInfo;
 
-int CCrashInfoReader::Init(CString sFileMappingName)
+int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 { 
   strconv_t strconv;
   ErrorReportInfo eri;
   
-  BOOL bInitMem = m_SharedMem.Init(sFileMappingName, TRUE, 0);
+  // Init shared memory
+  BOOL bInitMem = m_SharedMem.Init(szFileMappingName, TRUE, 0);
   if(!bInitMem)
     return 1;
 
@@ -69,7 +70,7 @@ int CCrashInfoReader::Init(CString sFileMappingName)
   
   m_sINIFile = m_sUnsentCrashReportsFolder + _T("\\~CrashRpt.ini");          
   
-  if(!m_bSendRecentReports)
+  if(!m_bSendRecentReports) // We should send report immediately
   { 
     CollectMiscCrashInfo(eri);
 
@@ -78,7 +79,7 @@ int CCrashInfoReader::Init(CString sFileMappingName)
 
     m_Reports.push_back(eri);
   }  
-  else
+  else // We should look for pending error reports
   {
     // Unblock the parent process
     CString sEventName;
@@ -87,7 +88,7 @@ int CCrashInfoReader::Init(CString sFileMappingName)
     if(hEvent!=NULL)
       SetEvent(hEvent);
 
-    // Look for pending error reports
+    // Look for pending error reports and add them to the list
     CString sSearchPattern = m_sUnsentCrashReportsFolder + _T("\\*");
     CFindFile find;
     BOOL bFound = find.FindFile(sSearchPattern);
@@ -263,6 +264,7 @@ int CCrashInfoReader::UnpackCrashDescription(ErrorReportInfo& eri)
     return 1; 
   }
   
+  // Success
   return 0;
 }
 
@@ -286,6 +288,16 @@ int CCrashInfoReader::UnpackString(DWORD dwOffset, CString& str)
   return 0;
 }
 
+ErrorReportInfo& CCrashInfoReader::GetReport(int nIndex)
+{ 
+  return m_Reports[nIndex]; 
+}
+
+int CCrashInfoReader::GetReportCount()
+{ 
+  return (int)m_Reports.size(); 
+}
+
 void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
 {   
   // Get crash time
@@ -296,6 +308,7 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     PROCESS_QUERY_INFORMATION, 
     FALSE, 
     m_dwProcessId);
+
   if(hProcess!=NULL)
   {
     // Get number of GUI resources in use  
@@ -304,24 +317,24 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     // Determine if GetProcessHandleCount function available
     typedef BOOL (WINAPI *LPGETPROCESSHANDLECOUNT)(HANDLE, PDWORD);
     HMODULE hKernel32 = LoadLibrary(_T("kernel32.dll"));
-	if(hKernel32!=NULL)
-	{
-      LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
-        (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
-      if(pfnGetProcessHandleCount!=NULL)
-      {    
-        // Get count of opened handles
-        DWORD dwHandleCount = 0;
-        BOOL bGetHandleCount = pfnGetProcessHandleCount(hProcess, &dwHandleCount);
-        if(bGetHandleCount)
-          eri.m_dwProcessHandleCount = dwHandleCount;
-        else
-          eri.m_dwProcessHandleCount = 0;
-      }
+	  if(hKernel32!=NULL)
+	  {
+        LPGETPROCESSHANDLECOUNT pfnGetProcessHandleCount = 
+          (LPGETPROCESSHANDLECOUNT)GetProcAddress(hKernel32, "GetProcessHandleCount");
+        if(pfnGetProcessHandleCount!=NULL)
+        {    
+          // Get count of opened handles
+          DWORD dwHandleCount = 0;
+          BOOL bGetHandleCount = pfnGetProcessHandleCount(hProcess, &dwHandleCount);
+          if(bGetHandleCount)
+            eri.m_dwProcessHandleCount = dwHandleCount;
+          else
+            eri.m_dwProcessHandleCount = 0;
+        }
 
-	  CloseHandle(hKernel32);
-	  hKernel32=NULL;
-	}
+      FreeLibrary(hKernel32);
+	    hKernel32=NULL;
+	  }
 
     // Get memory usage info
     PROCESS_MEMORY_COUNTERS meminfo;
@@ -345,7 +358,7 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
     SYSTEMTIME AppStartTime;
     FileTimeToSystemTime(&CreationTime, &AppStartTime);
 
-	SYSTEMTIME CurTime;
+	  SYSTEMTIME CurTime;
     GetSystemTime(&CurTime);
     ULONG64 uCurTime = Utility::SystemTimeToULONG64(CurTime);
     ULONG64 uStartTime = Utility::SystemTimeToULONG64(AppStartTime);
@@ -369,7 +382,6 @@ void CCrashInfoReader::CollectMiscCrashInfo(ErrorReportInfo& eri)
   // Get geographic location.
   Utility::GetGeoLocation(eri.m_sGeoLocation);  
 }
-
 
 int CCrashInfoReader::ParseFileList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
 {
@@ -451,8 +463,8 @@ int CCrashInfoReader::ParseRegKeyList(TiXmlHandle& hRoot, ErrorReportInfo& eri)
 int CCrashInfoReader::ParseCrashDescription(CString sFileName, BOOL bParseFileItems, ErrorReportInfo& eri)
 {
   strconv_t strconv;
-
   FILE* f = NULL; 
+
 #if _MSC_VER<1400
   f = _tfopen(sFileName, _T("rb"));
 #else

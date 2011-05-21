@@ -43,6 +43,7 @@ struct AssyncNotification
   /* Constructor */
   AssyncNotification();  
 
+  // Resets the event
   void Reset();
 
   // Sets the progress message and percent completed

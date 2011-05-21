@@ -47,11 +47,11 @@ public:
   CHyperLink m_linkPrivacyPolicy;
   CButton m_btnClose;
   CButton m_btnExport;
-  CStatic m_statPreview;
-  CFilePreviewCtrl m_filePreview;
-  PreviewMode m_previewMode;
-  TextEncoding m_textEncoding;
-  int m_nCurReport;
+  CStatic m_statPreview;     
+  CFilePreviewCtrl m_filePreview; 
+  PreviewMode m_previewMode;    // Current preview mode
+  TextEncoding m_textEncoding;  // Current text encoding
+  int m_nCurReport;             // Index of the error report currently being displayed
 
   BEGIN_DLGRESIZE_MAP(CProgressDlg)    
     DLGRESIZE_CONTROL(IDC_FILE_LIST, DLSZ_SIZE_X)

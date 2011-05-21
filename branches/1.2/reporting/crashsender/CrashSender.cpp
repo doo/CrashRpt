@@ -43,7 +43,9 @@ CErrorReportDlg dlgErrorReport;
 CResendDlg dlgResend;
 
 int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
-{   
+{ 
+  ATLASSERT(0);
+
   LPCWSTR szCommandLine = GetCommandLineW();
   
   int argc = 0;
@@ -55,7 +57,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 
   // Read crash info
   CString sFileName = CString(argv[1]);
-  int nInit = g_CrashInfo.Init(sFileName);
+  int nInit = g_CrashInfo.Init(sFileName.GetBuffer(0));
   if(nInit!=0)
   {
     MessageBox(NULL, _T("Couldn't initialize!"), _T("CrashSender.exe"), MB_ICONERROR);

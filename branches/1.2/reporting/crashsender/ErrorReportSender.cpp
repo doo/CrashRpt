@@ -1595,9 +1595,12 @@ BOOL CErrorReportSender::SendReport()
     }
   }
 
-  // Remove compressed error report file
-  Utility::RecycleFile(m_sZipName, true);
-  Utility::RecycleFile(m_sZipName+_T(".md5"), true);
+  if(!g_CrashInfo.m_bStoreZIPArchives)
+  {
+    // Remove compressed error report file
+    Utility::RecycleFile(m_sZipName, true);
+    Utility::RecycleFile(m_sZipName+_T(".md5"), true);
+  }
 
   if(status==0)
   {

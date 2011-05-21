@@ -41,6 +41,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
 {
   DlgResize_Init();
 
+  // Mirror this window if RTL language is in use
   CString sRTL = Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
     _T("Settings"), _T("RTLReading"));
   if(sRTL.CompareNoCase(_T("1"))==0)
@@ -57,6 +58,7 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_filePreview.SetEmptyMessage(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
     _T("DetailDlg"), _T("NoDataToDisplay")));
 
+  // Init "Privacy Policy" link
   m_linkPrivacyPolicy.SubclassWindow(GetDlgItem(IDC_PRIVACYPOLICY));
   m_linkPrivacyPolicy.SetHyperLink(g_CrashInfo.m_sPrivacyPolicyURL);
   m_linkPrivacyPolicy.SetLabel(Utility::GetINIString(g_CrashInfo.m_sLangFileName, 
@@ -84,11 +86,11 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
   m_iconList.Create(16, 16, ILC_COLOR32|ILC_MASK, 3, 1);
   m_list.SetImageList(m_iconList, LVSIL_SMALL);
 
-  // Insert items
+  // Insert items to the list
   WIN32_FIND_DATA   findFileData   = {0};
   HANDLE            hFind          = NULL;
   CString           sSize;
-  
+    
   std::map<CString, ERIFileItem>::iterator p;
   unsigned i;
   for (i = 0, p = g_CrashInfo.GetReport(m_nCurReport).m_FileItems.begin(); 
@@ -126,21 +128,23 @@ LRESULT CDetailDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPar
     }    
   }
 
+  // Select the first list item
   m_list.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
 
+  // Init "Preview" static control
   m_statPreview = GetDlgItem(IDC_PREVIEWTEXT);
   m_statPreview.SetWindowText(Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Preview")));  
 
+  // Init "OK" button
   m_btnClose = GetDlgItem(IDOK);
   m_btnClose.SetWindowText(Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Close")));  
 
+  // Init "Export..." button
   m_btnExport = GetDlgItem(IDC_EXPORT);
   m_btnExport.SetWindowText(Utility::GetINIString(
     g_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("Export")));  
-
-  
 
   // center the dialog on the screen
 	CenterWindow();  
