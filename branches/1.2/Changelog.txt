@@ -20,6 +20,8 @@
 
 - Fixed: CrashSender cannot properly send old reports (with smtp) (issue 84)
 
+- Fixed: CrashSender manifest file prevents CrashSender from launching in x64 (issue 87)
+
 --- Ver. 1.2.9 ---
 
 - Compiler/linker output for x64 platform is now directed to bin\x64, while output dir for Win32 platform
