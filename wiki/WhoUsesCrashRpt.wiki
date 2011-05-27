@@ -19,7 +19,7 @@ Below is the list of software that are known to use `CrashRpt`:
 
   * <img src="http://crenetic.de/grafik/logo.jpg" height="32" align="center"/> <a href="http://www.trappeddead.com/">Trapped Dead</a>
 
-  * <img src="http://www.testdriveunlimited2.com/themes/tdu2/img/tdu2_logo.png" height="32" align="center"/> <a href="http://forums.testdriveunlimited2.com/">Test Drive Unlimited 2</a>
+  * <img src="http://www.testdriveunlimited2.com/themes/tdu2/img/tdu2_logo.png" height="32" align="center"/> <a href="http://testdriveunlimited2.com/">Test Drive Unlimited 2</a>
 
 ==Karaoke==
 
