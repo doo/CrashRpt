@@ -7,6 +7,7 @@ Add a comment to this wiki page and provide any of the following:
   # your software's name 
   # a hyperlink to your software's logo small image
   # a hyperlink to your software's site
+Alternatively, you can email this info to `ZEXSPECTRUM AT GMAIL DOT COM`.
 
 Below is the list of software that are known to use `CrashRpt`:
 
