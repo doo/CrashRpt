@@ -469,23 +469,24 @@ Next, you need to determine the exact version of CRT libraries you use. Microsof
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <dependency>
     <dependentAssembly>
-      <assemblyIdentity type="win32" name="Microsoft.VC80.CRT" version="8.0.50608.0" processorArchitecture="x86" publicKeyToken="1fc8b3b9a1e18e3b"></assemblyIdentity>
+      <assemblyIdentity type="win32" name="Microsoft.VC80.CRT" version="8.0.50608.0" 
+processorArchitecture="x86" publicKeyToken="1fc8b3b9a1e18e3b"></assemblyIdentity>
     </dependentAssembly>
   </dependency>
 </assembly>
 }}}
 
 Next you should choose how to distribute the CRT files. There are two ways: either by installing a Visual C++ redistributable package or by installing the DLLs to application local folder (an application local folder is a folder that contains an executable application file). Below these two alternatives are described.
-   
-1) You can download a Visual C++ Redistributable package from the [http://www.microsoft.com/downloads Microsoft Download Center]. There are different packages for x86 and x64 architectures, choose the correct one. Also ensure the package has exactly the same version that your CRT manifest has. If version doesn't match, search again for the correct redistributable package. When the correct package is downloaded, you can include it into your application installer and install it with your software.
 
-2) You can copy CRT DLL files and `Microsoft.VCXX.CRT.manifest` file to your application folder, where XX is the version number. This is called a private installation, because these CRT DLLs won't be available to other applications. This way may also reduce the size of your installer, because CRT DLLs usually take less space than a redistributable package. You can take the correct CRT DLL files from `redist` subfolder of your Visual Studio folder or from the Visual C++ redistributable package (it is installed to `C:\WINDOWS\WinSxS directory). 
+a. You can download a Visual C++ Redistributable package from the [http://www.microsoft.com/downloads Microsoft Download Center]. There are different packages for x86 and x64 architectures, choose the correct one. Also ensure the package has exactly the same version that your CRT manifest has. If version doesn't match, search again for the correct redistributable package. When the correct package is downloaded, you can include it into your application installer and install it with your software.
+
+b. You can copy CRT DLL files and `Microsoft.VCXX.CRT.manifest` file to your application folder, where XX is the version number. This is called a private installation, because these CRT DLLs won't be available to other applications. This way may also reduce the size of your installer, because CRT DLLs usually take less space than a redistributable package. You can take the correct CRT DLL files from `redist` subfolder of your Visual Studio folder or from the Visual C++ redistributable package (it is installed to `C:\WINDOWS\WinSxS directory). 
 
 For additional information, see these links: [http://msdn.microsoft.com/en-us/library/ms235299.aspx Redistributing Visual C++ Files], [http://msdn.microsoft.com/en-us/library/8kche8ah.aspx Determining Which DLLs to Redistribute], [http://msdn.microsoft.com/en-us/library/ms235342(v=vs.80).aspx Troubleshooting C/C++ Isolated Applications and Side-by-side Assemblies], [http://msdn.microsoft.com/en-us/library/cc664727(v=vs.90).aspx Redistributing an Application and Binding It to Specific Libraries].
 
 == My application doesn't start because of error message 'The application configuration is incorrect'. What do I do? ==
 
-This error typically means your application can't load the correct C run-time libraries (CRT). You should install CRT libraries either by running a Visual C++ Redistributable Package or by copying CRT DLL files and `Microsoft.VCXX.CRT.manifest` file to your application folder. Also ensure the version and architecture of the CRT files you install is correct. 
+This error typically means your application can't load the correct C run-time libraries (CRT). To determine what DLL modules your application depends on are missing, use the [http://www.dependencywalker.com/ Dependency Walker (depends.exe)] tool. Open your executable file with the `depends.exe` to see what CRT modules it depends on, and which ones are missing. Typically these modules are `msvcrXX.dll` and `msvcpXX.dll`, where XX is the version number of your Visual Studio (for example, Visual Studio 2005 has version number `80`). You should install CRT libraries either by running a Visual C++ Redistributable Package or by copying CRT DLL files and `Microsoft.VCXX.CRT.manifest` file to your application folder. Also ensure the version and architecture of the CRT files you install is correct. 
 
 == I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
