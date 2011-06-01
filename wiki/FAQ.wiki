@@ -459,6 +459,30 @@ It is recommended that you distribute `dbghelp.dll` with your software, because 
 
 Even though `dbghelp.dll` is included in versions of Windows starting from XP, this is rarely the most current version of `DbgHelp` available. Furthermore, the version of `DbgHelp` that ships in Windows has reduced functionality from the other releases.
 
+== I use C run-time libraries (CRT) as a multithreaded DLL. What CRT files should I distribute with my software? ==
+
+First of all, determine what DLL modules your application depends on. You can do this with the help of the [http://www.dependencywalker.com/ Dependency Walker (depends.exe)] tool. Open your executable file with the `depends.exe` to see what CRT modules it depends on. Typically these modules are `msvcrXX.dll` and `msvcpXX.dll`, where XX is the version number of your Visual Studio (for example, Visual Studio 2005 has version number `80`).
+
+Next, you need to determine the exact version of CRT libraries you use. Microsoft usually upgrades CRT version when releasing service packs and hot fixes for Visual Studio, so this step is very important. To determine the version of your CRT, do the following. In your Visual Studio window, click menu File->Open and open your executable module to view its embedded resources. In appeared window, click `RT_MANIFEST` folder to see the embedded manifest XML file. The version of CRT is defined by the `version` attribute. An example CRT manifest is presented below:
+
+{{{
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity type="win32" name="Microsoft.VC80.CRT" version="8.0.50608.0" processorArchitecture="x86" publicKeyToken="1fc8b3b9a1e18e3b"></assemblyIdentity>
+    </dependentAssembly>
+  </dependency>
+</assembly>
+}}}
+
+Next you should choose how to distribute the CRT files. There are two ways: either by installing a Visual C++ redistributable package or by installing the DLLs to application local folder (an application local folder is a folder that contains an executable application file). Below these two alternatives are described.
+   
+1) You can download a Visual C++ Redistributable package from the [http://www.microsoft.com/downloads Microsoft Download Center]. There are different packages for x86 and x64 architectures, choose the correct one. Also ensure the package has exactly the same version that your CRT manifest has. If version doesn't match, search again for the correct redistributable package. When the correct package is downloaded, you can include it into your application installer and install it with your software.
+
+2) You can copy CRT DLL files and `Microsoft.VCXX.CRT.manifest` file to your application folder, where XX is the version number. This is called a private installation, because these CRT DLLs won't be available to other applications. This way may also reduce the size of your installer, because CRT DLLs usually take less space than a redistributable package. You can take the correct CRT DLL files from `redist` subfolder of your Visual Studio folder or from the Visual C++ redistributable package. 
+
+For additional information, see these links: [http://msdn.microsoft.com/en-us/library/ms235299.aspx Redistributing Visual C++ Files], [http://msdn.microsoft.com/en-us/library/8kche8ah.aspx Determining Which DLLs to Redistribute], [http://msdn.microsoft.com/en-us/library/ms235342(v=vs.80).aspx Troubleshooting C/C++ Isolated Applications and Side-by-side Assemblies], [http://msdn.microsoft.com/en-us/library/cc664727(v=vs.90).aspx Redistributing an Application and Binding It to Specific Libraries].
+
 == I do not like that I should distribute all these DLLs. Can I compile them all as static libs? ==
 
 No, this is impossible. Architecture of `CrashRpt` requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
