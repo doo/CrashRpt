@@ -9,7 +9,7 @@ http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg.png
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_chinese.png
 
-*Error Report Dialog in Russian.* You even can translate a contribute a language file for your native language. Refer to the documentation for more information.
+*Error Report Dialog in Russian.* You even can contribute a language file for your native language. Refer to the documentation for more information.
 
 http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/errordlg_russian.png
 
