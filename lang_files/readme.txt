@@ -6,6 +6,12 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.2.10 and later versions ---
+
+  Since v.1.2.10, this readme file and the entire lang_files directory won't
+  be updated. Users of v.1.2.10 and of later versions should look for language
+  files in lang_files subdirectory of their CrashRpt distribution archive.
+
 --- v.1.2.9 ---
 
   No changes
