@@ -21,7 +21,6 @@ This page contains the following topics:
 - \ref check_return_code
 - \ref use_smart_ptrs
 - \ref equality_operator
-- \ref meaningful_var_names
 
 \section coding_guide_intro Introduction
 
@@ -269,7 +268,7 @@ help to ensure noone will try to reuse an invalid pointer.
  pVehicle = NULL; // Set pointer with NULL
 \endcode
 
-\section clean_up_handles Clean Up Released Handles
+\section clean_up_handles Cleaning Up Released Handles
 
 Assign NULL (or zero, or something else default value) to a handle after freeing it. This will
 help to ensure noone will try to reuse an invalid handle.
@@ -637,18 +636,6 @@ mistype in such modifyed code, such mistyping will be detected on compilation st
      return FALSE; 
 
 \endcode
-
-\section meaningful_var_names Choosing Meaningful Variable and Function Names
-
-It is not a secret that each developer has his/her own programming style. 
-But if your project team consists of several people, it is very important to
-have a consistent variable and function naming rules. Following such rules would help to
-minimize the risk of some developer to use a variable/function incorrectly while modifying the
-code of another developer.
-
-One good naming convention is the <a href="http://msdn.microsoft.com/en-us/library/aa260976(v=vs.60).aspx">Hungarian Notation</a>
-introduced by Microsoft and widely used by those developers who have to work with WinAPI and other Microsoft technologies.
-
 
 
 */
