@@ -13,7 +13,7 @@ Below is the list of software that are known to use `CrashRpt`:
 
 ==Games==
 
-  * [http://link-dead.net Link-Dead]
+  * <img src="http://link-dead.thd.vg/en/" height="28" align="center"/><a href="http://link-dead.net">Link-Dead</a>
 
   * <img src="http://static.greatgamesexperiment.com/userimages/a/aab8e18904b27faf7dfcfaedd3ad9936_sq.gif" height="48" align="center"/><a href="http://rigsofrods.com">Rigs of Rods</a>
 
