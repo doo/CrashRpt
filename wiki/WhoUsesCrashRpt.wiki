@@ -23,7 +23,7 @@ Below is the list of software that are known to use `CrashRpt`:
 
 ==Digital Maps==
 
-  * <img src="http://www.routebuddy.com/images/logos/rb_icon_64.png" height="48" align="center"/> <a href="http://www.routebuddy.com/routebuddy/">RouteBuddy</a>
+  * <img src="http://www.routebuddy.com/images/logos/rb_icon_64.png" height="48" align="center"/> <a href="http://www.routebuddy.com/routebuddy/">`RouteBuddy`</a>
 
 ==Karaoke==
 
