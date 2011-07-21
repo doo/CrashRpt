@@ -275,7 +275,7 @@ For example, you may need to add the info about amount of free disk space on a s
 
 == We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
 
-We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a used-defined file to the crash report.
+We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a user-defined file to the crash report.
 
 == Why would I want to add a registry key dump to the crash report? ==
 
