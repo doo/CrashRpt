@@ -186,9 +186,9 @@ This depends on `CrashRpt` version you use. Typically, you download and unzip `C
 
 == How does crashrpt support multi-lingual user interface? ==
 
-Since v.1.1.3, `CrashRpt` supports multi-lingual user interfaces. You can download a language file from here http://crashrpt.googlecode.com/svn/lang_files/ 
+Since v.1.1.3, `CrashRpt` supports multi-lingual user interfaces. You can find a language file inside of the `lang_files` subdirectory of crashrpt distribution. The language file contains localized strings used by `CrashRpt` dialogs.
 
-You should place a valid language file named `crashrpt_lang.ini` to the directory where `CrashSender.exe` file is located in order to make `CrashRpt` work properly. The language file is a text document in UNICODE format and having INI extension. The language file contains localized strings used by `CrashRpt` dialogs.
+You should place a valid language file named as `crashrpt_lang.ini` to the directory where `CrashSender.exe` file is located in order to make `CrashRpt` work properly. The language file is a text document in UNICODE format and having INI extension. 
 
 If your software supports several languages, you can distribute several language files with your software. On install, rename an appropriate file to `crashrpt_lang.ini` and copy it to the folder where your `CrashSender.exe` is located.
 
