@@ -23,6 +23,7 @@
 			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\..\version.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -66,13 +67,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxmld.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib version.lib minizipd.lib zlibd.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashRptProbed.dll"
+				OutputFile="$(OutDir)\CrashRptProbe$(CrashRptVer)d.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib&quot;"
 				ModuleDefinitionFile="CrashRptProbed.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				ImportLibrary="$(SolutionDir)lib\$(TargetName).lib"
+				ImportLibrary="$(SolutionDir)lib\CrashRptProbed.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -105,6 +106,7 @@
 			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\..\version.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -190,6 +192,7 @@
 			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\..\version.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -232,7 +235,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxml.lib dbghelp.lib Rpcrt4.lib shell32.lib gdi32.lib zlib.lib minizip.lib version.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashRptProbe.dll"
+				OutputFile="$(OutDir)\CrashRptProbe$(CrashRptVer).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib;$(SolutionDir)thirdparty\dbghelp\lib"
 				ModuleDefinitionFile="CrashRptProbe.def"
@@ -273,6 +276,7 @@
 			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			InheritedPropertySheets="..\..\version.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -358,6 +362,7 @@
 			OutputDirectory="$(SolutionDir)lib"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\version.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -422,6 +427,7 @@
 			OutputDirectory="$(SolutionDir)lib\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\version.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

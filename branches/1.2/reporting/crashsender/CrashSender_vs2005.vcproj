@@ -22,6 +22,7 @@
 			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\version.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -77,7 +78,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxmld.lib jpegd.lib zlibd.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib libpngd.lib psapi.lib minizipd.lib"
-				OutputFile="$(OutDir)\CrashSenderd.exe"
+				OutputFile="$(OutDir)\CrashSender$(CrashRptVer)d.exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="&quot;$(SolutionDir)thirdparty\lib&quot;;&quot;$(SolutionDir)thirdparty\dbghelp\lib&quot;"
 				GenerateDebugInformation="true"
@@ -116,6 +117,7 @@
 			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\version.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -211,6 +213,7 @@
 			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\version.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -266,7 +269,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="tinyxml.lib zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib"
-				OutputFile="$(OutDir)\CrashSender.exe"
+				OutputFile="$(OutDir)\CrashSender$(CrashRptVer).exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib"
 				GenerateDebugInformation="true"
@@ -305,6 +308,7 @@
 			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\version.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -399,6 +403,7 @@
 			OutputDirectory="$(SolutionDir)bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\version.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -494,6 +499,7 @@
 			OutputDirectory="$(SolutionDir)bin\$(PlatformName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\version.vsprops"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>

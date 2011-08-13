@@ -6,6 +6,10 @@ a previous version to the latest version.
 
 =========================================================
 
+--- v.1.3.0 ---
+
+  No changes
+
 --- v.1.2.10 ---
 
   No changes

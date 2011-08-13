@@ -254,12 +254,14 @@ int CCrashHandler::Init(
 
   // Get the name of CrashRpt DLL
   LPTSTR pszCrashRptModule = NULL;
-
+  CString sCrashRptModule;
 #ifndef CRASHRPT_LIB
   #ifdef _DEBUG
-    pszCrashRptModule = _T("CrashRptd.dll");
+    sCrashRptModule.Format(_T("CrashRpt%dd.dll"), CRASHRPT_VER);
+    pszCrashRptModule = sCrashRptModule.GetBuffer(0);
   #else
-    pszCrashRptModule = _T("CrashRpt.dll");
+    sCrashRptModule.Format(_T("CrashRpt%d.dll"), CRASHRPT_VER);
+    pszCrashRptModule = sCrashRptModule.GetBuffer(0);
   #endif //_DEBUG
 #else //!CRASHRPT_LIB
   pszCrashRptModule = NULL;
@@ -281,9 +283,9 @@ int CCrashHandler::Init(
   CString sCrashSenderName;
 
 #ifdef _DEBUG
-  sCrashSenderName = _T("CrashSenderd.exe");
+  sCrashSenderName.Format(_T("CrashSender%dd.exe"), CRASHRPT_VER);
 #else
-  sCrashSenderName = _T("CrashSender.exe");
+  sCrashSenderName.Format(_T("CrashSender%d.exe"), CRASHRPT_VER);
 #endif //_DEBUG
 
   // Check that CrashSender.exe file exists

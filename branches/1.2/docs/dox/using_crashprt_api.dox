@@ -290,7 +290,7 @@ error report manually using crGenerateErrorReport() function.
 <b>What is the minidump type? What minidump type should I use?</b>
 
 The minidump type defines what information is contained in the minidump. The default minidump 
-type is <b>MinidumpNormal</b>. However, the MinidumpNormal contains only essential info required 
+type is <b>MiniDumpNormal</b>. However, the <b>MiniDumpNormal</b> type contains only essential info required 
 to recover the stack traces for each thread. To recover the state of global variables, other 
 minidump types should be used. For additional info, see the 
 <a href="http://www.debuginfo.com/articles/effminidumps.html">Effective Minidumps</a> article. 

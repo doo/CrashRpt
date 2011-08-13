@@ -1,5 +1,15 @@
 ======= Change History ========
 
+--- Ver. 1.3.0 ---
+
+- Removed support of Visual Studio 2003. To compile, use Visual Studio 2005 or later.
+
+- Binary files now have version suffices (CrashRpt1300.dll, CrashRptProbe1300.dll and CrashSender1300.exe). This is
+  to resolve problems of loading incorrect version of the DLL.
+
+- Updated Italian lang file (thanks to ).
+
+
 --- Ver. 1.2.10 ---
 
 - Added new language files: German, Spanish, French, Hindi, Italian, Korean, Portuguese and Chinese Simplified.
