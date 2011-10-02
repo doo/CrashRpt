@@ -924,7 +924,20 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
 {
     crSetErrorMsg(_T("Unspecified error."));
 
-    // make sure the file exist
+    // Check that destination file name is valid
+    if(pszDestFile!=NULL)
+    {
+        CString sDestFile = pszDestFile;
+        sDestFile.TrimLeft();
+        sDestFile.TrimRight();
+        if(sDestFile.GetLength()==0)
+        {
+            crSetErrorMsg(_T("Invalid destination file name specified."));
+            return 1; 
+        }
+    }
+
+    // Make sure the file exist
     struct _stat st;
     int result = _tstat(pszFile, &st);
 
@@ -941,8 +954,7 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
     fi.m_bMakeCopy = (dwFlags&CR_AF_MAKE_FILE_COPY)!=0;
     if(pszDestFile!=NULL)
     {
-        fi.m_sDstFileName = pszDestFile;
-        m_files[pszDestFile] = fi;
+        fi.m_sDstFileName = pszDestFile;        
     }
     else
     {
@@ -953,9 +965,18 @@ int CCrashHandler::AddFile(LPCTSTR pszFile, LPCTSTR pszDestFile, LPCTSTR pszDesc
         if(pos!=-1)
             sDestFile = sDestFile.Mid(pos+1);
 
-        fi.m_sDstFileName = sDestFile;
-        m_files[sDestFile] = fi;
+        fi.m_sDstFileName = sDestFile;        
     }
+
+    // Check if file is already in our list
+    std::map<CString, FileItem>::iterator it = m_files.find(fi.m_sDstFileName);
+    if(it!=m_files.end())
+    {
+        crSetErrorMsg(_T("A file with such destination name already exists."));
+        return 1;
+    }
+
+    m_files[fi.m_sDstFileName] = fi;
 
     // Pack this file item into shared mem.
     PackFileItem(fi);

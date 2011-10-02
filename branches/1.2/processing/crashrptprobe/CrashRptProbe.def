@@ -1,5 +1,3 @@
-LIBRARY	"CrashRptProbe"
-
 EXPORTS
    crpOpenErrorReportW   @1
    crpOpenErrorReportA   @2

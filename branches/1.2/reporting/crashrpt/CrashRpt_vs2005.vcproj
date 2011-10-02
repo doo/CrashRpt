@@ -398,7 +398,7 @@
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib\$(PlatformName)"
-				ModuleDefinitionFile="CrashRptd.def"
+				ModuleDefinitionFile="CrashRpt.def"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\CrashRptd.pdb"
 				OptimizeForWindows98="1"
