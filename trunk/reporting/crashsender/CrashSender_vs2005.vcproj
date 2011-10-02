@@ -460,7 +460,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="zlib.lib WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib  psapi.lib"
-				OutputFile="$(OutDir)\CrashSender.exe"
+				OutputFile="$(OutDir)\CrashSender$(CrashRptVer).exe"
 				LinkIncremental="0"
 				AdditionalLibraryDirectories="$(SolutionDir)thirdparty\lib"
 				GenerateDebugInformation="true"

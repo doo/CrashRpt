@@ -315,7 +315,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(SolutionDir)lib\zlib.lib"
+				OutputFile="$(SolutionDir)thirdparty\lib\zlib.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
