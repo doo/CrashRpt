@@ -425,7 +425,7 @@ int CSmtpClient::SendEmailToRecipient(CString sSmtpServer, CEmailMessage* msg, A
     }
 
     // quit
-    if(221!=SendMsg(scn, sock, _T("QUIT \r\n"), response, 1024))
+    if(221!=SendMsg(scn, sock, _T("QUIT\r\n"), response, 1024))
     {
         sStatusMsg = CString(response, 1024);
         scn->SetProgress(sStatusMsg, 0);    
