@@ -80,7 +80,7 @@ public:
         if(lpsz==NULL)
             return NULL;
 
-        int count = WideCharToMultiByte(CP_UTF8, 0, lpsz, -1, NULL, 0, NULL, NULL);
+        int count = WideCharToMultiByte(CP_ACP, 0, lpsz, -1, NULL, 0, NULL, NULL);
         if(count==0)
             return NULL;
 
