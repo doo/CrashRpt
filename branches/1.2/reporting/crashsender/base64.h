@@ -34,6 +34,6 @@
 
 #include <string>
 
-std::string base64_encode(unsigned char const* , unsigned int len);
+std::string base64_encode(unsigned char const* , unsigned int len, int split_count = 76, const char *split = "\r\n");
 std::string base64_decode(std::string const& s);
 
