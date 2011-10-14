@@ -53,6 +53,11 @@ The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states
 
 No, the New BSD License that is used by `CrashRpt` permits to distribute the `CrashRpt` binaries with or without modification. So, feel free to sign `CrashRpt` binaries or modify them any other way.
 
+== How to deal with those licenses of other software included in crashrpt distribution? It seems to me that one have to read all licenses and do what they require, isn't it? ==
+
+Yes, you are right. You should follow the instructions listed in those
+licenses. In most cases including those licenses into your distribution would be sufficient.
+
 == What programming languages can I use crashrpt in? ==
 
 You can use `CrashRpt` in C++ programs created using Visual C++. You can not use it in .NET or in Visual Basic. 
