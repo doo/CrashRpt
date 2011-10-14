@@ -394,6 +394,10 @@ For more information, see this [https://connect.microsoft.com/VisualStudio/feedb
 
 `CrashRpt` intercepts structured `Win32` exceptions (SEH exceptions), C run-time (CRT) exceptions and signals. [http://www.boost.org/ Boost] is built on top of CRT, so I beleive `CrashRpt` can intercept its exceptions. However, I didn't test `CrashRpt` with Boost. 
 
+== It seems my Visual Studio IDE interfers the exception: It does not let the exception run through to crashrpt. If I call the `.exe` from command line, everything works fine as expected. What do I do? ==
+
+Visual Studio IDE will always intercept exceptions in your software while debugging. There are no ways to fix this. If you need to test `CrashRpt` under IDE, use `crGenerateErrorReport()` function, it will generate a error report without raising an exception.
+
 == How do I test if crashrpt intercepts exceptions in my application? ==
 
 When you install crash reporting support to your program, it is important to test if `CrashRpt` intercepts exceptions properly. Use `crEmulateCrash()` function to emulate an exceptional situation. Call this function in your `main()` function and in the thread procedure of each of your working threads.
