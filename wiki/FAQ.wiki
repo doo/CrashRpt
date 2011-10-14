@@ -385,9 +385,9 @@ Note that some exceptions related to security can't be intercepted. Since CRT 8.
 
 For more information, see this [https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337 link].
 
-== Can CrashRpt intercept Boost's Exception ? ==
+== Can crashrpt intercept Boost's Exception ? ==
 
-CrashRpt intercepts structured Win32 exceptions (SEH exceptions), C run-time (CRT) exceptions and signals. [http://www.boost.org/ Boost] is built on top of CRT, so I beleive CrashRpt can intercept its exceptions. However, I didn't test CrashRpt with Boost. 
+`CrashRpt` intercepts structured `Win32` exceptions (SEH exceptions), C run-time (CRT) exceptions and signals. [http://www.boost.org/ Boost] is built on top of CRT, so I beleive `CrashRpt` can intercept its exceptions. However, I didn't test `CrashRpt` with Boost. 
 
 == How do I test if crashrpt intercepts exceptions in my application? ==
 
