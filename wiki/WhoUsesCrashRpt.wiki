@@ -43,4 +43,6 @@ Below is the list of software that are known to use `CrashRpt`:
 
   * <img src="http://www.wilcoxassoc.com/images/ems_button.gif" height="48" align="center"/> <a href="http://www.wilcoxassoc.com">PC-DMIS & PC-DMIS Planner</a>  
 
-  * <a href="http://www.icopybot.com/">iCopyBot - iPod to Computer Transfer</a>  
+  * <a href="http://www.icopybot.com/">iCopyBot - iPod to Computer Transfer</a> 
+
+  * <a href="https://imspector.mpibpc.mpg.de/index.html">ImSpector - a software for data aquisition and analysis</a>
