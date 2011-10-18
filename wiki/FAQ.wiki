@@ -392,7 +392,7 @@ For more information, see this [https://connect.microsoft.com/VisualStudio/feedb
 
 ==  I cannot seem to catch the crash at all, the application just closes. No crash window courtesy of Windows, nothing at all. It just poof, closes. What do I do? ==
 
-The problem with silently disappearing application window may be related to [http://en.wikipedia.org/wiki/Stack_Overflow stack overflow]. When stack is overflown, the process doesn't have anough memory even for invoking crash handler. So it looks like a silent exit.
+The problem with silently disappearing application window may be related to [http://en.wikipedia.org/wiki/Stack_overflow stack overflow]. When stack is overflown, the process doesn't have anough memory even for invoking crash handler. So it looks like a silent exit.
 
 The advice for you is to maintain a log file for your application. See this link for example of a [http://crashrpt.sourceforge.net/docs/html/simple_example.html logging functionality].
 
