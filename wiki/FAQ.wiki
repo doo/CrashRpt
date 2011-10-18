@@ -390,9 +390,7 @@ Note that some exceptions related to security can't be intercepted. Since CRT 8.
 
 For more information, see this [https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=101337 link].
 
-==  I cannot seem to catch the crash at all, the 
-application just closes. No crash window courtesy of Windows, nothing 
-at all. It just poof, closes. What do I do? ==
+==  I cannot seem to catch the crash at all, the application just closes. No crash window courtesy of Windows, nothing at all. It just poof, closes. What do I do? ==
 
 The problem with silently disappearing application window may be related to [http://en.wikipedia.org/wiki/Stack_Overflow stack overflow]. When stack is overflown, the process doesn't have anough memory even for invoking crash handler. So it looks like a silent exit.
 
