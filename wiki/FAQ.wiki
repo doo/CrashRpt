@@ -396,7 +396,7 @@ The problem with silently disappearing application window may be related to [htt
 
 The advice for you is to maintain a log file for your application. See this link for example of a [http://crashrpt.sourceforge.net/docs/html/simple_example.html logging functionality].
 
-The log file will help you to see where is the stack overflow happens. For example, if there is an [ http://en.wikipedia.org/wiki/Infinite_loop infinite recusion] in your code, you will see many log messages looking very similar.
+The log file will help you to see where is the stack overflow happens. For example, if there is an [http://en.wikipedia.org/wiki/Infinite_loop infinite recusion] in your code, you will see many log messages looking very similar.
 
 == Can crashrpt intercept Boost's Exception ? ==
 
