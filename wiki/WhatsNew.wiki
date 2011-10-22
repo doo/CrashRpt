@@ -1,6 +1,37 @@
 #summary Release History
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.3.0 =
+
+  * Added support of CMake - cross-plaform make system. Although CrashRpt doesn't support operating systems other than Windows, CMake makes it easier to maintain build configurations for different versions of Visual Studio. Project files for VC++ .NET 2003, 2005, 2008, 2010 and VC++ Express can be generated.
+
+  * Added instructions to the documentation on how to generate Visual Studio project files with CMake.
+
+  * Removed project files for Visual Studio 2003 (CrashRpt_v2003.sln) and Visual Studio 2005 (CrashRpt_v2005.sln). To compile in VS2010, use Visual Studio 2010 project files (or use CMake to generate Visual Studio project files for your favorite version of Visual Studio).
+
+  * Binary files now have version suffices (CrashRpt1300.dll, CrashRptProbe1300.dll and CrashSender1300.exe). This is to resolve problems of loading incorrect version of the DLL.
+
+  * Removed obsolete API InstallW, InstallA, Uninstall, AddFileW, AddFileA, GenerateErrorReport.
+
+  * Added an ability to select/deselect/delete all error reports and delete selected reports in ResendDlg (issue 112).
+
+  * Updated Italian lang file (issue 92).
+  * Updated German lang file (issue 98).
+  * Updated French lang file (issue 107).
+
+  * Fixed: CrashSender fails to initialize if two files both have empty destination properties (issue 88)
+  * Fixed: DestroyView fails in SharedMem implementation (issue 93)  
+  * Fixed: CHttpRequestSender::InternalSend() sends bad request header (issue 95)
+  * Fixed: Potential buffer overflow in CHttpRequestSender::InternalSend() (issue 96)
+  * Fixed: Formatting / coding request (issue 97)
+  * Fixed: Typo in string conversion class (issue 99)
+  * Fixed: Compilation fails if build directory contains spaces (issue 100)
+  * Fixed:The space confuses some mail servers, the RFC for QUIT defines that there should be no space. (issue 105)
+  * Fixed: RFC correct base64 for SMTP send (issue 106)
+  * Fixed: Wrong handling of dwFlags when setting handlers (issue 109)
+  * Fixed: SMTP fails if Date header missing (issue 110)
+
+
 = crashrpt v1.2.10 =
 
   * Added new language files: German, Spanish, French, Hindi, Italian, Korean, Portuguese and Chinese Simplified. Some of these files were produced by professional translators (Korean, Chinese Simplified), but others are generated with help of an automated translation tool, so do not hesitate to report mistakes.
