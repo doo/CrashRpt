@@ -46,3 +46,5 @@ Below is the list of software that are known to use `CrashRpt`:
   * <a href="http://www.icopybot.com/">iCopyBot - iPod to Computer Transfer</a> 
 
   * <a href="https://imspector.mpibpc.mpg.de/index.html">`ImSpector` - a software for data aquisition and analysis</a>
+
+  * <a href="http://netstatagent.com">`NetStat` Agent – Fast Lookup Tool for Available TCP/UDP Connections</a>
