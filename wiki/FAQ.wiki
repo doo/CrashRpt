@@ -74,7 +74,7 @@ Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologie
 
 You can override your `CWinApp::Run()` method and install CrashRpt there. In the CPP file containing your App class, add the following code:
 
-```
+{{{
 int CYourApp::Run() 
 {
 	BOOL bRun;
@@ -91,7 +91,7 @@ int CYourApp::Run()
 	}
 	return bRun;
 }
-```
+}}}
 
 == What is an exception? ==
 
