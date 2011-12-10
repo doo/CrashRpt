@@ -72,7 +72,7 @@ Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologie
 
 == I install crashrpt to my MFC app, but exceptions are not caught. What do I do? ==
 
-You can override your `CWinApp::Run()` method and install CrashRpt there. In the CPP file containing your App class, add the following code:
+You can override your `CWinApp::Run()` method and install `CrashRpt` there. In the CPP file containing your App class, add the following code:
 
 {{{
 int CYourApp::Run() 
