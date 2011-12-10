@@ -70,6 +70,29 @@ You can use `CrashRpt` in C++ programs created using Visual C++. You can not use
 
 Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
 
+== I install crashrpt to my MFC app, but exceptions are not caught. What do I do? ==
+
+You can override your `CWinApp::Run()` method and install CrashRpt there. In the CPP file containing your App class, add the following code:
+
+```
+int CYourApp::Run() 
+{
+	BOOL bRun;
+	BOOL bExit=FALSE;
+	while(!bExit)
+	{
+		// Call your crInstall code here ...
+
+
+
+		bRun= CWinApp::Run();
+		bExit=TRUE;
+		
+	}
+	return bRun;
+}
+```
+
 == What is an exception? ==
 
 An exception or a critical error typically means that a program stops working normally and needs to stop its execution.
