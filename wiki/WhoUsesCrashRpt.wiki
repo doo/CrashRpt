@@ -13,6 +13,8 @@ Below is the list of software that are known to use `CrashRpt`:
 
 ==Games==
 
+  * <img src="http://www.algodoo.com/w/images/thumb/7/7c/Algodoo_play.png/100px-Algodoo_play.png" height="32" align="center"/> <a href="http://www.algodoo.com/wiki/Home">Algodoo</a>
+
   * <a href="http://link-dead.net">Link-Dead</a>
 
   * <a href="http://rigsofrods.com">Rigs of Rods</a>
@@ -26,6 +28,10 @@ Below is the list of software that are known to use `CrashRpt`:
 ==Digital Maps==
 
   * <img src="http://www.routebuddy.com/images/logos/rb_icon_64.png" height="48" align="center"/> <a href="http://www.routebuddy.com/routebuddy/">`RouteBuddy`</a>
+
+==Editors==
+
+ * <img src="http://rozoom-group.com/paintball.editor/img/logo_pub.png" height="48" align="center"/> <a href=" http://rozoom-group.com/paintball.editor/">`Paintball.Editor`</a>
 
 ==Karaoke==
 
