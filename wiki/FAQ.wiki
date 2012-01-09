@@ -79,19 +79,16 @@ You can override your `CWinApp::Run()` method and install `CrashRpt` there. In t
 {{{
 int CYourApp::Run() 
 {
-	BOOL bRun;
-	BOOL bExit=FALSE;
-	while(!bExit)
-	{
-		// Call your crInstall code here ...
+  // Call your crInstall code here ...
 
-
-
-		bRun= CWinApp::Run();
-		bExit=TRUE;
-		
-	}
-	return bRun;
+  BOOL bRun;
+  BOOL bExit=FALSE;
+  while(!bExit)
+  {
+    bRun= CWinApp::Run();
+    bExit=TRUE;
+  }
+  return bRun;
 }
 }}}
 
