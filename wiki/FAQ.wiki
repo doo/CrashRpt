@@ -145,6 +145,7 @@ Another way to support further development is by donating to `CrashRpt`.
 Yes, they are listed in the table below:
 
 || *Name* || *License* || *Description* || 
+|| [http://crashfixsoftware.com CrashFix] || Proprietary license || Crash Analysis Server (supports CrashRpt) || 
 || [http://code.google.com/p/google-breakpad/ google-breakpad] || New BSD License|| An open-source multi-platform crash reporting system ||
 || [http://code.google.com/p/socorro/ Socorro] || Mozilla Public License v.1.1 || A server for crash reports from Breakpad clients ||
 || [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Breakpad/Socorro licenses || Used in Mozilla Firefox browser || 
