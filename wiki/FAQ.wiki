@@ -643,7 +643,7 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 == Does crashrpt have a server-side component that would process crash reports automatically? ==
 
-CrashRpt does not have such a server-side component, however you may try third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by CrashRpt. 
+`CrashRpt` itself does not have such a server-side component, however you may try a third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
 
 == Does crashrpt support bidirectional communication (the user gets an email with updates on his issue)? ==
 
