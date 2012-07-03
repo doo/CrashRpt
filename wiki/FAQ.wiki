@@ -145,7 +145,7 @@ Another way to support further development is by donating to `CrashRpt`.
 Yes, they are listed in the table below:
 
 || *Name* || *License* || *Description* || 
-|| [http://crashfixsoftware.com CrashFix] || Proprietary license || Crash Analysis Server (supports CrashRpt) || 
+|| [http://crashfixsoftware.com CrashFix] || Proprietary license || Crash Report Analysis Server (supports `CrashRpt`) || 
 || [http://code.google.com/p/google-breakpad/ google-breakpad] || New BSD License|| An open-source multi-platform crash reporting system ||
 || [http://code.google.com/p/socorro/ Socorro] || Mozilla Public License v.1.1 || A server for crash reports from Breakpad clients ||
 || [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Breakpad/Socorro licenses || Used in Mozilla Firefox browser || 
@@ -641,9 +641,13 @@ The crash description is an XML file that contains the basic information about t
  
 The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each execution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studio or in `WinDbg` program and see the place of your code where exception had occurred. 
 
+== Does crashrpt have a server-side component that would process crash reports automatically? ==
+
+CrashRpt does not have such a server-side component, however you may try third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by CrashRpt. 
+
 == Does crashrpt support bidirectional communication (the user gets an email with updates on his issue)? ==
 
-We currently do not support bidirectional communication, because this would require some complex server-side functionality. 
+`CrashRpt` currently does not support bidirectional communication, because this would require some complex server-side functionality.  
 
 == I want the user to directly send me the stack trace, w/o me need to postprocess anything with that on my side. Does crashrpt support this somehow? == 
 
