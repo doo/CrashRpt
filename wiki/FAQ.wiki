@@ -106,6 +106,10 @@ For example, an exception may occur because of the following:
   * invalid parameter is passed to a C++ system function
   * C++ run time libraries detect an error and request program termination
 
+== Does crashrpt have a server-side component that would process crash reports automatically and provide me with web GUI? ==
+
+`CrashRpt` itself does not have such a server-side component, however you may try a third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
+
 == Where can I find the latest version of crashrpt? ==
 
 The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
@@ -145,17 +149,14 @@ Another way to support further development is by donating to `CrashRpt`.
 Yes, they are listed in the table below:
 
 || *Name* || *License* || *Description* || 
-|| [http://crashfixsoftware.com CrashFix] || Proprietary license || Crash Report Analysis Server (supports `CrashRpt`) || 
+|| [http://crashfixsoftware.com CrashFix] || Proprietary license || Crash Report Analysis Server (a server for `CrashRpt`) || 
 || [http://code.google.com/p/google-breakpad/ google-breakpad] || New BSD License|| An open-source multi-platform crash reporting system ||
 || [http://code.google.com/p/socorro/ Socorro] || Mozilla Public License v.1.1 || A server for crash reports from Breakpad clients ||
 || [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Breakpad/Socorro licenses || Used in Mozilla Firefox browser || 
 || [http://www.microsoft.com/whdc/winlogo/maintain/StartWER.mspx Windows Error Reporting] || A proprietary license || Embed into Windows Vista and later || 
 || [http://www.codeproject.com/KB/applications/BugTrap.aspx BugTrap] || The Microsoft Public License (Ms-PL) || Crash reporting system for C++ and .NET || 
 || [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || The Code Project Open License (CPOL) || Exception Handling and Crash Reporting  || 
-|| [http://bugcollect.com BugCollect.com] || A proprietary license || Web-based crash reporting system || 
 || [http://exceptionreporter.codeplex.com/ Exception Reporter] || GNU Library General Public License (LGPL) || A .NET component that shows a dialog with information on an exception  ||
-|| [http://www.red-gate.com/products/dotnet-development/smartassembly/ SmartAssembly] || A proprietary license || .NET obfuscator and automated error reporting ||
-|| [http://www.eurekalog.com/index_delphi.php EurekaLog] || A proprietary license || A bug resolution tool for Delphi and C++ Builder ||
 || [http://code.google.com/p/acra/ ACRA] || Apache License 2.0 || A library for Android apps to post crash reports to a Google Doc form ||
 || [http://code.google.com/p/recrash/ ReCrash] || MIT License ||  A debugging tool that captures java program crashes ||
 || [http://code.google.com/p/bugback/ BugBack] || Apache License 2.0 || A tool for collecting crash data from Windows Forms apps ||
@@ -641,13 +642,9 @@ The crash description is an XML file that contains the basic information about t
  
 The crash dump file is a collection of memory ranges, CPU register states, the call stack and local variables for each execution thread, the list of loaded and unloaded modules and system information. You can open the minidump in your Visual Studio or in `WinDbg` program and see the place of your code where exception had occurred. 
 
-== Does crashrpt have a server-side component that would process crash reports automatically? ==
-
-`CrashRpt` itself does not have such a server-side component, however you may try a third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
-
 == Does crashrpt support bidirectional communication (the user gets an email with updates on his issue)? ==
 
-`CrashRpt` currently does not support bidirectional communication, because this would require some complex server-side functionality.  
+`CrashRpt` currently does not support bidirectional communication, but we may include this feature in a future release.  
 
 == I want the user to directly send me the stack trace, w/o me need to postprocess anything with that on my side. Does crashrpt support this somehow? == 
 
