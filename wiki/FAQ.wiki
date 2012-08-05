@@ -110,6 +110,8 @@ For example, an exception may occur because of the following:
 
 `CrashRpt` itself does not have such a server-side component, however you may try a third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
 
+[http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
+
 == Where can I find the latest version of crashrpt? ==
 
 The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
