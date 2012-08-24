@@ -31,7 +31,7 @@ Below is the list of software that are known to use `CrashRpt`:
 
 ==Editors==
 
- * <img src="http://rozoom-group.com/paintball.editor/img/logo_pub.png" height="48" align="center"/> <a href="http://rozoom-group.com/paintball.editor/">Paintball.Editor</a>
+ * <a href="http://rozoom-group.com/paintball.editor/">Paintball.Editor</a>
 
 ==Karaoke==
 
