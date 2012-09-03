@@ -1,6 +1,60 @@
 #summary Release History
 #labels Featured,Phase-Deploy
 
+= crashrpt v1.3.1 =
+
+  * New: Removed support of obsolete Visual Studio .NET 2003. 
+
+  * New: Removed deprecated functions `crAddFileA()`, `crAddFileW()`,        `crInstallToCurrentThread()`, `crExceptionFilter()` and deprecated        constant `CR_WIN32_STRUCTURED_EXCEPTION`.
+
+  * New: Improved robustness to stack overflow (issue 121). Now stack overflow is handled in separate thread makeing CrashRpt more robust to problem of not enogh stack memory.
+       
+  * New: Added constant `CR_STACK_OVERFLOW` that can be passed to crEmulateCrash() function
+       to cause stack overflow.
+
+  * New: Added an ability to attach more files to error report or delete selected files from error report through context menu of Error Report Details dialog (issue 132). Introduced new flag `CR_INST_ALLOW_ATTACH_MORE_FILES` for `crInstall()` function. 
+
+  * New: Added new `CR_AF_ALLOW_DELETE` flag for `crAddFile2()` function. If this flag is specified, the user will be able to delete the file from error report using context menu of Error Report Details dialog. (issue 132)
+
+  * New: Added support of SMTP authentication (AUTH LOGIN) (Issue 143).
+
+  * New: Added an ability to store the user's E-mail address and re-use later. When user enters his E-mail into "Your E-mail" field of Error Report dialog, the address is  saved and stored in ~CrashRpt.ini file. When a crash occurs later, the address is filled in automatically. (issue 155)
+
+  * New: Added `CR_INST_SEND_MANDATORY` flag. This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user (issue 126).
+
+  * New: Added `CR_INST_SHOW_ADDITIONAL_INFO_FIELDS` flag. This flag makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible. By default (when this parameter not specified), those fields are hidden and user needs to click the "Provide additional info (recommended)" link to show them (issue 129).
+
+  * New: Introduced command line parameter `/terminate` for `CrashSender.exe`.  This resolves a problem with installers that will want to update the exe file; there was no way to tell the sender exe program to exit now (issue 142). Launching `"CrashSender.exe /terminate"` would look for all open `CrashSender.exe` processes        and terminate them immediately (without sending reports or waiting for completion). Terminating the process is acomplished with `TerminateProcess(hProcess)` function.
+
+  * New: Reorganized demos (moved to demos folder and renamed `CrashRptTest=>WTLDemo`, `crashcon=>ConsoleDemo`).
+
+  * New: Added new demo application - `MFCDemo`. This is to demonstrate usage of `CrashRpt` with MFC-based apps.
+
+  * New: Refactored code of CrashSender project making it more conforming to the Model-View-Controller methodology.
+
+  * Fixed: Impossible to send Crash reports in Windows 7 64bits (issue 104).
+  * Fixed: Crash report is not discarded when 'Close the program' is selected (issue 94).
+  * Fixed: Application is restarted twice after crash (issue 115).
+  * Fixed: `CRP_COL_PROBLEM_DESCRIPTION` not working (issue 118).
+  * Fixed: When copying a log file into the crash archive, access it with `FILE_SHARE_WRITE` (issue 124)
+  * Fixed: Support multiple e-mail recipients (issue 123).
+  * Fixed: Support multiple crash reports per application instance (issue 127)
+  * Fixed: CrashSender.exe crashes when attempting to write long strings into `NOTIFYICONDATA` (issue 137)
+  - Fixed: a small typo in the german language file (issue 159)
+- Fixed: A single .pch file is used by Release and Debug configs causing compiler errors (issue 147)
+- Fixed: SigIntHandler installed by CR_INST_SIGILL_HANDLER (issue 154)
+- Fixed: ASSERTION failure when CrThreadAutoInstallHelper fails to install handler (issue 148).
+- Fixed: Deprecated CMC functions cause Visual studio 2012 rc compile error (issue 156)
+- Fixed: Need to add "SMTP:" to the 'emailTo' address for (S)MAPI (issue 140).
+- Fixed: HTTPS certificate problem (issue 151)
+- Fixed: Resource leak in CrashRpt (issue 160)
+- Fixed: HttpEndRequest() fails. GetLastError() = ERROR_INTERNET_TIMEOUT (12002) (issue 138)
+- Fixed: Memory allocation in CCrashHandler::GetExceptionPointers can fail (issue 157)
+- Fixed: Timestamp of saved files (issue 135)
+- Fixed: CErrorReportSender::DumpRegKey is omitting some subkeys and some values (issue 162)
+- Fixed: CErrorReportSender::DumpRegKey issue with REG_BINARY (issue 130).
+- Fixed: Order of custom properties (issue 131).
+
 = crashrpt v1.3.0 =
 
   * Added support of `CMake` - cross-plaform make system. Although `CrashRpt` doesn't support operating systems other than Windows, `CMake` makes it easier to maintain build configurations for different versions of Visual Studio. Project files for VC++ .NET 2003, 2005, 2008, 2010 and VC++ Express can be generated.
