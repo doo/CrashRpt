@@ -30,7 +30,7 @@
 
   * New: Added new demo application - `MFCDemo`. This is to demonstrate usage of `CrashRpt` with MFC-based apps.
 
-  * New: Refactored code of CrashSender project making it more conforming to the Model-View-Controller methodology.
+  * New: Refactored code of `CrashSender` project making it more conforming to the Model-View-Controller methodology.
 
   * Fixed: Impossible to send Crash reports in Windows 7 64bits (issue 104).
   * Fixed: Crash report is not discarded when 'Close the program' is selected (issue 94).
@@ -39,20 +39,20 @@
   * Fixed: When copying a log file into the crash archive, access it with `FILE_SHARE_WRITE` (issue 124)
   * Fixed: Support multiple e-mail recipients (issue 123).
   * Fixed: Support multiple crash reports per application instance (issue 127)
-  * Fixed: CrashSender.exe crashes when attempting to write long strings into `NOTIFYICONDATA` (issue 137)
-  - Fixed: a small typo in the german language file (issue 159)
+  * Fixed: `CrashSender.exe` crashes when attempting to write long strings into `NOTIFYICONDATA` (issue 137)
+  * Fixed: a small typo in the german language file (issue 159)
   * Fixed: A single .pch file is used by Release and Debug configs causing compiler errors (issue 147)
-  * Fixed: SigIntHandler installed by CR_INST_SIGILL_HANDLER (issue 154)
-  * Fixed: ASSERTION failure when CrThreadAutoInstallHelper fails to install handler (issue 148).
+  * Fixed: SigIntHandler installed by `CR_INST_SIGILL_HANDLER` (issue 154)
+  * Fixed: ASSERTION failure when `CrThreadAutoInstallHelper` fails to install handler (issue 148).
   * Fixed: Deprecated CMC functions cause Visual studio 2012 rc compile error (issue 156)
   * Fixed: Need to add "SMTP:" to the 'emailTo' address for (S)MAPI (issue 140).
   * Fixed: HTTPS certificate problem (issue 151)
-  * Fixed: Resource leak in CrashRpt (issue 160)
-  * Fixed: HttpEndRequest() fails. GetLastError() = ERROR_INTERNET_TIMEOUT (12002) (issue 138)
+  * Fixed: Resource leak in `CrashRpt` (issue 160)
+  * Fixed: `HttpEndRequest()` fails. `GetLastError() = ERROR_INTERNET_TIMEOUT (12002)` (issue 138)
   * Fixed: Memory allocation in CCrashHandler::GetExceptionPointers can fail (issue 157)
   * Fixed: Timestamp of saved files (issue 135)
-  * Fixed: CErrorReportSender::DumpRegKey is omitting some subkeys and some values (issue 162)
-  * Fixed: CErrorReportSender::DumpRegKey issue with REG_BINARY (issue 130).
+  * Fixed: `CErrorReportSender::DumpRegKey` is omitting some subkeys and some values (issue 162)
+  * Fixed: `CErrorReportSender::DumpRegKey` issue with `REG_BINARY` (issue 130).
   * Fixed: Order of custom properties (issue 131).
 
 = crashrpt v1.3.0 =
