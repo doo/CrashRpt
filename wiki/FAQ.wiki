@@ -114,7 +114,7 @@ For example, an exception may occur because of the following:
 
 == Where can I find the latest version of crashrpt? ==
 
-The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see WhatsNew.
+The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see [http://crashrpt.googlecode.com/svn/trunk/Changelog.txt What'ss New].
 
 == How do I open crashrpt distribution archive? ==
 
