@@ -9,7 +9,7 @@
 
   * New: Improved robustness to stack overflow (issue 121). Now stack overflow is handled in separate thread makeing `CrashRpt` more robust to problem of not enogh stack memory.
        
-  * New: Added constant `CR_STACK_OVERFLOW` that can be passed to crEmulateCrash() function to cause stack overflow.
+  * New: Added constant `CR_STACK_OVERFLOW` that can be passed to `crEmulateCrash()` function to cause stack overflow.
 
   * New: Added an ability to attach more files to error report or delete selected files from error report through context menu of Error Report Details dialog (issue 132). Introduced new flag `CR_INST_ALLOW_ATTACH_MORE_FILES` for `crInstall()` function. 
 
@@ -17,7 +17,7 @@
 
   * New: Added support of SMTP authentication (AUTH LOGIN) (Issue 143).
 
-  * New: Added an ability to store the user's E-mail address and re-use later. When user enters his E-mail into "Your E-mail" field of Error Report dialog, the address is  saved and stored in ~CrashRpt.ini file. When a crash occurs later, the address is filled in automatically. (issue 155)
+  * New: Added an ability to store the user's E-mail address and re-use later. When user enters his E-mail into "Your E-mail" field of Error Report dialog, the address is  saved and stored in `~CrashRpt.ini` file. When a crash occurs later, the address is filled in automatically. (issue 155)
 
   * New: Added `CR_INST_SEND_MANDATORY` flag. This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user (issue 126).
 
