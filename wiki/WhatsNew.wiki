@@ -7,10 +7,9 @@
 
   * New: Removed deprecated functions `crAddFileA()`, `crAddFileW()`,        `crInstallToCurrentThread()`, `crExceptionFilter()` and deprecated        constant `CR_WIN32_STRUCTURED_EXCEPTION`.
 
-  * New: Improved robustness to stack overflow (issue 121). Now stack overflow is handled in separate thread makeing CrashRpt more robust to problem of not enogh stack memory.
+  * New: Improved robustness to stack overflow (issue 121). Now stack overflow is handled in separate thread makeing `CrashRpt` more robust to problem of not enogh stack memory.
        
-  * New: Added constant `CR_STACK_OVERFLOW` that can be passed to crEmulateCrash() function
-       to cause stack overflow.
+  * New: Added constant `CR_STACK_OVERFLOW` that can be passed to crEmulateCrash() function to cause stack overflow.
 
   * New: Added an ability to attach more files to error report or delete selected files from error report through context menu of Error Report Details dialog (issue 132). Introduced new flag `CR_INST_ALLOW_ATTACH_MORE_FILES` for `crInstall()` function. 
 
