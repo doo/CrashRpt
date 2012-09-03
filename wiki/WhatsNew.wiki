@@ -1,5 +1,5 @@
 #summary Release History
-#labels Featured,Phase-Deploy
+#labels Deprecated,Phase-Deploy
 
 = crashrpt v1.3.1 =
 
