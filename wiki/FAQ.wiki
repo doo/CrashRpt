@@ -162,11 +162,11 @@ Yes, they are listed in the table below:
 
 == What Windows versions crashrpt can work in? ==
 
-`CrashRpt` supports Windows 2000/XP/2003/Vista and Windows 7. 
+`CrashRpt` supports Windows XP/2003/Vista and Windows 7. 
 
 == What Visual C++ versions can I use crashrpt in? ==
 
-You can compile `CrashRpt` in Visual C++ .NET 2003, Visual C++ 2005, Visual C++ 2008 and in Visual C++ 2010. Visual C++ 6.0 is not supported.
+You can compile `CrashRpt` in Visual C++ 2005, Visual C++ 2008, Visual C++ 2010 and Visual Studio 2012.
 
 You can also compile `CrashRpt` in Visual C++ Express Edition. For additional info on compiling `CrashRpt` in VC++ Express, see below.
 
