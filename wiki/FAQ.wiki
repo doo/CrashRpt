@@ -448,7 +448,7 @@ When you install crash reporting support to your program, it is important to tes
 
 Yes, if you enable optimizations, the stack trace recovered from minidump may be incomplete (e.g., see issue 25). 
 
-We recommend turning off Frame Pointer Omission (FPO) optimization in release version configurations, as this optimization does not really give an appreciable gain, but greatly complicates the analysis of the dump: the /Oy compiler option makes using the debugger more difficult because the compiler suppresses frame pointer information. Moreover, in 2010 the first studio this optimization is disabled by default.
+We recommend turning off Frame Pointer Omission (FPO) optimization in release version configurations, as this optimization does not really give an appreciable gain, but greatly complicates the analysis of the dump: the /Oy compiler option makes using the debugger more difficult because the compiler suppresses frame pointer information. Moreover, in Visual Studio 2010 this optimization is disabled by default.
 
 If you can't afford yourself to turn the optimization off, you can manage some error log file which is not affected by optimizations.
 
