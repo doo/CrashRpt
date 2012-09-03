@@ -41,19 +41,19 @@
   * Fixed: Support multiple crash reports per application instance (issue 127)
   * Fixed: CrashSender.exe crashes when attempting to write long strings into `NOTIFYICONDATA` (issue 137)
   - Fixed: a small typo in the german language file (issue 159)
-- Fixed: A single .pch file is used by Release and Debug configs causing compiler errors (issue 147)
-- Fixed: SigIntHandler installed by CR_INST_SIGILL_HANDLER (issue 154)
-- Fixed: ASSERTION failure when CrThreadAutoInstallHelper fails to install handler (issue 148).
-- Fixed: Deprecated CMC functions cause Visual studio 2012 rc compile error (issue 156)
-- Fixed: Need to add "SMTP:" to the 'emailTo' address for (S)MAPI (issue 140).
-- Fixed: HTTPS certificate problem (issue 151)
-- Fixed: Resource leak in CrashRpt (issue 160)
-- Fixed: HttpEndRequest() fails. GetLastError() = ERROR_INTERNET_TIMEOUT (12002) (issue 138)
-- Fixed: Memory allocation in CCrashHandler::GetExceptionPointers can fail (issue 157)
-- Fixed: Timestamp of saved files (issue 135)
-- Fixed: CErrorReportSender::DumpRegKey is omitting some subkeys and some values (issue 162)
-- Fixed: CErrorReportSender::DumpRegKey issue with REG_BINARY (issue 130).
-- Fixed: Order of custom properties (issue 131).
+  * Fixed: A single .pch file is used by Release and Debug configs causing compiler errors (issue 147)
+  * Fixed: SigIntHandler installed by CR_INST_SIGILL_HANDLER (issue 154)
+  * Fixed: ASSERTION failure when CrThreadAutoInstallHelper fails to install handler (issue 148).
+  * Fixed: Deprecated CMC functions cause Visual studio 2012 rc compile error (issue 156)
+  * Fixed: Need to add "SMTP:" to the 'emailTo' address for (S)MAPI (issue 140).
+  * Fixed: HTTPS certificate problem (issue 151)
+  * Fixed: Resource leak in CrashRpt (issue 160)
+  * Fixed: HttpEndRequest() fails. GetLastError() = ERROR_INTERNET_TIMEOUT (12002) (issue 138)
+  * Fixed: Memory allocation in CCrashHandler::GetExceptionPointers can fail (issue 157)
+  * Fixed: Timestamp of saved files (issue 135)
+  * Fixed: CErrorReportSender::DumpRegKey is omitting some subkeys and some values (issue 162)
+  * Fixed: CErrorReportSender::DumpRegKey issue with REG_BINARY (issue 130).
+  * Fixed: Order of custom properties (issue 131).
 
 = crashrpt v1.3.0 =
 
