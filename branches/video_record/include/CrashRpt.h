@@ -687,7 +687,6 @@ crUninstallFromCurrentThread();
 *    versions of crAddFile2() function. The crAddFile2() macro defines character set
 *    independent mapping.
 *
-*    This function is available <b>since v.1.2.1</b>. This function replaces the crAddFile() function.
 *
 *  \sa crAddFile2W(), crAddFile2A(), crAddFile2()
 */
@@ -838,6 +837,68 @@ CRASHRPTAPI(int)
 crAddScreenshot2(
                  DWORD dwFlags,
                  int nJpegQuality
+                 );
+
+/*! \ingroup CrashRptAPI  
+*  \brief Allows to record what happened before crash to video file and include the file to crash report.
+* 
+*  \return This function returns zero if succeeded. Use \ref crGetLastErrorMsg() to retrieve the error message on fail.
+*
+*  \param[in] dwFlags Flags, optional.
+*  \param[in] nDuration Video duration (in milliseconds). Optional.
+*  \param[in] nFrameInterval Interval between subsequent frames (in milliseconds). Optional.
+*  \param[in] nQuality Defines the quality of the video, optional.
+*  
+*  \remarks 
+* 
+*  This function can be used to record the state of end user's desktop just before the moment 
+*  of crash and add the video file to the error report. The recorded information may help the 
+*  software vendor to better understand the state of the client application at the moment of 
+*  crash and reproduce the error.
+*
+*  When this function is called, CrashRpt launches another process named \b CrashSender.exe. 
+*  The \b CrashSender.exe process then continuously captures the desktop screenshots in background and stores
+*  them to disk as image files. To avoid high CPU load, image files are stored in uncompressed 
+*  state as raw bitmap files. When the count of screenshot files exceeds the predefined maximum 
+*  value, the old screenshot files are reused cyclically. 
+*
+*  If the client application does not crash and its main code or main window loop exits successfully, 
+*  the captured desktop screenshot files are removed by the \ref crUninstall() function call and
+*  \b CrashSender.exe process is terminated.
+*
+*  If the client application crashes, the recorded screenshot files are compressed by VP8 codec and
+*  written into a .WebM file. The uncompressed temporary screenshots are then removed, and the resulting
+*  WebM file is included into crash report archive.
+*
+*  The WebM format is a widely used video container provided by the open-source WebM Project.
+*  WebM files can be opened in a browser like Google Chrome or Firefox or in another video player understanding
+*  this format.
+* 
+*  \b dwFlags 
+*
+*    Use one of the following constants to specify what part of virtual screen to capture:
+*    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
+*    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the main application main window.
+*    - \ref CR_AS_PROCESS_WINDOWS Use this to take a screenshot of all visible windows that belong to the process.
+* 
+*  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
+*  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
+*  the main window.
+*
+*  You should be careful when using this feature, because the recorded 
+*  video may contain user-identifying or private information. Always 
+*  specify the purposes you will use collected information for in your Privacy Policy. 
+*
+*  \sa
+*   crAddFile2(), crAddScreenshot2().
+*/
+
+CRASHRPTAPI(int)
+crAddVideoRecord(
+                 DWORD dwFlags,
+				 int nDuration,
+				 int nFrameInterval,
+                 int nQuality
                  );
 
 /*! \ingroup CrashRptAPI  
