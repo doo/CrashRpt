@@ -142,24 +142,6 @@ First of all create a topic in our [http://groups.google.com/group/crashrpt Foru
 
 If you like `CrashRpt` and use it in your software, you can show your appreciation by adding your project name and logo to the WhoUsesCrashRpt page. By doing this you make `CrashRpt` more significant for other users and also support further development. 
 
-== Are there any analogous software for crash reporting? ==
-
-Yes, they are listed in the table below:
-
-|| *Name* || *License* || *Description* || 
-|| [http://crashfixsoftware.com CrashFix] || Proprietary license || Crash Report Analysis Server (a server for `CrashRpt`) || 
-|| [http://code.google.com/p/google-breakpad/ google-breakpad] || New BSD License|| An open-source multi-platform crash reporting system ||
-|| [http://code.google.com/p/socorro/ Socorro] || Mozilla Public License v.1.1 || A server for crash reports from Breakpad clients ||
-|| [https://developer.mozilla.org/en/Crash_reporting Mozilla Firefox Crash Reporting System] || Breakpad/Socorro licenses || Used in Mozilla Firefox browser || 
-|| [http://www.microsoft.com/whdc/winlogo/maintain/StartWER.mspx Windows Error Reporting] || A proprietary license || Embed into Windows Vista and later || 
-|| [http://www.codeproject.com/KB/applications/BugTrap.aspx BugTrap] || The Microsoft Public License (Ms-PL) || Crash reporting system for C++ and .NET || 
-|| [http://www.codeproject.com/KB/debug/XCrashReportPt4.aspx XCrashReport] || The Code Project Open License (CPOL) || Exception Handling and Crash Reporting  || 
-|| [http://exceptionreporter.codeplex.com/ Exception Reporter] || GNU Library General Public License (LGPL) || A .NET component that shows a dialog with information on an exception  ||
-|| [http://code.google.com/p/acra/ ACRA] || Apache License 2.0 || A library for Android apps to post crash reports to a Google Doc form ||
-|| [http://code.google.com/p/recrash/ ReCrash] || MIT License ||  A debugging tool that captures java program crashes ||
-|| [http://code.google.com/p/bugback/ BugBack] || Apache License 2.0 || A tool for collecting crash data from Windows Forms apps ||
-|| [http://www.codeproject.com/KB/exception/littlecrashreporter.aspx Little Crash Reporter] || The GNU General Public License (GPLv3) || Collect crash data from a machine and send it to your email ||
-
 == What Windows versions crashrpt can work in? ==
 
 `CrashRpt` supports Windows XP/2003/Vista and Windows 7. 
