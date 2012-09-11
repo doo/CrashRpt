@@ -1,0 +1,11 @@
+/*!
+
+\page other_topics Other Topics
+
+This section covers the following topics:
+
+  - \subpage exception_handling
+  - \subpage writing_robust_code
+  - \subpage automated_tests    
+
+*/
