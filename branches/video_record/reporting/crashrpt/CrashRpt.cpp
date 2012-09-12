@@ -332,11 +332,33 @@ crAddScreenshot2(
 
     if(pCrashHandler==NULL)
     {    
-        crSetErrorMsg(_T("Crash handler wasn't previously installed for current thread."));
+        crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
         return 1; // Invalid parameter?
     }
 
     return pCrashHandler->AddScreenshot(dwFlags, nJpegQuality);
+}
+
+CRASHRPTAPI(int)
+crAddVideoRecording(
+                 DWORD dwFlags,
+				 int nDuration,
+				 int nFrameInterval,
+                 int nQuality
+                 )
+{
+	crSetErrorMsg(_T("Unspecified error."));
+
+	CCrashHandler *pCrashHandler = 
+        CCrashHandler::GetCurrentProcessCrashHandler();
+
+    if(pCrashHandler==NULL)
+    {    
+        crSetErrorMsg(_T("Crash handler wasn't previously installed for current process."));
+        return 1; // Invalid parameter?
+    }
+
+    return pCrashHandler->AddVideoRecording(dwFlags, nDuration, nFrameInterval, nQuality);
 }
 
 CRASHRPTAPI(int)

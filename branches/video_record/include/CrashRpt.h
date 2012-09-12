@@ -894,7 +894,7 @@ crAddScreenshot2(
 */
 
 CRASHRPTAPI(int)
-crAddVideoRecord(
+crAddVideoRecording(
                  DWORD dwFlags,
 				 int nDuration,
 				 int nFrameInterval,

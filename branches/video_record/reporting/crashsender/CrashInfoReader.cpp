@@ -514,6 +514,11 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
     UnpackString(m_pCrashDesc->m_dwCustomSenderIconOffs, m_sCustomSenderIcon);  
 	UnpackString(m_pCrashDesc->m_dwSmtpLoginOffs, m_sSmtpLogin);  
 	UnpackString(m_pCrashDesc->m_dwSmtpPasswordOffs, m_sSmtpPassword);  
+	m_bAddVideo = m_pCrashDesc->m_bAddVideo;
+    m_dwVideoFlags = m_pCrashDesc->m_dwVideoFlags; 
+	m_nVideoDuration = m_pCrashDesc->m_nVideoDuration;
+	m_nVideoFrameInterval = m_pCrashDesc->m_nVideoFrameInterval;
+    m_nVideoQuality = m_pCrashDesc->m_nVideoQuality;
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;
     while(dwOffs<m_pCrashDesc->m_dwTotalSize)

@@ -83,6 +83,14 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
         return 0;
     }      
 
+	// Determine whether to record video
+	if(pSender->GetCrashInfo()->m_bAddVideo)
+	{
+		// The following method enters the video recording loop
+		// and returns when the parent process signals the event.
+		pSender->RecordVideo();
+	}
+
 	// Determine what to do next 
 	// (either run in GUI more or run in silent mode).
 	if(!pSender->GetCrashInfo()->m_bSilentMode)

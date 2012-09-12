@@ -69,9 +69,14 @@ CCrashHandler::CCrashHandler()
     m_nSmtpProxyPort = 2525;
     memset(&m_uPriorities, 0, 3*sizeof(UINT));    
     m_lpfnCallback = NULL;
-    m_bAddScreenshot = FALSE;
+    m_bAddScreenshot = FALSE;	
     m_dwScreenshotFlags = 0;    
     m_nJpegQuality = 95;
+	m_bAddVideo = FALSE;
+	m_dwVideoFlags = 0;
+	m_nVideoDuration = 60*1000; // 60 sec
+	m_nVideoFrameInterval = 500; // 500 msec
+	m_nVideoQuality = 95; // default video quality
     m_hEvent = NULL;  
     m_pCrashDesc = NULL;
 
@@ -539,6 +544,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_bAddScreenshot = m_bAddScreenshot;
     m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;      
     memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
+	m_pTmpCrashDesc->m_bAddVideo = m_bAddVideo;
 
     m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
     m_pTmpCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
@@ -1071,6 +1077,86 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
 
     crSetErrorMsg(_T("Success."));
     return 0;
+}
+
+// Adds a video recording of desktop state just before crash.
+int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInterval, int nQuality)
+{
+	// Validate input parameters
+	if(nQuality<0 || nQuality>100)
+    {
+        crSetErrorMsg(_T("Invalid quality."));
+        return 1;
+    }
+
+	// Check duration - it should be less than 10 minutes
+	if(nDuration<0 || nDuration>10*60*1000)
+	{
+		crSetErrorMsg(_T("Invalid video duration."));
+		return 2;
+	}
+		
+	if(nDuration==0)
+	{
+		// Default duration - 1 min
+		nDuration = 60*1000;
+	}
+
+	// Check frame interval
+	if(nFrameInterval<0 || nFrameInterval>nDuration)
+	{
+		crSetErrorMsg(_T("Invalid frame interval."));
+        return 3;
+	}
+
+	if(nFrameInterval==0)
+	{
+		// Default frame interval - 500 msec
+		nDuration = 500;
+	}
+
+	// Check if we already have a video recording enabled.
+	if(m_bAddVideo==TRUE)
+	{
+        crSetErrorMsg(_T("Can not add video recording twice."));
+        return 4;
+	}
+
+	// Save video recording parameters
+	m_bAddVideo = TRUE;
+    m_dwVideoFlags = dwFlags;
+	m_nVideoDuration = nDuration;
+	m_nVideoFrameInterval = nFrameInterval;
+    m_nVideoQuality = nQuality;
+
+	// Create temp shared memory
+	CSharedMem tmpSharedMem;
+	CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&tmpSharedMem, TRUE);
+
+    // Pack this info into shared memory
+    pCrashDesc->m_bAddVideo = TRUE;
+    pCrashDesc->m_dwVideoFlags = dwFlags;
+	pCrashDesc->m_nVideoDuration = nDuration;
+	pCrashDesc->m_nVideoFrameInterval = nFrameInterval;
+    pCrashDesc->m_nVideoQuality = nQuality;
+	
+	// Launch the CrashSender.exe process that will continuously record video 
+	// in background.    
+    if(0!=LaunchCrashSender(tmpSharedMem.GetName(), TRUE, NULL))
+    {
+		m_bAddVideo = FALSE;
+
+        crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
+        return 5;
+    }
+
+	// Restore internal pointers to shared mem
+    m_pTmpCrashDesc = m_pCrashDesc;
+    m_pTmpSharedMem = &m_SharedMem;   
+
+	// OK
+	crSetErrorMsg(_T("Success."));
+	return 0;
 }
 
 // Generates error report

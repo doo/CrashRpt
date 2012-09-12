@@ -133,6 +133,9 @@ public:
 	// This method finds and terminates all instances of CrashSender.exe process.
 	static int TerminateAllCrashSenderProcesses();
 
+	// This method enters the video recording loop.
+	void RecordVideo();
+
 private:
 
 	// This method performs an action or several actions.

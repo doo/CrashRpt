@@ -131,7 +131,12 @@ struct CRASH_DESCRIPTION
     BOOL m_bSendRecentReports;     // If TRUE, CrashSender.exe needs to send queued error reports.
 								   // If FALSE, CrashSender.exe needs to send single report.
 	DWORD m_dwSmtpLoginOffs;       // Offset of SMTP login name.
-	DWORD m_dwSmtpPasswordOffs;    // Offset of SMTP login name.    
+	DWORD m_dwSmtpPasswordOffs;    // Offset of SMTP login name. 
+	BOOL  m_bAddVideo;             // Wether to add video recording.
+	DWORD m_dwVideoFlags;          // Flags for video recording.
+	int   m_nVideoDuration;        // Video duration.
+	int   m_nVideoFrameInterval;   // Video frame interval.
+	int   m_nVideoQuality;         // Video quality.
 };
 
 #define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */

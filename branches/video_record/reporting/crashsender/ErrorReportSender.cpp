@@ -415,8 +415,7 @@ BOOL CErrorReportSender::Finalize()
 BOOL CErrorReportSender::TakeDesktopScreenshot()
 {
     CScreenCapture sc; // Screen capture object
-    ScreenshotInfo ssi; // Screenshot params
-    std::vector<CString> screenshot_names; // The list of screenshot files
+    ScreenshotInfo ssi; // Screenshot params    
 
     // Add a message to log
     m_Assync.SetProgress(_T("[taking_screenshot]"), 0);    
@@ -437,80 +436,45 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     DWORD dwFlags = m_CrashInfo.m_dwScreenshotFlags;
 
     // Determine what image format to use (JPG or PNG)
-    SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG;
+    SCREENSHOT_IMAGE_FORMAT fmt = SCREENSHOT_FORMAT_PNG; // PNG by default
 
     if((dwFlags&CR_AS_USE_JPEG_FORMAT)!=0)
-        fmt = SCREENSHOT_FORMAT_JPG;
+        fmt = SCREENSHOT_FORMAT_JPG; // Use JPEG format
 
-    // Determine what to use - color or grayscale
+    // Determine what to use - color or grayscale image
     BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
 
-    std::vector<CRect> wnd_list; // List of window handles
-
+	SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
     if((dwFlags&CR_AS_MAIN_WINDOW)!=0) // We need to capture the main window
-    {     
-        // Take screenshot of the main window
-        std::vector<WindowInfo> aWindows; 
-        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_CrashInfo.m_dwProcessId);
-        if(hProcess!=NULL)
-        {
-            sc.FindWindows(hProcess, FALSE, &aWindows);
-            CloseHandle(hProcess);
-        }
-        if(aWindows.size()>0)
-        {
-            wnd_list.push_back(aWindows[0].m_rcWnd);
-            ssi.m_aWindows.push_back(aWindows[0]);
-        }
-    }
+		type = SCREENSHOT_TYPE_MAIN_WINDOW;
     else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0) // Capture all process windows
-    {          
-        std::vector<WindowInfo> aWindows; 
-        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_CrashInfo.m_dwProcessId);
-        if(hProcess!=NULL)
-        {
-            sc.FindWindows(hProcess, TRUE, &aWindows);
-            CloseHandle(hProcess);
-        }
-
-        int i;
-        for(i=0; i<(int)aWindows.size(); i++)
-            wnd_list.push_back(aWindows[i].m_rcWnd);
-        ssi.m_aWindows = aWindows;
-    }
+		type = SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS;
     else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
-    {
-        // Take screenshot of the entire desktop
-        CRect rcScreen;
-        sc.GetScreenRect(&rcScreen);    
-        wnd_list.push_back(rcScreen);
-    }
-
-    ssi.m_bValid = TRUE;
-    sc.GetScreenRect(&ssi.m_rcVirtualScreen);  
-
-	// Take the screen shot
-    BOOL bTakeScreenshot = sc.CaptureScreenRect(wnd_list, 
+		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+    
+    // Take the screen shot
+    BOOL bTakeScreenshot = sc.TakeDesktopScreenshot(		
         m_CrashInfo.GetReport(m_nCurReport)->GetErrorReportDirName(), 
-        0, fmt, m_CrashInfo.m_nJpegQuality, bGrayscale, 
-        ssi.m_aMonitors, screenshot_names);
+		ssi, type, m_CrashInfo.m_dwProcessId, fmt, m_CrashInfo.m_nJpegQuality, bGrayscale);
     if(bTakeScreenshot==FALSE)
     {
         return FALSE;
     }
 
+	// Save screenshot info
     m_CrashInfo.GetReport(0)->SetScreenshotInfo(ssi);
 
     // Prepare the list of screenshot files we will add to the error report
     std::vector<ERIFileItem> FilesToAdd;
     size_t i;
-    for(i=0; i<screenshot_names.size(); i++)
+	for(i=0; i<ssi.m_aMonitors.size(); i++)
     {
+		CString sFileName = ssi.m_aMonitors[i].m_sFileName;
         CString sDestFile;
-        int nSlashPos = screenshot_names[i].ReverseFind('\\');
-        sDestFile = screenshot_names[i].Mid(nSlashPos+1);
+        int nSlashPos = sFileName.ReverseFind('\\');
+        sDestFile = sFileName.Mid(nSlashPos+1);
         ERIFileItem fi;
-        fi.m_sSrcFile = screenshot_names[i];
+        fi.m_sSrcFile = sFileName;
         fi.m_sDestFile = sDestFile;
         fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
         m_CrashInfo.GetReport(0)->AddFileItem(&fi);
@@ -520,7 +484,7 @@ BOOL CErrorReportSender::TakeDesktopScreenshot()
     return TRUE;
 }
 
-// This callbask function is called by MinidumpWriteDump
+// This callback function is called by MinidumpWriteDump
 BOOL CALLBACK CErrorReportSender::MiniDumpCallback(
     PVOID CallbackParam,
     PMINIDUMP_CALLBACK_INPUT CallbackInput,
@@ -2441,4 +2405,17 @@ int CErrorReportSender::TerminateAllCrashSenderProcesses()
     CloseHandle(snapshot);
 
     return 0;
+}
+
+void CErrorReportSender::RecordVideo()
+{
+	// The following method enters the video recording loop
+	// and returns when the parent process signals the event.
+
+	CScreenCapture sc;
+
+	for(;;)
+	{
+
+	}
 }

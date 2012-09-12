@@ -60,15 +60,25 @@ struct MonitorInfo
 // Desktop screen shot info
 struct ScreenshotInfo
 {
+	// Constructor
     ScreenshotInfo()
     {
         m_bValid = FALSE;
     }
 
-    BOOL m_bValid;
-    CRect m_rcVirtualScreen;
-    std::vector<MonitorInfo> m_aMonitors; // The list of monitors.
-    std::vector<WindowInfo> m_aWindows; // The list of windows.
+    BOOL m_bValid;           // If TRUE, this structure's fields are valid.
+	time_t m_CreateTime;     // Time of screenshot capture.
+    CRect m_rcVirtualScreen; // Coordinates of virtual screen rectangle.
+    std::vector<MonitorInfo> m_aMonitors; // The list of monitors captured.
+    std::vector<WindowInfo> m_aWindows; // The list of windows captured.	
+};
+
+// Screenshot type
+enum SCREENSHOT_TYPE
+{
+	SCREENSHOT_TYPE_VIRTUAL_SCREEN      = 0, // Screenshot of entire desktop.
+	SCREENSHOT_TYPE_MAIN_WINDOW         = 1, // Screenshot of given process' main window.
+	SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS = 2  // Screenshot of all process windows.
 };
 
 // What format to use when saving screenshots
@@ -84,16 +94,31 @@ class CScreenCapture
 {
 public:
 
-    // Constructor
+    // Constructor.
     CScreenCapture();
-    ~CScreenCapture();
 
-    // Returns virtual screen rectangle
+	// Destructor.
+    ~CScreenCapture();
+	
+	// Takes desktop screenshot and returns information about it.
+	BOOL TakeDesktopScreenshot(	
+			LPCTSTR szSaveToDir,
+			ScreenshotInfo& ssi, 
+			SCREENSHOT_TYPE type=SCREENSHOT_TYPE_VIRTUAL_SCREEN, 
+			DWORD dwProcessId = 0, 
+			SCREENSHOT_IMAGE_FORMAT fmt=SCREENSHOT_FORMAT_PNG,
+			int nJpegQuality = 95,
+			BOOL bGrayscale=FALSE,
+			int nIdStartFrom=0);
+
+private:
+
+	// Returns current virtual screen rectangle
     void GetScreenRect(LPRECT rcScreen);
 
     // Returns an array of visible windows for the specified process or 
     // the main window of the process.
-    BOOL FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, 
+    BOOL FindWindows(DWORD dwProcessId, BOOL bAllProcessWindows, 
         std::vector<WindowInfo>* paWindows);
 
     // Captures the specified screen area and returns the list of image files
@@ -104,25 +129,38 @@ public:
         SCREENSHOT_IMAGE_FORMAT fmt, 
         int nJpegQuality,
         BOOL bGrayscale,
-        std::vector<MonitorInfo>& monitor_list,
-        std::vector<CString>& out_file_list);
+        std::vector<MonitorInfo>& monitor_list);
+
+	// Monitor enumeration callback.
+	static BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, 
+		HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM dwData);
+
+	// Window enumeration callback.
+	static BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam);
 
     /* PNG management functions */
 
     // Initializes PNG file header
     BOOL PngInit(int nWidth, int nHeight, BOOL bGrayscale, CString sFileName);
+
     // Writes a scan line to the PNG file
     BOOL PngWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale);
+
     // Closes PNG file
     BOOL PngFinalize();
 
     /* JPEG management functions */
 
+	// Initializes JPEG file header.
     BOOL JpegInit(int nWidth, int nHeight, BOOL bGrayscale, int nQuality, CString sFileName);
+
+	// Writes a scan line to JPEG file.
     BOOL JpegWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale);
+
+	// Closes PNG file.
     BOOL JpegFinalize();
 
-    /* Member variables. */
+    /* Internal member variables. */
 
     CPoint m_ptCursorPos;                 // Current mouse cursor pos
     std::vector<CRect> m_arcCapture;      // Array of capture rectangles

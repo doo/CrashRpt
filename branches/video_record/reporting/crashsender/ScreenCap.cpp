@@ -37,8 +37,126 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Disable warning C4611: interaction between '_setjmp' and C++ object destruction is non-portable
 #pragma warning(disable:4611)
 
+CScreenCapture::CScreenCapture()
+{
+	// Init internal variables
+    m_fp = NULL;
+    m_png_ptr = NULL;
+    m_info_ptr = NULL;
+    m_nIdStartFrom = 0;
+}
+
+CScreenCapture::~CScreenCapture()
+{
+	// Free used resources
+}
+
+BOOL CScreenCapture::TakeDesktopScreenshot(	
+			LPCTSTR szSaveToDir,
+			ScreenshotInfo& ssi, 
+			SCREENSHOT_TYPE type, 
+			DWORD dwProcessId,
+			SCREENSHOT_IMAGE_FORMAT fmt, 
+			int nJpegQuality,
+			BOOL bGrayscale,
+			int nIdStartFrom)
+{   
+	// This method takes the desktop screenshot (screenshot of entire virtual screen
+	// or screenshot of the main window, or screenshot of all process windows). 
+
+	// First, we need to calculate the area rectangle to capture
+    std::vector<CRect> wnd_list; // List of window rectangles
+
+    if(type==SCREENSHOT_TYPE_MAIN_WINDOW) // We need to capture the main window
+    {     
+        // Take screenshot of the main window
+        std::vector<WindowInfo> aWindows; 
+        FindWindows(dwProcessId, FALSE, &aWindows);           
+        
+		if(aWindows.size()>0)
+        {
+            wnd_list.push_back(aWindows[0].m_rcWnd);
+            ssi.m_aWindows.push_back(aWindows[0]);
+        }
+    }
+    else if(type==SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS) // Capture all process windows
+    {          
+        std::vector<WindowInfo> aWindows; 
+        FindWindows(dwProcessId, TRUE, &aWindows);
+            
+        int i;
+        for(i=0; i<(int)aWindows.size(); i++)
+            wnd_list.push_back(aWindows[i].m_rcWnd);
+        ssi.m_aWindows = aWindows;
+    }
+    else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
+    {
+        // Take screenshot of the entire desktop
+        CRect rcScreen;
+        GetScreenRect(&rcScreen);    
+        wnd_list.push_back(rcScreen);
+    }
+
+	// Mark screenshot information as valid
+    ssi.m_bValid = TRUE;
+	// Save virtual screen rect
+    GetScreenRect(&ssi.m_rcVirtualScreen);  
+
+	// Capture screen rectangle	
+    BOOL bTakeScreenshot = CaptureScreenRect(
+		wnd_list, 
+        szSaveToDir, 
+        nIdStartFrom, 
+		fmt, 
+		nJpegQuality, 
+		bGrayscale, 
+        ssi.m_aMonitors);
+    if(bTakeScreenshot==FALSE)
+    {
+        return FALSE;
+    }
+	    
+    // Done
+    return TRUE;
+}
+
+BOOL CScreenCapture::CaptureScreenRect(
+                                       std::vector<CRect> arcCapture,  
+                                       CString sSaveDirName,   
+                                       int nIdStartFrom, 
+                                       SCREENSHOT_IMAGE_FORMAT fmt,
+                                       int nJpegQuality,
+                                       BOOL bGrayscale,
+                                       std::vector<MonitorInfo>& monitor_list)
+{	
+    // Init output variables
+    monitor_list.clear();
+    
+    // Set internal variables
+    m_nIdStartFrom = nIdStartFrom;
+    m_sSaveDirName = sSaveDirName;
+    m_fmt = fmt;
+    m_nJpegQuality = nJpegQuality;
+    m_bGrayscale = bGrayscale;
+    m_arcCapture = arcCapture;
+    m_out_file_list.clear();
+    m_monitor_list.clear();
+
+    // Get cursor information
+    GetCursorPos(&m_ptCursorPos);
+    m_CursorInfo.cbSize = sizeof(CURSORINFO);
+    GetCursorInfo(&m_CursorInfo);
+
+    // Perform actual capture task inside of EnumMonitorsProc
+    EnumDisplayMonitors(NULL, NULL, EnumMonitorsProc, (LPARAM)this);	
+
+    // Return
+    monitor_list = m_monitor_list;
+    return TRUE;
+}
+
 // This function is used for monitor enumeration
-BOOL CALLBACK EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM dwData)
+BOOL CALLBACK CScreenCapture::EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM dwData)
 {	  
     CScreenCapture* psc = (CScreenCapture*)dwData;
 
@@ -205,56 +323,6 @@ cleanup:
         delete [] pRowBits;
 
     // Next monitor
-    return TRUE;
-}
-
-CScreenCapture::CScreenCapture()
-{
-    m_fp = NULL;
-    m_png_ptr = NULL;
-    m_info_ptr = NULL;
-    m_nIdStartFrom = 0;
-}
-
-CScreenCapture::~CScreenCapture()
-{
-}
-
-BOOL CScreenCapture::CaptureScreenRect(
-                                       std::vector<CRect> arcCapture,  
-                                       CString sSaveDirName,   
-                                       int nIdStartFrom, 
-                                       SCREENSHOT_IMAGE_FORMAT fmt,
-                                       int nJpegQuality,
-                                       BOOL bGrayscale,
-                                       std::vector<MonitorInfo>& monitor_list,
-                                       std::vector<CString>& out_file_list)
-{	
-    // Init output variables
-    monitor_list.clear();
-    out_file_list.clear();
-
-    // Set internal variables
-    m_nIdStartFrom = nIdStartFrom;
-    m_sSaveDirName = sSaveDirName;
-    m_fmt = fmt;
-    m_nJpegQuality = nJpegQuality;
-    m_bGrayscale = bGrayscale;
-    m_arcCapture = arcCapture;
-    m_out_file_list.clear();
-    m_monitor_list.clear();
-
-    // Get cursor information
-    GetCursorPos(&m_ptCursorPos);
-    m_CursorInfo.cbSize = sizeof(CURSORINFO);
-    GetCursorInfo(&m_CursorInfo);
-
-    // Perform actual capture task inside of EnumMonitorsProc
-    EnumDisplayMonitors(NULL, NULL, EnumMonitorsProc, (LPARAM)this);	
-
-    // Return
-    out_file_list = m_out_file_list;
-    monitor_list = m_monitor_list;
     return TRUE;
 }
 
@@ -465,17 +533,17 @@ BOOL CScreenCapture::JpegFinalize()
 
 struct FindWindowData
 {
-    HANDLE hProcess;                     // Handle to the process
+    DWORD dwProcessId;                   // Process ID.
     BOOL bAllProcessWindows;             // If TRUE, finds all process windows, else only the main one
     std::vector<WindowInfo>* paWindows;  // Output array of window handles
 };
 
-BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
+BOOL CALLBACK CScreenCapture::EnumWndProc(HWND hWnd, LPARAM lParam)
 {
     FindWindowData* pFWD = (FindWindowData*)lParam;
 
     // Get process ID
-    DWORD dwMyProcessId = GetProcessId(pFWD->hProcess);
+    DWORD dwMyProcessId = pFWD->dwProcessId;
 
     if(IsWindowVisible(hWnd)) // Get only wisible windows
     {
@@ -507,11 +575,11 @@ BOOL CALLBACK EnumWndProc(HWND hWnd, LPARAM lParam)
     return TRUE;
 }
 
-BOOL CScreenCapture::FindWindows(HANDLE hProcess, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows)
+BOOL CScreenCapture::FindWindows(DWORD dwProcessId, BOOL bAllProcessWindows, std::vector<WindowInfo>* paWindows)
 {
     FindWindowData fwd;
     fwd.bAllProcessWindows = bAllProcessWindows;
-    fwd.hProcess = hProcess;
+    fwd.dwProcessId = dwProcessId;
     fwd.paWindows = paWindows;
     EnumWindows(EnumWndProc, (LPARAM)&fwd);
 

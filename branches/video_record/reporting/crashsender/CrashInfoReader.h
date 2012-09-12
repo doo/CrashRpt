@@ -282,6 +282,11 @@ public:
     int         m_nJpegQuality;         // Jpeg image quality (used when taking screenshot).
     CPoint      m_ptCursorPos;          // Mouse cursor position on crash.
     CRect       m_rcAppWnd;             // Rectangle of the application's main window.  
+	BOOL        m_bAddVideo;            // Wether to add video recording.
+	DWORD       m_dwVideoFlags;         // Flags for video recording.
+	int         m_nVideoDuration;       // Video duration.
+	int         m_nVideoFrameInterval;  // Video frame interval.
+	int         m_nVideoQuality;        // Video quality.
     BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
 	// Below are exception information fields.
     DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
