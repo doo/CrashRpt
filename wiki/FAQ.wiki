@@ -106,9 +106,9 @@ For example, an exception may occur because of the following:
   * invalid parameter is passed to a C++ system function
   * C++ run time libraries detect an error and request program termination
 
-== Does crashrpt have a server-side component that would process crash reports automatically and provide me with web GUI? ==
+== Does crashrpt have a server-side component that would process crash reports automatically? ==
 
-`CrashRpt` itself does not have such a server-side component, however you may try a third-party commercial software named [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
+You may try the [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
 
 [http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
 
