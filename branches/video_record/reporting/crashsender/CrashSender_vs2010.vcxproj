@@ -159,7 +159,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\webm\include;$(SolutionDir)thirdparty\webm\src;$(SolutionDir)reporting\crashrpt;$(SolutionDir)thirdparty\tinyxml;$(SolutionDir)thirdparty\zlib;$(SolutionDir)thirdparty\minizip;$(SolutionDir)include;$(SolutionDir)thirdparty\libpng;$(SolutionDir)thirdparty\wtl;$(SolutionDir)thirdparty\dbghelp\include;$(SolutionDir)thirdparty\jpeg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;STRICT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -175,7 +175,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)thirdparty\wtl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>tinyxmld.lib;jpegd.lib;zlibd.lib;minizipd.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;libpngd.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>vpxmdd.lib;tinyxmld.lib;jpegd.lib;zlibd.lib;minizipd.lib;WS2_32.lib;Dnsapi.lib;wininet.lib;Rpcrt4.lib;Gdi32.lib;shell32.lib;Comdlg32.lib;version.lib;libpngd.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\CrashSenderd.pdb</ProgramDatabaseFile>
@@ -375,6 +375,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\thirdparty\webm\src\libmkv\EbmlWriter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\crashrpt\SharedMem.cpp" />
     <ClCompile Include="..\crashrpt\Utility.cpp" />
     <ClCompile Include="AssyncNotification.cpp" />
@@ -426,6 +429,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="VideoRec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\crashrpt\Utility.h" />
@@ -446,6 +450,7 @@
     <ClInclude Include="SequenceLayout.h" />
     <ClInclude Include="smtpclient.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="VideoRec.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\CrashSender.ico" />

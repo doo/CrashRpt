@@ -198,7 +198,7 @@ public:
 
 	// Sets desktop screenshot parameters.
 	void SetScreenshotInfo(ScreenshotInfo &si);
-		
+			
 private:
 	
 	// Calculates total size of files included into error report.
@@ -225,7 +225,7 @@ private:
     BOOL            m_bOSIs64Bit;          // Is operating system 64-bit?
     CString         m_sGeoLocation;        // Geographic location.
     ScreenshotInfo  m_ScreenshotInfo;      // Screenshot info.
-    ULONG64         m_uTotalSize;          // Summary size of this (uncompressed) report.
+	ULONG64         m_uTotalSize;          // Summary size of this (uncompressed) report.
     BOOL            m_bSelected;           // Is this report selected for delivery or not?
     DELIVERY_STATUS m_DeliveryStatus;      // Error report delivery status.
 
@@ -287,7 +287,7 @@ public:
 	int         m_nVideoDuration;       // Video duration.
 	int         m_nVideoFrameInterval;  // Video frame interval.
 	int         m_nVideoQuality;        // Video quality.
-    BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
+	BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
 	// Below are exception information fields.
     DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).
     DWORD       m_dwThreadId;           // Parent thread ID (used for minidump generation).
@@ -347,7 +347,7 @@ public:
 
 	// Removes several files by names.
 	BOOL RemoveFilesFromCrashReport(int nReport, std::vector<CString> FilesToRemove);
-
+	
 private:
 
     // Retrieves some crash info from crash description XML.

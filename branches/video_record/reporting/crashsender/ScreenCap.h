@@ -160,6 +160,25 @@ private:
 	// Closes PNG file.
     BOOL JpegFinalize();
 
+	/* BMP management functions */
+
+	// Initializes BMP file header
+    BOOL BmpInit(int nWidth, int nHeight, BOOL bGrayscale, CString sFileName);
+
+    // Writes a scan line to the BMP file
+    BOOL BmpWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale);
+
+    // Closes BMP file
+    BOOL BmpFinalize();
+
+	// The following structure stores window find data.
+	struct FindWindowData
+	{
+		DWORD dwProcessId;                   // Process ID.
+		BOOL bAllProcessWindows;             // If TRUE, finds all process windows, else only the main one
+		std::vector<WindowInfo>* paWindows;  // Output array of window handles
+	};
+
     /* Internal member variables. */
 
     CPoint m_ptCursorPos;                 // Current mouse cursor pos
@@ -176,7 +195,7 @@ private:
     struct jpeg_compress_struct m_cinfo;  // libjpeg stuff
     struct jpeg_error_mgr m_jerr;         // libjpeg stuff
     std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices
-    std::vector<CString> m_out_file_list; // The list of output image files
+    //std::vector<CString> m_out_file_list; // The list of output image files
 };
 
 #endif //__SCREENCAP_H__

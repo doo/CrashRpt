@@ -570,9 +570,6 @@ crUninstall();
 *  several execution threads, you ought to call the function for each thread,
 *  except the main one.
 *   
-*  The function works the same way as obsolete crInstallToCurrentThread(), but provides
-*  an ability to select what exception handlers to install.
-*
 *  \a dwFlags defines what exception handlers to install. Use zero value
 *  to install all possible exception handlers. Or use a combination of the following constants:
 *
@@ -600,7 +597,7 @@ crUninstall();
 *   \endcode
 * 
 *  \sa 
-*    crInstallToCurrentThread()
+*    crInstall()
 */
 
 CRASHRPTAPI(int)

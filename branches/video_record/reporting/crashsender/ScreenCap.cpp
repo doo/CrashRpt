@@ -102,6 +102,9 @@ BOOL CScreenCapture::TakeDesktopScreenshot(
 	// Save virtual screen rect
     GetScreenRect(&ssi.m_rcVirtualScreen);  
 
+	// Save current timestamp
+	time(&ssi.m_CreateTime);
+
 	// Capture screen rectangle	
     BOOL bTakeScreenshot = CaptureScreenRect(
 		wnd_list, 
@@ -139,7 +142,6 @@ BOOL CScreenCapture::CaptureScreenRect(
     m_nJpegQuality = nJpegQuality;
     m_bGrayscale = bGrayscale;
     m_arcCapture = arcCapture;
-    m_out_file_list.clear();
     m_monitor_list.clear();
 
     // Get cursor information
@@ -244,10 +246,16 @@ BOOL CALLBACK CScreenCapture::EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonit
     }
     else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
     {
+		// Init BMP header
+		sFileName.Format(_T("%s\\screenshot%d.bmp"), psc->m_sSaveDirName, psc->m_nIdStartFrom++);
+        BOOL bInit = psc->BmpInit(nWidth, nHeight, psc->m_bGrayscale, sFileName);
+        if(!bInit)
+            goto cleanup;		
     }
 
     // We will get bitmap bits row by row
-    nRowWidth = nWidth*3 + 10;
+    nRowWidth = nWidth*3;
+	nRowWidth+=nRowWidth%4;
     pRowBits = new BYTE[nRowWidth];
     if(pRowBits==NULL)
         goto cleanup;
@@ -280,6 +288,9 @@ BOOL CALLBACK CScreenCapture::EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonit
         }
         else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
         {
+			BOOL bWrite = psc->BmpWriteRow(pRowBits, nRowWidth, psc->m_bGrayscale);
+            if(!bWrite)
+                goto cleanup;  
         }      
     }
 
@@ -293,14 +304,13 @@ BOOL CALLBACK CScreenCapture::EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonit
     }
     else if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
     {
+		psc->BmpFinalize();
     }
     else
     {
         ATLASSERT(0); // Invalid format
         goto cleanup;
     }  
-
-    psc->m_out_file_list.push_back(sFileName);
 
     monitor_info.m_rcMonitor = mi.rcMonitor;
     monitor_info.m_sDeviceID = mi.szDevice;
@@ -343,8 +353,6 @@ BOOL CScreenCapture::PngInit(int nWidth, int nHeight, BOOL bGrayscale, CString s
     m_fp = NULL;
     m_png_ptr = NULL;
     m_info_ptr = NULL;
-
-    m_out_file_list.push_back(sFileName);
 
 #if _MSC_VER>=1400
     _tfopen_s(&m_fp, sFileName.GetBuffer(0), _T("wb"));
@@ -531,12 +539,91 @@ BOOL CScreenCapture::JpegFinalize()
     return TRUE;
 }
 
-struct FindWindowData
+BOOL CScreenCapture::BmpInit(int nWidth, int nHeight, BOOL bGrayscale, CString sFileName)
 {
-    DWORD dwProcessId;                   // Process ID.
-    BOOL bAllProcessWindows;             // If TRUE, finds all process windows, else only the main one
-    std::vector<WindowInfo>* paWindows;  // Output array of window handles
-};
+	m_fp = NULL;
+
+	// Open file for writing
+#if _MSC_VER>=1400
+    _tfopen_s(&m_fp, sFileName.GetBuffer(0), _T("wb"));
+#else
+    m_fp = _tfopen(sFileName.GetBuffer(0), _T("wb"));
+#endif
+
+	if(m_fp==NULL)
+		return FALSE; // error opening file for writing
+
+	BITMAPFILEHEADER bmfh;
+	BITMAPINFOHEADER info;
+	memset ( &bmfh, 0, sizeof (BITMAPFILEHEADER ) );
+	memset ( &info, 0, sizeof (BITMAPINFOHEADER ) );
+
+	bmfh.bfType = 0x4d42;       // 0x4d42 = 'BM'
+	bmfh.bfReserved1 = 0;
+	bmfh.bfReserved2 = 0;
+	int paddedsize = nWidth*(bGrayscale?1:3);
+	paddedsize+=paddedsize%4;
+	paddedsize*=nHeight;
+	bmfh.bfSize = sizeof(BITMAPFILEHEADER) + 
+		sizeof(BITMAPINFOHEADER) + paddedsize;
+	bmfh.bfOffBits = 0x36;
+
+	info.biSize = sizeof(BITMAPINFOHEADER);
+	info.biWidth = nWidth;
+	info.biHeight = -nHeight;
+	info.biPlanes = 1;	
+	info.biBitCount = bGrayscale?8:24;
+	info.biCompression = BI_RGB;	
+	info.biSizeImage = 0;
+	info.biXPelsPerMeter = 0x0ec4;  
+	info.biYPelsPerMeter = 0x0ec4;     
+	info.biClrUsed = 0;	
+	info.biClrImportant = 0; 
+		
+	if(1!=fwrite(&bmfh, sizeof ( BITMAPFILEHEADER ), 1, m_fp)) 
+	{
+		return FALSE;
+	}
+
+	if(1!=fwrite(&info, sizeof ( BITMAPINFOHEADER ), 1, m_fp))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL CScreenCapture::BmpWriteRow(LPBYTE pRow, int nRowLen, BOOL bGrayscale)
+{
+	// Convert RGB to BGR
+    LPBYTE pRow2 = NULL;
+    int i;
+    if(bGrayscale)
+    {
+        pRow2 = new BYTE[nRowLen/3];
+        for(i=0; i<nRowLen/3; i++)
+            pRow2[i] = (pRow[i*3+0]+pRow[i*3+1]+pRow[i*3+2])/3;
+
+		fwrite(pRow2, nRowLen/3, 1, m_fp);
+
+		delete [] pRow2;
+    }
+    else
+    {
+        fwrite(pRow, nRowLen, 1, m_fp);
+	}
+
+	return TRUE;
+}
+
+BOOL CScreenCapture::BmpFinalize()
+{
+	if(m_fp)
+        fclose(m_fp);
+	m_fp=NULL;
+
+	return TRUE;
+}
 
 BOOL CALLBACK CScreenCapture::EnumWndProc(HWND hWnd, LPARAM lParam)
 {

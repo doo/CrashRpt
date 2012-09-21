@@ -134,8 +134,8 @@ public:
 	static int TerminateAllCrashSenderProcesses();
 
 	// This method enters the video recording loop.
-	void RecordVideo();
-
+	BOOL RecordVideo();
+	
 private:
 
 	// This method performs an action or several actions.
@@ -227,7 +227,7 @@ private:
     CHttpRequestSender m_HttpSender;    // Used to send report over HTTP.
     CMailMsg m_MapiSender;              // Used to send report over SMAPI.
     CString m_sZipName;                 // Name of the ZIP archive to send.
-    int m_Action;                       // Current action.
+    int m_Action;                       // Current assynchronous action.
     BOOL m_bExport;                     // If TRUE than export should be performed.
     CString m_sExportFileName;          // File name for exporting.
 	eMailClientConfirm m_MailClientConfirm;  // Mail program confirmation result.

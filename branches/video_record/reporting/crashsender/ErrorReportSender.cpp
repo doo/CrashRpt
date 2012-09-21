@@ -45,6 +45,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "base64.h"
 #include <sys/stat.h>
 #include "dbghelp.h"
+#include "VideoRec.h"
 
 CErrorReportSender* CErrorReportSender::m_pInstance = NULL;
 
@@ -2407,15 +2408,32 @@ int CErrorReportSender::TerminateAllCrashSenderProcesses()
     return 0;
 }
 
-void CErrorReportSender::RecordVideo()
+BOOL CErrorReportSender::RecordVideo()
 {
+	ATLASSERT(0);
+
 	// The following method enters the video recording loop
 	// and returns when the parent process signals the event.
 
-	CScreenCapture sc;
+    // Get screenshot flags passed by the parent process
+    DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;
 
-	for(;;)
-	{
+    // Determine what to use - color or grayscale image
+    //BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
 
-	}
+	SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+    if((dwFlags&CR_AS_MAIN_WINDOW)!=0) // We need to capture the main window
+		type = SCREENSHOT_TYPE_MAIN_WINDOW;
+    else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0) // Capture all process windows
+		type = SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS;
+    else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
+		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+    
+	CVideoRecorder VideoRec;
+	VideoRec.RecordVideo(m_CrashInfo.GetReport(0)->GetErrorReportDirName(),
+				type, m_CrashInfo.m_dwProcessId, m_CrashInfo.m_nVideoDuration,
+				m_CrashInfo.m_nVideoFrameInterval);
+
+	return TRUE;
 }
+

@@ -545,6 +545,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;      
     memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
 	m_pTmpCrashDesc->m_bAddVideo = m_bAddVideo;
+	m_pTmpCrashDesc->m_dwProcessId = GetCurrentProcessId();
 
     m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
     m_pTmpCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
