@@ -512,14 +512,17 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     else 
         sSharedMemName = m_sCrashGUID;
 
-    // Initialize shared memory.
-    BOOL bSharedMem = pSharedMem->Init(sSharedMemName, FALSE, SHARED_MEM_MAX_SIZE);
-    if(!bSharedMem)
-    {
-        ATLASSERT(0);
-        crSetErrorMsg(_T("Couldn't initialize shared memory."));
-        return NULL; 
-    }
+	if(!pSharedMem->IsInitialized())
+	{
+		// Initialize shared memory.
+		BOOL bSharedMem = pSharedMem->Init(sSharedMemName, FALSE, SHARED_MEM_MAX_SIZE);
+		if(!bSharedMem)
+		{
+			ATLASSERT(0);
+			crSetErrorMsg(_T("Couldn't initialize shared memory."));
+			return NULL; 
+		}
+	}
 
     // Create memory view.
     m_pTmpCrashDesc = 
@@ -1130,9 +1133,7 @@ int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInt
 	m_nVideoFrameInterval = nFrameInterval;
     m_nVideoQuality = nQuality;
 
-	// Create temp shared memory
-	CSharedMem tmpSharedMem;
-	CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&tmpSharedMem, TRUE);
+	CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
 
     // Pack this info into shared memory
     pCrashDesc->m_bAddVideo = TRUE;
@@ -1143,9 +1144,9 @@ int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInt
 	
 	// Launch the CrashSender.exe process that will continuously record video 
 	// in background.    
-    if(0!=LaunchCrashSender(tmpSharedMem.GetName(), TRUE, NULL))
+    if(0!=LaunchCrashSender(m_SharedMem.GetName(), FALSE, NULL))
     {
-		m_bAddVideo = FALSE;
+		//m_bAddVideo = FALSE;
 
         crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
         return 5;
@@ -1225,7 +1226,24 @@ int CCrashHandler::GenerateErrorReport(
     // notify user about crash, compress the report into ZIP archive and send 
     // the error report. 
 
-    int result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
+    int result = 0;
+	
+	if(!m_bAddVideo) // If we are recording video
+	{
+		// Run the CrashSender.exe
+		result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
+	}
+	else
+	{
+		// The CrashSender.exe process is already launched by the AddVideo method.
+		// We need to signal the event to make CrashSender.exe generate error report.
+		SetEvent(m_hEvent);
+
+		/* Wait until CrashSender finishes with making screenshot, 
+        copying files, creating minidump. */  
+
+        WaitForSingleObject(m_hEvent, INFINITE);  
+	}
     
 	// Generate new GUID for new crash report 
 	// (if, for example, user will generate new error report manually).
@@ -1383,9 +1401,9 @@ void CCrashHandler::GetExceptionPointers(DWORD dwExceptionCode,
 // Launches CrashSender.exe process
 int CCrashHandler::LaunchCrashSender(LPCTSTR szCmdLineParams, BOOL bWait, HANDLE* phProcess)
 {
-    crSetErrorMsg(_T("Success."));
+    crSetErrorMsg(_T("Unspecified error."));
 
-    /* Create CrashSender process */
+    /* Create CrashSender.exe process */
 
     STARTUPINFO si;
     memset(&si, 0, sizeof(STARTUPINFO));
@@ -1436,6 +1454,8 @@ int CCrashHandler::LaunchCrashSender(LPCTSTR szCmdLineParams, BOOL bWait, HANDLE
         pi.hProcess = NULL;
     }
 
+	// Done
+	crSetErrorMsg(_T("Success."));
     return 0;
 }
 

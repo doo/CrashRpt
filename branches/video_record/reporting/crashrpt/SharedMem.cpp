@@ -86,6 +86,11 @@ BOOL CSharedMem::Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize)
     return TRUE;
 }
 
+BOOL CSharedMem::IsInitialized()
+{
+	return m_hFileMapping!=NULL;
+}
+
 BOOL CSharedMem::Destroy()
 {
 	// Release all views of the file mapping

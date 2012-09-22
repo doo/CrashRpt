@@ -98,6 +98,22 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
         SetProcessDefaultLayout(LAYOUT_RTL);  
     }
 
+	// Determine whether to record video
+	if(GetCrashInfo()->m_bAddVideo)
+	{
+		// The following enters the video recording loop
+		// and returns when the parent process signals the event.
+		RecordVideo();
+
+		// Reread crash information from the file mapping object.
+		int nInit = m_CrashInfo.Init(szFileMappingName);
+		if(nInit!=0)
+		{
+			m_sErrorMsg.Format(_T("Error reading crash info: %s"), m_CrashInfo.GetErrorMsg().GetBuffer(0));
+			return FALSE;
+		}
+	}
+
     if(!m_CrashInfo.m_bSendRecentReports)
     {
         // Start crash info collection work assynchronously
@@ -242,11 +258,9 @@ void CErrorReportSender::UnblockParentProcess()
     // Notify the parent process that we have finished with minidump,
     // so the parent process is able to unblock and terminate itself.
 
-	CErrorReportSender* pSender = CErrorReportSender::GetInstance();
-
-    // Open the event the parent process had created for us
+	// Open the event the parent process had created for us
     CString sEventName;
-    sEventName.Format(_T("Local\\CrashRptEvent_%s"), pSender->GetCrashInfo()->GetReport(0)->GetCrashGUID());
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), GetCrashInfo()->GetReport(0)->GetCrashGUID());
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
     if(hEvent!=NULL)
         SetEvent(hEvent); // Signal event
@@ -2416,11 +2430,7 @@ BOOL CErrorReportSender::RecordVideo()
 	// and returns when the parent process signals the event.
 
     // Get screenshot flags passed by the parent process
-    DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;
-
-    // Determine what to use - color or grayscale image
-    //BOOL bGrayscale = (dwFlags&CR_AS_GRAYSCALE_IMAGE)!=0;
-
+    DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;	    
 	SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
     if((dwFlags&CR_AS_MAIN_WINDOW)!=0) // We need to capture the main window
 		type = SCREENSHOT_TYPE_MAIN_WINDOW;
@@ -2429,11 +2439,51 @@ BOOL CErrorReportSender::RecordVideo()
     else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
 		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
     
-	CVideoRecorder VideoRec;
-	VideoRec.RecordVideo(m_CrashInfo.GetReport(0)->GetErrorReportDirName(),
-				type, m_CrashInfo.m_dwProcessId, m_CrashInfo.m_nVideoDuration,
-				m_CrashInfo.m_nVideoFrameInterval);
+	// Add a message to log
+	CString sMsg;
+	sMsg.Format(_T("Start video recording."));
+	m_Assync.SetProgress(sMsg, 0, false);
 
+	// Open the event we will use for synchronization with the parent process
+	CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), GetCrashInfo()->GetReport(0)->GetCrashGUID());
+    HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+	if(hEvent==NULL)
+	{
+		// Add a message to log
+		sMsg.Format(_T("Error opening event."));
+		m_Assync.SetProgress(sMsg, 0, false);
+		return FALSE;
+	}
+    
+	if(!m_VideoRec.Init(m_CrashInfo.GetReport(0)->GetErrorReportDirName(),
+				type, m_CrashInfo.m_dwProcessId, m_CrashInfo.m_nVideoDuration,
+				m_CrashInfo.m_nVideoFrameInterval))
+	{
+		// Add a message to log
+		sMsg.Format(_T("Error initializing video recorder."));
+		m_Assync.SetProgress(sMsg, 0, false);
+		return FALSE;
+	}
+
+	// Video recording loop.
+	for(;;)
+	{
+		// This will record a single BMP file
+		m_VideoRec.RecordVideoFrame();
+
+		// Wait for a while
+		if(WAIT_OBJECT_0==WaitForSingleObject(hEvent, m_CrashInfo.m_nVideoFrameInterval))
+			break; // Event is signaled; break the loop
+	}
+
+	// Add a message to log
+	sMsg.Format(_T("Video recording completed."));
+	m_Assync.SetProgress(sMsg, 0, false);
+
+	// Done
 	return TRUE;
 }
+
+
 

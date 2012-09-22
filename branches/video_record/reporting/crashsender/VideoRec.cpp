@@ -426,69 +426,68 @@ CVideoRecorder::~CVideoRecorder()
 {
 }
 
-BOOL CVideoRecorder::RecordVideo(
-			LPCTSTR szSaveToDir, 
+BOOL CVideoRecorder::Init(LPCTSTR szSaveToDir, 
 			SCREENSHOT_TYPE type,
 			DWORD dwProcessId,
 			int nVideoDuration,
 			int nVideoFrameInterval)
 {
-	// The following method enters the video recording loop
-	// and returns when the parent process signals the event.
-
 	m_sSaveToDir = szSaveToDir;
 	m_ScreenshotType = type;
 	m_nVideoDuration = nVideoDuration;
 	m_nVideoFrameInterval = nVideoFrameInterval;
 
-	CScreenCapture sc; // Screen capture object
-    ScreenshotInfo ssi; // Screenshot params    
-	
+	m_nFrameCount = m_nVideoDuration/m_nVideoFrameInterval;
+	m_nFileId = 0;
+	m_nFrameId = 0;
+
 	// Create folder where to save video frames
-	CString sDirName = m_sSaveToDir;
-	sDirName += _T("\\~temp_video");
+	CString sDirName = m_sSaveToDir + _T("\\~temp_video");
 	if(!Utility::CreateFolder(sDirName))
 	{
 		return FALSE;
 	}
 
-	int nFrameCount = nVideoDuration/nVideoFrameInterval;
-	int nFileId = 0;
-	int nFrameId = 0;
-	for(;;)
+	return TRUE;
+}
+
+BOOL CVideoRecorder::RecordVideoFrame()
+{
+	// The following method records a single video frame and returns.
+		
+    ScreenshotInfo ssi; // Screenshot params    
+		
+	CString sDirName = m_sSaveToDir + _T("\\~temp_video");
+
+	// Take the screen shot and save it as raw BMP file.
+	BOOL bTakeScreenshot = m_sc.TakeDesktopScreenshot(		
+		sDirName, 
+		ssi, m_ScreenshotType, m_dwProcessId, 
+		SCREENSHOT_FORMAT_BMP, 0, FALSE, m_nFileId);
+	if(bTakeScreenshot==FALSE)
 	{
-		// Wait for a while
-		Sleep(nVideoFrameInterval);
-
-		// Take the screen shot and save it as raw BMP file.
-		BOOL bTakeScreenshot = sc.TakeDesktopScreenshot(		
-			sDirName, 
-			ssi, type, dwProcessId, SCREENSHOT_FORMAT_BMP, 0, FALSE, nFileId);
-		if(bTakeScreenshot==FALSE)
-		{
-			// Failed to take screenshot
-			return FALSE;
-		}
+		// Failed to take screenshot
+		return FALSE;
+	}
 				
-		// Save video frame info
-		SetVideoFrameInfo(nFrameId, ssi);
+	// Save video frame info
+	SetVideoFrameInfo(m_nFrameId, ssi);
 
-		// Increment file ID
-		nFileId += ssi.m_aMonitors.size();
+	// Increment file ID
+	m_nFileId += ssi.m_aMonitors.size();
 
-		// Increment frame number
-		nFrameId++;
+	// Increment frame number
+	m_nFrameId++;
 
-		// Reuse files cyclically
-		if(nFrameId>=nFrameCount)
-		{
-			nFrameId = 0;
-			nFrameCount = 0;
-			break;
-		}
+	// Reuse files cyclically
+	if(m_nFrameId>=m_nFrameCount)
+	{
+		m_nFileId = 0;
+		m_nFrameId = 0;
+		m_nFrameCount = 0;			
 	}
 
-	EncodeVideo();
+	return TRUE;
 }
 
 void CVideoRecorder::SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi)

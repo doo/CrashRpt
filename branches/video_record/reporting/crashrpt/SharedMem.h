@@ -153,6 +153,9 @@ public:
     // Initializes shared memory
     BOOL Init(LPCTSTR szName, BOOL bOpenExisting, ULONG64 uSize);
 
+	// Whether initialized or not
+	BOOL IsInitialized();
+
     // Destroys the object
     BOOL Destroy();
 

@@ -37,6 +37,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "HttpRequestSender.h"
 #include "tinyxml.h"
 #include "CrashInfoReader.h"
+#include "VideoRec.h"
 
 // Action type
 enum ActionType  
@@ -215,6 +216,7 @@ private:
 	// Internal variables
 	static CErrorReportSender* m_pInstance; // Singleton
 	CCrashInfoReader m_CrashInfo;       // Contains crash information.
+	CVideoRecorder m_VideoRec;            // Video recorder.
 	CString m_sErrorMsg;                // Last error message.
 	HWND m_hWndNotify;                  // Notification window.
     int m_nStatus;                      // Error report sending status.
