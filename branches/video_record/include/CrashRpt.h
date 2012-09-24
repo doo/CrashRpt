@@ -836,67 +836,116 @@ crAddScreenshot2(
                  int nJpegQuality
                  );
 
+// Flags for crAddVideo function.
+#define CR_AV_VIRTUAL_SCREEN  0  //!< Capture the whole virtual screen.
+#define CR_AV_MAIN_WINDOW     1  //!< Capture the area of application's main window.
+#define CR_AV_PROCESS_WINDOWS 2  //!< Capture all visible process windows.
+#define CR_AV_QUALITY_FAST    0  //!< Fast video encoding, lower quality.
+#define CR_AV_QUALITY_GOOD    4  //!< Good encoding quality, slower encoding.
+#define CR_AV_QUALITY_BEST    8  //!< The best encoding quality, the slowest encoding.
+
 /*! \ingroup CrashRptAPI  
-*  \brief Allows to record what happened before crash to video file and include the file to crash report.
+*  \brief Allows to record what happened before crash to a video file and include the file to crash report.
 * 
-*  \return This function returns zero if succeeded. Use \ref crGetLastErrorMsg() to retrieve the error message on fail.
+*  \return This function returns zero if succeeded. Use \ref crGetLastErrorMsg() to retrieve the error message on failure.
 *
 *  \param[in] dwFlags Flags, optional.
 *  \param[in] nDuration Video duration (in milliseconds). Optional.
 *  \param[in] nFrameInterval Interval between subsequent frames (in milliseconds). Optional.
-*  \param[in] nQuality Defines the quality of the video, optional.
+*  \param[in] pDesiredFrameSize Defines the desired video frame size, optional.
 *  
 *  \remarks 
+*
+*  \b dwFlags can be a combination of the following constants:
+*
+*    use one of the following constants to specify what part of virtual screen to capture:
+*    - \ref CR_AV_VIRTUAL_SCREEN  Use this to capture the whole desktop (virtual screen). This is the default.
+*    - \ref CR_AV_MAIN_WINDOW     Use this to capture the main application main window.
+*    - \ref CR_AV_PROCESS_WINDOWS Use this to capture all visible windows that belong to the process.
 * 
+*    use one of the following constants to define the desired video encoding quality:
+*    - \ref CR_AV_QUALITY_FAST    Fast video encoding, lower quality. This is the default.
+*    - \ref CR_AV_QUALITY_GOOD    Good encoding quality, slower encoding.
+*    - \ref CR_AV_QUALITY_BEST    The best encoding quality, the slowest encoding.
+*
+*  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
+*  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
+*  the main window.
+*
+*  The recorded video will be maximum \b nDuration milliseconds long with \b nFrameInterval
+*  milliseconds interval between subsequent video frames.
+*
+*  The \b pDesiredFrameSize parameter allows to define the desired video frame size. 
+*  To preserve correct aspect ratio, set \b pDesiredFrameSize->cx or \b pDesiredFrameSize->cy
+*  to zero. For example, setting \b pDesiredFrameSize->cx=640 and \b pDesiredFrameSize->cy=0
+*  results in video frames whose width is 640 pixels and height is calculated to preserve the
+*  correct aspect ratio of the captured area. If both \b cx and \b cy are specified, the aspect ratio
+*  of the captured area is not preserved.
+*
+*  Setting the \b pDesiredFrameSize
+*  parameter to \a NULL makes the function to determine the best video frame size automatically.
+*
 *  This function can be used to record the state of end user's desktop just before the moment 
 *  of crash and add the video file to the error report. The recorded information may help the 
 *  software vendor to better understand the state of the client application at the moment of 
 *  crash and reproduce the error.
 *
 *  When this function is called, CrashRpt launches another process named \b CrashSender.exe. 
-*  The \b CrashSender.exe process then continuously captures the desktop screenshots in background and stores
-*  them to disk as image files. To avoid high CPU load, image files are stored in uncompressed 
-*  state as raw bitmap files. When the count of screenshot files exceeds the predefined maximum 
-*  value, the old screenshot files are reused cyclically. 
+*  The \b CrashSender.exe process then continuously captures the desktop screenshots in background 
+*  mode and stores them to disk as image files. To avoid high CPU load, image files are stored 
+*  in uncompressed state as raw bitmap (BMP) files. When the count of screenshot files exceeds 
+*  the predefined maximum number, the old screenshot files are reused cyclically. 
 *
 *  If the client application does not crash and its main code or main window loop exits successfully, 
 *  the captured desktop screenshot files are removed by the \ref crUninstall() function call and
 *  \b CrashSender.exe process is terminated.
 *
-*  If the client application crashes, the recorded screenshot files are compressed by VP8 codec and
-*  written into a .WebM file. The uncompressed temporary screenshots are then removed, and the resulting
+*  If the client application crashes, the recorded screenshot files are compressed by 
+*  <a href="http://www.webmproject.org/">VP8 codec</a> and written into a .WebM file. The 
+*  uncompressed temporary screenshots are then removed, and the resulting
 *  WebM file is included into crash report archive.
 *
-*  The WebM format is a widely used video container provided by the open-source WebM Project.
-*  WebM files can be opened in a browser like Google Chrome or Firefox or in another video player understanding
-*  this format.
+*  The <a href="http://en.wikipedia.org/wiki/WebM">WebM video format</a> is a widely used 
+*  video container provided by the open-source WebM Project.
+*  WebM files can be opened in a browser like Google Chrome or Mozilla Firefox or in 
+*  another video player understanding this format.
 * 
-*  \b dwFlags 
-*
-*    Use one of the following constants to specify what part of virtual screen to capture:
-*    - \ref CR_AS_VIRTUAL_SCREEN  Use this to take a screenshot of the whole desktop (virtual screen).
-*    - \ref CR_AS_MAIN_WINDOW     Use this to take a screenshot of the main application main window.
-*    - \ref CR_AS_PROCESS_WINDOWS Use this to take a screenshot of all visible windows that belong to the process.
-* 
-*  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
-*  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
-*  the main window.
-*
 *  You should be careful when using this feature, because the recorded 
 *  video may contain user-identifying or private information. Always 
 *  specify the purposes you will use collected information for in your Privacy Policy. 
 *
+*  Usage example:
+*
+*  \code
+*
+*  // First install CrashRpt with crInstall() function
+*
+*  ...
+*
+*  // Start capturing desktop. Desktop capture video will
+*  // be added to crash report on crash
+*  int nResult = crAddVideo(
+*         CR_AV_VIRTUAL_SCREEN|CR_AV_QUALITY_FAST, // Capture entire desktop
+*                                               // Fast encoding
+*         10000,   // 10 seconds long video
+*         300,     // 300 msec between frames (3.33 FPS)
+*         {0, 600} // Frames 600 px in height
+*                  // Frame width is calculated automatically
+*    );
+*
+*  \endcode
+*
 *  \sa
-*   crAddFile2(), crAddScreenshot2().
+*   crAddFile2(), crAddScreenshot2(), crAddRegKey().
 */
 
 CRASHRPTAPI(int)
-crAddVideoRecording(
-                 DWORD dwFlags,
-				 int nDuration,
-				 int nFrameInterval,
-                 int nQuality
-                 );
+crAddVideo(
+            DWORD dwFlags,
+			int nDuration,
+			int nFrameInterval,
+            PSIZE pDesiredFrameSize 
+            );
 
 /*! \ingroup CrashRptAPI  
 *  \brief Adds a string property to the crash report. 

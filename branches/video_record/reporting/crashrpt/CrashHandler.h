@@ -138,7 +138,7 @@ public:
     int AddScreenshot(DWORD dwFlags, int nJpegQuality);
 
 	// Adds a video recording of desktop state just before crash.
-	int AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInterval, int nQuality);
+	int AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, SIZE* pDesiredFrameSize);
 
     // Adds a registry key on crash
     int AddRegKey(__in_z LPCTSTR szRegKey, __in_z LPCTSTR szDstFileName, DWORD dwFlags);
@@ -288,7 +288,7 @@ public:
 	DWORD m_dwVideoFlags;          // Flags for video recording.
 	int   m_nVideoDuration;        // Video duration.
 	int   m_nVideoFrameInterval;   // Video frame interval.
-	int   m_nVideoQuality;         // Video quality.
+	SIZE   m_DesiredFrameSize;     // Video frame size.
     CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
     std::map<CString, FileItem> m_files; // File items to include.
     std::map<CString, CString> m_props;  // User-defined properties to include.

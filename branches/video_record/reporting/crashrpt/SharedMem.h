@@ -136,7 +136,7 @@ struct CRASH_DESCRIPTION
 	DWORD m_dwVideoFlags;          // Flags for video recording.
 	int   m_nVideoDuration;        // Video duration.
 	int   m_nVideoFrameInterval;   // Video frame interval.
-	int   m_nVideoQuality;         // Video quality.
+	SIZE  m_DesiredFrameSize;      // Video frame size.
 };
 
 #define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */

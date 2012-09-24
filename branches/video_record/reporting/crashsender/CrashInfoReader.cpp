@@ -528,7 +528,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
     m_dwVideoFlags = m_pCrashDesc->m_dwVideoFlags; 
 	m_nVideoDuration = m_pCrashDesc->m_nVideoDuration;
 	m_nVideoFrameInterval = m_pCrashDesc->m_nVideoFrameInterval;
-    m_nVideoQuality = m_pCrashDesc->m_nVideoQuality;
+    m_DesiredFrameSize = m_pCrashDesc->m_DesiredFrameSize;
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;
     while(dwOffs<m_pCrashDesc->m_dwTotalSize)

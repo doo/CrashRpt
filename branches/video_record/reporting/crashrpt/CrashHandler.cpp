@@ -76,7 +76,8 @@ CCrashHandler::CCrashHandler()
 	m_dwVideoFlags = 0;
 	m_nVideoDuration = 60*1000; // 60 sec
 	m_nVideoFrameInterval = 500; // 500 msec
-	m_nVideoQuality = 95; // default video quality
+	m_DesiredFrameSize.cx = 0; // default video frame size
+	m_DesiredFrameSize.cy = 0;
     m_hEvent = NULL;  
 	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
@@ -1098,15 +1099,8 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
 }
 
 // Adds a video recording of desktop state just before crash.
-int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInterval, int nQuality)
+int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, SIZE* pDesiredFrameSize)
 {
-	// Validate input parameters
-	if(nQuality<0 || nQuality>100)
-    {
-        crSetErrorMsg(_T("Invalid quality."));
-        return 1;
-    }
-
 	// Check duration - it should be less than 10 minutes
 	if(nDuration<0 || nDuration>10*60*1000)
 	{
@@ -1145,7 +1139,12 @@ int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInt
     m_dwVideoFlags = dwFlags;
 	m_nVideoDuration = nDuration;
 	m_nVideoFrameInterval = nFrameInterval;
-    m_nVideoQuality = nQuality;
+	if(pDesiredFrameSize)
+		m_DesiredFrameSize = *pDesiredFrameSize;
+	else
+	{
+		m_DesiredFrameSize.cx = 0;
+	}
 
 	CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
 
@@ -1154,7 +1153,7 @@ int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInt
     pCrashDesc->m_dwVideoFlags = dwFlags;
 	pCrashDesc->m_nVideoDuration = nDuration;
 	pCrashDesc->m_nVideoFrameInterval = nFrameInterval;
-    pCrashDesc->m_nVideoQuality = nQuality;
+    pCrashDesc->m_DesiredFrameSize = m_DesiredFrameSize;
 	
 	CString sEventName;
     sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), m_sCrashGUID);

@@ -1,3 +1,18 @@
+/************************************************************************************* 
+This file is a part of CrashRpt library.
+Copyright (c) 2010 The CrashRpt project authors. All Rights Reserved.
+
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
+***************************************************************************************/
+
+// File: VideoRec.cpp
+// Description: Video recording functionality.
+// Authors: zexspectrum
+// Date: Sep 2012
+
 #include "stdafx.h"
 #include "VideoRec.h"
 #include "Utility.h"
@@ -418,8 +433,77 @@ write_webm_file_footer(EbmlGlobal *glob, long hash)
     fseeko(glob->stream, 0, SEEK_END);
 }
 
+void RGB_To_YV12( unsigned char *pRGBData, int nFrameWidth, int nFrameHeight, int nRGBStride, void *pFullYPlane, void *pDownsampledUPlane, void *pDownsampledVPlane )
+{
+    int nRGBBytes = nFrameWidth * nFrameHeight * 3;
+
+    // Convert RGB -> YV12. We do this in-place to avoid allocating any more memory.
+    unsigned char *pYPlaneOut = (unsigned char*)pFullYPlane;
+    int nYPlaneOut = 0;
+
+	int x, y;
+	for(y=0; y<nFrameHeight;y++)
+	{
+		for (x=0; x < nFrameWidth; x ++)
+		{
+			int nRGBOffs = y*nRGBStride+x*3;
+			int nYOffs = y*nFrameWidth+x;
+
+			unsigned char B = pRGBData[nRGBOffs+0];
+			unsigned char G = pRGBData[nRGBOffs+1];
+			unsigned char R = pRGBData[nRGBOffs+2];
+
+			float y = (float)( R*66 + G*129 + B*25 + 128 ) / 256 + 16;
+			float u = (float)( R*-38 + G*-74 + B*112 + 128 ) / 256 + 128;
+			float v = (float)( R*112 + G*-94 + B*-18 + 128 ) / 256 + 128;
+
+			// NOTE: We're converting pRGBData to YUV in-place here as well as writing out YUV to pFullYPlane/pDownsampledUPlane/pDownsampledVPlane.
+			pRGBData[nRGBOffs+0] = (unsigned char)y;
+			pRGBData[nRGBOffs+1] = (unsigned char)u;
+			pRGBData[nRGBOffs+2] = (unsigned char)v;
+
+			// Write out the Y plane directly here rather than in another loop.
+			pYPlaneOut[nYPlaneOut++] = pRGBData[nRGBOffs+0];
+		}
+	}
+
+    // Downsample to U and V.
+    int halfHeight = nFrameHeight >> 1;
+    int halfWidth = nFrameWidth >> 1;
+
+    unsigned char *pVPlaneOut = (unsigned char*)pDownsampledVPlane;
+    unsigned char *pUPlaneOut = (unsigned char*)pDownsampledUPlane;
+
+    for ( int yPixel=0; yPixel < halfHeight; yPixel++ )
+    {
+        int iBaseSrc = ( (yPixel*2) * nRGBStride );
+
+        for ( int xPixel=0; xPixel < halfWidth; xPixel++ )
+        {
+            pVPlaneOut[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 2];
+            pUPlaneOut[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 1];
+
+            iBaseSrc += 6;
+        }
+    }
+}
+
+//-----------------------------------------------
+// CVideoRecorder impl
+//-----------------------------------------------
+
 CVideoRecorder::CVideoRecorder()
 {
+	m_ScreenshotType = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+	m_nVideoDuration = 60000;
+	m_nVideoFrameInterval = 300;
+	m_dwProcessId = 0;
+	m_nFrameCount = 0;
+	m_nFileId = 0;
+	m_nFrameId = 0;
+	m_nVideoQuality = VPX_DL_REALTIME;
+	m_DesiredFrameSize.cx = 0;
+	m_DesiredFrameSize.cy = 0;
 }
 
 CVideoRecorder::~CVideoRecorder()
@@ -430,13 +514,26 @@ BOOL CVideoRecorder::Init(LPCTSTR szSaveToDir,
 			SCREENSHOT_TYPE type,
 			DWORD dwProcessId,
 			int nVideoDuration,
-			int nVideoFrameInterval)
+			int nVideoFrameInterval,
+			int nVideoQuality,
+			SIZE* pDesiredFrameSize)
 {
 	m_sSaveToDir = szSaveToDir;
 	m_ScreenshotType = type;
 	m_nVideoDuration = nVideoDuration;
 	m_nVideoFrameInterval = nVideoFrameInterval;
+	m_nVideoQuality = nVideoQuality;
+	
+	// Save desired frame size
+	if(pDesiredFrameSize)
+		m_DesiredFrameSize = *pDesiredFrameSize;
+	else
+	{
+		m_DesiredFrameSize.cx = 0; // auto
+		m_DesiredFrameSize.cy = 0;
+	}
 
+	// Calculate max frame count
 	m_nFrameCount = m_nVideoDuration/m_nVideoFrameInterval;
 	m_nFileId = 0;
 	m_nFrameId = 0;
@@ -445,9 +542,11 @@ BOOL CVideoRecorder::Init(LPCTSTR szSaveToDir,
 	CString sDirName = m_sSaveToDir + _T("\\~temp_video");
 	if(!Utility::CreateFolder(sDirName))
 	{
+		// Error creating temp folder
 		return FALSE;
 	}
 
+	// Done
 	return TRUE;
 }
 
@@ -583,7 +682,7 @@ BOOL CVideoRecorder::EncodeVideo()
 	{
 		/* Read frame */
 		CString sFrameFileName = m_aVideoFrames[nFrame].m_aMonitors[0].m_sFileName;
-		frame_avail = LoadImage(sFrameFileName, &raw);
+		frame_avail = LoadImageFromBMPFile(sFrameFileName, &raw);
 		
 		if(vpx_codec_encode(&codec, frame_avail? &raw : NULL, frame_cnt,  //
                                 1, flags, VPX_DL_REALTIME)) 
@@ -627,62 +726,7 @@ cleanup:
 	return TRUE;
 }
 
-void RGB_To_YV12( unsigned char *pRGBData, int nFrameWidth, int nFrameHeight, int nRGBStride, void *pFullYPlane, void *pDownsampledUPlane, void *pDownsampledVPlane )
-{
-    int nRGBBytes = nFrameWidth * nFrameHeight * 3;
-
-    // Convert RGB -> YV12. We do this in-place to avoid allocating any more memory.
-    unsigned char *pYPlaneOut = (unsigned char*)pFullYPlane;
-    int nYPlaneOut = 0;
-
-	int x, y;
-	for(y=0; y<nFrameHeight;y++)
-	{
-		for (x=0; x < nFrameWidth; x ++)
-		{
-			int nRGBOffs = y*nRGBStride+x*3;
-			int nYOffs = y*nFrameWidth+x;
-
-			unsigned char B = pRGBData[nRGBOffs+0];
-			unsigned char G = pRGBData[nRGBOffs+1];
-			unsigned char R = pRGBData[nRGBOffs+2];
-
-			float y = (float)( R*66 + G*129 + B*25 + 128 ) / 256 + 16;
-			float u = (float)( R*-38 + G*-74 + B*112 + 128 ) / 256 + 128;
-			float v = (float)( R*112 + G*-94 + B*-18 + 128 ) / 256 + 128;
-
-			// NOTE: We're converting pRGBData to YUV in-place here as well as writing out YUV to pFullYPlane/pDownsampledUPlane/pDownsampledVPlane.
-			pRGBData[nRGBOffs+0] = (unsigned char)y;
-			pRGBData[nRGBOffs+1] = (unsigned char)u;
-			pRGBData[nRGBOffs+2] = (unsigned char)v;
-
-			// Write out the Y plane directly here rather than in another loop.
-			pYPlaneOut[nYPlaneOut++] = pRGBData[nRGBOffs+0];
-		}
-	}
-
-    // Downsample to U and V.
-    int halfHeight = nFrameHeight >> 1;
-    int halfWidth = nFrameWidth >> 1;
-
-    unsigned char *pVPlaneOut = (unsigned char*)pDownsampledVPlane;
-    unsigned char *pUPlaneOut = (unsigned char*)pDownsampledUPlane;
-
-    for ( int yPixel=0; yPixel < halfHeight; yPixel++ )
-    {
-        int iBaseSrc = ( (yPixel*2) * nRGBStride );
-
-        for ( int xPixel=0; xPixel < halfWidth; xPixel++ )
-        {
-            pVPlaneOut[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 2];
-            pUPlaneOut[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 1];
-
-            iBaseSrc += 6;
-        }
-    }
-}
-
-BOOL CVideoRecorder::LoadImage(LPCTSTR szFileName, vpx_image_t *pImage)
+BOOL CVideoRecorder::LoadImageFromBMPFile(LPCTSTR szFileName, vpx_image_t *pImage)
 {
 	BOOL bResult = FALSE;
 	LPBYTE pData = NULL;
@@ -716,8 +760,8 @@ BOOL CVideoRecorder::LoadImage(LPCTSTR szFileName, vpx_image_t *pImage)
 	pData = new BYTE[nDataSize];
 
 	// Read image data
-	if(1!=fread(pData, nDataSize, 1, fp));
-		//goto cleanup;
+	if(1!=fread(pData, nDataSize, 1, fp))
+		goto cleanup;
 	
 	// Convert from RGB24 to YV12
 	int paddedsize = info.biWidth*3;

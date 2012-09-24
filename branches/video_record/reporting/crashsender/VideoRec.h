@@ -8,15 +8,15 @@ tree. All contributing project authors may
 be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
-#pragma once
-#include "stdafx.h"
-#include "ScreenCap.h"
-#include "vpx/vpx_encoder.h"
-
 // File: VideoRec.h
 // Description: Video recording functionality.
 // Authors: zexspectrum
 // Date: Sep 2012
+
+#pragma once
+#include "stdafx.h"
+#include "ScreenCap.h"
+#include "vpx/vpx_encoder.h"
 
 // class CVideoRecorder
 // Captures desktop and writes the video frames as raw uncompressed BMP files
@@ -37,7 +37,10 @@ public:
 			SCREENSHOT_TYPE type,
 			DWORD dwProcessId,
 			int nVideoDuration,
-			int nVideoFrameInterval);
+			int nVideoFrameInterval,
+			int nVideoQuality,
+			SIZE* pDesiredFrameSize
+			);
 
 	// Records a single video frame
 	BOOL RecordVideoFrame();
@@ -54,18 +57,22 @@ private:
 	void SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi);
 
 	// Loads a BMP file and returns its data.
-	BOOL LoadImage(LPCTSTR szFileName, vpx_image_t *pImage);
+	BOOL LoadImageFromBMPFile(LPCTSTR szFileName, vpx_image_t *pImage);
 
 	/* Internal variables */
 	CString m_sSaveToDir; // Directory where to save recorded video frames.
-	CString m_sOutFile;  // Output webm file.
+	CString m_sOutFile;   // Output webm file.
 	SCREENSHOT_TYPE m_ScreenshotType; // What part of desktop is captured.
-	int m_nVideoDuration;
-	int m_nVideoFrameInterval;
-	DWORD m_dwProcessId; 
-	int m_nFrameCount;
-	int m_nFileId;
-	int m_nFrameId;
-	CScreenCapture m_sc; // Screen capture object
+	CScreenCapture m_sc;  // Screen capture object
 	std::vector<ScreenshotInfo> m_aVideoFrames; // Array of recorded video frames.
+	SIZE m_DesiredFrameSize; // Desired frame size.
+	SIZE m_ActualFrameSize;  // Actual frame size.
+	int m_nVideoQuality;  // Video quality.
+	int m_nVideoDuration; // Video duration (in msec)
+	int m_nVideoFrameInterval; // Interval between two subsequent frames (in msec).
+	DWORD m_dwProcessId;  // ID of the process being captured.
+	int m_nFrameCount;    // Total max count of frames.
+	int m_nFileId;        // Index of current BMP file.
+	int m_nFrameId;       // Index of current video frame.
+	
 };

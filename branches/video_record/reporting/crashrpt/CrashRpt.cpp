@@ -340,12 +340,12 @@ crAddScreenshot2(
 }
 
 CRASHRPTAPI(int)
-crAddVideoRecording(
-                 DWORD dwFlags,
-				 int nDuration,
-				 int nFrameInterval,
-                 int nQuality
-                 )
+crAddVideo(
+            DWORD dwFlags,
+			int nDuration,
+			int nFrameInterval,
+            SIZE* pDesiredFrameSize
+            )
 {
 	crSetErrorMsg(_T("Unspecified error."));
 
@@ -358,7 +358,7 @@ crAddVideoRecording(
         return 1; // Invalid parameter?
     }
 
-    return pCrashHandler->AddVideoRecording(dwFlags, nDuration, nFrameInterval, nQuality);
+    return pCrashHandler->AddVideo(dwFlags, nDuration, nFrameInterval, pDesiredFrameSize);
 }
 
 CRASHRPTAPI(int)

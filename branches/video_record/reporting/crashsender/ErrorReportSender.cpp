@@ -2446,7 +2446,9 @@ BOOL CErrorReportSender::RecordVideo()
 		type = SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS;
     else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
 		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
-    
+
+	int quality = VPX_DL_REALTIME;
+
 	// Add a message to log
 	CString sMsg;
 	sMsg.Format(_T("Start video recording."));
@@ -2466,7 +2468,8 @@ BOOL CErrorReportSender::RecordVideo()
     
 	if(!m_VideoRec.Init(m_CrashInfo.GetReport(0)->GetErrorReportDirName(),
 				type, m_CrashInfo.m_dwProcessId, m_CrashInfo.m_nVideoDuration,
-				m_CrashInfo.m_nVideoFrameInterval))
+				m_CrashInfo.m_nVideoFrameInterval,
+				quality, &m_CrashInfo.m_DesiredFrameSize))
 	{
 		// Add a message to log
 		sMsg.Format(_T("Error initializing video recorder."));
