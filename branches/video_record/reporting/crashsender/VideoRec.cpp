@@ -483,8 +483,7 @@ BOOL CVideoRecorder::RecordVideoFrame()
 	if(m_nFrameId>=m_nFrameCount)
 	{
 		m_nFileId = 0;
-		m_nFrameId = 0;
-		m_nFrameCount = 0;			
+		m_nFrameId = 0;					
 	}
 
 	return TRUE;
@@ -500,17 +499,13 @@ void CVideoRecorder::SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi)
 	else
 	{
 		// Replace existing frame
-
-		size_t i;
-		for(i=0; i<m_aVideoFrames.size(); i++)
+				
+		/*size_t j;
+		for(j=0; j<m_aVideoFrames[nFrameId].m_aMonitors.size(); j++)
 		{
-			size_t j;
-			for(j=0; j<m_aVideoFrames[i].m_aMonitors.size(); j++)
-			{
-				Utility::RecycleFile(m_aVideoFrames[i].m_aMonitors[j].m_sFileName, TRUE);
-			}
-		}
-
+			Utility::RecycleFile(m_aVideoFrames[nFrameId].m_aMonitors[j].m_sFileName, TRUE);
+		}*/
+		
 		m_aVideoFrames[nFrameId]=ssi;
 	}
 }
@@ -564,6 +559,7 @@ BOOL CVideoRecorder::EncodeVideo()
 
 	/*Open output file */
 	CString sFileName = m_sSaveToDir + _T("\\video.webm");
+	m_sOutFile = sFileName;
 	_tfopen_s(&fout, sFileName, _T("wb"));
 	if(fout==NULL)
 		return FALSE;
@@ -605,6 +601,8 @@ BOOL CVideoRecorder::EncodeVideo()
 
 		if(frame_avail)
 			frame_cnt++;
+		else 
+			break;
 	}
 
 	/* Free codec resources */
@@ -617,6 +615,13 @@ BOOL CVideoRecorder::EncodeVideo()
 	fclose(fout);
 
 cleanup:
+
+	if(&raw)
+		vpx_img_free(&raw);
+
+	// Delete temp files.
+	CString sDirName = m_sSaveToDir + _T("\\~temp_video");
+	Utility::RecycleFile(sDirName, true);
 
 	// Done
 	return TRUE;
@@ -729,7 +734,14 @@ cleanup:
 	if(fp)
 		fclose(fp);
 
+	// Free buffer
 	delete [] pData;
+	
 		
 	return bResult;
+}
+
+CString CVideoRecorder::GetOutFile()
+{
+	return m_sOutFile;
 }

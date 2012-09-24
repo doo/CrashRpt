@@ -45,6 +45,9 @@ public:
 	// Encodes the video with VP8 codec and writes .webm file.
 	BOOL EncodeVideo();
 
+	// Returns the output file name
+	CString GetOutFile();
+
 private:
 
 	// Sets video frame parameters.
@@ -55,6 +58,7 @@ private:
 
 	/* Internal variables */
 	CString m_sSaveToDir; // Directory where to save recorded video frames.
+	CString m_sOutFile;  // Output webm file.
 	SCREENSHOT_TYPE m_ScreenshotType; // What part of desktop is captured.
 	int m_nVideoDuration;
 	int m_nVideoFrameInterval;

@@ -377,16 +377,25 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
     strconv_t strconv;
     CErrorReportInfo eri;
 
-    // Init shared memory
-    BOOL bInitMem = m_SharedMem.Init(szFileMappingName, TRUE, 0);
-    if(!bInitMem)
-        return 1;
+	// Init shared memory
+	if(!m_SharedMem.IsInitialized())
+	{
+		// Init shared memory
+		BOOL bInitMem = m_SharedMem.Init(szFileMappingName, TRUE, 0);
+		if(!bInitMem)
+		{
+			m_sErrorMsg = _T("Error initializing shared memory.");
+			return 1;
+		}
+	}
 
+	// Unpack crash description from shared memory
     m_pCrashDesc = (CRASH_DESCRIPTION*)m_SharedMem.CreateView(0, sizeof(CRASH_DESCRIPTION));
 
     int nUnpack = UnpackCrashDescription(eri);
     if(0!=nUnpack)
     {
+		m_sErrorMsg = _T("Error unpacking crash description.");
         return 2;
     }
 	
@@ -443,6 +452,7 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
         }
     }
 
+	// Done
     return 0;
 }
 

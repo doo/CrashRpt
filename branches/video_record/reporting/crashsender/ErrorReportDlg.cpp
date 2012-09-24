@@ -383,7 +383,9 @@ LRESULT CErrorReportDlg::OnCompleteCollectCrashInfo(UINT /*uMsg*/, WPARAM /*wPar
         m_statSubHeader.SetWindowText(sSubHeader);
 
 		// Show "Error Report" dialog
-        ShowWindow(SW_SHOW);
+        ShowWindow(SW_RESTORE);
+		BringWindowToTop(); 
+		
     } 
     else // If we shouldn't send error report now.
     {

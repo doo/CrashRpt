@@ -295,6 +295,7 @@ public:
     std::map<CString, CString> m_RegKeys; // Registry keys to dump.  
     CCritSec m_csCrashLock;        // Critical section used to synchronize thread access to this object. 
     HANDLE m_hEvent;               // Event used to synchronize CrashRpt.dll with CrashSender.exe.
+	HANDLE m_hEvent2;              // Another event used to synchronize CrashRpt.dll with CrashSender.exe.
     CSharedMem m_SharedMem;        // Shared memory.  
     CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash description shared mem view.
     CSharedMem* m_pTmpSharedMem;   // Used temporarily

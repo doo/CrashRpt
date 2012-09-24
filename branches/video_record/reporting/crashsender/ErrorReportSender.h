@@ -133,10 +133,7 @@ public:
 	
 	// This method finds and terminates all instances of CrashSender.exe process.
 	static int TerminateAllCrashSenderProcesses();
-
-	// This method enters the video recording loop.
-	BOOL RecordVideo();
-	
+		
 private:
 
 	// This method performs an action or several actions.
@@ -156,6 +153,12 @@ private:
 	    
     // Takes desktop screenshot.
     BOOL TakeDesktopScreenshot();
+
+	// This method enters the video recording loop.
+	BOOL RecordVideo();
+
+	// Writes video to a webm file
+	BOOL EncodeVideo();
 
     // Creates crash dump file.
     BOOL CreateMiniDump();  

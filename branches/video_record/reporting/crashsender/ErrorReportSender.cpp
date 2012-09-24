@@ -312,6 +312,16 @@ BOOL CErrorReportSender::DoWork(int Action)
         // Notify the parent process that we have finished with minidump,
         // so the parent process is able to unblock and terminate itself.
         UnblockParentProcess();
+		
+		// Encode recorded video to a webm file
+		EncodeVideo();
+		
+		if(m_Assync.IsCancelled()) // Check if user-cancelled
+        {      
+            // Add a message to log
+            m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
+            return FALSE;
+        }
 
         // Copy user-provided files.
         CollectCrashFiles();
@@ -2423,9 +2433,7 @@ int CErrorReportSender::TerminateAllCrashSenderProcesses()
 }
 
 BOOL CErrorReportSender::RecordVideo()
-{
-	ATLASSERT(0);
-
+{	
 	// The following method enters the video recording loop
 	// and returns when the parent process signals the event.
 
@@ -2446,7 +2454,7 @@ BOOL CErrorReportSender::RecordVideo()
 
 	// Open the event we will use for synchronization with the parent process
 	CString sEventName;
-    sEventName.Format(_T("Local\\CrashRptEvent_%s"), GetCrashInfo()->GetReport(0)->GetCrashGUID());
+    sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), GetCrashInfo()->GetReport(0)->GetCrashGUID());
     HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
 	if(hEvent==NULL)
 	{
@@ -2485,5 +2493,41 @@ BOOL CErrorReportSender::RecordVideo()
 	return TRUE;
 }
 
+BOOL CErrorReportSender::EncodeVideo()
+{
+	// Add a message to log
+    m_Assync.SetProgress(_T("[encoding_video]"), 0);    
+
+    // Check if video capture is allowed
+    if(!m_CrashInfo.m_bAddVideo)
+    {
+        // Add a message to log
+        m_Assync.SetProgress(_T("Desktop video recording disabled; skipping."), 0);    
+        // Exit, nothing to do here
+        return TRUE;
+    }
+	
+	 // Add a message to log
+    m_Assync.SetProgress(_T("Encoding recorded video."), 1);    
+	
+	// Encode recorded video to a webm file
+	if(!m_VideoRec.EncodeVideo())
+	{
+		// Add a message to log
+		m_Assync.SetProgress(_T("Error encoding video."), 100, false);    
+		return FALSE;
+	}
+
+	ERIFileItem fi;
+	fi.m_sSrcFile = m_VideoRec.GetOutFile();
+	fi.m_sDestFile = Utility::GetFileName(fi.m_sSrcFile);
+    fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
+    m_CrashInfo.GetReport(0)->AddFileItem(&fi);
+
+	// Add a message to log
+    m_Assync.SetProgress(_T("Finished encoding video."), 100, false);    
+
+	return TRUE;
+}
 
 

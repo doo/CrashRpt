@@ -78,6 +78,7 @@ CCrashHandler::CCrashHandler()
 	m_nVideoFrameInterval = 500; // 500 msec
 	m_nVideoQuality = 95; // default video quality
     m_hEvent = NULL;  
+	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
 
     // Init exception handler pointers
@@ -670,6 +671,19 @@ int CCrashHandler::Destroy()
         return 1;
     }  
 
+	// Free event
+	if(m_hEvent)
+	{
+		CloseHandle(m_hEvent);
+		m_hEvent = NULL;
+	}
+
+	if(m_hEvent2)
+	{
+		CloseHandle(m_hEvent2);
+		m_hEvent2 = NULL;
+	}
+
     // Reset exception callback
     if (m_oldSehHandler)
         SetUnhandledExceptionFilter(m_oldSehHandler);
@@ -1142,6 +1156,15 @@ int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInt
 	pCrashDesc->m_nVideoFrameInterval = nFrameInterval;
     pCrashDesc->m_nVideoQuality = nQuality;
 	
+	CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), m_sCrashGUID);
+    m_hEvent2 = CreateEvent(NULL, FALSE, FALSE, sEventName);
+    if(m_hEvent2==NULL)
+    {
+        crSetErrorMsg(_T("Couldn't create synchronization event."));
+        return 5; 
+    }
+
 	// Launch the CrashSender.exe process that will continuously record video 
 	// in background.    
     if(0!=LaunchCrashSender(m_SharedMem.GetName(), FALSE, NULL))
@@ -1149,7 +1172,7 @@ int CCrashHandler::AddVideoRecording(DWORD dwFlags, int nDuration, int nFrameInt
 		//m_bAddVideo = FALSE;
 
         crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
-        return 5;
+        return 6;
     }
 
 	// Restore internal pointers to shared mem
@@ -1228,7 +1251,7 @@ int CCrashHandler::GenerateErrorReport(
 
     int result = 0;
 	
-	if(!m_bAddVideo) // If we are recording video
+	if(!m_bAddVideo) // If we are not recording video
 	{
 		// Run the CrashSender.exe
 		result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
@@ -1237,12 +1260,16 @@ int CCrashHandler::GenerateErrorReport(
 	{
 		// The CrashSender.exe process is already launched by the AddVideo method.
 		// We need to signal the event to make CrashSender.exe generate error report.
-		SetEvent(m_hEvent);
-
+		SetEvent(m_hEvent2);
+		
 		/* Wait until CrashSender finishes with making screenshot, 
         copying files, creating minidump. */  
 
-        WaitForSingleObject(m_hEvent, INFINITE);  
+        WaitForSingleObject(m_hEvent, INFINITE);
+
+		// Free event (it is not needed since now).
+		CloseHandle(m_hEvent2);
+		m_hEvent2 = NULL;
 	}
     
 	// Generate new GUID for new crash report 
@@ -1251,6 +1278,18 @@ int CCrashHandler::GenerateErrorReport(
     {
         ATLASSERT(0);
         crSetErrorMsg(_T("Couldn't generate crash GUID."));
+        return 1; 
+    }
+
+	// And recreate the event that will be used to synchronize with CrashSender.exe process
+	CloseHandle(m_hEvent); // Free old event
+    CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s"), m_sCrashGUID);
+    m_hEvent = CreateEvent(NULL, FALSE, FALSE, sEventName);
+    if(m_hEvent==NULL)
+    {
+        ATLASSERT(m_hEvent!=NULL);
+        crSetErrorMsg(_T("Couldn't create synchronization event."));
         return 1; 
     }
 
