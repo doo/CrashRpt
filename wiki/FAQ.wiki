@@ -559,6 +559,10 @@ If you need a template you may use this one: PrivacyPolicyTemplate.
 
 Just set the `CR_INSTALL_INFO::pszPrivacyPolicyURL` parameter with NULL. This will hide the Privacy Policy link.
 
+== How to set the privacy policy link to a file in the installation? ==
+
+If you want to use a local privacy policy file instead of a web-based URL, than you should use the `file:///` scheme. For example, if you install your app to `C:\Program Files (x86)\MyApp` folder, specifying something like `file:///C:\Program Files (x86)\MyApp\crash_report_privacy_policy.rtf` should work.
+
 == How does crashrpt deliver me error reports from end users? ==
 
 `CrashRpt` sends error reports back to your software support team using any of the following ways:
