@@ -344,7 +344,8 @@ crAddVideo(
             DWORD dwFlags,
 			int nDuration,
 			int nFrameInterval,
-            SIZE* pDesiredFrameSize
+            SIZE* pDesiredFrameSize,
+			HWND hWndParent
             )
 {
 	crSetErrorMsg(_T("Unspecified error."));
@@ -358,7 +359,7 @@ crAddVideo(
         return 1; // Invalid parameter?
     }
 
-    return pCrashHandler->AddVideo(dwFlags, nDuration, nFrameInterval, pDesiredFrameSize);
+    return pCrashHandler->AddVideo(dwFlags, nDuration, nFrameInterval, pDesiredFrameSize, hWndParent);
 }
 
 CRASHRPTAPI(int)

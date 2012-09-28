@@ -46,6 +46,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <sys/stat.h>
 #include "dbghelp.h"
 #include "VideoRec.h"
+#include "VideoRecDlg.h"
 
 CErrorReportSender* CErrorReportSender::m_pInstance = NULL;
 
@@ -2436,6 +2437,11 @@ BOOL CErrorReportSender::RecordVideo()
 {	
 	// The following method enters the video recording loop
 	// and returns when the parent process signals the event.
+
+	CVideoRecDlg dlg;
+	INT_PTR res = dlg.DoModal(m_CrashInfo.m_hWndVideoParent);
+	if(res!=IDOK)
+		return FALSE;
 
     // Get screenshot flags passed by the parent process
     DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;	    

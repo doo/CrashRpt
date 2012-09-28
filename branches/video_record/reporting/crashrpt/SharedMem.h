@@ -137,6 +137,7 @@ struct CRASH_DESCRIPTION
 	int   m_nVideoDuration;        // Video duration.
 	int   m_nVideoFrameInterval;   // Video frame interval.
 	SIZE  m_DesiredFrameSize;      // Video frame size.
+	HWND m_hWndVideoParent;        // Parent window for video recording dialog.
 };
 
 #define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */

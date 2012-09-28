@@ -90,7 +90,7 @@ You may call this function in each thread of your program to ensure all exceptio
 By default, CrashRpt generates crash minidump file on crash and includes it into the crash report.
 You can specify what minidump type to generate using \ref CR_INSTALL_INFO::uMiniDumpType
 structure member. The default minidump type is <b>MiniDumpNormal</b>. For the list of available 
-minidump types, see the documentation for the MiniDumpWriteDump() function in MSDN.
+minidump types, see the documentation for the \b MiniDumpWriteDump() function in MSDN.
 
 It is also possible to disable crash minidump generation by specifying the \ref CR_INST_NO_MINIDUMP 
 flag for \ref CR_INSTALL_INFO::dwFlags structure member.
@@ -167,7 +167,20 @@ another video player understanding this format.
 
 Many applications store settings inside of Windows registry. Application's settings might be useful for crash 
 analysis. You can ask CrashRpt to dump a registry key contents on crash. Use the \ref crAddRegKey() function.
- 
+
+\section specifying_privacy_policy Specifying the Privacy Policy File
+
+Crash information collected by CrashRpt may contain some user-identifying or private data 
+(e.g. desktop screenshots and so on). That's why you should 
+always provide a link to your Privacy Policy file describing what information you collect on 
+crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
+with the contents of the error report and accepts the terms of the Privacy Policy. 
+
+To specify the file containing your Privacy Policy text, use the \ref CR_INSTALL_INFO::pszPrivacyPolicy
+structure member. This parameter can be either a web-based URL (e.g. <i>http://example.com/privacy.html</i>),
+or an absolute path to local file (e.g. <i>file:///C:/MyApp/privacy.html</i>). The file
+may be an HTML page, a TXT file or an RTF file.
+
 \section order_of_function_calls The Order of Function Calls
 
 Typically, you call the functions described above in the following order:

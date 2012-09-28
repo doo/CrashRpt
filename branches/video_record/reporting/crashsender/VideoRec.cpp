@@ -504,6 +504,9 @@ CVideoRecorder::CVideoRecorder()
 	m_nVideoQuality = VPX_DL_REALTIME;
 	m_DesiredFrameSize.cx = 0;
 	m_DesiredFrameSize.cy = 0;
+	m_hbmpFrame = NULL;
+	m_pFrameBits = NULL;
+	m_pDIB = NULL;
 }
 
 CVideoRecorder::~CVideoRecorder()
@@ -611,6 +614,11 @@ void CVideoRecorder::SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi)
 
 BOOL CVideoRecorder::EncodeVideo()
 {
+	ATLASSERT(0);
+
+	// This method encodes all raw BMP files
+	// into a single WebM file.
+
 	FILE* fout = NULL;
 	vpx_codec_ctx_t      codec;
     vpx_codec_enc_cfg_t  cfg;
@@ -621,14 +629,56 @@ BOOL CVideoRecorder::EncodeVideo()
     int                  got_data;
     int                  flags = 0;
 	EbmlGlobal ebml;
-
+	
 	// Init embl
 	memset(&ebml, 0, sizeof(EbmlGlobal));
 	
 	/* Determine frame width and height */
-	int nFrameWidth = m_aVideoFrames[0].m_aMonitors[0].m_rcMonitor.right;
-	int nFrameHeight = m_aVideoFrames[0].m_aMonitors[0].m_rcMonitor.bottom;
+	SIZE ScreenSize={0,0};
+	size_t i;
+	for(i=0; i<m_aVideoFrames.size(); i++)
+	{
+		ScreenshotInfo& ssi = m_aVideoFrames[i];
+		if(ScreenSize.cx<ssi.m_rcVirtualScreen.right ||
+			ScreenSize.cy<ssi.m_rcVirtualScreen.bottom)
+		{
+			ScreenSize.cx = ssi.m_rcVirtualScreen.right;
+			ScreenSize.cy = ssi.m_rcVirtualScreen.bottom;
+		}
+	}
 
+	int nFrameWidth = 0;
+	int nFrameHeight = 0;
+
+	if(m_DesiredFrameSize.cx==0 && m_DesiredFrameSize.cy==0)
+	{
+		// Auto
+		nFrameWidth = ScreenSize.cx;
+		nFrameHeight = ScreenSize.cy;
+	}
+	else
+	{
+		if(m_DesiredFrameSize.cx!=0)
+			nFrameWidth=m_DesiredFrameSize.cx;
+		if(m_DesiredFrameSize.cy!=0)
+			nFrameHeight=m_DesiredFrameSize.cy;
+		
+		float ratio = (float)ScreenSize.cx/(float)ScreenSize.cy;
+		if(m_DesiredFrameSize.cx==0)
+		{
+			nFrameWidth = nFrameHeight/ratio;
+		}
+		else if(m_DesiredFrameSize.cy!=0)
+		{
+			nFrameHeight = nFrameWidth*ratio;
+		}
+	}
+
+	// Check maxium allowed frame size
+	if(nFrameWidth>1024 || nFrameHeight>1024)
+	{
+
+	}
 
 	/* Populate encoder configuration */                                      //
     res = vpx_codec_enc_config_default(interface, &cfg, 0);                   //
@@ -677,40 +727,55 @@ BOOL CVideoRecorder::EncodeVideo()
                                STEREO_FORMAT_MONO);
 
 	/* Encode frames. */
-	int nFrame;
-	for(nFrame=0; nFrame<m_aVideoFrames.size(); nFrame++)
+	int nFrame = m_nFrameId; // Start with the oldest frame
+	if(nFrame==m_aVideoFrames.size())
+		nFrame=0; // Start from the zeroth frame
+	for( ; ; )
 	{
-		/* Read frame */
-		CString sFrameFileName = m_aVideoFrames[nFrame].m_aMonitors[0].m_sFileName;
-		frame_avail = LoadImageFromBMPFile(sFrameFileName, &raw);
+		/* Compose frame */
+		frame_avail = ComposeFrame(nFrame, &raw);
 		
+		// Encode frame
 		if(vpx_codec_encode(&codec, frame_avail? &raw : NULL, frame_cnt,  //
-                                1, flags, VPX_DL_REALTIME)) 
+                                1, flags, m_nVideoQuality)) 
 		{
 			goto cleanup;
 		}
 
+		// Read packets
 		vpx_codec_iter_t iter = NULL;
         const vpx_codec_cx_pkt_t *pkt = NULL;
 
 		while( (pkt = vpx_codec_get_cx_data(&codec, &iter)) ) 
 		{
+			// Write packets to webm file
             write_webm_block(&ebml, &cfg, pkt);            
 		}
 
+		// Increment total encoded frame count
 		if(frame_avail)
 			frame_cnt++;
 		else 
 			break;
+				
+		// Increment frame index
+		nFrame++;
+		if(nFrame==m_aVideoFrames.size())
+			nFrame=0; // Start from the zeroth frame
+	
+		if(nFrame==m_nFrameId || frame_cnt>=m_aVideoFrames.size())
+			break; // All frames have been encoded
 	}
 
 	/* Free codec resources */
 	vpx_codec_destroy(&codec);
     
+	// Write file footer
 	long hash = 0;
 	write_webm_file_footer(&ebml, hash);
     free(ebml.cue_list);
     
+	// Close file
 	fclose(fout);
 
 cleanup:
@@ -726,63 +791,128 @@ cleanup:
 	return TRUE;
 }
 
-BOOL CVideoRecorder::LoadImageFromBMPFile(LPCTSTR szFileName, vpx_image_t *pImage)
+BOOL CVideoRecorder::ComposeFrame(int nFrameId, vpx_image_t *pImage)
 {
-	BOOL bResult = FALSE;
-	LPBYTE pData = NULL;
-	int nDataSize = 0;
+	// This method composes several bitmaps into single frame image
 
-	// Open file for reading
-	FILE* fp = NULL;
-	_tfopen_s(&fp, szFileName, _T("rb"));
+	// Validate input
+	if(nFrameId<0 || nFrameId>=m_aVideoFrames.size())
+		return FALSE;
 
-	if(fp==NULL)
-		goto cleanup; // error opening file
+	if(pImage==NULL)
+		return FALSE;
 
-	BITMAPFILEHEADER bmfh;
-	BITMAPINFOHEADER info;
-	memset ( &bmfh, 0, sizeof (BITMAPFILEHEADER ) );
-	memset ( &info, 0, sizeof (BITMAPINFOHEADER ) );
+	if(m_hbmpFrame==NULL)
+	{
+		// Calculate frame size
 
-	// Read BMP file header
-	if(1!=fread(&bmfh, sizeof(BITMAPFILEHEADER), 1, fp))
-		goto cleanup;
+		CreateFrameDIB(pImage->w, pImage->h, 24);
+	}
 
-	// Check magic characters
-	if(bmfh.bfType!=0x4d42) // 'BM'
-		goto cleanup;
+	// Walk through monitor bitmaps
+	ScreenshotInfo& ssi = m_aVideoFrames[nFrameId];
+	size_t i;
+	for(i=0; i<ssi.m_aMonitors.size(); i++)
+	{
+		// Load image from BMP
+		CString sFileName = ssi.m_aMonitors[i].m_sFileName;
+		HBITMAP hBitmap = LoadBitmapFromBMPFile(sFileName);
+		if(hBitmap)
+		{
+			// Create temp DC
+			HDC hMemDC = CreateCompatibleDC(m_hDC);
+			// Select loaded bitmap into DC
+			HBITMAP hOldBitmap = (HBITMAP)SelectObject(hMemDC, hBitmap);
 
-	// Read bitmap info
-	if(1!=fread(&info, sizeof(BITMAPINFOHEADER), 1, fp))
-		goto cleanup;
-	
-	nDataSize = bmfh.bfSize;
-	pData = new BYTE[nDataSize];
+			float x_ratio = (float)pImage->w/(float)ssi.m_rcVirtualScreen.Width();
+			float y_ratio = (float)pImage->h/(float)ssi.m_rcVirtualScreen.Height();
+			int xDest = ssi.m_aMonitors[i].m_rcMonitor.left*x_ratio;
+			int yDest = ssi.m_aMonitors[i].m_rcMonitor.top*y_ratio;
+			int wDest = ssi.m_aMonitors[i].m_rcMonitor.Width()*x_ratio;
+			int hDest = ssi.m_aMonitors[i].m_rcMonitor.Height()*y_ratio;
 
-	// Read image data
-	if(1!=fread(pData, nDataSize, 1, fp))
-		goto cleanup;
-	
-	// Convert from RGB24 to YV12
-	int paddedsize = info.biWidth*3;
-	paddedsize+=paddedsize%4;
-	RGB_To_YV12(pData, pImage->w, pImage->h, paddedsize,
+			// Copy bitmap to its destination rect
+			StretchBlt(m_hDC, xDest, yDest, wDest, hDest, hMemDC, 0, 0, 
+				ssi.m_aMonitors[i].m_rcMonitor.Width(), ssi.m_aMonitors[i].m_rcMonitor.Height(), SRCCOPY);
+
+			// Select old bitmap into DC
+			SelectObject(hMemDC, hOldBitmap);
+			// Free DC
+			DeleteDC(hMemDC);
+			// Free loaded bitmap
+			DeleteObject(hBitmap);
+		}		
+	}
+
+	// Convert RGB to YV12
+	RGB_To_YV12((unsigned char*)m_pFrameBits, pImage->w, pImage->h, pImage->w*3+(pImage->w*3)%4, 
 		pImage->planes[0], pImage->planes[1], pImage->planes[2]);
 
-	// Done
-	bResult = TRUE;
+	return TRUE;
+}
 
-cleanup:
+BOOL CVideoRecorder::CreateFrameDIB(DWORD dwWidth, DWORD dwHeight, int nBits)
+{
+    if (m_pDIB) 
+		return FALSE;
 
-	// Close the file
-	if(fp)
-		fclose(fp);
+    const DWORD dwcBihSize = sizeof(BITMAPINFOHEADER);
 
-	// Free buffer
-	delete [] pData;
+    // Calculate the memory required for the DIB
+    DWORD dwSize = dwcBihSize +
+                    (2>>nBits) * sizeof(RGBQUAD) +
+                    ((nBits * dwWidth) * dwHeight);
+
+    m_pDIB = (LPBITMAPINFO)new BYTE[dwSize];
+    if (!m_pDIB) 
+		return FALSE;
+
+
+    m_pDIB->bmiHeader.biSize = dwcBihSize;
+    m_pDIB->bmiHeader.biWidth = dwWidth;
+    m_pDIB->bmiHeader.biHeight = -dwHeight;
+    m_pDIB->bmiHeader.biBitCount = nBits;
+    m_pDIB->bmiHeader.biPlanes = 1;
+    m_pDIB->bmiHeader.biCompression = BI_RGB;
+    m_pDIB->bmiHeader.biXPelsPerMeter = 1000;
+    m_pDIB->bmiHeader.biYPelsPerMeter = 1000;
+    m_pDIB->bmiHeader.biClrUsed = 0;
+    m_pDIB->bmiHeader.biClrImportant = 0;
+
+    LPRGBQUAD lpColors =
+        (LPRGBQUAD)(m_pDIB+m_pDIB->bmiHeader.biSize);
+	int nColors=2>>m_pDIB->bmiHeader.biBitCount;
+    for(int i=0;i<nColors;i++)
+    {
+        lpColors[i].rgbRed=0;
+        lpColors[i].rgbBlue=0;
+        lpColors[i].rgbGreen=0;
+        lpColors[i].rgbReserved=0;
+    }
+
+	m_hDC = CreateCompatibleDC(GetDC(NULL));
+
+	m_hbmpFrame = CreateDIBSection(m_hDC, m_pDIB, DIB_RGB_COLORS, &m_pFrameBits,
+		NULL, 0);
+
+	m_hOldBitmap = (HBITMAP)SelectObject(m_hDC, m_hbmpFrame);
+
+    return TRUE;
+}
+
+HBITMAP CVideoRecorder::LoadBitmapFromBMPFile(LPCTSTR szFileName)
+{
+	// This method loads a BMP file.
 	
-		
-	return bResult;
+	// Use LoadImage() to get the image loaded into a DIBSection
+    HBITMAP hBitmap = (HBITMAP)LoadImage( NULL, szFileName, IMAGE_BITMAP, 0, 0,
+        LR_CREATEDIBSECTION | LR_DEFAULTSIZE | LR_LOADFROMFILE );
+	if(hBitmap==NULL)
+	{
+		DWORD dwErr = GetLastError();
+		int x=0;
+	}
+    return hBitmap;
 }
 
 CString CVideoRecorder::GetOutFile()

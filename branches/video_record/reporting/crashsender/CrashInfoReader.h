@@ -288,6 +288,7 @@ public:
 	int         m_nVideoFrameInterval;  // Video frame interval.
 	int         m_nVideoQuality;        // Video quality.
 	SIZE        m_DesiredFrameSize;     // Desired video frame size.
+	HWND        m_hWndVideoParent;      // Video recording dialog parent.
 	BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
 	// Below are exception information fields.
     DWORD       m_dwProcessId;          // Parent process ID (used for minidump generation).

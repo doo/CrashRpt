@@ -143,6 +143,9 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
     UIAddChildWindowContainer(m_hWnd);
 
+	int nResult = crAddVideo(CR_AS_VIRTUAL_SCREEN, 6000, 300, NULL, m_hWnd);    
+    ATLASSERT(nResult==0);
+
     if(m_bRestarted)
     {
         PostMessage(WM_POSTCREATE);    

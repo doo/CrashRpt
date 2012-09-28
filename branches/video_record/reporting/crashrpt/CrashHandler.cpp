@@ -550,6 +550,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
     m_pTmpCrashDesc->m_dwScreenshotFlags = m_dwScreenshotFlags;      
     memcpy(m_pTmpCrashDesc->m_uPriorities, m_uPriorities, sizeof(UINT)*3);
 	m_pTmpCrashDesc->m_bAddVideo = m_bAddVideo;
+	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
 	m_pTmpCrashDesc->m_dwProcessId = GetCurrentProcessId();
 
     m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
@@ -1099,7 +1100,8 @@ int CCrashHandler::AddScreenshot(DWORD dwFlags, int nJpegQuality)
 }
 
 // Adds a video recording of desktop state just before crash.
-int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, SIZE* pDesiredFrameSize)
+int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, 
+	SIZE* pDesiredFrameSize, HWND hWndParent)
 {
 	// Check duration - it should be less than 10 minutes
 	if(nDuration<0 || nDuration>10*60*1000)
@@ -1145,6 +1147,11 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval, SI
 	{
 		m_DesiredFrameSize.cx = 0;
 	}
+
+	if(hWndParent!=NULL)
+		m_hWndVideoParent = hWndParent;
+	else
+		m_hWndVideoParent = GetActiveWindow();
 
 	CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
 

@@ -456,6 +456,9 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
 /*! \ingroup CrashRptAPI 
 *  \brief  Installs exception handlers for the caller process.
 *
+*  \return
+*    This function returns zero if succeeded.
+*
 *  \param[in] pInfo General information.
 *
 *  \remarks
@@ -534,23 +537,23 @@ crInstallA(
 #endif //UNICODE
 
 /*! \ingroup CrashRptAPI 
-*  \brief Unsinstalls exception handlers previously installed with crInstall().
+*  \brief Uninitializes the CrashRpt library and unsinstalls exception handlers previously installed with crInstall().
 *
 *  \return
 *    This function returns zero if succeeded.
 *
 *  \remarks
 *
-*    Call this function on application exit to uninstall exception
+*    Call this function on application exit to uninitialize the library and uninstall exception
 *    handlers previously installed with crInstall(). After function call, the exception handlers
 *    are restored to states they had before calling crInstall().
 *
 *    This function fails if crInstall() wasn't previously called in context of the
 *    caller process.
 *
-*    When this function fails, use crGetLastErrorMsg() to retrieve the error message.
+*    When this function fails, use the crGetLastErrorMsg() function to retrieve the error message.
 *
-*  \sa crInstallW(), crInstallA(), crInstall(), crUninstall(),
+*  \sa crInstallW(), crInstallA(), crInstall(),
 *      CrAutoInstallHelper
 */
 
@@ -843,6 +846,7 @@ crAddScreenshot2(
 #define CR_AV_QUALITY_FAST    0  //!< Fast video encoding, lower quality.
 #define CR_AV_QUALITY_GOOD    4  //!< Good encoding quality, slower encoding.
 #define CR_AV_QUALITY_BEST    8  //!< The best encoding quality, the slowest encoding.
+#define CR_AV_NO_GUI         16  //!< Do not display the dialog.
 
 /*! \ingroup CrashRptAPI  
 *  \brief Allows to record what happened before crash to a video file and include the file to crash report.
@@ -853,6 +857,7 @@ crAddScreenshot2(
 *  \param[in] nDuration Video duration (in milliseconds). Optional.
 *  \param[in] nFrameInterval Interval between subsequent frames (in milliseconds). Optional.
 *  \param[in] pDesiredFrameSize Defines the desired video frame size, optional.
+*  \param[in] hWndParent Window that becomes the parent for GUI displayed by this function. Optional.
 *  
 *  \remarks 
 *
@@ -871,6 +876,11 @@ crAddScreenshot2(
 *  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
 *  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
 *  the main window.
+*
+*  When the function is called, it displays a dialog notifying the user about video recording.
+*  The displayed dialog's parent window can be specified with the \b hWndParent argument.
+*  If the \b hWndParent is \a NULL, the currently active process window becomes the parent.
+*  If you do not want to display the dialog, specify the \ref CR_AV_NO_GUI flag for \b dwFlags argument.
 *
 *  The recorded video will be maximum \b nDuration milliseconds long with \b nFrameInterval
 *  milliseconds interval between subsequent video frames.
@@ -909,9 +919,11 @@ crAddScreenshot2(
 *  video container provided by the open-source WebM Project.
 *  WebM files can be opened in a browser like Google Chrome or Mozilla Firefox or in 
 *  another video player understanding this format.
-* 
-*  You should be careful when using this feature, because the recorded 
-*  video may contain user-identifying or private information. Always 
+*
+*  Use this function only when necessary, because it may cause end user's computer performance
+*  loss. It also requires some amount of free disk space.
+*
+*  The recorded video may contain user-identifying or private information. Always 
 *  specify the purposes you will use collected information for in your Privacy Policy. 
 *
 *  Usage example:
@@ -922,6 +934,9 @@ crAddScreenshot2(
 *
 *  ...
 *
+*  SIZE FrameSize = {0, 600}; // Frames 600 px in height
+*                      // Frame width is calculated automatically
+*
 *  // Start capturing desktop. Desktop capture video will
 *  // be added to crash report on crash
 *  int nResult = crAddVideo(
@@ -929,8 +944,8 @@ crAddScreenshot2(
 *                                               // Fast encoding
 *         10000,   // 10 seconds long video
 *         300,     // 300 msec between frames (3.33 FPS)
-*         {0, 600} // Frames 600 px in height
-*                  // Frame width is calculated automatically
+*         FrameSize,
+*         NULL
 *    );
 *
 *  \endcode
@@ -944,7 +959,8 @@ crAddVideo(
             DWORD dwFlags,
 			int nDuration,
 			int nFrameInterval,
-            PSIZE pDesiredFrameSize 
+            PSIZE pDesiredFrameSize,
+			HWND hWndParent
             );
 
 /*! \ingroup CrashRptAPI  

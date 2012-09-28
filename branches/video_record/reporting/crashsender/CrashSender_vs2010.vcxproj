@@ -430,6 +430,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="VideoRec.cpp" />
+    <ClCompile Include="VideoRecDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\crashrpt\Utility.h" />
@@ -451,6 +452,7 @@
     <ClInclude Include="smtpclient.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="VideoRec.h" />
+    <ClInclude Include="VideoRecDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\CrashSender.ico" />

@@ -56,9 +56,15 @@ private:
 	// Sets video frame parameters.
 	void SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi);
 
-	// Loads a BMP file and returns its data.
-	BOOL LoadImageFromBMPFile(LPCTSTR szFileName, vpx_image_t *pImage);
+	// Composes video frame from one or several bitmaps.
+	BOOL ComposeFrame(int nFrameId, vpx_image_t *pImage);
 
+	// Creates a device-independent bitmap (DIB) used as video frame
+	BOOL CreateFrameDIB(DWORD dwWidth, DWORD dwHeight,int nBits);
+
+	// Loads a BMP file and returns its data.
+	HBITMAP LoadBitmapFromBMPFile(LPCTSTR szFileName);
+	
 	/* Internal variables */
 	CString m_sSaveToDir; // Directory where to save recorded video frames.
 	CString m_sOutFile;   // Output webm file.
@@ -74,5 +80,10 @@ private:
 	int m_nFrameCount;    // Total max count of frames.
 	int m_nFileId;        // Index of current BMP file.
 	int m_nFrameId;       // Index of current video frame.
-	
+	HBITMAP m_hbmpFrame;  // Video frame bitmap.
+	LPVOID m_pFrameBits;  // Frame buffer.
+	LPBITMAPINFO m_pDIB;  // Bitmap info.
+	HDC m_hDC;            // Device context.
+	HBITMAP m_hOldBitmap; //
+	vpx_image_t *m_pImage;
 };

@@ -194,8 +194,7 @@ private:
     png_infop m_info_ptr;                 // libpng stuff
     struct jpeg_compress_struct m_cinfo;  // libjpeg stuff
     struct jpeg_error_mgr m_jerr;         // libjpeg stuff
-    std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices
-    //std::vector<CString> m_out_file_list; // The list of output image files
+    std::vector<MonitorInfo> m_monitor_list; // The list of monitor devices   
 };
 
 #endif //__SCREENCAP_H__

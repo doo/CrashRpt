@@ -13,6 +13,8 @@
 #define IDD_RESEND                      215
 #define IDD_PROGRESSMULTI               216
 #define IDD_ACTIONPROGRESS              216
+#define IDD_DIALOG1                     217
+#define IDD_VIDEOREC                    217
 #define IDS_NAME                        1000
 #define IDS_DESC                        1001
 #define IDS_TYPE                        1002
@@ -120,7 +122,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        217
+#define _APS_NEXT_RESOURCE_VALUE        218
 #define _APS_NEXT_COMMAND_VALUE         32813
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101

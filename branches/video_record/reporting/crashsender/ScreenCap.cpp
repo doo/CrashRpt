@@ -268,7 +268,12 @@ BOOL CALLBACK CScreenCapture::EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonit
     bmi.bmiHeader.biPlanes = 1;  
 
     //int i;
-    for(i=nHeight-1; i>=0; i--)
+	if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
+		i=0;
+	else
+		i=nHeight-1;
+	
+    for(;;)
     {    
         int nFetched = GetDIBits(hCompatDC, hBitmap, i, 1, pRowBits, &bmi, DIB_RGB_COLORS);
         if(nFetched!=1)
@@ -292,6 +297,19 @@ BOOL CALLBACK CScreenCapture::EnumMonitorsProc(HMONITOR hMonitor, HDC /*hdcMonit
             if(!bWrite)
                 goto cleanup;  
         }      
+
+		if(psc->m_fmt==SCREENSHOT_FORMAT_BMP)
+		{
+			i++;
+			if(i==nHeight)
+				break;
+		}
+		else
+		{
+			i--;
+			if(i<0)
+				break;
+		}
     }
 
     if(psc->m_fmt==SCREENSHOT_FORMAT_PNG)
@@ -570,7 +588,7 @@ BOOL CScreenCapture::BmpInit(int nWidth, int nHeight, BOOL bGrayscale, CString s
 
 	info.biSize = sizeof(BITMAPINFOHEADER);
 	info.biWidth = nWidth;
-	info.biHeight = -nHeight;
+	info.biHeight = nHeight;
 	info.biPlanes = 1;	
 	info.biBitCount = bGrayscale?8:24;
 	info.biCompression = BI_RGB;	
