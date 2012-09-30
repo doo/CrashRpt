@@ -138,6 +138,7 @@ struct CRASH_DESCRIPTION
 	int   m_nVideoFrameInterval;   // Video frame interval.
 	SIZE  m_DesiredFrameSize;      // Video frame size.
 	HWND m_hWndVideoParent;        // Parent window for video recording dialog.
+	BOOL m_bClientAppCrashed;      // If TRUE, the client app has crashed; otherwise the client has exited without crash.          
 };
 
 #define SHARED_MEM_MAX_SIZE 10*1024*1024   /* 10 MB */

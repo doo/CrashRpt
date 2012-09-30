@@ -214,12 +214,15 @@ public:
     DWORD PackProperty(CString sName, CString sValue);
     // Packs a registry key
     DWORD PackRegKey(CString sKeyName, CString sDstFileName);
-
+		
     // Launches the CrashSender.exe process.
     int LaunchCrashSender(
         LPCTSTR szCmdLineParams, 
         BOOL bWait, 
-        __out_opt HANDLE* phProcess);  
+        __out_opt HANDLE* phProcess); 
+
+	// Returns TRUE if CrashSender.exe process is still alive.
+	BOOL IsSenderProcessAlive();
 
     // Sets internal pointers to exception handlers to NULL.
     void InitPrevExceptionHandlerPointers();
@@ -301,6 +304,7 @@ public:
     CRASH_DESCRIPTION* m_pCrashDesc; // Pointer to crash description shared mem view.
     CSharedMem* m_pTmpSharedMem;   // Used temporarily
     CRASH_DESCRIPTION* m_pTmpCrashDesc; // Used temporarily
+	HANDLE m_hSenderProcess;       // Handle to CrashSender.exe process.
 };
 
 

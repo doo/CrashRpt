@@ -79,7 +79,8 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 	BOOL bInit = pSender->Init(sFileMappingName.GetBuffer(0));
 	if(!bInit)
     {
-		// Failed to init        
+		// Failed to init 
+		delete pSender;
         return 0;
     }      
 
@@ -98,6 +99,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 			if(dlgErrorReport.Create(NULL) == NULL)
 			{
 				ATLTRACE(_T("Error report dialog creation failed!\n"));
+				delete pSender;
 				return 1;
 			}			
 		}
@@ -107,6 +109,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int /*nCmdShow*/ = SW_SHOWDEFAULT)
 			if(dlgResend.Create(NULL) == NULL)
 			{
 				ATLTRACE(_T("Resend dialog creation failed!\n"));
+				delete pSender;
 				return 1;
 			}			
 		}

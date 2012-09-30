@@ -26,7 +26,7 @@ public:
     LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-	// This method is used to close this dialog with some return code.
-    void CloseDialog(int nVal); 
-
+	CStatic m_statText;
+	CButton m_btnAllow;
+	CButton m_btnCancel;
 };

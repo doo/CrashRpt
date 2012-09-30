@@ -104,7 +104,13 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 	{
 		// The following enters the video recording loop
 		// and returns when the parent process signals the event.
-		RecordVideo();
+		BOOL bRec = RecordVideo();
+		if(!bRec)
+		{
+			// Clean up temp files
+			m_VideoRec.Destroy();
+			return FALSE;
+		}
 
 		// Reread crash information from the file mapping object.
 		int nInit = m_CrashInfo.Init(szFileMappingName);
@@ -113,8 +119,15 @@ BOOL CErrorReportSender::Init(LPCTSTR szFileMappingName)
 			m_sErrorMsg.Format(_T("Error reading crash info: %s"), m_CrashInfo.GetErrorMsg().GetBuffer(0));
 			return FALSE;
 		}
-	}
 
+		// Check if the client app has crashed or exited successfully.
+		if(!m_CrashInfo.m_bClientAppCrashed)
+		{
+			// Clean up temp files
+			m_VideoRec.Destroy();
+		}
+	}
+	
     if(!m_CrashInfo.m_bSendRecentReports)
     {
         // Start crash info collection work assynchronously
@@ -407,9 +420,10 @@ BOOL CErrorReportSender::Finalize()
 	// Wait until worker thread exits.
 	WaitForCompletion();
 
-    if(m_CrashInfo.m_bSendErrorReport && !m_CrashInfo.m_bQueueEnabled)
+    if((m_CrashInfo.m_bSendErrorReport && !m_CrashInfo.m_bQueueEnabled) ||
+		(m_CrashInfo.m_bAddVideo && !m_CrashInfo.m_bClientAppCrashed))
     {
-        // Remove report files if queue disabled
+        // Remove report files if queue disabled (or if client app not crashed).
         Utility::RecycleFile(m_CrashInfo.GetReport(0)->GetErrorReportDirName(), true);    
     }
 
@@ -2438,23 +2452,33 @@ BOOL CErrorReportSender::RecordVideo()
 	// The following method enters the video recording loop
 	// and returns when the parent process signals the event.
 
-	CVideoRecDlg dlg;
-	INT_PTR res = dlg.DoModal(m_CrashInfo.m_hWndVideoParent);
-	if(res!=IDOK)
-		return FALSE;
+	DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;	  
 
-    // Get screenshot flags passed by the parent process
-    DWORD dwFlags = m_CrashInfo.m_dwVideoFlags;	    
-	SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
-    if((dwFlags&CR_AS_MAIN_WINDOW)!=0) // We need to capture the main window
+	// Show notification dialog
+	if((dwFlags & CR_AV_NO_GUI) == 0)
+	{
+		CVideoRecDlg dlg;
+		INT_PTR res = dlg.DoModal(m_CrashInfo.m_hWndVideoParent);
+		if(res!=IDOK)
+			return FALSE;
+	}
+
+    // Determine screenshot type.
+    SCREENSHOT_TYPE type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
+    if((dwFlags&CR_AV_MAIN_WINDOW)!=0) // We need to capture the main window
 		type = SCREENSHOT_TYPE_MAIN_WINDOW;
-    else if((dwFlags&CR_AS_PROCESS_WINDOWS)!=0) // Capture all process windows
+    else if((dwFlags&CR_AV_PROCESS_WINDOWS)!=0) // Capture all process windows
 		type = SCREENSHOT_TYPE_ALL_PROCESS_WINDOWS;
-    else // (dwFlags&CR_AS_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
+    else // (dwFlags&CR_AV_VIRTUAL_SCREEN)!=0 // Capture the virtual screen
 		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
 
+	// Determine what encoding quality to use
 	int quality = VPX_DL_REALTIME;
-
+	if((dwFlags&CR_AV_QUALITY_GOOD)!=0)
+		quality = VPX_DL_GOOD_QUALITY;
+	else if((dwFlags&CR_AV_QUALITY_BEST)!=0)
+		quality = VPX_DL_BEST_QUALITY;
+	
 	// Add a message to log
 	CString sMsg;
 	sMsg.Format(_T("Start video recording."));
@@ -2472,6 +2496,7 @@ BOOL CErrorReportSender::RecordVideo()
 		return FALSE;
 	}
     
+	// Init video recorder object
 	if(!m_VideoRec.Init(m_CrashInfo.GetReport(0)->GetErrorReportDirName(),
 				type, m_CrashInfo.m_dwProcessId, m_CrashInfo.m_nVideoDuration,
 				m_CrashInfo.m_nVideoFrameInterval,
@@ -2492,13 +2517,28 @@ BOOL CErrorReportSender::RecordVideo()
 		// Wait for a while
 		if(WAIT_OBJECT_0==WaitForSingleObject(hEvent, m_CrashInfo.m_nVideoFrameInterval))
 			break; // Event is signaled; break the loop
+
+		// Check if the client app is still alive
+		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_CrashInfo.m_dwProcessId);
+		if(hProcess==NULL)
+			return FALSE; // Process seems to be terminated!
+
+		// If process handle is still accessible, check its exit code
+		DWORD dwExitCode = 1;
+		if(GetExitCodeProcess(hProcess, &dwExitCode) && dwExitCode!=STILL_ACTIVE)
+		{
+			CloseHandle(hProcess);
+			return FALSE; // Process seems to exit!
+		}
+
+		CloseHandle(hProcess);
 	}
 
 	// Add a message to log
 	sMsg.Format(_T("Video recording completed."));
 	m_Assync.SetProgress(sMsg, 0, false);
 
-	// Done
+	// Return TRUE to indicate video recording completed successfully.
 	return TRUE;
 }
 
@@ -2508,7 +2548,7 @@ BOOL CErrorReportSender::EncodeVideo()
     m_Assync.SetProgress(_T("[encoding_video]"), 0);    
 
     // Check if video capture is allowed
-    if(!m_CrashInfo.m_bAddVideo)
+    if(!m_VideoRec.IsInitialized())
     {
         // Add a message to log
         m_Assync.SetProgress(_T("Desktop video recording disabled; skipping."), 0);    
@@ -2527,10 +2567,11 @@ BOOL CErrorReportSender::EncodeVideo()
 		return FALSE;
 	}
 
+	// Add file to crash report
 	ERIFileItem fi;
 	fi.m_sSrcFile = m_VideoRec.GetOutFile();
 	fi.m_sDestFile = Utility::GetFileName(fi.m_sSrcFile);
-    fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescScreenshot"));    
+    fi.m_sDesc = Utility::GetINIString(m_CrashInfo.m_sLangFileName, _T("DetailDlg"), _T("DescVideo"));    
     m_CrashInfo.GetReport(0)->AddFileItem(&fi);
 
 	// Add a message to log

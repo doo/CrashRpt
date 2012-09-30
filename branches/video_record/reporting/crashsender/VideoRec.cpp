@@ -507,10 +507,12 @@ CVideoRecorder::CVideoRecorder()
 	m_hbmpFrame = NULL;
 	m_pFrameBits = NULL;
 	m_pDIB = NULL;
+	m_bInitialized = FALSE;
 }
 
 CVideoRecorder::~CVideoRecorder()
 {
+	Destroy();
 }
 
 BOOL CVideoRecorder::Init(LPCTSTR szSaveToDir, 
@@ -550,7 +552,25 @@ BOOL CVideoRecorder::Init(LPCTSTR szSaveToDir,
 	}
 
 	// Done
+	m_bInitialized = TRUE;
 	return TRUE;
+}
+
+BOOL CVideoRecorder::IsInitialized()
+{
+	return m_bInitialized;
+}
+
+void CVideoRecorder::Destroy()
+{
+	// Remove temp files
+	if(!m_sSaveToDir.IsEmpty())
+	{
+		CString sDirName = m_sSaveToDir + _T("\\~temp_video");
+		Utility::RecycleFile(sDirName, TRUE);
+	}
+
+	m_bInitialized=FALSE;
 }
 
 BOOL CVideoRecorder::RecordVideoFrame()
@@ -614,8 +634,7 @@ void CVideoRecorder::SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi)
 
 BOOL CVideoRecorder::EncodeVideo()
 {
-	ATLASSERT(0);
-
+	
 	// This method encodes all raw BMP files
 	// into a single WebM file.
 

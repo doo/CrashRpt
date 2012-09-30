@@ -72,7 +72,7 @@ public:
     CErrorReportSender();
 
 	// Destructor.
-    ~CErrorReportSender();
+    virtual ~CErrorReportSender();
 
 	// Returns singleton of this class.
 	static CErrorReportSender* GetInstance();

@@ -81,6 +81,7 @@ CCrashHandler::CCrashHandler()
     m_hEvent = NULL;  
 	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
+	m_hSenderProcess = NULL;
 
     // Init exception handler pointers
     InitPrevExceptionHandlerPointers();
@@ -552,6 +553,7 @@ CRASH_DESCRIPTION* CCrashHandler::PackCrashInfoIntoSharedMem(CSharedMem* pShared
 	m_pTmpCrashDesc->m_bAddVideo = m_bAddVideo;
 	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
 	m_pTmpCrashDesc->m_dwProcessId = GetCurrentProcessId();
+	m_pTmpCrashDesc->m_bClientAppCrashed = FALSE;
 
     m_pTmpCrashDesc->m_dwAppNameOffs = PackString(m_sAppName);
     m_pTmpCrashDesc->m_dwAppVersionOffs = PackString(m_sAppVersion);
@@ -1173,11 +1175,9 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 
 	// Launch the CrashSender.exe process that will continuously record video 
 	// in background.    
-    if(0!=LaunchCrashSender(m_SharedMem.GetName(), FALSE, NULL))
+    if(0!=LaunchCrashSender(m_SharedMem.GetName(), FALSE, &m_hSenderProcess))
     {
-		//m_bAddVideo = FALSE;
-
-        crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
+		crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
         return 6;
     }
 
@@ -1217,6 +1217,9 @@ int CCrashHandler::GenerateErrorReport(
 		pExceptionInfo->pexcptrs = &ExceptionPointers;
     }
 
+	// Set "client app crashed" flag
+	m_pCrashDesc->m_bClientAppCrashed = TRUE;
+	m_pCrashDesc->m_bAddVideo = FALSE;
     // Save current process ID, thread ID and exception pointers address to shared mem.
     m_pCrashDesc->m_dwProcessId = GetCurrentProcessId();
     m_pCrashDesc->m_dwThreadId = GetCurrentThreadId();
@@ -1257,19 +1260,20 @@ int CCrashHandler::GenerateErrorReport(
 
     int result = 0;
 	
-	if(!m_bAddVideo) // If we are not recording video
+	// If we are not recording video or video recording has been cancelled by some reason
+	if(!m_bAddVideo || (m_bAddVideo && !IsSenderProcessAlive())) 
 	{
 		// Run the CrashSender.exe
 		result = LaunchCrashSender(m_sCrashGUID, TRUE, &pExceptionInfo->hSenderProcess);
 	}
 	else
-	{
+	{		
 		// The CrashSender.exe process is already launched by the AddVideo method.
 		// We need to signal the event to make CrashSender.exe generate error report.
 		SetEvent(m_hEvent2);
 		
 		/* Wait until CrashSender finishes with making screenshot, 
-        copying files, creating minidump. */  
+        copying files, creating minidump and encoding recorded video. */  
 
         WaitForSingleObject(m_hEvent, INFINITE);
 
@@ -1318,6 +1322,19 @@ int CCrashHandler::GenerateErrorReport(
     // OK
     crSetErrorMsg(_T("Success."));
     return 0; 
+}
+
+BOOL CCrashHandler::IsSenderProcessAlive()
+{
+	// If process handle is still accessible, check its exit code
+	DWORD dwExitCode = 1;
+	BOOL bRes = GetExitCodeProcess(m_hSenderProcess, &dwExitCode);
+	if(!bRes || (bRes && dwExitCode!=STILL_ACTIVE))
+	{
+		return FALSE; // Process seems to exit!
+	}
+
+	return TRUE;
 }
 
 // Adds a registry key dump to the error report

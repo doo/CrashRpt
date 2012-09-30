@@ -372,8 +372,56 @@ LONG64 CErrorReportInfo::CalcUncompressedReportSize()
 // CCrashInfoReader impl
 //---------------------------------------------------------------------
 
+CCrashInfoReader::CCrashInfoReader()
+{
+	// Init internal variables.
+	m_nCrashRptVersion = 0;
+	m_nSmtpPort = 25;
+	m_nSmtpProxyPort = 25;
+	m_bHttpBinaryEncoding = FALSE;
+	m_bSilentMode = FALSE;
+	m_bSendErrorReport = TRUE;
+	m_bSendMandatory = FALSE;
+	m_bShowAdditionalInfoFields = FALSE;
+	m_bAllowAttachMoreFiles = FALSE;
+	m_bStoreZIPArchives = FALSE;
+	m_bSendRecentReports = FALSE;
+	m_bAppRestart = FALSE;
+	m_uPriorities[CR_HTTP] = 3;
+	m_uPriorities[CR_SMTP] = 2;
+	m_uPriorities[CR_SMAPI] = 1;
+	m_bGenerateMinidump = TRUE;
+	m_MinidumpType = MiniDumpNormal;
+	m_bAddScreenshot = FALSE;
+	m_dwScreenshotFlags = 0;
+	m_nJpegQuality = 0;
+	m_ptCursorPos = CPoint(0, 0);
+	m_rcAppWnd = CRect(0, 0, 0, 0);
+	m_bAddVideo = FALSE;
+	m_dwVideoFlags = 0;
+	m_nVideoDuration = 0;
+	m_nVideoFrameInterval = 0;
+	m_nVideoQuality = 0;
+	m_DesiredFrameSize.cx = 0;
+	m_DesiredFrameSize.cy = 0;
+	m_hWndVideoParent = NULL;
+	m_bClientAppCrashed = FALSE;
+	m_bQueueEnabled = FALSE;
+	m_dwProcessId = 0;
+	m_dwThreadId = 0;
+	m_pExInfo = NULL;
+	m_nExceptionType = 0;
+	m_dwExceptionCode = 0;
+	m_uFPESubcode = 0;
+	m_uInvParamLine = 0;
+	m_pCrashDesc = NULL;
+}
+
 int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 { 
+	// This method unpacks crash information from a shared memory (file-mapping)
+	// and inits the internal variables.
+
     strconv_t strconv;
     CErrorReportInfo eri;
 
@@ -458,6 +506,8 @@ int CCrashInfoReader::Init(LPCTSTR szFileMappingName)
 
 int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
 {
+	// This method unpacks crash description data from shared memory.
+
     if(memcmp(m_pCrashDesc->m_uchMagic, "CRD", 3)!=0)
         return 1; // Invalid magic word
 
@@ -530,6 +580,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
 	m_nVideoFrameInterval = m_pCrashDesc->m_nVideoFrameInterval;
     m_DesiredFrameSize = m_pCrashDesc->m_DesiredFrameSize;
 	m_hWndVideoParent = m_pCrashDesc->m_hWndVideoParent;
+	m_bClientAppCrashed = m_pCrashDesc->m_bClientAppCrashed;
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;
     while(dwOffs<m_pCrashDesc->m_dwTotalSize)

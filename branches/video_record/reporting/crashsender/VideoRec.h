@@ -42,6 +42,11 @@ public:
 			SIZE* pDesiredFrameSize
 			);
 
+	BOOL IsInitialized();
+
+	// Deletes all temp files and frees used resources.
+	void Destroy();
+
 	// Records a single video frame
 	BOOL RecordVideoFrame();
 
@@ -66,6 +71,7 @@ private:
 	HBITMAP LoadBitmapFromBMPFile(LPCTSTR szFileName);
 	
 	/* Internal variables */
+	BOOL m_bInitialized;  // Init flag.
 	CString m_sSaveToDir; // Directory where to save recorded video frames.
 	CString m_sOutFile;   // Output webm file.
 	SCREENSHOT_TYPE m_ScreenshotType; // What part of desktop is captured.
