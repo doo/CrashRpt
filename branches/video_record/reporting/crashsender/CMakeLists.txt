@@ -12,7 +12,8 @@ add_msvc_precompiled_header(stdafx.h ./stdafx.cpp srcs_using_precomp)
 list(APPEND source_files	
 	./CrashSender.rc 
 	${CMAKE_SOURCE_DIR}/reporting/CrashRpt/Utility.cpp 
-	${CMAKE_SOURCE_DIR}/reporting/CrashRpt/SharedMem.cpp)
+	${CMAKE_SOURCE_DIR}/reporting/CrashRpt/SharedMem.cpp
+	${CMAKE_SOURCE_DIR}/thirdparty/webm/src/libmkv/EbmlWriter.cpp)
 	
 # Define _UNICODE (use wide-char encoding)
 add_definitions(-D_UNICODE )
@@ -28,7 +29,9 @@ include_directories( ${CMAKE_SOURCE_DIR}/include
                             ${CMAKE_SOURCE_DIR}/thirdparty/jpeg 
                             ${CMAKE_SOURCE_DIR}/thirdparty/libpng 
                             ${CMAKE_SOURCE_DIR}/thirdparty/tinyxml
-                            ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/include )
+                            ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/include 
+							${CMAKE_SOURCE_DIR}/thirdparty/webm/src
+							${CMAKE_SOURCE_DIR}/thirdparty/webm/include)
 
 if(NOT CMAKE_CL_64)
 	link_directories( ${CMAKE_SOURCE_DIR}/thirdparty/dbghelp/lib )
@@ -40,7 +43,7 @@ endif(NOT CMAKE_CL_64)
 add_executable(CrashSender WIN32 ${source_files} ${header_files})
 
 # Add input link libraries
-target_link_libraries(CrashSender zlib minizip libjpeg libpng tinyxml WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib)
+target_link_libraries(CrashSender zlib minizip libjpeg libpng tinyxml vpx WS2_32.lib Dnsapi.lib wininet.lib Rpcrt4.lib Gdi32.lib shell32.lib Comdlg32.lib version.lib psapi.lib)
 
 # Add compiler flags (/MP for multi-processor compilation, /Os to favor small code)
 set_target_properties(CrashRpt PROPERTIES COMPILE_FLAGS "/Os")
