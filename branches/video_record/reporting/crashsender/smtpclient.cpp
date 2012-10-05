@@ -869,7 +869,7 @@ int CSmtpClient::Base64EncodeAttachment(CString sFileName,
         return 1;  // File not found.
 
     // Allocate buffer of file size
-    uFileSize = st.st_size;
+    uFileSize = (int)st.st_size;
     uchFileData = new BYTE[uFileSize];
 
     // Read file data to buffer.

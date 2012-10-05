@@ -143,8 +143,10 @@ LRESULT CMainDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam
 
     UIAddChildWindowContainer(m_hWnd);
 
-	int nResult = crAddVideo(CR_AS_VIRTUAL_SCREEN, 6000, 300, NULL, m_hWnd);    
+	SIZE DesiredFrameSize = {0, 600};
+	int nResult = crAddVideo(CR_AS_VIRTUAL_SCREEN|CR_AV_QUALITY_BEST, 6000, 300, &DesiredFrameSize, m_hWnd);    
     ATLASSERT(nResult==0);
+	nResult;
 
     if(m_bRestarted)
     {

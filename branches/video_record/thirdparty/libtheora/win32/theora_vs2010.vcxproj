@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <SccProjectName />
+    <SccLocalPath />
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.Cpp.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>.\Static_Release\</OutDir>
+    <IntDir>.\Static_Release\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>.\Static_Debug\</OutDir>
+    <IntDir>.\Static_Debug\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <StringPooling>true</StringPooling>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>MaxSpeed</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>..\..\ogg\include;..\..\theora\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Static_Release\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Static_Release\theora_static.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Static_Release\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Static_Release\</ProgramDataBaseFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Static_Release\theora_static.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Static_Release\theora_static.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <WarningLevel>Level3</WarningLevel>
+      <MinimalRebuild>true</MinimalRebuild>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>..\..\ogg\include;..\..\theora\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN32;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AssemblerListingLocation>.\Static_Debug\</AssemblerListingLocation>
+      <PrecompiledHeaderOutputFile>.\Static_Debug\theora_static.pch</PrecompiledHeaderOutputFile>
+      <ObjectFileName>.\Static_Debug\</ObjectFileName>
+      <ProgramDataBaseFileName>.\Static_Debug\</ProgramDataBaseFileName>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+    </ClCompile>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Static_Debug\theora_static.bsc</OutputFile>
+    </Bscmake>
+    <Lib>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>Static_Debug\theora_static_d.lib</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\lib\enc\dct.c" />
+    <ClCompile Include="..\lib\enc\dct_decode.c" />
+    <ClCompile Include="..\lib\enc\dct_encode.c" />
+    <ClCompile Include="..\lib\enc\encapiwrapper.c" />
+    <ClCompile Include="..\lib\enc\encode.c" />
+    <ClCompile Include="..\lib\enc\encoder_huffman.c" />
+    <ClCompile Include="..\lib\enc\encoder_idct.c" />
+    <ClCompile Include="..\lib\enc\encoder_toplevel.c" />
+    <ClCompile Include="..\lib\enc\encoder_quant.c" />
+    <ClCompile Include="..\lib\enc\frarray.c" />
+    <ClCompile Include="..\lib\enc\frinit.c" />
+    <ClCompile Include="..\lib\enc\mathops.c" />
+    <ClCompile Include="..\lib\enc\mcenc.c" />
+    <ClCompile Include="..\lib\enc\mode.c" />
+    <ClCompile Include="..\lib\enc\reconstruct.c" />
+    <ClCompile Include="..\lib\enc\x86_32_vs\dsp_mmx.c" />
+    <ClCompile Include="..\lib\enc\x86_32_vs\fdct_mmx.c" />
+    <ClCompile Include="..\lib\enc\x86_32_vs\recon_mmx.c" />
+    <ClCompile Include="..\lib\dec\apiwrapper.c" />
+    <ClCompile Include="..\lib\dec\bitpack.c" />
+    <ClCompile Include="..\lib\dec\decapiwrapper.c" />
+    <ClCompile Include="..\lib\dec\decinfo.c" />
+    <ClCompile Include="..\lib\dec\decode.c" />
+    <ClCompile Include="..\lib\dec\dequant.c" />
+    <ClCompile Include="..\lib\dec\fragment.c" />
+    <ClCompile Include="..\lib\dec\huffdec.c" />
+    <ClCompile Include="..\lib\dec\idct.c" />
+    <ClCompile Include="..\lib\dec\info.c" />
+    <ClCompile Include="..\lib\dec\internal.c" />
+    <ClCompile Include="..\lib\dec\quant.c" />
+    <ClCompile Include="..\lib\dec\state.c" />
+    <ClCompile Include="..\lib\dec\x86_vc\mmxfrag.c" />
+    <ClCompile Include="..\lib\dec\x86_vc\mmxidct.c" />
+    <ClCompile Include="..\lib\dec\x86_vc\mmxloopfilter.c" />
+    <ClCompile Include="..\lib\dec\x86_vc\mmxstate.c" />
+    <ClCompile Include="..\lib\dec\x86_vc\x86stat.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\lib\dec\apiwrapper.h" />
+    <ClInclude Include="..\lib\enc\block_inline.h" />
+    <ClInclude Include="..\include\theora\codec.h" />
+    <ClInclude Include="..\lib\enc\codec_internal.h" />
+    <ClInclude Include="..\lib\cpu.h" />
+    <ClInclude Include="..\lib\dec\dct.h" />
+    <ClInclude Include="..\lib\dec\decint.h" />
+    <ClInclude Include="..\lib\dec\dequant.h" />
+    <ClInclude Include="..\lib\enc\dsp.h" />
+    <ClInclude Include="..\lib\enc\encoder_huffman.h" />
+    <ClInclude Include="..\lib\enc\encoder_lookup.h" />
+    <ClInclude Include="..\lib\dec\enquant.h" />
+    <ClInclude Include="..\lib\dec\huffdec.h" />
+    <ClInclude Include="..\lib\dec\huffman.h" />
+    <ClInclude Include="..\lib\enc\hufftables.h" />
+    <ClInclude Include="..\lib\dec\idct.h" />
+    <ClInclude Include="..\lib\internal.h" />
+    <ClInclude Include="..\lib\dec\ocintrin.h" />
+    <ClInclude Include="..\lib\enc\pp.h" />
+    <ClInclude Include="..\lib\dec\quant.h" />
+    <ClInclude Include="..\lib\enc\quant_lookup.h" />
+    <ClInclude Include="..\include\theora\theora.h" />
+    <ClInclude Include="..\include\theora\theoradec.h" />
+    <ClInclude Include="..\lib\enc\toplevel_lookup.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

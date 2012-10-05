@@ -103,8 +103,43 @@ int _tmain(int argc, _TCHAR* argv[])
 We intentionally inserted the code that would cause an exception in both threads. In real-life
 programs such code always exist, even when you test your application very carefully.
 
-To enable crash reporting support in the application, you need to include CrashRpt header in the beginning of your code
-and insert some \ref CrashRptAPI. Below is the same code with CrashRpt API functions inserted.
+To enable crash reporting support in the application, we need to include CrashRpt 
+header in the beginning of the code:
+
+\code
+// Include CrashRpt Header 
+#include "CrashRpt.h"
+\endcode
+
+Next, we define the crash callback function and call it \b CrashCallback().
+The crash callback function will be called by CrashRpt when crash occurs, so we will
+be able to close the handle to log file.
+For more information on crash callback, see the the \ref LPGETLOGFILE()
+prototype.
+
+\code
+// Define the callback function that will be called on crash
+BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
+{  
+  // The application has crashed!
+
+  // Close the log file here
+  // to ensure CrashRpt is able to include it into error report
+  if(g_hLog!=NULL)
+  {
+    fclose(g_hLog);
+    g_hLog = NULL;// Clean up handle
+  }
+
+  // Return TRUE to generate error report
+  return TRUE;
+}
+\endcode
+
+Because we have a multi-threaded application, we need to use some \ref CrashRptAPI
+to set exception handlers for the worker thread. In this example, we use the \r
+
+Below we have it all in one:
 
 \code
 #include <windows.h>
@@ -183,16 +218,18 @@ int _tmain(int argc, _TCHAR* argv[])
   info.uPriorities[CR_HTTP] = 3;  // First try send report over HTTP 
   info.uPriorities[CR_SMTP] = 2;  // Second try send report over SMTP  
   info.uPriorities[CR_SMAPI] = 1; // Third try send report over Simple MAPI    
-  // Install all available exception handlers, use HTTP binary transfer encoding (recommended).
+  // Install all available exception handlers
   info.dwFlags |= CR_INST_ALL_POSSIBLE_HANDLERS;
-  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING; 
+  // Use HTTP binary transfer encoding (recommended).
+  info.dwFlags |= CR_INST_HTTP_BINARY_ENCODING;
+  // Restart the app on crash 
   info.dwFlags |= CR_INST_APP_RESTART; 
   info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS; 
   info.pszRestartCmdLine = _T("/restart");
   // Define the Privacy Policy URL 
   info.pszPrivacyPolicyURL = _T("http://myapp.com/privacypolicy.html"); 
   
-  // Install exception handlers
+  // Install crash reporting
   int nResult = crInstall(&info);    
   if(nResult!=0)  
   {    
@@ -248,7 +285,7 @@ int _tmain(int argc, _TCHAR* argv[])
     g_hLog = NULL;// Clean up handle
   }
 
-  // Unset exception handlers before exiting the main function
+  // Uninitialize CrashRpt before exiting the main function
   crUninstall();
 
   // Exit

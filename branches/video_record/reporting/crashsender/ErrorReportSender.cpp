@@ -1989,7 +1989,7 @@ int CErrorReportSender::Base64EncodeAttachment(CString sFileName,
         return 1;  // File not found.
 
     // Allocate buffer of file size
-    uFileSize = st.st_size;
+    uFileSize = (int)st.st_size;
     uchFileData = new BYTE[uFileSize];
 
     // Read file data to buffer.
@@ -2473,11 +2473,11 @@ BOOL CErrorReportSender::RecordVideo()
 		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
 
 	// Determine what encoding quality to use
-	int quality = VPX_DL_REALTIME;
+	int quality = 0;
 	if((dwFlags&CR_AV_QUALITY_GOOD)!=0)
-		quality = VPX_DL_GOOD_QUALITY;
+		quality = 30;
 	else if((dwFlags&CR_AV_QUALITY_BEST)!=0)
-		quality = VPX_DL_BEST_QUALITY;
+		quality = 63;
 	
 	// Add a message to log
 	CString sMsg;

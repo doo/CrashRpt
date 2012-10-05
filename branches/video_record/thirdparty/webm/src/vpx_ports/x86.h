@@ -104,7 +104,7 @@ x86_simd_caps(void)
 {
     unsigned int flags = 0;
     unsigned int mask = ~0;
-    unsigned int reg_eax, reg_ebx, reg_ecx, reg_edx;
+    unsigned int reg_eax=0, reg_ebx=0, reg_ecx=0, reg_edx=0;
     char *env;
     (void)reg_ebx;
 
@@ -119,14 +119,18 @@ x86_simd_caps(void)
     if (env && *env)
         mask = strtol(env, NULL, 0);
 
+#ifndef _WIN64
     /* Ensure that the CPUID instruction supports extended features */
     cpuid(0, reg_eax, reg_ebx, reg_ecx, reg_edx);
+#endif
 
     if (reg_eax < 1)
         return 0;
 
+#ifndef _WIN64
     /* Get the standard feature flags */
     cpuid(1, reg_eax, reg_ebx, reg_ecx, reg_edx);
+#endif
 
     if (reg_edx & BIT(23)) flags |= HAS_MMX;
 

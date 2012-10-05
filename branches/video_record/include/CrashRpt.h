@@ -75,12 +75,15 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /*! \ingroup CrashRptAPI
 *  \brief Client crash callback function prototype
-*  \param[in] lpvState Currently not used, equals to NULL.
+*  \param[in] lpvState Points to exception information.
 *
 *  \remarks
 *
 *  The crash callback function is called when crash occurs. This way client application is
 *  notified about the crash.
+*
+*  Exception information is passed through the \b lpvState parameter that should be cast
+*  to pointer to \ref CR_EXCEPTION_INFO structure. See below for an example. 
 *
 *  It is generally unsafe to do complex actions (e.g. memory allocation, heap operations) inside of this callback.
 *  The application state may be unstable.
@@ -88,6 +91,9 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *  One reason the application may use this callback for is to close handles to open log files that the 
 *  application plans to include into the error report. Log files should be accessible for reading, otherwise
 *  CrashRpt won't be able to include them into error report.
+*
+*  It is also possible (but not recommended) to add files, properties, desktop screenshots, video, 
+*  registry keys inside of the crash callback function.
 *  
 *  The crash callback function should typically return \c TRUE to allow generate error report.  
 *  Returning \c FALSE will prevent crash report generation.
@@ -98,9 +104,12 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *  // define the crash callback
 *  BOOL CALLBACK CrashCallback(LPVOID lpvState)
 *  {    
-*    // Do something...
+*     // Get a pointer to exception info
+*     CR_EXCEPTION_INFO* pExceptionInfo = (CR_EXCEPTION_INFO*)lpvState;
 *
-*    return TRUE;
+*     // Do something...
+*
+*     return TRUE;
 *  }
 *  \endcode
 *
@@ -843,10 +852,10 @@ crAddScreenshot2(
 #define CR_AV_VIRTUAL_SCREEN  0  //!< Capture the whole virtual screen.
 #define CR_AV_MAIN_WINDOW     1  //!< Capture the area of application's main window.
 #define CR_AV_PROCESS_WINDOWS 2  //!< Capture all visible process windows.
-#define CR_AV_QUALITY_FAST    0  //!< Fast video encoding, lower quality.
-#define CR_AV_QUALITY_GOOD    4  //!< Good encoding quality, slower encoding.
-#define CR_AV_QUALITY_BEST    8  //!< The best encoding quality, the slowest encoding.
-#define CR_AV_NO_GUI         16  //!< Do not display the dialog.
+#define CR_AV_QUALITY_LOW     0  //!< Low quality video encoding, smaller file size.
+#define CR_AV_QUALITY_GOOD    4  //!< Good encoding quality, larger file size.
+#define CR_AV_QUALITY_BEST    8  //!< The best encoding quality, the largest file size.
+#define CR_AV_NO_GUI         16  //!< Do not display the notification dialog.
 
 /*! \ingroup CrashRptAPI  
 *  \brief Allows to record what happened before crash to a video file and include the file to crash report.
@@ -1096,11 +1105,15 @@ crAddRegKeyA(
 
 
 /*! \ingroup CrashRptStructs
-*   \brief The structure used by the crGenerateErrorReport() function.
+*   \brief This structure contains information about the crash.
 *  
-*  This structure defines the information needed to generate crash minidump file and
+*  The information provided by this structure includes the exception type, exception code, 
+*  exception pointers and so on. These are needed to generate crash minidump file and
 *  provide the developer with other information about the error. This structure is used by
-*  the crGenerateErrorReport() function.
+*  the crGenerateErrorReport() function. Pointer to this structure is also passed to the
+*  crash callback function (see the \ref LPGETLOGFILE() function prototype).
+*
+*  Structure members details are provided below:
 *
 *  \b cb [in] 
 *
@@ -1156,7 +1169,7 @@ crAddRegKeyA(
 *
 *     As of v.1.2.8, \a hSenderProcess parameter will contain the handle to the <b>CrashSender.exe</b> process when 
 *     \ref crGenerateErrorReport function returns. The caller may use this handle to wait until <b>CrashSender.exe</b> 
-*     process exits and check the exit code.
+*     process exits and check the exit code. When the handle is not needed anymore, release it with the \b CloseHandle() function.
 */
 
 typedef struct tagCR_EXCEPTION_INFO

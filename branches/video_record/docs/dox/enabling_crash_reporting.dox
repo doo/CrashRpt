@@ -19,7 +19,7 @@ and uninitialize CrashRpt.
 
 <b>A note for MFC users.</b>
 
-If your application is MFC-based, you should override your <i>CWinApp::Run()</i> method and install CrashRpt there. 
+If your application is MFC-based, you should overload your <i>CWinApp::Run()</i> method and install CrashRpt there. 
 In the CPP file containing your App class, add the following code:
 
 \code
@@ -176,7 +176,7 @@ always provide a link to your Privacy Policy file describing what information yo
 crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
 with the contents of the error report and accepts the terms of the Privacy Policy. 
 
-To specify the file containing your Privacy Policy text, use the \ref CR_INSTALL_INFO::pszPrivacyPolicy
+To specify the file containing your Privacy Policy text, use the \ref CR_INSTALL_INFO::pszPrivacyPolicyURL
 structure member. This parameter can be either a web-based URL (e.g. <i>http://example.com/privacy.html</i>),
 or an absolute path to local file (e.g. <i>file:///C:/MyApp/privacy.html</i>). The file
 may be an HTML page, a TXT file or an RTF file.
@@ -185,12 +185,16 @@ may be an HTML page, a TXT file or an RTF file.
 
 Typically, you call the functions described above in the following order:
  - Initialize CrashRpt with \ref crInstall() function;
- - Add custom files, properties, desktop screenshots, registry keys to the error report;
+ - Add custom files, properties, desktop screenshots, video, registry keys to the error report;
  - Run the main application code or window message loop;
  - When the main application code exits, uninitialize CrashRpt with \ref crUninstall();
  - Exit the application.  
 
-For CrashRpt API usage example, please refer to \ref simple_example page.
+In general, you may add files, properties, desktop screenshots, video, registry keys any time
+after you call the \ref crInstall() function and before you call the \ref crUninstall function.
+It is also possible (but not recommended) to add those files inside of the crash callback function.
+
+For a CrashRpt API usage example, please refer to \ref simple_example page.
 
 <i>Further reading:</i> \ref sending_error_reports.
 

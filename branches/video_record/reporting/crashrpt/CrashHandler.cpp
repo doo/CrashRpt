@@ -1247,7 +1247,7 @@ int CCrashHandler::GenerateErrorReport(
         m_pCrashDesc->m_dwInstallFlags &= ~CR_INST_APP_RESTART;
 
     // Let client know about the crash via the crash callback function. 
-    if (m_lpfnCallback!=NULL && m_lpfnCallback(NULL)==FALSE)
+    if (m_lpfnCallback!=NULL && m_lpfnCallback(pExceptionInfo)==FALSE)
     {
         crSetErrorMsg(_T("The operation was cancelled by client."));
         return 2;

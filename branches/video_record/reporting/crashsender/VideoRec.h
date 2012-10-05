@@ -16,7 +16,7 @@ be found in the Authors.txt file in the root of the source tree.
 #pragma once
 #include "stdafx.h"
 #include "ScreenCap.h"
-#include "vpx/vpx_encoder.h"
+#include "theora/theoraenc.h"
 
 // class CVideoRecorder
 // Captures desktop and writes the video frames as raw uncompressed BMP files
@@ -62,13 +62,18 @@ private:
 	void SetVideoFrameInfo(int nFrameId, ScreenshotInfo& ssi);
 
 	// Composes video frame from one or several bitmaps.
-	BOOL ComposeFrame(int nFrameId, vpx_image_t *pImage);
+	BOOL ComposeFrame(int nFrameId, th_ycbcr_buffer* raw);
 
 	// Creates a device-independent bitmap (DIB) used as video frame
 	BOOL CreateFrameDIB(DWORD dwWidth, DWORD dwHeight,int nBits);
 
 	// Loads a BMP file and returns its data.
 	HBITMAP LoadBitmapFromBMPFile(LPCTSTR szFileName);
+
+	// Converts an RGB24 image to YV12 image.
+	void RGB_To_YV12( unsigned char *pRGBData, int nFrameWidth, 
+				int nFrameHeight, int nRGBStride, void *pFullYPlane, 
+				void *pDownsampledUPlane, void *pDownsampledVPlane );
 	
 	/* Internal variables */
 	BOOL m_bInitialized;  // Init flag.
@@ -91,5 +96,5 @@ private:
 	LPBITMAPINFO m_pDIB;  // Bitmap info.
 	HDC m_hDC;            // Device context.
 	HBITMAP m_hOldBitmap; //
-	vpx_image_t *m_pImage;
+	//vpx_image_t *m_pImage;
 };
