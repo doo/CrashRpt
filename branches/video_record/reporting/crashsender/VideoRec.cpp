@@ -183,7 +183,6 @@ BOOL CVideoRecorder::EncodeVideo()
 	th_enc_ctx      *td = NULL;
 	th_info          ti;
 	th_comment       tc;
-	ogg_uint32_t keyframe_frequency=0;
 	int frame_avail = 0;
 	th_ycbcr_buffer raw;	
 	int frame_cnt = 0;
