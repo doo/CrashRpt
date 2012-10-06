@@ -137,7 +137,8 @@ BOOL WINAPI CrashCallback(LPVOID /*lpvState*/)
 \endcode
 
 Because we have a multi-threaded application, we need to use some \ref CrashRptAPI
-to set exception handlers for the worker thread. In this example, we use the \r
+to set exception handlers for the worker thread. In this example, we use the \ref
+crInstallToCurrentThread2() and \ref crUninstallFromCurrentThread() functions.
 
 Below we have it all in one:
 
