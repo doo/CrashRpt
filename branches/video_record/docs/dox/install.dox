@@ -63,8 +63,11 @@ in the table below.
 <td><a href="http://www.ijg.org/">JPEG library</a>
 <td><a href="http://www.ijg.org/">Independent JPEG Group license</a>
 <tr>
-<td><a href="http://www.webmproject.org/">libvpx</a>
-<td><a href="http://www.webmproject.org/license/">BSD-style license</a>
+<td><a href="http://www.theora.org/">libtheora</a>
+<td><a href="http://www.theora.org/faq/#14">BSD-style license</a>
+<tr>
+<td><a href="http://xiph.org/ogg/">libogg</a>
+<td><a href="http://xiph.org/ogg/">BSD-style license</a>
 </table>
                  
 \section main_features Main Features

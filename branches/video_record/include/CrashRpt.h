@@ -878,12 +878,12 @@ crAddScreenshot2(
 *    - \ref CR_AV_PROCESS_WINDOWS Use this to capture all visible windows that belong to the process.
 * 
 *    use one of the following constants to define the desired video encoding quality:
-*    - \ref CR_AV_QUALITY_FAST    Fast video encoding, lower quality. This is the default.
-*    - \ref CR_AV_QUALITY_GOOD    Good encoding quality, slower encoding.
-*    - \ref CR_AV_QUALITY_BEST    The best encoding quality, the slowest encoding.
+*    - \ref CR_AV_QUALITY_LOW     Low-quality video encoding. This is the default.
+*    - \ref CR_AV_QUALITY_GOOD    Good encoding quality, larger file.
+*    - \ref CR_AV_QUALITY_BEST    The best encoding quality, the largest file.
 *
 *  The main application window is a window that has a caption (\b WS_CAPTION), system menu (\b WS_SYSMENU) and
-*  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such window, it considers the first found process window as
+*  the \b WS_EX_APPWINDOW extended style. If CrashRpt doesn't find such a window, it considers the first found process window as
 *  the main window.
 *
 *  When the function is called, it displays a dialog notifying the user about video recording.
@@ -892,10 +892,14 @@ crAddScreenshot2(
 *  If you do not want to display the dialog, specify the \ref CR_AV_NO_GUI flag for \b dwFlags argument.
 *
 *  The recorded video will be maximum \b nDuration milliseconds long with \b nFrameInterval
-*  milliseconds interval between subsequent video frames.
+*  milliseconds interval between subsequent video frames. If \b nDuration and\or \b nFrameInterval
+*  are set to zero (0), the default implementation-defined duration and frame interval are used.
 *
-*  The \b pDesiredFrameSize parameter allows to define the desired video frame size. 
-*  To preserve correct aspect ratio, set \b pDesiredFrameSize->cx or \b pDesiredFrameSize->cy
+*  The \b pDesiredFrameSize parameter allows to define the desired video frame size.
+*  Frame width and height must be a multiple of 16 (OGG Theora video codec's requirement). 
+*  If they are not, they are modified automatically to be a multiple of 16.
+*
+*  To preserve correct aspect ratio of the captured area, set \b pDesiredFrameSize->cx or \b pDesiredFrameSize->cy
 *  to zero. For example, setting \b pDesiredFrameSize->cx=640 and \b pDesiredFrameSize->cy=0
 *  results in video frames whose width is 640 pixels and height is calculated to preserve the
 *  correct aspect ratio of the captured area. If both \b cx and \b cy are specified, the aspect ratio
@@ -919,15 +923,15 @@ crAddScreenshot2(
 *  the captured desktop screenshot files are removed by the \ref crUninstall() function call and
 *  \b CrashSender.exe process is terminated.
 *
-*  If the client application crashes, the recorded screenshot files are compressed by 
-*  <a href="http://www.webmproject.org/">VP8 codec</a> and written into a .WebM file. The 
+*  If the client application crashes at some moment of time, the recorded screenshot files are compressed by 
+*  <a href="http://www.theora.org/">OGG Theora video codec</a> and written into an .OGG file. The 
 *  uncompressed temporary screenshots are then removed, and the resulting
-*  WebM file is included into crash report archive.
+*  OGG file is included into crash report archive.
 *
-*  The <a href="http://en.wikipedia.org/wiki/WebM">WebM video format</a> is a widely used 
-*  video container provided by the open-source WebM Project.
-*  WebM files can be opened in a browser like Google Chrome or Mozilla Firefox or in 
-*  another video player understanding this format.
+*  The <a href="http://en.wikipedia.org/wiki/Ogg">OGG video format</a> is a widely used 
+*  video container provided by the open-source OGG Project.
+*  OGG files can be opened in a browser like Google Chrome or Mozilla Firefox or in 
+*  another video player understanding this format, like ffmpeg.
 *
 *  Use this function only when necessary, because it may cause end user's computer performance
 *  loss. It also requires some amount of free disk space.
@@ -949,11 +953,11 @@ crAddScreenshot2(
 *  // Start capturing desktop. Desktop capture video will
 *  // be added to crash report on crash
 *  int nResult = crAddVideo(
-*         CR_AV_VIRTUAL_SCREEN|CR_AV_QUALITY_FAST, // Capture entire desktop
-*                                               // Fast encoding
+*         CR_AV_VIRTUAL_SCREEN|CR_AV_QUALITY_GOOD, // Capture entire desktop
+*                                               // Good encoding quality
 *         10000,   // 10 seconds long video
 *         300,     // 300 msec between frames (3.33 FPS)
-*         FrameSize,
+*         &FrameSize,
 *         NULL
 *    );
 *

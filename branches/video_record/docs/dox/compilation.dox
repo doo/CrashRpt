@@ -99,7 +99,11 @@ There are several projects in CrashRpt solution.
 
 - \b jpeg project contains JPEG file management functionality.
 
+- \b libogg project contains OGG video container management functionality (used together with \b libtheora).
+
 - \b libpng project contains PNG file management functionality.
+
+- \b libtheora project contains OGG Theora video codec functionality.
 
 - \b MFCDemo is a GUI application that helps to test that 
    CrashRpt API functions work as expected with a MFC-based application.

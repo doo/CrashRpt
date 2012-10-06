@@ -148,20 +148,21 @@ always provide a link to your Privacy Policy page describing what information yo
 crash and what purposes you use it for. By clicking the Send Report button, user confirms he/she is familiar 
 with the contents of the error report and accepts the terms of the Privacy Policy.
 
-\section adding_video Adding Video of a Crash
+\section adding_video Adding a Video of a Crash
 
 As of v.1.4.0, CrashRpt is able to capture end user's desktop and record what happened 
-just before crash to a .webm video file and include the file to crash report. The recorded information may help the 
+just before crash to an .ogg video file and include the file to crash report. The recorded information may help the 
 software vendor to better understand what actions the end user performed before client application 
 crashed and reproduce the error.
 
 To record the desktop state to a video file and add the file to crash report,
 use the \ref crAddVideo() function.
 
-The <a href="http://en.wikipedia.org/wiki/WebM">WebM video format</a> is a widely used 
-video container provided by the open-source WebM Project.
-WebM files can be opened in a browser like Google Chrome or Mozilla Firefox or in 
-another video player understanding this format.
+The <a href="http://en.wikipedia.org/wiki/Ogg">OGG</a> together with
+<a href="">Theora</a> are widely used video container and video codec, respectively, 
+provided by the open-source OGG Project.
+OGG files can be opened and played in a browser like Google Chrome or Mozilla Firefox or in 
+another video player understanding this format, like ffmpeg.
 
 \section adding_a_reg_key Adding a Registry Key
 
