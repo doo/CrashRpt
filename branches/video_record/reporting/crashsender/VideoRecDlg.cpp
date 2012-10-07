@@ -1,3 +1,18 @@
+/************************************************************************************* 
+This file is a part of CrashRpt library.
+Copyright (c) 2003-2012 The CrashRpt project authors. All Rights Reserved.
+
+Use of this source code is governed by a BSD-style license
+that can be found in the License.txt file in the root of the source
+tree. All contributing project authors may
+be found in the Authors.txt file in the root of the source tree.
+***************************************************************************************/
+
+// File: VideoRecDlg.cpp
+// Description: Video Recording Dialog.
+// Authors: zexspectrum
+// Date: Sep 2012
+
 #include "stdafx.h"
 #include "resource.h"
 #include "VideoRecDlg.h"
