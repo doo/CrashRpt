@@ -60,6 +60,7 @@ public:
         COMMAND_ID_HANDLER(ID_FILE_NEWWINDOW, OnFileNewWindow)
         COMMAND_ID_HANDLER(ID_FILE_EXIT, OnCancel)
         COMMAND_ID_HANDLER(ID_HELP_ABOUT, OnHelpAbout)
+		COMMAND_ID_HANDLER(IDC_SCREENCAP, OnScreenCapClicked)
 
     END_MSG_MAP()
 
@@ -74,6 +75,7 @@ public:
     LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnFileNewWindow(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnHelpAbout(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnScreenCapClicked(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
     void CloseDialog(int nVal);
     void DoCrash();
@@ -81,6 +83,7 @@ public:
 
     CComboBox m_cboThread;
     CComboBox m_cboExcType;
+	CButton m_btnScreenCap;
     CAboutDlg m_dlgAbout;
     int m_nDocNum;
 };

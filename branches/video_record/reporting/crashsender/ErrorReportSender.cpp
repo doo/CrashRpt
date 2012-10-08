@@ -2451,9 +2451,9 @@ BOOL CErrorReportSender::RecordVideo()
 		type = SCREENSHOT_TYPE_VIRTUAL_SCREEN;
 
 	// Determine what encoding quality to use
-	int quality = 0;
+	int quality = 10;
 	if((dwFlags&CR_AV_QUALITY_GOOD)!=0)
-		quality = 30;
+		quality = 40;
 	else if((dwFlags&CR_AV_QUALITY_BEST)!=0)
 		quality = 63;
 	
@@ -2489,13 +2489,15 @@ BOOL CErrorReportSender::RecordVideo()
 	// Video recording loop.
 	for(;;)
 	{
+		// Wait for a while
+		BOOL bExitLoop = WAIT_OBJECT_0==WaitForSingleObject(hEvent, m_CrashInfo.m_nVideoFrameInterval);
+
 		// This will record a single BMP file
 		m_VideoRec.RecordVideoFrame();
 
-		// Wait for a while
-		if(WAIT_OBJECT_0==WaitForSingleObject(hEvent, m_CrashInfo.m_nVideoFrameInterval))
+		if(bExitLoop)
 			break; // Event is signaled; break the loop
-
+					
 		// Check if the client app is still alive
 		HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, m_CrashInfo.m_dwProcessId);
 		if(hProcess==NULL)
@@ -2535,7 +2537,7 @@ BOOL CErrorReportSender::EncodeVideo()
     }
 	
 	 // Add a message to log
-    m_Assync.SetProgress(_T("Encoding recorded video."), 1);    
+    m_Assync.SetProgress(_T("Encoding recorded video, please wait..."), 1);    
 	
 	// Encode recorded video to a webm file
 	if(!m_VideoRec.EncodeVideo())

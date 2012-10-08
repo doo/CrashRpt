@@ -272,17 +272,17 @@ BOOL CVideoRecorder::EncodeVideo()
     th_info_clear(&ti);
 	
 	/*Allocate YV12 image */
-	int nDataSize = nFrameWidth*nFrameHeight*3/2;
+	int nDataSize = (nFrameWidth*nFrameHeight*3)/2;
 	unsigned char* pImageData = new unsigned char[nDataSize]; 
 	raw[0].data = pImageData;
 	raw[0].width = nFrameWidth;
 	raw[0].height = nFrameHeight;
 	raw[0].stride = nFrameWidth;
-	raw[1].data = pImageData+nDataSize*3/2;
+	raw[1].data = pImageData+nFrameWidth*nFrameHeight;
 	raw[1].width = nFrameWidth/2;
 	raw[1].height = nFrameHeight/2;
 	raw[1].stride = nFrameWidth/2;
-	raw[2].data = pImageData+nDataSize*3/4;
+	raw[2].data = pImageData+nFrameWidth*nFrameHeight*5/4;
 	raw[2].width = nFrameWidth/2;
 	raw[2].height = nFrameHeight/2;
 	raw[2].stride = nFrameWidth/2;
@@ -548,8 +548,9 @@ CString CVideoRecorder::GetOutFile()
 }
 
 void CVideoRecorder::RGB_To_YV12( unsigned char *pRGBData, int nFrameWidth, 
-	int nFrameHeight, int nRGBStride, void *pFullYPlane, void *pDownsampledUPlane, 
-	void *pDownsampledVPlane )
+	int nFrameHeight, int nRGBStride, unsigned char *pFullYPlane, 
+	unsigned char *pDownsampledUPlane, 
+	unsigned char *pDownsampledVPlane )
 {
 	// Convert RGB -> YV12. We do this in-place to avoid allocating any more memory.
 	unsigned char *pYPlaneOut = (unsigned char*)pFullYPlane;
@@ -581,20 +582,17 @@ void CVideoRecorder::RGB_To_YV12( unsigned char *pRGBData, int nFrameWidth,
 	}
 
 	// Downsample to U and V.
-	int halfHeight = nFrameHeight >> 1;
-	int halfWidth = nFrameWidth >> 1;
-
-	unsigned char *pVPlaneOut = (unsigned char*)pDownsampledVPlane;
-	unsigned char *pUPlaneOut = (unsigned char*)pDownsampledUPlane;
-
+	int halfHeight = nFrameHeight/2;
+	int halfWidth = nFrameWidth/2;
+		
 	for ( int yPixel=0; yPixel < halfHeight; yPixel++ )
 	{
 		int iBaseSrc = ( (yPixel*2) * nRGBStride );
 
 		for ( int xPixel=0; xPixel < halfWidth; xPixel++ )
 		{
-			pVPlaneOut[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 2];
-			pUPlaneOut[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 1];
+			pDownsampledVPlane[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 2];
+			pDownsampledUPlane[yPixel * halfWidth + xPixel] = pRGBData[iBaseSrc + 1];
 
 			iBaseSrc += 6;
 		}

@@ -72,8 +72,8 @@ private:
 
 	// Converts an RGB24 image to YV12 image.
 	void RGB_To_YV12( unsigned char *pRGBData, int nFrameWidth, 
-				int nFrameHeight, int nRGBStride, void *pFullYPlane, 
-				void *pDownsampledUPlane, void *pDownsampledVPlane );
+				int nFrameHeight, int nRGBStride, unsigned char *pFullYPlane, 
+				unsigned char *pDownsampledUPlane, unsigned char *pDownsampledVPlane );
 	
 	/* Internal variables */
 	BOOL m_bInitialized;  // Init flag.
