@@ -305,20 +305,20 @@ BOOL CErrorReportSender::DoWork(int Action)
         // so the parent process is able to unblock and terminate itself.
         UnblockParentProcess();
 		
-		// Encode recorded video to a webm file
-		EncodeVideo();
-		
-		if(m_Assync.IsCancelled()) // Check if user-cancelled
+        // Copy user-provided files.
+        CollectCrashFiles();
+
+        if(m_Assync.IsCancelled()) // Check if user-cancelled
         {      
             // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
             return FALSE;
         }
 
-        // Copy user-provided files.
-        CollectCrashFiles();
-
-        if(m_Assync.IsCancelled()) // Check if user-cancelled
+		// Encode recorded video to an .OGG file
+		EncodeVideo();
+		
+		if(m_Assync.IsCancelled()) // Check if user-cancelled
         {      
             // Add a message to log
             m_Assync.SetProgress(_T("[exit_silently]"), 0, false);
@@ -2436,7 +2436,8 @@ BOOL CErrorReportSender::RecordVideo()
 	if((dwFlags & CR_AV_NO_GUI) == 0)
 	{
 		CVideoRecDlg dlg;
-		INT_PTR res = dlg.DoModal(m_CrashInfo.m_hWndVideoParent);
+		INT_PTR res = dlg.DoModal(
+			IsWindow(m_CrashInfo.m_hWndVideoParent)?m_CrashInfo.m_hWndVideoParent:NULL);
 		if(res!=IDOK)
 			return FALSE;
 	}

@@ -1133,14 +1133,13 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 	else
 		m_hWndVideoParent = GetActiveWindow();
 
-	CRASH_DESCRIPTION* pCrashDesc = PackCrashInfoIntoSharedMem(&m_SharedMem, FALSE);
-
-    // Pack this info into shared memory
-    pCrashDesc->m_bAddVideo = TRUE;
-    pCrashDesc->m_dwVideoFlags = dwFlags;
-	pCrashDesc->m_nVideoDuration = nDuration;
-	pCrashDesc->m_nVideoFrameInterval = nFrameInterval;
-    pCrashDesc->m_DesiredFrameSize = m_DesiredFrameSize;
+	// Pack this info into shared memory
+    m_pTmpCrashDesc->m_bAddVideo = TRUE;
+    m_pTmpCrashDesc->m_dwVideoFlags = dwFlags;
+	m_pTmpCrashDesc->m_nVideoDuration = nDuration;
+	m_pTmpCrashDesc->m_nVideoFrameInterval = nFrameInterval;
+    m_pTmpCrashDesc->m_DesiredFrameSize = m_DesiredFrameSize;
+	m_pTmpCrashDesc->m_hWndVideoParent = m_hWndVideoParent;
 	
 	CString sEventName;
     sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), m_sCrashGUID);
@@ -1158,11 +1157,7 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 		crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
         return 6;
     }
-
-	// Restore internal pointers to shared mem
-    m_pTmpCrashDesc = m_pCrashDesc;
-    m_pTmpSharedMem = &m_SharedMem;   
-
+	
 	// OK
 	crSetErrorMsg(_T("Success."));
 	return 0;
