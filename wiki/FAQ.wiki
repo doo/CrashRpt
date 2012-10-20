@@ -18,6 +18,8 @@
 || [http://www.winimage.com/zLibDll/minizip.html minizip] || [http://www.gzip.org/zlib/zlib_license.html zlib license] ||
 || [http://www.libpng.org/pub/png/libpng.html libpng] || [http://www.libpng.org/pub/png/src/libpng-LICENSE.txt libpng license] ||
 || [http://www.ijg.org/ Jpeg library] || [http://www.ijg.org/ Independent JPEG Group license] ||
+|| [http://www.theora.org/ libtheora] || [http://www.theora.org/faq/#14 BSD-style license] || 
+|| [http://xiph.org/ogg/ libogg] || [http://xiph.org/ogg/ BSD-style license] ||
 
 == Is crashrpt a _fully_ open-source? ==
 
