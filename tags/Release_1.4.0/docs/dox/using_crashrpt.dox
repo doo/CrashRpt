@@ -1,0 +1,14 @@
+/*!
+
+\page using_crashrpt Using CrashRpt in Your Project
+
+This section covers the following topics:
+
+  - \subpage compiling_crashrpt
+  - \subpage configuring_project
+  - \subpage using_crashrpt_api
+  - \subpage simple_example
+  - \subpage internationalization_support
+  - \subpage preparing_to_software_release
+
+*/
