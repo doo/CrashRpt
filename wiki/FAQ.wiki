@@ -43,7 +43,7 @@ You may read the [http://www.codeproject.com/KB/MFC/CrashRptTutorial.aspx Integr
 
 A good starting point for learning `CrashRpt` is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
 
-If you speak Russian you may read this article [http://rsdn.ru/article/files/libs/crashrpt.xml Using the CrashRpt Library] on `rsdn.ru`.
+If you speak Russian you may read this article [http://rsdn.ru/article/files/libs/crashrpt.xml Using the CrashRpt Library] on `rsdn.ru` or [http://habrahabr.ru/post/156255/ this post] on `habrahabr.ru`.
 
 == Can I use crashrpt in a commercial application? ==
 
