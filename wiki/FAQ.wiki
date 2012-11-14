@@ -602,6 +602,14 @@ This way won't work when firewall is enabled and port 25 is closed for outbound 
 
 Mircosoft declared Simple MAPI deprecated and removed its support from recent versions of Mircosoft Outlook.
 
+== I'm trying to send a report, but MAPILogon fails with error 80004005. What do I do? ==
+
+This issue is not related to CrashRpt. See this knowldge base article: http://support.microsoft.com/kb/813745/en-us
+
+To resolve this issue, you must first remove the corrupted Outlook registry key, and then perform a Detect and Repair operation to have Outlook rebuild the key.
+
+Before trying the fix in the link above, check that the 'bitness' of your application and your Outlook correspond -- if you have 32-bit Outlook and 64-bit application, MAPI WILL fail.
+
 == What does crashrpt do when all attempts to send error report fail? == 
 
 This depends on how you have configured `CrashRpt`. `CrashRpt` can queue error reports for later submission (by default the report files are stored in `LOCAL_APP_DATA\CrashRpt\UnsentErrorReports\AppName_AppVersion` folder. Alternatively, if queue is disabled, `CrashRpt` erases the error report files when delivery fails. 
