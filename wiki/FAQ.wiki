@@ -39,7 +39,7 @@ If you have ever tried to determine the reason of a crash on user's machine, you
 
 == Are there any beginner's tutorials? ==
 
-You may read the [http://www.codeproject.com/KB/MFC/CrashRptTutorial.aspx Integrating Crash Reporting into Your Application - A Beginners Tutorial] article on `CodeProject.com`. 
+You may read the [http://www.codeproject.com/Articles/499313/Automating-the-Reporting-of-Critical-Errors-in-You Automating the Reporting of Critical Errors in Your Program] and the [http://www.codeproject.com/KB/MFC/CrashRptTutorial.aspx Integrating Crash Reporting into Your Application - A Beginners Tutorial] articles on `CodeProject.com`. 
 
 A good starting point for learning `CrashRpt` is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
 
