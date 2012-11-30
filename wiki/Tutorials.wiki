@@ -1,6 +1,10 @@
 #summary Beginner's Tutorials.
 #labels Phase-Support,Featured
 
+= Tutorials =
+
+The following tutorials are recommended for new `CrashRpt` users:
+
 *[http://www.codeproject.com/Articles/499313/Automating-the-Reporting-of-Critical-Errors-in-You Automating the Reporting of Critical Errors in Your Program]
 
 This tutorial shows why and how to automate collecting information about critical errors occurring in your program to greatly simplify your life in sense of bug analysis and troubleshooting.
