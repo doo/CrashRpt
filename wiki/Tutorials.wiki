@@ -11,4 +11,4 @@ This tutorial shows how to use `CrashRpt` library with an MFC application.
 
 *[http://crashrpt.sourceforge.net/docs/html/simple_example.html An Example of Using CrashRpt API]
 
-This tutorial shows how to use CrashRpt API functions and structures to enable crash reporting support in a console C++ application.
+This tutorial shows how to use `CrashRpt` API functions and structures to enable crash reporting support in a console C++ application.
