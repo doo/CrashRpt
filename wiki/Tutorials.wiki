@@ -5,13 +5,16 @@
 
 The following tutorials are recommended for new `CrashRpt` users:
 
+
 *<h2>[http://www.codeproject.com/Articles/499313/Automating-the-Reporting-of-Critical-Errors-in-You Automating the Reporting of Critical Errors in Your Program]</h2>
 
 This tutorial shows how to automate collecting information about critical errors occurring in your program to greatly simplify your life in sense of bug analysis and troubleshooting.
 
+
 *<h2>[http://www.codeproject.com/Articles/308634/Integrating-Crash-Reporting-into-Your-Application Integrating Crash Reporting into Your Application - A Beginners Tutorial]</h2>
 
 This tutorial shows how to use `CrashRpt` library with an MFC application.
+
 
 *<h2>[http://crashrpt.sourceforge.net/docs/html/simple_example.html An Example of Using CrashRpt API]</h2>
 
