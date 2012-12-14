@@ -472,6 +472,12 @@ If you edit resources in your compiled binaries, be careful of the following. In
 
 Yes, `CrashRpt` works with PDB files generated with help of `IncrediBuild`. [http://www.xoreax.com/ IncrediBuild] is a platform for accelerating Visual C++ builds through by distributing the build processes over local area network.
 
+== I use a software protection/licensing system (e.g. ElecKey or Themida) with my executables. Can I use it together with crashrpt? ==
+
+In general, yes. Such a software protection/licensing system usually provides API that can be used to wrap your code during the compilation. Minidumps for such a code will be generated correctly. 
+
+However, avoid modifying the binary image after it has been compiled (some software protection systems provide an ability to inject the code into compiled binaries). Modifying the image's PE headers or code segments may result in inability to recover stack traces correctly.
+
 == What files should I never distribute with my software release package? ==
 
   * All binaries (EXE, DLL) and program database files (PDB) compiled in `Debug` configuration SHOULD NOT be distributed as they will not only take up more space on your CD/download/client's machine, but they will also make reverse engineering your code a trivial exercise.
