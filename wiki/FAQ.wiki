@@ -537,7 +537,7 @@ For additional information, see these links: [http://msdn.microsoft.com/en-us/li
 
 This error typically means your application can't load the correct C run-time libraries (CRT). To determine what DLL modules your application depends on are missing, use the [http://www.dependencywalker.com/ Dependency Walker (depends.exe)] tool. Open your executable file with the `depends.exe` to see what CRT modules it depends on, and which ones are missing. Typically these modules are `msvcrXX.dll` and `msvcpXX.dll`, where XX is the version number of your Visual Studio (for example, Visual Studio 2005 has version number `80`). You should install CRT libraries either by running a Visual C++ Redistributable Package or by copying CRT DLL files and `Microsoft.VCXX.CRT.manifest` file to your application folder. Also ensure the version and architecture of the CRT files you install is correct. 
 
-== I do not like that I should distribute all these DLLs and EXEs (`CrashRpt.dll`, `dbghelp.dll`, 'CrashSender.exe'). Can I compile them all as static libs? ==
+== I do not like that I should distribute all these DLLs and EXEs (`CrashRpt.dll`, `dbghelp.dll`, `CrashSender.exe`). Can I compile them all as static libs? ==
 
 No, this is impossible. Architecture of `CrashRpt` requires two modules: `CrashRpt.dll` and `CrashSender.exe`. You may ignore distribution of `dbghelp.dll`, but a end-user's operating system may not have `dbghelp.dll` installed. So, you have to distribute all these binaries.
 
