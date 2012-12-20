@@ -547,9 +547,7 @@ It is not recommend to build libpng/zlib/minizip/etc as shared DLLs, because the
 
 == I want to make some projects in crashrpt solution to use multibyte charset instead of UNICODE. Can I do this? ==
 
-Why would you want to do so? `CrashRpt` API is designed to work with both multi-byte and UNICODE applications. 
-
-It may also be very difficult to convert CrashRpt projects from UNICODE to multibyte character set, because I did not take this into account when writing the code. CrashRpt code is designed to be compiled using UNICODE charset, and converting to multibyte would require to rewrite/patch some code. 
+Why would you want to do so? `CrashRpt` API is designed to work with both multi-byte and UNICODE applications. It may also be very difficult to convert `CrashRpt` projects from UNICODE to multibyte character set, because I did not take this into account when writing the code. `CrashRpt` code is designed to be compiled using UNICODE charset, and converting to multibyte would require to rewrite/patch some code. 
 
 So, it is strongly not recommended to modify the charset of projects in `CrashRpt ` solution.
 
