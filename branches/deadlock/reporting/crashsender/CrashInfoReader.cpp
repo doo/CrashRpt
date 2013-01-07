@@ -556,6 +556,7 @@ int CCrashInfoReader::UnpackCrashDescription(CErrorReportInfo& eri)
 	m_nVideoFrameInterval = m_pCrashDesc->m_nVideoFrameInterval;
     m_DesiredFrameSize = m_pCrashDesc->m_DesiredFrameSize;
 	m_hWndVideoParent = m_pCrashDesc->m_hWndVideoParent;
+	m_bDetectDeadlocks = m_pCrashDesc->m_bDetectDeadlocks;
 	m_bClientAppCrashed = m_pCrashDesc->m_bClientAppCrashed;
 
     DWORD dwOffs = m_pCrashDesc->m_wSize;

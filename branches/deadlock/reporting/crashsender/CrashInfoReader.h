@@ -266,6 +266,7 @@ public:
 	int         m_nVideoQuality;        // Video quality.
 	SIZE        m_DesiredFrameSize;     // Desired video frame size.
 	HWND        m_hWndVideoParent;      // Video recording dialog parent.
+	BOOL        m_bDetectDeadlocks;     // Deadlock detection flags.
 	BOOL        m_bClientAppCrashed;    // If TRUE, the client app has crashed; otherwise the client app exited successfully.
 	BOOL        m_bQueueEnabled;        // Can reports be sent later or not (queue enabled)?
 	// Below are exception information fields.

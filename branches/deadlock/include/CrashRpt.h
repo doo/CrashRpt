@@ -481,6 +481,7 @@ crSetCrashCallbackA(
 #define CR_INST_SEND_MANDATORY				 0x100000 //!< This flag removes the "Close" and "Other actions" buttons from Error Report dialog, thus making the sending procedure mandatory for user.
 #define CR_INST_SHOW_ADDITIONAL_INFO_FIELDS	 0x200000 //!< Makes "Your E-mail" and "Describe what you were doing when the problem occurred" fields of Error Report dialog always visible.
 #define CR_INST_ALLOW_ATTACH_MORE_FILES		 0x400000 //!< Adds an ability for user to attach more files to crash report by clicking "Attach More File(s)" item from context menu of Error Report Details dialog.
+#define CR_INST_DETECT_DEADLOCKS             0x800000 //!< Enables deadlock detection.
 
 /*! \ingroup CrashRptStructs
 *  \struct CR_INSTALL_INFOW()

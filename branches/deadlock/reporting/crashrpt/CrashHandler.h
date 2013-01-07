@@ -218,6 +218,9 @@ public:
 	// Calls the crash callback function (if specified by user).
 	int CallBack(int nStage, CR_EXCEPTION_INFO* pExInfo);
 
+	// Launches deadlock detection process.
+	int StartDeadLockDetection();
+
     /* Private member variables. */
 
 	// Singleton of the CCrashHandler class.
@@ -280,6 +283,7 @@ public:
 	int   m_nVideoFrameInterval;   // Video frame interval.
 	SIZE   m_DesiredFrameSize;     // Video frame size.
 	HWND m_hWndVideoParent;        // Parent window for video recording dialog.
+	BOOL m_bDetectDeadlocks;       // Deadlock detection flag.
     CString m_sCustomSenderIcon;   // Resource name that can be used as custom Error Report dialog icon.
     std::map<CString, FileItem> m_files; // File items to include.
     std::map<CString, CString> m_props;  // User-defined properties to include.

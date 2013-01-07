@@ -56,6 +56,7 @@ CCrashHandler::CCrashHandler()
 	m_nVideoFrameInterval = 500; // 500 msec
 	m_DesiredFrameSize.cx = 0; // default video frame size
 	m_DesiredFrameSize.cy = 0;
+	m_bDetectDeadlocks = FALSE;
     m_hEvent = NULL;  
 	m_hEvent2 = NULL;
     m_pCrashDesc = NULL;
@@ -414,8 +415,8 @@ int CCrashHandler::Init(
         crSetErrorMsg(_T("Couldn't set C++ exception handlers for main execution thread."));
         return 1;
     }
-	    
-    // If user wants us to send pending error reports that were queued recently,
+	
+	// If user wants us to send pending error reports that were queued recently,
     // launch the CrashSender.exe and make it to alert user and send the reports.
     if(dwFlags&CR_INST_SEND_QUEUED_REPORTS)
     {
@@ -461,6 +462,10 @@ int CCrashHandler::Init(
 
 		FreeLibrary(hKernel32);
 	}
+
+	// Start deadlock detection. This will create another process
+	// that will monitor deadlocks in current process.
+	StartDeadLockDetection();
 
     // Initialization OK.
     m_bInitialized = TRUE;
@@ -1183,6 +1188,39 @@ int CCrashHandler::AddVideo(DWORD dwFlags, int nDuration, int nFrameInterval,
 	return 0;
 }
 
+int CCrashHandler::StartDeadLockDetection()
+{
+	// This method launches CrashSender.exe process that will monitor
+	// deadlocks in this process.
+
+	m_bDetectDeadlocks = (m_dwFlags&CR_INST_DETECT_DEADLOCKS)!=0;
+	if(!m_bDetectDeadlocks)
+		return 1; // Deadlock detection is disabled
+
+	// Pack this info into shared memory
+    m_pTmpCrashDesc->m_bDetectDeadlocks = TRUE;
+   
+	// Create synchronization object
+	CString sEventName;
+    sEventName.Format(_T("Local\\CrashRptEvent_%s_2"), m_sCrashGUID);
+    m_hEvent2 = CreateEvent(NULL, FALSE, FALSE, sEventName);
+    if(m_hEvent2==NULL)
+    {
+        crSetErrorMsg(_T("Couldn't create synchronization event."));
+        return 5; 
+    }
+
+	// Launch the CrashSender.exe process that will continuously record video 
+	// in background.    
+    if(0!=LaunchCrashSender(m_SharedMem.GetName(), FALSE, &m_hSenderProcess))
+    {
+		crSetErrorMsg(_T("Couldn't launch CrashSender.exe process."));
+        return 6;
+    }
+
+	return 0;
+}
+
 // Generates error report
 int CCrashHandler::GenerateErrorReport(
         PCR_EXCEPTION_INFO pExceptionInfo)
@@ -1222,6 +1260,7 @@ int CCrashHandler::GenerateErrorReport(
 	// Set "client app crashed" flag
 	m_pCrashDesc->m_bClientAppCrashed = TRUE;
 	m_pCrashDesc->m_bAddVideo = FALSE;
+	m_pCrashDesc->m_bDetectDeadlocks = FALSE;
     // Save current process ID, thread ID and exception pointers address to shared mem.
     m_pCrashDesc->m_dwProcessId = GetCurrentProcessId();
     m_pCrashDesc->m_dwThreadId = GetCurrentThreadId();
