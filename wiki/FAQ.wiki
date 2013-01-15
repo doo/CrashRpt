@@ -122,6 +122,10 @@ The latest version of `CrashRpt` can be found at [http://code.google.com/p/crash
 
 `CrashRpt` uses `7z` file format for its distribution archive, because this format offers better compression than regular `zip` format. You can open the archive using [http://www.7-zip.org/ 7-Zip] program.
 
+== I want to receive notifications on new releases of crashrpt. Do you have a mailing list for this? ==
+
+To track new releases and other changes in `CrashRpt` project, you can use [http://code.google.com/p/crashrpt/feeds Project Feeds].
+
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
 You can sign in using Google account and add a comment for this wiki page. Or you can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required).
