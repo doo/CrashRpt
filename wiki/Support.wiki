@@ -2,20 +2,20 @@
 
 <table border="0" cellpadding="10" cellspacing="10">
 <tr>
-<td><h2>[Tutorials]</h2></td>
+<td><h3>[Tutorials]</h3></td>
 <td>Read this if you are new to `CrashRpt`</td>
 </tr>
 <tr>
-<td><h2>[http://crashrpt.sourceforge.net Online Documentation]</h2></td>
+<td><h3>[http://crashrpt.sourceforge.net Online Documentation]</h3></td>
 <td>`CrashRpt` user manual & API reference</td>
 </tr>
 <tr>
-<td><h2>[FAQ]</h2></td>
+<td><h3>[FAQ]</h3></td>
 <td>Read this for quick start and for troubleshooting</td>
 </tr>
 <tr>
-<td><h2><a href="http://groups.google.com/group/crashrpt/topics">Forum</a></h2></td>
-<td>Sign in to ask a question or participate in a discussion</td>
+<td><h3><a href="http://groups.google.com/group/crashrpt/topics">Forum</a></h3></td>
+<td>Use this if you have a question or need help</td>
 </tr>
 </table>
 
