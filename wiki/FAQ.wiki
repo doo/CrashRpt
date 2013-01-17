@@ -47,6 +47,20 @@ You can use `CrashRpt` in C++ programs created using Visual C++. You can NOT use
 
 Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
 
+== What is an exception? ==
+
+An exception or a critical error typically means that a program stops working normally and needs to stop its execution.
+
+For example, an exception may occur because of the following:
+
+  * program accesses an invalid memory address (such as NULL pointer)
+  * stack is overflown due to infinite recursion
+  * large block of data is written to a small buffer
+  * a pure virtual method of a C++ class is called
+  * memory buffer can't be allocated (out of memory)
+  * invalid parameter is passed to a C++ system function
+  * C++ run time libraries detect an error and request program termination
+
 == Is crashrpt a _fully_ open-source? ==
 
 `CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users' computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
@@ -71,20 +85,6 @@ No, the New BSD License that is used by `CrashRpt` permits to distribute the `Cr
 
 Yes, you are right. You should follow the instructions listed in those
 licenses. In most cases including those licenses into your distribution would be sufficient.
-
-== What is an exception? ==
-
-An exception or a critical error typically means that a program stops working normally and needs to stop its execution.
-
-For example, an exception may occur because of the following:
-
-  * program accesses an invalid memory address (such as NULL pointer)
-  * stack is overflown due to infinite recursion
-  * large block of data is written to a small buffer
-  * a pure virtual method of a C++ class is called
-  * memory buffer can't be allocated (out of memory)
-  * invalid parameter is passed to a C++ system function
-  * C++ run time libraries detect an error and request program termination
 
 == Does crashrpt have a server-side component that would process crash reports automatically? ==
 
