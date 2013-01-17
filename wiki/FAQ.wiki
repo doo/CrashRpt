@@ -25,7 +25,7 @@
 
 == Why should I use crashrpt in my Visual C++ project? ==
 
-If you have ever tried to determine the reason of a crash on end user's machine, you might know how difficult it is when you have user's directions only: "I opened something, then I clicked something and then it stopped working" or a plain text log file. 
+If you have ever tried to determine the reason of a crash on end user's machine, you might know how difficult it is when you have user's directions only: "I opened something, then I clicked something and then it stopped working". 
 
 Most users won't contact you to tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. 
 
