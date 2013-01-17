@@ -31,9 +31,9 @@ This makes debugging remote crashes almost impossible, except in the simplest si
 
 == What are the main features of crashrpt? ==
 
-  * `CrashRpt` is an open-source exception handling, reporting and post-processing library. It is designed for Windows applications written using Microsoft Visual C++. `CrashRpt` is able to intercept unhandled SEH exceptions, typed C++ exceptions and C run-time errors.
+  * `CrashRpt` is a free and open-source crash reporting library. It is designed for Windows applications build in Microsoft Visual Studio IDE. `CrashRpt` is able to intercept unhandled SEH exceptions, typed C++ exceptions and C run-time errors.
 
-  * `CrashRpt` can send error reports using HTTP (or HTTPS) or using E-mail. The E-mail is suitable for developers who don't have a server for storing error reports. To send reports over E-mail, end user's machine should have a mail program installed, for example Mozilla Thunderbird or Microsoft Outlook.
+  * `CrashRpt` can send error reports using HTTP (or HTTPS) or using an E-mail message. The E-mail messages is suitable for developers who don't have a server for storing error reports. 
 
   * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
