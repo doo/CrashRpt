@@ -21,10 +21,6 @@
 || [http://www.theora.org/ libtheora] || [http://www.theora.org/faq/#14 BSD-style license] || 
 || [http://xiph.org/ogg/ libogg] || [http://xiph.org/ogg/ BSD-style license] ||
 
-== Is crashrpt a _fully_ open-source? ==
-
-Actually, the Microsoft Debug Help Library (`dbghelp.dll`) `CrashRpt` depends on is not an open-source software. However, currently there is no possibility to remove this dependency. You can consider `dbghelp.dll` as a standard system library that is distributed with `CrashRpt` to avoid problems with older `dbghelp.dll`'s versions installed on end-users` computers.
-
 == Why should I use crashrpt in my Visual C++ project? ==
 
 If you have ever tried to determine the reason of a crash on user's machine, you might know how difficult it is when you have user's directions only: "I opened something, then I clicked something and then it stopped working". Most users won't contact you to tell about the problem and just give up using the program after several crashes. Users who decide to report the problem might not have technical knowledge, so it is difficult to determine the reason of the problem based on their instructions. This makes debugging remote crashes almost impossible, except in the simplest situations. That's why it is important to use special tools to report errors automatically.
@@ -44,6 +40,10 @@ You may read the [http://www.codeproject.com/Articles/499313/Automating-the-Repo
 A good starting point for learning `CrashRpt` is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
 
 If you speak Russian you may read this article [http://rsdn.ru/article/files/libs/crashrpt.xml Using the CrashRpt Library] on `rsdn.ru` or [http://habrahabr.ru/post/156255/ this post] on `habrahabr.ru`.
+
+== Is crashrpt a _fully_ open-source? ==
+
+CrashRpt itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users` computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
 
 == Can I use crashrpt in a commercial application? ==
 
