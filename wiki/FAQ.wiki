@@ -86,12 +86,6 @@ No, the New BSD License that is used by `CrashRpt` permits to distribute the `Cr
 Yes, you are right. You should follow the instructions listed in those
 licenses. In most cases including those licenses into your distribution would be sufficient.
 
-== Does crashrpt have a server-side component that would process crash reports automatically? ==
-
-You may try the [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
-
-[http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
-
 == Where can I find the latest version of crashrpt? ==
 
 The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see [http://crashrpt.googlecode.com/svn/trunk/Changelog.txt What's New].
@@ -146,6 +140,28 @@ You can compile `CrashRpt` in Visual C++ 2005, Visual C++ 2008, Visual C++ 2010 
 
 You can also compile `CrashRpt` in Visual C++ Express Edition. For additional info on compiling `CrashRpt` in VC++ Express, see below.
 
+== Does crashrpt have a server-side component that would process crash reports automatically? ==
+
+You may try the [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
+
+[http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
+
+== I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
+
+You can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required). 
+
+= Installation Related Questions =
+
+== How do I properly install crashrpt? ==
+
+Typically, you download and unzip `CrashRpt` archive to some folder and then follow installation instructions listed in the documentation. These include compiling `CrashRpt` in your version of Visual Studio IDE, configuring your project's build settings and using `CrashRpt` API.
+
+== Why is it strongly recommended that I compile crashrpt myself? ==
+
+It is strongly recommended that you compile `CrashRpt` yourself to ensure `CrashRpt` uses the same C run-time DLLs as your application. 
+
+`CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
+
 == How do I compile crashrpt in Visual C++ Express Edition? ==
 
 In order to compile `CrashRpt` in Visual C++ Express Edition, you additionally have to download and install either `Microsoft Windows Driver Kit 7.0` (recommended) or `Microsoft Platform SDK for Windows Server 2003 SP1`. Below these two alternatives are described:
@@ -172,23 +188,7 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 == What platforms crashrpt can be compiled for? ==
 
-Since v1.2.1, `CrashRpt` can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms. Earlier versions supported Win32 platform only.
-
-== I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
-
-You can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required). 
-
-= Installation Related Questions =
-
-== How do I properly install crashrpt? ==
-
-Typically, you download and unzip `CrashRpt` archive to some folder and then follow installation instructions listed in the documentation. These include compiling `CrashRpt` in your version of Visual Studio IDE, configuring your project's build settings and using `CrashRpt` API.
-
-== Why is it strongly recommended that I compile crashrpt myself? ==
-
-It is strongly recommended that you compile `CrashRpt` yourself to ensure `CrashRpt` uses the same C run-time DLLs as your application. 
-
-`CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
+`CrashRpt` can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
 
 == I install crashrpt to my MFC app, but exceptions are not caught. What do I do? ==
 
