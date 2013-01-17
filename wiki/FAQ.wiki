@@ -2,6 +2,8 @@
 #labels Featured,Phase-Deploy
 
 
+= General Questions = 
+
 == What is crashrpt? ==
 
 `CrashRpt` is a light-weight open-source error reporting library for C++ applications created in Microsoft Visual C++ and running in Windows. 
@@ -126,6 +128,12 @@ The latest version of `CrashRpt` can be found at [http://code.google.com/p/crash
 
 `CrashRpt` uses `7z` file format for its distribution archive, because this format offers better compression than regular `zip` format. You can open the archive using [http://www.7-zip.org/ 7-Zip] program.
 
+== Where do I look for crashrpt documentation? ==
+
+The documentation is usually included into the `CrashRpt` distribution archive. To open the documentation, click the `index.html` in the top level directory of the `CrashRpt` distribution.
+
+Online documentation for the latest `CrashRpt` version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
+
 == I want to receive notifications on new releases of crashrpt. Do you have a mailing list for this? ==
 
 To track new releases and other changes in `CrashRpt` project, you can use [http://code.google.com/p/crashrpt/feeds Project Feeds].
@@ -148,9 +156,9 @@ If the code in `CrashRpt.dll` works fine, but `CrashSender.exe` crashes, you nee
 
 First of all create a topic in our [http://groups.google.com/group/crashrpt Forum] and describe there how you would like to contribute. Then we will add your email to the list of project members and you will be able to make changes in the source code.
 
-== How can I show my appreciation of crashrpt project? ==
+== Who are the crashrpt project authors? ==
 
-If you like `CrashRpt` and use it in your software, you can show your appreciation by adding your project name and logo to the WhoUsesCrashRpt page. By doing this you make `CrashRpt` more significant for other users and also support further development. 
+The list of project authors can be found [http://crashrpt.sourceforge.net/Authors.txt here].
 
 == What Windows versions crashrpt can work in? ==
 
@@ -196,12 +204,6 @@ It is strongly recommended that you compile `CrashRpt` yourself to ensure `Crash
 the same C run-time DLLs as your application. 
 
 `CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
-
-== Where do I look for crashrpt documentation? ==
-
-The documentation is usually included into the `CrashRpt` distribution archive. To open the documentation, click the `index.html` in the top level directory of the `CrashRpt` distribution.
-
-Online documentation for the latest `CrashRpt` version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
 
 == How do I properly install crashrpt? ==
 
