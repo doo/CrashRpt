@@ -39,14 +39,6 @@ This makes debugging remote crashes almost impossible, except in the simplest si
 
   * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
-== Are there any beginner's tutorials? ==
-
-You may read the [http://www.codeproject.com/Articles/499313/Automating-the-Reporting-of-Critical-Errors-in-You Automating the Reporting of Critical Errors in Your Program] and the [http://www.codeproject.com/KB/MFC/CrashRptTutorial.aspx Integrating Crash Reporting into Your Application - A Beginners Tutorial] articles on `CodeProject.com`. 
-
-A good starting point for learning `CrashRpt` is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
-
-If you speak Russian you may read this article [http://rsdn.ru/article/files/libs/crashrpt.xml Using the CrashRpt Library] on `rsdn.ru` or [http://habrahabr.ru/post/156255/ this post] on `habrahabr.ru`.
-
 == Is crashrpt a _fully_ open-source? ==
 
 CrashRpt itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users` computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
@@ -134,13 +126,17 @@ The documentation is usually included into the `CrashRpt` distribution archive. 
 
 Online documentation for the latest `CrashRpt` version is also available here: [http://crashrpt.sourceforge.net/ Online Documentation].
 
+== Are there any beginner's tutorials? ==
+
+You may read the [http://www.codeproject.com/Articles/499313/Automating-the-Reporting-of-Critical-Errors-in-You Automating the Reporting of Critical Errors in Your Program] and the [http://www.codeproject.com/KB/MFC/CrashRptTutorial.aspx Integrating Crash Reporting into Your Application - A Beginners Tutorial] articles on `CodeProject.com`. 
+
+A good starting point for learning `CrashRpt` is the FAQ you are currently reading and the [http://crashrpt.sourceforge.net Online Documentation].
+
+If you speak Russian you may read this article [http://rsdn.ru/article/files/libs/crashrpt.xml Using the CrashRpt Library] on `rsdn.ru` or [http://habrahabr.ru/post/156255/ this post] on `habrahabr.ru`.
+
 == I want to receive notifications on new releases of crashrpt. Do you have a mailing list for this? ==
 
 To track new releases and other changes in `CrashRpt` project, you can use [http://code.google.com/p/crashrpt/feeds Project Feeds].
-
-== I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
-
-You can sign in using Google account and add a comment for this wiki page. Or you can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required).
 
 == How do I report a bug in crashrpt or request a new feature? ==
 
@@ -198,16 +194,21 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 Since v1.2.1, `CrashRpt` can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms. Earlier versions supported Win32 platform only.
 
-== Why is it strongly recommended that I compile crashrpt myself? ==
+== I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
-It is strongly recommended that you compile `CrashRpt` yourself to ensure `CrashRpt` uses
-the same C run-time DLLs as your application. 
+You can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required). 
 
-`CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
+= Installation Related Questions =
 
 == How do I properly install crashrpt? ==
 
-This depends on `CrashRpt` version you use. Typically, you download and unzip `CrashRpt` archive to some folder and then follow installation instructions listed in the documentation.
+Typically, you download and unzip `CrashRpt` archive to some folder and then follow installation instructions listed in the documentation. These include compiling `CrashRpt` in your version of Visual Studio IDE, configuring your project's build settings and using `CrashRpt` API.
+
+== Why is it strongly recommended that I compile crashrpt myself? ==
+
+It is strongly recommended that you compile `CrashRpt` yourself to ensure `CrashRpt` uses the same C run-time DLLs as your application. 
+
+`CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
 
 == How does crashrpt support multi-lingual user interface? ==
 
