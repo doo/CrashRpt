@@ -39,6 +39,14 @@ This makes debugging remote crashes almost impossible, except in the simplest si
 
   * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
+== What programming languages can I use crashrpt in? ==
+
+You can use `CrashRpt` in C++ programs created using Visual C++. You can NOT use it in .NET or in Visual Basic. 
+
+== Can I use crashrpt in an MFC-based application? ATL/WTL-based application? WinAPI application? ==
+
+Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
+
 == Is crashrpt a _fully_ open-source? ==
 
 `CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users' computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
@@ -63,34 +71,6 @@ No, the New BSD License that is used by `CrashRpt` permits to distribute the `Cr
 
 Yes, you are right. You should follow the instructions listed in those
 licenses. In most cases including those licenses into your distribution would be sufficient.
-
-== What programming languages can I use crashrpt in? ==
-
-You can use `CrashRpt` in C++ programs created using Visual C++. You can not use it in .NET or in Visual Basic. 
-
-== Can I use crashrpt in an MFC-based application? ATL/WTL-based application? WinAPI application? ==
-
-Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
-
-== I install crashrpt to my MFC app, but exceptions are not caught. What do I do? ==
-
-You can override your `CWinApp::Run()` method and install `CrashRpt` there. In the CPP file containing your App class, add the following code:
-
-{{{
-int CYourApp::Run() 
-{
-  // Call your crInstall code here ...
-
-  BOOL bRun;
-  BOOL bExit=FALSE;
-  while(!bExit)
-  {
-    bRun= CWinApp::Run();
-    bExit=TRUE;
-  }
-  return bRun;
-}
-}}}
 
 == What is an exception? ==
 
@@ -209,6 +189,26 @@ Typically, you download and unzip `CrashRpt` archive to some folder and then fol
 It is strongly recommended that you compile `CrashRpt` yourself to ensure `CrashRpt` uses the same C run-time DLLs as your application. 
 
 `CrashRpt` distribution already has compiled `CrashRpt` binaries, but it is not recommended to use them with your software, because your software may use different C run-time DLLs, and `CrashRpt` won't be able to intercept exceptions in your C run-time libraries.
+
+== I install crashrpt to my MFC app, but exceptions are not caught. What do I do? ==
+
+You can override your `CWinApp::Run()` method and install `CrashRpt` there. In the CPP file containing your App class, add the following code:
+
+{{{
+int CYourApp::Run() 
+{
+  // Call your crInstall code here ...
+
+  BOOL bRun;
+  BOOL bExit=FALSE;
+  while(!bExit)
+  {
+    bRun= CWinApp::Run();
+    bExit=TRUE;
+  }
+  return bRun;
+}
+}}}
 
 == How does crashrpt support multi-lingual user interface? ==
 
