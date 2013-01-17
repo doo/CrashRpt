@@ -53,7 +53,7 @@ The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states
 
 == Where would you like your copyright notice reproduced? Is the About dialog and an accompanying Readme sufficient? ==
 
-Yes, feel free to redroduce the copyright notice in your About dialog. The accompanying Readme would be sufficient, too.
+Yes, feel free to reproduce the copyright notice in your About dialog. The accompanying Readme would be sufficient, too.
 
 == I want to sign crashrpt binaries with some tools. Is this a violation of the crashrpt license? == 
 
