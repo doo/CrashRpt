@@ -41,7 +41,7 @@ This makes debugging remote crashes almost impossible, except in the simplest si
 
 == Is crashrpt a _fully_ open-source? ==
 
-CrashRpt itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users` computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
+`CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users` computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
 
 == Can I use crashrpt in a commercial application? ==
 
