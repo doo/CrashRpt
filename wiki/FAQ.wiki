@@ -138,6 +138,8 @@ You may try the [http://crashfixsoftware.com CrashFix Server] that can process c
 
 You can ask a question using our [http://groups.google.com/group/crashrpt Forum] (Google account is also required). 
 
+----
+
 = Installation Related Questions =
 
 == How do I properly install crashrpt? ==
