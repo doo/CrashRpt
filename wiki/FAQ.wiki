@@ -61,31 +61,6 @@ For example, an exception may occur because of the following:
   * invalid parameter is passed to a C++ system function
   * C++ run time libraries detect an error and request program termination
 
-== Is crashrpt a _fully_ open-source? ==
-
-`CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users' computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
-
-== Can I use crashrpt in a commercial application? ==
-
-According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use `CrashRpt` in any application.
-
-== Should I give credits if my application uses crashrpt? ==
-
-The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application that distributes `CrashRpt` in compiled (binary) form must reproduce the copyright notice, the list of conditions and the disclaimer in the documentation and/or other materials provided with the distribution.  
-
-== Where would you like your copyright notice reproduced? Is the About dialog and an accompanying Readme sufficient? ==
-
-Yes, feel free to reproduce the copyright notice in your About dialog. The accompanying Readme would be sufficient, too.
-
-== I want to sign crashrpt binaries with some tools. Is this a violation of the crashrpt license? == 
-
-No, the New BSD License that is used by `CrashRpt` permits to distribute the `CrashRpt` binaries with or without modification. So, feel free to sign `CrashRpt` binaries or modify them any other way.
-
-== How to deal with those licenses of other software included in crashrpt distribution? It seems to me that one have to read all licenses and do what they require, isn't it? ==
-
-Yes, you are right. You should follow the instructions listed in those
-licenses. In most cases including those licenses into your distribution would be sufficient.
-
 == Where can I find the latest version of crashrpt? ==
 
 The latest version of `CrashRpt` can be found at [http://code.google.com/p/crashrpt/downloads/list Downloads] page. For the list of changes, see [http://crashrpt.googlecode.com/svn/trunk/Changelog.txt What's New].
@@ -145,6 +120,31 @@ You can also compile `CrashRpt` in Visual C++ Express Edition. For additional in
 You may try the [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
 
 [http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
+
+== Is crashrpt a _fully_ open-source? ==
+
+`CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users' computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
+
+== Can I use crashrpt in a commercial application? ==
+
+According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use `CrashRpt` in any application.
+
+== Should I give credits if my application uses crashrpt? ==
+
+The [http://crashrpt.sourceforge.net/License.txt New BSD License] clearly states that an application that distributes `CrashRpt` in compiled (binary) form must reproduce the copyright notice, the list of conditions and the disclaimer in the documentation and/or other materials provided with the distribution.  
+
+== Where would you like your copyright notice reproduced? Is the About dialog and an accompanying Readme sufficient? ==
+
+Yes, feel free to reproduce the copyright notice in your About dialog. The accompanying Readme would be sufficient, too.
+
+== I want to sign crashrpt binaries with some tools. Is this a violation of the crashrpt license? == 
+
+No, the New BSD License that is used by `CrashRpt` permits to distribute the `CrashRpt` binaries with or without modification. So, feel free to sign `CrashRpt` binaries or modify them any other way.
+
+== How to deal with those licenses of other software included in crashrpt distribution? It seems to me that one have to read all licenses and do what they require, isn't it? ==
+
+Yes, you are right. You should follow the instructions listed in those
+licenses. In most cases including those licenses into your distribution would be sufficient.
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
