@@ -140,7 +140,7 @@ You can ask a question using our [http://groups.google.com/group/crashrpt Forum]
 
 ----
 
-= Installation Related Questions =
+= Compilation Questions =
 
 == How do I properly install crashrpt? ==
 
@@ -176,6 +176,25 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 `CrashRpt` can be compiled for both 32-bit (Win32) and 64-bit (x64) platforms.
 
+----
+
+= API Usage Questions =
+
+== What .h file should I include in my code and what .lib file should I link my code to? ==
+
+Include `CrashRpt.h` header file in the beginning of your code.
+
+{{{
+  // Include CrashRpt header
+  #include "CrashRpt.h"
+}}}
+
+You also need to add `CrashRptXXXX.lib` (where XXXX is the version number) to the list of input libraries for your project. In the Solution Explorer window, right-click your project and choose Properties item in the context menu. Then open `Configuration Properties->Linker->Input->Additional Dependencies` and then add `CrashRptXXXX.lib` to the list of libraries.
+
+== Why are crashrpt binaries have version number in their file names? ==
+
+`CrashRpt` binaries are named like `CrashRpt1401.dll` and `CrashSender1401.exe` to ensure your application won't load incorrect version of `CrashRpt`.
+
 == I install crashrpt to my MFC app, but exceptions are not caught. What do I do? ==
 
 You can override your `CWinApp::Run()` method and install `CrashRpt` there. In the CPP file containing your App class, add the following code:
@@ -196,11 +215,15 @@ int CYourApp::Run()
 }
 }}}
 
+== Do crashrpt API functions support UNICODE character set? multi-byte character set (MBCS)? ==
+
+Yes, all `CrashRpt` functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
+
 ----
 
-= Usage Questions =
+= Internationalization Questions =
 
-== How does crashrpt support multi-lingual user interface? ==
+== Does crashrpt support multi-lingual user interface? ==
 
 Yes, `CrashRpt` supports multi-lingual user interfaces. You can find a language file inside of the `lang_files` subdirectory of crashrpt distribution. The language file contains localized strings used by `CrashRpt` dialogs.
 
@@ -211,6 +234,10 @@ If your software supports several languages, you can distribute several language
 == Can I contribute a language file? ==
 
 If there is no language file for your favorite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
+
+----
+
+= Miscellaneous Questions =
 
 == How does crashrpt work internally? ==
 
@@ -224,26 +251,15 @@ Typically a process (executable file) loads `CrashRpt.dll` into its address spac
 
 You can not generate crash reports without `CrashSender.exe`. It is unsafe to do complex operations in the crashed program which may be unstable. `CrashSender.exe` collects information about the crash, closes the application which have crashed and continues sending the error report in background.
 
-== What .h file should I include in my code and what .lib file should I link my code to? ==
-
-Include `CrashRpt.h` header file in the beginning of your code.
-
-{{{
-  // Include CrashRpt header
-  #include "CrashRpt.h"
-}}}
-
-You also need to add `CrashRpt.lib` to the list of input libraries for your project. In the Solution Explorer window, right-click your project and choose Properties item in the context menu. Then open `Configuration Properties->Linker->Input->Additional Dependencies` and then add `CrashRpt.lib` to the list of libraries.
-
 == How is crashrpt.dll loaded and how is it shared between other modules loaded into process address space? ==
 
 Typically your process (EXE) loads `CrashRpt.dll` into process address space when process starts. This single instance of `CrashRpt` is shared between all DLL modules that are loaded into the address space of the process.
 
-== My software is not an EXE, but DLL (e.g. a plugin for another software). Can I use crashrpt in such case? ==
+== My software is not an EXE, but DLL (e.g. a plugin for another software). Can I use crashrpt in such a case? ==
 
 Generally, it is not recommended to use `CrashRpt` if your software is a plugin DLL. It would be better if the client process (EXE) take care of exception handling instead of your DLL. 
 
-You may try to install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And there might be some problems if the client process uses several worker threads that call functions from your DLL. In such case you would have to somehow install per-thread exception handlers too.
+However, if you strongly wish, you may try to install exception handlers in your `DllMain()` function, but typically you can't guarantee that the client process (EXE) won't install its own exception handlers above yours. And if the client process uses several worker threads that call functions from your DLL, you would have to install per-thread exception handlers, too.
 
 == How do I use crashrpt across process boundaries? == 
 
@@ -261,9 +277,6 @@ No, using `CrashRpt` doesn't affect performance of your application. `CrashRpt` 
 
 No, actually not. In order to use `CrashRpt`, you enable program database generation in Release configuration (/Zi compiler flag and /DEBUG linker flag) and this generates .PDB file for your project. PDB files contain information which can be used to reverse engineer your code, however you typically store such information locally and do not distribute it with your software release package. So, using `CrashRpt` doesn't affect the difficulty of reverse engineering your code. 
 
-== Do crashrpt API functions support UNICODE character set? multi-byte character set (MBCS)? ==
-
-Yes, all `CrashRpt` functions using character set dependent arguments have two versions of function name (multi-byte versions are A-suffixed and wide character versions are W-suffixed). For example, `crInstall()` function has two versions of function name: `crInstallA()` and `crInstallW()`. Typically you use a character set independent mapping of function name in your program, for example use `crInstall()` that expands into `crInstallW()` if you use wide character set or into `crInstallA()` if you use multi byte character set.
 
 == All my projects use multi-byte character set, so I changed it also in crashrpt library, but I experience some compilation problems. What do I do? ==
 
