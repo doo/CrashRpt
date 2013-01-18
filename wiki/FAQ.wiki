@@ -97,7 +97,7 @@ The list of project authors can be found [http://crashrpt.sourceforge.net/Author
 
 == What Windows versions crashrpt can work in? ==
 
-`CrashRpt` supports Windows XP/2003/Vista and Windows 7. 
+`CrashRpt` supports Windows XP/2003/Vista, Windows 7 and Windows 8. 
 
 == What Visual C++ versions can I use crashrpt in? ==
 
