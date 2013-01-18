@@ -101,9 +101,7 @@ The list of project authors can be found [http://crashrpt.sourceforge.net/Author
 
 == What Visual C++ versions can I use crashrpt in? ==
 
-You can compile `CrashRpt` in Visual C++ 2005, Visual C++ 2008, Visual C++ 2010 and Visual Studio 2012.
-
-You can also compile `CrashRpt` in Visual C++ Express Edition. For additional info on compiling `CrashRpt` in VC++ Express, see below.
+You can compile `CrashRpt` in Visual C++ 2005, Visual C++ 2008, Visual C++ 2010 and Visual Studio 2012. You can also compile `CrashRpt` in Visual C++ Express Edition. 
 
 == Does crashrpt have a server-side component that would process crash reports automatically? ==
 
