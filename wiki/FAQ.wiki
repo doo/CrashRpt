@@ -103,12 +103,6 @@ The list of project authors can be found [http://crashrpt.sourceforge.net/Author
 
 You can compile `CrashRpt` in Visual C++ 2005, Visual C++ 2008, Visual C++ 2010 and Visual Studio 2012. You can also compile `CrashRpt` in Visual C++ Express Edition. 
 
-== Does crashrpt have a server-side component that would process crash reports automatically? ==
-
-You may try the [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
-
-[http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
-
 == Is crashrpt a _fully_ open-source? ==
 
 `CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users' computers. Hovewer, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
@@ -133,6 +127,12 @@ No, the New BSD License that is used by `CrashRpt` permits to distribute the `Cr
 
 Yes, you are right. You should follow the instructions listed in those
 licenses. In most cases including those licenses into your distribution would be sufficient.
+
+== I receive a lot of error reports from users of my software every day. Does crashrpt have a server-side component that would process crash reports automatically? ==
+
+You may try the [http://crashfixsoftware.com CrashFix Server] that can process crash reports sent by `CrashRpt`. 
+
+[http://crashfixsoftware.com http://crashrpt.googlecode.com/svn/wiki/img/CrashRpt/download_crashfix.png]
 
 == I can't find the answer to my crashrpt-related question in this FAQ. What do I do? ==
 
