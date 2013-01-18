@@ -196,9 +196,13 @@ int CYourApp::Run()
 }
 }}}
 
+----
+
+= Usage Questions =
+
 == How does crashrpt support multi-lingual user interface? ==
 
-Since v.1.1.3, `CrashRpt` supports multi-lingual user interfaces. You can find a language file inside of the `lang_files` subdirectory of crashrpt distribution. The language file contains localized strings used by `CrashRpt` dialogs.
+Yes, `CrashRpt` supports multi-lingual user interfaces. You can find a language file inside of the `lang_files` subdirectory of crashrpt distribution. The language file contains localized strings used by `CrashRpt` dialogs.
 
 You should place a valid language file named as `crashrpt_lang.ini` to the directory where `CrashSender.exe` file is located in order to make `CrashRpt` work properly. The language file is a text document in UNICODE format and having INI extension. 
 
@@ -206,13 +210,11 @@ If your software supports several languages, you can distribute several language
 
 == Can I contribute a language file? ==
 
-If there is no language file for your favorite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. For additional information, please see the Internationalization Support section of the documentation. 
+If there is no language file for your favorite language, you can contribute one. Also, if you see that there are some mistakes in an existing language file, you may want to improve it and then contribute your changes. 
 
 == How does crashrpt work internally? ==
 
-`CrashRpt` consists of two core modules: `CrashRpt.dll` and `CrashSender.exe`.
-`CrashRpt.dll` contains functionality for intercepting exceptions in a client software.
-`CrashSender.exe` contains functionality for compressing and sending error reports to the software's support team.
+`CrashRpt` consists of two core modules: `CrashRpt.dll` and `CrashSender.exe`.`CrashRpt.dll` contains functionality for intercepting exceptions in a client software. `CrashSender.exe` contains functionality for compressing and sending error reports to the software's support team.
 
 It is unsafe to do complex operations in the crashed program which may be unstable. `CrashRpt` is separated into these modules to be able to close the application which have crashed and to continue sending the error report in `CrashSender.exe` in background. 
 
