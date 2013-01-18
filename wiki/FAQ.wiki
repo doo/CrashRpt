@@ -1,7 +1,9 @@
 #summary Frequently Asked Questions
 #labels Featured,Phase-Deploy
 
-<wiki:toc max_depth="1" />
+<wiki:toc max_depth="2" />
+
+----
 
 = General Questions = 
 
