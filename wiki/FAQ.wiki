@@ -56,13 +56,7 @@ An exception (a critical error or a crash) typically means that a program stops 
 
 == What is an error report? ==
 
-An error report is a collection of files intended to help the developer diagnose the cause of a crash.
-
-The error report contains crash minidump file (crashdump.dmp), which contains operating system version, processor type, CPU registers state and local variables and stack trace for each execution thread. The minidump can be used on developer's side to determine the reason of the crash and try to fix the problem.
-
-In addition, `CrashRpt` generates XML crash description file. The file contains various complementary information that might be useful for crash analysis.
-
-Crash report can optionally contain application-defined files, for example, application log files. 
+An error report is ZIP archive containing a collection of files intended to help the developer diagnose the cause of a crash. For example, the error report may contain crash minidump file, desktop screenshot file, application log file and so on.
 
 == How does crashrpt create an error report when crash occurs? ==
 
