@@ -60,7 +60,7 @@ An error report is ZIP archive containing a collection of files intended to help
 
 == How does crashrpt create an error report when crash occurs? ==
 
-When crash occurs, `CrashRpt` launches another process named `CrashSender.exe` and proceeeds with collecting crash data in that process. The parent process is terminated as soon as data have been collected. 
+When crash occurs in client application, `CrashRpt` launches another process named `CrashSender.exe` and proceeds with collecting crash data in that process. The parent process is terminated as soon as data have been collected. 
 
 == Where can I find the latest version of crashrpt? ==
 
