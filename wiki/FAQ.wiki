@@ -197,7 +197,7 @@ It is not recommended to modify character set related settings in `CrashRpt` sol
 
 == `CrashRpt` uses third-party libraries, such as libpng, zlib, etc., and we also use them currently in our project, so we would like to build these third-party libs as DLLs to share their code. Can we do this? ==
 
-It is not recommend to build libpng/zlib/minizip/etc as shared DLLs, because their versions used in `CrashRpt` are slightly customized. For example, I customized minizip to fix some of their UNICODE compatibility issues, and I patched TinyXml to fix some UTF-8 encoding issues. So, it is strongly not recommended to modify the type of projects in `CrashRpt ` solution. 
+It is not recommend to build libpng/zlib/minizip/etc as shared DLLs, because their versions used in `CrashRpt` are slightly customized. For example, minizip was customized to fix some of their UNICODE compatibility issues, and `TinyXml` was patched to fix some UTF-8 encoding issues. So, it is strongly not recommended to modify the type of projects in `CrashRpt ` solution. 
 
 == I want to make some projects in crashrpt solution to use multi-byte charset instead of UNICODE. Can I do this? ==
 
