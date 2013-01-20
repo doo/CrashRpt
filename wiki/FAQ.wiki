@@ -509,11 +509,11 @@ The crash dump file is a collection of memory ranges, CPU register states, the c
 
 No, `CrashRpt` can't generate readable stack traces on the side of the user. It supports developer-side error report processing.
 
-User-side error report processing would require you to distribute your PDB files with your software. Typically you do not distribute PDB files, because it makes someone easier to reverse-engineer your program. Our approach is developer-side post-processing. This means users send you error reports and you post-process them on your machine, where PDB files, binaries and source code is located. 
+User-side error report processing would require you to distribute your PDB files with your software. Typically you do not distribute PDB files, because it makes someone easier to reverse-engineer your program. Our approach is developer-side post-processing. This means users send you error reports and you post-process them on your machine, where PDB files, binaries and source code are located. 
 
 == How do I open a crash description XML file? ==
 
-You can use notepad, another text editor or your web browser.
+You can use `notepad`, another text editor (like [http://notepad-plus-plus.org/ Notepad ++]), or your web browser (like Internet Explorer of Mozilla Firefox).
 
 == What is crash GUID? ==
 
@@ -522,10 +522,6 @@ A crash description XML contains `CrashGUID` tag. The crash GUID is an unique id
 == How do I determine the name and version of the application that generated the error report?  ==
 
 The crash description XML file contains `AppName` and `AppVersion` tags. You use them to determine what application sent you the report. You are typically interested in analyzing error reports from the latest version of your software and ignore reports from older versions.
-
-== How do I determine the OS version for the error report? ==
-
-A crash description XML contains `OperatingSystem` tag which is the friendly name of end user's operating system, including name, build number and service pack. It is useful information because many errors are OS-specific.
 
 == What is an `ExceptionType` tag in the crash description XML? ==
 
