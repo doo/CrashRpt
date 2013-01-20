@@ -289,13 +289,11 @@ The user has an ability to enter the description of the problem in the Error Rep
 
 == Does crashrpt support a non-GUI (silent) mode? ==
 
-Yes, `CrashRpt` supports non-GUI mode. In the non-GUI mode, `CrashRpt` doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which has no GUI and usage of crash reporting is still desired.
-
-You can use non-GUI mode with a service application, however, it is not recommended to use the non-GUI mode with regular GUI applications that create windows and interact with user.
+Yes, `CrashRpt` supports non-GUI mode. In the non-GUI mode, `CrashRpt` doesn't show any windows and sends the report without any user interaction. You can use such mode if your application is a service which does not interact with user. However, it is not recommended to use the non-GUI mode with regular GUI applications that create windows and interact with user.
 
 == Does crashrpt support automatic restart of the application that crashes? ==
 
-Yes, since v.1.2.4, `CrashRpt` supports automatic application restart. But the restart is performed if two conditions are satisfied: 
+Yes, `CrashRpt` supports automatic application restart. But the restart is performed if two conditions are satisfied: 
   * If at least 60 seconds have elapsed since the application start. This is done to avoid cyclic restarts in case when crash occurs on application start up.
   * If the user has provided his consent to restart the app. 
 
