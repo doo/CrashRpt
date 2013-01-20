@@ -285,7 +285,7 @@ To collect information about such error, you may provide an ability to generate 
 
 == I would like to force the user to enter a description of what happened just before the crash. What do I do? ==
 
-The user has an ability to enter the description of the problem in the Error Report dialog by clicking the link "Provide additional information (recommended)". However, my `CrashRpt` usage experience shows most users do not enter anything meaningful into this field.
+The user has an ability to enter the description of the problem in the Error Report dialog by clicking the link "Provide additional information (recommended)". However, practice shows most users do not enter anything meaningful into this field.
 
 == Does crashrpt support a non-GUI (silent) mode? ==
 
