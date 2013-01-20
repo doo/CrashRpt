@@ -254,7 +254,7 @@ However, if you strongly wish to read crashrpt configuration info from an extern
 
 == We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
 
-We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a user-defined file to the crash report.
+You can collect the hardware information using [http://msdn.microsoft.com/en-us/library/windows/desktop/aa394582(v=vs.85).aspx WMI] and then include it into your crash reports. We introduced a function `crAddProperty()` specially for purposes of extending the crash description XML as you wish. You can also use the `crAddFile2()` function, which allows to add a user-defined file to the crash report.
 
 == I want to uniquely identify the installation by what the error reports are sent. What do I do? ==
 
