@@ -250,7 +250,7 @@ You should use `CrashRpt` API functions to set exception handlers in the beginni
 
 Currently, there are no ways to modify the `CrashRpt` configuration info after calling `crInstall()`. I would recommend to hard-code the info you pass to `crInstall()` function, that means not reading it from an INI file or from another source. 
 
-However, if you strongly wish to read crashrpt configuration info from an external file, call `crInstall()` _after_ reading the info from that file. Simple file reading functionality is not likely to crash, I suppose. So the probability you miss a crash while reading the file is small. 
+However, if you strongly wish to read crashrpt configuration info from an external file, call `crInstall()` _after_ reading the info from that file. Simple file reading functionality is not likely to crash. So the probability you miss a crash while reading the file is small. 
 
 == We ship a software (game etc.) and certain crashes only happen on certain hardware. So we need some sort of functionality that gathers GPU/CPU/general hardware information upon crash report generation. What do we do? ==
 
