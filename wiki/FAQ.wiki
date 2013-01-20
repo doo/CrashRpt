@@ -52,7 +52,7 @@ Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologie
 
 == What is an exception? ==
 
-An exception (a critical error or a crash) typically means that a program stops working normally and needs to stop its execution. For example, an exception may occur when program accesses an invalid memory address (such as NULL pointer), when stack is overflown due to infinite recursion or C++ run time libraries detect an error and request program termination. There are also other possible reasons of exceptions.
+An exception (a critical error or a crash) typically means that a program stops working normally and needs to stop its execution. For example, an exception may occur when program accesses an invalid memory address (such as NULL pointer), when stack is overflown due to infinite recursion or when C++ run time libraries detect an error and request program termination. There are also other possible reasons of exceptions.
 
 == What is an error report? ==
 
