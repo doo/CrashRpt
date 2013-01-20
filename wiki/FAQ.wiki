@@ -193,7 +193,7 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 == All my projects use multi-byte character set, so I changed it also in crashrpt library, but I experience some compilation problems. What do I do? ==
 
-It is not recommended to modify character set related settings in `CrashRpt` solution projects. `CrashRpt` should be always compiled using the UNICODE character set. In your multi-byte application, you can use A-suffixed functions from CrashRpt API. For example, use `crInstallA()`, `crAddFile2A()` and so on. Typically, you use a character-set-independent mapping of a function name, for example `crInstall()` name automatically expands into `crInstallA()` in a multi-byte program, and into `crInstallW()` in a wide-char program.
+It is not recommended to modify character set related settings in `CrashRpt` solution projects. `CrashRpt` should be always compiled using the UNICODE character set. In your multi-byte application, you can use A-suffixed functions from `CrashRpt` API. For example, use `crInstallA()`, `crAddFile2A()` and so on. Typically, you use a character-set-independent mapping of a function name, for example `crInstall()` name automatically expands into `crInstallA()` in a multi-byte program, and into `crInstallW()` in a wide-char program.
 
 == `CrashRpt` uses third-party lib such as libpng/zlib/etc, and we also use them currently in our project, so we would like to build these third-party libs as DLLs to share their code. Can we do this? ==
 
