@@ -279,7 +279,7 @@ The following code example shows how to do this (code provided by tdev):
   crAddProperty("SystemGUID", guid);
 }}}
 
-== My software's worker thread hangs up on users machine (but no crash happens). How do I debug the problem? ==
+== My software's worker thread hangs up on users machine (but the main thread is alive and no crash happens). How do I debug the problem? ==
 
 To collect information about such error, you may provide an ability to generate error report manually, for example on a key combination press. When the key combination is pressed, generate error report manually using `crGenerateErrorReport()` function.  
 
