@@ -195,7 +195,7 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 It is not recommended to modify character set related settings in `CrashRpt` solution projects. `CrashRpt` should always be compiled using the UNICODE character set. In your multi-byte application, you can use A-suffixed functions from `CrashRpt` API. For example, use `crInstallA()`, `crAddFile2A()` and so on. Typically, you use a character-set-independent mapping of a function name, for example `crInstall()` name automatically expands into `crInstallA()` in a multi-byte program, and into `crInstallW()` in a wide-char program.
 
-== `CrashRpt` uses third-party lib such as libpng/zlib/etc, and we also use them currently in our project, so we would like to build these third-party libs as DLLs to share their code. Can we do this? ==
+== `CrashRpt` uses third-party libraries, such as libpng, zlib, etc., and we also use them currently in our project, so we would like to build these third-party libs as DLLs to share their code. Can we do this? ==
 
 It is not recommend to build libpng/zlib/minizip/etc as shared DLLs, because their versions used in `CrashRpt` are slightly customized. For example, I customized minizip to fix some of their UNICODE compatibility issues, and I patched TinyXml to fix some UTF-8 encoding issues. So, it is strongly not recommended to modify the type of projects in `CrashRpt ` solution. 
 
