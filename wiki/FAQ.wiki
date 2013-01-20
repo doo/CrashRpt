@@ -623,7 +623,9 @@ Each process loads its own copy of `CrashRpt.dll`. It is difficult to imagine ho
 
 == Does using crashrpt affect performance of my application? ==
 
-No, using `CrashRpt` doesn't affect performance of your application. `CrashRpt` doesn't perform any tasks in background and doesn't use additional memory. `CrashRpt` code is executed just when an exception is raised.
+In most cases no, using `CrashRpt` doesn't affect performance of your application. `CrashRpt` doesn't perform any tasks in background and doesn't use additional memory. `CrashRpt` code is executed just when an exception is raised.
+
+However, `CrashRpt` may affect performance of end user's computer if you run its desktop video capture feature (`crAddVideo()` function). In such a case, `CrashRpt` consumes some CPU resources and disk space to record video.
 
 == Does using crashrpt make it easier for somebody to reverse engineer my code? ==
 
