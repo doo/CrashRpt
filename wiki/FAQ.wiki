@@ -475,7 +475,7 @@ No, this is impossible. Architecture of `CrashRpt` requires two modules: `CrashR
 
 == I'm trying to send a report, but MAPILogon fails with error 80004005. What do I do? ==
 
-This issue is not related to CrashRpt. See this knowledge base article: http://support.microsoft.com/kb/813745/en-us
+This issue is not related to `CrashRpt`. See this knowledge base article: http://support.microsoft.com/kb/813745/en-us
 
 To resolve this issue, you must first remove the corrupted Outlook registry key, and then perform a Detect and Repair operation to have Outlook rebuild the key.
 
