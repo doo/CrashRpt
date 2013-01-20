@@ -561,7 +561,7 @@ Sometimes you can't determine the location of the crash and the error message is
 
 Automating the error report processing becomes the critical task when you receive a lot of error reports after software release. Among hundreds of reports there may be only several different problems, while others just duplicate the information about these problems. Opening so many reports manually in Visual Studio or in `WinDbg` and analyzing their content may become boring and take a lot of time.
 
-The easiest way to process error reports automatically is to install the CrashFix web application. CrashFix server allows to easily receive, store, organize and analyze crash reports sent by your C++ application. For additional information, please visit [http://crashfixsoftware.com CrashFix Server] page. 
+The easiest way to process error reports automatically is to install the [http://crashfixsoftware.com CrashFix] web application. [http://crashfixsoftware.com CrashFix] server allows to easily receive, store, organize and analyze crash reports sent by your C++ application. For additional information, please visit [http://crashfixsoftware.com CrashFix Server] page. 
 
 `CrashRpt` also provides the command-line tool named `crprober.exe`, which is able to process error report files and output the results to a text file or to terminal. 
 
