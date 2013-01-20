@@ -539,9 +539,7 @@ Yes, you can open crash minidumps (.DMP files) with `WinDbg` program that is a p
 
 == How do I identify if the symbol files fit to a certain executable? ==
 
-Symbol files are identified by timestamps (in older versions of PDB) or by GUIDs (in newer versions of PDB). 
-
-You do not need to identify matching PDB yourself. Just specify the list of folders to search in and Visual Studio (or `WinDbg`) will look for correct PDB files itself. 
+Symbol files are identified by GUID+Age string. You do not need to identify matching PDB yourself. Just specify the list of folders to search in and Visual Studio (or `WinDbg`) will look for correct PDB files itself. 
 
 == If I've saved all the source code, should building from the source recreate the correct PDBs? ==
 
