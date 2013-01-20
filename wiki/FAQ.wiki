@@ -40,7 +40,7 @@ This makes debugging remote crashes almost impossible, except in the simplest si
 
   * `CrashRpt` can send error reports using HTTP (or HTTPS) or using an E-mail message. The E-mail messages are suitable for developers who don't have a server for storing error reports. 
 
-  * `CrashRpt` has a tool for error report post processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
+  * `CrashRpt` has a tool for error report post-processing. The tool may be useful when you receive hundreds of reports a day and need to process them all at once (although the tool can't replace the human completely).
 
 == What programming languages can I use crashrpt in? ==
 
