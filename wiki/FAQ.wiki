@@ -428,9 +428,9 @@ You can distribute the version of `dbghelp.dll` that is shipped with `CrashRpt` 
 
 == My 64-bit application needs an x64 version of dbghelp.dll, but crashrpt distribution has only x86 one. What do I do? ==
 
-64bit applications can only load 64bit DLLs, if x64 version of dbghelp.dll is not present, then CrashRpt will try to load the one from system directories.
+64-bit applications can only load 64-bit DLLs, if x64 version of `dbghelp.dll` is not present, than `CrashRpt` will try to load the one from system directories.
 
-So, in order for have CrashRpt to work properly, you should get the dbghelp.dll from Microsoft Debugging Tools package. You can install it as a part of Windows SDK. For additional info, please see this [http://msdn.microsoft.com/en-us/windows/hardware/gg463009.aspx link].
+So, in order for `CrashRpt` to work properly, you should get the `dbghelp.dll` from `Microsoft Debugging Tools for Windows` package. You can install it as a part of Windows SDK. For additional info, please see this [http://msdn.microsoft.com/en-us/windows/hardware/gg463009.aspx link].
 
 == I know that dbghelp.dll is shipped with Windows. Why should I distribute it? ==
 
