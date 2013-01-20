@@ -649,9 +649,9 @@ The log file will help you to see where is the stack overflow happens. For examp
 
 == Can crashrpt intercept Boost's Exception ? ==
 
-`CrashRpt` intercepts structured `Win32` exceptions (SEH exceptions), C run-time (CRT) exceptions and signals. [http://www.boost.org/ Boost] is built on top of CRT, so I believe `CrashRpt` can intercept its exceptions. However, I didn't test `CrashRpt` with Boost. 
+`CrashRpt` intercepts structured `Win32` exceptions (SEH exceptions), C run-time (CRT) exceptions and signals. [http://www.boost.org/ Boost] is built on top of CRT, so `CrashRpt` should intercept its exceptions. However, `CrashRpt` was not tested with Boost. 
 
-==  I'd like to be able to display a different message in the CrashSender.exe process for different types of crashes. Maybe also display a different icon, too. Can I do this? ==
+==  I'd like to be able to display a different message in the `CrashSender.exe` process for different types of crashes. Maybe also display a different icon, too. Can I do this? ==
 
 `CrashRpt` currently can't customize its behavior based on crash type. I'm not sure this feature would be widely used. Typical users do not have technical knowledge about memory. So, I'm not very encouraged to implement this.
 
