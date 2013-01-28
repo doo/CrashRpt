@@ -669,9 +669,9 @@ The log file will help you to see where is the stack overflow happens. For examp
 
 Visual Studio IDE will always intercept exceptions in your software while debugging. There are no ways to fix this. If you need to test `CrashRpt` under IDE, use `crGenerateErrorReport()` function, it will generate a error report without raising an exception.
 
-== If I call C++ delete operator on an already deleted pointer, crashrpt cannot handle this situation correctly, it just stops working. Is it a bug in crashrpt? ==
+== If I call C++ delete operator on an already deleted pointer, crashrpt cannot handle this situation correctly, most of the times it just stops working. Is it a bug in crashrpt? ==
 
-No, this is not a bug. Assume the following code:
+No, this is not a bug in `CrashRpt`, its a problem with your programming style. Assume the following code:
 
 {{{
 CPoint* pt = new CPoint;
@@ -680,7 +680,7 @@ delete pt;
 delete pt;
 }}}
 
-Executing the code above results in heap corruption. What happens next is called "undefined behavior", and `CrashRpt` cannot work correctly in this situation.
+Executing the code above results in heap corruption. What happens next is called "undefined behavior". You program may crash immediatelly, crash randomly in some period of time or just continue working with corrupted memory. Obviously, `CrashRpt` cannot work correctly in this situation.
 
 The recommended way of deleting a pointer is to delete it and set it to NULL. For example, consider making a macro for this:
 
