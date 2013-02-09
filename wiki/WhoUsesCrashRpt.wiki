@@ -1,7 +1,7 @@
 #summary The list of software projects using CrashRpt.
 #labels Featured,Phase-Support
 
-If you wish that others know your project uses `CrashRpt`, you can add a comment to this wiki page and provide any of the following: 
+If you are proud that your project uses `CrashRpt`, you can add a comment to this wiki page and provide any of the following information: 
   # your software's name 
   # a hyperlink to your software's logo small image
   # a hyperlink to your software's site
