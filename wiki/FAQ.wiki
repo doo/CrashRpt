@@ -118,10 +118,6 @@ You can compile `CrashRpt` in Visual C++ 2005, Visual C++ 2008, Visual C++ 2010 
 
 `CrashRpt` itself is open-source, but it depends on system library `dbghelp.dll` (Microsoft Debug Help Library), which is not open-source and included into `CrashRpt` distribution to avoid problems with older `dbghelp.dll`'s versions installed on end-users' computers. However, this does not prevent you from using `CrashRpt` in any application (either open-source or proprietary), because `dbghelp.dll`'s license allows to distribute the `dbghelp.dll` library with other software.
 
-== Are there many Windows applications using crashrpt? ==
-
-We beleive that yes. Some of them are listed on WhoUsesCrashRpt page. You can add your app name on that page, too.
-
 == Can I use crashrpt in my commercial application? ==
 
 According to [http://crashrpt.sourceforge.net/License.txt New BSD licence], you can freely use `CrashRpt` in any application.
@@ -608,6 +604,10 @@ The error report processing functionality is encapsulated inside of `CrashRptPro
 ----
 
 = Miscellaneous Questions =
+
+== Are there many Windows applications using crashrpt? ==
+
+We beleive that yes. Some of them are listed on WhoUsesCrashRpt page. You can add your app name on that page if you wish (but we do not insist). 
 
 == How does crashrpt work internally? ==
 
