@@ -693,3 +693,7 @@ The recommended way of deleting a pointer is to delete it and set it to NULL. Fo
 }}}
 
 For more information, see this [http://stackoverflow.com/questions/2746677/what-happens-when-you-deallocate-a-pointer-twice-or-more-in-c post].
+
+== In some of received crash minidumps I see that the crash happened in `CrashRpt.dll` itself (mostly when it invoked `InvalidParameterHandler`). Is this normal? ==
+
+Yes, this is normal. When a crash occurs, `CrashRpt.dll` checks if exception pointers structure presents. This structure is ususally allocated by the OS automatically when a SEH exception occurs (e.g., access violation reading NULL). If the structure doesn't present (which is true in case of invalid parameter exception), `CrashRpt` allocates the structure itself by getting the current state of the CPU registers. In such a case, you will see in the minidump that the crash originates inside of the `CrashRpt.dll`, but this is just an illusion. You should skip the stack frames that belong to `CrashRpt.dll` and look at the stack frames that belong to the modules of your application.
