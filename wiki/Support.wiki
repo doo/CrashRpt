@@ -15,7 +15,7 @@
 </tr>
 <tr>
 <td><h3>[CommercialSupport Commercial Support]</h3></td>
-<td>High-quality time-critical support & feature requests on commercial basis</td>
+<td>Time-critical support & feature requests on commercial basis</td>
 </tr>
 </table>
 
