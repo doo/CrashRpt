@@ -10,7 +10,7 @@ If you have a `CrashRpt`-related question to be answered in a short period of ti
 || One month support subscription^2^ || $99 ||
 || New feature implementation || Hourly^3^ ||
 
-^1^ - this support service provides you with one hour of custom consulting that can be used by you to ask questions or have bugs resolved.
+^1^ - this support service provides you with one hour of custom consulting that can be used by you to ask a single question or have a single bug resolved.
 ^2^ - this support service includes one month (30 days) of custom consulting that can be used by you to ask questions or have bugs resolved.
 ^3^ - the cost depends on the feature.
 
@@ -20,7 +20,7 @@ Please contact us using the information below. You can ask your question or ask 
 
 == I want a new feature in `CrashRpt` to be implemented. What do I do? ==
 
-You can hire the developer to implement the `CrashRpt` feature you want. You can control what the developer does through [https://www.odesk.com/ oDesk] and pay on hourly basis. Please contact us using the information below.
+You can hire the guy who maintains `CrashRpt` to implement the feature you want. You can control what the developer does through [https://www.odesk.com/ oDesk] and pay on hourly basis. Please contact us using the information below.
 
 == Contact Us ==
 
