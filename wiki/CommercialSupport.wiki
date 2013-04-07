@@ -1,7 +1,7 @@
 #summary Commercial Services.
 #labels Phase-Support
 
-== What commercial support services do we provide? ==
+== What commercial support services are provided? ==
 
 If you have a `CrashRpt`-related question to be answered in a short period of time or need a new complex `CrashRpt` feature to be implemented, please contact us. 
 
