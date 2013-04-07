@@ -9,7 +9,7 @@ If you have a `CrashRpt`-related question to be answered in a short period of ti
 
 Please contact us using the information below. You can ask your question or ask for help in the E-mail, and if we are able to answer the question and/or provide you the help, we send you a `PayPal` invoice. As soon as you pay, you receive the support services.
 
-== I want to implement a new feature in `CrashRpt`. What do I do? ==
+== I want a new feature in `CrashRpt` to be implemented. What do I do? ==
 
 You can hire the developer to implement the `CrashRpt` feature you want. You can control what the developer does through [https://www.odesk.com/ oDesk] and pay on hourly basis. Please contact us using the information below.
 
