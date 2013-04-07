@@ -3,7 +3,16 @@
 
 == What commercial support services are provided? ==
 
-If you have a `CrashRpt`-related question to be answered in a short period of time or need a new complex `CrashRpt` feature to be implemented, please contact us. 
+If you have a `CrashRpt`-related question to be answered in a short period of time or need a bug to be fixed quickly, or even need a new complex `CrashRpt` feature to be implemented, please contact us. 
+
+|| *Service* || *Cost* ||
+|| Accidental support^1^ || $25 ||
+|| One month support subscription^2^ || $99 ||
+|| New feature implementation || Hourly^3^ ||
+
+^1^ - this support service provides you with one hour of custom consulting that can be used by you to ask questions or have bugs resolved.
+^2^ - this support service includes one month of custom consulting that can be used by you to ask questions or have bugs resolved.
+^3^ - the cost depends on the feature.
 
 == I have a question or need help. What do I do? ==
 
@@ -15,6 +24,6 @@ You can hire the developer to implement the `CrashRpt` feature you want. You can
 
 == Contact Us ==
 
-Please use the E-mail address below to contact the support:
+Please use the E-mail address below to contact the support. Please specify what is your question and what support service type you would like to have.
 
 E-mail: zexspectrum@gmail.com
