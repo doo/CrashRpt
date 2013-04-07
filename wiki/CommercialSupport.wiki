@@ -11,7 +11,7 @@ If you have a `CrashRpt`-related question to be answered in a short period of ti
 || New feature implementation || Hourly^3^ ||
 
 ^1^ - this support service provides you with one hour of custom consulting that can be used by you to ask questions or have bugs resolved.
-^2^ - this support service includes one month of custom consulting that can be used by you to ask questions or have bugs resolved.
+^2^ - this support service includes one month (30 days) of custom consulting that can be used by you to ask questions or have bugs resolved.
 ^3^ - the cost depends on the feature.
 
 == I have a question or need help. What do I do? ==
