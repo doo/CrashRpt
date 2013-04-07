@@ -3,7 +3,7 @@
 
 = Introduction =
 
-If you have a `CrashRpt`-related question to be answered in a short period of time or need a new complex CrashRpt feature to be implemented, please contact me using the information presented below.
+If you have a `CrashRpt`-related question to be answered in a short period of time or need a new complex `CrashRpt` feature to be implemented, please contact me using the information presented below.
 
 = Contacts =
 
