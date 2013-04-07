@@ -17,6 +17,9 @@
 <td><h3><a href="http://groups.google.com/group/crashrpt/topics">Forum</a></h3></td>
 <td>Use this if you have a question or need help</td>
 </tr>
+<td><h3>[CommercialSupport Commercial Support]</h3></td>
+<td>High-quality time-critical support & feature requests on commercial basis</td>
+</tr>
 </table>
 
  
