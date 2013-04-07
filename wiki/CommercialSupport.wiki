@@ -7,7 +7,7 @@ If you have a `CrashRpt`-related question to be answered in a short period of ti
 
 == I have a question or need help. What do I do? ==
 
-Please contact us using the information below. You can ask your question or ask for help in the E-mail, and if we are able to answer the question and/or provide you the help, we send you a PayPal invoice. As soon as you pay, you receive the support services.
+Please contact us using the information below. You can ask your question or ask for help in the E-mail, and if we are able to answer the question and/or provide you the help, we send you a `PayPal` invoice. As soon as you pay, you receive the support services.
 
 == I want to implement a new feature in `CrashRpt`. What do I do? ==
 
