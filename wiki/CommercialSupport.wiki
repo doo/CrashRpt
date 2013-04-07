@@ -20,7 +20,7 @@ Please contact us using the information below. You can ask your question or ask 
 
 == I want a new feature in `CrashRpt` to be implemented. What do I do? ==
 
-You can hire the guy who maintains `CrashRpt` to implement the feature you want. You can control what the developer does through [https://www.odesk.com/ oDesk] and pay on hourly basis. Please contact us using the information below.
+You can hire the guy who maintains `CrashRpt` to implement the feature you want. You can control what the developer does through [https://kb.odesk.com/questions/1158/What+is+the+oDesk+Team+application%3F oDesk Team] application and pay on hourly basis. Please contact us using the information below.
 
 == Contact Us ==
 
