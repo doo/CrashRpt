@@ -3,7 +3,7 @@
 
 == What commercial support services are provided? ==
 
-If you have a `CrashRpt`-related question to be answered in a short period of time or need a bug to be fixed quickly, or even need a new complex `CrashRpt` feature to be implemented, please contact us. 
+If you have a `CrashRpt`-related question to be answered in a short period of time or need a bug to be fixed quickly, or even need a new complex `CrashRpt` feature to be implemented, please contact us using the information below. 
 
 || *Service* || *Cost* ||
 || Accidental support^1^ || $25 ||
