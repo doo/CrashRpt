@@ -14,7 +14,7 @@
 <td>Read this for quick start and for troubleshooting</td>
 </tr>
 <tr>
-<td><h3>[CommercialSupport Commercial Support]</h3></td>
+<td><h3>[CommercialSupport Contact Us]</h3></td>
 <td>Time-critical support & feature requests on commercial basis</td>
 </tr>
 </table>
