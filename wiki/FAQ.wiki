@@ -90,7 +90,7 @@ To track new releases and other changes in `CrashRpt` project, you can use [http
 
 == How do I report a bug in crashrpt? ==
 
-You can create an issue at our [http://code.google.com/p/crashrpt/issues/list Issues] page. We appreciate your feedback. 
+You can create an issue at our [http://code.google.com/p/crashrpt/issues/list Issues] page. We appreciate your feedback. We also provide time-critical commercial [CommercialSupport support services] if you need the bug to be fixed in a short period of time.
 
 == How do I request a new feature? ==
 
