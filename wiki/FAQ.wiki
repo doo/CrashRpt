@@ -50,6 +50,10 @@ You can use `CrashRpt` in C++ programs created using Visual C++. You can NOT use
 
 Yes, you can use `CrashRpt` in a Visual C++ project using any of the technologies: MFC, ATL/WTL or pure WinAPI.
 
+== Can I use crashrpt in a QT-based application under Windows? ==
+
+Yes, you can use `CrashRpt` in a Visual C++ project based on QT library.
+
 == What is an exception? ==
 
 An exception (a critical error or a crash) typically means that a program stops working normally and needs to stop its execution. For example, an exception may occur when program accesses an invalid memory address (such as NULL pointer), when stack is overflown due to infinite recursion or when C++ run time libraries detect an error and request program termination. There are also other possible reasons of exceptions.
