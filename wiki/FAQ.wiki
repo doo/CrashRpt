@@ -199,6 +199,18 @@ In VC++ 2010, there is no usual VC++ Directories page. Instead, you open the Pro
 
 `CrashRpt` binaries are named like `CrashRpt1401.dll` and `CrashSender1401.exe` to ensure your application won't load incorrect version of `CrashRpt`.
 
+== What's the easy way of linking the current version of `CrashRpt.dll`? ==
+
+To make it easy to link the current version of `CrashRptXXXX.dll`, not depending on version suffix, you can use the following code:
+
+{{{
+#ifdef _DEBUG
+   #pragma comment(lib, "CrashRpt" #CRASHRPT_VER "d.lib")
+#else
+   #pragma comment(lib, "CrashRpt" #CRASHRPT_VER ".lib")
+#endif //_DEBUG
+}}}
+
 == I want to add projects from crashrpt solution to my own solution. Can I do this? ==
 
 Actually, this is not recommended to do. The recommended way is compiling `CrashRpt` as a separate solution, and then adding paths to .h and .lib files to your project's VC++ Directories.
