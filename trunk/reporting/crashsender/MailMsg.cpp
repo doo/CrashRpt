@@ -38,35 +38,35 @@ CMailMsg::~CMailMsg()
 }
 
 
-void CMailMsg::SetFrom(CString sAddress)
+void CMailMsg::SetFrom(WTL::CString sAddress)
 {  
     strconv_t strconv;
     LPCSTR lpszAddress = strconv.t2a(sAddress.GetBuffer(0));
     m_from = lpszAddress;
 }
 
-void CMailMsg::AddRecipient(CString sAddress)
+void CMailMsg::AddRecipient(WTL::CString sAddress)
 {
     strconv_t strconv;
     LPCSTR lpszAddress = strconv.t2a(sAddress.GetBuffer(0));
-	m_to.push_back(lpszAddress);
+  m_to.push_back(lpszAddress);
 }
 
-void CMailMsg::SetSubject(CString sSubject)
+void CMailMsg::SetSubject(WTL::CString sSubject)
 {
     strconv_t strconv;
     LPCSTR lpszSubject = strconv.t2a(sSubject.GetBuffer(0));
     m_sSubject = lpszSubject;
 }
 
-void CMailMsg::SetMessage(CString sMessage) 
+void CMailMsg::SetMessage(WTL::CString sMessage) 
 {
     strconv_t strconv;
     LPCSTR lpszMessage = strconv.t2a(sMessage.GetBuffer(0));
     m_sMessage = lpszMessage;
 };
 
-void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
+void CMailMsg::AddAttachment(WTL::CString sAttachment, WTL::CString sTitle)
 {
     strconv_t strconv;
     LPCSTR lpszAttachment = strconv.t2a(sAttachment.GetBuffer(0));
@@ -74,9 +74,9 @@ void CMailMsg::AddAttachment(CString sAttachment, CString sTitle)
     m_attachments[lpszAttachment] = lpszTitle;  
 }
 
-BOOL CMailMsg::DetectMailClient(CString& sMailClientName)
+BOOL CMailMsg::DetectMailClient(WTL::CString& sMailClientName)
 {
-    CRegKey regKey;
+    ATL::CRegKey regKey;
     TCHAR buf[1024] = _T("");
     ULONG buf_size = 0;
     LONG lResult;
@@ -113,7 +113,7 @@ BOOL CMailMsg::MAPIInitialize()
 {   
     // Determine if there is default email program
 
-    CString sMailClientName;
+    WTL::CString sMailClientName;
     if(!DetectMailClient(sMailClientName))
     {
         m_sErrorMsg = _T("Error detecting E-mail client");     
@@ -152,7 +152,7 @@ void CMailMsg::MAPIFinalize()
     ::FreeLibrary(m_hMapi);
 }
 
-CString CMailMsg::GetEmailClientName()
+WTL::CString CMailMsg::GetEmailClientName()
 {
     return m_sEmailClientName;
 }
@@ -206,17 +206,17 @@ BOOL CMailMsg::Send()
     pRecipients[0].ulEIDSize = 0;
     pRecipients[0].lpEntryID = NULL;
 
-	// set to
-	size_t i;
-	for(i=0; i<m_to.size(); i++)
-	{
-		pRecipients[i+1].ulReserved = 0;
-		pRecipients[i+1].ulRecipClass = MAPI_TO;
-		pRecipients[i+1].lpszAddress = (LPSTR)m_to[i].c_str();
-		pRecipients[i+1].lpszName = (LPSTR)m_to[i].c_str();
-		pRecipients[i+1].ulEIDSize = 0;
-		pRecipients[i+1].lpEntryID = NULL;
-	}
+  // set to
+  size_t i;
+  for(i=0; i<m_to.size(); i++)
+  {
+    pRecipients[i+1].ulReserved = 0;
+    pRecipients[i+1].ulRecipClass = MAPI_TO;
+    pRecipients[i+1].lpszAddress = (LPSTR)m_to[i].c_str();
+    pRecipients[i+1].lpszName = (LPSTR)m_to[i].c_str();
+    pRecipients[i+1].ulEIDSize = 0;
+    pRecipients[i+1].lpEntryID = NULL;
+  }
 
     // add attachments
     nIndex=0;   
@@ -239,16 +239,16 @@ BOOL CMailMsg::Send()
     message.lpszConversationID                = NULL;
     message.flFlags                           = 0;
     message.lpOriginator                      = pRecipients;
-	message.nRecipCount                       = (ULONG)m_to.size();
+  message.nRecipCount                       = (ULONG)m_to.size();
     message.lpRecips                          = &pRecipients[1];
     message.nFileCount                        = nAttachments;
     message.lpFiles                           = nAttachments ? pAttachments : NULL;
 
-    status = m_lpMapiSendMail(hMapiSession, 0, &message, 0/*MAPI_DIALOG*/, 0);    
+    status = m_lpMapiSendMail(hMapiSession, 0, &message, 0/*MAPI_DIALOG*/, 0);
 
     if(status!=SUCCESS_SUCCESS)
     {
-        m_sErrorMsg.Format(_T("MAPISendMail has failed with code %X."), status);      
+        m_sErrorMsg.Format(_T("MAPISendMail has failed with code %X."), status);
     }
 
     m_lpMapiLogoff(hMapiSession, NULL, 0, 0);
@@ -261,5 +261,3 @@ BOOL CMailMsg::Send()
 
     return (SUCCESS_SUCCESS == status);
 }
-
-

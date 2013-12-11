@@ -73,7 +73,7 @@ be found in the Authors.txt file in the root of the source tree.
 *  It is also possible (but not recommended) to add files, properties, desktop screenshots, 
 *  registry keys inside of the crash callback function.
 *  
-*  The crash callback function should typically return \c TRUE to allow generate error report.  
+*  The crash callback function should typically return \c TRUE to allow generate error report.
 *  Returning \c FALSE will prevent crash report generation.
 *
 *  The following example shows how to use the crash callback function.
@@ -178,17 +178,17 @@ typedef BOOL (CALLBACK *LPGETLOGFILE) (__reserved LPVOID lpvState);
 
 typedef struct tagCR_EXCEPTION_INFO
 {
-    WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
-    PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
-    int exctype;               //!< Exception type.
-    DWORD code;                //!< Code of SEH exception.
-    unsigned int fpe_subcode;  //!< Floating point exception subcode.
-    const wchar_t* expression; //!< Assertion expression.
-    const wchar_t* function;   //!< Function in which assertion happened.
-    const wchar_t* file;       //!< File in which assertion happened.
-    unsigned int line;         //!< Line number.
-    BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
-    HANDLE hSenderProcess;     //!< Handle to the CrashSender.exe process.
+  WORD cb;                   //!< Size of this structure in bytes; should be initialized before using.
+  PEXCEPTION_POINTERS pexcptrs; //!< Exception pointers.
+  int exctype;               //!< Exception type.
+  DWORD code;                //!< Code of SEH exception.
+  unsigned int fpe_subcode;  //!< Floating point exception subcode.
+  const wchar_t* expression; //!< Assertion expression.
+  const wchar_t* function;   //!< Function in which assertion happened.
+  const wchar_t* file;       //!< File in which assertion happened.
+  unsigned int line;         //!< Line number.
+  BOOL bManual;              //!< Flag telling if the error report is generated manually or not.
+  HANDLE hSenderProcess;     //!< Handle to the CrashSender.exe process.
 }
 CR_EXCEPTION_INFO;
 
@@ -252,12 +252,12 @@ typedef CR_EXCEPTION_INFO* PCR_EXCEPTION_INFO;
 */
 typedef struct tagCR_CRASH_CALLBACK_INFOW
 {
-    WORD cb;                            //!< Size of this structure in bytes.
-	int nStage;                         //!< Stage.
-	LPCWSTR pszErrorReportFolder;       //!< Directory where crash report files are located.
-    CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
-	LPVOID pUserParam;                  //!< Pointer to user-defined data.
-	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.		
+  WORD cb;                            //!< Size of this structure in bytes.
+  int nStage;                         //!< Stage.
+  LPCWSTR pszErrorReportFolder;       //!< Directory where crash report files are located.
+  CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
+  LPVOID pUserParam;                  //!< Pointer to user-defined data.
+  BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.
 }
 CR_CRASH_CALLBACK_INFOW;
 
@@ -267,12 +267,12 @@ CR_CRASH_CALLBACK_INFOW;
 */
 typedef struct tagCR_CRASH_CALLBACK_INFOA
 {
-    WORD cb;                            //!< Size of this structure in bytes.
-	int nStage;                         //!< Stage.
-	LPCSTR pszErrorReportFolder;        //!< Directory where crash report files are located.
-    CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
-	LPVOID pUserParam;                  //!< Pointer to user-defined data.
-	BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.		
+  WORD cb;                            //!< Size of this structure in bytes.
+  int nStage;                         //!< Stage.
+  LPCSTR pszErrorReportFolder;        //!< Directory where crash report files are located.
+  CR_EXCEPTION_INFO* pExceptionInfo;  //!< Pointer to information about the crash.
+  LPVOID pUserParam;                  //!< Pointer to user-defined data.
+  BOOL bContinueExecution;            //!< Whether to terminate the process (the default) or to continue program execution.
 }
 CR_CRASH_CALLBACK_INFOA;
 
@@ -418,20 +418,20 @@ typedef PFNCRASHCALLBACKA PFNCRASHCALLBACK;
 */
 
 CRASHRPTAPI(int)
-crSetCrashCallbackW(   
-             PFNCRASHCALLBACKW pfnCallbackFunc,
-			 LPVOID lpParam
-             );
+  crSetCrashCallbackW(   
+  PFNCRASHCALLBACKW pfnCallbackFunc,
+  LPVOID lpParam
+  );
 
 
 /*! \ingroup CrashRptAPI
 *  \copydoc crSetCrashCallbackW()
 */
 CRASHRPTAPI(int)
-crSetCrashCallbackA(   
-             PFNCRASHCALLBACKA pfnCallbackFunc,
-			 LPVOID lpParam
-             );
+  crSetCrashCallbackA(   
+  PFNCRASHCALLBACKA pfnCallbackFunc,
+  LPVOID lpParam
+  );
 
 
 /*! \brief Character set-independent mapping of crSetCrashCallbackW() and crSetCrashCallbackA() functions. 
@@ -461,11 +461,11 @@ crSetCrashCallbackA(
 #define CR_INST_SECURITY_ERROR_HANDLER           0x20 //!< Install security error handler (VS .NET and later).
 #define CR_INST_INVALID_PARAMETER_HANDLER        0x40 //!< Install invalid parameter handler (VS 2005 and later).
 #define CR_INST_SIGABRT_HANDLER                  0x80 //!< Install SIGABRT signal handler.
-#define CR_INST_SIGFPE_HANDLER                  0x100 //!< Install SIGFPE signal handler.   
-#define CR_INST_SIGILL_HANDLER                  0x200 //!< Install SIGILL signal handler.  
-#define CR_INST_SIGINT_HANDLER                  0x400 //!< Install SIGINT signal handler.  
+#define CR_INST_SIGFPE_HANDLER                  0x100 //!< Install SIGFPE signal handler. 
+#define CR_INST_SIGILL_HANDLER                  0x200 //!< Install SIGILL signal handler.
+#define CR_INST_SIGINT_HANDLER                  0x400 //!< Install SIGINT signal handler.
 #define CR_INST_SIGSEGV_HANDLER                 0x800 //!< Install SIGSEGV signal handler.
-#define CR_INST_SIGTERM_HANDLER                0x1000 //!< Install SIGTERM signal handler.  
+#define CR_INST_SIGTERM_HANDLER                0x1000 //!< Install SIGTERM signal handler.
 
 #define CR_INST_ALL_POSSIBLE_HANDLERS          0x1FFF //!< Install all possible exception handlers.
 #define CR_INST_CRT_EXCEPTION_HANDLERS         0x1FFE //!< Install exception handlers for the linked CRT module.
@@ -714,28 +714,28 @@ crSetCrashCallbackA(
 
 typedef struct tagCR_INSTALL_INFOW
 {
-    WORD cb;                        //!< Size of this structure in bytes; must be initialized before using!
-    LPCWSTR pszAppName;             //!< Name of application.
-    LPCWSTR pszAppVersion;          //!< Application version.
-    LPCWSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
-    LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
-    LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
-    LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-    LPGETLOGFILE pfnCrashCallback;  //!< Deprecated, do not use.
-    UINT uPriorities[5];            //!< Array of error sending transport priorities.
-    DWORD dwFlags;                  //!< Flags.
-    LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
-    LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
-    MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
-    LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
-    LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
-    LPCWSTR pszLangFilePath;        //!< Path to the language file (including file name).
-    LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
-    LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
-    LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
-	LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
-	LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
-	int nRestartTimeout;            //!< Timeout for application restart.
+  WORD cb;                        //!< Size of this structure in bytes; must be initialized before using!
+  LPCWSTR pszAppName;             //!< Name of application.
+  LPCWSTR pszAppVersion;          //!< Application version.
+  LPCWSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  LPCWSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  LPCWSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  LPCWSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPGETLOGFILE pfnCrashCallback;  //!< Deprecated, do not use.
+  UINT uPriorities[5];            //!< Array of error sending transport priorities.
+  DWORD dwFlags;                  //!< Flags.
+  LPCWSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
+  LPCWSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
+  MINIDUMP_TYPE uMiniDumpType;    //!< Minidump type.
+  LPCWSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
+  LPCWSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
+  LPCWSTR pszLangFilePath;        //!< Path to the language file (including file name).
+  LPCWSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
+  LPCWSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
+  LPCWSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
+  LPCWSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
+  LPCWSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
+  int nRestartTimeout;            //!< Timeout for application restart.
 }
 CR_INSTALL_INFOW;
 
@@ -748,28 +748,28 @@ typedef CR_INSTALL_INFOW* PCR_INSTALL_INFOW;
 
 typedef struct tagCR_INSTALL_INFOA
 {
-    WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
-    LPCSTR pszAppName;             //!< Name of application.
-    LPCSTR pszAppVersion;          //!< Application version.
-    LPCSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
-    LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
-    LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
-    LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
-    LPGETLOGFILE pfnCrashCallback; //!< Deprecated, do not use.
-    UINT uPriorities[5];           //!< Array of error sending transport priorities.
-    DWORD dwFlags;                 //!< Flags.
-    LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
-    LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
-    MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
-    LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
-    LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
-    LPCSTR pszLangFilePath;        //!< Path to the language file (including file name).
-    LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
-    LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
-    LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
-	LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
-	LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
-	int nRestartTimeout;           //!< Timeout for application restart.
+  WORD cb;                       //!< Size of this structure in bytes; must be initialized before using!
+  LPCSTR pszAppName;             //!< Name of application.
+  LPCSTR pszAppVersion;          //!< Application version.
+  LPCSTR pszEmailTo;             //!< E-mail address of crash reports recipient.
+  LPCSTR pszEmailSubject;        //!< Subject of crash report e-mail. 
+  LPCSTR pszUrl;                 //!< URL of server-side script (used in HTTP connection).
+  LPCSTR pszCrashSenderPath;     //!< Directory name where CrashSender.exe is located.
+  LPGETLOGFILE pfnCrashCallback; //!< Deprecated, do not use.
+  UINT uPriorities[5];           //!< Array of error sending transport priorities.
+  DWORD dwFlags;                 //!< Flags.
+  LPCSTR pszPrivacyPolicyURL;    //!< URL of privacy policy agreement.
+  LPCSTR pszDebugHelpDLL;        //!< File name or folder of Debug help DLL.
+  MINIDUMP_TYPE uMiniDumpType;   //!< Mini dump type.
+  LPCSTR pszErrorReportSaveDir;  //!< Directory where to save error reports.
+  LPCSTR pszRestartCmdLine;      //!< Command line for application restart (without executable name).
+  LPCSTR pszLangFilePath;        //!< Path to the language file (including file name).
+  LPCSTR pszEmailText;           //!< Custom E-mail text (used when deliverying report as E-mail).
+  LPCSTR pszSmtpProxy;           //!< Network address and port to be used as SMTP proxy.
+  LPCSTR pszCustomSenderIcon;    //!< Custom icon used for Error Report dialog.
+  LPCSTR pszSmtpLogin;           //!< Login name used for SMTP authentication when sending error report as E-mail.
+  LPCSTR pszSmtpPassword;        //!< Password used for SMTP authentication when sending error report as E-mail.	
+  int nRestartTimeout;           //!< Timeout for application restart.
 }
 CR_INSTALL_INFOA;
 
@@ -848,18 +848,18 @@ typedef PCR_INSTALL_INFOA PCR_INSTALL_INFO;
 */
 
 CRASHRPTAPI(int)
-crInstallW(
-           __in PCR_INSTALL_INFOW pInfo
-           );
+  crInstallW(
+  __in PCR_INSTALL_INFOW pInfo
+  );
 
 /*! \ingroup CrashRptAPI
 *  \copydoc crInstallW()
 */
 
 CRASHRPTAPI(int)
-crInstallA(
-           __in PCR_INSTALL_INFOA pInfo
-           );
+  crInstallA(
+  __in PCR_INSTALL_INFOA pInfo
+  );
 
 /*! \brief Character set-independent mapping of crInstallW() and crInstallA() functions. 
 * \ingroup CrashRptAPI
@@ -892,7 +892,7 @@ crInstallA(
 */
 
 CRASHRPTAPI(int)
-crUninstall();
+  crUninstall();
 
 /*! \ingroup CrashRptAPI
 *  \brief Installs exception handlers to the caller thread.
@@ -938,7 +938,7 @@ crUninstall();
 */
 
 CRASHRPTAPI(int)
-crInstallToCurrentThread2(DWORD dwFlags);
+  crInstallToCurrentThread2(DWORD dwFlags);
 
 /*! \ingroup CrashRptAPI  
 *  \brief Uninstalls C++ exception handlers from the current thread.
@@ -963,7 +963,7 @@ crInstallToCurrentThread2(DWORD dwFlags);
 */
 
 CRASHRPTAPI(int)
-crUninstallFromCurrentThread();
+  crUninstallFromCurrentThread();
 
 // Flags for crAddFile2() function.
 
@@ -1057,24 +1057,24 @@ crUninstallFromCurrentThread();
 */
 
 CRASHRPTAPI(int)
-crAddFile2W(
-            LPCWSTR pszFile,
-            LPCWSTR pszDestFile,
-            LPCWSTR pszDesc,
-            DWORD dwFlags
-            );
+  crAddFile2W(
+  LPCWSTR pszFile,
+  LPCWSTR pszDestFile,
+  LPCWSTR pszDesc,
+  DWORD dwFlags
+  );
 
 /*! \ingroup CrashRptAPI
 *  \copydoc crAddFile2W()
 */
 
 CRASHRPTAPI(int)
-crAddFile2A(
-            LPCSTR pszFile,
-            LPCSTR pszDestFile,
-            LPCSTR pszDesc,
-            DWORD dwFlags
-            );
+  crAddFile2A(
+  LPCSTR pszFile,
+  LPCSTR pszDestFile,
+  LPCSTR pszDesc,
+  DWORD dwFlags
+  );
 
 /*! \brief Character set-independent mapping of crAddFile2W() and crAddFile2A() functions. 
 *  \ingroup CrashRptAPI
@@ -1148,9 +1148,9 @@ crAddFile2A(
 */
 
 CRASHRPTAPI(int)
-crAddScreenshot(
-                DWORD dwFlags
-                );
+  crAddScreenshot(
+  DWORD dwFlags
+  );
 
 /*! \ingroup CrashRptAPI  
 *  \brief Adds a screenshot to the crash report.
@@ -1202,10 +1202,10 @@ crAddScreenshot(
 */
 
 CRASHRPTAPI(int)
-crAddScreenshot2(
-                 DWORD dwFlags,
-                 int nJpegQuality
-                 );
+  crAddScreenshot2(
+  DWORD dwFlags,
+  int nJpegQuality
+  );
 
 // Flags for crAddVideo function.
 #define CR_AV_VIRTUAL_SCREEN  0  //!< Capture the whole virtual screen.
@@ -1332,13 +1332,13 @@ crAddScreenshot2(
 */
 
 CRASHRPTAPI(int)
-crAddVideo(
-            DWORD dwFlags,
-			int nDuration,
-			int nFrameInterval,
-            PSIZE pDesiredFrameSize,
-			HWND hWndParent
-            );
+  crAddVideo(
+  DWORD dwFlags,
+  int nDuration,
+  int nFrameInterval,
+  PSIZE pDesiredFrameSize,
+  HWND hWndParent
+  );
 
 /*! \ingroup CrashRptAPI  
 *  \brief Adds a string property to the crash report. 
@@ -1370,20 +1370,20 @@ crAddVideo(
 */
 
 CRASHRPTAPI(int)
-crAddPropertyW(
-               LPCWSTR pszPropName,
-               LPCWSTR pszPropValue
-               );
+  crAddPropertyW(
+  LPCWSTR pszPropName,
+  LPCWSTR pszPropValue
+  );
 
 /*! \ingroup CrashRptAPI
 *  \copydoc crAddPropertyW()
 */
 
 CRASHRPTAPI(int)
-crAddPropertyA(
-               LPCSTR pszPropName,
-               LPCSTR pszPropValue
-               );
+  crAddPropertyA(
+  LPCSTR pszPropName,
+  LPCSTR pszPropValue
+  );
 
 /*! \brief Character set-independent mapping of crAddPropertyW() and crAddPropertyA() functions. 
 *  \ingroup CrashRptAPI
@@ -1436,22 +1436,22 @@ crAddPropertyA(
 */
 
 CRASHRPTAPI(int)
-crAddRegKeyW(   
-             LPCWSTR pszRegKey,
-             LPCWSTR pszDstFileName,
-             DWORD dwFlags
-             );
+  crAddRegKeyW(   
+  LPCWSTR pszRegKey,
+  LPCWSTR pszDstFileName,
+  DWORD dwFlags
+  );
 
 /*! \ingroup CrashRptAPI
 *  \copydoc crAddRegKeyW()
 */
 
 CRASHRPTAPI(int)
-crAddRegKeyA(   
-             LPCSTR pszRegKey,
-             LPCSTR pszDstFileName,
-             DWORD dwFlags
-             );
+  crAddRegKeyA(   
+  LPCSTR pszRegKey,
+  LPCSTR pszDstFileName,
+  DWORD dwFlags
+  );
 
 /*! \brief Character set-independent mapping of crAddRegKeyW() and crAddRegKeyA() functions. 
 *  \ingroup CrashRptAPI
@@ -1507,9 +1507,9 @@ crAddRegKeyA(
 */
 
 CRASHRPTAPI(int)
-crGenerateErrorReport(   
-                      __in_opt CR_EXCEPTION_INFO* pExceptionInfo
-                      );
+  crGenerateErrorReport(   
+  __in_opt CR_EXCEPTION_INFO* pExceptionInfo
+  );
 
 /*! \ingroup CrashRptAPI
 *  \brief Can be used as a SEH exception filter.
@@ -1550,9 +1550,9 @@ crGenerateErrorReport(
 */
 
 CRASHRPTAPI(int)
-crExceptionFilter(
-                  unsigned int code, 
-                  __in_opt struct _EXCEPTION_POINTERS* ep);
+  crExceptionFilter(
+  unsigned int code, 
+  __in_opt struct _EXCEPTION_POINTERS* ep);
 
 
 // Flags used by crEmulateCrash() function
@@ -1613,8 +1613,8 @@ crExceptionFilter(
 */
 
 CRASHRPTAPI(int)
-crEmulateCrash(
-               unsigned ExceptionType) throw (...);
+  crEmulateCrash(
+  unsigned ExceptionType) throw (...);
 
 
 
@@ -1651,9 +1651,9 @@ crEmulateCrash(
 */
 
 CRASHRPTAPI(int)
-crGetLastErrorMsgW(
-                   __out_ecount_z(uBuffSize) LPWSTR pszBuffer, 
-                   UINT uBuffSize);
+  crGetLastErrorMsgW(
+  __out_ecount_z(uBuffSize) LPWSTR pszBuffer, 
+  UINT uBuffSize);
 
 /*! \ingroup CrashRptAPI
 *  \copydoc crGetLastErrorMsgW()
@@ -1661,9 +1661,9 @@ crGetLastErrorMsgW(
 */
 
 CRASHRPTAPI(int)
-crGetLastErrorMsgA(
-                   __out_ecount_z(uBuffSize) LPSTR pszBuffer, 
-                   UINT uBuffSize);
+  crGetLastErrorMsgA(
+  __out_ecount_z(uBuffSize) LPSTR pszBuffer, 
+  UINT uBuffSize);
 
 /*! \brief Defines character set-independent mapping for crGetLastErrorMsgW() and crGetLastErrorMsgA().
 *  \ingroup CrashRptAPI
@@ -1729,27 +1729,27 @@ class CrAutoInstallHelper
 {
 public:
 
-    //! Installs exception handlers to the caller process
-    CrAutoInstallHelper(__in PCR_INSTALL_INFOA pInfo)
-    {
-        m_nInstallStatus = crInstallA(pInfo);
-    }
+  //! Installs exception handlers to the caller process
+  CrAutoInstallHelper(__in PCR_INSTALL_INFOA pInfo)
+  {
+    m_nInstallStatus = crInstallA(pInfo);
+  }
 
-    //! Installs exception handlers to the caller process
-    CrAutoInstallHelper(__in PCR_INSTALL_INFOW pInfo)
-    {
-        m_nInstallStatus = crInstallW(pInfo);
-    }
+  //! Installs exception handlers to the caller process
+  CrAutoInstallHelper(__in PCR_INSTALL_INFOW pInfo)
+  {
+    m_nInstallStatus = crInstallW(pInfo);
+  }
 
-    //! Uninstalls exception handlers from the caller process
-    ~CrAutoInstallHelper()
-    {
-		if(m_nInstallStatus==0)
-			crUninstall();
-    }
+  //! Uninstalls exception handlers from the caller process
+  ~CrAutoInstallHelper()
+  {
+    if(m_nInstallStatus==0)
+      crUninstall();
+  }
 
-    //! Install status
-    int m_nInstallStatus;
+  //! Install status
+  int m_nInstallStatus;
 };
 
 /*! \class CrThreadAutoInstallHelper
@@ -1781,21 +1781,21 @@ class CrThreadAutoInstallHelper
 {
 public:
 
-    //! Installs exception handlers to the caller thread
-    CrThreadAutoInstallHelper(DWORD dwFlags=0)
-    {
-        m_nInstallStatus = crInstallToCurrentThread2(dwFlags);    
-    }
+  //! Installs exception handlers to the caller thread
+  CrThreadAutoInstallHelper(DWORD dwFlags=0)
+  {
+    m_nInstallStatus = crInstallToCurrentThread2(dwFlags);
+  }
 
-    //! Uninstalls exception handlers from the caller thread
-    ~CrThreadAutoInstallHelper()
-	{
-		if (m_nInstallStatus == 0)
-			 crUninstallFromCurrentThread();
-	}
+  //! Uninstalls exception handlers from the caller thread
+  ~CrThreadAutoInstallHelper()
+  {
+    if (m_nInstallStatus == 0)
+      crUninstallFromCurrentThread();
+  }
 
-    //! Install status
-    int m_nInstallStatus;
+  //! Install status
+  int m_nInstallStatus;
 };
 
 #endif //!_CRASHRPT_NO_WRAPPERS

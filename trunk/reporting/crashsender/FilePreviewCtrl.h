@@ -10,7 +10,6 @@ be found in the Authors.txt file in the root of the source tree.
 
 #pragma once
 #include "stdafx.h"
-#include "CritSec.h"
 #include "theora/theoradec.h"
 
 // Preview mode
@@ -20,7 +19,7 @@ enum PreviewMode
     PREVIEW_HEX  = 0,   // Hex
     PREVIEW_TEXT = 1,   // Text
     PREVIEW_IMAGE = 2,  // Image    
-	PREVIEW_VIDEO = 3   // OGG Theora-encoded video
+    PREVIEW_VIDEO = 3   // OGG Theora-encoded video
 };
 
 // Text encoding
@@ -38,9 +37,8 @@ class CFileMemoryMapping
 {
 public:
 
-    // Construction/destruction
-    CFileMemoryMapping();  
-    ~CFileMemoryMapping();  
+    CFileMemoryMapping();
+    ~CFileMemoryMapping();
 
     // Initializes the object
     BOOL Init(LPCTSTR szFileName);
@@ -57,10 +55,10 @@ private:
 
     HANDLE m_hFile;		          // Handle to current file
     HANDLE m_hFileMapping;		  // Memory mapped object
-    DWORD m_dwAllocGranularity; // System allocation granularity  	  
-    ULONG64 m_uFileLength;		  // Size of the file.		
-    CCritSec m_csLock;          // Synchronization object
-    std::map<DWORD, LPBYTE> m_aViewStartPtrs; // Base of the view of the file.    
+    DWORD m_dwAllocGranularity; // System allocation granularity
+    ULONG64 m_uFileLength;		  // Size of the file.
+    ATL::CComAutoCriticalSection  m_csLock;
+    std::map<DWORD, LPBYTE> m_aViewStartPtrs; // Base of the view of the file.
 };
 
 // Line info
@@ -89,10 +87,10 @@ public:
     // Returns TRUE if the file is a JPEG image, otherwise returns FALSE
     static BOOL IsJPEG(FILE* f);
     // Returns TRUE if the file is an image file, otherwise returns FALSE
-    static BOOL IsImageFile(CString sFileName);
+    static BOOL IsImageFile(WTL::CString sFileName);
 
     // Loads the image from file
-    BOOL Load(CString sFileName);
+    BOOL Load(WTL::CString sFileName);
     // Cancels loading
     void Cancel();
     // Returns TRUE if image is valid, otherwise returns FALSE
@@ -106,8 +104,8 @@ private:
     BOOL LoadBitmapFromPNGFile(LPTSTR szFileName);
     BOOL LoadBitmapFromJPEGFile(LPTSTR szFileName);
 
-    CCritSec m_csLock;      // Critical section
-    HBITMAP m_hBitmap;      // Handle to the bitmap.  
+    ATL::CComAutoCriticalSection  m_csLock;
+    HBITMAP m_hBitmap;      // Handle to the bitmap.
     HPALETTE m_hPalette;    // Palette
     BOOL m_bLoadCancelled;  // Load cancel flag
 };
@@ -116,72 +114,72 @@ class CVideo
 {
 public:
 
-	// Construction/destruction.
-	CVideo();
-	virtual ~CVideo();
+  // Construction/destruction.
+  CVideo();
+  virtual ~CVideo();
 
-	// Detects if the file is a video file.
-	static BOOL IsVideoFile(LPCTSTR szFileName);
+  // Detects if the file is a video file.
+  static BOOL IsVideoFile(LPCTSTR szFileName);
 
-	// Checks if the file is an OGG container file
-	static BOOL IsOGG(FILE* f);
+  // Checks if the file is an OGG container file
+  static BOOL IsOGG(FILE* f);
 
-	// Loads video from file.
-	BOOL Load(LPCTSTR szFileName);
+  // Loads video from file.
+  BOOL Load(LPCTSTR szFileName);
 
-	// Frees resources
-	void Destroy();
+  // Frees resources
+  void Destroy();
 
-	// Returns TRUE if video is valid, otherwise returns FALSE
+  // Returns TRUE if video is valid, otherwise returns FALSE
     BOOL IsValid();
 
-	// Sets position to zero-th frame.
-	void Reset();
+  // Sets position to zero-th frame.
+  void Reset();
 
-	// Decodes next video frame and returns pointer to bitmap.
-	HBITMAP DecodeFrame(BOOL bFirstFrame, CSize& FrameSize, int& nDuration);
+  // Decodes next video frame and returns pointer to bitmap.
+  HBITMAP DecodeFrame(BOOL bFirstFrame, WTL::CSize& FrameSize, int& nDuration);
 
-	void DrawFrame(HDC hDC, LPRECT prcDraw);
+  void DrawFrame(HDC hDC, LPRECT prcDraw);
 
 private:
 
-	// Loads an OGG video
-	BOOL LoadOggFile(LPCTSTR szFileName);
+  // Loads an OGG video
+  BOOL LoadOggFile(LPCTSTR szFileName);
 
-	BOOL ReadOGGPage();
+  BOOL ReadOGGPage();
 
-	// Reads a page from OGG file
-	BOOL ReadOGGPacket();
+  // Reads a page from OGG file
+  BOOL ReadOGGPacket();
 
-	// Creates a DIB bitmap
-	BOOL CreateFrameDIB(DWORD dwWidth, DWORD dwHeight, int nBits);
+  // Creates a DIB bitmap
+  BOOL CreateFrameDIB(DWORD dwWidth, DWORD dwHeight, int nBits);
 
-	// Converts an YV12 image to RGB24 image.
-	void YV12_To_RGB(unsigned char *pRGBData, int nFrameWidth, 
-				int nFrameHeight, int nRGBStride, th_ycbcr_buffer raw );
+  // Converts an YV12 image to RGB24 image.
+  void YV12_To_RGB(unsigned char *pRGBData, int nFrameWidth, 
+        int nFrameHeight, int nRGBStride, th_ycbcr_buffer raw );
 
-	CCritSec m_csLock;      // Critical section
-	CString m_sFileName;    // File currently loaded.
-	FILE* m_pf;             // File handle.
-	HBITMAP m_hbmpFrame;    // Video frame bitmap.
-	LPVOID m_pFrameBits;    // Frame buffer.
-	LPBITMAPINFO m_pDIB;    // Bitmap info.
-	HDC m_hDC;              // Device context.
-	HBITMAP m_hOldBitmap;   //	
-	ogg_sync_state m_state;
-	char* m_buf;
-	ogg_page m_page;
-	ogg_stream_state m_stream;
-	ogg_packet m_packet;
-	th_info m_info;
-	th_comment m_comment;
-	th_setup_info* m_psetup;
-	th_dec_ctx* m_pctx;	
-	ogg_int64_t m_pos;
-	th_ycbcr_buffer m_raw;
-	int m_nFrameWidth;
-	int m_nFrameHeight;
-	int m_nFrameInterval;
+  ATL::CComAutoCriticalSection  m_csLock;      // Critical section
+  WTL::CString m_sFileName;    // File currently loaded.
+  FILE* m_pf;             // File handle.
+  HBITMAP m_hbmpFrame;    // Video frame bitmap.
+  LPVOID m_pFrameBits;    // Frame buffer.
+  LPBITMAPINFO m_pDIB;    // Bitmap info.
+  HDC m_hDC;              // Device context.
+  HBITMAP m_hOldBitmap;   //	
+  ogg_sync_state m_state;
+  char* m_buf;
+  ogg_page m_page;
+  ogg_stream_state m_stream;
+  ogg_packet m_packet;
+  th_info m_info;
+  th_comment m_comment;
+  th_setup_info* m_psetup;
+  th_dec_ctx* m_pctx;	
+  ogg_int64_t m_pos;
+  th_ycbcr_buffer m_raw;
+  int m_nFrameWidth;
+  int m_nFrameHeight;
+  int m_nFrameInterval;
 };
 
 // This message is sent by file preview control when file loading is complete
@@ -190,7 +188,7 @@ private:
 
 // File preview control
 // A custom control derived from CStatic. Can preview files as hex, text and image
-class CFilePreviewCtrl : public CWindowImpl<CFilePreviewCtrl, CStatic>
+class CFilePreviewCtrl : public ATL::CWindowImpl<CFilePreviewCtrl, WTL::CStatic>
 {
 public:
 
@@ -220,7 +218,7 @@ public:
             MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
             MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
             MESSAGE_HANDLER(WM_TIMER, OnTimer)
-            MESSAGE_HANDLER(WM_FPC_COMPLETE, OnComplete)			
+            MESSAGE_HANDLER(WM_FPC_COMPLETE, OnComplete)
             MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
             MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
             MESSAGE_HANDLER(WM_MOUSEWHEEL, OnMouseWheel)
@@ -245,7 +243,7 @@ public:
     void SetTextEncoding(TextEncoding enc);
 
     // Sets the text that will be displayed as "No data to display" message
-    void SetEmptyMessage(CString sText);
+    void SetEmptyMessage(WTL::CString sText);
 
     // Sets the width of HEX preview
     BOOL SetBytesPerLine(int nBytesPerLine);
@@ -269,33 +267,33 @@ public:
     LRESULT OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
     void SetupScrollbars();
-    CString FormatHexLine(LPBYTE pData, int nBytesInLine, ULONG64 uLineOffset);
+    WTL::CString FormatHexLine(LPBYTE pData, int nBytesInLine, ULONG64 uLineOffset);
     void DrawHexLine(HDC hdc, DWORD nLineNo);
     void DrawTextLine(HDC hdc, DWORD nLineNo);  
     void DoPaintEmpty(HDC hDC);
     void DoPaintText(HDC hDC);
     void DoPaintBitmap(HDC hDC);
-	void DoPaintVideo(HDC hDC);
+    void DoPaintVideo(HDC hDC);
     void DoPaint(HDC hDC);
 
-    // Used internally to performs some work assynchronously
-    static DWORD WINAPI WorkerThread(LPVOID lpParam);  
+    // Used internally to performs some work asynchronously
+    static DWORD WINAPI WorkerThread(LPVOID lpParam);
     void DoInWorkerThread();
 
-    // Parses text file assynchronously
+    // Parses text file asynchronously
     void ParseText();
 
-    // Loads bitmap assynchronously
+    // Loads bitmap asynchronously
     void LoadBitmap();
 
-	// Laods video assynchronously
-	void LoadVideo();
+    // Laods video asynchronously
+    void LoadVideo();
 
-    CString m_sFileName;         // File name.
+    WTL::CString m_sFileName;         // File name.
     PreviewMode m_PreviewMode;   // File preview mode.
     TextEncoding m_TextEncoding; // Text encoding (if in text preview mode).
     int m_nEncSignatureLen;      // Length of the text encoding signature. 
-    CCritSec m_csLock;           // Sync object.
+    ATL::CComAutoCriticalSection m_criticalSection;           // Sync object.
     CFileMemoryMapping m_fm;     // File mapping object.  
     HFONT m_hFont;               // Font in use.  
     int m_xChar;                 // Size of character in x direction.
@@ -306,7 +304,7 @@ public:
     ULONG64 m_uNumLines;         // Number of lines in the file.	
     int m_nBytesPerLine;         // Count of displayed bytes per line.
     int m_cchTabLength;          // Length of the tab, in characters
-    CString m_sEmptyMsg;         // Text to display when file is empty
+    WTL::CString m_sEmptyMsg;         // Text to display when file is empty
     int m_nHScrollPos;           // Horizontal scroll position.
     int m_nHScrollMax;           // Max horizontal scroll position.
     int m_nVScrollPos;           // Vertical scrolling position.
@@ -315,8 +313,5 @@ public:
     HANDLE m_hWorkerThread;      // Handle to the worker thread.
     BOOL m_bCancelled;           // Is worker thread cancelled?
     CImage m_bmp;                // Stores the bitmap.
-	CVideo m_video;              // Stores the decoded video.
+    CVideo m_video;              // Stores the decoded video.
 };
-
-
-

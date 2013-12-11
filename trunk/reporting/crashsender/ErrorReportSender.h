@@ -9,7 +9,7 @@ be found in the Authors.txt file in the root of the source tree.
 ***************************************************************************************/
 
 #pragma once
-#include "AssyncNotification.h"
+#include "AsyncNotification.h"
 #include "MailMsg.h"
 #include "smtpclient.h"
 #include "HttpRequestSender.h"
@@ -24,7 +24,7 @@ enum ActionType
     COMPRESS_REPORT     = 0x02, // Error report files should be packed into ZIP archive.
     RESTART_APP         = 0x04, // Crashed app should be restarted.
     SEND_REPORT         = 0x08, // Report should be sent.
-	SEND_RECENT_REPORTS = 0x10  // Recent crash reports should be sent.
+    SEND_RECENT_REPORTS = 0x10  // Recent crash reports should be sent.
 };
 
 // Mail client launch confirmation status
@@ -49,115 +49,115 @@ public:
     // Constructor.
     CErrorReportSender();
 
-	// Destructor.
+    // Destructor.
     virtual ~CErrorReportSender();
 
-	// Returns singleton of this class.
-	static CErrorReportSender* GetInstance();
+    // Returns singleton of this class.
+    static CErrorReportSender* GetInstance();
 
-	// Performs initialization.	
-	BOOL Init(LPCTSTR szFileMappingName);
-		
-	// Cleans up all temp files and does other finalizing work.
+    // Performs initialization.
+    BOOL Init(LPCTSTR szFileMappingName);
+    
+    // Cleans up all temp files and does other finalizing work.
     BOOL Finalize();
 
-	// Returns pointer to object containing crash information.
-	CCrashInfoReader* GetCrashInfo();
-	
-	// Returns last error message.
-	CString GetErrorMsg();
+    // Returns pointer to object containing crash information.
+    CCrashInfoReader* GetCrashInfo();
+  
+    // Returns last error message.
+    WTL::CString GetErrorMsg();
 
-	// Set the window that will receive notifications from this object.
-	void SetNotificationWindow(HWND hWnd);
+    // Set the window that will receive notifications from this object.
+    void SetNotificationWindow(HWND hWnd);
 
-	// Compresses and sends the report(s).
-	BOOL Run();
-	    
+    // Compresses and sends the report(s).
+    BOOL Run();
+
     // Blocks until an assync operation finishes.
     void WaitForCompletion();
 
-	// Cancels the assync operation.
+    // Cancels the assync operation.
     void Cancel();
 
     // Returns error report sending status.
     int GetStatus();
 
     // Gets current operation status.
-    void GetCurOpStatus(int& nProgressPct, std::vector<CString>& msg_log);
-	    
+    void GetCurOpStatus(int& nProgressPct, std::vector<WTL::CString>& msg_log);
+      
     // Unblocks waiting worker thread.
     void FeedbackReady(int code);
-	    
+      
     // Returns current error report's index.
     int GetCurReport();
-	    
-	// Returns path to log file.
-	CString GetLogFilePath();
-	    
-	// Returns a localized string from lang file.
-	CString GetLangStr(LPCTSTR szSection, LPCTSTR szName);
 
-	// Allows to specify file name for exporting error report.
-    void SetExportFlag(BOOL bExport, CString sExportFile);
+    // Returns path to log file.
+    WTL::CString GetLogFilePath();
 
-	// Exports crash report to disc as a ZIP archive.
-	void ExportReport(LPCTSTR szOutFileName);
+    // Returns a localized string from lang file.
+    WTL::CString GetLangStr(LPCTSTR szSection, LPCTSTR szName);
 
-	// Returns TRUE if currently sending error report(s).
-	BOOL IsSendingNow();
+    // Allows to specify file name for exporting error report.
+    void SetExportFlag(BOOL bExport, WTL::CString sExportFile);
 
-	// Returns TRUE if there were errors.
-	BOOL HasErrors();
-	
-	// This method finds and terminates all instances of CrashSender.exe process.
-	static int TerminateAllCrashSenderProcesses();
-		
+    // Exports crash report to disc as a ZIP archive.
+    void ExportReport(LPCTSTR szOutFileName);
+
+    // Returns TRUE if currently sending error report(s).
+    BOOL IsSendingNow();
+
+    // Returns TRUE if there were errors.
+    BOOL HasErrors();
+  
+    // This method finds and terminates all instances of CrashSender.exe process.
+    static int TerminateAllCrashSenderProcesses();
+    
 private:
 
-	// Creates log file
-	BOOL InitLog();
+    // Creates log file
+    BOOL InitLog();
 
-	// This method performs an action or several actions.
+    // This method performs an action or several actions.
     BOOL DoWork(int Action);
-	    
+      
     // Worker thread proc.
     static DWORD WINAPI WorkerThread(LPVOID lpParam);  
 
-	// Runs an action or several actions in assync mode.
+    // Runs an action or several actions in assync mode.
     BOOL DoWorkAssync(int Action);
 
     // Collects crash report files.
     BOOL CollectCrashFiles();  
 
-	// Includes a single file to crash report
-	BOOL CollectSingleFile(ERIFileItem* pfi);
+    // Includes a single file to crash report
+    BOOL CollectSingleFile(ERIFileItem* pfi);
 
-	// Includes all files matching search pattern to crash report
-	BOOL CollectFilesBySearchTemplate(ERIFileItem* pfi, std::vector<ERIFileItem>& file_list);
+    // Includes all files matching search pattern to crash report
+    BOOL CollectFilesBySearchTemplate(ERIFileItem* pfi, std::vector<ERIFileItem>& file_list);
 
     // Calculates MD5 hash for a file.
-    int CalcFileMD5Hash(CString sFileName, CString& sMD5Hash);
-	    
+    int CalcFileMD5Hash(WTL::CString sFileName, WTL::CString& sMD5Hash);
+      
     // Takes desktop screenshot.
     BOOL TakeDesktopScreenshot();
 
-	// This method enters the video recording loop.
-	BOOL RecordVideo();
+    // This method enters the video recording loop.
+    BOOL RecordVideo();
 
-	// Writes video to a webm file
-	BOOL EncodeVideo();
+    // Writes video to a webm file
+    BOOL EncodeVideo();
 
     // Creates crash dump file.
     BOOL CreateMiniDump();  
 
-	// This method is used to have the current process be able to call MiniDumpWriteDump.
-	BOOL SetDumpPrivileges();
+    // This method is used to have the current process be able to call MiniDumpWriteDump.
+    BOOL SetDumpPrivileges();
 
     // Creates crash description XML file.
     BOOL CreateCrashDescriptionXML(CErrorReportInfo& eri);
-	
+  
     // Adds an element to XML file.
-    void AddElemToXML(CString sName, CString sValue, TiXmlNode* root);
+    void AddElemToXML(WTL::CString sName, WTL::CString sValue, TiXmlNode* root);
 
     // Minidump callback.
     static BOOL CALLBACK MiniDumpCallback(PVOID CallbackParam, PMINIDUMP_CALLBACK_INPUT CallbackInput,
@@ -170,11 +170,11 @@ private:
     // Restarts the application.
     BOOL RestartApp();
 
-	// Dumps registry key to the XML file.
-    int DumpRegKey(CString sRegKey, CString sDestFile, CString& sErrorMsg);
-	
-	// Used internally for dumping a registry key.
-    int DumpRegKey(HKEY hKeyParent, CString sSubKey, TiXmlElement* elem);
+    // Dumps registry key to the XML file.
+    int DumpRegKey(WTL::CString sRegKey, WTL::CString sDestFile, WTL::CString& sErrorMsg);
+  
+    // Used internally for dumping a registry key.
+    int DumpRegKey(HKEY hKeyParent, WTL::CString sSubKey, TiXmlElement* elem);
 
     // Packs error report files to ZIP archive.
     BOOL CompressReportFiles(CErrorReportInfo* eri);
@@ -189,10 +189,10 @@ private:
     BOOL SendOverHTTP();
 
     // Encodes attachment file with Base-64 encoding.
-    int Base64EncodeAttachment(CString sFileName, std::string& sEncodedFileData);
+    int Base64EncodeAttachment(WTL::CString sFileName, WTL::CString& sEncodedFileData);
 
     // Formats Email text.
-    CString FormatEmailText();
+    WTL::CString FormatEmailText();
 
     // Sends error report over SMTP.
     BOOL SendOverSMTP();
@@ -200,35 +200,33 @@ private:
     // Sends error report over Simple MAPI.
     BOOL SendOverSMAPI();
 
-	// Sends all recently queued error reports in turn.
-	BOOL SendRecentReports();
+    // Sends all recently queued error reports in turn.
+    BOOL SendRecentReports();
 
-	// Send the next queued report.
-	BOOL SendNextReport(int nReport);
+    // Send the next queued report.
+    BOOL SendNextReport(int nReport);
     
-	// Internal variables
-	static CErrorReportSender* m_pInstance; // Singleton
-	CCrashInfoReader m_CrashInfo;       // Contains crash information.
-	CVideoRecorder m_VideoRec;            // Video recorder.
-	CString m_sErrorMsg;                // Last error message.
-	HWND m_hWndNotify;                  // Notification window.
+    // Internal variables
+    static CErrorReportSender* m_pInstance; // Singleton
+    CCrashInfoReader m_CrashInfo;       // Contains crash information.
+    CVideoRecorder m_VideoRec;            // Video recorder.
+    WTL::CString m_sErrorMsg;                // Last error message.
+    HWND m_hWndNotify;                  // Notification window.
     int m_nStatus;                      // Error report sending status.
     int m_nCurReport;                   // Index of current error report.
     HANDLE m_hThread;                   // Handle to the worker thread.
     int m_SendAttempt;                  // Number of current sending attempt.
-    AssyncNotification m_Assync;        // Used for communication with the main thread.
+    AsyncNotification m_Assync;        // Used for communication with the main thread.
     CEmailMessage m_EmailMsg;           // Email message to send.
     CSmtpClient m_SmtpClient;           // Used to send report over SMTP.
     CHttpRequestSender m_HttpSender;    // Used to send report over HTTP.
     CMailMsg m_MapiSender;              // Used to send report over SMAPI.
-    CString m_sZipName;                 // Name of the ZIP archive to send.
+    WTL::CString m_sZipName;                 // Name of the ZIP archive to send.
     int m_Action;                       // Current assynchronous action.
     BOOL m_bExport;                     // If TRUE than export should be performed.
-    CString m_sExportFileName;          // File name for exporting.
-	eMailClientConfirm m_MailClientConfirm;  // Mail program confirmation result.
+    WTL::CString m_sExportFileName;          // File name for exporting.
+    eMailClientConfirm m_MailClientConfirm;  // Mail program confirmation result.
     BOOL m_bSendingNow;                 // TRUE if in progress of sending reports.
-	BOOL m_bErrors;                     // TRUE if there were errors.
-	CString m_sCrashLogFile;            // Log file.
+    BOOL m_bErrors;                     // TRUE if there were errors.
+    WTL::CString m_sCrashLogFile;            // Log file.
 };
-
-

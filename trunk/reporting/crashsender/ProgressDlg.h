@@ -16,24 +16,24 @@ be found in the Authors.txt file in the root of the source tree.
 #define WM_COMPLETECOLLECT (WM_APP+1)
 
 class CProgressDlg : 
-	public CDialogImpl<CProgressDlg>,
-    public CDialogResize<CProgressDlg>
+  public ATL::CDialogImpl<CProgressDlg>,
+  public WTL::CDialogResize<CProgressDlg>
 {
 public:
 
     enum { IDD = IDD_PROGRESSDLG };
-		
+    
     enum ActionOnCancel
-	{
-		DONT_CLOSE, 
-		CLOSE_MYSELF, 
-		CLOSE_MYSELF_AND_PARENT
-	};
+  {
+    DONT_CLOSE, 
+    CLOSE_MYSELF, 
+    CLOSE_MYSELF_AND_PARENT
+  };
 
-    CProgressBarCtrl m_prgProgress;
-    CListViewCtrl m_listView;
-    CButton m_btnCancel;
-    CStatic m_statText;    
+    WTL::CProgressBarCtrl m_prgProgress;
+    WTL::CListViewCtrl m_listView;
+    WTL::CButton m_btnCancel;
+    WTL::CStatic m_statText;
 
     BEGIN_DLGRESIZE_MAP(CProgressDlg)
         DLGRESIZE_CONTROL(IDC_PROGRESS, DLSZ_SIZE_X)
@@ -44,8 +44,8 @@ public:
     BEGIN_MSG_MAP(CProgressDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         MESSAGE_HANDLER(WM_CLOSE, OnClose)
-        MESSAGE_HANDLER(WM_TIMER, OnTimer)        
-        COMMAND_ID_HANDLER(IDCANCEL, OnCancel)    
+        MESSAGE_HANDLER(WM_TIMER, OnTimer)
+        COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
         COMMAND_ID_HANDLER(ID_MENU1_COPYSEL, OnCopySel)
         COMMAND_ID_HANDLER(ID_MENU1_COPYLOG, OnCopyLog)
         NOTIFY_HANDLER(IDC_LIST, NM_RCLICK, OnListRClick)
@@ -54,9 +54,9 @@ public:
     END_MSG_MAP()
 
     // Handler prototypes (uncomment arguments if needed):
-    //	LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-    //	LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-    //	LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+    //LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+    //LRESULT CommandHandler(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+    //LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
     LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -66,21 +66,19 @@ public:
     LRESULT OnCopySel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
     LRESULT OnCopyLog(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);  
 
-	// Displays the dialog and starts the timer.
+    // Displays the dialog and starts the timer.
     void Start(BOOL bCollectInfo, BOOL bMakeVisible=TRUE);
 
-	// Stops the timer.
+    // Stops the timer.
     void Stop();
 
-	// Closes the dialog.
+    // Closes the dialog.
     void CloseDialog(int nVal);
 
-	// This method places the data to clipboard.
-    int SetClipboard(CString& sData);
+    // This method places the data to clipboard.
+    int SetClipboard(WTL::CString& sData);
 
-	// Internal variables.
+    // Internal variables.
     ActionOnCancel m_ActionOnCancel;  // What to do on cancel.
     ActionOnCancel m_ActionOnClose;   // What to do on close.
 };
-
-

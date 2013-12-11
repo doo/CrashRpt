@@ -15,22 +15,22 @@ be found in the Authors.txt file in the root of the source tree.
 
 #pragma once
 #include "stdafx.h"
-#include "AssyncNotification.h"
+#include "AsyncNotification.h"
 
 
 struct CHttpRequestFile
 {  
-    CString m_sSrcFileName;  // Name of the file attachment.
-    CString m_sContentType;  // Content type.
+    WTL::CString m_sSrcFileName;  // Name of the file attachment.
+    WTL::CString m_sContentType;  // Content type.
 };
 
 // HTTP request information
 class CHttpRequest
 {
 public:
-    CString m_sUrl;      // Script URL  
-    std::map<CString, std::string> m_aTextFields;    // Array of text fields to include into POST data
-    std::map<CString, CHttpRequestFile> m_aIncludedFiles; // Array of binary files to include into POST data
+    WTL::CString m_sUrl;      // Script URL  
+    std::map<WTL::CString, std::string> m_aTextFields;    // Array of text fields to include into POST data
+    std::map<WTL::CString, CHttpRequestFile> m_aIncludedFiles; // Array of binary files to include into POST data
 };
 
 // Sends HTTP request
@@ -42,7 +42,7 @@ public:
     CHttpRequestSender();
 
     // Sends HTTP request assynchroniously
-    BOOL SendAssync(CHttpRequest& Request, AssyncNotification* an);
+    BOOL SendAssync(CHttpRequest& Request, AsyncNotification* an);
 
 private:
 
@@ -53,15 +53,15 @@ private:
 
     // Used to calculate summary size of the request
     BOOL CalcRequestSize(LONGLONG& lSize);
-    BOOL FormatTextPartHeader(CString sName, CString& sText);
-    BOOL FormatTextPartFooter(CString sName, CString& sText);  
-    BOOL FormatAttachmentPartHeader(CString sName, CString& sText);
-    BOOL FormatAttachmentPartFooter(CString sName, CString& sText);
-    BOOL FormatTrailingBoundary(CString& sBoundary);
-    BOOL CalcTextPartSize(CString sFileName, LONGLONG& lSize);
-    BOOL CalcAttachmentPartSize(CString sFileName, LONGLONG& lSize);
-    BOOL WriteTextPart(HINTERNET hRequest, CString sName);
-    BOOL WriteAttachmentPart(HINTERNET hRequest, CString sName);
+    BOOL FormatTextPartHeader(WTL::CString sName, WTL::CString& sText);
+    BOOL FormatTextPartFooter(WTL::CString sName, WTL::CString& sText);  
+    BOOL FormatAttachmentPartHeader(WTL::CString sName, WTL::CString& sText);
+    BOOL FormatAttachmentPartFooter(WTL::CString sName, WTL::CString& sText);
+    BOOL FormatTrailingBoundary(WTL::CString& sBoundary);
+    BOOL CalcTextPartSize(WTL::CString sFileName, LONGLONG& lSize);
+    BOOL CalcAttachmentPartSize(WTL::CString sFileName, LONGLONG& lSize);
+    BOOL WriteTextPart(HINTERNET hRequest, WTL::CString sName);
+    BOOL WriteAttachmentPart(HINTERNET hRequest, WTL::CString sName);
     BOOL WriteTrailingBoundary(HINTERNET hRequest);
     void UploadProgress(DWORD dwBytesWritten);
 
@@ -70,13 +70,13 @@ private:
         LPTSTR szAddress, UINT cbAddress, DWORD &dwPort, LPTSTR szURI, UINT cbURI);
 
     CHttpRequest m_Request;       // HTTP request being sent
-    AssyncNotification* m_Assync; // Used to communicate with the main thread  
+    AsyncNotification* m_async; // Used to communicate with the main thread  
 
-    CString m_sFilePartHeaderFmt;
-    CString m_sFilePartFooterFmt;
-    CString m_sTextPartHeaderFmt;
-    CString m_sTextPartFooterFmt;
-    CString m_sBoundary;
+    WTL::CString m_sFilePartHeaderFmt;
+    WTL::CString m_sFilePartFooterFmt;
+    WTL::CString m_sTextPartHeaderFmt;
+    WTL::CString m_sTextPartFooterFmt;
+    WTL::CString m_sBoundary;
     DWORD m_dwPostSize;
     DWORD m_dwUploaded;
 };

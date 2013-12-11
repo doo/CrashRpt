@@ -19,8 +19,7 @@ be found in the Authors.txt file in the root of the source tree.
 
 // class CVideoRecDlg
 // Implements video recording notification dialog.
-class CVideoRecDlg : 
-    public CDialogImpl<CVideoRecDlg>    
+class CVideoRecDlg : public ATL::CDialogImpl<CVideoRecDlg>
 {
 public:
     enum { IDD = IDD_VIDEOREC };
@@ -28,7 +27,7 @@ public:
     BEGIN_MSG_MAP(CVideoRecDlg)
         MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
         COMMAND_ID_HANDLER(IDOK, OnOK)
-        COMMAND_ID_HANDLER(IDCANCEL, OnCancel)            
+        COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
     END_MSG_MAP()
 
     LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -36,7 +35,7 @@ public:
     LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
     LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-	CStatic m_statText;
-	CButton m_btnAllow;
-	CButton m_btnCancel;
+    WTL::CStatic m_statText;
+    WTL::CButton m_btnAllow;
+    WTL::CButton m_btnCancel;
 };

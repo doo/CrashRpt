@@ -39,19 +39,19 @@ public:
     virtual ~CMailMsg();
 
     // Operations
-    void AddRecipient(CString sAddress);
-    void SetFrom(CString sAddress);
-    void SetSubject(CString sSubject);
-    void SetMessage(CString sMessage);
-    void AddAttachment(CString sAttachment, CString sTitle = _T(""));
+    void AddRecipient(WTL::CString sAddress);
+    void SetFrom(WTL::CString sAddress);
+    void SetSubject(WTL::CString sSubject);
+    void SetMessage(WTL::CString sMessage);
+    void AddAttachment(WTL::CString sAttachment, WTL::CString sTitle = _T(""));
 
     BOOL MAPIInitialize();
     void MAPIFinalize();
 
-    static BOOL DetectMailClient(CString& sMailClientName);
-    CString GetEmailClientName();
+    static BOOL DetectMailClient(WTL::CString& sMailClientName);
+    WTL::CString GetEmailClientName();
     BOOL Send();
-    CString GetLastErrorMsg(){ return m_sErrorMsg; }
+    WTL::CString GetLastErrorMsg(){ return m_sErrorMsg; }
 
 protected:
 
@@ -67,9 +67,9 @@ protected:
     LPMAPILOGOFF   m_lpMapiLogoff;               // Mapi func pointer
 
     BOOL           m_bReady;                     // MAPI is loaded
-    CString        m_sEmailClientName;
+    WTL::CString   m_sEmailClientName;
 
-    CString        m_sErrorMsg;
+    WTL::CString   m_sErrorMsg;
 };
 
 #endif	// _MAILMSG_H_

@@ -39,9 +39,11 @@ typedef __int64 off_t, _off_t;
 #define _CRT_SECURE_NO_DEPRECATE
 #define _CRT_NON_CONFORMING_SWPRINTFS
 #pragma conform(forScope, off)
-#pragma comment(linker, "/NODEFAULTLIB:atlthunk.lib")  
+#pragma comment(linker, "/NODEFAULTLIB:atlthunk.lib")
 #endif // _WTL_SUPPORT_SDK_ATL3
 
+#define _ATL_NO_AUTOMATIC_NAMESPACE
+#define _WTL_NO_AUTOMATIC_NAMESPACE
 #include <atlbase.h>
 
 // Support for VS2005 Express & SDK ATL
@@ -63,7 +65,7 @@ namespace ATL
 
 #include <atlapp.h>
 
-extern CAppModule _Module;
+extern WTL::CAppModule _Module;
 
 #include <atlwin.h>
 
