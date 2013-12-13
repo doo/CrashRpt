@@ -208,6 +208,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)..\..\lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>del "$(ProjectDir)..\..\bin\$(Platform)\$(Configuration)\CrashSender*"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -252,6 +255,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)..\..\lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>del "$(ProjectDir)..\..\bin\$(Platform)\$(Configuration)\CrashSender*"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -295,6 +301,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)..\..\lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>del "$(ProjectDir)..\..\bin\$(Platform)\$(Configuration)\CrashSender*"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|Win32'">
     <Midl>
@@ -338,6 +347,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)..\..\lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>del "$(ProjectDir)..\..\bin\$(Platform)\$(Configuration)\CrashSender*"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release LIB|x64'">
     <Midl>
@@ -378,6 +390,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)..\..\lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>del "$(ProjectDir)..\..\bin\$(Platform)\$(Configuration)\CrashSender*"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -399,6 +414,9 @@
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)..\..\lang_files\crashrpt_lang_EN.ini" "$(OutDir)\crashrpt_lang.ini"</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>del "$(ProjectDir)..\..\bin\$(Platform)\$(Configuration)\CrashSender*"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
     <PostBuildEvent>
