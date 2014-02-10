@@ -73,8 +73,8 @@ public:
             if(GetWindowLong(ii.m_hWnd, GWL_STYLE)&WS_VISIBLE) // Skip invisible items
             {        
 				// Position the item appropriately
-                CWindow wnd = ii.m_hWnd;
-                CRect rc = ii.m_rcInitial;
+                ATL::CWindow wnd = ii.m_hWnd;
+                WTL::CRect rc = ii.m_rcInitial;
                 rc.OffsetRect(0, nDeltaY);
                 wnd.MoveWindow(&rc);
             }
@@ -98,7 +98,7 @@ public:
 		// Resize the container to accomodate all the layout items
         if(m_hWndContainer!=NULL)
         {
-            CWindow wnd = m_hWndContainer;
+            ATL::CWindow wnd = m_hWndContainer;
             wnd.ResizeClient(m_rcContainer.Width(), m_rcContainer.Height()+nDeltaY);
         }
     }
@@ -123,6 +123,6 @@ private:
 
 	// Variables used internally
     HWND m_hWndContainer;           // Handle to the continer window.
-    CRect m_rcContainer;            // Countainer window's rectangle.
+    WTL::CRect m_rcContainer;            // Countainer window's rectangle.
     std::vector<ItemInfo> m_aItems; // The list of layout items.
 };

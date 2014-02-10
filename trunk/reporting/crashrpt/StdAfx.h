@@ -32,9 +32,10 @@ be found in the Authors.txt file in the root of the source tree.
 #define _CRT_SECURE_NO_DEPRECATE
 #define _CRT_NON_CONFORMING_SWPRINTFS
 #pragma conform(forScope, off)
-#pragma comment(linker, "/NODEFAULTLIB:atlthunk.lib")  
+#pragma comment(linker, "/NODEFAULTLIB:atlthunk.lib")
 #endif // _WTL_SUPPORT_SDK_ATL3
 
+#define _ATL_NO_AUTOMATIC_NAMESPACE
 #include <atlbase.h>
 
 // Support for VS2005 Express & SDK ATL
@@ -55,7 +56,7 @@ namespace ATL
 #endif // _WTL_SUPPORT_SDK_ATL3
 
 #include <atlapp.h>
-extern CAppModule _Module;
+extern WTL::CAppModule _Module;
 #include <atlwin.h>
 // CString-related includes
 #define _WTL_USE_CSTRING
@@ -88,6 +89,3 @@ extern CAppModule _Module;
 #define WCSNCPY_S(strDest, sizeInBytes, strSource, count) wcsncpy_s(strDest, sizeInBytes, strSource, count)
 #define STRCPY_S(strDestination, numberOfElements, strSource) strcpy_s(strDestination, numberOfElements, strSource)
 #endif
-
-
-

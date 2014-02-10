@@ -18,12 +18,12 @@ be found in the Authors.txt file in the root of the source tree.
 #include "resource.h"
 #include "strconv.h"
 
-CString Utility::getAppName()
+WTL::CString Utility::getAppName()
 {
     TCHAR szFileName[_MAX_PATH];
     GetModuleFileName(NULL, szFileName, _MAX_FNAME);
 
-    CString sAppName; // Extract from last '\' to '.'
+    WTL::CString sAppName; // Extract from last '\' to '.'
     sAppName = szFileName;
     sAppName = sAppName.Mid(sAppName.ReverseFind(_T('\\')) + 1)
         .SpanExcluding(_T("."));
@@ -31,18 +31,18 @@ CString Utility::getAppName()
     return sAppName;
 }
 
-CString Utility::GetModuleName(HMODULE hModule)
+WTL::CString Utility::GetModuleName(HMODULE hModule)
 {
-    CString string;
+    WTL::CString string;
     LPTSTR buf = string.GetBuffer(_MAX_PATH);
     GetModuleFileName(hModule, buf, _MAX_PATH);
     string.ReleaseBuffer();
     return string;
 }
 
-CString Utility::GetModulePath(HMODULE hModule)
+WTL::CString Utility::GetModulePath(HMODULE hModule)
 {
-    CString string;
+    WTL::CString string;
     LPTSTR buf = string.GetBuffer(_MAX_PATH);
     GetModuleFileName(hModule, buf, _MAX_PATH);
     TCHAR* ptr = _tcsrchr(buf,'\\');
@@ -52,7 +52,7 @@ CString Utility::GetModulePath(HMODULE hModule)
     return string;
 }
 
-int Utility::getTempDirectory(CString& strTemp)
+int Utility::getTempDirectory(WTL::CString& strTemp)
 {
     TCHAR* pszTempVar = NULL;
 
@@ -64,17 +64,17 @@ int Utility::getTempDirectory(CString& strTemp)
     errno_t err = _tdupenv_s(&pszTempVar, &len, _T("TEMP"));
     if(err!=0)
     {
-        // Couldn't get environment variable TEMP    
+        // Couldn't get environment variable TEMP
         return 1;
     }
-    strTemp = CString(pszTempVar);
+    strTemp = WTL::CString(pszTempVar);
     free(pszTempVar);
-#endif    
+#endif
 
     return 0;
 }
 
-CString Utility::getTempFileName()
+WTL::CString Utility::getTempFileName()
 {
     TCHAR szTempDir[MAX_PATH - 14]   = _T("");
     TCHAR szTempFile[MAX_PATH]       = _T("");
@@ -85,7 +85,7 @@ CString Utility::getTempFileName()
     return szTempFile;
 }
 
-int Utility::GetSystemTimeUTC(CString& sTime)
+int Utility::GetSystemTimeUTC(WTL::CString& sTime)
 {
     sTime.Empty();
 
@@ -109,14 +109,14 @@ int Utility::GetSystemTimeUTC(CString& sTime)
     return 0;
 }
 
-void Utility::UTC2SystemTime(CString sUTC, SYSTEMTIME& st)
+void Utility::UTC2SystemTime(WTL::CString sUTC, SYSTEMTIME& st)
 {
-    CString sYear = sUTC.Mid(0, 4);
-    CString sMonth = sUTC.Mid(5, 2);
-    CString sDay = sUTC.Mid(8, 2);
-    CString sHour = sUTC.Mid(11, 2);
-    CString sMin = sUTC.Mid(14, 2);
-    CString sSec = sUTC.Mid(17, 2);
+    WTL::CString sYear = sUTC.Mid(0, 4);
+    WTL::CString sMonth = sUTC.Mid(5, 2);
+    WTL::CString sDay = sUTC.Mid(8, 2);
+    WTL::CString sHour = sUTC.Mid(11, 2);
+    WTL::CString sMin = sUTC.Mid(14, 2);
+    WTL::CString sSec = sUTC.Mid(17, 2);
 
     SYSTEMTIME UtcTime;
     memset(&UtcTime, 0, sizeof(SYSTEMTIME));
@@ -131,7 +131,7 @@ void Utility::UTC2SystemTime(CString sUTC, SYSTEMTIME& st)
     SystemTimeToTzSpecificLocalTime(NULL, &UtcTime, &st);
 }
 
-int Utility::GenerateGUID(CString& sGUID)
+int Utility::GenerateGUID(WTL::CString& sGUID)
 {
     int status = 1;
     sGUID.Empty();
@@ -163,10 +163,10 @@ int Utility::GenerateGUID(CString& sGUID)
     return status;
 }
 
-int Utility::GetOSFriendlyName(CString& sOSName)
+int Utility::GetOSFriendlyName(WTL::CString& sOSName)
 {
     sOSName.Empty();
-    CRegKey regKey;
+    ATL::CRegKey regKey;
     LONG lResult = regKey.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion"), KEY_READ);
     if(lResult==ERROR_SUCCESS)
     {    
@@ -201,7 +201,7 @@ int Utility::GetOSFriendlyName(CString& sOSName)
 
 #pragma warning(default:4996)
 
-        regKey.Close();    
+        regKey.Close();
         return 0;
     }
 
@@ -210,14 +210,13 @@ int Utility::GetOSFriendlyName(CString& sOSName)
 
 BOOL Utility::IsOS64Bit()
 {
-    BOOL b64Bit = FALSE;
-
 #ifdef _WIN64
     // 64-bit applications always run under 64-bit Windows
     return TRUE;
-#endif
+#else
 
     // Check for 32-bit applications
+    BOOL b64Bit = FALSE;
 
     typedef BOOL (WINAPI *PFNISWOW64PROCESS)(HANDLE, PBOOL);
 
@@ -238,9 +237,10 @@ BOOL Utility::IsOS64Bit()
     }
 
     return b64Bit;
+#endif
 }
 
-int Utility::GetGeoLocation(CString& sGeoLocation)
+int Utility::GetGeoLocation(WTL::CString& sGeoLocation)
 {
     sGeoLocation = _T("");
 
@@ -261,7 +261,7 @@ int Utility::GetGeoLocation(CString& sGeoLocation)
         GEOID GeoLocation = pfnGetUserGeoID(GEOCLASS_NATION);
         if(GeoLocation!=GEOID_NOT_AVAILABLE)
         { 
-            WCHAR szGeoInfo[1024] = _T("");    
+            WCHAR szGeoInfo[1024] = _T("");
             int n = pfnGetGeoInfoW(GeoLocation, GEO_RFC1766, szGeoInfo, 1024, 0);
             if(n!=0)
             {
@@ -271,13 +271,13 @@ int Utility::GetGeoLocation(CString& sGeoLocation)
             }
         }
 
-        FreeLibrary(hKernel32);    
+        FreeLibrary(hKernel32);
     }
 
     return -1;
 }
 
-int Utility::GetSpecialFolder(int csidl, CString& sFolderPath)
+int Utility::GetSpecialFolder(int csidl, WTL::CString& sFolderPath)
 {
     sFolderPath.Empty();
 
@@ -286,12 +286,12 @@ int Utility::GetSpecialFolder(int csidl, CString& sFolderPath)
     if(!bResult)
         return 1;
 
-    sFolderPath = CString(szPath);
+    sFolderPath = WTL::CString(szPath);
 
     return 0;
 }
 
-CString Utility::ReplaceInvalidCharsInFileName(CString sFileName)
+WTL::CString Utility::ReplaceInvalidCharsInFileName(WTL::CString sFileName)
 {
     sFileName.Replace(_T("*"),_T("_"));
     sFileName.Replace(_T("|"),_T("_"));
@@ -302,7 +302,7 @@ CString Utility::ReplaceInvalidCharsInFileName(CString sFileName)
     return sFileName;
 }
 
-int Utility::RecycleFile(CString sFilePath, bool bPermanentDelete)
+int Utility::RecycleFile(WTL::CString sFilePath, bool bPermanentDelete)
 {
     SHFILEOPSTRUCT fop;
     memset(&fop, 0, sizeof(SHFILEOPSTRUCT));
@@ -328,15 +328,15 @@ int Utility::RecycleFile(CString sFilePath, bool bPermanentDelete)
         fop.fFlags |= FOF_ALLOWUNDO;    // ..send to Recycle Bin
     }
 
-    return SHFileOperation(&fop); // do it!  
+    return SHFileOperation(&fop);
 }
 
-CString Utility::GetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszName)
+WTL::CString Utility::GetINIString(LPCTSTR pszFile, LPCTSTR pszSection, LPCTSTR pszName)
 {  
-    TCHAR szBuffer[1024] = _T("");  
+    TCHAR szBuffer[1024] = _T("");
     GetPrivateProfileString(pszSection, pszName, _T(""), szBuffer, 1024, pszFile);
 
-    CString sResult = szBuffer;
+    WTL::CString sResult = szBuffer;
     sResult.Replace(_T("\\n"), _T("\n"));
 
     return sResult;
@@ -356,7 +356,7 @@ void Utility::SetLayoutRTL(HWND hWnd)
 
     SetLayout(GetDC(hWnd), LAYOUT_RTL);
 
-    CRect rcWnd;
+    WTL::CRect rcWnd;
     ::GetClientRect(hWnd, &rcWnd);
 
     HWND hWndChild = GetWindow(hWnd, GW_CHILD);
@@ -364,8 +364,8 @@ void Utility::SetLayoutRTL(HWND hWnd)
     {    
         SetLayoutRTL(hWndChild);
 
-        CRect rc;
-        ::GetWindowRect(hWndChild, &rc);    
+        WTL::CRect rc;
+        ::GetWindowRect(hWndChild, &rc);
         ::MapWindowPoints(0, hWnd, (LPPOINT)&rc, 2);
         ::MoveWindow(hWndChild, rcWnd.Width()-rc.right, rc.top, rc.Width(), rc.Height(), TRUE);
 
@@ -375,13 +375,13 @@ void Utility::SetLayoutRTL(HWND hWnd)
     }  
 }
 
-CString Utility::FormatErrorMsg(DWORD dwErrorCode)
+WTL::CString Utility::FormatErrorMsg(DWORD dwErrorCode)
 {
     LPTSTR msg = 0;
     FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER,
         NULL, dwErrorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPTSTR)&msg, 0, NULL);
-    CString str = msg;
+    WTL::CString str = msg;
     str.Replace(_T("\r\n"), _T(""));
     GlobalFree(msg);
     return str;
@@ -389,9 +389,9 @@ CString Utility::FormatErrorMsg(DWORD dwErrorCode)
 
 // GetBaseFileName
 // This helper function returns file name without extension
-CString Utility::GetFileName(CString sPath)
+WTL::CString Utility::GetFileName(WTL::CString sPath)
 {
-    CString sBase = sPath;
+    WTL::CString sBase = sPath;
     int pos1 = sPath.ReverseFind('\\');
     if(pos1>=0)
         sBase = sBase.Mid(pos1+1);
@@ -401,9 +401,9 @@ CString Utility::GetFileName(CString sPath)
 
 // GetBaseFileName
 // This helper function returns file name without extension
-CString Utility::GetBaseFileName(CString sFileName)
+WTL::CString Utility::GetBaseFileName(WTL::CString sFileName)
 {
-    CString sBase = sFileName;
+    WTL::CString sBase = sFileName;
     int pos1 = sFileName.ReverseFind('\\');
     if(pos1>=0)
         sBase = sBase.Mid(pos1+1);
@@ -418,9 +418,9 @@ CString Utility::GetBaseFileName(CString sFileName)
 
 // GetFileExtension
 // This helper function returns file extension by file name
-CString Utility::GetFileExtension(CString sFileName)
+WTL::CString Utility::GetFileExtension(WTL::CString sFileName)
 {
-    CString sExt;
+    WTL::CString sExt;
     int pos = sFileName.ReverseFind('.');
     if(pos>=0)
     {
@@ -429,12 +429,12 @@ CString Utility::GetFileExtension(CString sFileName)
     return sExt;
 }
 
-CString Utility::GetProductVersion(CString sModuleName)
+WTL::CString Utility::GetProductVersion(WTL::CString sModuleName)
 {
-    CString sProductVer; 
+    WTL::CString sProductVer;
 
     DWORD dwBuffSize = GetFileVersionInfoSize(sModuleName, 0);
-    LPBYTE pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);  
+    LPBYTE pBuff = (LPBYTE)GlobalAlloc(GPTR, dwBuffSize);
 
     if(NULL!=pBuff && 0!=GetFileVersionInfo(sModuleName, 0, dwBuffSize, pBuff))
     {
@@ -448,7 +448,7 @@ CString Utility::GetProductVersion(CString sModuleName)
         WORD dwVerBuild = LOWORD(fi->dwProductVersionLS);
 
         sProductVer.Format(_T("%u.%u.%u.%u"), 
-            dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);    
+            dwVerMajor, dwVerMinor, dwPatchLevel, dwVerBuild);
     } 
 
     GlobalFree((HGLOBAL)pBuff);
@@ -458,9 +458,9 @@ CString Utility::GetProductVersion(CString sModuleName)
 
 // Creates a folder. If some intermediate folders in the path do not exist,
 // it creates them.
-BOOL Utility::CreateFolder(CString sFolderName)
+BOOL Utility::CreateFolder(WTL::CString sFolderName)
 {  
-    CString sIntermediateFolder;
+    WTL::CString sIntermediateFolder;
 
     // Skip disc drive name "X:\" if presents
     int start = sFolderName.Find(':', 0);
@@ -499,17 +499,17 @@ BOOL Utility::CreateFolder(CString sFolderName)
 
 ULONG64 Utility::SystemTimeToULONG64( const SYSTEMTIME& st )
 {
-    FILETIME ft ;
-    SystemTimeToFileTime( &st, &ft ) ;
-    ULARGE_INTEGER integer ;
-    integer.LowPart = ft.dwLowDateTime ;
-    integer.HighPart = ft.dwHighDateTime ;
-    return integer.QuadPart ;
+    FILETIME ft;
+    SystemTimeToFileTime( &st, &ft );
+    ULARGE_INTEGER integer;
+    integer.LowPart = ft.dwLowDateTime;
+    integer.HighPart = ft.dwHighDateTime;
+    return integer.QuadPart;
 }
 
-CString Utility::FileSizeToStr(ULONG64 uFileSize)
+WTL::CString Utility::FileSizeToStr(ULONG64 uFileSize)
 {
-    CString sFileSize;
+    WTL::CString sFileSize;
 
     if(uFileSize==0)
     {
@@ -520,9 +520,9 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
         float fSizeKbytes = (float)uFileSize/(float)1024;
         TCHAR szStr[64];
 #if _MSC_VER<1400
-        _stprintf(szStr, _T("%0.1f KB"), fSizeKbytes);    
+        _stprintf(szStr, _T("%0.1f KB"), fSizeKbytes);
 #else
-        _stprintf_s(szStr, 64, _T("%0.1f KB"), fSizeKbytes);    
+        _stprintf_s(szStr, 64, _T("%0.1f KB"), fSizeKbytes);
 #endif
         sFileSize = szStr;
     }
@@ -537,7 +537,7 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
 #if _MSC_VER<1400
         _stprintf(szStr, _T("%0.1f MB"), fSizeMbytes);    
 #else
-        _stprintf_s(szStr, 64, _T("%0.1f MB"), fSizeMbytes);    
+        _stprintf_s(szStr, 64, _T("%0.1f MB"), fSizeMbytes);
 #endif
         sFileSize = szStr;
     }
@@ -545,35 +545,35 @@ CString Utility::FileSizeToStr(ULONG64 uFileSize)
     return sFileSize;
 }
 
-CString Utility::AddEllipsis(LPCTSTR szString, int nMaxLength)
+WTL::CString Utility::AddEllipsis(LPCTSTR szString, int nMaxLength)
 {
-	if(szString==NULL)
-		return CString("");
+  if(szString==NULL)
+    return WTL::CString("");
 
-	CString sResult = szString;
-	if(sResult.GetLength()>nMaxLength)
-	{
-		if(nMaxLength>=3)
-			sResult = sResult.Mid(0, nMaxLength-3)+_T("...");		
-	}
+  WTL::CString sResult = szString;
+  if(sResult.GetLength()>nMaxLength)
+  {
+    if(nMaxLength>=3)
+      sResult = sResult.Mid(0, nMaxLength-3)+_T("...");
+  }
 
-	return sResult;
+  return sResult;
 }
 
-std::vector<CString> Utility::ExplodeStr(LPCTSTR szString, LPCTSTR szSeparators)
+std::vector<WTL::CString> Utility::ExplodeStr(LPCTSTR szString, LPCTSTR szSeparators)
 {
-	std::vector<CString> aTokens;
+  std::vector<WTL::CString> aTokens;
 
-	CString copy = szString;	
-	TCHAR  *context = 0;
-	TCHAR  *token = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), szSeparators, &context);	
-	while (token != 0) 
-	{
-		aTokens.push_back(token);
-		token=_tcstok_s(NULL, szSeparators, &context);		
-	};
+  WTL::CString copy = szString;
+  TCHAR  *context = 0;
+  TCHAR  *token = _tcstok_s(const_cast<LPTSTR>((LPCTSTR)copy), szSeparators, &context);
+  while (token != 0)
+  {
+    aTokens.push_back(token);
+    token=_tcstok_s(NULL, szSeparators, &context);
+  };
 
-	return aTokens;
+  return aTokens;
 }
 
 long Utility::GetFileSize(const TCHAR *fileName)
@@ -591,17 +591,16 @@ long Utility::GetFileSize(const TCHAR *fileName)
     return (long)fileInfo.nFileSizeLow;
 }
 
-BOOL Utility::IsFileSearchPattern(CString sFileName)
+BOOL Utility::IsFileSearchPattern(WTL::CString sFileName)
 {
-	// Remove the "\\?\" prefix in case of a long path name
-	if(sFileName.Left(4).Compare(_T("\\\\?\\"))==0)
-		sFileName = sFileName.Mid(4);
+  // Remove the "\\?\" prefix in case of a long path name
+  if(sFileName.Left(4).Compare(_T("\\\\?\\"))==0)
+    sFileName = sFileName.Mid(4);
 
-	// Check if the file name is a search template.		
-	BOOL bSearchPattern = FALSE;	
-	int nPos = sFileName.FindOneOf(_T("*?"));
-	if(nPos>=0)
-		bSearchPattern = true;
-	return bSearchPattern;
+  // Check if the file name is a search template.
+  BOOL bSearchPattern = FALSE;
+  int nPos = sFileName.FindOneOf(_T("*?"));
+  if(nPos>=0)
+    bSearchPattern = true;
+  return bSearchPattern;
 }
-

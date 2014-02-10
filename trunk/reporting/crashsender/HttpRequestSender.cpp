@@ -32,11 +32,11 @@ CHttpRequestSender::CHttpRequestSender()
 }
 
 // Sends HTTP request assyncronously (in a working thread)
-BOOL CHttpRequestSender::SendAssync(CHttpRequest& Request, AssyncNotification* an)
+BOOL CHttpRequestSender::SendAssync(CHttpRequest& Request, AsyncNotification* an)
 {
     // Copy parameters
     m_Request = Request;
-    m_Assync = an;
+    m_async = an;
 
     // Create worker thread
     HANDLE hThread = CreateThread(NULL, 0, WorkerThread, (void*)this, 0, NULL);
@@ -68,32 +68,32 @@ BOOL CHttpRequestSender::InternalSend()
     TCHAR szServer[512];       // Server name
     TCHAR szURI[1024];         // URI
     DWORD dwPort=0;            // Port
-    CString sHeaders = _T("Content-type: multipart/form-data; boundary=") + m_sBoundary;
+    WTL::CString sHeaders = _T("Content-type: multipart/form-data; boundary=") + m_sBoundary;
     LPCTSTR szAccept[2]={_T("*/*"), NULL};
     INTERNET_BUFFERS BufferIn;
     BYTE pBuffer[4096] = {0};
     BOOL bRet = FALSE;
     DWORD dwBuffSize = 0;
-    CString sMsg;
+    WTL::CString sMsg;
     LONGLONG lPostSize = 0;  
-    std::map<CString, std::string>::iterator it;
-    std::map<CString, CHttpRequestFile>::iterator it2;
+    std::map<WTL::CString, std::string>::iterator it;
+    std::map<WTL::CString, CHttpRequestFile>::iterator it2;
 
     // Calculate size of data to send
-    m_Assync->SetProgress(_T("Calculating size of data to send."), 0);
+    m_async->SetProgress(_T("Calculating size of data to send."), 0);
     bRet = CalcRequestSize(lPostSize);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error calculating size of data to send!"), 0);
+        m_async->SetProgress(_T("Error calculating size of data to send!"), 0);
         goto cleanup;
     }
 
     // Create Internet session
-    m_Assync->SetProgress(_T("Opening Internet connection."), 0);
+    m_async->SetProgress(_T("Opening Internet connection."), 0);
     hSession = InternetOpen(_T("CrashRpt"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
     if(hSession==NULL)
     {
-        m_Assync->SetProgress(_T("Error opening Internet session"), 0);
+        m_async->SetProgress(_T("Error opening Internet session"), 0);
         goto cleanup; 
     }
 
@@ -101,7 +101,7 @@ BOOL CHttpRequestSender::InternalSend()
     ParseURL(m_Request.m_sUrl, szProtocol, 512, szServer, 512, dwPort, szURI, 1024);
 
     // Connect to HTTP server
-    m_Assync->SetProgress(_T("Connecting to server"), 0, true);
+    m_async->SetProgress(_T("Connecting to server"), 0, true);
 
     hConnect = InternetConnect(
         hSession,     // InternetOpen handle
@@ -115,211 +115,211 @@ BOOL CHttpRequestSender::InternalSend()
         );
     if(hConnect==NULL)
     {
-        m_Assync->SetProgress(_T("Error connecting to server"), 0);
+        m_async->SetProgress(_T("Error connecting to server"), 0);
         goto cleanup; 
     }
-	
-	// Set large receive timeout to avoid problems in case of 
-	// slow upload => slow response from the server.
-	DWORD dwReceiveTimeout = 0;
-	InternetSetOption(hConnect, INTERNET_OPTION_RECEIVE_TIMEOUT, 
-		&dwReceiveTimeout, sizeof(dwReceiveTimeout));
+  
+  // Set large receive timeout to avoid problems in case of 
+  // slow upload => slow response from the server.
+  DWORD dwReceiveTimeout = 0;
+  InternetSetOption(hConnect, INTERNET_OPTION_RECEIVE_TIMEOUT, 
+    &dwReceiveTimeout, sizeof(dwReceiveTimeout));
 
     // Check if canceled
-    if(m_Assync->IsCancelled()){ goto cleanup; }
+    if(m_async->IsCancelled()){ goto cleanup; }
 
     // Add a message to log
-    m_Assync->SetProgress(_T("Opening HTTP request..."), 0, true);
+    m_async->SetProgress(_T("Opening HTTP request..."), 0, true);
 
     // Configure flags for HttpOpenRequest
     DWORD dwFlags = INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_NO_AUTO_REDIRECT;
     if(dwPort==INTERNET_DEFAULT_HTTPS_PORT)
-	    dwFlags |= INTERNET_FLAG_SECURE; // Use SSL
-	
-	BOOL bRedirect = FALSE;
-	int nCount = 0;
-	while(nCount==0 || bRedirect)
-	{
-		nCount++;
+      dwFlags |= INTERNET_FLAG_SECURE; // Use SSL
+  
+  BOOL bRedirect = FALSE;
+  int nCount = 0;
+  while(nCount==0 || bRedirect)
+  {
+    nCount++;
 
-		// Open HTTP request
-		hRequest = HttpOpenRequest(
-			hConnect, 
-			_T("POST"), 
-			szURI, 
-			NULL, 
-			NULL, 
-			szAccept, 
-			dwFlags, 
-			0
-			);
-		if (!hRequest)
-		{
-			m_Assync->SetProgress(_T("HttpOpenRequest has failed."), 0, true);
-			goto cleanup;
-		}
+    // Open HTTP request
+    hRequest = HttpOpenRequest(
+      hConnect, 
+      _T("POST"), 
+      szURI, 
+      NULL, 
+      NULL, 
+      szAccept, 
+      dwFlags, 
+      0
+      );
+    if (!hRequest)
+    {
+      m_async->SetProgress(_T("HttpOpenRequest has failed."), 0, true);
+      goto cleanup;
+    }
 
-		// This code was copied from http://support.microsoft.com/kb/182888 to address the problem
-		// that MVS doesn't have a valid SSL certificate.
-		DWORD extraSSLDwFlags = 0;
-		DWORD dwBuffLen = sizeof(extraSSLDwFlags);
-		InternetQueryOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
-		(LPVOID)&extraSSLDwFlags, &dwBuffLen);
-		// We have to specifically ignore these 2 errors for MVS	
-		extraSSLDwFlags |= SECURITY_FLAG_IGNORE_REVOCATION |  // Ignores certificate revocation problems.
-						   SECURITY_FLAG_IGNORE_WRONG_USAGE | // Ignores incorrect usage problems.
-						   SECURITY_FLAG_IGNORE_CERT_CN_INVALID | // Ignores the ERROR_INTERNET_SEC_CERT_CN_INVALID error message.
-						   SECURITY_FLAG_IGNORE_CERT_DATE_INVALID; // Ignores the ERROR_INTERNET_SEC_CERT_DATE_INVALID error message.
-		InternetSetOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
-							&extraSSLDwFlags, sizeof (extraSSLDwFlags) );
+    // This code was copied from http://support.microsoft.com/kb/182888 to address the problem
+    // that MVS doesn't have a valid SSL certificate.
+    DWORD extraSSLDwFlags = 0;
+    DWORD dwBuffLen = sizeof(extraSSLDwFlags);
+    InternetQueryOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
+    (LPVOID)&extraSSLDwFlags, &dwBuffLen);
+    // We have to specifically ignore these 2 errors for MVS	
+    extraSSLDwFlags |= SECURITY_FLAG_IGNORE_REVOCATION |  // Ignores certificate revocation problems.
+               SECURITY_FLAG_IGNORE_WRONG_USAGE | // Ignores incorrect usage problems.
+               SECURITY_FLAG_IGNORE_CERT_CN_INVALID | // Ignores the ERROR_INTERNET_SEC_CERT_CN_INVALID error message.
+               SECURITY_FLAG_IGNORE_CERT_DATE_INVALID; // Ignores the ERROR_INTERNET_SEC_CERT_DATE_INVALID error message.
+    InternetSetOption (hRequest, INTERNET_OPTION_SECURITY_FLAGS,
+              &extraSSLDwFlags, sizeof (extraSSLDwFlags) );
 
-		// Fill in buffer
-		BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
-		BufferIn.Next = NULL; 
-		BufferIn.lpcszHeader = sHeaders;
-		BufferIn.dwHeadersLength = sHeaders.GetLength();
-		BufferIn.dwHeadersTotal = 0;
-		BufferIn.lpvBuffer = NULL;                
-		BufferIn.dwBufferLength = 0;
-		BufferIn.dwBufferTotal = (DWORD)lPostSize; // This is the only member used other than dwStructSize
-		BufferIn.dwOffsetLow = 0;
-		BufferIn.dwOffsetHigh = 0;
+    // Fill in buffer
+    BufferIn.dwStructSize = sizeof( INTERNET_BUFFERS ); // Must be set or error will occur
+    BufferIn.Next = NULL; 
+    BufferIn.lpcszHeader = sHeaders;
+    BufferIn.dwHeadersLength = sHeaders.GetLength();
+    BufferIn.dwHeadersTotal = 0;
+    BufferIn.lpvBuffer = NULL;                
+    BufferIn.dwBufferLength = 0;
+    BufferIn.dwBufferTotal = (DWORD)lPostSize; // This is the only member used other than dwStructSize
+    BufferIn.dwOffsetLow = 0;
+    BufferIn.dwOffsetHigh = 0;
 
-		m_dwPostSize = (DWORD)lPostSize;
-		m_dwUploaded = 0;
+    m_dwPostSize = (DWORD)lPostSize;
+    m_dwUploaded = 0;
 
-		// Add a message to log
-		m_Assync->SetProgress(_T("Sending HTTP request..."), 0);
-		// Send request
-		if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
-		{
-			m_Assync->SetProgress(_T("HttpSendRequestEx has failed."), 0);
-			goto cleanup;
-		}
+    // Add a message to log
+    m_async->SetProgress(_T("Sending HTTP request..."), 0);
+    // Send request
+    if(!HttpSendRequestEx( hRequest, &BufferIn, NULL, 0, 0))
+    {
+      m_async->SetProgress(_T("HttpSendRequestEx has failed."), 0);
+      goto cleanup;
+    }
 
-		// Write text fields
-		for(it=m_Request.m_aTextFields.begin(); it!=m_Request.m_aTextFields.end(); it++)
-		{
-			bRet = WriteTextPart(hRequest, it->first); 
-			if(!bRet)
-				goto cleanup;
-		}
+    // Write text fields
+    for(it=m_Request.m_aTextFields.begin(); it!=m_Request.m_aTextFields.end(); it++)
+    {
+      bRet = WriteTextPart(hRequest, it->first); 
+      if(!bRet)
+        goto cleanup;
+    }
 
-		// Write attachments
-		for(it2=m_Request.m_aIncludedFiles.begin(); it2!=m_Request.m_aIncludedFiles.end(); it2++)
-		{
-			bRet = WriteAttachmentPart(hRequest, it2->first); 
-			if(!bRet)
-				goto cleanup;
-		}
+    // Write attachments
+    for(it2=m_Request.m_aIncludedFiles.begin(); it2!=m_Request.m_aIncludedFiles.end(); it2++)
+    {
+      bRet = WriteAttachmentPart(hRequest, it2->first); 
+      if(!bRet)
+        goto cleanup;
+    }
 
-		// Write boundary
-		bRet = WriteTrailingBoundary(hRequest);
-		if(!bRet)
-			goto cleanup;
+    // Write boundary
+    bRet = WriteTrailingBoundary(hRequest);
+    if(!bRet)
+      goto cleanup;
 
-		// Add a message to log
-		m_Assync->SetProgress(_T("Ending HTTP request..."), 0);
+    // Add a message to log
+    m_async->SetProgress(_T("Ending HTTP request..."), 0);
 
-		// End request
-		if(!HttpEndRequest(hRequest, NULL, 0, 0))
-		{
-			m_Assync->SetProgress(_T("HttpEndRequest has failed."), 0);
-			goto cleanup;
-		}
+    // End request
+    if(!HttpEndRequest(hRequest, NULL, 0, 0))
+    {
+      m_async->SetProgress(_T("HttpEndRequest has failed."), 0);
+      goto cleanup;
+    }
 
-		// Add a message to log
-		m_Assync->SetProgress(_T("Reading server response..."), 0);
-	
-		// Get HTTP response code from HTTP headers
-		DWORD lHttpStatus = 0;
-		DWORD lHttpStatusSize = sizeof(lHttpStatus);
-		BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, 
-										&lHttpStatus, &lHttpStatusSize, 0);
-	
-		if(bQueryInfo)
-		{
-			sMsg.Format(_T("Server response code: %ld"), lHttpStatus);
-			m_Assync->SetProgress(sMsg, 0);
-		}
+    // Add a message to log
+    m_async->SetProgress(_T("Reading server response..."), 0);
+  
+    // Get HTTP response code from HTTP headers
+    DWORD lHttpStatus = 0;
+    DWORD lHttpStatusSize = sizeof(lHttpStatus);
+    BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE|HTTP_QUERY_FLAG_NUMBER, 
+                    &lHttpStatus, &lHttpStatusSize, 0);
+  
+    if(bQueryInfo)
+    {
+      sMsg.Format(_T("Server response code: %ld"), lHttpStatus);
+      m_async->SetProgress(sMsg, 0);
+    }
 
-		// Read HTTP response
-		InternetReadFile(hRequest, pBuffer, 4095, &dwBuffSize);
-		pBuffer[dwBuffSize] = 0;
-		sMsg = CString((LPCSTR)pBuffer, dwBuffSize);
-		sMsg = _T("Server response body:")  + sMsg;
-		m_Assync->SetProgress(sMsg, 0);
-	
-		// If the first byte of HTTP response is a digit, than assume a legacy way
-		// of determining delivery status - the HTTP response starts with a delivery status code
-		if(dwBuffSize>0 && pBuffer[0]>='0' && pBuffer[0]<='9')
-		{
-			m_Assync->SetProgress(_T("Assuming legacy method of determining delivery status (from HTTP response body)."), 0);
+    // Read HTTP response
+    InternetReadFile(hRequest, pBuffer, 4095, &dwBuffSize);
+    pBuffer[dwBuffSize] = 0;
+    sMsg = WTL::CString((LPCSTR)pBuffer, dwBuffSize);
+    sMsg = _T("Server response body:")  + sMsg;
+    m_async->SetProgress(sMsg, 0);
+  
+    // If the first byte of HTTP response is a digit, than assume a legacy way
+    // of determining delivery status - the HTTP response starts with a delivery status code
+    if(dwBuffSize>0 && pBuffer[0]>='0' && pBuffer[0]<='9')
+    {
+      m_async->SetProgress(_T("Assuming legacy method of determining delivery status (from HTTP response body)."), 0);
 
-			// Get status code from HTTP response
-			if(atoi((LPCSTR)pBuffer)!=200)
-			{
-				m_Assync->SetProgress(_T("Failed (HTTP response body doesn't start with code 200)."), 100, false);
-				goto cleanup;
-			}
+      // Get status code from HTTP response
+      if(atoi((LPCSTR)pBuffer)!=200)
+      {
+        m_async->SetProgress(_T("Failed (HTTP response body doesn't start with code 200)."), 100, false);
+        goto cleanup;
+      }
 
-			break;
-		}
-		else
-		{
-			// If the first byte of HTTP response is not a digit, assume that
-			// the delivery status should be read from HTTP header
-		
-			// Check if we have a redirect (302 response code)
-			if(bQueryInfo && lHttpStatus==302)
-			{	
-				// Check for multiple redirects
-				if(bRedirect)
-				{
-					m_Assync->SetProgress(_T("Multiple redirects are not allowed."), 100, false);
-					goto cleanup;
-				}
+      break;
+    }
+    else
+    {
+      // If the first byte of HTTP response is not a digit, assume that
+      // the delivery status should be read from HTTP header
+    
+      // Check if we have a redirect (302 response code)
+      if(bQueryInfo && lHttpStatus==302)
+      {	
+        // Check for multiple redirects
+        if(bRedirect)
+        {
+          m_async->SetProgress(_T("Multiple redirects are not allowed."), 100, false);
+          goto cleanup;
+        }
 
-				bRedirect = TRUE;
+        bRedirect = TRUE;
 
-				TCHAR szBuffer[1024]=_T("");
-				DWORD dwBuffSize = 1024*sizeof(TCHAR);	
-				DWORD nIndex = 0;				
+        TCHAR szBuffer[1024]=_T("");
+        DWORD dwBuffSize = 1024*sizeof(TCHAR);	
+        DWORD nIndex = 0;				
 
-				BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_LOCATION,
-						szBuffer,
-						&dwBuffSize,
-						&nIndex);
-				if(!bQueryInfo)
-				{
-					m_Assync->SetProgress(_T("Failed to redirect."), 100, false);
-					goto cleanup;
-				}
-				else
-				{
-					// Parse the redirect URL
-					ParseURL(szBuffer, szProtocol, 512, szServer, 512, dwPort, szURI, 1024);
+        BOOL bQueryInfo = HttpQueryInfo(hRequest, HTTP_QUERY_LOCATION,
+            szBuffer,
+            &dwBuffSize,
+            &nIndex);
+        if(!bQueryInfo)
+        {
+          m_async->SetProgress(_T("Failed to redirect."), 100, false);
+          goto cleanup;
+        }
+        else
+        {
+          // Parse the redirect URL
+          ParseURL(szBuffer, szProtocol, 512, szServer, 512, dwPort, szURI, 1024);
 
-					CString sMsg;
-					sMsg.Format(_T("Redirecting to %s"), szBuffer);
-					m_Assync->SetProgress(sMsg, 0, true);
-					continue;
-				}
-			}
+          WTL::CString sMsg;
+          sMsg.Format(_T("Redirecting to %s"), szBuffer);
+          m_async->SetProgress(sMsg, 0, true);
+          continue;
+        }
+      }
 
-			// Check for server response code - expected code 200
-			if(!bQueryInfo || lHttpStatus!=200)
-			{
-				m_Assync->SetProgress(_T("Failed (HTTP response code is not equal to 200)."), 100, false);
-				goto cleanup;
-			}
-			
-			break;
-		}
-	}
+      // Check for server response code - expected code 200
+      if(!bQueryInfo || lHttpStatus!=200)
+      {
+        m_async->SetProgress(_T("Failed (HTTP response code is not equal to 200)."), 100, false);
+        goto cleanup;
+      }
+      
+      break;
+    }
+  }
 
-	// Add a message to log
-    m_Assync->SetProgress(_T("Error report has been sent OK!"), 100, false);
+  // Add a message to log
+    m_async->SetProgress(_T("Error report has been sent OK!"), 100, false);
     bStatus = TRUE;
 
 cleanup:
@@ -327,7 +327,7 @@ cleanup:
     if(!bStatus)
     {
         // Add a message to log
-        m_Assync->SetProgress(_T("Error sending HTTP request."), 100, false);
+        m_async->SetProgress(_T("Error sending HTTP request."), 100, false);
     }
 
     // Clean up
@@ -343,21 +343,21 @@ cleanup:
         InternetCloseHandle(hSession);
 
     // Notify about completion
-    m_Assync->SetCompleted(bStatus?0:1);
+    m_async->SetCompleted(bStatus?0:1);
 
     return bStatus;
 }
 
-BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
+BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, WTL::CString sName)
 {
     BOOL bRet = FALSE;
 
     /* Write part header */
-    CString sHeader;
+    WTL::CString sHeader;
     bRet= FormatTextPartHeader(sName, sHeader);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error formatting text part header."), 0);
+        m_async->SetProgress(_T("Error formatting text part header."), 0);
         return FALSE;
     }
 
@@ -365,7 +365,7 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
     LPCSTR pszHeader = strconv.t2a(sHeader);
     if(pszHeader==NULL)
     {
-        m_Assync->SetProgress(_T("Error converting text part header to ASCII."), 0);
+        m_async->SetProgress(_T("Error converting text part header to ASCII."), 0);
         return FALSE;
     }
 
@@ -373,17 +373,17 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
     bRet=InternetWriteFile(hRequest, pszHeader, (DWORD)strlen(pszHeader), &dwBytesWritten);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error uploading text part header."), 0);
+        m_async->SetProgress(_T("Error uploading text part header."), 0);
         return FALSE;
     }
     UploadProgress(dwBytesWritten);
 
     /* Write form data */
 
-    std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
+    std::map<WTL::CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
     if(it==m_Request.m_aTextFields.end())
     {
-        m_Assync->SetProgress(_T("Error searching for text part header name."), 0);
+        m_async->SetProgress(_T("Error searching for text part header name."), 0);
         return FALSE; 
     }
 
@@ -392,7 +392,7 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
     DWORD dwBytesRead = 0;
     for(;;)
     {
-        if(m_Assync->IsCancelled())
+        if(m_async->IsCancelled())
         {
             return FALSE;
         }
@@ -407,7 +407,7 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
         bRet=InternetWriteFile(hRequest, sBuffer.c_str(), dwBytesRead, &dwBytesWritten);
         if(!bRet)
         {
-            m_Assync->SetProgress(_T("Error uploading text part data."), 0);
+            m_async->SetProgress(_T("Error uploading text part data."), 0);
             return FALSE;
         }
         UploadProgress(dwBytesWritten);
@@ -417,25 +417,25 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
 
     /* Write part footer */
 
-    CString sFooter;
+    WTL::CString sFooter;
     bRet= FormatTextPartFooter(sName, sFooter);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error formatting text part footer."), 0);
+        m_async->SetProgress(_T("Error formatting text part footer."), 0);
         return FALSE;
     }
 
     LPCSTR pszFooter = strconv.t2a(sFooter);
     if(pszFooter==NULL)
     {
-        m_Assync->SetProgress(_T("Error converting text part footer to ASCII."), 0);
+        m_async->SetProgress(_T("Error converting text part footer to ASCII."), 0);
         return FALSE;
     }
 
     bRet=InternetWriteFile(hRequest, pszFooter, (DWORD)strlen(pszFooter), &dwBytesWritten);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error uploading text part footer."), 0);
+        m_async->SetProgress(_T("Error uploading text part footer."), 0);
         return FALSE;
     }
     UploadProgress(dwBytesWritten);
@@ -443,16 +443,16 @@ BOOL CHttpRequestSender::WriteTextPart(HINTERNET hRequest, CString sName)
     return TRUE;
 }
 
-BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
+BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, WTL::CString sName)
 {
     BOOL bRet = FALSE;
 
     /* Write part header */
-    CString sHeader;
+    WTL::CString sHeader;
     bRet= FormatAttachmentPartHeader(sName, sHeader);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error formatting attachment part header."), 0);
+        m_async->SetProgress(_T("Error formatting attachment part header."), 0);
         return FALSE;
     }
 
@@ -460,7 +460,7 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
     LPCSTR pszHeader = strconv.t2a(sHeader);
     if(pszHeader==NULL)
     {
-        m_Assync->SetProgress(_T("Error converting attachment part header to ASCII."), 0);
+        m_async->SetProgress(_T("Error converting attachment part header to ASCII."), 0);
         return FALSE;
     }
 
@@ -468,26 +468,26 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
     bRet=InternetWriteFile(hRequest, pszHeader, (DWORD)strlen(pszHeader), &dwBytesWritten);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error uploading attachment part header."), 0);
+        m_async->SetProgress(_T("Error uploading attachment part header."), 0);
         return FALSE;
     }
     UploadProgress(dwBytesWritten);
 
     /* Write attachment data */
 
-    std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
+    std::map<WTL::CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
     if(it==m_Request.m_aIncludedFiles.end())
     {
-        m_Assync->SetProgress(_T("Error searching for attachment part name."), 0);
+        m_async->SetProgress(_T("Error searching for attachment part name."), 0);
         return FALSE; 
     }
 
-    CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
+    WTL::CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
     HANDLE hFile = CreateFile(sFileName, 
         GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
     if(hFile==INVALID_HANDLE_VALUE)
     {    
-        m_Assync->SetProgress(_T("Error opening attachment file."), 0);
+        m_async->SetProgress(_T("Error opening attachment file."), 0);
         return FALSE; 
     }
 
@@ -495,13 +495,13 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
     DWORD dwBytesRead = 0;
     for(;;)
     {
-        if(m_Assync->IsCancelled())
+        if(m_async->IsCancelled())
             return FALSE;
 
         bRet = ReadFile(hFile, pBuffer, 1024, &dwBytesRead, NULL);
         if(!bRet)
         {
-            m_Assync->SetProgress(_T("Error reading data from attachment file."), 0);
+            m_async->SetProgress(_T("Error reading data from attachment file."), 0);
             CloseHandle(hFile);
             return FALSE;
         }
@@ -513,7 +513,7 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
         bRet=InternetWriteFile(hRequest, pBuffer, dwBytesRead, &dwBytesWritten);
         if(!bRet)
         {
-            m_Assync->SetProgress(_T("Error uploading attachment part data."), 0);
+            m_async->SetProgress(_T("Error uploading attachment part data."), 0);
             return FALSE;
         }
         UploadProgress(dwBytesWritten);
@@ -523,25 +523,25 @@ BOOL CHttpRequestSender::WriteAttachmentPart(HINTERNET hRequest, CString sName)
 
     /* Write part footer */
 
-    CString sFooter;
+    WTL::CString sFooter;
     bRet= FormatAttachmentPartFooter(sName, sFooter);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error formatting attachment part footer."), 0);
+        m_async->SetProgress(_T("Error formatting attachment part footer."), 0);
         return FALSE;
     }
 
     LPCSTR pszFooter = strconv.t2a(sFooter);
     if(pszFooter==NULL)
     {
-        m_Assync->SetProgress(_T("Error converting attachment part footer to ASCII."), 0);
+        m_async->SetProgress(_T("Error converting attachment part footer to ASCII."), 0);
         return FALSE;
     }
 
     bRet=InternetWriteFile(hRequest, pszFooter, (DWORD)strlen(pszFooter), &dwBytesWritten);
     if(!bRet)
     {
-        m_Assync->SetProgress(_T("Error uploading attachment part footer."), 0);
+        m_async->SetProgress(_T("Error uploading attachment part footer."), 0);
         return FALSE;
     }
     UploadProgress(dwBytesWritten);
@@ -553,7 +553,7 @@ BOOL CHttpRequestSender::WriteTrailingBoundary(HINTERNET hRequest)
 {
     BOOL bRet = FALSE;
 
-    CString sText;
+    WTL::CString sText;
     bRet= FormatTrailingBoundary(sText);
     if(!bRet)
         return FALSE;
@@ -574,9 +574,9 @@ BOOL CHttpRequestSender::WriteTrailingBoundary(HINTERNET hRequest)
 }
 
 
-BOOL CHttpRequestSender::FormatTextPartHeader(CString sName, CString& sPart)
+BOOL CHttpRequestSender::FormatTextPartHeader(WTL::CString sName, WTL::CString& sPart)
 {
-    std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
+    std::map<WTL::CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
     if(it==m_Request.m_aTextFields.end())
         return FALSE;
 
@@ -585,15 +585,15 @@ BOOL CHttpRequestSender::FormatTextPartHeader(CString sName, CString& sPart)
     return TRUE;
 }
 
-BOOL CHttpRequestSender::FormatTextPartFooter(CString sName, CString& sText)
+BOOL CHttpRequestSender::FormatTextPartFooter(WTL::CString sName, WTL::CString& sText)
 {
     sText = m_sTextPartFooterFmt;
     return TRUE;
 }
 
-BOOL CHttpRequestSender::FormatAttachmentPartHeader(CString sName, CString& sText)
+BOOL CHttpRequestSender::FormatAttachmentPartHeader(WTL::CString sName, WTL::CString& sText)
 {
-    std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
+    std::map<WTL::CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
     if(it==m_Request.m_aIncludedFiles.end())
         return FALSE; 
 
@@ -601,13 +601,13 @@ BOOL CHttpRequestSender::FormatAttachmentPartHeader(CString sName, CString& sTex
     return TRUE;
 }
 
-BOOL CHttpRequestSender::FormatAttachmentPartFooter(CString sName, CString& sText)
+BOOL CHttpRequestSender::FormatAttachmentPartFooter(WTL::CString sName, WTL::CString& sText)
 {
     sText = m_sFilePartFooterFmt;
     return TRUE;
 }  
 
-BOOL CHttpRequestSender::FormatTrailingBoundary(CString& sText)
+BOOL CHttpRequestSender::FormatTrailingBoundary(WTL::CString& sText)
 {
     sText.Format(_T("--%s--\r\n"), m_sBoundary);
     return TRUE;
@@ -618,7 +618,7 @@ BOOL CHttpRequestSender::CalcRequestSize(LONGLONG& lSize)
     lSize = 0;
 
     // Calculate summary size of all text fields included into request
-    std::map<CString, std::string>::iterator it;
+    std::map<WTL::CString, std::string>::iterator it;
     for(it=m_Request.m_aTextFields.begin(); it!=m_Request.m_aTextFields.end(); it++)
     {
         LONGLONG lPartSize;
@@ -629,7 +629,7 @@ BOOL CHttpRequestSender::CalcRequestSize(LONGLONG& lSize)
     }
 
     // Calculate summary size of all files included into report
-    std::map<CString, CHttpRequestFile>::iterator it2;
+    std::map<WTL::CString, CHttpRequestFile>::iterator it2;
     for(it2=m_Request.m_aIncludedFiles.begin(); it2!=m_Request.m_aIncludedFiles.end(); it2++)
     {
         LONGLONG lPartSize;
@@ -639,30 +639,30 @@ BOOL CHttpRequestSender::CalcRequestSize(LONGLONG& lSize)
         lSize += lPartSize;
     }
 
-    CString sTrailingBoundary;
+    WTL::CString sTrailingBoundary;
     FormatTrailingBoundary(sTrailingBoundary);
     lSize += sTrailingBoundary.GetLength();
 
     return TRUE;
 }
 
-BOOL CHttpRequestSender::CalcTextPartSize(CString sName, LONGLONG& lSize)
+BOOL CHttpRequestSender::CalcTextPartSize(WTL::CString sName, LONGLONG& lSize)
 {
     lSize = 0;
 
-    CString sPartHeader;
+    WTL::CString sPartHeader;
     BOOL bFormat = FormatTextPartHeader(sName, sPartHeader);
     if(!bFormat)
         return FALSE;
     lSize += sPartHeader.GetLength();
 
-    std::map<CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
+    std::map<WTL::CString, std::string>::iterator it = m_Request.m_aTextFields.find(sName);
     if(it==m_Request.m_aTextFields.end())
         return FALSE; 
 
     lSize += it->second.length();
 
-    CString sPartFooter;
+    WTL::CString sPartFooter;
     bFormat = FormatTextPartFooter(sName, sPartFooter);
     if(!bFormat)
         return FALSE;
@@ -671,21 +671,21 @@ BOOL CHttpRequestSender::CalcTextPartSize(CString sName, LONGLONG& lSize)
     return TRUE;
 }
 
-BOOL CHttpRequestSender::CalcAttachmentPartSize(CString sName, LONGLONG& lSize)
+BOOL CHttpRequestSender::CalcAttachmentPartSize(WTL::CString sName, LONGLONG& lSize)
 {
     lSize = 0;
 
-    CString sPartHeader;
+    WTL::CString sPartHeader;
     BOOL bFormat = FormatAttachmentPartHeader(sName, sPartHeader);
     if(!bFormat)
         return FALSE;
     lSize += sPartHeader.GetLength();
 
-    std::map<CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
+    std::map<WTL::CString, CHttpRequestFile>::iterator it = m_Request.m_aIncludedFiles.find(sName);
     if(it==m_Request.m_aIncludedFiles.end())
         return FALSE; 
 
-    CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
+    WTL::CString sFileName = it->second.m_sSrcFileName.GetBuffer(0);
     HANDLE hFile = CreateFile(sFileName, 
         GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL); 
     if(hFile==INVALID_HANDLE_VALUE)
@@ -704,7 +704,7 @@ BOOL CHttpRequestSender::CalcAttachmentPartSize(CString sName, LONGLONG& lSize)
     lSize += lFileSize.QuadPart;
     CloseHandle(hFile);
 
-    CString sPartFooter;
+    WTL::CString sPartFooter;
     bFormat = FormatAttachmentPartFooter(sName, sPartFooter);
     if(!bFormat)
         return FALSE;
@@ -719,7 +719,7 @@ void CHttpRequestSender::UploadProgress(DWORD dwBytesWritten)
     m_dwUploaded += dwBytesWritten;
 
     float progress = 100*(float)m_dwUploaded/m_dwPostSize;
-    m_Assync->SetProgress((int)progress, false);
+    m_async->SetProgress((int)progress, false);
 }
 
 // Parses URL and splits it into URL, port, protocol and so on. This method's code was taken from 
@@ -753,7 +753,7 @@ void CHttpRequestSender::ParseURL(LPCTSTR szURL, LPTSTR szProtocol, UINT cbProto
     DWORD dwStartPosition=0;
 
     if(bFlag){
-        dwStartPosition=dwPosition+=3;				
+        dwStartPosition=dwPosition+=3;
     }else{
         dwStartPosition=dwPosition=0;
     }

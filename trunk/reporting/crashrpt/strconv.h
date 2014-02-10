@@ -255,7 +255,7 @@ public:
 
     LPCSTR t2utf8(__in_opt LPCTSTR lpsz)
     {
-#ifdef UNICODE    
+#ifdef UNICODE
         return w2utf8(lpsz);
 #else
         return a2utf8(lpsz);
@@ -263,7 +263,7 @@ public:
     }
 
 private:
-    std::vector<void*> m_ConvertedStrings;  
+    std::vector<void*> m_ConvertedStrings;
 };
 
 #endif  //_STRCONV_H
